@@ -12,8 +12,8 @@ use ieee.numeric_std.all;
 ENTITY shared_enable IS
 GENERIC
 (
-	cycle_length : integer := 16; -- or 32...
-)
+	cycle_length : integer := 16 -- or 32...
+);
 PORT 
 ( 
 	CLK : IN STD_LOGIC;	

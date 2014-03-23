@@ -8,14 +8,15 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-USE ieee.math_real.log2;
 USE ieee.math_real.ceil;
+USE ieee.math_real.log2;
+use IEEE.STD_LOGIC_MISC.all;
 
 ENTITY antic IS
 GENERIC
 (
-	cycle_length : integer := 16; -- or 32...
-)
+	cycle_length : integer := 16 -- or 32...
+);
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
@@ -483,9 +484,10 @@ ARCHITECTURE vhdl OF antic IS
 	signal colour_clock_selected : std_logic;
 	signal colour_clock_selected_highres : std_logic;
 	
-	CONSTANT cycle_length_bits: integer = integer(ceil(log2(1.0*cycle_length)));
+	constant cycle_length_bits: integer := integer(ceil(log2(real(cycle_length))));
 	signal colour_clock_count_next : std_logic_vector(cycle_length_bits-1 downto 0);
 	signal colour_clock_count_reg : std_logic_vector(cycle_length_bits-1 downto 0);
+	signal colour_clock_count_reg_topthree : std_logic_vector(2 downto 0);
 	
 	signal memory_ready_both : std_logic;
 	
@@ -651,7 +653,9 @@ BEGIN
 	--enable_colour_clock_div : enable_divider
 		--generic map (COUNT=>7)
 		--port map(clk=>clk,reset_n=>reset_n,enable_in=>'1',enable_out=>enable_colour_clock);	
-	process(colour_clock_count_reg, ANTIC_ENABLE_179)		
+
+        colour_clock_count_reg_topthree <= colour_clock_count_reg(cycle_length_bits-1 downto cycle_length_bits-3);
+	process(colour_clock_count_reg, colour_clock_count_reg_topthree, ANTIC_ENABLE_179)		
 	begin
 		colour_clock_half_x <= '0';
 		colour_clock_1x<='0';
@@ -667,8 +671,8 @@ BEGIN
 
 		colour_clock_8x <= '1';
 		
-		if (or_reduce(colour_clock_count_reg( cycle_count_bits-4 downto 0) = '0') then
-			case colour_clock_count_reg(cycle_count_bits-1 downto cycle_count_bits-3) is
+		if (or_reduce(colour_clock_count_reg( cycle_length_bits-4 downto 0)) = '0') then
+			case colour_clock_count_reg_topthree is
 			when "000" =>
 				colour_clock_half_x <= '1';
 				colour_clock_1x <= '1';
