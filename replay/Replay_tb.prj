@@ -1,0 +1,6 @@
+
+verilog work ddr.v
+vhdl work Replay_I2C_CH7301.vhd
+vhdl work Replay_tb.vhd
+
+nosort

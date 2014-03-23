@@ -1,0 +1,21 @@
+diff -r ./antic.vhdl ../../../common/a8core/antic.vhdl
+NEEDS GENERIC FOR CYCLES, other than that TAKE REPLAY
+
+Only in .: sdram_statemachine.vhdl
+DELETED - TAKEN FROM MIST
+
+diff -r ./shared_enable.vhdl ../../../common/a8core/shared_enable.vhdl
+NEEDS GENERIC FOR CYCLES, other than that TAKE DE1 probably - scandoubler stuff?
+NEEDS A RETHINK REALLY... Replace?
+
+Only in .: zpu
+Only in .: zpu_config_regs.vhdl
+Only in .: zpu_core.vhd
+Only in .: zpu_glue.vhdl
+Only in .: zpupkg.vhd
+Only in .: zpu_ram.cmp
+Only in .: zpu_ram.qip
+Only in .: zpu_ram.vhd
+Only in .: zpu_rom.cmp
+Only in .: zpu_rom.qip
+Only in .: zpu_rom.vhd

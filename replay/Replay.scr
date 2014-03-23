@@ -1,0 +1,10 @@
+run
+-ifn Replay.prj
+-ifmt VHDL
+-ofn Replay.ngc
+-ofmt NGC
+-p XC3S1600E-FG320-4
+-opt_mode Area
+-opt_level 1
+-keep_hierarchy yes
+-top Replay_Top

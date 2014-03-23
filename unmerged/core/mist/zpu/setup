@@ -1,0 +1,1 @@
+export PATH=${PATH}:/home/markw/altera/atari_xe_fpga/zpu/zpugcc/toolchain/install/bin

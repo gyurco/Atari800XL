@@ -1,0 +1,11 @@
+DE1 first
+DE1 ported to MCC
+  -- changes:
+	
+MCC ported to MIST
+MIST ported to Replay
+
+So replay has latest core version!
+TAKE THAT...
+
+Then copy core specific bits to their own dir...

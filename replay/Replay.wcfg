@@ -1,0 +1,1973 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="Replay.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="numeric_std" />
+            <top_module name="replay_ddrctrl_pack" />
+            <top_module name="replay_pack" />
+            <top_module name="replay_tb" />
+            <top_module name="replay_translateps2_pack" />
+            <top_module name="replay_videotiming_pack" />
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_textio" />
+            <top_module name="std_logic_unsigned" />
+            <top_module name="t65_pack" />
+            <top_module name="textio" />
+            <top_module name="vcomponents" />
+            <top_module name="vital_primitives" />
+            <top_module name="vital_timing" />
+            <top_module name="vl_types" />
+            <top_module name="vpkg" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="439" />
+   <wave_markers>
+      <marker time="176223965008000" label="" />
+      <marker time="176305111888000" label="" />
+      <marker time="5280905469000" label="" />
+      <marker time="176560308000" label="" />
+   </wave_markers>
+   <wvobject fp_name="divider65" type="divider">
+      <obj_property name="label">TOP</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_2v5_io_0" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_2v5_io_0</obj_property>
+      <obj_property name="ObjectShortName">b_2v5_io_0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_2v5_io_1" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_2v5_io_1</obj_property>
+      <obj_property name="ObjectShortName">b_2v5_io_1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_aux_io" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">b_aux_io[39:0]</obj_property>
+      <obj_property name="ObjectShortName">b_aux_io[39:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_clk_aux" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_clk_aux</obj_property>
+      <obj_property name="ObjectShortName">b_clk_aux</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_fpga_spi_miso" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_fpga_spi_miso</obj_property>
+      <obj_property name="ObjectShortName">b_fpga_spi_miso</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_fpga_spi_mosi" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_fpga_spi_mosi</obj_property>
+      <obj_property name="ObjectShortName">b_fpga_spi_mosi</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_io" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">b_io[54:0]</obj_property>
+      <obj_property name="ObjectShortName">b_io[54:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_mem_dq" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">b_mem_dq[15:0]</obj_property>
+      <obj_property name="ObjectShortName">b_mem_dq[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_mem_ldqs" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_mem_ldqs</obj_property>
+      <obj_property name="ObjectShortName">b_mem_ldqs</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_mem_udqs" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_mem_udqs</obj_property>
+      <obj_property name="ObjectShortName">b_mem_udqs</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_ps2a_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_ps2a_clk</obj_property>
+      <obj_property name="ObjectShortName">b_ps2a_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_ps2a_data" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_ps2a_data</obj_property>
+      <obj_property name="ObjectShortName">b_ps2a_data</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_ps2b_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_ps2b_clk</obj_property>
+      <obj_property name="ObjectShortName">b_ps2b_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_ps2b_data" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_ps2b_data</obj_property>
+      <obj_property name="ObjectShortName">b_ps2b_data</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_scl" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_scl</obj_property>
+      <obj_property name="ObjectShortName">b_scl</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_sda" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_sda</obj_property>
+      <obj_property name="ObjectShortName">b_sda</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_video_ddc_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_video_ddc_clk</obj_property>
+      <obj_property name="ObjectShortName">b_video_ddc_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_video_ddc_data" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_video_ddc_data</obj_property>
+      <obj_property name="ObjectShortName">b_video_ddc_data</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_video_spc" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_video_spc</obj_property>
+      <obj_property name="ObjectShortName">b_video_spc</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/b_video_spd" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">b_video_spd</obj_property>
+      <obj_property name="ObjectShortName">b_video_spd</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/cfg_cal_sel" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cfg_cal_sel[1:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_cal_sel[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/cfg_ctrl" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cfg_ctrl[15:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_ctrl[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/cfg_dynamic" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cfg_dynamic[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_dynamic[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/cfg_fileio" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cfg_fileio[7:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_fileio[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/cfg_fileio_i" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cfg_fileio_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_fileio_i[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/cfg_phase" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cfg_phase[7:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_phase[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/cfg_static" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cfg_static[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cfg_static[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/clk_a" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_a</obj_property>
+      <obj_property name="ObjectShortName">clk_a</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/clk_aud" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_aud</obj_property>
+      <obj_property name="ObjectShortName">clk_aud</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/clk_b" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_b</obj_property>
+      <obj_property name="ObjectShortName">clk_b</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/clk_c" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_c</obj_property>
+      <obj_property name="ObjectShortName">clk_c</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/clk_capture" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_capture</obj_property>
+      <obj_property name="ObjectShortName">clk_capture</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/clk_ctl" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_ctl</obj_property>
+      <obj_property name="ObjectShortName">clk_ctl</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/clk_ram" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_ram</obj_property>
+      <obj_property name="ObjectShortName">clk_ram</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/clk_ram_90" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_ram_90</obj_property>
+      <obj_property name="ObjectShortName">clk_ram_90</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/clk_spi" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_spi</obj_property>
+      <obj_property name="ObjectShortName">clk_spi</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/clk_sys" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_sys</obj_property>
+      <obj_property name="ObjectShortName">clk_sys</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/clk_vid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_vid</obj_property>
+      <obj_property name="ObjectShortName">clk_vid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/clk_vid_90" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_vid_90</obj_property>
+      <obj_property name="ObjectShortName">clk_vid_90</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/core_audio_l" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">core_audio_l[23:0]</obj_property>
+      <obj_property name="ObjectShortName">core_audio_l[23:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/core_audio_r" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">core_audio_r[23:0]</obj_property>
+      <obj_property name="ObjectShortName">core_audio_r[23:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/core_ps2_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">core_ps2_clk</obj_property>
+      <obj_property name="ObjectShortName">core_ps2_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/core_ps2_data" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">core_ps2_data</obj_property>
+      <obj_property name="ObjectShortName">core_ps2_data</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/core_vid_rgb" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">core_vid_rgb[23:0]</obj_property>
+      <obj_property name="ObjectShortName">core_vid_rgb[23:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/core_vid_std" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">core_vid_std</obj_property>
+      <obj_property name="ObjectShortName">core_vid_std</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/core_vid_sync" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">core_vid_sync</obj_property>
+      <obj_property name="ObjectShortName">core_vid_sync</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/core_vid_timing" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">core_vid_timing</obj_property>
+      <obj_property name="ObjectShortName">core_vid_timing</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/diskid_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">diskid_s[15:0]</obj_property>
+      <obj_property name="ObjectShortName">diskid_s[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/dla_mem_enable" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">dla_mem_enable</obj_property>
+      <obj_property name="ObjectShortName">dla_mem_enable</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/drive_scl_low" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">drive_scl_low</obj_property>
+      <obj_property name="ObjectShortName">drive_scl_low</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/drive_sda_low" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">drive_sda_low</obj_property>
+      <obj_property name="ObjectShortName">drive_sda_low</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/drive_spc_low" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">drive_spc_low</obj_property>
+      <obj_property name="ObjectShortName">drive_spc_low</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/drive_spd_low" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">drive_spd_low</obj_property>
+      <obj_property name="ObjectShortName">drive_spd_low</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ena_sub1" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ena_sub1</obj_property>
+      <obj_property name="ObjectShortName">ena_sub1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ena_sub4" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ena_sub4</obj_property>
+      <obj_property name="ObjectShortName">ena_sub4</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ena_sys" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ena_sys</obj_property>
+      <obj_property name="ObjectShortName">ena_sys</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ena_sys_c1" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ena_sys_c1</obj_property>
+      <obj_property name="ObjectShortName">ena_sys_c1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ena_sys_ddr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ena_sys_ddr</obj_property>
+      <obj_property name="ObjectShortName">ena_sys_ddr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ena_vid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ena_vid</obj_property>
+      <obj_property name="ObjectShortName">ena_vid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/extmem_addr_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">extmem_addr_s[15:0]</obj_property>
+      <obj_property name="ObjectShortName">extmem_addr_s[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/extmem_datai_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">extmem_datai_s[7:0]</obj_property>
+      <obj_property name="ObjectShortName">extmem_datai_s[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/extmem_datao_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">extmem_datao_s[7:0]</obj_property>
+      <obj_property name="ObjectShortName">extmem_datao_s[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/extmem_r_wn_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">extmem_r_wn_s</obj_property>
+      <obj_property name="ObjectShortName">extmem_r_wn_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/extmem_sel_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">extmem_sel_s</obj_property>
+      <obj_property name="ObjectShortName">extmem_sel_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/halt_soft" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">halt_soft</obj_property>
+      <obj_property name="ObjectShortName">halt_soft</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/hp_ddr_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">hp_ddr_addr[25:0]</obj_property>
+      <obj_property name="ObjectShortName">hp_ddr_addr[25:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/hp_ddr_taken" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">hp_ddr_taken</obj_property>
+      <obj_property name="ObjectShortName">hp_ddr_taken</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/hp_ddr_valid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">hp_ddr_valid</obj_property>
+      <obj_property name="ObjectShortName">hp_ddr_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/hp_ddr_we" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">hp_ddr_we</obj_property>
+      <obj_property name="ObjectShortName">hp_ddr_we</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/hp_rdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">hp_rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">hp_rdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/hp_wbe" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">hp_wbe[3:0]</obj_property>
+      <obj_property name="ObjectShortName">hp_wbe[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/hp_wdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">hp_wdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">hp_wdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/hp_wl" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">hp_wl</obj_property>
+      <obj_property name="ObjectShortName">hp_wl</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/i_aux_ip" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_aux_ip[22:0]</obj_property>
+      <obj_property name="ObjectShortName">i_aux_ip[22:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/i_ext_rst_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_ext_rst_l</obj_property>
+      <obj_property name="ObjectShortName">i_ext_rst_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/i_fpga_ctrl0" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_fpga_ctrl0</obj_property>
+      <obj_property name="ObjectShortName">i_fpga_ctrl0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/i_fpga_ctrl1" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_fpga_ctrl1</obj_property>
+      <obj_property name="ObjectShortName">i_fpga_ctrl1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/i_fpga_spi_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_fpga_spi_clk</obj_property>
+      <obj_property name="ObjectShortName">i_fpga_spi_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/i_joy_a" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_joy_a[5:0]</obj_property>
+      <obj_property name="ObjectShortName">i_joy_a[5:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/i_joy_b" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_joy_b[5:0]</obj_property>
+      <obj_property name="ObjectShortName">i_joy_b[5:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/i_rs232_cts" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_rs232_cts</obj_property>
+      <obj_property name="ObjectShortName">i_rs232_cts</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/i_rs232_rxd" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_rs232_rxd</obj_property>
+      <obj_property name="ObjectShortName">i_rs232_rxd</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/i_video_int" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_video_int</obj_property>
+      <obj_property name="ObjectShortName">i_video_int</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/init_diskinsert_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">init_diskinsert_s</obj_property>
+      <obj_property name="ObjectShortName">init_diskinsert_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/inscnt_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">inscnt_s[18:0]</obj_property>
+      <obj_property name="ObjectShortName">inscnt_s[18:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/kb_inhibit" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">kb_inhibit</obj_property>
+      <obj_property name="ObjectShortName">kb_inhibit</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/kb_led" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">kb_led[2:0]</obj_property>
+      <obj_property name="ObjectShortName">kb_led[2:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/kb_ps2" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">kb_ps2[7:0]</obj_property>
+      <obj_property name="ObjectShortName">kb_ps2[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/kb_we" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">kb_we</obj_property>
+      <obj_property name="ObjectShortName">kb_we</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/led" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">led</obj_property>
+      <obj_property name="ObjectShortName">led</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">mch_addr[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_addr_int" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_addr_int[31:0]</obj_property>
+      <obj_property name="ObjectShortName">mch_addr_int[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_addr_last_lsb" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_addr_last_lsb</obj_property>
+      <obj_property name="ObjectShortName">mch_addr_last_lsb</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">mch_data[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_ddr_rd_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_ddr_rd_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">mch_ddr_rd_data[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_ddr_rd_we" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_ddr_rd_we</obj_property>
+      <obj_property name="ObjectShortName">mch_ddr_rd_we</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_ddr_taken" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_ddr_taken</obj_property>
+      <obj_property name="ObjectShortName">mch_ddr_taken</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_ram_rd_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_ram_rd_data[0:0]</obj_property>
+      <obj_property name="ObjectShortName">mch_ram_rd_data[0:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_ram_rd_we" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_ram_rd_we[0:0]</obj_property>
+      <obj_property name="ObjectShortName">mch_ram_rd_we[0:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_ram_taken" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_ram_taken[0:0]</obj_property>
+      <obj_property name="ObjectShortName">mch_ram_taken[0:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_rd_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_rd_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">mch_rd_data[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_rd_we" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_rd_we</obj_property>
+      <obj_property name="ObjectShortName">mch_rd_we</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_read" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_read</obj_property>
+      <obj_property name="ObjectShortName">mch_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_read_int" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_read_int</obj_property>
+      <obj_property name="ObjectShortName">mch_read_int</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_taken" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_taken</obj_property>
+      <obj_property name="ObjectShortName">mch_taken</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mch_valid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mch_valid</obj_property>
+      <obj_property name="ObjectShortName">mch_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/conf_ai_core" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">conf_ai_core[15:0]</obj_property>
+      <obj_property name="ObjectShortName">conf_ai_core[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/conf_ai_int" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">conf_ai_int[15:0]</obj_property>
+      <obj_property name="ObjectShortName">conf_ai_int[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/conf_di_core" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">conf_di_core[7:0]</obj_property>
+      <obj_property name="ObjectShortName">conf_di_core[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/conf_taken" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">conf_taken</obj_property>
+      <obj_property name="ObjectShortName">conf_taken</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/conf_valid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">conf_valid</obj_property>
+      <obj_property name="ObjectShortName">conf_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/conf_wr_1541" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">conf_wr_1541</obj_property>
+      <obj_property name="ObjectShortName">conf_wr_1541</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/conf_wr_core" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">conf_wr_core</obj_property>
+      <obj_property name="ObjectShortName">conf_wr_core</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/conf_write" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">conf_write</obj_property>
+      <obj_property name="ObjectShortName">conf_write</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/conf_write_p" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">conf_write_p</obj_property>
+      <obj_property name="ObjectShortName">conf_write_p</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/media_adr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">media_adr[17:0]</obj_property>
+      <obj_property name="ObjectShortName">media_adr[17:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/media_dat" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">media_dat[7:0]</obj_property>
+      <obj_property name="ObjectShortName">media_dat[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/media_read" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">media_read</obj_property>
+      <obj_property name="ObjectShortName">media_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mode_1541" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mode_1541</obj_property>
+      <obj_property name="ObjectShortName">mode_1541</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/mode_prg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mode_prg</obj_property>
+      <obj_property name="ObjectShortName">mode_prg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ms_butn" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ms_butn[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ms_butn[2:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ms_posx" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ms_posx[11:0]</obj_property>
+      <obj_property name="ObjectShortName">ms_posx[11:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ms_posy" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ms_posy[11:0]</obj_property>
+      <obj_property name="ObjectShortName">ms_posy[11:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ms_we" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ms_we</obj_property>
+      <obj_property name="ObjectShortName">ms_we</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_audio_bckin" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_audio_bckin</obj_property>
+      <obj_property name="ObjectShortName">o_audio_bckin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_audio_din" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_audio_din</obj_property>
+      <obj_property name="ObjectShortName">o_audio_din</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_audio_lrcin" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_audio_lrcin</obj_property>
+      <obj_property name="ObjectShortName">o_audio_lrcin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_audio_mclk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_audio_mclk</obj_property>
+      <obj_property name="ObjectShortName">o_audio_mclk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_clk_68k" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_clk_68k</obj_property>
+      <obj_property name="ObjectShortName">o_clk_68k</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_disk_led" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_disk_led</obj_property>
+      <obj_property name="ObjectShortName">o_disk_led</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_mem_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_mem_addr[14:0]</obj_property>
+      <obj_property name="ObjectShortName">o_mem_addr[14:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_mem_cas" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_mem_cas</obj_property>
+      <obj_property name="ObjectShortName">o_mem_cas</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_mem_cke" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_mem_cke</obj_property>
+      <obj_property name="ObjectShortName">o_mem_cke</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_mem_clk_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_mem_clk_n</obj_property>
+      <obj_property name="ObjectShortName">o_mem_clk_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_mem_clk_p" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_mem_clk_p</obj_property>
+      <obj_property name="ObjectShortName">o_mem_clk_p</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_mem_cs" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_mem_cs</obj_property>
+      <obj_property name="ObjectShortName">o_mem_cs</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_mem_ldm" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_mem_ldm</obj_property>
+      <obj_property name="ObjectShortName">o_mem_ldm</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_mem_ras" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_mem_ras</obj_property>
+      <obj_property name="ObjectShortName">o_mem_ras</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_mem_udm" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_mem_udm</obj_property>
+      <obj_property name="ObjectShortName">o_mem_udm</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_mem_we" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_mem_we</obj_property>
+      <obj_property name="ObjectShortName">o_mem_we</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_pwr_led" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_pwr_led</obj_property>
+      <obj_property name="ObjectShortName">o_pwr_led</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_rs232_rts" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_rs232_rts</obj_property>
+      <obj_property name="ObjectShortName">o_rs232_rts</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_rs232_txd" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_rs232_txd</obj_property>
+      <obj_property name="ObjectShortName">o_rs232_txd</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_ssc_rd" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_ssc_rd</obj_property>
+      <obj_property name="ObjectShortName">o_ssc_rd</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_video_clk_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_video_clk_n</obj_property>
+      <obj_property name="ObjectShortName">o_video_clk_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_video_clk_p" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_video_clk_p</obj_property>
+      <obj_property name="ObjectShortName">o_video_clk_p</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_video_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_video_data[11:0]</obj_property>
+      <obj_property name="ObjectShortName">o_video_data[11:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_video_de" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_video_de</obj_property>
+      <obj_property name="ObjectShortName">o_video_de</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_video_h" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_video_h</obj_property>
+      <obj_property name="ObjectShortName">o_video_h</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_video_hsync" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_video_hsync</obj_property>
+      <obj_property name="ObjectShortName">o_video_hsync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_video_rst_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_video_rst_l</obj_property>
+      <obj_property name="ObjectShortName">o_video_rst_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_video_v" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_video_v</obj_property>
+      <obj_property name="ObjectShortName">o_video_v</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/o_video_vsync" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_video_vsync</obj_property>
+      <obj_property name="ObjectShortName">o_video_vsync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/phy_audio_taken" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">phy_audio_taken</obj_property>
+      <obj_property name="ObjectShortName">phy_audio_taken</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ps2a_drive_clk_low" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ps2a_drive_clk_low</obj_property>
+      <obj_property name="ObjectShortName">ps2a_drive_clk_low</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ps2a_drive_data_low" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ps2a_drive_data_low</obj_property>
+      <obj_property name="ObjectShortName">ps2a_drive_data_low</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ps2b_drive_clk_low" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ps2b_drive_clk_low</obj_property>
+      <obj_property name="ObjectShortName">ps2b_drive_clk_low</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ps2b_drive_data_low" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ps2b_drive_data_low</obj_property>
+      <obj_property name="ObjectShortName">ps2b_drive_data_low</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ram_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ram_addr[24:2]</obj_property>
+      <obj_property name="ObjectShortName">ram_addr[24:2]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ram_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ram_data[63:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_data[63:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ram_r_w_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ram_r_w_l</obj_property>
+      <obj_property name="ObjectShortName">ram_r_w_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/ram_valid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ram_valid</obj_property>
+      <obj_property name="ObjectShortName">ram_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/rst_aud" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_aud</obj_property>
+      <obj_property name="ObjectShortName">rst_aud</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/rst_capture" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_capture</obj_property>
+      <obj_property name="ObjectShortName">rst_capture</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/rst_ctl" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_ctl</obj_property>
+      <obj_property name="ObjectShortName">rst_ctl</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/rst_ctl_hard" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_ctl_hard</obj_property>
+      <obj_property name="ObjectShortName">rst_ctl_hard</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/rst_ram" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_ram</obj_property>
+      <obj_property name="ObjectShortName">rst_ram</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/rst_soft" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_soft</obj_property>
+      <obj_property name="ObjectShortName">rst_soft</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/rst_sys" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_sys</obj_property>
+      <obj_property name="ObjectShortName">rst_sys</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/rst_vid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_vid</obj_property>
+      <obj_property name="ObjectShortName">rst_vid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/rst_vid_hard" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_vid_hard</obj_property>
+      <obj_property name="ObjectShortName">rst_vid_hard</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/spi_fileio_cs_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">spi_fileio_cs_l</obj_property>
+      <obj_property name="ObjectShortName">spi_fileio_cs_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/spi_fileio_miso" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">spi_fileio_miso</obj_property>
+      <obj_property name="ObjectShortName">spi_fileio_miso</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/spi_syscon_cs_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">spi_syscon_cs_l</obj_property>
+      <obj_property name="ObjectShortName">spi_syscon_cs_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/spi_syscon_miso" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">spi_syscon_miso</obj_property>
+      <obj_property name="ObjectShortName">spi_syscon_miso</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/syscon_vid_rgb" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">syscon_vid_rgb[23:0]</obj_property>
+      <obj_property name="ObjectShortName">syscon_vid_rgb[23:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/syscon_vid_sync" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">syscon_vid_sync</obj_property>
+      <obj_property name="ObjectShortName">syscon_vid_sync</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/tick" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">tick</obj_property>
+      <obj_property name="ObjectShortName">tick</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/tick_ctl_100us" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">tick_ctl_100us</obj_property>
+      <obj_property name="ObjectShortName">tick_ctl_100us</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/tick_ctl_1us" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">tick_ctl_1us</obj_property>
+      <obj_property name="ObjectShortName">tick_ctl_1us</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/tick_pre1" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">tick_pre1</obj_property>
+      <obj_property name="ObjectShortName">tick_pre1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/writeprotn_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">writeprotn_s</obj_property>
+      <obj_property name="ObjectShortName">writeprotn_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider65" type="divider">
+      <obj_property name="label">DDR</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_clk_ram" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_clk_ram</obj_property>
+      <obj_property name="ObjectShortName">i_clk_ram</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_clk_ram_90" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_clk_ram_90</obj_property>
+      <obj_property name="ObjectShortName">i_clk_ram_90</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_rst_ram" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_rst_ram</obj_property>
+      <obj_property name="ObjectShortName">i_rst_ram</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_clk_capture" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_clk_capture</obj_property>
+      <obj_property name="ObjectShortName">i_clk_capture</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_rst_capture" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_rst_capture</obj_property>
+      <obj_property name="ObjectShortName">i_rst_capture</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_clk_sys" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_clk_sys</obj_property>
+      <obj_property name="ObjectShortName">i_clk_sys</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_ena_sys" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_ena_sys</obj_property>
+      <obj_property name="ObjectShortName">i_ena_sys</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_ena_sys_c1" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_ena_sys_c1</obj_property>
+      <obj_property name="ObjectShortName">i_ena_sys_c1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_rst_sys" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_rst_sys</obj_property>
+      <obj_property name="ObjectShortName">i_rst_sys</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_ram_ba" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_ram_ba[1:0]</obj_property>
+      <obj_property name="ObjectShortName">o_ram_ba[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_ram_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_ram_addr[12:0]</obj_property>
+      <obj_property name="ObjectShortName">o_ram_addr[12:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_ram_cs_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_ram_cs_l</obj_property>
+      <obj_property name="ObjectShortName">o_ram_cs_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_ram_we_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_ram_we_l</obj_property>
+      <obj_property name="ObjectShortName">o_ram_we_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_ram_ras_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_ram_ras_l</obj_property>
+      <obj_property name="ObjectShortName">o_ram_ras_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_ram_cas_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_ram_cas_l</obj_property>
+      <obj_property name="ObjectShortName">o_ram_cas_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_ram_dm_l" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_ram_dm_l[1:0]</obj_property>
+      <obj_property name="ObjectShortName">o_ram_dm_l[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/b_ram_dqs" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">b_ram_dqs[1:0]</obj_property>
+      <obj_property name="ObjectShortName">b_ram_dqs[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/b_ram_dq" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">b_ram_dq[15:0]</obj_property>
+      <obj_property name="ObjectShortName">b_ram_dq[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_ram_cke" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_ram_cke</obj_property>
+      <obj_property name="ObjectShortName">o_ram_cke</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_ram_ck_p" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_ram_ck_p</obj_property>
+      <obj_property name="ObjectShortName">o_ram_ck_p</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_ram_ck_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_ram_ck_n</obj_property>
+      <obj_property name="ObjectShortName">o_ram_ck_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_cfg_cal_sel" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_cfg_cal_sel[1:0]</obj_property>
+      <obj_property name="ObjectShortName">i_cfg_cal_sel[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_cfg_ready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_cfg_ready</obj_property>
+      <obj_property name="ObjectShortName">o_cfg_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_cfg_present" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_cfg_present</obj_property>
+      <obj_property name="ObjectShortName">o_cfg_present</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_hp_valid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_hp_valid</obj_property>
+      <obj_property name="ObjectShortName">i_hp_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_hp_taken" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_hp_taken</obj_property>
+      <obj_property name="ObjectShortName">o_hp_taken</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_hp_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_hp_addr[25:2]</obj_property>
+      <obj_property name="ObjectShortName">i_hp_addr[25:2]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_hp_rw_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_hp_rw_l</obj_property>
+      <obj_property name="ObjectShortName">i_hp_rw_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_hp_w_be" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_hp_w_be[3:0]</obj_property>
+      <obj_property name="ObjectShortName">i_hp_w_be[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_hp_w_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_hp_w_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">i_hp_w_data[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_hp_r_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_hp_r_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">o_hp_r_data[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_hp_r_we" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_hp_r_we</obj_property>
+      <obj_property name="ObjectShortName">o_hp_r_we</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_lp_valid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_lp_valid</obj_property>
+      <obj_property name="ObjectShortName">i_lp_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_lp_taken" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_lp_taken</obj_property>
+      <obj_property name="ObjectShortName">o_lp_taken</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_lp_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_lp_addr[25:0]</obj_property>
+      <obj_property name="ObjectShortName">i_lp_addr[25:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_lp_rw_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_lp_rw_l</obj_property>
+      <obj_property name="ObjectShortName">i_lp_rw_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/i_lp_w_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_lp_w_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">i_lp_w_data[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_lp_r_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_lp_r_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">o_lp_r_data[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/o_lp_r_we" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_lp_r_we</obj_property>
+      <obj_property name="ObjectShortName">o_lp_r_we</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/ena_sys_t1" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ena_sys_t1</obj_property>
+      <obj_property name="ObjectShortName">ena_sys_t1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/ena_sys_t2" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ena_sys_t2</obj_property>
+      <obj_property name="ObjectShortName">ena_sys_t2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/ena_sys_t3" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ena_sys_t3</obj_property>
+      <obj_property name="ObjectShortName">ena_sys_t3</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/hp_valid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">hp_valid</obj_property>
+      <obj_property name="ObjectShortName">hp_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/hp_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">hp_addr[25:2]</obj_property>
+      <obj_property name="ObjectShortName">hp_addr[25:2]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/hp_rw_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">hp_rw_l</obj_property>
+      <obj_property name="ObjectShortName">hp_rw_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/hp_w_be" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">hp_w_be[3:0]</obj_property>
+      <obj_property name="ObjectShortName">hp_w_be[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/hp_w_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">hp_w_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">hp_w_data[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/lp_valid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">lp_valid</obj_property>
+      <obj_property name="ObjectShortName">lp_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/lp_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">lp_addr[25:2]</obj_property>
+      <obj_property name="ObjectShortName">lp_addr[25:2]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/lp_r_sel" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">lp_r_sel[1:0]</obj_property>
+      <obj_property name="ObjectShortName">lp_r_sel[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/lp_rw_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">lp_rw_l</obj_property>
+      <obj_property name="ObjectShortName">lp_rw_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/lp_w_be" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">lp_w_be[3:0]</obj_property>
+      <obj_property name="ObjectShortName">lp_w_be[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/lp_w_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">lp_w_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">lp_w_data[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/phase" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">phase[3:0]</obj_property>
+      <obj_property name="ObjectShortName">phase[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/start_a" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">start_a</obj_property>
+      <obj_property name="ObjectShortName">start_a</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/start_b" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">start_b</obj_property>
+      <obj_property name="ObjectShortName">start_b</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/cur_hp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cur_hp</obj_property>
+      <obj_property name="ObjectShortName">cur_hp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/cur_lp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cur_lp</obj_property>
+      <obj_property name="ObjectShortName">cur_lp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/cur_read" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cur_read</obj_property>
+      <obj_property name="ObjectShortName">cur_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/ref_req_in" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ref_req_in</obj_property>
+      <obj_property name="ObjectShortName">ref_req_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/ref_req" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ref_req</obj_property>
+      <obj_property name="ObjectShortName">ref_req</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/sys_taken_meta1" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sys_taken_meta1</obj_property>
+      <obj_property name="ObjectShortName">sys_taken_meta1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/sys_taken" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sys_taken</obj_property>
+      <obj_property name="ObjectShortName">sys_taken</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/sys_cur_hp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sys_cur_hp</obj_property>
+      <obj_property name="ObjectShortName">sys_cur_hp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/sys_cur_lp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sys_cur_lp</obj_property>
+      <obj_property name="ObjectShortName">sys_cur_lp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/sys_cur_read" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sys_cur_read</obj_property>
+      <obj_property name="ObjectShortName">sys_cur_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/ready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ready</obj_property>
+      <obj_property name="ObjectShortName">ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">addr[23:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[23:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/rw_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rw_l</obj_property>
+      <obj_property name="ObjectShortName">rw_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/w_be" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">w_be[3:0]</obj_property>
+      <obj_property name="ObjectShortName">w_be[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/w_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">w_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">w_data[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/valid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">valid</obj_property>
+      <obj_property name="ObjectShortName">valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/valid_hp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">valid_hp</obj_property>
+      <obj_property name="ObjectShortName">valid_hp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/taken" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">taken</obj_property>
+      <obj_property name="ObjectShortName">taken</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/r_buf_ena" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_buf_ena</obj_property>
+      <obj_property name="ObjectShortName">r_buf_ena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/r_buf_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">r_buf_addr[3:0]</obj_property>
+      <obj_property name="ObjectShortName">r_buf_addr[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/r_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">r_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">r_data[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/r_load_hp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_load_hp</obj_property>
+      <obj_property name="ObjectShortName">r_load_hp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/r_we_hp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_we_hp</obj_property>
+      <obj_property name="ObjectShortName">r_we_hp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/r_we_lp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_we_lp</obj_property>
+      <obj_property name="ObjectShortName">r_we_lp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_DDRCtrl/g_lp_big_endian" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">g_lp_big_endian</obj_property>
+      <obj_property name="ObjectShortName">g_lp_big_endian</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider300" type="divider">
+      <obj_property name="label">VIC-20</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/i_sysclk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_sysclk</obj_property>
+      <obj_property name="ObjectShortName">i_sysclk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/i_sysclk_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_sysclk_en</obj_property>
+      <obj_property name="ObjectShortName">i_sysclk_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/i_reset" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_reset</obj_property>
+      <obj_property name="ObjectShortName">i_reset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/atn_o" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">atn_o</obj_property>
+      <obj_property name="ObjectShortName">atn_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/atn_i" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">atn_i</obj_property>
+      <obj_property name="ObjectShortName">atn_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/clk_o" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_o</obj_property>
+      <obj_property name="ObjectShortName">clk_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/clk_i" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_i</obj_property>
+      <obj_property name="ObjectShortName">clk_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/data_o" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">data_o</obj_property>
+      <obj_property name="ObjectShortName">data_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/data_i" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">data_i</obj_property>
+      <obj_property name="ObjectShortName">data_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/i_joy" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_joy[3:0]</obj_property>
+      <obj_property name="ObjectShortName">i_joy[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/i_fire" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_fire</obj_property>
+      <obj_property name="ObjectShortName">i_fire</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/i_cart_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_cart_en</obj_property>
+      <obj_property name="ObjectShortName">i_cart_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/i_cart_ro" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_cart_ro</obj_property>
+      <obj_property name="ObjectShortName">i_cart_ro</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/i_ram_ext" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_ram_ext[3:0]</obj_property>
+      <obj_property name="ObjectShortName">i_ram_ext[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/o_video_r" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_video_r[3:0]</obj_property>
+      <obj_property name="ObjectShortName">o_video_r[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/o_video_g" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_video_g[3:0]</obj_property>
+      <obj_property name="ObjectShortName">o_video_g[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/o_video_b" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_video_b[3:0]</obj_property>
+      <obj_property name="ObjectShortName">o_video_b[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/o_hsync" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_hsync</obj_property>
+      <obj_property name="ObjectShortName">o_hsync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/o_vsync" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_vsync</obj_property>
+      <obj_property name="ObjectShortName">o_vsync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/o_de" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_de</obj_property>
+      <obj_property name="ObjectShortName">o_de</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/o_matrix_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_matrix_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">o_matrix_in[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/i_matrix_out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_matrix_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">i_matrix_out[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/i_restore_out" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_restore_out</obj_property>
+      <obj_property name="ObjectShortName">i_restore_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/o_audio" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_audio[15:0]</obj_property>
+      <obj_property name="ObjectShortName">o_audio[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/o_extmem_sel" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_extmem_sel</obj_property>
+      <obj_property name="ObjectShortName">o_extmem_sel</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/o_extmem_r_wn" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_extmem_r_wn</obj_property>
+      <obj_property name="ObjectShortName">o_extmem_r_wn</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/o_extmem_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_extmem_addr[15:0]</obj_property>
+      <obj_property name="ObjectShortName">o_extmem_addr[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/i_extmem_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_extmem_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">i_extmem_data[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/o_extmem_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_extmem_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">o_extmem_data[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/debug" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">debug[32:0]</obj_property>
+      <obj_property name="ObjectShortName">debug[32:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/debugi" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">debugi[2:0]</obj_property>
+      <obj_property name="ObjectShortName">debugi[2:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/conf_wr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">conf_wr</obj_property>
+      <obj_property name="ObjectShortName">conf_wr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/conf_ai" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">conf_ai[15:0]</obj_property>
+      <obj_property name="ObjectShortName">conf_ai[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/conf_di" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">conf_di[7:0]</obj_property>
+      <obj_property name="ObjectShortName">conf_di[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/reset_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">reset_l</obj_property>
+      <obj_property name="ObjectShortName">reset_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/ena_4" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ena_4</obj_property>
+      <obj_property name="ObjectShortName">ena_4</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/reset_l_sampled" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">reset_l_sampled</obj_property>
+      <obj_property name="ObjectShortName">reset_l_sampled</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/c_ena" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">c_ena</obj_property>
+      <obj_property name="ObjectShortName">c_ena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/c_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">c_addr[23:0]</obj_property>
+      <obj_property name="ObjectShortName">c_addr[23:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/c_din" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">c_din[7:0]</obj_property>
+      <obj_property name="ObjectShortName">c_din[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/c_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">c_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">c_dout[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/c_rw_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">c_rw_l</obj_property>
+      <obj_property name="ObjectShortName">c_rw_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/c_irq_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">c_irq_l</obj_property>
+      <obj_property name="ObjectShortName">c_irq_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/c_nmi_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">c_nmi_l</obj_property>
+      <obj_property name="ObjectShortName">c_nmi_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/io_sel_l" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">io_sel_l[3:0]</obj_property>
+      <obj_property name="ObjectShortName">io_sel_l[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/blk_sel_l" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">blk_sel_l[7:0]</obj_property>
+      <obj_property name="ObjectShortName">blk_sel_l[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/ram_sel_l" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ram_sel_l[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_sel_l[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/vic_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">vic_addr[13:0]</obj_property>
+      <obj_property name="ObjectShortName">vic_addr[13:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/vic_oe_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vic_oe_l</obj_property>
+      <obj_property name="ObjectShortName">vic_oe_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/vic_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">vic_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">vic_dout[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/vic_din" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">vic_din[11:0]</obj_property>
+      <obj_property name="ObjectShortName">vic_din[11:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/p2_h" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">p2_h</obj_property>
+      <obj_property name="ObjectShortName">p2_h</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/ena_1mhz" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ena_1mhz</obj_property>
+      <obj_property name="ObjectShortName">ena_1mhz</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/via1_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">via1_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">via1_dout[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/via2_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">via2_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">via2_dout[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/vic_audio" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">vic_audio[5:0]</obj_property>
+      <obj_property name="ObjectShortName">vic_audio[5:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/lp_output" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">lp_output[15:0]</obj_property>
+      <obj_property name="ObjectShortName">lp_output[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/lp_filtered" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">lp_filtered[15:0]</obj_property>
+      <obj_property name="ObjectShortName">lp_filtered[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/v_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">v_addr[13:0]</obj_property>
+      <obj_property name="ObjectShortName">v_addr[13:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/v_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">v_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">v_data[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/v_data_oe_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">v_data_oe_l</obj_property>
+      <obj_property name="ObjectShortName">v_data_oe_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/v_data_read_mux" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">v_data_read_mux[7:0]</obj_property>
+      <obj_property name="ObjectShortName">v_data_read_mux[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/v_data_read_muxr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">v_data_read_muxr[7:0]</obj_property>
+      <obj_property name="ObjectShortName">v_data_read_muxr[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/v_rw_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">v_rw_l</obj_property>
+      <obj_property name="ObjectShortName">v_rw_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/col_ram_sel_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">col_ram_sel_l</obj_property>
+      <obj_property name="ObjectShortName">col_ram_sel_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/ram0_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ram0_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ram0_dout[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/ram45_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ram45_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ram45_dout[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/ram67_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ram67_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ram67_dout[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/col_ram_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">col_ram_dout[3:0]</obj_property>
+      <obj_property name="ObjectShortName">col_ram_dout[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/ram1_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ram1_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ram1_dout[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/ram23_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ram23_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ram23_dout[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/extmem_8" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">extmem_8[7:0]</obj_property>
+      <obj_property name="ObjectShortName">extmem_8[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/extmem_16" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">extmem_16[7:0]</obj_property>
+      <obj_property name="ObjectShortName">extmem_16[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/extmem_24" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">extmem_24[7:0]</obj_property>
+      <obj_property name="ObjectShortName">extmem_24[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/char_rom_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">char_rom_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">char_rom_dout[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/basic_rom_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">basic_rom_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">basic_rom_dout[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/kernal_rom_dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">kernal_rom_dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">kernal_rom_dout[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/expansion_din" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">expansion_din[7:0]</obj_property>
+      <obj_property name="ObjectShortName">expansion_din[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/expansion_nmi_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">expansion_nmi_l</obj_property>
+      <obj_property name="ObjectShortName">expansion_nmi_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/expansion_irq_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">expansion_irq_l</obj_property>
+      <obj_property name="ObjectShortName">expansion_irq_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/via1_nmi_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">via1_nmi_l</obj_property>
+      <obj_property name="ObjectShortName">via1_nmi_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/via1_pa_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">via1_pa_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">via1_pa_in[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/via1_pa_out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">via1_pa_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">via1_pa_out[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/via2_irq_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">via2_irq_l</obj_property>
+      <obj_property name="ObjectShortName">via2_irq_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/cass_write" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cass_write</obj_property>
+      <obj_property name="ObjectShortName">cass_write</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/cass_read" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cass_read</obj_property>
+      <obj_property name="ObjectShortName">cass_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/cass_motor" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cass_motor</obj_property>
+      <obj_property name="ObjectShortName">cass_motor</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/cass_sw" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cass_sw</obj_property>
+      <obj_property name="ObjectShortName">cass_sw</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/keybd_col_out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">keybd_col_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">keybd_col_out[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/keybd_col_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">keybd_col_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">keybd_col_in[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/keybd_col_oe_l" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">keybd_col_oe_l[7:0]</obj_property>
+      <obj_property name="ObjectShortName">keybd_col_oe_l[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/keybd_row_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">keybd_row_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">keybd_row_in[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/keybd_restore" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">keybd_restore</obj_property>
+      <obj_property name="ObjectShortName">keybd_restore</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/joy" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">joy[3:0]</obj_property>
+      <obj_property name="ObjectShortName">joy[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/light_pen" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">light_pen</obj_property>
+      <obj_property name="ObjectShortName">light_pen</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/serial_srq_in" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">serial_srq_in</obj_property>
+      <obj_property name="ObjectShortName">serial_srq_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/serial_atn_out_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">serial_atn_out_l</obj_property>
+      <obj_property name="ObjectShortName">serial_atn_out_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/serial_atn_in" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">serial_atn_in</obj_property>
+      <obj_property name="ObjectShortName">serial_atn_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/serial_clk_out_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">serial_clk_out_l</obj_property>
+      <obj_property name="ObjectShortName">serial_clk_out_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/serial_clk_in" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">serial_clk_in</obj_property>
+      <obj_property name="ObjectShortName">serial_clk_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/serial_data_out_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">serial_data_out_l</obj_property>
+      <obj_property name="ObjectShortName">serial_data_out_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/serial_data_in" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">serial_data_in</obj_property>
+      <obj_property name="ObjectShortName">serial_data_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/user_port_cb1_in" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">user_port_cb1_in</obj_property>
+      <obj_property name="ObjectShortName">user_port_cb1_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/user_port_cb1_out" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">user_port_cb1_out</obj_property>
+      <obj_property name="ObjectShortName">user_port_cb1_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/user_port_cb1_oe_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">user_port_cb1_oe_l</obj_property>
+      <obj_property name="ObjectShortName">user_port_cb1_oe_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/user_port_cb2_in" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">user_port_cb2_in</obj_property>
+      <obj_property name="ObjectShortName">user_port_cb2_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/user_port_cb2_out" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">user_port_cb2_out</obj_property>
+      <obj_property name="ObjectShortName">user_port_cb2_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/user_port_cb2_oe_l" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">user_port_cb2_oe_l</obj_property>
+      <obj_property name="ObjectShortName">user_port_cb2_oe_l</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/user_port_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">user_port_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">user_port_in[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/user_port_out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">user_port_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">user_port_out[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/user_port_oe_l" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">user_port_oe_l[7:0]</obj_property>
+      <obj_property name="ObjectShortName">user_port_oe_l[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/sw_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sw_reg[3:0]</obj_property>
+      <obj_property name="ObjectShortName">sw_reg[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/extmem" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">extmem</obj_property>
+      <obj_property name="ObjectShortName">extmem</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/video_r" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">video_r[3:0]</obj_property>
+      <obj_property name="ObjectShortName">video_r[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/video_g" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">video_g[3:0]</obj_property>
+      <obj_property name="ObjectShortName">video_g[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/video_b" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">video_b[3:0]</obj_property>
+      <obj_property name="ObjectShortName">video_b[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/hsync" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">hsync</obj_property>
+      <obj_property name="ObjectShortName">hsync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/vsync" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vsync</obj_property>
+      <obj_property name="ObjectShortName">vsync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/csync" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">csync</obj_property>
+      <obj_property name="ObjectShortName">csync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/de" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">de</obj_property>
+      <obj_property name="ObjectShortName">de</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/ext_dla_cpu_debug" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">ext_dla_cpu_debug</obj_property>
+      <obj_property name="ObjectShortName">ext_dla_cpu_debug</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/k_offset" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">k_offset[4:0]</obj_property>
+      <obj_property name="ObjectShortName">k_offset[4:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/disable_24k" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">disable_24k</obj_property>
+      <obj_property name="ObjectShortName">disable_24k</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/disable_16k" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">disable_16k</obj_property>
+      <obj_property name="ObjectShortName">disable_16k</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/vic20/cartridge_4k" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">cartridge_4k</obj_property>
+      <obj_property name="ObjectShortName">cartridge_4k</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider65" type="divider">
+      <obj_property name="label">FLOPPY</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/clk_i" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_i</obj_property>
+      <obj_property name="ObjectShortName">clk_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/clk_en4_i" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_en4_i</obj_property>
+      <obj_property name="ObjectShortName">clk_en4_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/rst_i" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_i</obj_property>
+      <obj_property name="ObjectShortName">rst_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/floppy_avail_i" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">floppy_avail_i</obj_property>
+      <obj_property name="ObjectShortName">floppy_avail_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/motor_on_i" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">motor_on_i</obj_property>
+      <obj_property name="ObjectShortName">motor_on_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/mode_i" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mode_i</obj_property>
+      <obj_property name="ObjectShortName">mode_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/write_prot_ni" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">write_prot_ni</obj_property>
+      <obj_property name="ObjectShortName">write_prot_ni</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/step_i" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">step_i[1:0]</obj_property>
+      <obj_property name="ObjectShortName">step_i[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/soe_i" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">soe_i</obj_property>
+      <obj_property name="ObjectShortName">soe_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/rate_ctrl_i" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">rate_ctrl_i[1:0]</obj_property>
+      <obj_property name="ObjectShortName">rate_ctrl_i[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/byte_ready_o" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">byte_ready_o</obj_property>
+      <obj_property name="ObjectShortName">byte_ready_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/sync_o" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sync_o</obj_property>
+      <obj_property name="ObjectShortName">sync_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/gcr_data_o" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">gcr_data_o[7:0]</obj_property>
+      <obj_property name="ObjectShortName">gcr_data_o[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/debug_o" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">debug_o[34:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_o[34:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/track_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">track_s[8:0]</obj_property>
+      <obj_property name="ObjectShortName">track_s[8:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/new_track_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">new_track_s</obj_property>
+      <obj_property name="ObjectShortName">new_track_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/region_lut_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">region_lut_s[41:0]</obj_property>
+      <obj_property name="ObjectShortName">region_lut_s[41:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/region_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">region_s[1:0]</obj_property>
+      <obj_property name="ObjectShortName">region_s[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/sector_lut_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sector_lut_s[3:0]</obj_property>
+      <obj_property name="ObjectShortName">sector_lut_s[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/sectors_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sectors_s[4:0]</obj_property>
+      <obj_property name="ObjectShortName">sectors_s[4:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/sector_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sector_s[7:0]</obj_property>
+      <obj_property name="ObjectShortName">sector_s[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/data_crc_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">data_crc_s[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_crc_s[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/bit_time_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bit_time_s[1:0]</obj_property>
+      <obj_property name="ObjectShortName">bit_time_s[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/bit_timer_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bit_timer_s[3:0]</obj_property>
+      <obj_property name="ObjectShortName">bit_timer_s[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/bit_square_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bit_square_s</obj_property>
+      <obj_property name="ObjectShortName">bit_square_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/bit_tick_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bit_tick_s</obj_property>
+      <obj_property name="ObjectShortName">bit_tick_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/gcr_shifter_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">gcr_shifter_s[17:0]</obj_property>
+      <obj_property name="ObjectShortName">gcr_shifter_s[17:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/gcr_bitcnt_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">gcr_bitcnt_s[2:0]</obj_property>
+      <obj_property name="ObjectShortName">gcr_bitcnt_s[2:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/gcr_nextbyte_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">gcr_nextbyte_s</obj_property>
+      <obj_property name="ObjectShortName">gcr_nextbyte_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/gcr_cnt10_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">gcr_cnt10_s[3:0]</obj_property>
+      <obj_property name="ObjectShortName">gcr_cnt10_s[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/gcr_nextgbyte_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">gcr_nextgbyte_s</obj_property>
+      <obj_property name="ObjectShortName">gcr_nextgbyte_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/sync_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sync_s</obj_property>
+      <obj_property name="ObjectShortName">sync_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/byte_ready_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">byte_ready_s</obj_property>
+      <obj_property name="ObjectShortName">byte_ready_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/sync_as" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sync_as</obj_property>
+      <obj_property name="ObjectShortName">sync_as</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/byte_ready_as" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">byte_ready_as</obj_property>
+      <obj_property name="ObjectShortName">byte_ready_as</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/gcr_shiftin_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">gcr_shiftin_s[9:0]</obj_property>
+      <obj_property name="ObjectShortName">gcr_shiftin_s[9:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/gcr_data_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">gcr_data_s[9:0]</obj_property>
+      <obj_property name="ObjectShortName">gcr_data_s[9:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/track_cnt_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">track_cnt_s[7:0]</obj_property>
+      <obj_property name="ObjectShortName">track_cnt_s[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/trackstate_s" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">trackstate_s</obj_property>
+      <obj_property name="ObjectShortName">trackstate_s</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/nib2gcr_lut_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">nib2gcr_lut_s[15:0]</obj_property>
+      <obj_property name="ObjectShortName">nib2gcr_lut_s[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/start_adr_lut_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">start_adr_lut_s[0:41]</obj_property>
+      <obj_property name="ObjectShortName">start_adr_lut_s[0:41]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/bin_data_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bin_data_s[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bin_data_s[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/media_adr_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">media_adr_s[17:0]</obj_property>
+      <obj_property name="ObjectShortName">media_adr_s[17:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/diskid_i" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">diskid_i[15:0]</obj_property>
+      <obj_property name="ObjectShortName">diskid_i[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/media_read_o" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">media_read_o</obj_property>
+      <obj_property name="ObjectShortName">media_read_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/media_adr_o" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">media_adr_o[17:0]</obj_property>
+      <obj_property name="ObjectShortName">media_adr_o[17:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/replay_tb/u_Replay/u_Core/c1541/disk_stream/media_dat_i" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">media_dat_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">media_dat_i[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+</wave_config>

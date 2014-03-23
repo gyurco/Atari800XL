@@ -1,0 +1,20 @@
+Version 1
+---------
+Initial source release
+
+Version 2
+---------
+Initial release that runs on Replay
+Disks can be loaded via SIO2PC (P1 jumper to FPGA, serial cable to PC, run aspeqt)
+No internal floppy emulation in this release (i.e. no loading from SD card)
+Running pretty well, but a few small things to fix - such as it seems to be impossible to press option in time to boot!
+A lot of the DE1 code has been stripped from this version, but there is still considerable cruft...
+For now memory config is fixed and ROM is built in.
+
+Version 3
+---------
+Memory and rom selectable from replay menu
+Improvements to video out
+PAL/NTSC bits fixed
+
+

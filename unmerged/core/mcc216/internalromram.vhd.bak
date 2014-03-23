@@ -1,0 +1,19 @@
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+USE ieee.std_logic_arith.all;
+USE ieee.std_logic_unsigned.all;
+
+ENTITY internalromram IS
+  PORT(
+    clock   : IN     STD_LOGIC;                             --system clock
+    reset_n : IN     STD_LOGIC;                             --asynchronous reset
+	 
+END internalromram;
+
+
+	IROM_DATA <= IROMLO_DATA when addr(15 downto 12)=X"D" else IROMHI_DATA;		
+		if (int_ram = '1') then
+		
+			if (not(addr(15 downto 13) = "000")) then
+				USE_RAM_DATA <= X"FF";
+				RAM_WR_ENABLE <= '0'; -- ban writes over 8k when using int ram - HACK

@@ -1,0 +1,2250 @@
+diff -ur mist/address_decoder.vhdl ../../common/a8core/address_decoder.vhdl
+--- mist/address_decoder.vhdl	2014-03-09 20:12:21.000000000 +0000
++++ ../../common/a8core/address_decoder.vhdl	2014-03-23 08:03:29.673482072 +0000
+@@ -315,6 +315,8 @@
+ 					cpu_fetch_real_next <= '1';
+ 				when "000" =>
+ 					-- no requests
++				when others =>
++					-- nop
+ 				end case;
+ 			when state_waiting_antic =>
+ 				if (request_complete = '1') then
+@@ -331,6 +333,8 @@
+ 					notify_cpu <= '1';
+ 					state_next <= state_idle;
+ 				end if;				
++			when others =>
++				-- NOP
+ 		end case;
+ 	end process;
+ 	
+@@ -723,6 +727,8 @@
+ 					sdram_chip_select <= start_request;
+ 					request_complete <= sdram_request_COMPLETE;	
+ 					SDRAM_ADDR <= addr_next(22 downto 0);				
++				when others =>
++					-- NOP
+ 			end case;
+ 		end if;
+ 		
+Only in mist/: address_decoder.vhdl.bak
+diff -ur mist/antic.vhdl ../../common/a8core/antic.vhdl
+--- mist/antic.vhdl	2014-01-18 11:23:43.000000000 +0000
++++ ../../common/a8core/antic.vhdl	2014-03-23 08:03:29.677482072 +0000
+@@ -47,7 +47,9 @@
+ 	refresh_out : out std_logic; -- used by sdram
+ 	
+ 	-- for debugging
+-	dma_clock_out : out std_logic
++	dma_clock_out : out std_logic;
++	hcount_out : out std_logic_vector(7 downto 0);
++	vcount_out : out std_logic_vector(8 downto 0)
+ );
+ END antic;
+ 
+@@ -475,10 +477,11 @@
+ 	signal colour_clock_selected : std_logic;
+ 	signal colour_clock_selected_highres : std_logic;
+ 	
+-	signal colour_clock_count_next : std_logic_vector(4 downto 0);
+-	signal colour_clock_count_reg : std_logic_vector(4 downto 0);
++	-- TODO - these should change with cycle_length...
++	signal colour_clock_count_next : std_logic_vector(3 downto 0);
++	signal colour_clock_count_reg : std_logic_vector(3 downto 0);
+ 	
+-	constant cycle_length : integer := 32;	
++	constant cycle_length : integer := 16;	
+ 	
+ 	signal memory_ready_both : std_logic;
+ 	
+@@ -655,34 +658,34 @@
+ 		colour_clock_count_next <= std_logic_vector(unsigned(colour_clock_count_reg) + 1);
+ 		
+ 		if (ANTIC_ENABLE_179 = '1') then -- resync...
+-			colour_clock_count_next <= "00001";
++			colour_clock_count_next <= "0001";
+ 		end if;
+ 
+ 		colour_clock_8x <= '1';
+ 		
+-		case colour_clock_count_reg(4 downto 0) is
+-		when "00000" =>
++		case colour_clock_count_reg(3 downto 0) is
++		when "0000" =>
+ 			colour_clock_half_x <= '1';
+ 			colour_clock_1x <= '1';
+ 			colour_clock_2x <= '1';
+ 			colour_clock_4x <= '1';
+-		when "00100" =>
++		when "0010" =>
+ 			colour_clock_4x <= '1';
+-		when "01000" =>
++		when "0100" =>
+ 			colour_clock_2x <= '1';			
+ 			colour_clock_4x <= '1';			
+-		when "01100" =>
++		when "0110" =>
+ 			colour_clock_4x <= '1';
+-		when "10000" =>			
++		when "1000" =>			
+ 			colour_clock_1x <= '1';
+ 			colour_clock_2x <= '1';
+ 			colour_clock_4x <= '1';
+-		when "10100" =>
++		when "1010" =>
+ 			colour_clock_4x <= '1';
+-		when "11000" =>
++		when "1100" =>
+ 			colour_clock_2x <= '1';			
+ 			colour_clock_4x <= '1';			
+-		when "11100" =>
++		when "1110" =>
+ 			colour_clock_4x <= '1';			
+ 		when others =>
+ 			-- nop
+@@ -1155,6 +1158,8 @@
+ 				medium_dma_s <= '1';
+ 			when fast_dma =>
+ 				fast_dma_s <= '1';
++			when others =>
++				-- nothing
+ 		end case;
+ 	end process;
+ 	
+@@ -1399,6 +1404,8 @@
+ 				shift_rate_next <= fast_shift;
+ 				shift_twobit_next <= '1';
+ 				twopixel_next <= '1';
++			when others =>
++				-- nothing
+ 				
+ 		end case;
+ 	end process;
+@@ -1591,6 +1598,8 @@
+ 						an_current <= "101";			
+ 					when "11" =>
+ 						an_current <= "11"&delay_display_shift_reg(4);										
++					when others =>
++						-- nop
+ 				end case;				
+ 			end if;
+ 			
+@@ -1604,6 +1613,8 @@
+ 						an_current <= "101";			
+ 					when "11" =>
+ 						an_current <= "110";										
++					when others =>
++						-- nop
+ 				end case;
+ 			end if;
+ 		else
+@@ -1819,6 +1830,9 @@
+ 	COLOUR_CLOCK_ORIGINAL_OUT <= colour_clock_1x;
+ 	COLOUR_CLOCK_OUT <= colour_clock_selected;
+ 	HIGHRES_COLOUR_CLOCK_OUT <= colour_clock_selected_highres;
++
++	vcount_out <= vcount_reg;
++	hcount_out <= hcount_reg;
+ 	
+ END vhdl;
+ 
+Only in mist/: antic.vhdl.bak
+Only in mist/: atari800core_assignment_defaults.qdf
+Only in mist/: atari800core.jdi
+Only in mist/: atari800core.qpf
+Only in mist/: atari800core.qsf
+Only in mist/: atari800core.qsf~
+Only in mist/: atari800core.qsf.bak
+Only in mist/: atari800core.qws
+Only in mist/: atari800core.sdc
+Only in mist/: atari800core.sdc.bak
+diff -ur mist/atari800core.vhd ../../common/a8core/atari800core.vhd
+--- mist/atari800core.vhd	2014-03-12 05:00:20.000000000 +0000
++++ ../../common/a8core/atari800core.vhd	2014-03-23 08:03:29.697482071 +0000
+@@ -1,4 +1,3 @@
+--- Copyright (C) 1991-2012 Altera Corporation
+ -- Your use of Altera Corporation's design tools, logic functions 
+ -- and other software and tools, and its AMPP partner logic 
+ -- functions, and any output files from any of the foregoing 
+@@ -18,6 +17,7 @@
+ 
+ LIBRARY ieee;
+ USE ieee.std_logic_1164.all; 
++use IEEE.STD_LOGIC_MISC.all;
+ use ieee.numeric_std.all;
+ 
+ LIBRARY work;
+@@ -25,91 +25,49 @@
+ ENTITY atari800core IS 
+ 	PORT
+ 	(
+-		CLOCK_27 :  IN  STD_LOGIC_VECTOR(1 downto 0);
+---		PS2K_CLK :  IN  STD_LOGIC;
+---		PS2K_DAT :  IN  STD_LOGIC;
+---		PS2M_CLK :  IN  STD_LOGIC;
+---		PS2M_DAT :  IN  STD_LOGIC;		
++		CLK :  IN  STD_LOGIC;
++		PLL_LOCKED: IN STD_LOGIC;
+ 
+ 		VGA_VS :  OUT  STD_LOGIC;
+ 		VGA_HS :  OUT  STD_LOGIC;
+-		VGA_B :  OUT  STD_LOGIC_VECTOR(5 DOWNTO 0);
+-		VGA_G :  OUT  STD_LOGIC_VECTOR(5 DOWNTO 0);
+-		VGA_R :  OUT  STD_LOGIC_VECTOR(5 DOWNTO 0);
++		VGA_B :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
++		VGA_G :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
++		VGA_R :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
+ 		
+---		JOY1_n :  IN  STD_LOGIC_VECTOR(5 DOWNTO 0);
+---		JOY2_n :  IN  STD_LOGIC_VECTOR(5 DOWNTO 0);
++		JOY1_n :  IN  STD_LOGIC_VECTOR(5 DOWNTO 0);
++		JOY2_n :  IN  STD_LOGIC_VECTOR(5 DOWNTO 0);
++
++		matrix_out : in std_logic_vector(15 downto 0);
++		matrix_in : out std_logic_vector(7 downto 0);
++		static_keys : in std_logic_vector(6 downto 0);
++		pause_key : in std_logic;
+ 		
+-		AUDIO_L : OUT std_logic;
+-		AUDIO_R : OUT std_logic;
++		AUDIO_L : OUT std_logic_vector(15 downto 0);
++		AUDIO_R : OUT std_logic_vector(15 downto 0);
+ 
+-		SDRAM_BA :  OUT  STD_LOGIC_VECTOR(1 downto 0);
+-		SDRAM_nCS :  OUT  STD_LOGIC;
+-		SDRAM_nRAS :  OUT  STD_LOGIC;
+-		SDRAM_nCAS :  OUT  STD_LOGIC;
+-		SDRAM_nWE :  OUT  STD_LOGIC;
+-		SDRAM_DQMH :  OUT  STD_LOGIC;
+-		SDRAM_DQML :  OUT  STD_LOGIC;
+-		SDRAM_CLK :  OUT  STD_LOGIC;
+-		SDRAM_CKE :  OUT  STD_LOGIC;
+-		SDRAM_A :  OUT  STD_LOGIC_VECTOR(12 DOWNTO 0);
+-		SDRAM_DQ :  INOUT  STD_LOGIC_VECTOR(15 DOWNTO 0);
+-
+---		SD_DAT0 :  IN  STD_LOGIC;
+---		SD_CLK :  OUT  STD_LOGIC;
+---		SD_CMD :  OUT  STD_LOGIC;
+---		SD_DAT3 :  OUT  STD_LOGIC
++		SDRAM_REQUEST : OUT std_logic;
++		SDRAM_REQUEST_COMPLETE : IN std_logic;
++		SDRAM_READ_ENABLE : out STD_LOGIC;
++		SDRAM_WRITE_ENABLE : out std_logic;
++		SDRAM_DI : out std_logic_vector(31 downto 0);
++		SDRAM_ADDR : out STD_LOGIC_VECTOR(22 DOWNTO 0);
++		SDRAM_DO : in STD_LOGIC_VECTOR(31 DOWNTO 0);
++		SDRAM_WIDTH_8bit_ACCESS : out std_logic;
++		SDRAM_WIDTH_16bit_ACCESS : out std_logic;
++		SDRAM_WIDTH_32bit_ACCESS : out std_logic;
++
++		SIO_RXD : in std_logic;
++		SIO_TXD : out std_logic;
++		SIO_COMMAND_TX : out std_logic;
+ 
+-		LED : OUT std_logic;
+-		
+-		UART_TX :  OUT  STD_LOGIC;
+-		UART_RX :  IN  STD_LOGIC;
+-		
+-		SPI_DO :  INOUT  STD_LOGIC;
+-		SPI_DI :  IN  STD_LOGIC;
+-		SPI_SCK :  IN  STD_LOGIC;
+-		SPI_SS2 :  IN  STD_LOGIC;		
+-		SPI_SS3 :  IN  STD_LOGIC;		
+-		SPI_SS4 :  IN  STD_LOGIC;
+-		CONF_DATA0 :  IN  STD_LOGIC -- AKA SPI_SS5
++   		ram_select : in std_logic_vector(2 downto 0);
++    		rom_select : in std_logic_vector(5 downto 0);
++
++		halt : in std_logic
+ 	);
+ END atari800core;
+ 
+ ARCHITECTURE bdf_type OF atari800core IS 
+---
+---component generic_ram_infer IS
+---	generic
+---	(
+---		ADDRESS_WIDTH : natural := 9;
+---		SPACE : natural := 512;
+---		DATA_WIDTH : natural := 8
+---	);
+---   PORT
+---   (
+---      clock: IN   std_logic;
+---      data:  IN   std_logic_vector (data_width-1 DOWNTO 0);
+---      address:  IN   std_logic_vector(address_width-1 downto 0);
+---      we:    IN   std_logic;
+---      q:     OUT  std_logic_vector (data_width-1 DOWNTO 0)
+---   );
+---END component;
+-
+-component mist_sector_buffer IS
+-	PORT
+-	(
+-		address_a		: IN STD_LOGIC_VECTOR (8 DOWNTO 0);
+-		address_b		: IN STD_LOGIC_VECTOR (6 DOWNTO 0);
+-		clock_a		: IN STD_LOGIC  := '1';
+-		clock_b		: IN STD_LOGIC ;
+-		data_a		: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+-		data_b		: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+-		wren_a		: IN STD_LOGIC  := '0';
+-		wren_b		: IN STD_LOGIC  := '0';
+-		q_a		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+-		q_b		: OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+-	);
+-END component;
+-
+ component synchronizer IS
+ PORT 
+ ( 
+@@ -119,46 +77,6 @@
+ );
+ END component;
+ 
+-component data_io IS 
+-	PORT
+-	(
+-		CLK : in std_logic;
+-		RESET_n : in std_logic;
+-		
+-		-- SPI connection - up to upstream to make miso 'Z' on ss_io going high
+-	   SPI_CLK : in std_logic;
+-	   SPI_SS_IO : in std_logic;
+-	   SPI_MISO: out std_logic;
+-	   SPI_MOSI : in std_logic;
+-		
+-		-- Sector access request
+-		request : in std_logic;
+-		sector : in std_logic_vector(23 downto 0);
+-		ready : out std_logic;
+-		
+-		-- DMA to RAM
+-		ADDR: out std_logic_vector(8 downto 0);
+-		DATA_OUT : out std_logic_vector(7 downto 0);
+-		DATA_IN : in std_logic_vector(7 downto 0);
+-		WR_EN : out std_logic
+-	 );
+-end component;
+-
+-component user_io
+-	PORT(
+-	   SPI_CLK : in std_logic;
+-	   SPI_SS_IO : in std_logic;
+-	   SPI_MISO : out std_logic;
+-	   SPI_MOSI : in std_logic;
+-	   CORE_TYPE : in std_logic_vector(7 downto 0);
+-		JOY0 : out std_logic_vector(5 downto 0);
+-		JOY1 : out std_logic_vector(5 downto 0);
+-		KEYBOARD : out std_logic_vector(127 downto 0);
+-		BUTTONS : out std_logic_vector(1 downto 0);
+-		SWITCHES : out std_logic_vector(1 downto 0)
+-	  );
+-end component;
+-
+ COMPONENT complete_address_decoder IS
+ generic (width : natural := 1);
+ PORT 
+@@ -185,16 +103,6 @@
+ 	);
+ END COMPONENT;
+ 
+-component hq_dac
+-port (
+-  reset :in std_logic;
+-  clk :in std_logic;
+-  clk_ena : in std_logic;
+-  pcm_in : in std_logic_vector(19 downto 0);
+-  dac_out : out std_logic
+-);
+-end component;
+-
+ component internalromram IS
+   PORT(
+     clock   : IN     STD_LOGIC;                             --system clock
+@@ -235,21 +143,14 @@
+ 		 dma_fetch_out : OUT STD_LOGIC;
+ 		 refresh_out : OUT STD_LOGIC;
+ 		 dma_clock_out : OUT STD_LOGIC;
++		 hcount_out : out std_logic_vector(7 downto 0);
++		 vcount_out : out std_logic_vector(8 downto 0);
+ 		 AN : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+ 		 DATA_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+ 		 dma_address_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+ 	);
+ END COMPONENT;
+ 
+-COMPONENT ledsw
+-	PORT(CLK : IN STD_LOGIC;
+-		 KEY : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+-		 SW : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+-		 SYNC_KEYS : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+-		 SYNC_SWITCHES : OUT STD_LOGIC_VECTOR(9 DOWNTO 0)
+-	);
+-END COMPONENT;
+-
+ COMPONENT pokey_mixer
+ 	PORT(CLK : IN STD_LOGIC;
+ 		 GTIA_SOUND : IN STD_LOGIC;
+@@ -264,18 +165,6 @@
+ 	);
+ END COMPONENT;
+ 
+-COMPONENT ps2_keyboard
+-	PORT(CLK : IN STD_LOGIC;
+-		 RESET_N : IN STD_LOGIC;
+-		 PS2_CLK : IN STD_LOGIC;
+-		 PS2_DAT : IN STD_LOGIC;
+-		 KEY_EVENT : OUT STD_LOGIC;
+-		 KEY_EXTENDED : OUT STD_LOGIC;
+-		 KEY_UP : OUT STD_LOGIC;
+-		 KEY_VALUE : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+-	);
+-END COMPONENT;
+-
+ COMPONENT zpu_glue
+ 	PORT(CLK : IN STD_LOGIC;
+ 		 RESET : IN STD_LOGIC;
+@@ -380,29 +269,6 @@
+ 	);
+ END COMPONENT;
+ 
+-COMPONENT pokey_ps2_decoder
+-	PORT(CLK : IN STD_LOGIC;
+-		 RESET_N : IN STD_LOGIC;
+-		 KEY_EVENT : IN STD_LOGIC;
+-		 KEY_EXTENDED : IN STD_LOGIC;
+-		 KEY_UP : IN STD_LOGIC;
+-		 KEY_CODE : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+-		 KEY_HELD : OUT STD_LOGIC;
+-		 SHIFT_PRESSED : OUT STD_LOGIC;
+-		 BREAK_PRESSED : OUT STD_LOGIC;
+-		 KEY_INTERRUPT : OUT STD_LOGIC;
+-		 CONSOL_START : OUT STD_LOGIC;
+-		 CONSOL_SELECT : OUT STD_LOGIC;
+-		 CONSOL_OPTION : OUT STD_LOGIC;
+-		 SYSTEM_RESET : OUT STD_LOGIC;
+-		 KBCODE : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+-		 VIRTUAL_STICKS : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+-		 VIRTUAL_TRIGGER : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+-		 VIRTUAL_KEYS : out std_logic_vector(3 downto 0)
+-	);
+-END COMPONENT;
+-
+-
+ COMPONENT address_decoder
+ 	PORT(CLK : IN STD_LOGIC;
+ 		 CPU_FETCH : IN STD_LOGIC;
+@@ -479,84 +345,6 @@
+ 	);
+ END COMPONENT;
+ 
+-COMPONENT sdram_statemachine
+-GENERIC (ADDRESS_WIDTH : INTEGER;
+-			AP_BIT : INTEGER;
+-			COLUMN_WIDTH : INTEGER;
+-			ROW_WIDTH : INTEGER
+-			);
+-	PORT(CLK_SYSTEM : IN STD_LOGIC;
+-		 CLK_SDRAM : IN STD_LOGIC;
+-		 RESET_N : IN STD_LOGIC;
+-		 READ_EN : IN STD_LOGIC;
+-		 WRITE_EN : IN STD_LOGIC;
+-		 REQUEST : IN STD_LOGIC;
+-		 BYTE_ACCESS : IN STD_LOGIC;
+-		 WORD_ACCESS : IN STD_LOGIC;
+-		 LONGWORD_ACCESS : IN STD_LOGIC;
+-		 REFRESH : IN STD_LOGIC;
+-		 ADDRESS_IN : IN STD_LOGIC_VECTOR(22 DOWNTO 0);
+-		 DATA_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+-		 SDRAM_DQ : INOUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+-		 COMPLETE : OUT STD_LOGIC;
+-		 SDRAM_BA0 : OUT STD_LOGIC;
+-		 SDRAM_BA1 : OUT STD_LOGIC;
+-		 SDRAM_CKE : OUT STD_LOGIC;
+-		 SDRAM_CS_N : OUT STD_LOGIC;
+-		 SDRAM_RAS_N : OUT STD_LOGIC;
+-		 SDRAM_CAS_N : OUT STD_LOGIC;
+-		 SDRAM_WE_N : OUT STD_LOGIC;
+-		 SDRAM_ldqm : OUT STD_LOGIC;
+-		 SDRAM_udqm : OUT STD_LOGIC;
+-		 DATA_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+-		 SDRAM_ADDR : OUT STD_LOGIC_VECTOR(11 DOWNTO 0)
+-	);
+-END COMPONENT;
+-
+-component sdram_statemachine_mcc IS
+-generic
+-(
+-	ADDRESS_WIDTH : natural := 22;
+-	ROW_WIDTH : natural := 12;
+-	AP_BIT : natural := 10;
+-	COLUMN_WIDTH : natural := 8
+-);
+-PORT 
+-( 
+-	CLK_SYSTEM : IN STD_LOGIC;
+-	CLK_SDRAM : IN STD_LOGIC; -- this is a exact multiple of system clock
+-	RESET_N : in STD_LOGIC;
+-	
+-	-- interface as though SRAM - this module can take care of caching/write combining etc etc. For first cut... nothing. TODO: What extra info would help me here?
+-	DATA_IN : in std_logic_vector(31 downto 0);
+-	ADDRESS_IN : in std_logic_vector(ADDRESS_WIDTH downto 0); -- 1 extra bit for byte alignment
+-	READ_EN : in std_logic; -- if no reads pending may be a good time to do a refresh
+-	WRITE_EN : in std_logic;
+-	REQUEST : in std_logic; -- Toggle this to issue a new request
+-	BYTE_ACCESS : in std_logic; -- ldqm/udqm set based on a(0) - if 0=0111, if 1=1011. Data fields valid:7 downto 0.
+-	WORD_ACCESS : in std_logic; -- ldqm/udqm set based on a(0) - if 0=0011, if 1=1001. Data fields valid:15 downto 0.
+-	LONGWORD_ACCESS : in std_logic; -- a(0) ignored. lqdm/udqm mask is 0000
+-	REFRESH : in std_logic;
+-
+-	REPLY : out std_logic; -- This matches the request once complete
+-	DATA_OUT : out std_logic_vector(31 downto 0);
+-
+-	-- sdram itself
+-	SDRAM_ADDR : out std_logic_vector(ROW_WIDTH downto 0);
+-	SDRAM_DQ : inout std_logic_vector(15 downto 0);
+-	SDRAM_BA0 : out std_logic;
+-	SDRAM_BA1 : out std_logic;
+-	
+-	SDRAM_CS_N : out std_logic;
+-	SDRAM_RAS_N : out std_logic;
+-	SDRAM_CAS_N : out std_logic;
+-	SDRAM_WE_N : out std_logic;
+-	
+-	SDRAM_ldqm : out std_logic; -- low enable, high disable - for byte addressing - NB, cas latency applies to reads
+-	SDRAM_udqm : out std_logic
+-);
+-END component;
+-
+ COMPONENT zpu_rom
+ 	PORT(clock : IN STD_LOGIC;
+ 		 address : IN STD_LOGIC_VECTOR(11 DOWNTO 0);
+@@ -564,32 +352,31 @@
+ 	);
+ END COMPONENT;
+ 
+-COMPONENT scandoubler
+-	PORT(CLK : IN STD_LOGIC;
+-		 RESET_N : IN STD_LOGIC;
+-		 VGA : IN STD_LOGIC;
+-		 COMPOSITE_ON_HSYNC : IN STD_LOGIC;
+-		 colour_enable : IN STD_LOGIC;
+-		 doubled_enable : IN STD_LOGIC;
+-		 vsync_in : IN STD_LOGIC;
+-		 hsync_in : IN STD_LOGIC;
+-		 colour_in : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+-		 VSYNC : OUT STD_LOGIC;
+-		 HSYNC : OUT STD_LOGIC;
+-		 B : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+-		 G : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+-		 R : OUT STD_LOGIC_VECTOR(3 DOWNTO 0)
+-	);
+-END COMPONENT;
++--COMPONENT zpu_ram
++--	PORT(wren : IN STD_LOGIC;
++--		 clock : IN STD_LOGIC;
++--		 address : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
++--		 data : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
++--		 q : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
++--	);
++--END COMPONENT;
+ 
+-COMPONENT zpu_ram
+-	PORT(wren : IN STD_LOGIC;
+-		 clock : IN STD_LOGIC;
+-		 address : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+-		 data : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+-		 q : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+-	);
+-END COMPONENT;
++component generic_ram_infer IS
++        generic
++        (
++                ADDRESS_WIDTH : natural := 9;
++                SPACE : natural := 512;
++                DATA_WIDTH : natural := 8
++        );
++   PORT
++   (
++      clock: IN   std_logic;
++      data:  IN   std_logic_vector (data_width-1 DOWNTO 0);
++      address:  IN   std_logic_vector(address_width-1 downto 0);
++      we:    IN   std_logic;
++      q:     OUT  std_logic_vector (data_width-1 DOWNTO 0)
++   );
++END component;
+ 
+ COMPONENT zpu_config_regs
+ 	PORT(CLK : IN STD_LOGIC;
+@@ -621,8 +408,8 @@
+ 		 DATA_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+ 		 LEDG : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+ 		 LEDR : OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
+-		 RAM_SELECT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+-		 ROM_SELECT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
++		 RAM_SELECT : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
++		 ROM_SELECT : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
+ 		 THROTTLE_COUNT_6502 : OUT STD_LOGIC_VECTOR(5 DOWNTO 0);
+ 		 ZPU_HEX : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+ 		 sector : out std_logic_vector(31 downto 0);
+@@ -631,14 +418,16 @@
+ 	);
+ END COMPONENT;
+ 
+-COMPONENT pll
+-	PORT(inclk0 : IN STD_LOGIC;
+-		 c0 : OUT STD_LOGIC;
+-		 c1 : OUT STD_LOGIC;
+-		 c2 : OUT STD_LOGIC;
+-		 locked : OUT STD_LOGIC
+-	);
+-END COMPONENT;
++COMPONENT gtia_palette IS
++PORT 
++( 
++	ATARI_COLOUR : IN STD_LOGIC_VECTOR(7 downto 0);
++	
++	R_next : OUT STD_LOGIC_VECTOR(7 downto 0);
++	G_next : OUT STD_LOGIC_VECTOR(7 downto 0);
++	B_next : OUT STD_LOGIC_VECTOR(7 downto 0)
++);
++END component;
+ 
+ COMPONENT gtia
+ 	PORT(CLK : IN STD_LOGIC;
+@@ -665,6 +454,7 @@
+ 		 MEMORY_DATA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+ 		 VSYNC : OUT STD_LOGIC;
+ 		 HSYNC : OUT STD_LOGIC;
++		 BLANK : OUT STD_LOGIC;
+ 		 sound : OUT STD_LOGIC;
+ 		 COLOUR_out : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+ 		 DATA_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+@@ -711,6 +501,8 @@
+ );
+ END component;
+ 
++
++
+ SIGNAL	ANTIC_ADDR :  STD_LOGIC_VECTOR(15 DOWNTO 0);
+ SIGNAL	ANTIC_AN :  STD_LOGIC_VECTOR(2 DOWNTO 0);
+ SIGNAL	ANTIC_COLOUR_CLOCK_OUT :  STD_LOGIC;
+@@ -723,8 +515,6 @@
+ SIGNAL	ANTIC_RDY :  STD_LOGIC;
+ SIGNAL	ANTIC_REFRESH :  STD_LOGIC;
+ SIGNAL	ANTIC_WRITE_ENABLE :  STD_LOGIC;
+-SIGNAL	AUDIO_LEFT :  STD_LOGIC_VECTOR(15 DOWNTO 0);
+-SIGNAL	AUDIO_RIGHT :  STD_LOGIC_VECTOR(15 DOWNTO 0);
+ SIGNAL	BREAK_PRESSED :  STD_LOGIC;
+ 
+ SIGNAL	CART_RD4 :  STD_LOGIC;
+@@ -739,8 +529,6 @@
+ SIGNAL	CA2_DIR_OUT:  STD_LOGIC;
+ SIGNAL	CB2_OUT :  STD_LOGIC;
+ SIGNAL	CB2_DIR_OUT:  STD_LOGIC;
+-SIGNAL	CLK :  STD_LOGIC;
+-SIGNAL	CLK_SDRAM :  STD_LOGIC;
+ SIGNAL	COMPOSITE_ON_HSYNC :  STD_LOGIC;
+ SIGNAL	CONSOL_OPTION :  STD_LOGIC;
+ SIGNAL	CONSOL_SELECT :  STD_LOGIC;
+@@ -771,7 +559,7 @@
+ SIGNAL	GTIA_SOUND :  STD_LOGIC;
+ SIGNAL	GTIA_WRITE_ENABLE :  STD_LOGIC;
+ SIGNAL	IRQ_n :  STD_LOGIC;
+-SIGNAL	KBCODE_DUMMY :  STD_LOGIC_VECTOR(7 DOWNTO 0);
++SIGNAL	KBCODE :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+ SIGNAL	KEY_HELD :  STD_LOGIC;
+ SIGNAL	KEY_INTERRUPT :  STD_LOGIC;
+ SIGNAL	KEYBOARD_RESPONSE :  STD_LOGIC_VECTOR(1 DOWNTO 0);
+@@ -784,6 +572,7 @@
+ SIGNAL	NMI_n :  STD_LOGIC;
+ SIGNAL	PAL :  STD_LOGIC;
+ SIGNAL	PAUSE_6502 :  STD_LOGIC;
++SIGNAL	HALT_OR_PAUSE_6502 :  STD_LOGIC;
+ SIGNAL	PBI_ADDR :  STD_LOGIC_VECTOR(15 DOWNTO 0);
+ SIGNAL	PBI_WRITE_ENABLE :  STD_LOGIC;
+ SIGNAL	PIA_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+@@ -791,7 +580,6 @@
+ SIGNAL	PIA_IRQB :  STD_LOGIC;
+ SIGNAL	PIA_READ_ENABLE :  STD_LOGIC;
+ SIGNAL	PIA_WRITE_ENABLE :  STD_LOGIC;
+-SIGNAL	PLL_LOCKED :  STD_LOGIC;
+ SIGNAL	POKEY2_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+ SIGNAL	CACHE_POKEY2_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+ SIGNAL	POKEY2_WRITE_ENABLE :  STD_LOGIC;
+@@ -811,24 +599,18 @@
+ SIGNAL	RAM_DO :  STD_LOGIC_VECTOR(15 DOWNTO 0);
+ SIGNAL	RAM_REQUEST :  STD_LOGIC;
+ SIGNAL	RAM_REQUEST_COMPLETE :  STD_LOGIC;
+-SIGNAL	RAM_SELECT :  STD_LOGIC_VECTOR(3 DOWNTO 0);
++SIGNAL	RAM_SELECT_dummy :  STD_LOGIC_VECTOR(2 DOWNTO 0);
+ SIGNAL	RAM_WRITE_ENABLE :  STD_LOGIC;
+ SIGNAL	RESET_N :  STD_LOGIC;
+ SIGNAL	ROM_ADDR :  STD_LOGIC_VECTOR(21 DOWNTO 0);
+ SIGNAL	ROM_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+ SIGNAL	ROM_REQUEST :  STD_LOGIC;
+ SIGNAL	ROM_REQUEST_COMPLETE :  STD_LOGIC;
+-SIGNAL	ROM_SELECT :  STD_LOGIC_VECTOR(3 DOWNTO 0);
++SIGNAL	ROM_SELECT_dummy :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+ SIGNAL	SCANDOUBLER_SHARED_ENABLE_HIGH :  STD_LOGIC;
+ SIGNAL	SCANDOUBLER_SHARED_ENABLE_LOW :  STD_LOGIC;
+-SIGNAL	SDRAM_ADDR :  STD_LOGIC_VECTOR(22 DOWNTO 0);
+-SIGNAL	SDRAM_DO :  STD_LOGIC_VECTOR(31 DOWNTO 0);
+-SIGNAL	SDRAM_READ_ENABLE :  STD_LOGIC;
+ SIGNAL	SDRAM_REFRESH :  STD_LOGIC;
+ --SIGNAL	SDRAM_REPLY :  STD_LOGIC;
+-SIGNAL	SDRAM_REQUEST_COMPLETE :  STD_LOGIC;
+-SIGNAL	SDRAM_REQUEST :  STD_LOGIC;
+-SIGNAL	SDRAM_WRITE_ENABLE :  STD_LOGIC;
+ SIGNAL	SHIFT_PRESSED :  STD_LOGIC;
+ SIGNAL	SIO_COMMAND_OUT :  STD_LOGIC;
+ SIGNAL	SIO_DATA_IN :  STD_LOGIC;
+@@ -864,35 +646,11 @@
+ SIGNAL	ZPU_ROM_DATA :  STD_LOGIC_VECTOR(31 DOWNTO 0);
+ SIGNAL	ZPU_SECTOR_DATA :  STD_LOGIC_VECTOR(31 DOWNTO 0);
+ SIGNAL	ZPU_STACK_WRITE :  STD_LOGIC_VECTOR(3 DOWNTO 0);
+-SIGNAL	SYNTHESIZED_WIRE_0 :  STD_LOGIC_VECTOR(3 DOWNTO 0);
+-SIGNAL	SYNTHESIZED_WIRE_1 :  STD_LOGIC_VECTOR(3 DOWNTO 0);
+-SIGNAL	SYNTHESIZED_WIRE_2 :  STD_LOGIC_VECTOR(3 DOWNTO 0);
+-SIGNAL	SYNTHESIZED_WIRE_3 :  STD_LOGIC_VECTOR(3 DOWNTO 0);
+-SIGNAL	SYNTHESIZED_WIRE_4 :  STD_LOGIC_VECTOR(3 DOWNTO 0);
+-SIGNAL	SYNTHESIZED_WIRE_5 :  STD_LOGIC_VECTOR(3 DOWNTO 0);
+-SIGNAL	SYNTHESIZED_WIRE_6 :  STD_LOGIC_VECTOR(3 DOWNTO 0);
+-SIGNAL	SYNTHESIZED_WIRE_7 :  STD_LOGIC_VECTOR(3 DOWNTO 0);
+-SIGNAL	SYNTHESIZED_WIRE_8 :  STD_LOGIC;
+-SIGNAL	SYNTHESIZED_WIRE_9 :  STD_LOGIC;
+-SIGNAL	SYNTHESIZED_WIRE_10 :  STD_LOGIC;
+-SIGNAL	SYNTHESIZED_WIRE_11 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+-SIGNAL	SYNTHESIZED_WIRE_12 :  STD_LOGIC;
+-SIGNAL	SYNTHESIZED_WIRE_13 :  STD_LOGIC;
+-SIGNAL	SYNTHESIZED_WIRE_14 :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+ 
+ SIGNAL	LEDR_dummy :  STD_LOGIC_VECTOR(9 DOWNTO 0);
+ SIGNAL	LEDG_dummy :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+ signal UART_TXD_dummy : std_logic;
+ 
+--- STUB OUT FOR NOW
+-SIGNAL		PS2K_CLK :  STD_LOGIC;
+-SIGNAL		PS2K_DAT :  STD_LOGIC;
+-signal		JOY1_n :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+-signal		JOY2_n :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+-signal		JOY1 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+-signal		JOY2 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+-
+-
+ SIGNAL		SD_DAT0 :  STD_LOGIC;
+ SIGNAL		SD_CLK :  STD_LOGIC;
+ SIGNAL		SD_CMD :  STD_LOGIC;
+@@ -901,36 +659,33 @@
+ signal mist_buttons : std_logic_vector(1 downto 0);
+ signal mist_switches : std_logic_vector(1 downto 0);
+ 
+-signal keyboard : std_logic_vector(127 downto 0);
+-signal atari_keyboard : std_logic_vector(63 downto 0);
+-
+ SIGNAL	SHIFT_PRESSED_DUMMY :  STD_LOGIC;
+ SIGNAL	BREAK_PRESSED_DUMMY :  STD_LOGIC;
+ SIGNAL	CONTROL_PRESSED :  STD_LOGIC;
+ 
+-SIGNAL	CONSOL_OPTION_DUMMY :  STD_LOGIC;
+-SIGNAL	CONSOL_SELECT_DUMMY :  STD_LOGIC;
+-SIGNAL	CONSOL_START_DUMMY :  STD_LOGIC;
+-
+-signal capslock_pressed : std_logic;
+-signal capsheld_next : std_logic;
+-signal capsheld_reg : std_logic;
+-
+-signal mist_sector_ready : std_logic;
+-signal mist_sector_ready_sync : std_logic;
+-signal mist_sector_request : std_logic;
+-signal mist_sector_request_sync : std_logic;
+-signal mist_sector : std_logic_vector(31 downto 0);
+-signal mist_sector_sync : std_logic_vector(31 downto 0);
++signal dummy_sector_request : std_logic;
++signal dummy_sector : std_logic_vector(31 downto 0);
+ 
+-		
+-signal mist_addr : std_logic_vector(8 downto 0);
+-signal mist_do : std_logic_vector(7 downto 0);
+-signal mist_di : std_logic_vector(7 downto 0);
+-signal mist_wren : std_logic;
++signal COLOUR : std_logic_vector(7 downto 0);
++
++signal POKEY1_CHANNEL0 : std_logic_vector(3 downto 0);
++signal POKEY1_CHANNEL1 : std_logic_vector(3 downto 0);
++signal POKEY1_CHANNEL2 : std_logic_vector(3 downto 0);
++signal POKEY1_CHANNEL3 : std_logic_vector(3 downto 0);
++
++signal POKEY2_CHANNEL0 : std_logic_vector(3 downto 0);
++signal POKEY2_CHANNEL1 : std_logic_vector(3 downto 0);
++signal POKEY2_CHANNEL2 : std_logic_vector(3 downto 0);
++signal POKEY2_CHANNEL3 : std_logic_vector(3 downto 0);
++
++signal hcount_temp : std_logic_vector(7 downto 0);
++signal vcount_temp : std_logic_vector(8 downto 0);
++signal VGA_G_dummy : std_logic_vector(7 downto 0);
++signal VGA_B_dummy : std_logic_vector(7 downto 0);
+ 
+-signal spi_miso_data : std_logic;
+-signal spi_miso_io : std_logic;
++signal matrix_out_match : std_logic_vector(7 downto 0);
++
++signal keyboard_scan_inv : std_logic_vector(5 downto 0);
+ 
+ signal covox_write_enable : std_logic;
+ signal covox_channel0 : std_logic_vector(7 downto 0);
+@@ -938,291 +693,11 @@
+ signal covox_channel2 : std_logic_vector(7 downto 0);
+ signal covox_channel3 : std_logic_vector(7 downto 0);
+ 
+-BEGIN 
+-
+-	
+--- mist spi io
+-mist_spi_interface : data_io 
+-	PORT map
+-	(
+-		CLK =>spi_sck,
+-		RESET_n =>reset_n,
+-		
+-		-- SPI connection - up to upstream to make miso 'Z' on ss_io going high
+-		SPI_CLK =>spi_sck,
+-		SPI_SS_IO => spi_ss2,
+-		SPI_MISO => spi_miso_data,
+-		SPI_MOSI => spi_di,
+-		
+-		-- Sector access request
+-		request => mist_sector_request_sync,
+-		sector => mist_sector_sync(23 downto 0),
+-		ready => mist_sector_ready,
+-		
+-		-- DMA to RAM
+-		ADDR => mist_addr,
+-		DATA_OUT => mist_do,
+-		DATA_IN => mist_di,
+-		WR_EN => mist_wren
+-	 );
+- 
+-	select_sync : synchronizer
+-	PORT MAP ( CLK => clk, raw => mist_sector_ready, sync=>mist_sector_ready_sync);
+-
+-	select_sync2 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector_request, sync=>mist_sector_request_sync);
+-
+-	sector_sync0 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(0), sync=>mist_sector_sync(0));
+-
+-	sector_sync1 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(1), sync=>mist_sector_sync(1));
+-
+-	sector_sync2 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(2), sync=>mist_sector_sync(2));
+-
+-	sector_sync3 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(3), sync=>mist_sector_sync(3));
+-
+-	sector_sync4 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(4), sync=>mist_sector_sync(4));
+-
+-	sector_sync5 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(5), sync=>mist_sector_sync(5));
+-
+-	sector_sync6 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(6), sync=>mist_sector_sync(6));
+-
+-	sector_sync7 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(7), sync=>mist_sector_sync(7));
+-
+-	sector_sync8 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(8), sync=>mist_sector_sync(8));
+-
+-	sector_sync9 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(9), sync=>mist_sector_sync(9));
+-
+-	sector_sync10 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(10), sync=>mist_sector_sync(10));
+-
+-	sector_sync11 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(11), sync=>mist_sector_sync(11));
+-
+-	sector_sync12 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(12), sync=>mist_sector_sync(12));
+-
+-	sector_sync13 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(13), sync=>mist_sector_sync(13));
+-
+-	sector_sync14 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(14), sync=>mist_sector_sync(14));
++signal gtia_blank : std_logic;
+ 
+-	sector_sync15 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(15), sync=>mist_sector_sync(15));
+-
+-	sector_sync16 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(16), sync=>mist_sector_sync(16));
+-
+-	sector_sync17 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(17), sync=>mist_sector_sync(17));
+-
+-	sector_sync18 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(18), sync=>mist_sector_sync(18));
+-
+-	sector_sync19 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(19), sync=>mist_sector_sync(19));
+-
+-	sector_sync20 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(20), sync=>mist_sector_sync(20));
+-
+-	sector_sync21 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(21), sync=>mist_sector_sync(21));
+-
+-	sector_sync22 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(22), sync=>mist_sector_sync(22));
+-
+-	sector_sync23 : synchronizer
+-	PORT MAP ( CLK => spi_sck, raw => mist_sector(23), sync=>mist_sector_sync(23));
+-	
+-	
+-	spi_do <= spi_miso_io when CONF_DATA0 ='0' else spi_miso_data when spi_SS2='0' else 'Z';
+-
+-	-- TODO, dual port, dual clock! 
+---	mist_sector_buffer : generic_ram_infer
+---	generic map
+---	(
+---		ADDRESS_WIDTH => 9,
+---		SPACE => 512,
+---		DATA_WIDTH => 8
+---	)
+---   PORT map
+---   (
+---      clock => spi_sck,
+---      data => mist_do,
+---      address => mist_addr,
+---      we => mist_wren,
+---      q => mist_di
+---   );
+-
+-mist_sector_buffer1 : mist_sector_buffer
+-	PORT map
+-	(
+-		address_a		=> mist_addr,
+-		address_b		=> ZPU_ADDR_ROM_RAM(8 DOWNTO 2),
+-		clock_a		=> spi_sck,
+-		clock_b		=> clk,
+-		data_a		=> mist_do,
+-		data_b		=> zpu_do,
+-		wren_a		=> mist_wren,
+-		wren_b		=> '0',
+-		q_a		=> mist_di,
+-		q_b		=> zpu_sector_data
+-	);
+-	
+-my_user_io : user_io
+-	PORT map(
+-	   SPI_CLK => SPI_SCK,
+-	   SPI_SS_IO => CONF_DATA0,
+-	   SPI_MISO => SPI_miso_io,
+-	   SPI_MOSI => SPI_DI,
+-	   CORE_TYPE => x"A4",
+-		JOY0 => joy1,
+-		JOY1 => joy2,
+-		KEYBOARD => keyboard,
+-		BUTTONS => mist_buttons,
+-		SWITCHES => mist_switches
+-	  );
+-	  
+-	 joy1_n <= not(joy1);
+-	 joy2_n <= not(joy2);
+-	 
+-	process(clk,reset_n)
+-	begin
+-		if (reset_n='0') then
+-			capsheld_reg <= '0';
+-		elsif (clk'event and clk='1') then
+-			capsheld_reg <= capsheld_next;
+-		end if;
+-	end process;
+-
+-	process(keyboard,capsheld_reg)
+-	begin
+-		capsheld_next <= capsheld_reg;
+-		capslock_pressed <= '0';
+-		
+-		if ((keyboard(58) xor capsheld_reg)='1') then
+-			capsheld_next <= keyboard(58);
+-			
+-			-- assert something for 10 frames
+-			capslock_pressed <= '1';
+-		end if;
+-	end process;
+-	
+-atari_keyboard(63) <= keyboard(30);
+-atari_keyboard(62) <= keyboard(31);
+-atari_keyboard(61) <= keyboard(34);
+-atari_keyboard(60) <= '0';
+-atari_keyboard(58) <= keyboard(32);
+-atari_keyboard(57) <= keyboard(35);
+-atari_keyboard(56) <= keyboard(33);
+-atari_keyboard(55) <= keyboard(13);
+-atari_keyboard(54) <= keyboard(12);
+-atari_keyboard(53) <= keyboard(9);
+-atari_keyboard(52) <= keyboard(14);
+-atari_keyboard(51) <= keyboard(8);
+-atari_keyboard(50) <= keyboard(11);
+-atari_keyboard(48) <= keyboard(10);
+-atari_keyboard(47) <= keyboard(16);
+-atari_keyboard(46) <= keyboard(17);
+-atari_keyboard(45) <= keyboard(20);
+-atari_keyboard(44) <= keyboard(15);
+-atari_keyboard(43) <= keyboard(21);
+-atari_keyboard(42) <= keyboard(18);
+-atari_keyboard(40) <= keyboard(19);
+-atari_keyboard(39) <= keyboard(56);
+-atari_keyboard(38) <= keyboard(53);
+-atari_keyboard(37) <= keyboard(50);
+-atari_keyboard(35) <= keyboard(49);
+-atari_keyboard(34) <= keyboard(52);
+-atari_keyboard(33) <= keyboard(57);
+-atari_keyboard(32) <= keyboard(51);
+-atari_keyboard(31) <= keyboard(2);
+-atari_keyboard(30) <= keyboard(3);
+-atari_keyboard(29) <= keyboard(6);
+-atari_keyboard(28) <= keyboard(1);
+-atari_keyboard(27) <= keyboard(7);
+-atari_keyboard(26) <= keyboard(4);
+-atari_keyboard(24) <= keyboard(5);
+-atari_keyboard(23) <= keyboard(44);
+-atari_keyboard(22) <= keyboard(45);
+-atari_keyboard(21) <= keyboard(48);
+-atari_keyboard(18) <= keyboard(46);
+-atari_keyboard(17) <= keyboard(59);
+-atari_keyboard(16) <= keyboard(47);
+-atari_keyboard(15) <= keyboard(27);
+-atari_keyboard(14) <= keyboard(26);
+-atari_keyboard(13) <= keyboard(23);
+-atari_keyboard(12) <= keyboard(28);
+-atari_keyboard(11) <= keyboard(22);
+-atari_keyboard(10) <= keyboard(25);
+-atari_keyboard(8) <= keyboard(24);
+-atari_keyboard(7) <= keyboard(41);
+-atari_keyboard(6) <= keyboard(40);
+-atari_keyboard(5) <= keyboard(37);
+-atari_keyboard(2) <= keyboard(39);
+-atari_keyboard(1) <= keyboard(36);
+-atari_keyboard(0) <= keyboard(38);
+-
+-	  
+-shift_pressed <= keyboard(54) or keyboard(42);
+-control_pressed <= keyboard(29);
+-break_pressed <= keyboard(96); -- TODO - not on st keyboard
+-
+-consol_start <= keyboard(60); --F2
+-consol_select <= keyboard(61); --F3
+-consol_option <= keyboard(62); -- F4
+-		
+---f5 <= keyboard(63);
+---f6 <= keyboard(64);
+---f7 <= keyboard(65);
+---f8 <= keyboard(66);
+---f9 <= keyboard(67);
+---f10 <= keyboard(68);
+-
+-virtual_keys <= keyboard(65)&keyboard(66)&keyboard(67)&keyboard(68);
+-SYSTEM_RESET_REQUEST <= keyboard(63);
+-
+-process(keyboard_scan, atari_keyboard, control_pressed, shift_pressed, break_pressed)
+-	begin	
+-		keyboard_response <= (others=>'1');		
+-		
+-		if (atari_keyboard(to_integer(unsigned(not(keyboard_scan)))) = '1') then
+-			keyboard_response(0) <= '0';
+-		end if;
+-		
+---		if (key_held='1' and kbcode(5 downto 0) = not(keyboard_scan)) then
+---			keyboard_response(0) <= '0';
+---		end if;
+-		
+-		if (keyboard_scan(5 downto 4)="00" and break_pressed = '1') then
+-			keyboard_response(1) <= '0';
+-		end if;
+-		
+-		if (keyboard_scan(5 downto 4)="10" and shift_pressed = '1') then
+-			keyboard_response(1) <= '0';
+-		end if;
++BEGIN 
+ 
+-		if (keyboard_scan(5 downto 4)="11" and control_pressed = '1') then
+-			keyboard_response(1) <= '0';
+-		end if;
+-end process;		 
+-		  
+-	-- decode address
+---decode_addr1 : complete_address_decoder
+---	generic map(width=>6)
+---	port map (addr_in=>keyboard_scan, addr_decoded=>keyboard_scan_decoded);
+-	  
+-b2v_a_6502 : cpu
++cpu6502 : cpu
+ PORT MAP(CLK => CLK,
+ 		 RESET => CPU_6502_RESET,
+ 		 ENABLE => RESET_N,
+@@ -1238,7 +713,7 @@
+ 		 DO => CPU_DO);
+ 
+ LIGHTPEN <= '1';
+-b2v_inst1 : antic
++antic1 : antic
+ PORT MAP(CLK => CLK,
+ 		 WR_EN => ANTIC_WRITE_ENABLE,
+ 		 RESET_N => RESET_N,
+@@ -1256,56 +731,26 @@
+ 		 COLOUR_CLOCK_OUT => ANTIC_COLOUR_CLOCK_OUT,
+ 		 HIGHRES_COLOUR_CLOCK_OUT => ANTIC_HIGHRES_COLOUR_CLOCK_OUT,
+ 		 dma_fetch_out => ANTIC_FETCH,
++		 hcount_out => hcount_temp,
++		 vcount_out => vcount_temp,
+ 		 refresh_out => ANTIC_REFRESH,
+ 		 AN => ANTIC_AN,
+ 		 DATA_OUT => ANTIC_DO,
+ 		 dma_address_out => ANTIC_ADDR);
+ 
+-b2v_inst11 : pokey_mixer
++pokey_mixer_l : pokey_mixer
+ PORT MAP(CLK => CLK,
+ 		 GTIA_SOUND => GTIA_SOUND,
+-		 CHANNEL_0 => SYNTHESIZED_WIRE_0,
+-		 CHANNEL_1 => SYNTHESIZED_WIRE_1,
+-		 CHANNEL_2 => SYNTHESIZED_WIRE_2,
+-		 CHANNEL_3 => SYNTHESIZED_WIRE_3,
++		 CHANNEL_0 => POKEY1_CHANNEL0,
++		 CHANNEL_1 => POKEY1_CHANNEL1,
++		 CHANNEL_2 => POKEY1_CHANNEL2,
++		 CHANNEL_3 => POKEY1_CHANNEL3,
++		 CHANNEL_ENABLE => "1111",
+ 		 COVOX_CHANNEL_0 => covox_channel0,
+ 		 COVOX_CHANNEL_1 => covox_channel1,
+-		 CHANNEL_ENABLE => "1111",
+-		 VOLUME_OUT => AUDIO_LEFT);
++		 VOLUME_OUT => AUDIO_L);
+ 		 
+-dac_left : hq_dac
+-port map
+-(
+-  reset => not(reset_n),
+-  clk => clk,
+-  clk_ena => '1',
+-  pcm_in => audio_left&"0000",
+-  dac_out => audio_l
+-);
+-
+-dac_right : hq_dac
+-port map
+-(
+-  reset => not(reset_n),
+-  clk => clk,
+-  clk_ena => '1',
+-  pcm_in => audio_right&"0000",
+-  dac_out => audio_r
+-);
+-
+-
+-b2v_inst12 : ps2_keyboard
+-PORT MAP(CLK => CLK,
+-		 RESET_N => RESET_N,
+-		 PS2_CLK => PS2K_CLK,
+-		 PS2_DAT => PS2K_DAT,
+-		 KEY_EVENT => SYNTHESIZED_WIRE_8,
+-		 KEY_EXTENDED => SYNTHESIZED_WIRE_9,
+-		 KEY_UP => SYNTHESIZED_WIRE_10,
+-		 KEY_VALUE => SYNTHESIZED_WIRE_11);
+-
+-
+-b2v_inst13 : zpu_glue
++zpu_glue1 : zpu_glue
+ PORT MAP(CLK => CLK,
+ 		 RESET => ZPU_RESET,
+ 		 PAUSE => ZPU_PAUSE,
+@@ -1327,20 +772,20 @@
+ 		 ZPU_STACK_WRITE => ZPU_STACK_WRITE);
+ 
+ 
+-b2v_inst14 : pokey_mixer
++pokey_mixer_r : pokey_mixer
+ PORT MAP(CLK => CLK,
+ 		 GTIA_SOUND => GTIA_SOUND,
+-		 CHANNEL_0 => SYNTHESIZED_WIRE_4,
+-		 CHANNEL_1 => SYNTHESIZED_WIRE_5,
+-		 CHANNEL_2 => SYNTHESIZED_WIRE_6,
+-		 CHANNEL_3 => SYNTHESIZED_WIRE_7,
++		 CHANNEL_0 => POKEY2_CHANNEL0,
++		 CHANNEL_1 => POKEY2_CHANNEL1,
++		 CHANNEL_2 => POKEY2_CHANNEL2,
++		 CHANNEL_3 => POKEY2_CHANNEL3,
+ 		 COVOX_CHANNEL_0 => covox_channel2,
+-		 COVOX_CHANNEL_1 => covox_channel3, 
++		 COVOX_CHANNEL_1 => covox_channel3,
+ 		 CHANNEL_ENABLE => "1111",
+-		 VOLUME_OUT => AUDIO_RIGHT);
++		 VOLUME_OUT => AUDIO_R);
+ 
+ 
+-b2v_inst15 : pokey
++pokey2 : pokey
+ PORT MAP(CLK => CLK,
+ 		 CPU_MEMORY_READY => MEMORY_READY_CPU,
+ 		 ANTIC_MEMORY_READY => MEMORY_READY_ANTIC,
+@@ -1348,10 +793,10 @@
+ 		 RESET_N => RESET_N,
+ 		 ADDR => PBI_ADDR(3 DOWNTO 0),
+ 		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
+-		 CHANNEL_0_OUT => SYNTHESIZED_WIRE_4,
+-		 CHANNEL_1_OUT => SYNTHESIZED_WIRE_5,
+-		 CHANNEL_2_OUT => SYNTHESIZED_WIRE_6,
+-		 CHANNEL_3_OUT => SYNTHESIZED_WIRE_7,
++		 CHANNEL_0_OUT => POKEY2_CHANNEL0,
++		 CHANNEL_1_OUT => POKEY2_CHANNEL1,
++		 CHANNEL_2_OUT => POKEY2_CHANNEL2,
++		 CHANNEL_3_OUT => POKEY2_CHANNEL3,
+ 		 DATA_OUT => POKEY2_DO,
+ 		 SIO_IN1 => '1',
+ 		 SIO_IN2 => '1',
+@@ -1367,13 +812,14 @@
+ --GPIO_O[1] <= CB2_OUT when CB2_DIR_OUT='1' else 'Z';
+ --CB2_IN <= GPIO_O[1];
+ SIO_COMMAND_OUT <= CB2_OUT; -- we generate command frame, use internal rather than from pin
++SIO_COMMAND_TX <= SIO_COMMAND_OUT;
+ -- TODO - sioto gpio!
+ GPIO_PORTB_IN <= PORTB_OUT;
+-GPIO_CA2_IN <= CA2_OUT;
+-GPIO_CB2_IN <= CB2_OUT;
+-GPIO_PORTA_IN <= VIRTUAL_STICKS and (JOY1_n(0)&JOY1_n(1)&JOY1_n(2)&JOY1_n(3)&JOY2_n(0)&JOY2_n(1)&JOY2_n(2)&JOY2_n(3));
++GPIO_CA2_IN <= CA2_OUT when CA2_DIR_OUT='1' else '1';
++GPIO_CB2_IN <= CB2_OUT when CB2_DIR_OUT='1' else '1';
++GPIO_PORTA_IN <= ((JOY1_n(3)&JOY1_n(2)&JOY1_n(1)&JOY1_n(0)&JOY2_n(3)&JOY2_n(2)&JOY2_n(1)&JOY2_n(0)) and not (porta_dir_out)) or (porta_dir_out and porta_out);
+ 
+-b2v_inst16 : pia
++pia1 : pia
+ PORT MAP(CLK => CLK,
+ 		 EN => PIA_READ_ENABLE,
+ 		 WR_EN => PIA_WRITE_ENABLE,
+@@ -1398,12 +844,13 @@
+ 		 PORTB_DIR_OUT => PORTB_DIR_OUT,
+ 		 PORTB_OUT => PORTB_OUT);
+ 
+-b2v_inst17 : shared_enable
++HALT_OR_PAUSE_6502 <= HALT or PAUSE_6502;
++enables : shared_enable
+ PORT MAP(CLK => CLK,
+ 		 RESET_N => RESET_N,
+ 		 MEMORY_READY_CPU => MEMORY_READY_CPU,
+ 		 MEMORY_READY_ANTIC => MEMORY_READY_ANTIC,
+-		 PAUSE_6502 => PAUSE_6502,
++		 PAUSE_6502 => HALT_OR_PAUSE_6502,
+ 		 THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
+ 		 POKEY_ENABLE_179 => POKEY_ENABLE_179,
+ 		 ANTIC_ENABLE_179 => ANTIC_ENABLE_179,
+@@ -1412,35 +859,13 @@
+ 		 SCANDOUBLER_ENABLE_LOW => SCANDOUBLER_SHARED_ENABLE_LOW,
+ 		 SCANDOUBLER_ENABLE_HIGH => SCANDOUBLER_SHARED_ENABLE_HIGH);
+ 
+-
+-virtual_sticks <= (others=>'1');
+-virtual_triggers <= "0011";
+---b2v_inst18 : pokey_ps2_decoder
+---PORT MAP(CLK => CLK,
+---		 RESET_N => RESET_N,
+---		 KEY_EVENT => SYNTHESIZED_WIRE_8,
+---		 KEY_EXTENDED => SYNTHESIZED_WIRE_9,
+---		 KEY_UP => SYNTHESIZED_WIRE_10,
+---		 KEY_CODE => SYNTHESIZED_WIRE_11,
+---		 KEY_HELD => KEY_HELD,
+---		 SHIFT_PRESSED => SHIFT_PRESSED_DUMMY,
+---		 BREAK_PRESSED => BREAK_PRESSED_DUMMY,
+---		 CONSOL_START => CONSOL_START_DUMMY,
+---		 CONSOL_SELECT => CONSOL_SELECT_DUMMY,
+---		 CONSOL_OPTION => CONSOL_OPTION_DUMMY,
+---		 SYSTEM_RESET => SYSTEM_RESET_REQUEST,
+---		 KBCODE => KBCODE_dummy,
+---		 VIRTUAL_STICKS => VIRTUAL_STICKS,
+---		 VIRTUAL_TRIGGER => VIRTUAL_TRIGGERS,
+---		 VIRTUAL_KEYS => VIRTUAL_KEYS);
+-
+ -- no cart!
+ CART_RD4 <= '0';
+ CART_RD5 <= '0';
+ CART_REQUEST_COMPLETE <= '0';
+ CART_ROM_DO <= (others=>'0');
+ 
+-b2v_inst2 : address_decoder
++mmu1 : address_decoder
+ PORT MAP(CLK => CLK,
+ 		 CPU_FETCH => CPU_FETCH,
+ 		 CPU_WRITE_N => R_W_N,
+@@ -1476,7 +901,7 @@
+ 		 RAM_DATA => RAM_DO,
+ 		 ram_select => RAM_SELECT(2 downto 0),
+ 		 ROM_DATA => ROM_DO,
+-		 rom_select => "00"&ROM_SELECT, -- TODO
++		 rom_select => ROM_SELECT, 
+ 		 SDRAM_DATA => SDRAM_DO,
+ 		 ZPU_ADDR => ZPU_ADDR_FETCH,
+ 		 ZPU_WRITE_DATA => ZPU_DO,
+@@ -1514,38 +939,35 @@
+ 		 cart_select => "0000000",
+ 		 cart_activate => '0');
+ 
+-b2v_inst21 : zpu_rom
++zpu_rom1 : zpu_rom
+ PORT MAP(clock => CLK,
+ 		 address => ZPU_ADDR_ROM_RAM(13 DOWNTO 2),
+ 		 q => ZPU_ROM_DATA);
++--
++--b2v_inst23 : zpu_ram
++--PORT MAP(wren => ZPU_STACK_WRITE(2),
++--		 clock => CLK,
++--		 address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
++--		 data => ZPU_DO(23 DOWNTO 16),
++--		 q => ZPU_RAM_DATA(23 DOWNTO 16));
+ 
+-
+-b2v_inst22 : scandoubler
+-PORT MAP(CLK => CLK,
+-		 RESET_N => RESET_N,
+-		 VGA => VGA,
+-		 COMPOSITE_ON_HSYNC => COMPOSITE_ON_HSYNC,
+-		 colour_enable => SCANDOUBLER_SHARED_ENABLE_LOW,
+-		 doubled_enable => SCANDOUBLER_SHARED_ENABLE_HIGH,
+-		 vsync_in => SYNTHESIZED_WIRE_12,
+-		 hsync_in => SYNTHESIZED_WIRE_13,
+-		 colour_in => SYNTHESIZED_WIRE_14,
+-		 VSYNC => VGA_VS,
+-		 HSYNC => VGA_HS,
+-		 B => VGA_B(5 downto 2),
+-		 G => VGA_G(5 downto 2),
+-		 R => VGA_R(5 downto 2));
+-
+-b2v_inst23 : zpu_ram
+-PORT MAP(wren => ZPU_STACK_WRITE(2),
+-		 clock => CLK,
+-		 address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
+-		 data => ZPU_DO(23 DOWNTO 16),
+-		 q => ZPU_RAM_DATA(23 DOWNTO 16));
++zpu_ram1 : generic_ram_infer
++generic map
++(
++	ADDRESS_WIDTH => 10,
++	SPACE => 1024,
++	DATA_WIDTH =>8
++)
++PORT MAP(clock => clk,
++		 address => ZPU_ADDR_ROM_RAM(11 downto 2),
++		 data => ZPU_DO(23 downto 16),
++		 we => ZPU_STACK_WRITE(2),
++		 q => ZPU_RAM_DATA(23 downto 16)
++		 );	
+ 
+ SYNC_KEYS <= (others=> '0');
+ SYNC_SWITCHES <= (others=> '1');
+-b2v_inst24 : zpu_config_regs
++zpu_config1 : zpu_config_regs
+ PORT MAP(CLK => CLK,
+ 		 ENABLE_179 => POKEY_ENABLE_179,
+ 		 WR_EN => ZPU_CONFIG_WRITE_ENABLE,
+@@ -1575,54 +997,89 @@
+ 		 DATA_OUT => ZPU_CONFIG_DO,
+ 		 LEDG => LEDG_dummy,
+ 		 LEDR => LEDR_dummy,
+-		 RAM_SELECT => RAM_SELECT,
+-		 ROM_SELECT => ROM_SELECT,
++		 RAM_SELECT => RAM_SELECT_dummy,
++		 ROM_SELECT => ROM_SELECT_dummy(1 downto 0),
+ 		 THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
+ 		 ZPU_HEX => ZPU_HEX,
+-		 sector_request => mist_sector_request,
+-		 sector => mist_sector,
+-		 sector_ready => mist_sector_ready_sync
++		 sector_request => dummy_sector_request,
++		 sector => dummy_sector,
++		 sector_ready => '0'
+ 		 );
++ROM_SELECT_dummy(5 downto 2) <= "0000";
+ 
++--
++--b2v_inst25 : zpu_ram
++--PORT MAP(wren => ZPU_STACK_WRITE(3),
++--		 clock => CLK,
++--		 address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
++--		 data => ZPU_DO(31 DOWNTO 24),
++--		 q => ZPU_RAM_DATA(31 DOWNTO 24));
++
++zpu_ram2 : generic_ram_infer
++generic map
++(
++	ADDRESS_WIDTH => 10,
++	SPACE => 1024,
++	DATA_WIDTH =>8
++)
++PORT MAP(clock => clk,
++		 address => ZPU_ADDR_ROM_RAM(11 downto 2),
++		 data => ZPU_DO(31 downto 24),
++		 we => ZPU_STACK_WRITE(3),
++		 q => ZPU_RAM_DATA(31 downto 24)
++		 );	
++
++
++--b2v_inst26 : zpu_ram
++--PORT MAP(wren => ZPU_STACK_WRITE(0),
++--		 clock => CLK,
++--		 address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
++--		 data => ZPU_DO(7 DOWNTO 0),
++--		 q => ZPU_RAM_DATA(7 DOWNTO 0));
+ 
+-b2v_inst25 : zpu_ram
+-PORT MAP(wren => ZPU_STACK_WRITE(3),
+-		 clock => CLK,
+-		 address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
+-		 data => ZPU_DO(31 DOWNTO 24),
+-		 q => ZPU_RAM_DATA(31 DOWNTO 24));
+-
+-
+-b2v_inst26 : zpu_ram
+-PORT MAP(wren => ZPU_STACK_WRITE(0),
+-		 clock => CLK,
+-		 address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
+-		 data => ZPU_DO(7 DOWNTO 0),
+-		 q => ZPU_RAM_DATA(7 DOWNTO 0));
+-
+-
+-b2v_inst27 : zpu_ram
+-PORT MAP(wren => ZPU_STACK_WRITE(1),
+-		 clock => CLK,
+-		 address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
+-		 data => ZPU_DO(15 DOWNTO 8),
+-		 q => ZPU_RAM_DATA(15 DOWNTO 8));
+-
+-
+-b2v_inst5 : pll
+-PORT MAP(inclk0 => CLOCK_27(0),
+-		 c0 => CLK_SDRAM,
+-		 c1 => CLK,
+-		 c2 => SDRAM_CLK,
+-		 locked => PLL_LOCKED);
++zpu_ram3 : generic_ram_infer
++generic map
++(
++	ADDRESS_WIDTH => 10,
++	SPACE => 1024,
++	DATA_WIDTH =>8
++)
++PORT MAP(clock => clk,
++		 address => ZPU_ADDR_ROM_RAM(11 downto 2),
++		 data => ZPU_DO(7 downto 0),
++		 we => ZPU_STACK_WRITE(0),
++		 q => ZPU_RAM_DATA(7 downto 0)
++		 );	
++
++
++--b2v_inst27 : zpu_ram
++--PORT MAP(wren => ZPU_STACK_WRITE(1),
++--		 clock => CLK,
++--		 address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
++--		 data => ZPU_DO(15 DOWNTO 8),
++--		 q => ZPU_RAM_DATA(15 DOWNTO 8));
+ 
+-b2v_inst7 : pokey
++zpu_ram4 : generic_ram_infer
++generic map
++(
++	ADDRESS_WIDTH => 10,
++	SPACE => 1024,
++	DATA_WIDTH =>8
++)
++PORT MAP(clock => clk,
++		 address => ZPU_ADDR_ROM_RAM(11 downto 2),
++		 data => ZPU_DO(15 downto 8),
++		 we => ZPU_STACK_WRITE(1),
++		 q => ZPU_RAM_DATA(15 downto 8)
++		 );	
++
++pokey1 : pokey
+ PORT MAP(CLK => CLK,
+ 		 CPU_MEMORY_READY => MEMORY_READY_CPU,
+ 		 ANTIC_MEMORY_READY => MEMORY_READY_ANTIC,
+ 		 WR_EN => POKEY_WRITE_ENABLE,
+ 		 RESET_N => RESET_N,
+-		 SIO_IN1 => '1',
++		 SIO_IN1 => SIO_RXD,
+ 		 SIO_IN2 => '1',
+ 		 SIO_IN3 => SIO_DATA_IN,
+ 		 ADDR => PBI_ADDR(3 DOWNTO 0),
+@@ -1630,39 +1087,62 @@
+ 		 keyboard_response => KEYBOARD_RESPONSE,
+ 		 POT_IN => POT_IN,
+ 		 IRQ_N_OUT => POKEY_IRQ,
+-		 SIO_OUT1 => UART_TXD_dummy,
++		 SIO_OUT1 => SIO_TXD,
+ 		 SIO_OUT2 => GPIO_SIO_OUT,
+ 		 SIO_OUT3 => SIO_DATA_OUT,
+ 		 POT_RESET => POT_RESET,
+-		 CHANNEL_0_OUT => SYNTHESIZED_WIRE_0,
+-		 CHANNEL_1_OUT => SYNTHESIZED_WIRE_1,
+-		 CHANNEL_2_OUT => SYNTHESIZED_WIRE_2,
+-		 CHANNEL_3_OUT => SYNTHESIZED_WIRE_3,
++		 CHANNEL_0_OUT => POKEY1_CHANNEL0,
++		 CHANNEL_1_OUT => POKEY1_CHANNEL1,
++		 CHANNEL_2_OUT => POKEY1_CHANNEL2,
++		 CHANNEL_3_OUT => POKEY1_CHANNEL3,
+ 		 DATA_OUT => POKEY_DO,
+ 		 keyboard_scan => KEYBOARD_SCAN);
+ 
+---	process(keyboard_scan, kbcode, key_held, shift_pressed, break_pressed)
+---	begin	
+---		keyboard_response <= (others=>'1');
+---		
+---		if (key_held='1' and kbcode(5 downto 0) = not(keyboard_scan)) then
+---			keyboard_response(0) <= '0';
+---		end if;
+---		
+---		if (keyboard_scan(5 downto 4)="00" and break_pressed = '1') then
+---			keyboard_response(1) <= '0';
+---		end if;
+---		
+---		if (keyboard_scan(5 downto 4)="10" and shift_pressed = '1') then
+---			keyboard_response(1) <= '0';
+---		end if;
+---
+---		if (keyboard_scan(5 downto 4)="11" and kbcode(7) = '1') then
+---			keyboard_response(1) <= '0';
+---		end if;
+---	end process;		 
+---		 	 
+-b2v_inst8 : gtia
++	keyboard_scan_inv <= not(keyboard_scan);
++
++a4051: complete_address_decoder
++	generic map (width => 3)
++	PORT map ( addr_in => keyboard_scan_inv(5 downto 3), addr_decoded => matrix_in ); 
++
++b4051: complete_address_decoder
++	generic map (width => 3)
++	PORT map ( addr_in => keyboard_scan_inv(2 downto 0), addr_decoded => matrix_out_match ); 
++
++	process(matrix_out, matrix_out_match)
++	begin
++		keyboard_response(0) <= '1';
++
++		if (or_reduce(matrix_out(7 downto 0) and matrix_out_match(7 downto 0)) = '1') then
++			keyboard_response(0) <= '0';
++		end if;
++	end process;
++
++	process(static_keys, pause_key)
++	begin
++		keyboard_response(1) <= '1';
++
++		if (keyboard_scan(5 downto 4)="00" and pause_key = '1') then
++			keyboard_response(1) <= '0';
++		end if;
++		
++		if (keyboard_scan(5 downto 4)="10" and static_keys(0) = '1') then
++			keyboard_response(1) <= '0';
++		end if;
++
++		if (keyboard_scan(5 downto 4)="11" and static_keys(1) = '1') then
++			keyboard_response(1) <= '0';
++		end if;
++	end process;
++
++	CONSOL_START <= static_keys(6);
++	CONSOL_SELECT <= static_keys(5);
++	CONSOL_OPTION <= static_keys(4);
++	system_reset_request <= static_keys(3);
++
++	virtual_keys <= "000"&static_keys(2); -- todo need more static keys!! though on second thoughts using replay menu for options/loading...
++	virtual_triggers <= "00"&joy1_n(4)&joy2_n(4); -- todo joystick...
++		 	 
++gtia1 : gtia
+ PORT MAP(CLK => CLK,
+ 		 WR_EN => GTIA_WRITE_ENABLE,
+ 		 CPU_MEMORY_READY => MEMORY_READY_CPU,
+@@ -1677,8 +1157,10 @@
+ 		 CONSOL_START => CONSOL_START,
+ 		 CONSOL_SELECT => CONSOL_SELECT,
+ 		 CONSOL_OPTION => CONSOL_OPTION,
+-		 TRIG0 => VIRTUAL_TRIGGERS(0) and joy2_n(4), -- TODO - joystick trigger too
+-		 TRIG1 => VIRTUAL_TRIGGERS(1) and joy1_n(4),
++		 TRIG0 => joy2_n(4), -- TODO - joystick trigger too
++		 TRIG1 => joy1_n(4),
++		 --TRIG0 => VIRTUAL_TRIGGERS(0) and joy2_n(4), -- TODO - joystick trigger too
++		 --TRIG1 => VIRTUAL_TRIGGERS(1) and joy1_n(4),
+ 		 --TRIG0 => VIRTUAL_TRIGGERS(0),
+ 		 --TRIG1 => VIRTUAL_TRIGGERS(1),
+ 		 TRIG2 => VIRTUAL_TRIGGERS(2),
+@@ -1687,14 +1169,36 @@
+ 		 AN => ANTIC_AN,
+ 		 CPU_DATA_IN => WRITE_DATA(7 DOWNTO 0),
+ 		 MEMORY_DATA_IN => MEMORY_DATA(7 DOWNTO 0),
+-		 VSYNC => SYNTHESIZED_WIRE_12,
+-		 HSYNC => SYNTHESIZED_WIRE_13,
++		 VSYNC => VGA_VS,
++		 HSYNC => VGA_HS,
++		 BLANK => GTIA_BLANK,
+ 		 sound => GTIA_SOUND,
+-		 COLOUR_out => SYNTHESIZED_WIRE_14,
++		 COLOUR_out => COLOUR,
+ 		 DATA_OUT => GTIA_DO);
+ 
++	-- colour palette
++--	Color             Value         Color             Value
++--Black           0,      0	Medium blue     8,    128
++--Rust            1,     16       Dark blue       9,    144
++--Red-orange      2,     32       Blue-grey      10,    160
++--Dark orange     3,     48       Olive green    11,    176
++--Red             4,     64       Medium green   12,    192
++--Dk lavender     5,     80       Dark green     13,    208
++--Cobalt blue     6,     96       Orange-green   14,    224
++--Ultramarine     7,    112       Orange         15,    240
++
++-- from altirra	
++	palette1 : entity work.gtia_palette(altirra)
++		port map (ATARI_COLOUR=>COLOUR, R_next=>VGA_R, G_next=>VGA_G, B_next=>VGA_B);
++	--VGA_B <= hcount_temp;
++	--VGA_G <= vcount_temp(7 downto 0);
++		
++-- from lao
++--	palette2 : entity work.gtia_palette(laoo)
++--		port map (ATARI_COLOUR=>COLOUR, R_next=>R_next, G_next=>G_next, B_next=>B_next);		
++
+ 
+-b2v_inst9 : irq_glue
++irq_glue1 : irq_glue
+ PORT MAP(pokey_irq => POKEY_IRQ,
+ 		 pia_irqa => PIA_IRQA,
+ 		 pia_irqb => PIA_IRQB,
+@@ -1740,7 +1244,7 @@
+ 	DATA_OUT => CACHE_ANTIC_DO
+ );	
+ 
+-irr : internalromram
++internalromram1 : internalromram
+   PORT map(
+     clock => clk,
+     reset_n => reset_n,
+@@ -1758,77 +1262,10 @@
+ 	RAM_DATA => ram_do(7 downto 0)
+ 	);
+ 
+-b2v_inst20 : sdram_statemachine
+-GENERIC MAP(ADDRESS_WIDTH => 22,
+-			AP_BIT => 10,
+-			COLUMN_WIDTH => 8,
+-			ROW_WIDTH => 12
+-			)
+-PORT MAP(CLK_SYSTEM => CLK,
+-		 CLK_SDRAM => CLK_SDRAM,
+-		 RESET_N => RESET_N,
+-		 READ_EN => SDRAM_READ_ENABLE,
+-		 WRITE_EN => SDRAM_WRITE_ENABLE,
+-		 REQUEST => SDRAM_REQUEST,
+-		 BYTE_ACCESS => WIDTH_8BIT_ACCESS,
+-		 WORD_ACCESS => WIDTH_16BIT_ACCESS,
+-		 LONGWORD_ACCESS => WIDTH_32BIT_ACCESS,
+-		 REFRESH => SDRAM_REFRESH,
+-		 ADDRESS_IN => SDRAM_ADDR,
+-		 DATA_IN => WRITE_DATA,
+-		 SDRAM_DQ => SDRAM_DQ,
+-		 COMPLETE => SDRAM_REQUEST_COMPLETE,
+-		 SDRAM_BA0 => SDRAM_BA(0),
+-		 SDRAM_BA1 => SDRAM_BA(1),
+-		 SDRAM_CKE => SDRAM_CKE,
+-		 SDRAM_CS_N => SDRAM_nCS,
+-		 SDRAM_RAS_N => SDRAM_nRAS,
+-		 SDRAM_CAS_N => SDRAM_nCAS,
+-		 SDRAM_WE_N => SDRAM_nWE,
+-		 SDRAM_ldqm => SDRAM_DQML,
+-		 SDRAM_udqm => SDRAM_DQMH,
+-		 DATA_OUT => SDRAM_DO,
+-		 SDRAM_ADDR => SDRAM_A(11 downto 0));
+-		 
+-SDRAM_A(12) <= '0';
+-
+---b2v_inst20 : sdram_statemachine_mcc
+---GENERIC MAP(ADDRESS_WIDTH => 22,
+---			AP_BIT => 10,
+---			COLUMN_WIDTH => 8,
+---			ROW_WIDTH => 12
+---			)
+---PORT MAP(CLK_SYSTEM => CLK,
+---		 CLK_SDRAM => CLK_SDRAM,
+---		 RESET_N => RESET_N,
+---		 READ_EN => SDRAM_READ_ENABLE,
+---		 WRITE_EN => SDRAM_WRITE_ENABLE,
+---		 REQUEST => SDRAM_REQUEST,
+---		 BYTE_ACCESS => WIDTH_8BIT_ACCESS,
+---		 WORD_ACCESS => WIDTH_16BIT_ACCESS,
+---		 LONGWORD_ACCESS => WIDTH_32BIT_ACCESS,
+---		 REFRESH => SDRAM_REFRESH,
+---		 ADDRESS_IN => SDRAM_ADDR,
+---		 DATA_IN => WRITE_DATA,
+---		 SDRAM_DQ => SDRAM_DQ,
+---		 REPLY => SDRAM_REQUEST_COMPLETE,
+---		 SDRAM_BA0 => SDRAM_BA(0),
+---		 SDRAM_BA1 => SDRAM_BA(1),
+---		 --SDRAM_CKE => SDRAM_A(12), -- TODO?
+---		 SDRAM_CS_N => SDRAM_nCS,
+---		 SDRAM_RAS_N => SDRAM_nRAS,
+---		 SDRAM_CAS_N => SDRAM_nCAS,
+---		 SDRAM_WE_N => SDRAM_nWE,
+---		 SDRAM_ldqm => SDRAM_DQML,
+---		 SDRAM_udqm => SDRAM_DQMH,
+---		 DATA_OUT => SDRAM_DO,
+---		 SDRAM_ADDR => SDRAM_A(12 downto 0)); -- TODO?
+-
+---SDRAM_CKE <= '1';		 
+-LED <= '0';
+-VGA_R(1 downto 0) <= "00";
+-VGA_G(1 downto 0) <= "00";
+-VGA_B(1 downto 0) <= "00";
++SDRAM_WIDTH_8bit_ACCESS <= WIDTH_8bit_access;
++SDRAM_WIDTH_16bit_ACCESS <= WIDTH_16bit_access;
++SDRAM_WIDTH_32bit_ACCESS <= WIDTH_32bit_access;
++SDRAM_DI <= WRITE_DATA;
+ 
+ covox1 : covox
+ 	PORT map
+@@ -1842,5 +1279,5 @@
+ 		covox_channel2 => covox_channel2,
+ 		covox_channel3 => covox_channel3
+ 	);
+-		
+-END bdf_type;
+\ No newline at end of file
++
++END bdf_type;
+Only in mist/: atari800core.vhd.bak
+Only in mist/: ataribas.mif
+Only in mist/: basic.cmp
+Only in mist/: basic.qip
+Only in mist/: basic.vhd
+Only in ../../common/a8core/: basic.vhdl
+Only in mist/: CHANGELOG
+Only in mist/: COPYRIGHT_NOTICE
+Only in mist/: covox.vhd.bak
+diff -ur mist/cpu_6510.vhd ../../common/a8core/cpu_6510.vhd
+--- mist/cpu_6510.vhd	2014-01-17 20:20:16.000000000 +0000
++++ ../../common/a8core/cpu_6510.vhd	2014-03-23 08:03:29.689482071 +0000
+@@ -98,45 +98,6 @@
+ 			debug_flags => debug_flags
+ 		);
+ 	
+-	MyBitfade: if emulate_bitfade generate
+-		bitfade7 : entity work.chameleon_bitfade
+-			generic map (
+-				max_fade_timer => 100
+-			)
+-			port map (
+-				clk => clk,
+-				ena_1khz => ena_1khz,
+-				
+-				dir => ioDir(7),
+-				d => ioData(7),
+-				q => ioFade(7)
+-			);
+-		bitfade6 : entity work.chameleon_bitfade
+-			generic map (
+-				max_fade_timer => 100
+-			)
+-			port map (
+-				clk => clk,
+-				ena_1khz => ena_1khz,
+-				
+-				dir => ioDir(6),
+-				d => ioData(6),
+-				q => ioFade(6)
+-			);
+-		bitfade3 : entity work.chameleon_bitfade
+-			generic map (
+-				max_fade_timer => 100
+-			)
+-			port map (
+-				clk => clk,
+-				ena_1khz => ena_1khz,
+-				
+-				dir => ioDir(3),
+-				d => ioData(3),
+-				q => ioFade(3)
+-			);
+-	end generate;
+-	
+ 	process(localA)
+ 	begin
+ 		accessIO <= '0';
+diff -ur mist/cpu_65xx_a.vhd ../../common/a8core/cpu_65xx_a.vhd
+--- mist/cpu_65xx_a.vhd	2014-01-18 14:29:19.000000000 +0000
++++ ../../common/a8core/cpu_65xx_a.vhd	2014-03-23 08:03:29.661482072 +0000
+@@ -1438,7 +1438,7 @@
+ -- -----------------------------------------------------------------------
+ -- Address generation
+ -- -----------------------------------------------------------------------
+-calcNextAddr: process(theCpuCycle, opcInfo, indexOut, T, reset)
++calcNextAddr: process(theCpuCycle, opcInfo, indexOut, T, reset, processInt)
+ 	begin
+ 		nextAddr <= nextAddrIncr;
+ 		case theCpuCycle is
+Only in mist/: cpu_65xx_a.vhd.bak
+diff -ur mist/cpu.vhd ../../common/a8core/cpu.vhd
+--- mist/cpu.vhd	2014-01-17 20:20:16.000000000 +0000
++++ ../../common/a8core/cpu.vhd	2014-03-23 08:03:29.677482072 +0000
+@@ -108,7 +108,7 @@
+ 			debugPc => debugPc,
+ 			debugA => debugA,
+ 			debugX => debugX,
+-			debugY => debugOpcode,
++			debugY => debugY,
+ 			debugS => debugS
+ 		);
+ 		CPU_ENABLE_RDY <= (CPU_ENABLE and (rdy or we)) or reset;
+Only in mist/: custom_io.vhd
+Only in mist/: data_io.v~
+Only in mist/: data_io.vhdl
+Only in mist/: data_io.vhdl.bak
+Only in mist/: flashrom.vhdl
+Only in mist/: generic_ram_infer.vhdl.bak
+Only in mist/: gpio.vhd
+diff -ur mist/gtia_palette.vhdl ../../common/a8core/gtia_palette.vhdl
+--- mist/gtia_palette.vhdl	2014-01-17 20:20:16.000000000 +0000
++++ ../../common/a8core/gtia_palette.vhdl	2014-03-23 08:03:29.665482072 +0000
+@@ -1049,6 +1049,8 @@
+ 					R_next <= X"ff";
+ 					G_next <= X"f3";
+ 					B_next <= X"9a";
++				when others =>
++					-- nop
+ 			end case;
+ 			
+ 		end process;
+@@ -2085,6 +2087,8 @@
+ 						R_next <= X"ff";
+ 						G_next <= X"e3";
+ 						B_next <= X"a1";
++					when others =>
++						-- nop
+ 			end case;
+ 			
+ 		end process;
+diff -ur mist/gtia_player.vhdl ../../common/a8core/gtia_player.vhdl
+--- mist/gtia_player.vhdl	2014-01-17 20:20:16.000000000 +0000
++++ ../../common/a8core/gtia_player.vhdl	2014-03-23 08:03:29.673482072 +0000
+@@ -73,6 +73,8 @@
+ 							shift_next <= shift_reg(6 downto 0) &'0';
+ 						when "01"|"10" =>
+ 							count_next <= "10";						
++						when others=>
++							--hang!
+ 					end case;					
+ 				when "01" =>					
+ 					case count_reg is
+@@ -81,6 +83,8 @@
+ 							shift_next <= shift_reg(6 downto 0) &'0';
+ 						when "00"|"10" =>
+ 							count_next <= "01";							
++						when others=>
++							--hang!
+ 					end case;					
+ 
+ 				when "11" =>
+@@ -94,7 +98,11 @@
+ 						when "11" =>
+ 							shift_next <= shift_reg(6 downto 0) &'0';
+ 							count_next <= "00";
++						when others=>
++							--hang!
+ 					end case;
++				when others=>
++					--hang!
+ 			end case;	
+ 
+ 			if (live_position = player_position) then
+@@ -105,4 +113,4 @@
+ 		
+ 	end process;
+ 	
+-end vhdl;
+\ No newline at end of file
++end vhdl;
+diff -ur mist/gtia.vhdl ../../common/a8core/gtia.vhdl
+--- mist/gtia.vhdl	2014-01-17 20:20:16.000000000 +0000
++++ ../../common/a8core/gtia.vhdl	2014-03-23 08:03:29.697482071 +0000
+@@ -53,6 +53,7 @@
+ 	
+ 	VSYNC : out std_logic;
+ 	HSYNC : out std_logic;
++	BLANK : out std_logic;
+ 	
+ 	-- To speaker
+ 	sound : out std_logic
+@@ -216,6 +217,11 @@
+ 	signal grafm_next : std_logic_vector(7 downto 0);
+ 	signal grafm_reg : std_logic_vector(7 downto 0);
+ 
++	signal grafm_reg10_extended : std_logic_vector(7 downto 0);
++	signal grafm_reg32_extended : std_logic_vector(7 downto 0);
++	signal grafm_reg54_extended : std_logic_vector(7 downto 0);
++	signal grafm_reg76_extended : std_logic_vector(7 downto 0);
++
+ 	signal colpm0_raw_next : std_logic_vector(7 downto 1);
+ 	signal colpm0_raw_reg : std_logic_vector(7 downto 1);
+ 	signal colpm1_raw_next : std_logic_vector(7 downto 1);
+@@ -795,6 +801,8 @@
+ 						if (active_bk_modify_next(7 downto 4) = "0000") then
+ 							active_bk_valid_next(3 downto 0) <= "0000";
+ 						end if;
++					when others =>
++						-- nop
+ 				end case;
+ 			end if;
+ 			
+@@ -1007,14 +1015,18 @@
+ 	player3 : gtia_player
+ 		port map(clk=>clk,reset_n=>reset_n,colour_enable=>COLOUR_CLOCK_ORIGINAL,live_position=>hpos_reg,player_position=>hposp3_delayed_reg,size=>sizep3_delayed_reg(1 downto 0),bitmap=>grafp3_reg, output=>active_p3_live);				
+ 
++	grafm_reg10_extended <= grafm_reg(1 downto 0)&"000000";
++	grafm_reg32_extended <= grafm_reg(3 downto 2)&"000000";
++	grafm_reg54_extended <= grafm_reg(5 downto 4)&"000000";
++	grafm_reg76_extended <= grafm_reg(7 downto 6)&"000000";
+ 	missile0 : gtia_player
+-		port map(clk=>clk,reset_n=>reset_n,colour_enable=>COLOUR_CLOCK_ORIGINAL,live_position=>hpos_reg,player_position=>hposm0_delayed_reg,size=>sizem_delayed_reg(1 downto 0),bitmap=>grafm_reg(1 downto 0)&"000000", output=>active_m0_live);
++		port map(clk=>clk,reset_n=>reset_n,colour_enable=>COLOUR_CLOCK_ORIGINAL,live_position=>hpos_reg,player_position=>hposm0_delayed_reg,size=>sizem_delayed_reg(1 downto 0),bitmap=>grafm_reg10_extended, output=>active_m0_live);
+ 	missile1 : gtia_player
+-		port map(clk=>clk,reset_n=>reset_n,colour_enable=>COLOUR_CLOCK_ORIGINAL,live_position=>hpos_reg,player_position=>hposm1_delayed_reg,size=>sizem_delayed_reg(3 downto 2),bitmap=>grafm_reg(3 downto 2)&"000000", output=>active_m1_live);
++		port map(clk=>clk,reset_n=>reset_n,colour_enable=>COLOUR_CLOCK_ORIGINAL,live_position=>hpos_reg,player_position=>hposm1_delayed_reg,size=>sizem_delayed_reg(3 downto 2),bitmap=>grafm_reg32_extended, output=>active_m1_live);
+ 	missile2 : gtia_player
+-		port map(clk=>clk,reset_n=>reset_n,colour_enable=>COLOUR_CLOCK_ORIGINAL,live_position=>hpos_reg,player_position=>hposm2_delayed_reg,size=>sizem_delayed_reg(5 downto 4),bitmap=>grafm_reg(5 downto 4)&"000000", output=>active_m2_live);
++		port map(clk=>clk,reset_n=>reset_n,colour_enable=>COLOUR_CLOCK_ORIGINAL,live_position=>hpos_reg,player_position=>hposm2_delayed_reg,size=>sizem_delayed_reg(5 downto 4),bitmap=>grafm_reg54_extended, output=>active_m2_live);
+ 	missile3 : gtia_player
+-		port map(clk=>clk,reset_n=>reset_n,colour_enable=>COLOUR_CLOCK_ORIGINAL,live_position=>hpos_reg,player_position=>hposm3_delayed_reg,size=>sizem_delayed_reg(7 downto 6),bitmap=>grafm_reg(7 downto 6)&"000000", output=>active_m3_live);
++		port map(clk=>clk,reset_n=>reset_n,colour_enable=>COLOUR_CLOCK_ORIGINAL,live_position=>hpos_reg,player_position=>hposm3_delayed_reg,size=>sizem_delayed_reg(7 downto 6),bitmap=>grafm_reg76_extended, output=>active_m3_live);
+ 		
+ 	-- calculate atari colour
+ 	priority_rules : gtia_priority
+@@ -1534,7 +1546,7 @@
+ 		end if;
+ 		
+ 		if (addr_decoded(20) = '1') then
+-			data_out <= "00000"&not(pal&pal&pal);
++			data_out <= "0000"&not(pal&pal&pal)&'1';
+ 		end if;
+ 
+ 		if (addr_decoded(31) = '1') then
+@@ -1548,6 +1560,7 @@
+ 	
+ 	vsync<=vsync_reg;
+ 	hsync<=hsync_reg;
++	blank<=hblank_reg or vsync_reg;
+ 	
+ 	sound <= consol_output_reg(3);
+ 
+Only in mist/: hexdecoder.vhd
+Only in mist/: hq_dac.v
+Only in mist/: i2c_loader.vhd
+Only in mist/: i2s_intf.vhd
+Only in mist/: i2sslave.vhdl
+diff -ur mist/internalromram.vhd ../../common/a8core/internalromram.vhd
+--- mist/internalromram.vhd	2014-03-08 17:35:06.000000000 +0000
++++ ../../common/a8core/internalromram.vhd	2014-03-23 08:03:29.689482071 +0000
+@@ -23,18 +23,35 @@
+ END internalromram;
+ 
+ architecture vhdl of internalromram is
+-component ramint IS
+-	PORT
+-	(
+-		address		: IN STD_LOGIC_VECTOR (12 DOWNTO 0);
+-		clock		: IN STD_LOGIC  := '1';
+-		data		: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+-		wren		: IN STD_LOGIC ;
+-		q		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
+-	);
++--component ramint IS
++--	PORT
++--	(
++--		address		: IN STD_LOGIC_VECTOR (12 DOWNTO 0);
++--		clock		: IN STD_LOGIC  := '1';
++--		data		: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
++--		wren		: IN STD_LOGIC ;
++--		q		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
++--	);
++--END component;
++
++component generic_ram_infer IS
++        generic
++        (
++                ADDRESS_WIDTH : natural := 9;
++                SPACE : natural := 512;
++                DATA_WIDTH : natural := 8
++        );
++   PORT
++   (
++      clock: IN   std_logic;
++      data:  IN   std_logic_vector (data_width-1 DOWNTO 0);
++      address:  IN   std_logic_vector(address_width-1 downto 0);
++      we:    IN   std_logic;
++      q:     OUT  std_logic_vector (data_width-1 DOWNTO 0)
++   );
+ END component;
+ 
+-component rom16 IS
++component os16 IS
+ 	PORT
+ 	(
+ 		address		: IN STD_LOGIC_VECTOR (13 DOWNTO 0);
+@@ -89,27 +106,33 @@
+ 	
+ 	--ROM_DATA <= ROMLO_DATA when rom_addr(15 downto 12)=X"D" else ROMHI_DATA;	
+ 	--ROM_DATA <= ROMHI_DATA;
+---	basic1 : basic
+---	PORT MAP(clock => clock,
+---			 address => rom_addr(12 downto 0),
+---			 q => BASIC_data
+---			 );			 
+---			 
+---	rom16a : rom16
+---	PORT MAP(clock => clock,
+---			 address => rom_addr(13 downto 0),
+---			 q => ROM16_data
+---			 );
+---	
+---	ramint1 : ramint
+---	PORT MAP(clock => clock,
+---			 address => ram_addr(12 downto 0),
+---			 data => ram_data_in(7 downto 0),
+---			 wren => RAM_WR_ENABLE_REAL,
+---			 q => iram_data
+---			 );	
++	basic1 : basic
++	PORT MAP(clock => clock,
++			 address => rom_addr(12 downto 0),
++			 q => BASIC_data
++			 );			 
++			 
++	rom16a : os16
++	PORT MAP(clock => clock,
++			 address => rom_addr(13 downto 0),
++			 q => ROM16_data
++			 );
++	
++	ramint1 : generic_ram_infer
++        generic map
++        (
++                ADDRESS_WIDTH => 14,
++                SPACE => 16384,
++                DATA_WIDTH =>8
++        )
++	PORT MAP(clock => clock,
++			 address => ram_addr(13 downto 0),
++			 data => ram_data_in(7 downto 0),
++			 we => RAM_WR_ENABLE_REAL,
++			 q => iram_data
++			 );	
+ 	ram_request_complete <= ram_request_reg;
+ 	
+-	RAM_DATA <= IRAM_DATA when ram_addr(15 downto 13)= "000" else X"FF";
+-	RAM_WR_ENABLE_REAL <= RAM_WR_ENABLE when ram_addr(15 downto 13)="000" else '0'; -- ban writes over 8k when using int ram - HACK
+-end vhdl;
+\ No newline at end of file
++	RAM_DATA <= IRAM_DATA when ram_addr(15 downto 14)= "00" else X"FF";
++	RAM_WR_ENABLE_REAL <= RAM_WR_ENABLE when ram_addr(15 downto 14)="00" else '0'; -- ban writes over 16k when using int ram - HACK
++end vhdl;
+Only in mist/: internalromram.vhd.bak
+Only in mist/: ledsw.vhd
+Only in mist/: mist_sector_buffer.cmp
+Only in mist/: mist_sector_buffer.qip
+Only in mist/: mist_sector_buffer.vhd
+Only in mist/: os16.mif
+Only in ../../common/a8core/: os16.vhdl
+Only in mist/: output_file.rbf
+diff -ur mist/pia.vhdl ../../common/a8core/pia.vhdl
+--- mist/pia.vhdl	2014-01-17 20:20:16.000000000 +0000
++++ ../../common/a8core/pia.vhdl	2014-03-23 08:03:29.645482073 +0000
+@@ -310,6 +310,8 @@
+ 						-- ca1 restore
+ 						ca2_output_next <= '1';	
+ 					end if;				
++				when others =>
++					-- nop
+ 			end case;					
+ 		end if;
+ 
+@@ -363,6 +365,8 @@
+ 						-- cb1 restore
+ 						cb2_output_next <= '1';	
+ 					end if;				
++				when others =>
++					--nop
+ 			end case;					
+ 		end if;
+ 
+Only in mist/: pll.bsf
+Only in mist/: pll.cmp
+Only in mist/: PLLJ_PLLSPE_INFO.txt
+Only in mist/: pll.ppf
+Only in mist/: pll.qip
+Only in mist/: pll.vhd
+Only in mist/: pll.vhd.bak
+diff -ur mist/pokey_keyboard_scanner.vhdl ../../common/a8core/pokey_keyboard_scanner.vhdl
+--- mist/pokey_keyboard_scanner.vhdl	2014-01-17 20:20:16.000000000 +0000
++++ ../../common/a8core/pokey_keyboard_scanner.vhdl	2014-03-23 08:03:29.769482067 +0000
+@@ -150,6 +150,9 @@
+ 				if (my_key = '1') then
+ 					state_next <= state_wait_key;
+ 				end if;
++
++			when others=> 
++				state_next <= state_wait_key; 
+ 			end case;
+ 
+ 			if (bincnt_reg(3 downto 0)  = "0000") then
+@@ -176,4 +179,4 @@
+ 	shift_pressed <= shift_pressed_reg;
+ 	control_pressed <= control_pressed_reg;
+ 	other_key_irq <= irq_reg;
+-end vhdl;
+\ No newline at end of file
++end vhdl;
+Only in mist/: pokey_mixer.vhdl.bak
+Only in mist/: pokey_ps2_decoder.vhdl
+Only in mist/: pokey_ps2_decoder.vhdl.bak
+diff -ur mist/pokey.vhdl ../../common/a8core/pokey.vhdl
+--- mist/pokey.vhdl	2014-01-17 20:20:16.000000000 +0000
++++ ../../common/a8core/pokey.vhdl	2014-03-23 15:34:33.619247550 +0000
+@@ -330,6 +330,7 @@
+ 	signal serout_active_reg : std_logic;
+ 	
+ 	signal serial_reset : std_logic;
++	signal serout_sync_reset : std_logic;
+ 	signal skrest_write : std_logic;
+ 	
+ 	signal serout_enable : std_logic;
+@@ -764,7 +765,7 @@
+ 		end if;		
+ 
+ 		if (addr_decoded(15) = '1') then --SKSTAT
+-			data_out <= not(serial_ip_framing_reg)&not(serial_ip_overrun_reg)&not(keyboard_overrun_reg)&sio_in_reg&not(SHIFT_PRESSED)&not(KEY_HELD)&waiting_for_start_bit&"1";
++			data_out <= not(serial_ip_framing_reg)&not(keyboard_overrun_reg)&not(serial_ip_overrun_reg)&sio_in_reg&not(SHIFT_PRESSED)&not(KEY_HELD)&waiting_for_start_bit&"1";
+ 		end if;		
+ 		
+ 	end process;
+@@ -936,9 +937,10 @@
+ 	
+ 	-- serial port output	
+ 	-- urghhh
++        serout_sync_reset <= serial_reset or stimer_write_delayed;
+ 	serout_clock_delay : delay_line
+ 		generic map (count=>2)
+-		port map (clk=>clk, sync_reset=>serial_reset or stimer_write_delayed,data_in=>serout_enable, enable=>enable_179, reset_n=>reset_n, data_out=>serout_enable_delayed);
++		port map (clk=>clk, sync_reset=>serout_sync_reset,data_in=>serout_enable, enable=>enable_179, reset_n=>reset_n, data_out=>serout_enable_delayed);
+ 		
+ 	
+ 	process(serout_enable_delayed, skctl_reg, serout_active_reg, serout_clock_last_reg,serout_clock_reg, serout_holding_load, serout_holding_reg, serout_holding_full_reg, serout_shift_reg, serout_bitcount_reg, serial_out_reg, twotone_reg, audf0_pulse, audf1_pulse, serial_reset)
+@@ -1131,6 +1133,8 @@
+ 			when "111" =>			
+ 				serin_enable <= audf3_pulse;
+ 				serout_enable <= audf1_pulse;
++			when others =>
++				-- nop
+ 		end case;
+ 	end process;
+ 	
+Only in mist/: ps2_keyboard.vhdl
+Only in mist/: ramint.bsf
+Only in mist/: ramint.cmp
+Only in mist/: ramint.qip
+Only in mist/: ramint.vhd
+Only in mist/: rom16.cmp
+Only in mist/: rom16.qip
+Only in mist/: rom16.vhd
+Only in mist/: romhi.bsf
+Only in mist/: romhi.cmp
+Only in mist/: romhi.qip
+Only in mist/: romhi.vhd
+Only in mist/: romlo.bsf
+Only in mist/: romlo.cmp
+Only in mist/: romlo.qip
+Only in mist/: romlo.vhd
+Only in mist/: scandouble_ram_infer.vhdl
+Only in mist/: scandoubler.vhdl
+Only in mist/: sdram_ctrl_4_ports.v
+Only in mist/: sdram_ctrl_4_ports.v.bak
+Only in mist/: sdram_statemachine_mcc.vhdl
+Only in mist/: sdram_statemachine_mcc.vhdl.bak
+Only in mist/: sdram_statemachine.vhdl
+Only in mist/: sdram_statemachine.vhdl.bak
+diff -ur mist/shared_enable.vhdl ../../common/a8core/shared_enable.vhdl
+--- mist/shared_enable.vhdl	2014-01-17 20:20:16.000000000 +0000
++++ ../../common/a8core/shared_enable.vhdl	2014-03-23 08:03:29.653482073 +0000
+@@ -50,6 +50,7 @@
+ 	PORT 
+ 	( 
+ 		CLK : IN STD_LOGIC;
++		SYNC_RESET : IN STD_LOGIC;
+ 		DATA_IN : IN STD_LOGIC;
+ 		ENABLE : IN STD_LOGIC;
+ 		RESET_N : IN STD_LOGIC;
+@@ -78,6 +79,8 @@
+ 	signal enable_179_expanded : std_logic;
+ 	
+ 	signal memory_ready : std_logic;
++
++	constant cycle_length : integer := 16;	
+ begin
+ 	-- instantiate some clock calcs
+ 	SCANDOUBLER_ENABLE_HIGH <= '1';
+@@ -87,8 +90,7 @@
+ 		port map(clk=>CLK,reset_n=>reset_n,enable_in=>'1',enable_out=>SCANDOUBLER_ENABLE_LOW);		
+ 
+ 	enable_179_clock_div : enable_divider
+-		--generic map (COUNT=>16)
+-		generic map (COUNT=>32)
++		generic map (COUNT=>cycle_length)
+ 		port map(clk=>clk,reset_n=>reset_n,enable_in=>'1',enable_out=>enable_179);
+ 		
+ 	process(THROTTLE_COUNT_6502, throttle_count_reg, enable_179)
+@@ -120,14 +122,12 @@
+ 	end process;
+ 
+ 	delay_line_phase : delay_line
+-		--generic map (COUNT=>15)
+-		generic map (COUNT=>31)
+-		port map(clk=>clk,reset_n=>reset_n,data_in=>enable_179, enable=>'1', data_out=>enable_179_early);	
++		generic map (COUNT=>cycle_length-1)
++		port map(clk=>clk,sync_reset=>'0',reset_n=>reset_n,data_in=>enable_179, enable=>'1', data_out=>enable_179_early);	
+ 
+ 	delay_line_phase2 : delay_line
+-		--generic map (COUNT=>15)
+-		generic map (COUNT=>16)
+-		port map(clk=>clk,reset_n=>reset_n,data_in=>enable_179, enable=>'1', data_out=>enable_179_late);		
++		generic map (COUNT=>cycle_length/2)
++		port map(clk=>clk,sync_reset=>'0',reset_n=>reset_n,data_in=>enable_179, enable=>'1', data_out=>enable_179_late);		
+ 	
+ 	-- registers
+ 	process(clk,reset_n)
+Only in mist/: spi_master.vhd
+Only in mist/: sram.vhdl
+Only in mist/: stp1.stp
+Only in mist/: user_io.v
+Only in mist/: user_io.v.bak
+Only in mist/: zpu
+Only in mist/: zpu_config_regs.vhdl
+Only in mist/: zpu_config_regs.vhdl.bak
+Only in mist/: zpu_core.vhd
+Only in mist/: zpu_glue.vhdl
+Only in mist/: zpu_glue.vhdl.bak
+Only in mist/: zpupkg.vhd
+Only in mist/: zpu_ram.cmp
+Only in mist/: zpu_ram.qip
+Only in mist/: zpu_ram.vhd
+Only in mist/: zpu_rom.cmp
+Only in mist/: zpu_rom.qip
+Only in mist/: zpu_rom.vhd

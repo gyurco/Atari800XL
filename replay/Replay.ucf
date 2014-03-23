@@ -1,0 +1,365 @@
+# WWW.FPGAArcade.COM
+# REPLAY 1.0
+# Retro Gaming Platform
+# No Emulation No Compromise
+#
+# $Id: Replay.ucf 36 2013-09-08 17:32:44Z wolfgang.scherr $
+#
+# All rights reserved
+# Mike Johnson 2010
+CONFIG PART = XC3S1600E-FG320-4 ;
+
+NET ClK_A       TNM_NET = clk_a_grp;
+NET ClK_B       TNM_NET = clk_b_grp;
+NET ClK_C       TNM_NET = clk_c_grp;
+
+TIMESPEC TS03 = PERIOD : clk_a_grp :  9.39 ; # 106,47 MHz
+TIMESPEC TS02 = PERIOD : clk_b_grp : 20.13 ; # 49,66 MHz
+TIMESPEC TS01 = PERIOD : clk_c_grp : 36.98 ; # 27,04 MHz
+
+TIMESPEC TS11 = FROM:PADS:TO:FFS : 30 ns;
+TIMESPEC TS12 = FROM:FFS:TO:PADS : 30 ns;
+
+INST "u_ClockGen/u_a_dcm" LOC = "DCM_X2Y0";
+INST "u_ClockGen/phase_ctrl.u_a2_dcm" LOC = "DCM_X1Y0";
+INST "u_ClockGen/u_b_dcm" LOC = "DCM_X2Y3";
+INST "u_ClockGen/u_c_dcm" LOC = "DCM_X1Y3";
+
+#clock phase delay not important, between the two A dcms it does matter - force local routing
+# better result than one direct and one not
+NET "ClK_A" CLOCK_DEDICATED_ROUTE = FALSE;
+##PIN "u_ClockGen/u_a_dcm.CLKIN" CLOCK_DEDICATED_ROUTE = FALSE;
+PIN "u_ClockGen/phase_ctrl.u_a2_dcm" CLOCK_DEDICATED_ROUTE = FALSE;
+NET "u_ClockGen/clk_a_ibuf" MAXSKEW = 0.3 ns;
+
+INST "u_ClockGen/u_dcm_a_clk_div_bufg" LOC = "BUFGMUX_X1Y1";
+INST "u_ClockGen/u_dcm_a_clk_0_bufg"   LOC = "BUFGMUX_X2Y1";
+INST "u_ClockGen/u_dcm_a_clk_90_bufg"  LOC = "BUFGMUX_X1Y0";
+INST "u_ClockGen/phase_ctrl.u_dcm_a2_clk_bufg"  LOC = "BUFGMUX_X2Y0";
+
+# C is routed to reset generator, phase not important
+NET "ClK_C" CLOCK_DEDICATED_ROUTE = FALSE;
+##PIN "u_ClockGen/u_c_dcm.CLKIN" CLOCK_DEDICATED_ROUTE = FALSE;
+
+INST "u_ClockGen/u_dcm_c_clk_0_bufg"   LOC = "BUFGMUX_X2Y10";
+INST "u_ClockGen/u_dcm_c_clk_90_bufg"  LOC = "BUFGMUX_X2Y11";
+INST "u_spi_bufg"                      LOC = "BUFGMUX_X1Y11";
+
+# 30MHz SPI clock MAX
+NET "i_FPGA_SPI_Clk" TNM_NET = i_FPGA_SPI_Clk;
+TIMESPEC TS_i_FPGA_SPI_Clk = PERIOD "i_FPGA_SPI_Clk" 30 ns HIGH 50%;
+
+# domain crossing
+NET Clk_Ram     TNM_NET = clk_ram_grp;
+NET Clk_Capture TNM_NET = clk_capture_grp;
+NET Clk_Ctl     TNM_NET = clk_ctl_grp;
+
+TIMESPEC TS_20 = FROM "clk_ctl_grp" TO "clk_capture_grp" TIG;
+TIMESPEC TS_21 = FROM "clk_ram_grp" TO "clk_capture_grp" TIG;
+TIMESPEC TS_22 = FROM "clk_capture_grp" TO "clk_ram_grp" TIG;
+
+# area constraints
+INST "u_Syscon/u_spi" AREA_GROUP = "AG_u_Syscon/u_spi" ;
+AREA_GROUP "AG_u_Syscon/u_spi" RANGE = SLICE_X32Y149:SLICE_X41Y140 ;
+
+INST "u_FileIO/u_spi" AREA_GROUP = "AG_u_FileIO/u_spi" ;
+AREA_GROUP "AG_u_FileIO/u_spi" RANGE = SLICE_X42Y149:SLICE_X49Y140 ;
+
+INST "u_DDRCtrl/u_ddr_ctrl/u_datapath" AREA_GROUP = "AG_u_DDRCtrl/u_ddr_ctrl/u_datapath" ;
+AREA_GROUP "AG_u_DDRCtrl/u_ddr_ctrl/u_datapath" RANGE = SLICE_X112Y0:SLICE_X115Y151 ;
+
+INST "u_ClockGen/u_reset" AREA_GROUP = "AG_u_ClockGen/u_reset" ;
+AREA_GROUP "AG_u_ClockGen/u_reset" RANGE = SLICE_X50Y143:SLICE_X55Y138 ;
+
+
+#
+# 3V3
+#
+NET "i_RS232_RXD"               LOC = "A3"  | IOSTANDARD = LVTTL;
+NET "b_Aux_IO(37)"              LOC = "C3"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_RS232_RTS"               LOC = "A4"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(0)"               LOC = "B4"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(2)"               LOC = "C4"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_RS232_CTS"               LOC = "A5"  | IOSTANDARD = LVTTL;
+NET "i_Joy_A(5)"                LOC = "B5"  | IOSTANDARD = LVTTL | PULLUP;
+NET "o_RS232_TXD"               LOC = "C5"  | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "b_Aux_IO(4)"               LOC = "C2"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(5)"               LOC = "D5"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(6)"               LOC = "D6"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(7)"               LOC = "E6"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(8)"               LOC = "A11" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(9)"               LOC = "C7"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(10)"              LOC = "D7"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(11)"              LOC = "A14" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(12)"              LOC = "E7"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(13)"              LOC = "A13" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(14)"              LOC = "D9"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(15)"              LOC = "G9"  | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "b_Aux_IO(26)"              LOC = "A6"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(38)"              LOC = "B6"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(29)"              LOC = "A7"  | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "b_Aux_IO(3)"               LOC = "F7"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(27)"              LOC = "A8"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Joy_B(0)"                LOC = "B8"  | IOSTANDARD = LVTTL | PULLUP;
+NET "i_Joy_A(4)"                LOC = "C8"  | IOSTANDARD = LVTTL | PULLUP;
+NET "i_Joy_A(1)"                LOC = "D8"  | IOSTANDARD = LVTTL | PULLUP;
+NET "b_FPGA_SPI_MOSI"           LOC = "E8"  | IOSTANDARD = LVTTL;
+NET "b_Aux_IO(20)"              LOC = "F8"  | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "i_Joy_A(2)"                LOC = "B9"  | IOSTANDARD = LVTTL | PULLUP;
+NET "i_FPGA_SPI_Clk"            LOC = "C9"  | IOSTANDARD = LVTTL;
+NET "b_Aux_IO(25)"              LOC = "E9"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_FPGA_SPI_MISO"           LOC = "F9"  | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "b_Aux_IO(32)"              LOC = "A10" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "ClK_B"                     LOC = "B10" | IOSTANDARD = LVTTL;
+NET "ClK_C"                     LOC = "D10" | IOSTANDARD = LVTTL;
+NET "b_Aux_IO(17)"              LOC = "E10" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Joy_B(3)"                LOC = "F10" | IOSTANDARD = LVTTL | PULLUP;
+NET "i_Joy_B(5)"                LOC = "G10" | IOSTANDARD = LVTTL | PULLUP;
+NET "b_Aux_IO(21)"              LOC = "B11" | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "b_Aux_IO(23)"              LOC = "C11" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(22)"              LOC = "D11" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(34)"              LOC = "E11" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(36)"              LOC = "F11" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(24)"              LOC = "A12" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Joy_A(0)"                LOC = "C12" | IOSTANDARD = LVTTL | PULLUP;
+NET "i_Joy_B(2)"                LOC = "D12" | IOSTANDARD = LVTTL | PULLUP;
+NET "b_Aux_IO(35)"              LOC = "E12" | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "b_Aux_IO(30)"              LOC = "F12" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(28)"              LOC = "B13" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(31)"              LOC = "D13" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_PS2A_Data"               LOC = "E13" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(16)"              LOC = "B14" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(33)"              LOC = "C14" | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "b_PS2A_Clk"                LOC = "D14" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Joy_A(3)"                LOC = "A15" | IOSTANDARD = LVTTL | PULLUP;
+NET "i_Joy_B(1)"                LOC = "B15" | IOSTANDARD = LVTTL | PULLUP;
+NET "i_Joy_B(4)"                LOC = "C15" | IOSTANDARD = LVTTL | PULLUP;
+NET "b_Aux_IO(18)"              LOC = "A16" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(19)"              LOC = "B16" | IOSTANDARD = LVTTL | DRIVE = 8;
+
+#
+#   2V5
+#
+#NET ""                         LOC = "B18"; # NC INP
+NET "o_Mem_Addr(2)"             LOC = "C18" | IOSTANDARD = SSTL2_I;
+NET "o_Mem_Addr(3)"             LOC = "C17" | IOSTANDARD = SSTL2_I;
+#NET ""                         LOC = "D18"; # VREF
+NET "o_Disk_Led"                LOC = "D17" | IOSTANDARD = LVCMOS25;
+NET "o_Pwr_Led"                 LOC = "D16" | IOSTANDARD = LVCMOS25;
+#NET ""                         LOC = "E18"; # NC INP
+#NET ""                         LOC = "E17"; # NC INP
+
+NET "b_2V5_IO_1"                LOC = "E16" | IOSTANDARD = LVCMOS25;
+NET "b_2V5_IO_0"                LOC = "E15" | IOSTANDARD = LVCMOS25;
+NET "o_Mem_Addr(1)"             LOC = "F18" | IOSTANDARD = SSTL2_I;
+NET "o_Mem_Addr(4)"             LOC = "F17" | IOSTANDARD = SSTL2_I;
+NET "o_Mem_Addr(0)"             LOC = "F15" | IOSTANDARD = SSTL2_I;
+NET "o_Mem_Addr(5)"             LOC = "F14" | IOSTANDARD = SSTL2_I;
+#NET ""                         LOC = "G18"; # NC INP
+NET "o_Mem_Addr(10)"            LOC = "G16" | IOSTANDARD = SSTL2_I;
+
+NET "o_Mem_Addr(6)"             LOC = "G15" | IOSTANDARD = SSTL2_I;
+NET "o_Mem_Addr(14)"            LOC = "G14" | IOSTANDARD = SSTL2_I;
+NET "o_Mem_Addr(7)"             LOC = "G13" | IOSTANDARD = SSTL2_I;
+#NET ""                         LOC = "H18"; # VREF
+NET "o_Mem_Addr(13)"            LOC = "H17" | IOSTANDARD = SSTL2_I;
+NET "o_Mem_Addr(8)"             LOC = "H16" | IOSTANDARD = SSTL2_I;
+NET "o_Mem_Addr(9)"             LOC = "H15" | IOSTANDARD = SSTL2_I;
+NET "o_Mem_CS"                  LOC = "H14" | IOSTANDARD = SSTL2_I; # ctrl4
+
+#NET ""                         LOC = "H13"; # NC INP
+NET "o_Mem_Addr(11)"            LOC = "J17" | IOSTANDARD = SSTL2_I;
+NET "o_Mem_RAS"                 LOC = "J16" | IOSTANDARD = SSTL2_I; # ctrl3
+NET "o_Mem_Addr(12)"            LOC = "J15" | IOSTANDARD = SSTL2_I;
+NET "o_Mem_CAS"                 LOC = "J14" | IOSTANDARD = SSTL2_I; # ctrl2
+NET "o_Mem_CKE"                 LOC = "J13" | IOSTANDARD = SSTL2_I; # ctrl0
+NET "o_Mem_WE"                  LOC = "J12" | IOSTANDARD = SSTL2_I; # ctrl1
+
+#NET ""                         LOC = "K18"; # NC INP
+#NET ""                         LOC = "K17"; # NC INP
+NET "o_Mem_Clk_P"               LOC = "K15" | IOSTANDARD = SSTL2_I;
+NET "o_Mem_Clk_N"               LOC = "K14" | IOSTANDARD = SSTL2_I;
+NET "o_Mem_UDM"                 LOC = "K13" | IOSTANDARD = SSTL2_I; # ctrl6
+NET "o_Mem_LDM"                 LOC = "K12" | IOSTANDARD = SSTL2_I; # ctrl5
+NET "b_Mem_UDQS"                LOC = "L18" | IOSTANDARD = SSTL2_I; # ctrl8
+#NET ""                         LOC = "L17"; # VREF
+
+NET "b_Mem_DQ(8)"               LOC = "L16" | IOSTANDARD = SSTL2_I;
+NET "b_Mem_DQ(10)"              LOC = "L15" | IOSTANDARD = SSTL2_I;
+#NET ""                         LOC = "L14"; # NC INP
+#NET ""                         LOC = "L13"; # NC INP
+NET "b_Mem_DQ(7)"               LOC = "M18" | IOSTANDARD = SSTL2_I;
+NET "b_Mem_DQ(9)"               LOC = "M16" | IOSTANDARD = SSTL2_I;
+NET "b_Mem_DQ(6)"               LOC = "M15" | IOSTANDARD = SSTL2_I;
+NET "b_Mem_LDQS"                LOC = "M14" | IOSTANDARD = SSTL2_I; # ctrl7
+
+#NET ""                         LOC = "M13" # VREF
+NET "b_Mem_DQ(5)"               LOC = "N18" | IOSTANDARD = SSTL2_I;
+#NET ""                         LOC = "N17"; # NC INP
+NET "b_Mem_DQ(4)"               LOC = "N15" | IOSTANDARD = SSTL2_I;
+NET "b_Mem_DQ(11)"              LOC = "N14" | IOSTANDARD = SSTL2_I;
+NET "b_Mem_DQ(3)"               LOC = "P18" | IOSTANDARD = SSTL2_I;
+NET "b_Mem_DQ(12)"              LOC = "P17" | IOSTANDARD = SSTL2_I;
+NET "b_Mem_DQ(13)"              LOC = "P16" | IOSTANDARD = SSTL2_I;
+
+NET "i_Ext_Rst_L"               LOC = "P15" | IOSTANDARD = LVCMOS25 | PULLUP;
+NET "b_Mem_DQ(2)"               LOC = "R18" | IOSTANDARD = SSTL2_I;
+#NET ""                         LOC = "R17"; # NC INP
+#NET ""                         LOC = "R16"; # VREF
+NET "b_Mem_DQ(14)"              LOC = "R15" | IOSTANDARD = SSTL2_I;
+NET "b_Mem_DQ(1)"               LOC = "T18" | IOSTANDARD = SSTL2_I;
+NET "b_Mem_DQ(0)"               LOC = "T17" | IOSTANDARD = SSTL2_I;
+NET "b_Mem_DQ(15)"              LOC = "U18" | IOSTANDARD = SSTL2_I;
+#
+# 3V3
+#
+NET "i_Video_Int"               LOC = "V16" | IOSTANDARD = LVTTL; #video15
+NET "o_Audio_LRCIN"             LOC = "T16" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Audio_MCLK"              LOC = "V15" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Audio_BCKIN"             LOC = "U15" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Audio_DIN"               LOC = "T15" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_FPGA_Ctrl1"              LOC = "V14" | IOSTANDARD = LVTTL;
+NET "i_FPGA_Ctrl0"              LOC = "U14" | IOSTANDARD = LVTTL;
+NET "b_PS2B_Data"               LOC = "T14" | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "b_PS2B_Clk"                LOC = "R14" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Video_Data(7)"           LOC = "V13" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Video_Data(0)"           LOC = "U13" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Video_Rst_L"             LOC = "R13" | IOSTANDARD = LVTTL | DRIVE = 8; # video16
+NET "o_Video_DE"                LOC = "P13" | IOSTANDARD = LVTTL | DRIVE = 8; # video14
+NET "o_Video_Data(2)"           LOC = "V12" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Video_Data(1)"           LOC = "T12" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Video_V"                 LOC = "R12" | IOSTANDARD = LVTTL | DRIVE = 8; #video13
+
+NET "o_Video_H"                 LOC = "P12" | IOSTANDARD = LVTTL | DRIVE = 8; #video12
+NET "o_Video_Data(4)"           LOC = "N12" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(0)"               LOC = "U11" | IOSTANDARD = LVTTL | PULLUP;
+NET "i_Aux_IP(6)"               LOC = "T11" | IOSTANDARD = LVTTL | PULLUP;
+NET "o_Video_Data(5)"           LOC = "R11" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Video_Data(3)"           LOC = "P11" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Video_Data(8)"           LOC = "N11" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "ClK_A"                     LOC = "U10" | IOSTANDARD = LVTTL;
+
+NET "b_SCL"                     LOC = "R10" | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_SDA"                     LOC = "P10" | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "o_Video_Clk_N"             LOC = "V9"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Video_Clk_P"             LOC = "U9"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Video_Data(9)"           LOC = "R9"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Video_Data(6)"           LOC = "P9"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Clk_Aux"                 LOC = "N9"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Clk_68K"                 LOC = "M9"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(2)"               LOC = "V8"  | IOSTANDARD = LVTTL | PULLUP;
+NET "i_Aux_IP(1)"               LOC = "U8"  | IOSTANDARD = LVTTL | PULLUP;
+
+NET "o_Video_Data(10)"          LOC = "T8"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Video_Data(11)"          LOC = "R8"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Video_HSync"             LOC = "P8"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "o_Video_VSync"             LOC = "N8"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Video_DDC_Clk"           LOC = "V7"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(4)"               LOC = "T7"  | IOSTANDARD = LVTTL | PULLUP;
+NET "i_Aux_IP(3)"               LOC = "R7"  | IOSTANDARD = LVTTL | PULLUP;
+NET "b_Video_DDC_Data"          LOC = "P7"  | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "b_IO(15)"                  LOC = "N7"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Video_SPC"               LOC = "V6"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(0)"                   LOC = "U6"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(1)"                   LOC = "R6"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(2)"                   LOC = "P6"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(3)"                   LOC = "V5"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(4)"                   LOC = "U5"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(5)"                   LOC = "T5"  | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "b_IO(6)"                   LOC = "R5"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(5)"               LOC = "V4"  | IOSTANDARD = LVTTL | PULLUP;
+NET "b_IO(7)"                   LOC = "T4"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(7)"               LOC = "V3"  | IOSTANDARD = LVTTL | PULLUP;
+NET "b_IO(8)"                   LOC = "U3"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(8)"               LOC = "V2"  | IOSTANDARD = LVTTL | PULLUP;
+#
+# 3V3
+#
+NET "i_Aux_IP(9)"               LOC = "U1"  | IOSTANDARD = LVTTL | PULLUP;
+NET "b_IO(9)"                   LOC = "T1"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(10)"                  LOC = "T2"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(10)"              LOC = "R1"  | IOSTANDARD = LVTTL | PULLUP;
+NET "b_IO(11)"                  LOC = "R2"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(12)"                  LOC = "R3"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(11)"              LOC = "R4"  | IOSTANDARD = LVTTL | PULLUP;
+NET "b_IO(13)"                  LOC = "P1"  | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "b_IO(14)"                  LOC = "P2"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Video_SPD"               LOC = "P3"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(43)"                  LOC = "P4"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(12)"              LOC = "N1"  | IOSTANDARD = LVTTL | PULLUP;
+NET "i_Aux_IP(13)"              LOC = "N2"  | IOSTANDARD = LVTTL | PULLUP;
+NET "b_IO(42)"                  LOC = "N4"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(41)"                  LOC = "N5"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(14)"              LOC = "M1"  | IOSTANDARD = LVTTL | PULLUP;
+
+NET "b_IO(40)"                  LOC = "M3"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(27)"                  LOC = "M4"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(26)"                  LOC = "M5"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(25)"                  LOC = "M6"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(24)"                  LOC = "L1"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(23)"                  LOC = "L2"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(22)"                  LOC = "L3"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(21)"                  LOC = "L4"  | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "b_IO(20)"                  LOC = "L5"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(19)"                  LOC = "L6"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(15)"              LOC = "K2"  | IOSTANDARD = LVTTL | PULLUP;
+NET "b_IO(18)"                  LOC = "K3"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(17)"                  LOC = "K4"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(16)"                  LOC = "K5"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(44)"                  LOC = "K6"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(16)"              LOC = "K7"  | IOSTANDARD = LVTTL | PULLUP;
+
+NET "b_IO(45)"                  LOC = "J1"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(46)"                  LOC = "J2"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(47)"                  LOC = "J4"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(48)"                  LOC = "J5"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(17)"              LOC = "J6"  | IOSTANDARD = LVTTL | PULLUP;
+NET "i_Aux_IP(18)"              LOC = "J7"  | IOSTANDARD = LVTTL | PULLUP;
+NET "b_IO(49)"                  LOC = "H1"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(50)"                  LOC = "H2"  | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "b_IO(51)"                  LOC = "H3"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(52)"                  LOC = "H4"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(53)"                  LOC = "H5"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(54)"                  LOC = "H6"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(19)"              LOC = "G1"  | IOSTANDARD = LVTTL | PULLUP;
+NET "b_IO(39)"                  LOC = "G3"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(38)"                  LOC = "G4"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(37)"                  LOC = "G5"  | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "b_IO(36)"                  LOC = "G6"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(35)"                  LOC = "F1"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(34)"                  LOC = "F2"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(20)"              LOC = "F4"  | IOSTANDARD = LVTTL | PULLUP;
+NET "i_Aux_IP(21)"              LOC = "F5"  | IOSTANDARD = LVTTL | PULLUP;
+NET "b_IO(33)"                  LOC = "E1"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(32)"                  LOC = "E2"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(31)"                  LOC = "E3"  | IOSTANDARD = LVTTL | DRIVE = 8;
+
+NET "b_IO(30)"                  LOC = "E4"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(29)"                  LOC = "D1"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_IO(28)"                  LOC = "D2"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "i_Aux_IP(22)"              LOC = "D3"  | IOSTANDARD = LVTTL | PULLUP;
+NET "b_Aux_IO(1)"               LOC = "D4"  | IOSTANDARD = LVTTL | DRIVE = 8;
+NET "b_Aux_IO(39)"              LOC = "C1"  | IOSTANDARD = LVTTL | DRIVE = 8;
+
+#NET "i_SSC_TF"                  LOC = "T3"  | IOSTANDARD = LVTTL;
+#NET "i_SSC_TD"                  LOC = "N10" | IOSTANDARD = LVTTL;
+#NET "i_SSC_RK"                  LOC = "U16" | IOSTANDARD = LVTTL;
+NET "o_SSC_RD"                  LOC = "U4"  | IOSTANDARD = LVTTL | DRIVE = 8;
+
+
