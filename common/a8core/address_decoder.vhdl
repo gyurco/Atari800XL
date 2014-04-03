@@ -27,13 +27,13 @@ PORT
 	ANTIC_FETCH : IN STD_LOGIC;
 	antic_refresh : in std_logic; -- use for sdram refresh (sdram needs more, but this is a start)
 
-	ZPU_ADDR : in std_logic_vector(23 downto 0);	
-	ZPU_FETCH : in std_logic;
-	ZPU_READ_ENABLE : in std_logic;
-	ZPU_32BIT_WRITE_ENABLE : in std_logic; -- common case
-	ZPU_16BIT_WRITE_ENABLE : in std_logic; -- for sram
-	ZPU_8BIT_WRITE_ENABLE : in std_logic; -- for hardware regs	
-	ZPU_WRITE_DATA : in std_logic_vector(31 downto 0);
+	DMA_ADDR : in std_logic_vector(23 downto 0);	
+	DMA_FETCH : in std_logic;
+	DMA_READ_ENABLE : in std_logic;
+	DMA_32BIT_WRITE_ENABLE : in std_logic; -- common case
+	DMA_16BIT_WRITE_ENABLE : in std_logic; -- for sram
+	DMA_8BIT_WRITE_ENABLE : in std_logic; -- for hardware regs	
+	DMA_WRITE_DATA : in std_logic_vector(31 downto 0);
 	
 	-- sources of data
 	ROM_DATA : IN STD_LOGIC_VECTOR(7 downto 0);	-- flash rom
@@ -58,6 +58,8 @@ PORT
 	PORTB : IN STD_LOGIC_VECTOR(7 downto 0);
 	
 	reset_n : in std_logic;
+
+	rom_in_ram : in std_logic;
 	
 	rom_select : in std_logic_vector(5 downto 0);
 	cart_select : in std_logic_vector(6 downto 0);
@@ -76,7 +78,7 @@ PORT
 	-- Flash and internal RAM take 2 cycles to access. SRAM takes 1 cycle.
 	-- Allow us to say we're not ready for a cycle
 	MEMORY_READY_ANTIC : OUT STD_LOGIC;
-	MEMORY_READY_ZPU : OUT STD_LOGIC;
+	MEMORY_READY_DMA : OUT STD_LOGIC;
 	MEMORY_READY_CPU : out std_logic;	
 	
 	-- Each chip does not have whole address bus, so several are addressed at once
@@ -146,7 +148,7 @@ ARCHITECTURE vhdl OF address_decoder IS
 	
 	signal request_complete : std_logic;
 	signal notify_antic : std_logic;
-	signal notify_zpu : std_logic;
+	signal notify_DMA : std_logic;
 	signal notify_cpu : std_logic;
 	signal start_request : std_logic;
 	
@@ -165,7 +167,7 @@ ARCHITECTURE vhdl OF address_decoder IS
 	signal state_reg : std_logic_vector(1 downto 0);
 	constant state_idle : std_logic_vector(1 downto 0) := "00";
 	constant state_waiting_cpu : std_logic_vector(1 downto 0) := "01";
-	constant state_waiting_zpu : std_logic_vector(1 downto 0) := "10";
+	constant state_waiting_DMA : std_logic_vector(1 downto 0) := "10";
 	constant state_waiting_antic : std_logic_vector(1 downto 0) := "11";
 		
 	signal ram_chip_select : std_logic;
@@ -179,8 +181,6 @@ ARCHITECTURE vhdl OF address_decoder IS
 	
 	signal fetch_wait_next : std_logic_vector(8 downto 0);
 	signal fetch_wait_reg : std_logic_vector(8 downto 0);	
-	
-	signal rom_in_ram : std_logic;
 	
 	signal antic_fetch_real_next : std_logic;
 	signal antic_fetch_real_reg : std_logic;
@@ -244,13 +244,13 @@ BEGIN
 	-- state machine
 	
 	-- state machine impl
-	fetch_priority <= ANTIC_FETCH&ZPU_FETCH&CPU_FETCH;
-	process(fetch_wait_reg, state_reg, addr_reg, data_write_reg, width_8bit_reg, width_16bit_reg, width_32bit_reg, write_enable_reg, fetch_priority, antic_addr, zpu_addr, cpu_addr, request_complete, zpu_8bit_write_enable,zpu_16bit_write_enable,zpu_32bit_write_enable,zpu_read_enable, cpu_write_n, CPU_WRITE_DATA, ZPU_WRITE_DATA, antic_fetch_real_reg, cpu_fetch_real_reg)
+	fetch_priority <= ANTIC_FETCH&DMA_FETCH&CPU_FETCH;
+	process(fetch_wait_reg, state_reg, addr_reg, data_write_reg, width_8bit_reg, width_16bit_reg, width_32bit_reg, write_enable_reg, fetch_priority, antic_addr, DMA_addr, cpu_addr, request_complete, DMA_8bit_write_enable,DMA_16bit_write_enable,DMA_32bit_write_enable,DMA_read_enable, cpu_write_n, CPU_WRITE_DATA, DMA_WRITE_DATA, antic_fetch_real_reg, cpu_fetch_real_reg)
 	begin
 		start_request <= '0';
 		notify_antic <= '0';
 		notify_cpu <= '0';
-		notify_zpu <= '0';
+		notify_DMA <= '0';
 		state_next <= state_reg;
 		fetch_wait_next <= std_logic_vector(unsigned(fetch_wait_reg) +1);
 
@@ -272,7 +272,7 @@ BEGIN
 				width_16bit_next <= '0';
 				width_32bit_next <= '0';	
 				data_WRITE_next <= (others => '0');
-				addr_next <= zpu_ADDR(23 downto 16)&cpu_ADDR(15 downto 0);				
+				addr_next <= DMA_ADDR(23 downto 16)&cpu_ADDR(15 downto 0);				
 				
 				case fetch_priority is
 				when "100"|"101"|"110"|"111" => -- antic wins
@@ -285,21 +285,22 @@ BEGIN
 						state_next <= state_waiting_antic;
 					end if;
 					antic_fetch_real_next <= '1';
-				when "010"|"011" => -- zpu wins (zpu usually accesses own ROM memory - this is NOT a zpu_fetch)
+				when "010"|"011" => -- DMA wins (DMA usually accesses own ROM memory - this is NOT a DMA_fetch)
+					-- TODO, lower priority than 6502, except on first request in block...
 					start_request <= '1';
-					addr_next <= zpu_ADDR;
-					data_WRITE_next <= zpu_wRITE_DATA;
+					addr_next <= DMA_ADDR;
+					data_WRITE_next <= DMA_WRITE_DATA;
 
-					width_8bit_next <= zpu_8BIT_WRITE_ENABLE or (zpu_READ_ENABLE and (zpu_addr(0) or zpu_addr(1)));
-					width_16bit_next <= zpu_16BIT_WRITE_ENABLE;
-					width_32bit_next <= zpu_32BIT_WRITE_ENABLE or (zpu_READ_ENABLE and not(zpu_addr(0) or zpu_addr(1))); -- narrower devices just return 8 bits on read
+					width_8bit_next <= DMA_8BIT_WRITE_ENABLE or (DMA_READ_ENABLE and (DMA_addr(0) or DMA_addr(1)));
+					width_16bit_next <= DMA_16BIT_WRITE_ENABLE;
+					width_32bit_next <= DMA_32BIT_WRITE_ENABLE or (DMA_READ_ENABLE and not(DMA_addr(0) or DMA_addr(1))); -- narrower devices just return 8 bits on read
 					
-					write_enable_next <= not(zpu_READ_ENABLE);
+					write_enable_next <= not(DMA_READ_ENABLE);
 					
 					if (request_complete = '1') then
-						notify_zpu <= '1';
+						notify_DMA <= '1';
 					else
-						state_next <= state_waiting_zpu;
+						state_next <= state_waiting_DMA;
 					end if;					
 				when "001" => -- 6502 wins
 					start_request <= '1';
@@ -323,9 +324,9 @@ BEGIN
 					notify_antic <= '1';
 					state_next <= state_idle;
 				end if;
-			when state_waiting_zpu =>
+			when state_waiting_DMA =>
 				if (request_complete = '1') then
-					notify_zpu <= '1';
+					notify_DMA <= '1';
 					state_next <= state_idle;
 				end if;
 			when state_waiting_cpu =>
@@ -340,7 +341,7 @@ BEGIN
 	
 	-- output
 	MEMORY_READY_ANTIC <= notify_antic;
-	MEMORY_READY_ZPU <= notify_zpu;
+	MEMORY_READY_DMA <= notify_DMA;
 	MEMORY_READY_CPU <= notify_cpu;
 	
 	RAM_REQUEST <= ram_chip_select;
@@ -497,8 +498,6 @@ BEGIN
 		ram_chip_select <= '0';
 		sdram_chip_select <= '0';
 		
-		rom_in_ram <= '1';
-
 	--	if (addr_next(23 downto 17) = "0000000" ) then -- bit 16 left out on purpose, so the Atari 64k is available as 64k-128k for zpu. The zpu has rom at 0-64k...
 		if (or_reduce(addr_next(23 downto 18)) = '0' ) then -- bit 16,17 left out on purpose, so the Atari 64k is available as 64k-128k for zpu. The zpu has rom at 0-64k...
 

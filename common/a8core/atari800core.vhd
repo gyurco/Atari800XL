@@ -1,19 +1,10 @@
--- Your use of Altera Corporation's design tools, logic functions 
--- and other software and tools, and its AMPP partner logic 
--- functions, and any output files from any of the foregoing 
--- (including device programming or simulation files), and any 
--- associated documentation or information are expressly subject 
--- to the terms and conditions of the Altera Program License 
--- Subscription Agreement, Altera MegaCore Function License 
--- Agreement, or other applicable license agreement, including, 
--- without limitation, that your use is for the sole purpose of 
--- programming logic devices manufactured by Altera and sold by 
--- Altera or its authorized distributors.  Please refer to the 
--- applicable agreement for further details.
-
--- PROGRAM		"Quartus II 64-Bit"
--- VERSION		"Version 12.1 Build 243 01/31/2013 Service Pack 1.33 SJ Web Edition"
--- CREATED		"Tue Dec 31 22:21:48 2013"
+---------------------------------------------------------------------------
+-- (c) 2013 mark watson
+-- I am happy for anyone to use this for non-commercial use.
+-- If my vhdl files are used commercially or otherwise sold,
+-- please contact me for explicit permission at scrameta (gmail).
+-- This applies for source and binary form and derived works.
+---------------------------------------------------------------------------
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
@@ -22,493 +13,174 @@ use ieee.numeric_std.all;
 
 LIBRARY work;
 
+-- There is a higher level that just wires up internal ROM/RAM/joysticks to demonstrate how to use this
+-- Also see board specific top levels
 ENTITY atari800core IS 
+	GENERIC
+	(
+		cycle_length : integer := 16 -- or 32...
+	);
 	PORT
 	(
-		CLK :  IN  STD_LOGIC;
-		PLL_LOCKED: IN STD_LOGIC;
+		CLK :  IN  STD_LOGIC; -- cycle_length*1.79MHz
+		RESET_N : IN STD_LOGIC;
 
+		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
 		VGA_VS :  OUT  STD_LOGIC;
 		VGA_HS :  OUT  STD_LOGIC;
 		VGA_B :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
 		VGA_G :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
 		VGA_R :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
-		
-		JOY1_n :  IN  STD_LOGIC_VECTOR(5 DOWNTO 0);
-		JOY2_n :  IN  STD_LOGIC_VECTOR(5 DOWNTO 0);
 
-		matrix_out : in std_logic_vector(15 downto 0);
-		matrix_in : out std_logic_vector(7 downto 0);
-		static_keys : in std_logic_vector(6 downto 0);
-		pause_key : in std_logic;
-		
+		-- AUDIO OUT - Pokey/GTIA 1-bit and Covox all mixed
+		-- TODO - choose stereo/mono pokey
 		AUDIO_L : OUT std_logic_vector(15 downto 0);
 		AUDIO_R : OUT std_logic_vector(15 downto 0);
 
+		-- PIA
+		CA1_IN : IN STD_LOGIC; -- SIO Proceed
+		CB1_IN : IN STD_LOGIC; -- SIO IRQ
+		CA2_IN : IN STD_LOGIC; -- SIO Motor control
+		CA2_OUT : OUT STD_LOGIC; 
+		CA2_DIR_OUT: OUT STD_LOGIC; -- 1=output mode
+		CB2_IN: IN STD_LOGIC;
+		CB2_OUT : OUT STD_LOGIC; -- SIO Command
+		CB2_DIR_OUT: OUT STD_LOGIC; -- 1=output mode
+		PORTA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- For joystick
+		PORTA_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+		PORTA_DIR_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+		PORTB_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- For bank switching on XL/XE, for joystick on 800XL
+		PORTB_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+		PORTB_DIR_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+
+		-- Pokey keyboard matrix
+		-- Standard component available to connect this to PS2
+		KEYBOARD_RESPONSE : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+		KEYBOARD_SCAN : OUT STD_LOGIC_VECTOR(5 DOWNTO 0);
+
+		-- PBI
+		PBI_ADDR : out STD_LOGIC_VECTOR(15 DOWNTO 0);
+		PBI_WRITE_ENABLE : out STD_LOGIC; -- currently only for CART config...
+		PBI_SNOOP_DATA : out std_logic_vector(31 downto 0); -- snoop the bus (i.e. what gets feed to the CPU data in)
+		PBI_WRITE_DATA : out std_logic_vector(31 downto 0); -- we want to write this to external ram
+		PBI_WIDTH_8bit_ACCESS : out std_logic;
+		PBI_WIDTH_16bit_ACCESS : out std_logic;
+		PBI_WIDTH_32bit_ACCESS : out std_logic;
+
+		-- TODO - review this mechanism
+		-- Since this is intended for real carts, instead should use real timing, though perhaps that can be external...
+		PBI_ROM_DO : in STD_LOGIC_VECTOR(7 DOWNTO 0);
+		PBI_REQUEST : out STD_LOGIC;
+		PBI_REQUEST_COMPLETE : in STD_LOGIC;
+		-- TODO - also need to allow rest of PBI accesses, refresh handling etc. Can wait...
+		-- TODO MPD, IRQ, RDY, REFRESH, EXTSEL, RST
+
+		-- CARTRIDGE ACCESS
+		-- (R/W/DO on PBI)
+		CART_RD4 : in STD_LOGIC;
+		CART_RD5 : in STD_LOGIC;
+		CART_S4_n : out STD_LOGIC;
+		CART_S5_N : out STD_LOGIC;
+		CART_CCTL_N : out std_logic;
+
+		-- SIO
+		SIO_RXD : in std_logic;
+		SIO_TXD : out std_logic;
+		-- SIO_COMMAND_TX - see PIA PB2
+		-- TODO CLOCK IN/CLOCK OUT (unused almost everywhere...)
+
+		-- GTIA consol
+		-- TODO - GTIA can drive these low - used on 5200 for example!
+		CONSOL_OPTION : IN STD_LOGIC;
+		CONSOL_SELECT : IN STD_LOGIC;
+		CONSOL_START : IN STD_LOGIC;
+
+		-----------------------
+		-- After here all FPGA implementation specific
+		-- e.g. need to write up RAM/ROM
+		-- we can dma from memory space
+		-- etc.
+
+		-- External RAM/ROM - adhere to standard memory map
+		-- TODO - lower/upper memory split defined by generic
+		-- (TODO SRAM lower ram, SDRAM upper ram - no overlap?)
+		---- SRAM memory map (512k) (if USE_SDRAM=0)
+		---- base 64k RAM  - banks 0-3    "000 0000 1111 1111 1111 1111" (TOP)
+		---- to 512k RAM   - banks 4-31   "000 0111 1111 1111 1111 1111" (TOP)
+		---- SDRAM memory map (8MB) (lower 512k if USE_SDRAM=1)
+		---- base 64k RAM  - banks 0-3    "000 0000 1111 1111 1111 1111" (TOP)
+		---- to 512k RAM   - banks 4-31   "000 0111 1111 1111 1111 1111" (TOP) 
+		---- to 4MB RAM    - banks 32-255 "011 1111 1111 1111 1111 1111" (TOP)
+		---- +64k          - banks 256-259"100 0000 0000 1111 1111 1111" (TOP)
+		---- SCRATCH       - 4MB+64k-5MB
+		---- CARTS         -              "101 YYYY YYY0 0000 0000 0000" (BOT) - 2MB! 8kb banks
+		--SDRAM_CART_ADDR      <= "101"&cart_select& "0000000000000";
+		---- BASIC/OS ROM  -              "111 XXXX XX00 0000 0000 0000" (BOT) (BASIC IN SLOT 0!), 2nd to last 512K				
+		--SDRAM_BASIC_ROM_ADDR <= "111"&"000000"   &"00000000000000";
+		--SDRAM_OS_ROM_ADDR    <= "111"&rom_select &"00000000000000";
+		---- SYSTEM        -              "111 1000 0000 0000 0000 0000" (BOT) - LAST 512K
+		-- TODO - review if we need to pass out so many of these
+		-- Perhaps we can simplify address decoder and have an external layer?
 		SDRAM_REQUEST : OUT std_logic;
 		SDRAM_REQUEST_COMPLETE : IN std_logic;
 		SDRAM_READ_ENABLE : out STD_LOGIC;
 		SDRAM_WRITE_ENABLE : out std_logic;
-		SDRAM_DI : out std_logic_vector(31 downto 0);
 		SDRAM_ADDR : out STD_LOGIC_VECTOR(22 DOWNTO 0);
 		SDRAM_DO : in STD_LOGIC_VECTOR(31 DOWNTO 0);
-		SDRAM_WIDTH_8bit_ACCESS : out std_logic;
-		SDRAM_WIDTH_16bit_ACCESS : out std_logic;
-		SDRAM_WIDTH_32bit_ACCESS : out std_logic;
 
-		SIO_RXD : in std_logic;
-		SIO_TXD : out std_logic;
-		SIO_COMMAND_TX : out std_logic;
+		-- ANTIC refresh cycles
+		-- TODO, expose a better way...
+		SDRAM_REFRESH : out STD_LOGIC;
 
-   		ram_select : in std_logic_vector(2 downto 0);
-    		rom_select : in std_logic_vector(5 downto 0);
+		RAM_ADDR : OUT STD_LOGIC_VECTOR(18 DOWNTO 0);
+		RAM_DO : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+		RAM_REQUEST : OUT STD_LOGIC;
+		RAM_REQUEST_COMPLETE : IN STD_LOGIC;
+		RAM_WRITE_ENABLE : OUT STD_LOGIC;
+		
+		ROM_ADDR : OUT STD_LOGIC_VECTOR(21 DOWNTO 0);
+		ROM_DO : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+		ROM_REQUEST : OUT STD_LOGIC;
+		ROM_REQUEST_COMPLETE : IN STD_LOGIC;
 
-		halt : in std_logic
+		-- DMA memory map differs
+		-- e.g. some special addresses to read behind hardware registers
+		-- 0x0000-0xffff: Atari registers + 3 mirrors (bit 16/17)
+		-- 23 downto 21:
+		-- 001 : SRAM,512k
+		-- 010|011 : ROM, 4MB
+		-- 10xx : SDRAM, 8MB (If you have more, its unmapped for now... Can bank switch! Atari can't access this much anyway...)
+		DMA_FETCH : in STD_LOGIC; -- we want to read/write
+		DMA_READ_ENABLE : in std_logic;
+		DMA_32BIT_WRITE_ENABLE : in std_logic;
+		DMA_16BIT_WRITE_ENABLE : in std_logic;
+		DMA_8BIT_WRITE_ENABLE : in std_logic;
+		DMA_ADDR : in std_logic_vector(23 downto 0);
+		DMA_WRITE_DATA : in std_logic_vector(31 downto 0);
+		MEMORY_READY_DMA : out std_logic; -- op complete
+
+		-- Special config params
+   		RAM_SELECT : in std_logic_vector(2 downto 0); -- 64K,128K,320KB Compy, 320KB Rambo, 576K Compy, 576K Rambo, 1088K, 4MB
+    		ROM_SELECT : in std_logic_vector(5 downto 0); -- 16KB ROM Bank - 0 is illegal (slot used for BASIC!)
+		CART_EMULATION_SELECT : in std_logic_vector(6 downto 0); -- from where
+		CART_EMULATION_ACTIVATE : in std_logic; -- to where? TODO, these needs redoing and wiring up!
+		PAL :  in STD_LOGIC;
+		USE_SDRAM :  in STD_LOGIC;
+		ROM_IN_RAM : in std_logic;
+		THROTTLE_COUNT_6502 : in STD_LOGIC_VECTOR(5 DOWNTO 0);
+		HALT : in std_logic
 	);
 END atari800core;
 
 ARCHITECTURE bdf_type OF atari800core IS 
-component synchronizer IS
-PORT 
-( 
-	CLK : IN STD_LOGIC;
-	RAW : IN STD_LOGIC;
-	SYNC : OUT STD_LOGIC
-);
-END component;
 
-COMPONENT complete_address_decoder IS
-generic (width : natural := 1);
-PORT 
-( 
-	addr_in : in std_logic_vector(width-1 downto 0);			
-	addr_decoded : out std_logic_vector((2**width)-1 downto 0)
-);
-END component;
-
-COMPONENT cpu
-	PORT(CLK : IN STD_LOGIC;
-		 RESET : IN STD_LOGIC;
-		 ENABLE : IN STD_LOGIC;
-		 IRQ_n : IN STD_LOGIC;
-		 NMI_n : IN STD_LOGIC;
-		 MEMORY_READY : IN STD_LOGIC;
-		 THROTTLE : IN STD_LOGIC;
-		 RDY : IN STD_LOGIC;
-		 DI : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 R_W_n : OUT STD_LOGIC;
-		 CPU_FETCH : OUT STD_LOGIC;
-		 A : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-		 DO : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
-	);
-END COMPONENT;
-
-component internalromram IS
-  PORT(
-    clock   : IN     STD_LOGIC;                             --system clock
-    reset_n : IN     STD_LOGIC;                             --asynchronous reset
-
-	ROM_ADDR : in STD_LOGIC_VECTOR(21 downto 0);
-	ROM_REQUEST_COMPLETE : out STD_LOGIC;
-	ROM_REQUEST : in std_logic;
-	ROM_DATA : out std_logic_vector(7 downto 0);
-	
-	RAM_ADDR : in STD_LOGIC_VECTOR(18 downto 0);
-	RAM_WR_ENABLE : in std_logic;
-	RAM_DATA_IN : in STD_LOGIC_VECTOR(7 downto 0);
-	RAM_REQUEST_COMPLETE : out STD_LOGIC;
-	RAM_REQUEST : in std_logic;
-	RAM_DATA : out std_logic_vector(7 downto 0)
-	);
-	
-END component;
-
-COMPONENT antic
-	PORT(CLK : IN STD_LOGIC;
-		 WR_EN : IN STD_LOGIC;
-		 RESET_N : IN STD_LOGIC;
-		 MEMORY_READY_ANTIC : IN STD_LOGIC;
-		 MEMORY_READY_CPU : IN STD_LOGIC;
-		 ANTIC_ENABLE_179 : IN STD_LOGIC;
-		 PAL : IN STD_LOGIC;
-		 lightpen : IN STD_LOGIC;
-		 ADDR : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
-		 CPU_DATA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 MEMORY_DATA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 NMI_N_OUT : OUT STD_LOGIC;
-		 ANTIC_READY : OUT STD_LOGIC;
-		 COLOUR_CLOCK_ORIGINAL_OUT : OUT STD_LOGIC;
-		 COLOUR_CLOCK_OUT : OUT STD_LOGIC;
-		 HIGHRES_COLOUR_CLOCK_OUT : OUT STD_LOGIC;
-		 dma_fetch_out : OUT STD_LOGIC;
-		 refresh_out : OUT STD_LOGIC;
-		 dma_clock_out : OUT STD_LOGIC;
-		 hcount_out : out std_logic_vector(7 downto 0);
-		 vcount_out : out std_logic_vector(8 downto 0);
-		 AN : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-		 DATA_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 dma_address_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
-	);
-END COMPONENT;
-
-COMPONENT pokey_mixer
-	PORT(CLK : IN STD_LOGIC;
-		 GTIA_SOUND : IN STD_LOGIC;
-		 CHANNEL_0 : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
-		 CHANNEL_1 : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
-		 CHANNEL_2 : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
-		 CHANNEL_3 : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
-		 COVOX_CHANNEL_0 : IN STD_LOGIC_VECTOR(7 downto 0);
-		 COVOX_CHANNEL_1 : IN STD_LOGIC_VECTOR(7 downto 0);
-		 CHANNEL_ENABLE : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
-		 VOLUME_OUT : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
-	);
-END COMPONENT;
-
-COMPONENT zpu_glue
-	PORT(CLK : IN STD_LOGIC;
-		 RESET : IN STD_LOGIC;
-		 PAUSE : IN STD_LOGIC;
-		 MEMORY_READY : IN STD_LOGIC;
-		 ZPU_CONFIG_DI : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 ZPU_DI : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 ZPU_RAM_DI : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 ZPU_ROM_DI : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 ZPU_SECTOR_DI : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 MEMORY_FETCH : OUT STD_LOGIC;
-		 ZPU_READ_ENABLE : OUT STD_LOGIC;
-		 ZPU_32BIT_WRITE_ENABLE : OUT STD_LOGIC;
-		 ZPU_16BIT_WRITE_ENABLE : OUT STD_LOGIC;
-		 ZPU_8BIT_WRITE_ENABLE : OUT STD_LOGIC;
-		 ZPU_CONFIG_WRITE : OUT STD_LOGIC;
-		 ZPU_ADDR_FETCH : OUT STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 ZPU_ADDR_ROM_RAM : OUT STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 ZPU_DO : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 ZPU_STACK_WRITE : OUT STD_LOGIC_VECTOR(3 DOWNTO 0)
-	);
-END COMPONENT;
-
-COMPONENT pokey
-	PORT(CLK : IN STD_LOGIC;
-		 CPU_MEMORY_READY : IN STD_LOGIC;
-		 ANTIC_MEMORY_READY : IN STD_LOGIC;
-		 WR_EN : IN STD_LOGIC;
-		 RESET_N : IN STD_LOGIC;
-		 SIO_IN1 : IN STD_LOGIC;
-		 SIO_IN2 : IN STD_LOGIC;
-		 SIO_IN3 : IN STD_LOGIC;
-		 SIO_CLOCK : INOUT STD_LOGIC;
-		 ADDR : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
-		 DATA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 keyboard_response : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-		 POT_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 IRQ_N_OUT : OUT STD_LOGIC;
-		 SIO_OUT1 : OUT STD_LOGIC;
-		 SIO_OUT2 : OUT STD_LOGIC;
-		 SIO_OUT3 : OUT STD_LOGIC;
-		 POT_RESET : OUT STD_LOGIC;
-		 CHANNEL_0_OUT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
-		 CHANNEL_1_OUT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
-		 CHANNEL_2_OUT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
-		 CHANNEL_3_OUT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
-		 DATA_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 keyboard_scan : OUT STD_LOGIC_VECTOR(5 DOWNTO 0)
-	);
-END COMPONENT;
-
-COMPONENT pia
-	PORT(	CLK : IN STD_LOGIC;
-	ADDR : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-	CPU_DATA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-	EN : IN STD_LOGIC;
-	WR_EN : IN STD_LOGIC;
-	
-	RESET_N : IN STD_LOGIC;
-	
-	CA1 : IN STD_LOGIC;
-	CB1 : IN STD_LOGIC;		
-	
-	CA2_DIR_OUT : OUT std_logic;
-	CA2_OUT : OUT std_logic;
-	CA2_IN : IN STD_LOGIC;
-
-	CB2_DIR_OUT : OUT std_logic;
-	CB2_OUT : OUT std_logic;
-	CB2_IN : IN STD_LOGIC;
-	
-	-- remember these two are different if connecting to gpio (push pull vs pull up - check 6520 data sheet...)
-	-- pull up - i.e. 0 driven only
-	PORTA_DIR_OUT : OUT STD_LOGIC_VECTOR(7 downto 0); -- set bit to 1 to enable output mode
-	PORTA_OUT : OUT STD_LOGIC_VECTOR(7 downto 0); 
-	PORTA_IN : IN STD_LOGIC_VECTOR(7 downto 0);
-	
-	PORTB_DIR_OUT : OUT STD_LOGIC_VECTOR(7 downto 0);
-	PORTB_OUT : OUT STD_LOGIC_VECTOR(7 downto 0); -- push pull
-	PORTB_IN : IN STD_LOGIC_VECTOR(7 downto 0); -- push pull
-	
-	-- CPU interface
-	DATA_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-		
-	IRQA_N : OUT STD_LOGIC;
-	IRQB_N : OUT STD_LOGIC	);
-END COMPONENT;
-
-COMPONENT shared_enable
-	PORT(CLK : IN STD_LOGIC;
-		 RESET_N : IN STD_LOGIC;
-		 MEMORY_READY_CPU : IN STD_LOGIC;
-		 MEMORY_READY_ANTIC : IN STD_LOGIC;
-		 PAUSE_6502 : IN STD_LOGIC;
-		 THROTTLE_COUNT_6502 : IN STD_LOGIC_VECTOR(5 DOWNTO 0);
-		 POKEY_ENABLE_179 : OUT STD_LOGIC;
-		 ANTIC_ENABLE_179 : OUT STD_LOGIC;
-		 oldcpu_enable : OUT STD_LOGIC;
-		 CPU_ENABLE_OUT : OUT STD_LOGIC;
-		 SCANDOUBLER_ENABLE_LOW : OUT STD_LOGIC;
-		 SCANDOUBLER_ENABLE_HIGH : OUT STD_LOGIC
-	);
-END COMPONENT;
-
-COMPONENT address_decoder
-	PORT(CLK : IN STD_LOGIC;
-		 CPU_FETCH : IN STD_LOGIC;
-		 CPU_WRITE_N : IN STD_LOGIC;
-		 ANTIC_FETCH : IN STD_LOGIC;
-		 antic_refresh : IN STD_LOGIC;
-		 ZPU_FETCH : IN STD_LOGIC;
-		 ZPU_READ_ENABLE : IN STD_LOGIC;
-		 ZPU_32BIT_WRITE_ENABLE : IN STD_LOGIC;
-		 ZPU_16BIT_WRITE_ENABLE : IN STD_LOGIC;
-		 ZPU_8BIT_WRITE_ENABLE : IN STD_LOGIC;
-		 RAM_REQUEST_COMPLETE : IN STD_LOGIC;
-		 ROM_REQUEST_COMPLETE : IN STD_LOGIC;
-		 CART_REQUEST_COMPLETE : IN STD_LOGIC;
-		 reset_n : IN STD_LOGIC;
-		 CART_RD4 : IN STD_LOGIC;
-		 CART_RD5 : IN STD_LOGIC;
-		 use_sdram : IN STD_LOGIC;
-		 SDRAM_REQUEST_COMPLETE : IN STD_LOGIC;
-		 ANTIC_ADDR : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-		 ANTIC_DATA : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 CACHE_ANTIC_DATA : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 CART_ROM_DATA : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 CPU_ADDR : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-		 CPU_WRITE_DATA : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 GTIA_DATA : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 CACHE_GTIA_DATA : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 PIA_DATA : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 POKEY2_DATA : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 CACHE_POKEY2_DATA : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 POKEY_DATA : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 CACHE_POKEY_DATA : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 PORTB : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 RAM_DATA : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-		 ram_select : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-		 ROM_DATA : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 rom_select : in std_logic_vector(5 downto 0);
-		 cart_select : in std_logic_vector(6 downto 0);
-		 cart_activate : in std_logic;
-		 SDRAM_DATA : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 ZPU_ADDR : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-		 ZPU_WRITE_DATA : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 MEMORY_READY_ANTIC : OUT STD_LOGIC;
-		 MEMORY_READY_ZPU : OUT STD_LOGIC;
-		 MEMORY_READY_CPU : OUT STD_LOGIC;
-		 GTIA_WR_ENABLE : OUT STD_LOGIC;
-		 POKEY_WR_ENABLE : OUT STD_LOGIC;
-		 POKEY2_WR_ENABLE : OUT STD_LOGIC;
-		 ANTIC_WR_ENABLE : OUT STD_LOGIC;
-		 PIA_WR_ENABLE : OUT STD_LOGIC;
-		 PIA_RD_ENABLE : OUT STD_LOGIC;
-		 RAM_WR_ENABLE : OUT STD_LOGIC;
-		 PBI_WR_ENABLE : OUT STD_LOGIC;
-		 RAM_REQUEST : OUT STD_LOGIC;
-		 ROM_REQUEST : OUT STD_LOGIC;
-		 CART_REQUEST : OUT STD_LOGIC;
-		 CART_S4_n : OUT STD_LOGIC;
-		 CART_S5_n : OUT STD_LOGIC;
-		 CART_CCTL_n : OUT STD_LOGIC;
-		 WIDTH_8bit_ACCESS : OUT STD_LOGIC;
-		 WIDTH_16bit_ACCESS : OUT STD_LOGIC;
-		 WIDTH_32bit_ACCESS : OUT STD_LOGIC;
-		 SDRAM_READ_EN : OUT STD_LOGIC;
-		 SDRAM_WRITE_EN : OUT STD_LOGIC;
-		 SDRAM_REQUEST : OUT STD_LOGIC;
-		 SDRAM_REFRESH : OUT STD_LOGIC;
-		 MEMORY_DATA : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 PBI_ADDR : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-		 RAM_ADDR : OUT STD_LOGIC_VECTOR(18 DOWNTO 0);
-		 ROM_ADDR : OUT STD_LOGIC_VECTOR(21 DOWNTO 0);
-		 SDRAM_ADDR : OUT STD_LOGIC_VECTOR(22 DOWNTO 0);
-		 WRITE_DATA : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 D6_WR_ENABLE : out std_logic
-	);
-END COMPONENT;
-
-COMPONENT zpu_rom
-	PORT(clock : IN STD_LOGIC;
-		 address : IN STD_LOGIC_VECTOR(11 DOWNTO 0);
-		 q : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
-	);
-END COMPONENT;
-
---COMPONENT zpu_ram
---	PORT(wren : IN STD_LOGIC;
---		 clock : IN STD_LOGIC;
---		 address : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
---		 data : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
---		 q : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
---	);
---END COMPONENT;
-
-component generic_ram_infer IS
-        generic
-        (
-                ADDRESS_WIDTH : natural := 9;
-                SPACE : natural := 512;
-                DATA_WIDTH : natural := 8
-        );
-   PORT
-   (
-      clock: IN   std_logic;
-      data:  IN   std_logic_vector (data_width-1 DOWNTO 0);
-      address:  IN   std_logic_vector(address_width-1 downto 0);
-      we:    IN   std_logic;
-      q:     OUT  std_logic_vector (data_width-1 DOWNTO 0)
-   );
-END component;
-
-COMPONENT zpu_config_regs
-	PORT(CLK : IN STD_LOGIC;
-		 ENABLE_179 : IN STD_LOGIC;
-		 WR_EN : IN STD_LOGIC;
-		 SDCARD_DAT : IN STD_LOGIC;
-		 SIO_COMMAND_OUT : IN STD_LOGIC;
-		 SIO_DATA_OUT : IN STD_LOGIC;
-		 PLL_LOCKED : IN STD_LOGIC;
-		 REQUEST_RESET_ZPU : IN STD_LOGIC;
-		 ADDR : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
-		 CPU_DATA_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 KEY : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
-		 SWITCH : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
-		 SDCARD_CLK : OUT STD_LOGIC;
-		 SDCARD_CMD : OUT STD_LOGIC;
-		 SDCARD_DAT3 : OUT STD_LOGIC;
-		 SIO_DATA_IN : OUT STD_LOGIC;
-		 PAUSE_ZPU : OUT STD_LOGIC;
-		 PAL : OUT STD_LOGIC;
-		 USE_SDRAM : OUT STD_LOGIC;
-		 VGA : OUT STD_LOGIC;
-		 COMPOSITE_ON_HSYNC : OUT STD_LOGIC;
-		 GPIO_ENABLE : OUT STD_LOGIC;
-		 RESET_6502 : OUT STD_LOGIC;
-		 RESET_ZPU : OUT STD_LOGIC;
-		 RESET_N : OUT STD_LOGIC;
-		 PAUSE_6502 : OUT STD_LOGIC;
-		 DATA_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		 LEDG : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 LEDR : OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
-		 RAM_SELECT : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-		 ROM_SELECT : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-		 THROTTLE_COUNT_6502 : OUT STD_LOGIC_VECTOR(5 DOWNTO 0);
-		 ZPU_HEX : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-		 sector : out std_logic_vector(31 downto 0);
-		 sector_request : out std_logic;
-		 sector_ready : in std_logic
-	);
-END COMPONENT;
-
-COMPONENT gtia_palette IS
-PORT 
-( 
-	ATARI_COLOUR : IN STD_LOGIC_VECTOR(7 downto 0);
-	
-	R_next : OUT STD_LOGIC_VECTOR(7 downto 0);
-	G_next : OUT STD_LOGIC_VECTOR(7 downto 0);
-	B_next : OUT STD_LOGIC_VECTOR(7 downto 0)
-);
-END component;
-
-COMPONENT gtia
-	PORT(CLK : IN STD_LOGIC;
-		 WR_EN : IN STD_LOGIC;
-		 CPU_MEMORY_READY : IN STD_LOGIC;
-		 ANTIC_MEMORY_READY : IN STD_LOGIC;
-		 ANTIC_FETCH : IN STD_LOGIC;
-		 CPU_ENABLE_ORIGINAL : IN STD_LOGIC;
-		 RESET_N : IN STD_LOGIC;
-		 PAL : IN STD_LOGIC;
-		 COLOUR_CLOCK_ORIGINAL : IN STD_LOGIC;
-		 COLOUR_CLOCK : IN STD_LOGIC;
-		 COLOUR_CLOCK_HIGHRES : IN STD_LOGIC;
-		 CONSOL_START : IN STD_LOGIC;
-		 CONSOL_SELECT : IN STD_LOGIC;
-		 CONSOL_OPTION : IN STD_LOGIC;
-		 TRIG0 : IN STD_LOGIC;
-		 TRIG1 : IN STD_LOGIC;
-		 TRIG2 : IN STD_LOGIC;
-		 TRIG3 : IN STD_LOGIC;
-		 ADDR : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
-		 AN : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-		 CPU_DATA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 MEMORY_DATA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 VSYNC : OUT STD_LOGIC;
-		 HSYNC : OUT STD_LOGIC;
-		 BLANK : OUT STD_LOGIC;
-		 sound : OUT STD_LOGIC;
-		 COLOUR_out : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-		 DATA_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
-	);
-END COMPONENT;
-
-COMPONENT irq_glue
-	PORT(pokey_irq : IN STD_LOGIC;
-		 pia_irqa : IN STD_LOGIC;
-		 pia_irqb : IN STD_LOGIC;
-		 combined_irq : OUT STD_LOGIC
-	);
-END COMPONENT;
-
-component reg_file IS
-generic
-(
-	BYTES : natural := 1;
-	WIDTH : natural := 1
-);
-PORT 
-( 
-	CLK : IN STD_LOGIC;
-	ADDR : IN STD_LOGIC_VECTOR(width-1 DOWNTO 0);
-	DATA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-	WR_EN : IN STD_LOGIC;
-	
-	DATA_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
-);
-END component;
-
-component covox IS
-PORT 
-( 
-	CLK : IN STD_LOGIC;
-	ADDR : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-	DATA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-	WR_EN : IN STD_LOGIC;
-	
-	covox_channel0 : out std_logic_vector(7 downto 0);
-	covox_channel1 : out std_logic_vector(7 downto 0);
-	covox_channel2 : out std_logic_vector(7 downto 0);
-	covox_channel3 : out std_logic_vector(7 downto 0)
-);
-END component;
-
-
-
+-- ANTIC
+SIGNAL	LIGHTPEN :  STD_LOGIC;
 SIGNAL	ANTIC_ADDR :  STD_LOGIC_VECTOR(15 DOWNTO 0);
 SIGNAL	ANTIC_AN :  STD_LOGIC_VECTOR(2 DOWNTO 0);
 SIGNAL	ANTIC_COLOUR_CLOCK_OUT :  STD_LOGIC;
 SIGNAL	ANTIC_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	CACHE_ANTIC_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	ANTIC_ENABLE_179 :  STD_LOGIC;
 SIGNAL	ANTIC_FETCH :  STD_LOGIC;
 SIGNAL	ANTIC_HIGHRES_COLOUR_CLOCK_OUT :  STD_LOGIC;
 SIGNAL	ANTIC_ORIGINAL_COLOUR_CLOCK_OUT :  STD_LOGIC;
@@ -516,188 +188,111 @@ SIGNAL	ANTIC_RDY :  STD_LOGIC;
 SIGNAL	ANTIC_REFRESH :  STD_LOGIC;
 SIGNAL	ANTIC_WRITE_ENABLE :  STD_LOGIC;
 SIGNAL	BREAK_PRESSED :  STD_LOGIC;
+signal hcount_temp : std_logic_vector(7 downto 0);
+signal vcount_temp : std_logic_vector(8 downto 0);
 
-SIGNAL	CART_RD4 :  STD_LOGIC;
-SIGNAL	CART_RD5 :  STD_LOGIC;
-SIGNAL	CART_REQUEST :  STD_LOGIC;
-SIGNAL	CART_REQUEST_COMPLETE :  STD_LOGIC;
-SIGNAL	CART_ROM_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	CART_S4_n :  STD_LOGIC;
-SIGNAL	CART_S5_N :  STD_LOGIC;
-signal CART_CCTL_N : std_logic;
-SIGNAL	CA2_OUT :  STD_LOGIC;
-SIGNAL	CA2_DIR_OUT:  STD_LOGIC;
-SIGNAL	CB2_OUT :  STD_LOGIC;
-SIGNAL	CB2_DIR_OUT:  STD_LOGIC;
-SIGNAL	COMPOSITE_ON_HSYNC :  STD_LOGIC;
-SIGNAL	CONSOL_OPTION :  STD_LOGIC;
-SIGNAL	CONSOL_SELECT :  STD_LOGIC;
-SIGNAL	CONSOL_START :  STD_LOGIC;
+-- GTIA
+SIGNAL	GTIA_SOUND :  STD_LOGIC;
+
+SIGNAL	GTIA_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	CACHE_GTIA_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	GTIA_WRITE_ENABLE :  STD_LOGIC;
+
+signal COLOUR : std_logic_vector(7 downto 0);
+
+-- CPU
 SIGNAL	CPU_6502_RESET :  STD_LOGIC;
 SIGNAL	CPU_ADDR :  STD_LOGIC_VECTOR(15 DOWNTO 0);
 SIGNAL	CPU_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	CPU_FETCH :  STD_LOGIC;
+SIGNAL	IRQ_n :  STD_LOGIC;
+SIGNAL	NMI_n :  STD_LOGIC;
+SIGNAL	R_W_N :  STD_LOGIC;
+
+-- CLOCKING STUFF
+-- TODO - review/explain what all these are for
 SIGNAL	CPU_SHARED_ENABLE :  STD_LOGIC;
 SIGNAL	ENABLE_179_MEMWAIT :  STD_LOGIC;
-SIGNAL   GPIO_0_IN : STD_LOGIC_VECTOR(35 downto 0);
-SIGNAL   GPIO_0_OUT : STD_LOGIC_VECTOR(35 downto 0);
-SIGNAL   GPIO_0_DIR_OUT : STD_LOGIC_VECTOR(35 downto 0);
-SIGNAL   GPIO_1_IN : STD_LOGIC_VECTOR(35 downto 0);
-SIGNAL   GPIO_1_OUT : STD_LOGIC_VECTOR(35 downto 0);
-SIGNAL   GPIO_1_DIR_OUT : STD_LOGIC_VECTOR(35 downto 0);
-SIGNAL	GPIO_CA2_IN:  STD_LOGIC;
-SIGNAL	GPIO_CB2_IN:  STD_LOGIC;
-SIGNAL	GPIO_ENABLE :  STD_LOGIC;
-SIGNAL	GPIO_PORTA_IN :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	GPIO_PORTB_IN :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL   GPIO_SIO_IN : STD_LOGIC;
-SIGNAL   GPIO_SIO_OUT : STD_LOGIC;
-SIGNAL	GREEN_LEDS :  STD_LOGIC_VECTOR(1 TO 1);
-SIGNAL	GREREN_LEDS :  STD_LOGIC_VECTOR(0 TO 0);
-SIGNAL	GTIA_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	CACHE_GTIA_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	GTIA_SOUND :  STD_LOGIC;
-SIGNAL	GTIA_WRITE_ENABLE :  STD_LOGIC;
-SIGNAL	IRQ_n :  STD_LOGIC;
-SIGNAL	KBCODE :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	KEY_HELD :  STD_LOGIC;
-SIGNAL	KEY_INTERRUPT :  STD_LOGIC;
-SIGNAL	KEYBOARD_RESPONSE :  STD_LOGIC_VECTOR(1 DOWNTO 0);
-SIGNAL	KEYBOARD_SCAN :  STD_LOGIC_VECTOR(5 DOWNTO 0);
-SIGNAL	LIGHTPEN :  STD_LOGIC;
-SIGNAL	MEMORY_DATA :  STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL	MEMORY_READY_ANTIC :  STD_LOGIC;
-SIGNAL	MEMORY_READY_CPU :  STD_LOGIC;
-SIGNAL	MEMORY_READY_ZPU :  STD_LOGIC;
-SIGNAL	NMI_n :  STD_LOGIC;
-SIGNAL	PAL :  STD_LOGIC;
 SIGNAL	PAUSE_6502 :  STD_LOGIC;
 SIGNAL	HALT_OR_PAUSE_6502 :  STD_LOGIC;
-SIGNAL	PBI_ADDR :  STD_LOGIC_VECTOR(15 DOWNTO 0);
-SIGNAL	PBI_WRITE_ENABLE :  STD_LOGIC;
-SIGNAL	PIA_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	PIA_IRQA :  STD_LOGIC;
-SIGNAL	PIA_IRQB :  STD_LOGIC;
-SIGNAL	PIA_READ_ENABLE :  STD_LOGIC;
-SIGNAL	PIA_WRITE_ENABLE :  STD_LOGIC;
-SIGNAL	POKEY2_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	CACHE_POKEY2_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	POKEY2_WRITE_ENABLE :  STD_LOGIC;
-SIGNAL	POKEY_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	CACHE_POKEY_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	POKEY_ENABLE_179 :  STD_LOGIC;
-SIGNAL	POKEY_IRQ :  STD_LOGIC;
-SIGNAL	POKEY_WRITE_ENABLE :  STD_LOGIC;
-SIGNAL	PORTA_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	PORTA_DIR_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	PORTB_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	PORTB_DIR_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	POT_IN :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	POT_RESET :  STD_LOGIC;
-SIGNAL	R_W_N :  STD_LOGIC;
-SIGNAL	RAM_ADDR :  STD_LOGIC_VECTOR(18 DOWNTO 0);
-SIGNAL	RAM_DO :  STD_LOGIC_VECTOR(15 DOWNTO 0);
-SIGNAL	RAM_REQUEST :  STD_LOGIC;
-SIGNAL	RAM_REQUEST_COMPLETE :  STD_LOGIC;
-SIGNAL	RAM_SELECT_dummy :  STD_LOGIC_VECTOR(2 DOWNTO 0);
-SIGNAL	RAM_WRITE_ENABLE :  STD_LOGIC;
-SIGNAL	RESET_N :  STD_LOGIC;
-SIGNAL	ROM_ADDR :  STD_LOGIC_VECTOR(21 DOWNTO 0);
-SIGNAL	ROM_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	ROM_REQUEST :  STD_LOGIC;
-SIGNAL	ROM_REQUEST_COMPLETE :  STD_LOGIC;
-SIGNAL	ROM_SELECT_dummy :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+SIGNAL	ANTIC_ENABLE_179 :  STD_LOGIC;
 SIGNAL	SCANDOUBLER_SHARED_ENABLE_HIGH :  STD_LOGIC;
 SIGNAL	SCANDOUBLER_SHARED_ENABLE_LOW :  STD_LOGIC;
-SIGNAL	SDRAM_REFRESH :  STD_LOGIC;
---SIGNAL	SDRAM_REPLY :  STD_LOGIC;
-SIGNAL	SHIFT_PRESSED :  STD_LOGIC;
-SIGNAL	SIO_COMMAND_OUT :  STD_LOGIC;
-SIGNAL	SIO_DATA_IN :  STD_LOGIC;
-SIGNAL	SIO_DATA_OUT :  STD_LOGIC;
-SIGNAL	SYNC_KEYS :  STD_LOGIC_VECTOR(3 DOWNTO 0);
-SIGNAL	SYNC_SWITCHES :  STD_LOGIC_VECTOR(9 DOWNTO 0);
-SIGNAL	SYSTEM_RESET_REQUEST :  STD_LOGIC;
-SIGNAL	THROTTLE_COUNT_6502 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
-SIGNAL	TRIGGERS :  STD_LOGIC_VECTOR(3 DOWNTO 0);
-SIGNAL	USE_SDRAM :  STD_LOGIC;
-SIGNAL	VGA :  STD_LOGIC;
-SIGNAL	VIRTUAL_STICKS :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	VIRTUAL_TRIGGERS :  STD_LOGIC_VECTOR(3 DOWNTO 0);
-SIGNAL	VIRTUAL_KEYS :  STD_LOGIC_VECTOR(3 DOWNTO 0);
-SIGNAL	WIDTH_16BIT_ACCESS :  STD_LOGIC;
-SIGNAL	WIDTH_32BIT_ACCESS :  STD_LOGIC;
-SIGNAL	WIDTH_8BIT_ACCESS :  STD_LOGIC;
-SIGNAL	WRITE_DATA :  STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL	ZPU_16BIT_WRITE_ENABLE :  STD_LOGIC;
-SIGNAL	ZPU_32BIT_WRITE_ENABLE :  STD_LOGIC;
-SIGNAL	ZPU_8BIT_WRITE_ENABLE :  STD_LOGIC;
-SIGNAL	ZPU_ADDR_FETCH :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	ZPU_ADDR_ROM_RAM :  STD_LOGIC_VECTOR(23 DOWNTO 0);
-SIGNAL	ZPU_CONFIG_DO :  STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL	ZPU_CONFIG_WRITE_ENABLE :  STD_LOGIC;
-SIGNAL	ZPU_DO :  STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL	ZPU_FETCH :  STD_LOGIC;
-SIGNAL	ZPU_HEX :  STD_LOGIC_VECTOR(15 DOWNTO 0);
-SIGNAL	ZPU_PAUSE :  STD_LOGIC;
-SIGNAL	ZPU_RAM_DATA :  STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL	ZPU_READ_ENABLE :  STD_LOGIC;
-SIGNAL	ZPU_RESET :  STD_LOGIC;
-SIGNAL	ZPU_ROM_DATA :  STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL	ZPU_SECTOR_DATA :  STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL	ZPU_STACK_WRITE :  STD_LOGIC_VECTOR(3 DOWNTO 0);
 
-SIGNAL	LEDR_dummy :  STD_LOGIC_VECTOR(9 DOWNTO 0);
-SIGNAL	LEDG_dummy :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-signal UART_TXD_dummy : std_logic;
+-- POKEY
+SIGNAL	POKEY_IRQ :  STD_LOGIC;
+SIGNAL	POT_IN :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	POT_RESET :  STD_LOGIC;
 
-SIGNAL		SD_DAT0 :  STD_LOGIC;
-SIGNAL		SD_CLK :  STD_LOGIC;
-SIGNAL		SD_CMD :  STD_LOGIC;
-SIGNAL		SD_DAT3 :  STD_LOGIC;
-
-signal mist_buttons : std_logic_vector(1 downto 0);
-signal mist_switches : std_logic_vector(1 downto 0);
-
-SIGNAL	SHIFT_PRESSED_DUMMY :  STD_LOGIC;
-SIGNAL	BREAK_PRESSED_DUMMY :  STD_LOGIC;
-SIGNAL	CONTROL_PRESSED :  STD_LOGIC;
-
-signal dummy_sector_request : std_logic;
-signal dummy_sector : std_logic_vector(31 downto 0);
-
-signal COLOUR : std_logic_vector(7 downto 0);
-
+SIGNAL	POKEY_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	CACHE_POKEY_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	POKEY_WRITE_ENABLE :  STD_LOGIC;
 signal POKEY1_CHANNEL0 : std_logic_vector(3 downto 0);
 signal POKEY1_CHANNEL1 : std_logic_vector(3 downto 0);
 signal POKEY1_CHANNEL2 : std_logic_vector(3 downto 0);
 signal POKEY1_CHANNEL3 : std_logic_vector(3 downto 0);
 
+SIGNAL	POKEY2_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	CACHE_POKEY2_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	POKEY2_WRITE_ENABLE :  STD_LOGIC;
 signal POKEY2_CHANNEL0 : std_logic_vector(3 downto 0);
 signal POKEY2_CHANNEL1 : std_logic_vector(3 downto 0);
 signal POKEY2_CHANNEL2 : std_logic_vector(3 downto 0);
 signal POKEY2_CHANNEL3 : std_logic_vector(3 downto 0);
 
-signal hcount_temp : std_logic_vector(7 downto 0);
-signal vcount_temp : std_logic_vector(8 downto 0);
-signal VGA_G_dummy : std_logic_vector(7 downto 0);
-signal VGA_B_dummy : std_logic_vector(7 downto 0);
-
-signal matrix_out_match : std_logic_vector(7 downto 0);
-
-signal keyboard_scan_inv : std_logic_vector(5 downto 0);
-
+-- COVOX (after market DAC)
 signal covox_write_enable : std_logic;
 signal covox_channel0 : std_logic_vector(7 downto 0);
 signal covox_channel1 : std_logic_vector(7 downto 0);
 signal covox_channel2 : std_logic_vector(7 downto 0);
 signal covox_channel3 : std_logic_vector(7 downto 0);
 
-signal gtia_blank : std_logic;
+-- MEMORY IS READY - input to all devices
+SIGNAL	MEMORY_DATA :  STD_LOGIC_VECTOR(31 DOWNTO 0);
+SIGNAL	MEMORY_READY_ANTIC :  STD_LOGIC;
+SIGNAL	MEMORY_READY_CPU :  STD_LOGIC;
+
+SIGNAL	WRITE_DATA :  STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+SIGNAL	WIDTH_16BIT_ACCESS :  STD_LOGIC;
+SIGNAL	WIDTH_32BIT_ACCESS :  STD_LOGIC;
+SIGNAL	WIDTH_8BIT_ACCESS :  STD_LOGIC;
+
+-- PIA
+SIGNAL	PIA_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	PIA_IRQA :  STD_LOGIC;
+SIGNAL	PIA_IRQB :  STD_LOGIC;
+SIGNAL	PIA_READ_ENABLE :  STD_LOGIC;
+SIGNAL	PIA_WRITE_ENABLE :  STD_LOGIC;
 
 BEGIN 
 
-cpu6502 : cpu
+PBI_WIDTH_8bit_ACCESS <= WIDTH_8bit_access;
+PBI_WIDTH_16bit_ACCESS <= WIDTH_16bit_access;
+PBI_WIDTH_32bit_ACCESS <= WIDTH_32bit_access;
+PBI_WRITE_DATA <= WRITE_DATA;
+PBI_SNOOP_DATA <= MEMORY_DATA;
+
+HALT_OR_PAUSE_6502 <= HALT or PAUSE_6502;
+
+enables : entity work.shared_enable
+GENERIC MAP(cycle_length => cycle_length)
+PORT MAP(CLK => CLK,
+		 RESET_N => RESET_N,
+		 MEMORY_READY_CPU => MEMORY_READY_CPU,
+		 MEMORY_READY_ANTIC => MEMORY_READY_ANTIC,
+		 PAUSE_6502 => HALT_OR_PAUSE_6502,
+		 THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
+		 POKEY_ENABLE_179 => POKEY_ENABLE_179,
+		 ANTIC_ENABLE_179 => ANTIC_ENABLE_179,
+		 oldcpu_enable => ENABLE_179_MEMWAIT,
+		 CPU_ENABLE_OUT => CPU_SHARED_ENABLE,
+		 SCANDOUBLER_ENABLE_LOW => SCANDOUBLER_SHARED_ENABLE_LOW,
+		 SCANDOUBLER_ENABLE_HIGH => SCANDOUBLER_SHARED_ENABLE_HIGH);
+
+
+cpu6502 : entity work.cpu
 PORT MAP(CLK => CLK,
 		 RESET => CPU_6502_RESET,
 		 ENABLE => RESET_N,
@@ -712,8 +307,8 @@ PORT MAP(CLK => CLK,
 		 A => CPU_ADDR,
 		 DO => CPU_DO);
 
-LIGHTPEN <= '1';
-antic1 : antic
+antic1 : entity work.antic
+GENERIC MAP(cycle_length => cycle_length)
 PORT MAP(CLK => CLK,
 		 WR_EN => ANTIC_WRITE_ENABLE,
 		 RESET_N => RESET_N,
@@ -738,7 +333,7 @@ PORT MAP(CLK => CLK,
 		 DATA_OUT => ANTIC_DO,
 		 dma_address_out => ANTIC_ADDR);
 
-pokey_mixer_l : pokey_mixer
+pokey_mixer_l : entity work.pokey_mixer
 PORT MAP(CLK => CLK,
 		 GTIA_SOUND => GTIA_SOUND,
 		 CHANNEL_0 => POKEY1_CHANNEL0,
@@ -750,29 +345,7 @@ PORT MAP(CLK => CLK,
 		 COVOX_CHANNEL_1 => covox_channel1,
 		 VOLUME_OUT => AUDIO_L);
 		 
-zpu_glue1 : zpu_glue
-PORT MAP(CLK => CLK,
-		 RESET => ZPU_RESET,
-		 PAUSE => ZPU_PAUSE,
-		 MEMORY_READY => MEMORY_READY_ZPU,
-		 ZPU_CONFIG_DI => ZPU_CONFIG_DO,
-		 ZPU_DI => MEMORY_DATA,
-		 ZPU_RAM_DI => ZPU_RAM_DATA,
-		 ZPU_ROM_DI => ZPU_ROM_DATA,
-		 ZPU_SECTOR_DI => zpu_sector_data,
-		 MEMORY_FETCH => ZPU_FETCH,
-		 ZPU_READ_ENABLE => ZPU_READ_ENABLE,
-		 ZPU_32BIT_WRITE_ENABLE => ZPU_32BIT_WRITE_ENABLE,
-		 ZPU_16BIT_WRITE_ENABLE => ZPU_16BIT_WRITE_ENABLE,
-		 ZPU_8BIT_WRITE_ENABLE => ZPU_8BIT_WRITE_ENABLE,
-		 ZPU_CONFIG_WRITE => ZPU_CONFIG_WRITE_ENABLE,
-		 ZPU_ADDR_FETCH => ZPU_ADDR_FETCH,
-		 ZPU_ADDR_ROM_RAM => ZPU_ADDR_ROM_RAM,
-		 ZPU_DO => ZPU_DO,
-		 ZPU_STACK_WRITE => ZPU_STACK_WRITE);
-
-
-pokey_mixer_r : pokey_mixer
+pokey_mixer_r : entity work.pokey_mixer
 PORT MAP(CLK => CLK,
 		 GTIA_SOUND => GTIA_SOUND,
 		 CHANNEL_0 => POKEY2_CHANNEL0,
@@ -784,8 +357,7 @@ PORT MAP(CLK => CLK,
 		 CHANNEL_ENABLE => "1111",
 		 VOLUME_OUT => AUDIO_R);
 
-
-pokey2 : pokey
+pokey2 : entity work.pokey
 PORT MAP(CLK => CLK,
 		 CPU_MEMORY_READY => MEMORY_READY_CPU,
 		 ANTIC_MEMORY_READY => MEMORY_READY_ANTIC,
@@ -804,81 +376,45 @@ PORT MAP(CLK => CLK,
 		 keyboard_response => "00",
 		 pot_in=>"00000000");
 
-
--- PIA
---GPIO_0[0] <= CA2_OUT when CA2_DIR_OUT='1' else 'Z';
---CA2_IN <= GPIO_0[0];
-
---GPIO_O[1] <= CB2_OUT when CB2_DIR_OUT='1' else 'Z';
---CB2_IN <= GPIO_O[1];
-SIO_COMMAND_OUT <= CB2_OUT; -- we generate command frame, use internal rather than from pin
-SIO_COMMAND_TX <= SIO_COMMAND_OUT;
--- TODO - sioto gpio!
-GPIO_PORTB_IN <= PORTB_OUT;
-GPIO_CA2_IN <= CA2_OUT when CA2_DIR_OUT='1' else '1';
-GPIO_CB2_IN <= CB2_OUT when CB2_DIR_OUT='1' else '1';
-GPIO_PORTA_IN <= ((JOY1_n(3)&JOY1_n(2)&JOY1_n(1)&JOY1_n(0)&JOY2_n(3)&JOY2_n(2)&JOY2_n(1)&JOY2_n(0)) and not (porta_dir_out)) or (porta_dir_out and porta_out);
-
-pia1 : pia
+pia1 : entity work.pia
 PORT MAP(CLK => CLK,
 		 EN => PIA_READ_ENABLE,
 		 WR_EN => PIA_WRITE_ENABLE,
 		 RESET_N => RESET_N,
-		 CA1 => '1', --todo - high/low?
-		 CB1 => '1',
+		 CA1 => CA1_IN,
+		 CB1 => CB1_IN,
 		 CA2_DIR_OUT => CA2_DIR_OUT,
-		 CA2_IN => GPIO_CA2_IN,
+		 CA2_IN => CA2_IN,
 		 CA2_OUT => CA2_OUT,
 		 CB2_DIR_OUT => CB2_DIR_OUT,
-		 CB2_IN => GPIO_CB2_IN,
+		 CB2_IN => CB2_IN,
 		 CB2_OUT => CB2_OUT,
 		 ADDR => PBI_ADDR(1 DOWNTO 0),
 		 CPU_DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		 IRQA_N => PIA_IRQA,
 		 IRQB_N => PIA_IRQB,
 		 DATA_OUT => PIA_DO,
-		 PORTA_IN => GPIO_PORTA_IN,
+		 PORTA_IN => PORTA_IN,
 		 PORTA_DIR_OUT => PORTA_DIR_OUT,
 		 PORTA_OUT => PORTA_OUT,
-		 PORTB_IN => GPIO_PORTB_IN,
+		 PORTB_IN => PORTB_IN,
 		 PORTB_DIR_OUT => PORTB_DIR_OUT,
 		 PORTB_OUT => PORTB_OUT);
 
-HALT_OR_PAUSE_6502 <= HALT or PAUSE_6502;
-enables : shared_enable
-PORT MAP(CLK => CLK,
-		 RESET_N => RESET_N,
-		 MEMORY_READY_CPU => MEMORY_READY_CPU,
-		 MEMORY_READY_ANTIC => MEMORY_READY_ANTIC,
-		 PAUSE_6502 => HALT_OR_PAUSE_6502,
-		 THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
-		 POKEY_ENABLE_179 => POKEY_ENABLE_179,
-		 ANTIC_ENABLE_179 => ANTIC_ENABLE_179,
-		 oldcpu_enable => ENABLE_179_MEMWAIT,
-		 CPU_ENABLE_OUT => CPU_SHARED_ENABLE,
-		 SCANDOUBLER_ENABLE_LOW => SCANDOUBLER_SHARED_ENABLE_LOW,
-		 SCANDOUBLER_ENABLE_HIGH => SCANDOUBLER_SHARED_ENABLE_HIGH);
-
--- no cart!
-CART_RD4 <= '0';
-CART_RD5 <= '0';
-CART_REQUEST_COMPLETE <= '0';
-CART_ROM_DO <= (others=>'0');
-
-mmu1 : address_decoder
+mmu1 : entity work.address_decoder
 PORT MAP(CLK => CLK,
 		 CPU_FETCH => CPU_FETCH,
 		 CPU_WRITE_N => R_W_N,
 		 ANTIC_FETCH => ANTIC_FETCH,
 		 antic_refresh => ANTIC_REFRESH,
-		 ZPU_FETCH => ZPU_FETCH,
-		 ZPU_READ_ENABLE => ZPU_READ_ENABLE,
-		 ZPU_32BIT_WRITE_ENABLE => ZPU_32BIT_WRITE_ENABLE,
-		 ZPU_16BIT_WRITE_ENABLE => ZPU_16BIT_WRITE_ENABLE,
-		 ZPU_8BIT_WRITE_ENABLE => ZPU_8BIT_WRITE_ENABLE,
+		 DMA_FETCH => DMA_FETCH,
+		 DMA_READ_ENABLE => DMA_READ_ENABLE,
+		 DMA_32BIT_WRITE_ENABLE => DMA_32BIT_WRITE_ENABLE,
+		 DMA_16BIT_WRITE_ENABLE => DMA_16BIT_WRITE_ENABLE,
+		 DMA_8BIT_WRITE_ENABLE => DMA_8BIT_WRITE_ENABLE,
 		 RAM_REQUEST_COMPLETE => RAM_REQUEST_COMPLETE,
 		 ROM_REQUEST_COMPLETE => ROM_REQUEST_COMPLETE,
-		 CART_REQUEST_COMPLETE => CART_REQUEST_COMPLETE,
+		 CART_REQUEST_COMPLETE => PBI_REQUEST_COMPLETE,
 		 reset_n => RESET_N,
 		 CART_RD4 => CART_RD4,
 		 CART_RD5 => CART_RD5,
@@ -887,7 +423,7 @@ PORT MAP(CLK => CLK,
 		 ANTIC_ADDR => ANTIC_ADDR,
 		 ANTIC_DATA => ANTIC_DO,
 		 CACHE_ANTIC_DATA => CACHE_ANTIC_DO,
-		 CART_ROM_DATA => CART_ROM_DO,
+		 CART_ROM_DATA => PBI_ROM_DO,
 		 CPU_ADDR => CPU_ADDR,
 		 CPU_WRITE_DATA => CPU_DO,
 		 GTIA_DATA => GTIA_DO,
@@ -903,10 +439,10 @@ PORT MAP(CLK => CLK,
 		 ROM_DATA => ROM_DO,
 		 rom_select => ROM_SELECT, 
 		 SDRAM_DATA => SDRAM_DO,
-		 ZPU_ADDR => ZPU_ADDR_FETCH,
-		 ZPU_WRITE_DATA => ZPU_DO,
+		 DMA_ADDR => DMA_ADDR_FETCH,
+		 DMA_WRITE_DATA => DMA_DO,
 		 MEMORY_READY_ANTIC => MEMORY_READY_ANTIC,
-		 MEMORY_READY_ZPU => MEMORY_READY_ZPU,
+		 MEMORY_READY_DMA => MEMORY_READY_DMA,
 		 MEMORY_READY_CPU => MEMORY_READY_CPU,
 		 GTIA_WR_ENABLE => GTIA_WRITE_ENABLE,
 		 POKEY_WR_ENABLE => POKEY_WRITE_ENABLE,
@@ -918,7 +454,7 @@ PORT MAP(CLK => CLK,
 		 PBI_WR_ENABLE => PBI_WRITE_ENABLE,
 		 RAM_REQUEST => RAM_REQUEST,
 		 ROM_REQUEST => ROM_REQUEST,
-		 CART_REQUEST => CART_REQUEST,
+		 CART_REQUEST => PBI_REQUEST,
 		 CART_S4_n => CART_S4_n,
 		 CART_S5_n => CART_S5_N,
 		 CART_CCTL_n => CART_CCTL_N,
@@ -936,144 +472,11 @@ PORT MAP(CLK => CLK,
 		 SDRAM_ADDR => SDRAM_ADDR,
 		 WRITE_DATA => WRITE_DATA,
 		 d6_wr_enable => covox_write_enable,
-		 cart_select => "0000000",
-		 cart_activate => '0');
+		 cart_select => CART_EMULATION_SELECT,
+		 cart_activate => CART_EMULATION_ACTIVATE,
+		 rom_in_ram => ROM_IN_RAM);
 
-zpu_rom1 : zpu_rom
-PORT MAP(clock => CLK,
-		 address => ZPU_ADDR_ROM_RAM(13 DOWNTO 2),
-		 q => ZPU_ROM_DATA);
---
---b2v_inst23 : zpu_ram
---PORT MAP(wren => ZPU_STACK_WRITE(2),
---		 clock => CLK,
---		 address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
---		 data => ZPU_DO(23 DOWNTO 16),
---		 q => ZPU_RAM_DATA(23 DOWNTO 16));
-
-zpu_ram1 : generic_ram_infer
-generic map
-(
-	ADDRESS_WIDTH => 10,
-	SPACE => 1024,
-	DATA_WIDTH =>8
-)
-PORT MAP(clock => clk,
-		 address => ZPU_ADDR_ROM_RAM(11 downto 2),
-		 data => ZPU_DO(23 downto 16),
-		 we => ZPU_STACK_WRITE(2),
-		 q => ZPU_RAM_DATA(23 downto 16)
-		 );	
-
-SYNC_KEYS <= (others=> '0');
-SYNC_SWITCHES <= (others=> '1');
-zpu_config1 : zpu_config_regs
-PORT MAP(CLK => CLK,
-		 ENABLE_179 => POKEY_ENABLE_179,
-		 WR_EN => ZPU_CONFIG_WRITE_ENABLE,
-		 SDCARD_DAT => SD_DAT0,
-		 SIO_COMMAND_OUT => SIO_COMMAND_OUT,
-		 SIO_DATA_OUT => SIO_DATA_OUT,
-		 PLL_LOCKED => PLL_LOCKED,
-		 REQUEST_RESET_ZPU => SYSTEM_RESET_REQUEST,
-		 ADDR => ZPU_ADDR_ROM_RAM(6 DOWNTO 2),
-		 CPU_DATA_IN => ZPU_DO,
-		 KEY => VIRTUAL_KEYS, --SYNC_KEYS,
-		 SWITCH => SYNC_SWITCHES,
-		 SDCARD_CLK => SD_CLK,
-		 SDCARD_CMD => SD_CMD,
-		 SDCARD_DAT3 => SD_DAT3,
-		 SIO_DATA_IN => SIO_DATA_IN,
-		 PAUSE_ZPU => ZPU_PAUSE,
-		 PAL => PAL,
-		 USE_SDRAM => USE_SDRAM,
-		 VGA => VGA,
-		 COMPOSITE_ON_HSYNC => COMPOSITE_ON_HSYNC,
-		 GPIO_ENABLE => GPIO_ENABLE,
-		 RESET_6502 => CPU_6502_RESET,
-		 RESET_ZPU => ZPU_RESET,
-		 RESET_N => RESET_N,
-		 PAUSE_6502 => PAUSE_6502,
-		 DATA_OUT => ZPU_CONFIG_DO,
-		 LEDG => LEDG_dummy,
-		 LEDR => LEDR_dummy,
-		 RAM_SELECT => RAM_SELECT_dummy,
-		 ROM_SELECT => ROM_SELECT_dummy(1 downto 0),
-		 THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
-		 ZPU_HEX => ZPU_HEX,
-		 sector_request => dummy_sector_request,
-		 sector => dummy_sector,
-		 sector_ready => '0'
-		 );
-ROM_SELECT_dummy(5 downto 2) <= "0000";
-
---
---b2v_inst25 : zpu_ram
---PORT MAP(wren => ZPU_STACK_WRITE(3),
---		 clock => CLK,
---		 address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
---		 data => ZPU_DO(31 DOWNTO 24),
---		 q => ZPU_RAM_DATA(31 DOWNTO 24));
-
-zpu_ram2 : generic_ram_infer
-generic map
-(
-	ADDRESS_WIDTH => 10,
-	SPACE => 1024,
-	DATA_WIDTH =>8
-)
-PORT MAP(clock => clk,
-		 address => ZPU_ADDR_ROM_RAM(11 downto 2),
-		 data => ZPU_DO(31 downto 24),
-		 we => ZPU_STACK_WRITE(3),
-		 q => ZPU_RAM_DATA(31 downto 24)
-		 );	
-
-
---b2v_inst26 : zpu_ram
---PORT MAP(wren => ZPU_STACK_WRITE(0),
---		 clock => CLK,
---		 address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
---		 data => ZPU_DO(7 DOWNTO 0),
---		 q => ZPU_RAM_DATA(7 DOWNTO 0));
-
-zpu_ram3 : generic_ram_infer
-generic map
-(
-	ADDRESS_WIDTH => 10,
-	SPACE => 1024,
-	DATA_WIDTH =>8
-)
-PORT MAP(clock => clk,
-		 address => ZPU_ADDR_ROM_RAM(11 downto 2),
-		 data => ZPU_DO(7 downto 0),
-		 we => ZPU_STACK_WRITE(0),
-		 q => ZPU_RAM_DATA(7 downto 0)
-		 );	
-
-
---b2v_inst27 : zpu_ram
---PORT MAP(wren => ZPU_STACK_WRITE(1),
---		 clock => CLK,
---		 address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
---		 data => ZPU_DO(15 DOWNTO 8),
---		 q => ZPU_RAM_DATA(15 DOWNTO 8));
-
-zpu_ram4 : generic_ram_infer
-generic map
-(
-	ADDRESS_WIDTH => 10,
-	SPACE => 1024,
-	DATA_WIDTH =>8
-)
-PORT MAP(clock => clk,
-		 address => ZPU_ADDR_ROM_RAM(11 downto 2),
-		 data => ZPU_DO(15 downto 8),
-		 we => ZPU_STACK_WRITE(1),
-		 q => ZPU_RAM_DATA(15 downto 8)
-		 );	
-
-pokey1 : pokey
+pokey1 : entity work.pokey
 PORT MAP(CLK => CLK,
 		 CPU_MEMORY_READY => MEMORY_READY_CPU,
 		 ANTIC_MEMORY_READY => MEMORY_READY_ANTIC,
@@ -1081,15 +484,15 @@ PORT MAP(CLK => CLK,
 		 RESET_N => RESET_N,
 		 SIO_IN1 => SIO_RXD,
 		 SIO_IN2 => '1',
-		 SIO_IN3 => SIO_DATA_IN,
+		 SIO_IN3 => '1',
 		 ADDR => PBI_ADDR(3 DOWNTO 0),
 		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		 keyboard_response => KEYBOARD_RESPONSE,
 		 POT_IN => POT_IN,
 		 IRQ_N_OUT => POKEY_IRQ,
 		 SIO_OUT1 => SIO_TXD,
-		 SIO_OUT2 => GPIO_SIO_OUT,
-		 SIO_OUT3 => SIO_DATA_OUT,
+		 SIO_OUT2 => open,
+		 SIO_OUT3 => open,
 		 POT_RESET => POT_RESET,
 		 CHANNEL_0_OUT => POKEY1_CHANNEL0,
 		 CHANNEL_1_OUT => POKEY1_CHANNEL1,
@@ -1098,51 +501,8 @@ PORT MAP(CLK => CLK,
 		 DATA_OUT => POKEY_DO,
 		 keyboard_scan => KEYBOARD_SCAN);
 
-	keyboard_scan_inv <= not(keyboard_scan);
-
-a4051: complete_address_decoder
-	generic map (width => 3)
-	PORT map ( addr_in => keyboard_scan_inv(5 downto 3), addr_decoded => matrix_in ); 
-
-b4051: complete_address_decoder
-	generic map (width => 3)
-	PORT map ( addr_in => keyboard_scan_inv(2 downto 0), addr_decoded => matrix_out_match ); 
-
-	process(matrix_out, matrix_out_match)
-	begin
-		keyboard_response(0) <= '1';
-
-		if (or_reduce(matrix_out(7 downto 0) and matrix_out_match(7 downto 0)) = '1') then
-			keyboard_response(0) <= '0';
-		end if;
-	end process;
-
-	process(static_keys, pause_key)
-	begin
-		keyboard_response(1) <= '1';
-
-		if (keyboard_scan(5 downto 4)="00" and pause_key = '1') then
-			keyboard_response(1) <= '0';
-		end if;
-		
-		if (keyboard_scan(5 downto 4)="10" and static_keys(0) = '1') then
-			keyboard_response(1) <= '0';
-		end if;
-
-		if (keyboard_scan(5 downto 4)="11" and static_keys(1) = '1') then
-			keyboard_response(1) <= '0';
-		end if;
-	end process;
-
-	CONSOL_START <= static_keys(6);
-	CONSOL_SELECT <= static_keys(5);
-	CONSOL_OPTION <= static_keys(4);
-	system_reset_request <= static_keys(3);
-
-	virtual_keys <= "000"&static_keys(2); -- todo need more static keys!! though on second thoughts using replay menu for options/loading...
-	virtual_triggers <= "00"&joy1_n(4)&joy2_n(4); -- todo joystick...
 		 	 
-gtia1 : gtia
+gtia1 : entity work.gtia
 PORT MAP(CLK => CLK,
 		 WR_EN => GTIA_WRITE_ENABLE,
 		 CPU_MEMORY_READY => MEMORY_READY_CPU,
@@ -1171,7 +531,7 @@ PORT MAP(CLK => CLK,
 		 MEMORY_DATA_IN => MEMORY_DATA(7 DOWNTO 0),
 		 VSYNC => VGA_VS,
 		 HSYNC => VGA_HS,
-		 BLANK => GTIA_BLANK,
+		 BLANK => open,
 		 sound => GTIA_SOUND,
 		 COLOUR_out => COLOUR,
 		 DATA_OUT => GTIA_DO);
@@ -1198,13 +558,14 @@ PORT MAP(CLK => CLK,
 --		port map (ATARI_COLOUR=>COLOUR, R_next=>R_next, G_next=>G_next, B_next=>B_next);		
 
 
-irq_glue1 : irq_glue
+irq_glue1 : entity work.irq_glue
 PORT MAP(pokey_irq => POKEY_IRQ,
 		 pia_irqa => PIA_IRQA,
 		 pia_irqb => PIA_IRQB,
 		 combined_irq => IRQ_n);
 		 
-pokey1_mirror : reg_file
+-- TODO - generic ram infer?
+pokey1_mirror : entity work.reg_file
 generic map(BYTES=>16,WIDTH=>4)
 port map(
 	CLK => CLK,
@@ -1214,7 +575,7 @@ port map(
 	DATA_OUT => CACHE_POKEY_DO
 );	 
 
-pokey2_mirror : reg_file
+pokey2_mirror : entity work.reg_file
 generic map(BYTES=>16,WIDTH=>4)
 port map(
 	CLK => CLK,
@@ -1224,7 +585,7 @@ port map(
 	DATA_OUT => CACHE_POKEY2_DO
 );	 		 
 
-gtia_mirror : reg_file
+gtia_mirror : entity work.reg_file
 generic map(BYTES=>32,WIDTH=>5)
 port map(
 	CLK => CLK,
@@ -1234,7 +595,7 @@ port map(
 	DATA_OUT => CACHE_GTIA_DO
 );	
 
-antic_mirror : reg_file
+antic_mirror : entity work.reg_file
 generic map(BYTES=>16,WIDTH=>4)
 port map(
 	CLK => CLK,
@@ -1244,30 +605,7 @@ port map(
 	DATA_OUT => CACHE_ANTIC_DO
 );	
 
-internalromram1 : internalromram
-  PORT map(
-    clock => clk,
-    reset_n => reset_n,
-
-	ROM_ADDR =>rom_addr,
-	ROM_REQUEST_COMPLETE => rom_REQUEST_COMPLETE,
-	ROM_REQUEST => rom_REQUEST,
-	ROM_DATA => rom_DO,
-	
-	RAM_ADDR => ram_addr,
-	RAM_WR_ENABLE => ram_WRITE_ENABLE,
-	RAM_DATA_IN => wriTE_DATA(7 downto 0),
-	RAM_REQUEST_COMPLETE => ram_REQUEST_COMPLETE,
-	RAM_REQUEST => ram_REQUEST,
-	RAM_DATA => ram_do(7 downto 0)
-	);
-
-SDRAM_WIDTH_8bit_ACCESS <= WIDTH_8bit_access;
-SDRAM_WIDTH_16bit_ACCESS <= WIDTH_16bit_access;
-SDRAM_WIDTH_32bit_ACCESS <= WIDTH_32bit_access;
-SDRAM_DI <= WRITE_DATA;
-
-covox1 : covox
+covox1 : entity work.covox
 	PORT map
 	( 
 		clk => clk,

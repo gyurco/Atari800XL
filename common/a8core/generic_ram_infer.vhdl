@@ -27,16 +27,19 @@ ENTITY generic_ram_infer IS
 END generic_ram_infer;
 
 ARCHITECTURE rtl OF generic_ram_infer IS
-   TYPE mem IS ARRAY(0 TO space-1) OF std_logic_vector(data_width-1 DOWNTO 0); -- TODO need 455 but this leads to glitches in the hblank
+   TYPE mem IS ARRAY(0 TO space-1) OF std_logic_vector(data_width-1 DOWNTO 0);
    SIGNAL ram_block : mem;
 BEGIN
    PROCESS (clock)
    BEGIN
       IF (clock'event AND clock = '1') THEN
-         IF (we = '1') THEN
-            ram_block(to_integer(unsigned(address))) <= data;
+         q<= (others=>'1');
+         IF (to_integer(unsigned(address)) < space) THEN
+           IF (we = '1') THEN
+              ram_block(to_integer(unsigned(address))) <= data;
+           END IF;
+           q <= ram_block(to_integer(unsigned(address)));
          END IF;
-         q <= ram_block(to_integer(unsigned(address)));
       END IF;
    END PROCESS;
 END rtl;

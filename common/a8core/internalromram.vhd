@@ -4,6 +4,11 @@ USE ieee.std_logic_arith.all;
 USE ieee.std_logic_unsigned.all;
 
 ENTITY internalromram IS
+	GENERIC
+	(
+		internal_rom : integer := 1  
+		internal_ram : integer := 16384 
+	);
   PORT(
     clock   : IN     STD_LOGIC;                             --system clock
     reset_n : IN     STD_LOGIC;                             --asynchronous reset
@@ -23,17 +28,6 @@ ENTITY internalromram IS
 END internalromram;
 
 architecture vhdl of internalromram is
---component ramint IS
---	PORT
---	(
---		address		: IN STD_LOGIC_VECTOR (12 DOWNTO 0);
---		clock		: IN STD_LOGIC  := '1';
---		data		: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
---		wren		: IN STD_LOGIC ;
---		q		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
---	);
---END component;
-
 component generic_ram_infer IS
         generic
         (
@@ -75,9 +69,6 @@ END component;
 	signal ROM16_DATA : std_logic_vector(7 downto 0);
 	signal BASIC_DATA : std_logic_vector(7 downto 0);	
 	
-	signal RAM_WR_ENABLE_REAL : std_logic;
-	signal IRAM_DATA : std_logic_vector(7 downto 0);
-
 begin
 	process(clock,reset_n)
 	begin
@@ -90,11 +81,19 @@ begin
 		end if;
 	end process;
 
-	rom_request_complete <= rom_request_reg;
-	--C000 = basic. 
-	--0000-07FF = low
-	--0800-27ff high
-	
+gen_internal_os : if internal_os==1 generate
+	rom16a : os16
+	PORT MAP(clock => clock,
+			 address => rom_addr(13 downto 0),
+			 q => ROM16_data
+			 );
+
+	basic1 : basic
+	PORT MAP(clock => clock,
+			 address => rom_addr(12 downto 0),
+			 q => BASIC_data
+			 );			 
+
 	process(rom16_data,basic_data, rom_addr(15 downto 0))
 	begin
 		ROM_DATA <= ROM16_DATA;
@@ -102,37 +101,35 @@ begin
 			ROM_DATA <= BASIC_DATA;
 		end if;
 	end process;
+
+	rom_request_complete <= rom_request_reg;
 	
+end generate;
+gen_no_internal_os : if internal_rom==0 generate
+	ROM16_data <= (others=>'0');
+
+	rom_request_compelte <= '0';
+end generate;
 	
-	--ROM_DATA <= ROMLO_DATA when rom_addr(15 downto 12)=X"D" else ROMHI_DATA;	
-	--ROM_DATA <= ROMHI_DATA;
-	basic1 : basic
-	PORT MAP(clock => clock,
-			 address => rom_addr(12 downto 0),
-			 q => BASIC_data
-			 );			 
-			 
-	rom16a : os16
-	PORT MAP(clock => clock,
-			 address => rom_addr(13 downto 0),
-			 q => ROM16_data
-			 );
-	
+gen_internal_ram: if space>0 generate
 	ramint1 : generic_ram_infer
         generic map
         (
-                ADDRESS_WIDTH => 14,
-                SPACE => 16384,
+                ADDRESS_WIDTH => 19,
+                SPACE => internal_ram,
                 DATA_WIDTH =>8
         )
 	PORT MAP(clock => clock,
-			 address => ram_addr(13 downto 0),
+			 address => ram_addr,
 			 data => ram_data_in(7 downto 0),
-			 we => RAM_WR_ENABLE_REAL,
-			 q => iram_data
+			 we => RAM_WR_ENABLE,
+			 q => ram_data
 			 );	
 	ram_request_complete <= ram_request_reg;
-	
-	RAM_DATA <= IRAM_DATA when ram_addr(15 downto 14)= "00" else X"FF";
-	RAM_WR_ENABLE_REAL <= RAM_WR_ENABLE when ram_addr(15 downto 14)="00" else '0'; -- ban writes over 16k when using int ram - HACK
+end generate;
+gen_no_internal_ram : if space==0 generate
+	ram_request_complete <='0';
+	ram_data <= (others=>'1');
+end generate;
+        
 end vhdl;
