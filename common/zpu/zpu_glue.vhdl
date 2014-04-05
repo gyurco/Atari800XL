@@ -24,12 +24,11 @@ PORT
 	ZPU_DI : in std_logic_vector(31 downto 0); -- response from general memory - for areas that only support 8/16 bit set top bits to 0
 	ZPU_ROM_DI : in std_logic_vector(31 downto 0); -- response from own program memory
 	ZPU_RAM_DI : in std_logic_vector(31 downto 0); -- response from own stack	
-	ZPU_SECTOR_DI : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 	ZPU_CONFIG_DI : in std_logic_vector(31 downto 0); -- response from config registers
 	
 	ZPU_DO : out std_logic_vector(31 downto 0);
 	
-	ZPU_ADDR_ROM_RAM : out std_logic_vector(23 downto 0); -- direct from zpu, for short paths
+	ZPU_ADDR_ROM_RAM : out std_logic_vector(15 downto 0); -- direct from zpu, for short paths
 	ZPU_ADDR_FETCH : out std_logic_vector(23 downto 0); -- clk->q, for longer paths
 	
 	-- request
@@ -130,11 +129,6 @@ component ZPUMediumCore is
 	constant result_rom_8bit_3 : std_logic_vector(4 downto 0) := "01010";	
 	constant result_config     : std_logic_vector(4 downto 0) := "01011";	
 	constant result_external_special : std_logic_vector(4 downto 0) := "01100";
-	constant result_sec        : std_logic_vector(4 downto 0) := "01101";
-	constant result_sec_8bit_0 : std_logic_vector(4 downto 0) := "01110";
-	constant result_sec_8bit_1 : std_logic_vector(4 downto 0) := "01111";
-	constant result_sec_8bit_2 : std_logic_vector(4 downto 0) := "10000";
-	constant result_sec_8bit_3 : std_logic_vector(4 downto 0) := "10001";
 	
 	signal request_type : std_logic_vector(4 downto 0);
 	
@@ -251,41 +245,21 @@ begin
 				zpu_16bit_write_enable_next <= zpu_16bit_write_enable_temp;
 				zpu_32bit_write_enable_next <= zpu_32bit_write_enable_temp;					
 			when "01010" =>
-				-- TODO - addr(14) should just feed 1 bit in result reg!
-				if (zpu_addr_unsigned(14) = '1') then
-					if (zpu_8bit_read_enable_temp='1') then
-						case (zpu_addr_unsigned(1 downto 0)) is
-						when "00" =>
-							result_next <= result_sec_8bit_0;										
-						when "01" =>
-							result_next <= result_sec_8bit_1;
-						when "10" =>
-							result_next <= result_sec_8bit_2;										
-						when "11" =>
-							result_next <= result_sec_8bit_3;
-						when others =>
-							--nop
-						end case;
-					else
-						result_next <= result_sec;
-					end if;					
+				if (zpu_8bit_read_enable_temp='1') then
+					case (zpu_addr_unsigned(1 downto 0)) is
+					when "00" =>
+						result_next <= result_rom_8bit_3;										
+					when "01" =>
+						result_next <= result_rom_8bit_2;
+					when "10" =>
+						result_next <= result_rom_8bit_1;										
+					when "11" =>
+						result_next <= result_rom_8bit_0;
+					when others =>
+						--nop
+					end case;
 				else
-					if (zpu_8bit_read_enable_temp='1') then
-						case (zpu_addr_unsigned(1 downto 0)) is
-						when "00" =>
-							result_next <= result_rom_8bit_3;										
-						when "01" =>
-							result_next <= result_rom_8bit_2;
-						when "10" =>
-							result_next <= result_rom_8bit_1;										
-						when "11" =>
-							result_next <= result_rom_8bit_0;
-						when others =>
-							--nop
-						end case;
-					else
-						result_next <= result_rom;
-					end if;
+					result_next <= result_rom;
 				end if;
 				ZPU_MEM_BUSY <= '1';
 				zpu_addr_next <= std_logic_vector(zpu_addr_unsigned);
@@ -328,7 +302,7 @@ begin
 	end process;
 
 	zpu_di_next <= zpu_di;
-	process(result_reg, zpu_di_reg, zpu_rom_di, zpu_ram_di, zpu_config_di, zpu_sector_di)
+	process(result_reg, zpu_di_reg, zpu_rom_di, zpu_ram_di, zpu_config_di)
 	begin
 		zpu_di_use <= (others=>'0');
 		case result_reg is 
@@ -356,16 +330,6 @@ begin
 				zpu_di_use(7 downto 0) <= zpu_ram_DI(23 downto 16);
 			when result_ram_8bit_3 =>
 				zpu_di_use(7 downto 0) <= zpu_ram_DI(31 downto 24);				
-			when result_sec =>
-				zpu_di_use <= zpu_sector_DI;
-			when result_sec_8bit_0 =>
-				zpu_di_use(7 downto 0) <= zpu_sector_DI(7 downto 0);
-			when result_sec_8bit_1 =>
-				zpu_di_use(7 downto 0) <= zpu_sector_DI(15 downto 8);
-			when result_sec_8bit_2 =>
-				zpu_di_use(7 downto 0) <= zpu_sector_DI(23 downto 16);
-			when result_sec_8bit_3 =>
-				zpu_di_use(7 downto 0) <= zpu_sector_DI(31 downto 24);								
 			when result_config =>
 				zpu_di_use <= zpu_config_di;
 			when others =>
@@ -384,7 +348,7 @@ myzpu: ZPUMediumCore
 	
 	zpu_di_unsigned <= unsigned(zpu_di_use);
 	zpu_do <= zpu_do_next;
-	ZPU_ADDR_ROM_RAM <= zpu_addr_next;
+	ZPU_ADDR_ROM_RAM <= zpu_addr_next(15 downto 0);
 	ZPU_ADDR_FETCH <= zpu_addr_reg;
 		
 	zpu_read_enable <= zpu_read_reg;

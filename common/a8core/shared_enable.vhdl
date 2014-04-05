@@ -9,6 +9,8 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+-- TODO - review this whole scheme
+-- Massively overcomplex and turbo doesn't even work with it right now!
 ENTITY shared_enable IS
 GENERIC
 (
@@ -23,13 +25,9 @@ PORT
 	PAUSE_6502 : in std_logic;
 	THROTTLE_COUNT_6502 : in std_logic_vector(5 downto 0);
 
-	POKEY_ENABLE_179 : OUT STD_LOGIC;  -- always about 1.79MHz to keep sound the same
 	ANTIC_ENABLE_179 : OUT STD_LOGIC;  -- always about 1.79MHz to keep sound the same - 1 cycle early
 	oldcpu_enable : OUT STD_LOGIC;     -- always about 1.79MHz to keep sound the same - expanded to next ready
-	CPU_ENABLE_OUT : OUT STD_LOGIC;    -- for compatibility run at 1.79MHz, for speed run as fast as we can
-	
-	SCANDOUBLER_ENABLE_LOW : OUT STD_LOGIC; -- double antic's rate - due to high-res mode
-	SCANDOUBLER_ENABLE_HIGH : OUT STD_LOGIC -- four times antic's rate - due to high-res mode
+	CPU_ENABLE_OUT : OUT STD_LOGIC    -- for compatibility run at 1.79MHz, for speed run as fast as we can
 	
 	-- antic DMA runs 1 cycle after 'enable', so ANTIC_ENABLE is delayed by 31 cycles vs CPU_ENABLE (when in 1.79MHz mode)
 	-- XXX watch out on clock speed change from 56MHz!
@@ -65,7 +63,6 @@ ARCHITECTURE vhdl OF shared_enable IS
 	
 	signal enable_179 : std_logic;
 	signal enable_179_early : std_logic;
-	signal enable_179_late : std_logic;
 	signal cpu_enable : std_logic;
 	
 	signal cpu_extra_enable_next : std_logic;
@@ -85,13 +82,6 @@ ARCHITECTURE vhdl OF shared_enable IS
 	signal memory_ready : std_logic;
 begin
 	-- instantiate some clock calcs
-	-- TODO - scandouble clocks assume 58MHz...
-	SCANDOUBLER_ENABLE_HIGH <= '1';
-		
-	sl_enable_colour_clock_div : enable_divider
-		generic map (COUNT=>2)
-		port map(clk=>CLK,reset_n=>reset_n,enable_in=>'1',enable_out=>SCANDOUBLER_ENABLE_LOW);		
-
 	enable_179_clock_div : enable_divider
 		generic map (COUNT=>cycle_length)
 		port map(clk=>clk,reset_n=>reset_n,enable_in=>'1',enable_out=>enable_179);
@@ -128,10 +118,6 @@ begin
 		generic map (COUNT=>cycle_length-1)
 		port map(clk=>clk,sync_reset=>'0',reset_n=>reset_n,data_in=>enable_179, enable=>'1', data_out=>enable_179_early);	
 
-	delay_line_phase2 : delay_line
-		generic map (COUNT=>cycle_length/2)
-		port map(clk=>clk,sync_reset=>'0',reset_n=>reset_n,data_in=>enable_179, enable=>'1', data_out=>enable_179_late);		
-	
 	-- registers
 	process(clk,reset_n)
 	begin
@@ -157,7 +143,6 @@ begin
 	enable_179_expanded <= oldcpu_extra_enable_reg or enable_179;
 	
 	-- output
-	POKEY_ENABLE_179 <= enable_179_late; -- aka enable_179_late!  TODO!!!
 	oldcpu_enable <= enable_179_expanded;
 	ANTIC_ENABLE_179 <= enable_179_early;
 	
