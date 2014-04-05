@@ -1,3 +1,17 @@
+---------------------------------------------------------------------------
+-- (c) 2013 mark watson
+-- I am happy for anyone to use this for non-commercial use.
+-- If my vhdl files are used commercially or otherwise sold,
+-- please contact me for explicit permission at scrameta (gmail).
+-- This applies for source and binary form and derived works.
+---------------------------------------------------------------------------
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.all; 
+use IEEE.STD_LOGIC_MISC.all;
+use ieee.numeric_std.all;
+
+LIBRARY work;
 -- Simple version that:
 -- i) needs: CLK(58 or 28MHZ) SDRAM,joystick,keyboard
 -- ii) provides: VIDEO,AUDIO
@@ -5,15 +19,15 @@
 
 -- THIS SHOULD DO FOR ALL PLATFORMS EXCEPT THOSE USING GPIO FOR PBI etc
 
-ENTITY atari800core_simplesdram is
+ENTITY atari800core_simple_sdram is
 	GENERIC
 	(
 		-- use CLK of 1.79*cycle_length
 		-- I've tested 16 and 32 only, but 4 and 8 might work...
-		cycle_length : integer := 16 -- or 32...
+		cycle_length : integer := 16; -- or 32...
 	
 		-- For initial port may help to have no
-		internal_rom : integer := 1  -- if 0 expects it in sdram,is 1:16k os+basic, is 2:... TODO
+		internal_rom : integer := 1;  -- if 0 expects it in sdram,is 1:16k os+basic, is 2:... TODO
 		internal_ram : integer := 16384  -- at start of memory map
 	);
 	PORT
@@ -102,14 +116,15 @@ ENTITY atari800core_simplesdram is
    		RAM_SELECT : in std_logic_vector(2 downto 0); -- 64K,128K,320KB Compy, 320KB Rambo, 576K Compy, 576K Rambo, 1088K, 4MB
     		ROM_SELECT : in std_logic_vector(5 downto 0); -- 16KB ROM Bank - 0 is illegal (slot used for BASIC!)
 		PAL :  in STD_LOGIC;
-		HALT : in std_logic
-		THROTTLE_COUNT_6502 : in std_logic_vector(5 downto 0); -- standard speed is cycle_length-1
-end atari800core_simplesdram;
+		HALT : in std_logic;
+		THROTTLE_COUNT_6502 : in std_logic_vector(5 downto 0) -- standard speed is cycle_length-1
+	);
+end atari800core_simple_sdram;
 
-ARCHITECTURE vhdl OF atari800core_simplesdram IS 
+ARCHITECTURE vhdl OF atari800core_simple_sdram IS 
 -- PIA
 SIGNAL	CA1_IN :  STD_LOGIC;
-SIGNAL	CA2_IN:  STD_LOGIC;
+SIGNAL	CB1_IN:  STD_LOGIC;
 SIGNAL	CA2_OUT :  STD_LOGIC;
 SIGNAL	CA2_DIR_OUT:  STD_LOGIC;
 SIGNAL	CB2_OUT :  STD_LOGIC;
@@ -117,7 +132,14 @@ SIGNAL	CB2_DIR_OUT:  STD_LOGIC;
 SIGNAL	CA2_IN:  STD_LOGIC;
 SIGNAL	CB2_IN:  STD_LOGIC;
 SIGNAL	PORTA_IN :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	PORTA_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	PORTA_DIR_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	PORTB_IN :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	PORTB_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	PORTB_DIR_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+
+-- GTIA
+signal GTIA_TRIG : std_logic_vector(3 downto 0);
 
 -- CARTRIDGE ACCESS
 SIGNAL	CART_RD4 :  STD_LOGIC;
@@ -138,6 +160,10 @@ SIGNAL	ROM_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	ROM_REQUEST :  STD_LOGIC;
 SIGNAL	ROM_REQUEST_COMPLETE :  STD_LOGIC;
 
+-- CONFIG
+SIGNAL USE_SDRAM : STD_LOGIC;
+SIGNAL ROM_IN_RAM : STD_LOGIC;
+
 BEGIN
 
 -- PIA mapping
@@ -149,6 +175,9 @@ SIO_COMMAND <= CB2_OUT;
 PORTA_IN <= ((JOY1_n(3)&JOY1_n(2)&JOY1_n(1)&JOY1_n(0)&JOY2_n(3)&JOY2_n(2)&JOY2_n(1)&JOY2_n(0)) and not (porta_dir_out)) or (porta_dir_out and porta_out);
 PORTB_IN <= PORTB_OUT;
 
+-- GTIA triggers
+GTIA_TRIG <= CART_RD5&"1"&JOY1_n(4)&JOY2_n(4);
+
 -- Cartridge not inserted
 CART_RD4 <= '0';
 CART_RD5 <= '0';
@@ -158,35 +187,37 @@ internalromram1 : entity work.internalromram
 	GENERIC MAP
 	(
 		internal_rom => internal_rom,
-		internal_ram => internal_ram,
-	);
+		internal_ram => internal_ram
+	)
 	PORT MAP (
  		clock   => CLK,
 		reset_n => RESET_N,
 
 		ROM_ADDR => ROM_ADDR,
-		ROM_REQUEST_COMPLETE => ROM_ADDR_COMPLETE,
+		ROM_REQUEST_COMPLETE => ROM_REQUEST_COMPLETE,
 		ROM_REQUEST => ROM_REQUEST,
 		ROM_DATA => ROM_DO,
 		
 		RAM_ADDR => RAM_ADDR,
-		RAM_WR_ENABLE => RAM_WR_ENABLE,
+		RAM_WR_ENABLE => RAM_WRITE_ENABLE,
 		RAM_DATA_IN => PBI_WRITE_DATA(7 downto 0),
 		RAM_REQUEST_COMPLETE => RAM_REQUEST_COMPLETE,
 		RAM_REQUEST => RAM_REQUEST,
-		RAM_DATA => RAM_DO
+		RAM_DATA => RAM_DO(7 downto 0)
 	);
-END internalromram;
+
+	USE_SDRAM <= '1' when internal_ram=0 else '0';
+	ROM_IN_RAM <= '1' when internal_rom=0 else '0';
 
 atari800xl : entity work.atari800core
 	GENERIC MAP
 	(
 		cycle_length => cycle_length
-	);
+	)
 	PORT MAP
 	(
 		CLK => CLK,
-		RESET_N => RESET_N
+		RESET_N => RESET_N,
 
 		VGA_VS => VGA_VS,
 		VGA_HS => VGA_HS,
@@ -240,6 +271,7 @@ atari800xl : entity work.atari800core
 		CONSOL_OPTION => CONSOL_OPTION,
 		CONSOL_SELECT => CONSOL_SELECT,
 		CONSOL_START=> CONSOL_START,
+		GTIA_TRIG => GTIA_TRIG,
 
 		SDRAM_REQUEST => SDRAM_REQUEST,
 		SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,

@@ -94,6 +94,7 @@ ENTITY atari800core IS
 		CONSOL_OPTION : IN STD_LOGIC;
 		CONSOL_SELECT : IN STD_LOGIC;
 		CONSOL_START : IN STD_LOGIC;
+		GTIA_TRIG : IN STD_LOGIC_VECTOR(3 downto 0);
 
 		-----------------------
 		-- After here all FPGA implementation specific
@@ -213,8 +214,6 @@ SIGNAL	R_W_N :  STD_LOGIC;
 -- TODO - review/explain what all these are for
 SIGNAL	CPU_SHARED_ENABLE :  STD_LOGIC;
 SIGNAL	ENABLE_179_MEMWAIT :  STD_LOGIC;
-SIGNAL	PAUSE_6502 :  STD_LOGIC;
-SIGNAL	HALT_OR_PAUSE_6502 :  STD_LOGIC;
 SIGNAL	POKEY_ENABLE_179 :  STD_LOGIC;
 SIGNAL	ANTIC_ENABLE_179 :  STD_LOGIC;
 SIGNAL	SCANDOUBLER_SHARED_ENABLE_HIGH :  STD_LOGIC;
@@ -265,6 +264,10 @@ SIGNAL	PIA_IRQA :  STD_LOGIC;
 SIGNAL	PIA_IRQB :  STD_LOGIC;
 SIGNAL	PIA_READ_ENABLE :  STD_LOGIC;
 SIGNAL	PIA_WRITE_ENABLE :  STD_LOGIC;
+SIGNAL PORTB_OUT_INT : STD_LOGIC_VECTOR(7 downto 0);
+
+-- PBI
+SIGNAL PBI_ADDR_INT : std_logic_vector(15 downto 0);
 
 BEGIN 
 
@@ -274,15 +277,13 @@ PBI_WIDTH_32bit_ACCESS <= WIDTH_32bit_access;
 PBI_WRITE_DATA <= WRITE_DATA;
 PBI_SNOOP_DATA <= MEMORY_DATA;
 
-HALT_OR_PAUSE_6502 <= HALT or PAUSE_6502;
-
 enables : entity work.shared_enable
 GENERIC MAP(cycle_length => cycle_length)
 PORT MAP(CLK => CLK,
 		 RESET_N => RESET_N,
 		 MEMORY_READY_CPU => MEMORY_READY_CPU,
 		 MEMORY_READY_ANTIC => MEMORY_READY_ANTIC,
-		 PAUSE_6502 => HALT_OR_PAUSE_6502,
+		 PAUSE_6502 => HALT,
 		 THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
 		 POKEY_ENABLE_179 => POKEY_ENABLE_179,
 		 ANTIC_ENABLE_179 => ANTIC_ENABLE_179,
@@ -292,6 +293,7 @@ PORT MAP(CLK => CLK,
 		 SCANDOUBLER_ENABLE_HIGH => SCANDOUBLER_SHARED_ENABLE_HIGH);
 
 
+CPU_6502_RESET <= NOT(RESET_N); -- TODO, allow external reset
 cpu6502 : entity work.cpu
 PORT MAP(CLK => CLK,
 		 RESET => CPU_6502_RESET,
@@ -317,7 +319,7 @@ PORT MAP(CLK => CLK,
 		 ANTIC_ENABLE_179 => ANTIC_ENABLE_179,
 		 PAL => PAL,
 		 lightpen => LIGHTPEN,
-		 ADDR => PBI_ADDR(3 DOWNTO 0),
+		 ADDR => PBI_ADDR_INT(3 DOWNTO 0),
 		 CPU_DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		 MEMORY_DATA_IN => MEMORY_DATA(7 DOWNTO 0),
 		 NMI_N_OUT => NMI_n,
@@ -363,7 +365,7 @@ PORT MAP(CLK => CLK,
 		 ANTIC_MEMORY_READY => MEMORY_READY_ANTIC,
 		 WR_EN => POKEY2_WRITE_ENABLE,
 		 RESET_N => RESET_N,
-		 ADDR => PBI_ADDR(3 DOWNTO 0),
+		 ADDR => PBI_ADDR_INT(3 DOWNTO 0),
 		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		 CHANNEL_0_OUT => POKEY2_CHANNEL0,
 		 CHANNEL_1_OUT => POKEY2_CHANNEL1,
@@ -389,7 +391,7 @@ PORT MAP(CLK => CLK,
 		 CB2_DIR_OUT => CB2_DIR_OUT,
 		 CB2_IN => CB2_IN,
 		 CB2_OUT => CB2_OUT,
-		 ADDR => PBI_ADDR(1 DOWNTO 0),
+		 ADDR => PBI_ADDR_INT(1 DOWNTO 0),
 		 CPU_DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		 IRQA_N => PIA_IRQA,
 		 IRQB_N => PIA_IRQB,
@@ -399,7 +401,7 @@ PORT MAP(CLK => CLK,
 		 PORTA_OUT => PORTA_OUT,
 		 PORTB_IN => PORTB_IN,
 		 PORTB_DIR_OUT => PORTB_DIR_OUT,
-		 PORTB_OUT => PORTB_OUT);
+		 PORTB_OUT => PORTB_OUT_INT);
 
 mmu1 : entity work.address_decoder
 PORT MAP(CLK => CLK,
@@ -433,14 +435,14 @@ PORT MAP(CLK => CLK,
 		 CACHE_POKEY2_DATA => CACHE_POKEY2_DO,
 		 POKEY_DATA => POKEY_DO,
 		 CACHE_POKEY_DATA => CACHE_POKEY_DO,
-		 PORTB => PORTB_OUT,
+		 PORTB => PORTB_OUT_INT,
 		 RAM_DATA => RAM_DO,
 		 ram_select => RAM_SELECT(2 downto 0),
 		 ROM_DATA => ROM_DO,
 		 rom_select => ROM_SELECT, 
 		 SDRAM_DATA => SDRAM_DO,
-		 DMA_ADDR => DMA_ADDR_FETCH,
-		 DMA_WRITE_DATA => DMA_DO,
+		 DMA_ADDR => DMA_ADDR,
+		 DMA_WRITE_DATA => DMA_WRITE_DATA,
 		 MEMORY_READY_ANTIC => MEMORY_READY_ANTIC,
 		 MEMORY_READY_DMA => MEMORY_READY_DMA,
 		 MEMORY_READY_CPU => MEMORY_READY_CPU,
@@ -466,7 +468,7 @@ PORT MAP(CLK => CLK,
 		 SDRAM_REQUEST => SDRAM_REQUEST,
 		 SDRAM_REFRESH => SDRAM_REFRESH,
 		 MEMORY_DATA => MEMORY_DATA,
-		 PBI_ADDR => PBI_ADDR,
+		 PBI_ADDR => PBI_ADDR_INT,
 		 RAM_ADDR => RAM_ADDR,
 		 ROM_ADDR => ROM_ADDR,
 		 SDRAM_ADDR => SDRAM_ADDR,
@@ -485,7 +487,7 @@ PORT MAP(CLK => CLK,
 		 SIO_IN1 => SIO_RXD,
 		 SIO_IN2 => '1',
 		 SIO_IN3 => '1',
-		 ADDR => PBI_ADDR(3 DOWNTO 0),
+		 ADDR => PBI_ADDR_INT(3 DOWNTO 0),
 		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		 keyboard_response => KEYBOARD_RESPONSE,
 		 POT_IN => POT_IN,
@@ -517,15 +519,11 @@ PORT MAP(CLK => CLK,
 		 CONSOL_START => CONSOL_START,
 		 CONSOL_SELECT => CONSOL_SELECT,
 		 CONSOL_OPTION => CONSOL_OPTION,
-		 TRIG0 => joy2_n(4), -- TODO - joystick trigger too
-		 TRIG1 => joy1_n(4),
-		 --TRIG0 => VIRTUAL_TRIGGERS(0) and joy2_n(4), -- TODO - joystick trigger too
-		 --TRIG1 => VIRTUAL_TRIGGERS(1) and joy1_n(4),
-		 --TRIG0 => VIRTUAL_TRIGGERS(0),
-		 --TRIG1 => VIRTUAL_TRIGGERS(1),
-		 TRIG2 => VIRTUAL_TRIGGERS(2),
-		 TRIG3 => VIRTUAL_TRIGGERS(3),
-		 ADDR => PBI_ADDR(4 DOWNTO 0),
+		 TRIG0 => GTIA_TRIG(0),
+		 TRIG1 => GTIA_TRIG(1),
+		 TRIG2 => GTIA_TRIG(2),
+		 TRIG3 => GTIA_TRIG(3),
+		 ADDR => PBI_ADDR_INT(4 DOWNTO 0),
 		 AN => ANTIC_AN,
 		 CPU_DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		 MEMORY_DATA_IN => MEMORY_DATA(7 DOWNTO 0),
@@ -569,7 +567,7 @@ pokey1_mirror : entity work.reg_file
 generic map(BYTES=>16,WIDTH=>4)
 port map(
 	CLK => CLK,
-	ADDR => PBI_ADDR(3 downto 0),
+	ADDR => PBI_ADDR_INT(3 downto 0),
 	DATA_IN => WRITE_DATA(7 downto 0),
 	WR_EN => POKEY_WRITE_ENABLE,
 	DATA_OUT => CACHE_POKEY_DO
@@ -579,7 +577,7 @@ pokey2_mirror : entity work.reg_file
 generic map(BYTES=>16,WIDTH=>4)
 port map(
 	CLK => CLK,
-	ADDR => PBI_ADDR(3 downto 0),
+	ADDR => PBI_ADDR_INT(3 downto 0),
 	DATA_IN => WRITE_DATA(7 downto 0),
 	WR_EN => POKEY2_WRITE_ENABLE,
 	DATA_OUT => CACHE_POKEY2_DO
@@ -589,7 +587,7 @@ gtia_mirror : entity work.reg_file
 generic map(BYTES=>32,WIDTH=>5)
 port map(
 	CLK => CLK,
-	ADDR => PBI_ADDR(4 downto 0),
+	ADDR => PBI_ADDR_INT(4 downto 0),
 	DATA_IN => WRITE_DATA(7 downto 0),
 	WR_EN => GTIA_WRITE_ENABLE,
 	DATA_OUT => CACHE_GTIA_DO
@@ -599,7 +597,7 @@ antic_mirror : entity work.reg_file
 generic map(BYTES=>16,WIDTH=>4)
 port map(
 	CLK => CLK,
-	ADDR => PBI_ADDR(3 downto 0),
+	ADDR => PBI_ADDR_INT(3 downto 0),
 	DATA_IN => WRITE_DATA(7 downto 0),
 	WR_EN => ANTIC_WRITE_ENABLE,
 	DATA_OUT => CACHE_ANTIC_DO
@@ -609,7 +607,7 @@ covox1 : entity work.covox
 	PORT map
 	( 
 		clk => clk,
-		addr => pbi_addr(1 downto 0),
+		addr => pbi_addr_int(1 downto 0),
 		data_in => WRITE_DATA(7 DOWNTO 0),
 		wr_en => covox_write_enable,
 		covox_channel0 => covox_channel0,
@@ -617,5 +615,9 @@ covox1 : entity work.covox
 		covox_channel2 => covox_channel2,
 		covox_channel3 => covox_channel3
 	);
+
+-- outputs
+PBI_ADDR <= PBI_ADDR_INT;
+PORTB_OUT <= PORTB_OUT_INT;
 
 END bdf_type;

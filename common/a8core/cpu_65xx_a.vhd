@@ -769,9 +769,9 @@ processAlu: process(clk, opcInfo, aluInput, aluCmpInput, A, T, irqActive, Nreg, 
 			ninebits := rmwBits;
 		end case;
 
-		if (opcInfo(aluMode1From to aluMode1To) = aluModeFlg) then
+		if (to_01(opcInfo(aluMode1From to aluMode1To)) = aluModeFlg) then
 			varZ := rmwBits(1);
-		elsif ninebits(7 downto 0) = X"00" then
+		elsif to_01(ninebits(7 downto 0)) = X"00" then
 			varZ := '1';
 		else
 			varZ := '0';
@@ -792,14 +792,14 @@ processAlu: process(clk, opcInfo, aluInput, aluCmpInput, A, T, irqActive, Nreg, 
 			null;
 		end case;
 
-		if (opcInfo(aluMode1From to aluMode1To) = aluModeBit)
-		or (opcInfo(aluMode1From to aluMode1To) = aluModeFlg) then
+		if (to_01(opcInfo(aluMode1From to aluMode1To)) = aluModeBit)
+		or (to_01(opcInfo(aluMode1From to aluMode1To)) = aluModeFlg) then
 			varN := rmwBits(7);
 		else
 			varN := nineBits(7);
 		end if;
 		varC := ninebits(8);
-		if opcInfo(aluMode2From to aluMode2To) = aluModeArr then
+		if to_01(opcInfo(aluMode2From to aluMode2To)) = aluModeArr then
 			varC := aluInput(7);
 			varV := aluInput(7) xor aluInput(6);
 		end if;
@@ -908,7 +908,7 @@ calcNextOpcode: process(clk, d, reset, processInt)
 		nextOpcode <= myNextOpcode;
 	end process;
 
-	nextOpcInfo <= opcodeInfoTable(to_integer(nextOpcode));
+	nextOpcInfo <= opcodeInfoTable(to_integer(to_01(nextOpcode)));
 	process(clk)
 	begin
 		if rising_edge(clk) then

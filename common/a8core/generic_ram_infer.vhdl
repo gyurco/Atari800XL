@@ -34,11 +34,11 @@ BEGIN
    BEGIN
       IF (clock'event AND clock = '1') THEN
          q<= (others=>'1');
-         IF (to_integer(unsigned(address)) < space) THEN
+         IF (to_integer(to_01(unsigned(address))) < space) THEN
            IF (we = '1') THEN
-              ram_block(to_integer(unsigned(address))) <= data;
+              ram_block(to_integer(to_01(unsigned(address)))) <= data;
            END IF;
-           q <= ram_block(to_integer(unsigned(address)));
+           q <= ram_block(to_integer(to_01(unsigned(address))));
          END IF;
       END IF;
    END PROCESS;

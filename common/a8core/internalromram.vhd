@@ -6,7 +6,7 @@ USE ieee.std_logic_unsigned.all;
 ENTITY internalromram IS
 	GENERIC
 	(
-		internal_rom : integer := 1  
+		internal_rom : integer := 1;  
 		internal_ram : integer := 16384 
 	);
   PORT(
@@ -81,7 +81,7 @@ begin
 		end if;
 	end process;
 
-gen_internal_os : if internal_os==1 generate
+gen_internal_os : if internal_rom=1 generate
 	rom16a : os16
 	PORT MAP(clock => clock,
 			 address => rom_addr(13 downto 0),
@@ -105,13 +105,13 @@ gen_internal_os : if internal_os==1 generate
 	rom_request_complete <= rom_request_reg;
 	
 end generate;
-gen_no_internal_os : if internal_rom==0 generate
+gen_no_internal_os : if internal_rom=0 generate
 	ROM16_data <= (others=>'0');
 
-	rom_request_compelte <= '0';
+	rom_request_complete <= '0';
 end generate;
 	
-gen_internal_ram: if space>0 generate
+gen_internal_ram: if internal_ram>0 generate
 	ramint1 : generic_ram_infer
         generic map
         (
@@ -127,7 +127,7 @@ gen_internal_ram: if space>0 generate
 			 );	
 	ram_request_complete <= ram_request_reg;
 end generate;
-gen_no_internal_ram : if space==0 generate
+gen_no_internal_ram : if internal_ram=0 generate
 	ram_request_complete <='0';
 	ram_data <= (others=>'1');
 end generate;

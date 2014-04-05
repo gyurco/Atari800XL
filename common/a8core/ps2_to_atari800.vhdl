@@ -21,22 +21,31 @@ PORT
 	KEYBOARD_SCAN : IN STD_LOGIC_VECTOR(5 downto 0);
 	KEYBOARD_RESPONSE : OUT STD_LOGIC_VECTOR(1 downto 0);
 
-	CONSOL_START : STD_LOGIC;
-	CONSOL_SELECT : STD_LOGIC;
-	CONSOL_OPTION : STD_LOGIC
+	CONSOL_START : OUT STD_LOGIC;
+	CONSOL_SELECT : OUT STD_LOGIC;
+	CONSOL_OPTION : OUT STD_LOGIC
 );
-END ps2_keyboard;
+END ps2_to_atari800;
 
-ARCHITECTURE vhdl OF ps2_keyboard IS
+ARCHITECTURE vhdl OF ps2_to_atari800 IS
 	signal ps2_keys_next : std_logic_vector(255 downto 0);
 	signal ps2_keys_reg : std_logic_vector(255 downto 0);
+
+	signal key_event : std_logic;
+	signal key_value : std_logic_vector(7 downto 0);
+	signal key_extended : std_logic;
+	signal key_up : std_logic;
+
+	signal CONSOL_START_INT : std_logic;
+	signal CONSOL_SELECT_INT : std_logic;
+	signal CONSOL_OPTION_INT : std_logic;
 
 	signal atari_keyboard : std_logic_vector(63 downto 0);
 	SIGNAL	SHIFT_PRESSED :  STD_LOGIC;
 	SIGNAL	BREAK_PRESSED :  STD_LOGIC;
 	SIGNAL	CONTROL_PRESSED :  STD_LOGIC;
 BEGIN
-	keyboard1: ps2_keyboard
+	keyboard1: entity work.ps2_keyboard
 	PORT MAP
 	( 
 		CLK => CLK,
@@ -74,78 +83,78 @@ BEGIN
 	end process;
 
 	-- map to atari key code
-	process(keyboard)
+	process(ps2_keys_reg)
 	begin
 		atari_keyboard <= (others=>'0');
 
 		shift_pressed <= '0';
 		control_pressed <= '0';
 		break_pressed <= '0';
-		consol_start <= '0';
-		consol_select <= '0';
-		consol_option <= '0';
+		consol_start_int <= '0';
+		consol_select_int <= '0';
+		consol_option_int <= '0';
 
-		atari_keyboard(63)<=ps2_keys_regs(X"1C");
-		atari_keyboard(21)<=ps2_keys_regs(X"32");
-		atari_keyboard(18)<=ps2_keys_regs(X"21");
-		atari_keyboard(58)<=ps2_keys_regs(X"23");
-		atari_keyboard(42)<=ps2_keys_regs(X"24");
-		atari_keyboard(56)<=ps2_keys_regs(X"2B");
-		atari_keyboard(61)<=ps2_keys_regs(X"34");
-		atari_keyboard(57)<=ps2_keys_regs(X"33");
-		atari_keyboard(13)<=ps2_keys_regs(X"43");
-		atari_keyboard(1)<=ps2_keys_regs(X"3B");
-		atari_keyboard(5)<=ps2_keys_regs(X"42");
-		atari_keyboard(0)<=ps2_keys_regs(X"4B");
-		atari_keyboard(37)<=ps2_keys_regs(X"3A");
-		atari_keyboard(35)<=ps2_keys_regs(X"31");
-		atari_keyboard(8)<=ps2_keys_regs(X"44");
-		atari_keyboard(10)<=ps2_keys_regs(X"4D");
-		atari_keyboard(47)<=ps2_keys_regs(X"15");
-		atari_keyboard(40)<=ps2_keys_regs(X"2D");
-		atari_keyboard(62)<=ps2_keys_regs(X"1B");
-		atari_keyboard(45)<=ps2_keys_regs(X"2C");
-		atari_keyboard(11)<=ps2_keys_regs(X"3C");
-		atari_keyboard(16)<=ps2_keys_regs(X"2A");
-		atari_keyboard(46)<=ps2_keys_regs(X"1D");
-		atari_keyboard(22)<=ps2_keys_regs(X"22");
-		atari_keyboard(43)<=ps2_keys_regs(X"35");
-		atari_keyboard(23)<=ps2_keys_regs(X"1A");
-		atari_keyboard(50)<=ps2_keys_regs(X"45");
-		atari_keyboard(31)<=ps2_keys_regs(X"16");
-		atari_keyboard(30)<=ps2_keys_regs(X"1E");
-		atari_keyboard(26)<=ps2_keys_regs(X"26");
-		atari_keyboard(24)<=ps2_keys_regs(X"25");
-		atari_keyboard(29)<=ps2_keys_regs(X"2E");
-		atari_keyboard(27)<=ps2_keys_regs(X"36");
-		atari_keyboard(51)<=ps2_keys_regs(X"3D");
-		atari_keyboard(53)<=ps2_keys_regs(X"3E");
-		atari_keyboard(48)<=ps2_keys_regs(X"46");
-		atari_keyboard(17)<=ps2_keys_regs(X"ec");
-		atari_keyboard(52)<=ps2_keys_regs(X"66");
-		atari_keyboard(28)<=ps2_keys_regs(X"76");
-		atari_keyboard(39)<=ps2_keys_regs(X"91");
-		atari_keyboard(60)<=ps2_keys_regs(X"58");
-		atari_keyboard(44)<=ps2_keys_regs(X"0D");
-		atari_keyboard(12)<=ps2_keys_regs(X"5A");
-		atari_keyboard(33)<=ps2_keys_regs(X"29");
-		atari_keyboard(54)<=ps2_keys_regs(X"4E");
-		atari_keyboard(55)<=ps2_keys_regs(X"55");
-		atari_keyboard(15)<=ps2_keys_regs(X"5B");
-		atari_keyboard(14)<=ps2_keys_regs(X"54");
-		atari_keyboard(6)<=ps2_keys_regs(X"52");
-		atari_keyboard(7)<=ps2_keys_regs(X"5D");
-		atari_keyboard(38)<=ps2_keys_regs(X"4A");
-		atari_keyboard(2)<=ps2_keys_regs(X"4C");
-		atari_keyboard(32)<=ps2_keys_regs(X"41");
-		atari_keyboard(34)<=ps2_keys_regs(X"49");
+		atari_keyboard(63)<=ps2_keys_reg(16#1C#);
+		atari_keyboard(21)<=ps2_keys_reg(16#32#);
+		atari_keyboard(18)<=ps2_keys_reg(16#21#);
+		atari_keyboard(58)<=ps2_keys_reg(16#23#);
+		atari_keyboard(42)<=ps2_keys_reg(16#24#);
+		atari_keyboard(56)<=ps2_keys_reg(16#2B#);
+		atari_keyboard(61)<=ps2_keys_reg(16#34#);
+		atari_keyboard(57)<=ps2_keys_reg(16#33#);
+		atari_keyboard(13)<=ps2_keys_reg(16#43#);
+		atari_keyboard(1)<=ps2_keys_reg(16#3B#);
+		atari_keyboard(5)<=ps2_keys_reg(16#42#);
+		atari_keyboard(0)<=ps2_keys_reg(16#4B#);
+		atari_keyboard(37)<=ps2_keys_reg(16#3A#);
+		atari_keyboard(35)<=ps2_keys_reg(16#31#);
+		atari_keyboard(8)<=ps2_keys_reg(16#44#);
+		atari_keyboard(10)<=ps2_keys_reg(16#4D#);
+		atari_keyboard(47)<=ps2_keys_reg(16#15#);
+		atari_keyboard(40)<=ps2_keys_reg(16#2D#);
+		atari_keyboard(62)<=ps2_keys_reg(16#1B#);
+		atari_keyboard(45)<=ps2_keys_reg(16#2C#);
+		atari_keyboard(11)<=ps2_keys_reg(16#3C#);
+		atari_keyboard(16)<=ps2_keys_reg(16#2A#);
+		atari_keyboard(46)<=ps2_keys_reg(16#1D#);
+		atari_keyboard(22)<=ps2_keys_reg(16#22#);
+		atari_keyboard(43)<=ps2_keys_reg(16#35#);
+		atari_keyboard(23)<=ps2_keys_reg(16#1A#);
+		atari_keyboard(50)<=ps2_keys_reg(16#45#);
+		atari_keyboard(31)<=ps2_keys_reg(16#16#);
+		atari_keyboard(30)<=ps2_keys_reg(16#1E#);
+		atari_keyboard(26)<=ps2_keys_reg(16#26#);
+		atari_keyboard(24)<=ps2_keys_reg(16#25#);
+		atari_keyboard(29)<=ps2_keys_reg(16#2E#);
+		atari_keyboard(27)<=ps2_keys_reg(16#36#);
+		atari_keyboard(51)<=ps2_keys_reg(16#3D#);
+		atari_keyboard(53)<=ps2_keys_reg(16#3E#);
+		atari_keyboard(48)<=ps2_keys_reg(16#46#);
+		atari_keyboard(17)<=ps2_keys_reg(16#ec#);
+		atari_keyboard(52)<=ps2_keys_reg(16#66#);
+		atari_keyboard(28)<=ps2_keys_reg(16#76#);
+		atari_keyboard(39)<=ps2_keys_reg(16#91#);
+		atari_keyboard(60)<=ps2_keys_reg(16#58#);
+		atari_keyboard(44)<=ps2_keys_reg(16#0D#);
+		atari_keyboard(12)<=ps2_keys_reg(16#5A#);
+		atari_keyboard(33)<=ps2_keys_reg(16#29#);
+		atari_keyboard(54)<=ps2_keys_reg(16#4E#);
+		atari_keyboard(55)<=ps2_keys_reg(16#55#);
+		atari_keyboard(15)<=ps2_keys_reg(16#5B#);
+		atari_keyboard(14)<=ps2_keys_reg(16#54#);
+		atari_keyboard(6)<=ps2_keys_reg(16#52#);
+		atari_keyboard(7)<=ps2_keys_reg(16#5D#);
+		atari_keyboard(38)<=ps2_keys_reg(16#4A#);
+		atari_keyboard(2)<=ps2_keys_reg(16#4C#);
+		atari_keyboard(32)<=ps2_keys_reg(16#41#);
+		atari_keyboard(34)<=ps2_keys_reg(16#49#);
 
-		consol_start<=ps2_keys_regs(X"06");
-		consol_select<=ps2_keys_regs(X"04");
-		consol_option<=ps2_keys_regs(X"0C");
-		shift_pressed<=ps2_keys_regs(X"12") or ps2_keys_regs(X"59");
-		control_pressed<=ps2_keys_regs(X"14") or ps2_keys_regs(X"94");
-		break_pressed<=ps2_keys_reg(X"77");
+		consol_start_int<=ps2_keys_reg(16#06#);
+		consol_select_int<=ps2_keys_reg(16#04#);
+		consol_option_int<=ps2_keys_reg(16#0C#);
+		shift_pressed<=ps2_keys_reg(16#12#) or ps2_keys_reg(16#59#);
+		control_pressed<=ps2_keys_reg(16#14#) or ps2_keys_reg(16#94#);
+		break_pressed<=ps2_keys_reg(16#77#);
 	end process;
 
 	-- provide results as if we were a grid to pokey...
@@ -169,5 +178,10 @@ BEGIN
 				keyboard_response(1) <= '0';
 			end if;
 	end process;		 
+
+	-- outputs
+	CONSOL_START <= CONSOL_START_INT;
+	CONSOL_SELECT <= CONSOL_SELECT_INT;
+	CONSOL_OPTION <= CONSOL_OPTION_INT;
 END vhdl;
 

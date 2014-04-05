@@ -1,3 +1,17 @@
+---------------------------------------------------------------------------
+-- (c) 2013 mark watson
+-- I am happy for anyone to use this for non-commercial use.
+-- If my vhdl files are used commercially or otherwise sold,
+-- please contact me for explicit permission at scrameta (gmail).
+-- This applies for source and binary form and derived works.
+---------------------------------------------------------------------------
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.all; 
+use IEEE.STD_LOGIC_MISC.all;
+use ieee.numeric_std.all;
+
+LIBRARY work;
 -- Simple version that:
 -- i) needs: CLK(58 or 28MHZ) joystick,PS2 keyboard
 -- ii) provides: VIDEO,AUDIO,ROM,RAM
@@ -10,7 +24,7 @@ ENTITY atari800core_helloworld is
 	(
 		-- use CLK of 1.79*cycle_length
 		-- I've tested 16 and 32 only, but 4 and 8 might work...
-		cycle_length : integer := 16 -- or 32...
+		cycle_length : integer := 16; -- or 32...
 	
 		internal_ram : integer := 16384  -- at start of memory map
 	);
@@ -41,6 +55,7 @@ ENTITY atari800core_helloworld is
 
 		-- video standard
 		PAL :  in STD_LOGIC
+	);
 end atari800core_helloworld;
 
 ARCHITECTURE vhdl OF atari800core_helloworld IS 
@@ -53,10 +68,14 @@ SIGNAL KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
 SIGNAL CONSOL_START : std_logic;
 SIGNAL CONSOL_SELECT : std_logic;
 SIGNAL CONSOL_OPTION : std_logic;
+
+-- 6502 throttling
+SIGNAL THROTTLE_COUNT_6502 : std_logic_vector(5 downto 0);
+
 BEGIN
 
 -- PS2 to pokey
-keyboard_map1 : ps2_to_atari800 IS
+keyboard_map1 : entity work.ps2_to_atari800
 	PORT MAP
 	( 
 		CLK => clk,
@@ -75,16 +94,16 @@ keyboard_map1 : ps2_to_atari800 IS
 	);
 
 -- THROTTLE
-THROTTLE_COUNT_6502 <= to_unsigned(cycle_length-1,6);
+THROTTLE_COUNT_6502 <= std_logic_vector(to_unsigned(cycle_length-1,6));
 
-atarixl_simplesdram1 : entity work.atari800_simplesdram
+atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
 	(
 		cycle_length => cycle_length,
 		internal_rom => 1,
 		internal_ram =>internal_ram
-	);
-	PORT
+	)
+	PORT MAP
 	(
 		CLK => CLK,
 		RESET_N => RESET_N,
@@ -110,7 +129,7 @@ atarixl_simplesdram1 : entity work.atari800_simplesdram
 
 		CONSOL_OPTION => CONSOL_OPTION,
 		CONSOL_SELECT => CONSOL_SELECT,
-		CONSOL_START => CONSOL_START
+		CONSOL_START => CONSOL_START,
 
 		SDRAM_REQUEST => open,
 		SDRAM_REQUEST_COMPLETE => '1',
