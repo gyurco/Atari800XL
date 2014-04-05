@@ -41,9 +41,9 @@ if [ ! -e $name.wdb -o "$1" != "-view" ]; then
 	cp "../../a8core/pokey_keyboard_scanner.vhdl" .
 	cp "../../a8core/pokey_countdown_timer.vhdl" .
 	cp "../../a8core/pokey_noise_filter.vhdl" .
-	cp "../../a8core/poly_4.vhdl" .
-	cp "../../a8core/poly_5.vhdl" .
-	cp "../../a8core/poly_17_9.vhdl" .
+	cp "../../a8core/pokey_poly_4.vhdl" .
+	cp "../../a8core/pokey_poly_5.vhdl" .
+	cp "../../a8core/pokey_poly_17_9.vhdl" .
 
         # set up project definition file
 	ls *.vhd* | perl -e 'while (<>){s/(.*)/vhdl work $1/;print $_;}' | cat > $name.prj

@@ -9,7 +9,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-ENTITY poly_5 IS
+ENTITY pokey_poly_5 IS
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
@@ -19,9 +19,9 @@ PORT
 	
 	BIT_OUT : OUT STD_LOGIC
 );
-END poly_5;
+END pokey_poly_5;
 
-ARCHITECTURE vhdl OF poly_5 IS
+ARCHITECTURE vhdl OF pokey_poly_5 IS
 	signal shift_reg: std_logic_vector(4 downto 0);
 	signal shift_next: std_logic_vector(4 downto 0);
 BEGIN

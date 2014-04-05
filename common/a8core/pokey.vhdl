@@ -83,7 +83,7 @@ ARCHITECTURE vhdl OF pokey IS
 	);
 	END component;
 	
-	component poly_17_9 IS
+	component pokey_poly_17_9 IS
 	PORT 
 	( 
 		CLK : IN STD_LOGIC;
@@ -98,7 +98,7 @@ ARCHITECTURE vhdl OF pokey IS
 	);
 	END component;
 	
-	component poly_5 IS
+	component pokey_poly_5 IS
 	PORT 
 	( 
 		CLK : IN STD_LOGIC;
@@ -110,7 +110,7 @@ ARCHITECTURE vhdl OF pokey IS
 	);
 	END component;
 	
-	component poly_4 IS
+	component pokey_poly_4 IS
 	PORT 
 	( 
 		CLK : IN STD_LOGIC;
@@ -900,13 +900,13 @@ BEGIN
 		
 	-- Instantiate pokey noise circuits (lfsr)
 	initmode <= skctl_next(1) nor skctl_next(0);
-	poly_17_19_lfsr : poly_17_9
+	poly_17_19_lfsr : pokey_poly_17_9
 		port map(clk=>clk,reset_n=>reset_n,init=>initmode,enable=>enable_179,select_9_17=>audctl_reg(7),bit_out=>noise_large,rand_out=>rand_out);
 		
-	poly_5_lfsr : poly_5
+	poly_5_lfsr : pokey_poly_5
 		port map(clk=>clk,reset_n=>reset_n,init=>initmode,enable=>enable_179,bit_out=>noise_5);
 		
-	poly_4_lfsr : poly_4
+	poly_4_lfsr : pokey_poly_4
 		port map(clk=>clk,reset_n=>reset_n,init=>initmode,enable=>enable_179,bit_out=>noise_4);
 	
 	--AUDIO_LEFT <= "000"&count_reg(15 downto 3);
