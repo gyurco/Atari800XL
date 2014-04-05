@@ -18,7 +18,8 @@ LIBRARY work;
 ENTITY atari800core IS 
 	GENERIC
 	(
-		cycle_length : integer := 16 -- or 32...
+		cycle_length : integer := 16; -- or 32...
+		palette : integer :=1 -- 0:gtia colour on VGA_B, 1:altirra, 2:laoo
 	);
 	PORT
 	(
@@ -545,16 +546,21 @@ PORT MAP(CLK => CLK,
 --Cobalt blue     6,     96       Orange-green   14,    224
 --Ultramarine     7,    112       Orange         15,    240
 
--- from altirra	
+gen_palette_none : if palette=0 generate
+	VGA_B <= COLOUR;
+	VGA_R <= (others => '0');
+	VGA_G <= (others => '0');
+end generate;
+
+gen_palette_altirra : if palette=1 generate
 	palette1 : entity work.gtia_palette(altirra)
 		port map (ATARI_COLOUR=>COLOUR, R_next=>VGA_R, G_next=>VGA_G, B_next=>VGA_B);
-	--VGA_B <= hcount_temp;
-	--VGA_G <= vcount_temp(7 downto 0);
-		
--- from lao
---	palette2 : entity work.gtia_palette(laoo)
---		port map (ATARI_COLOUR=>COLOUR, R_next=>R_next, G_next=>G_next, B_next=>B_next);		
+end generate;
 
+gen_palette_laoo : if palette=2 generate
+	palette2 : entity work.gtia_palette(laoo)
+		port map (ATARI_COLOUR=>COLOUR, R_next=>VGA_R, G_next=>VGA_G, B_next=>VGA_B);		
+end generate;
 
 irq_glue1 : entity work.irq_glue
 PORT MAP(pokey_irq => POKEY_IRQ,
