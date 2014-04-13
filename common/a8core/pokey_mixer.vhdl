@@ -31,9 +31,10 @@ PORT
 END pokey_mixer;
 
 ARCHITECTURE vhdl OF pokey_mixer IS
-	signal volume_reg : std_logic_vector(15 downto 0);
 	signal volume_next : std_logic_vector(15 downto 0);
-	signal volume_next_real : std_logic_vector(15 downto 0);	
+	signal volume_reg : std_logic_vector(15 downto 0);
+	signal volume_all_next : std_logic_vector(15 downto 0);	
+	signal volume_all_reg : std_logic_vector(15 downto 0);	
 	
 	signal volume_sum : std_logic_vector(5 downto 0);
 	
@@ -48,7 +49,8 @@ BEGIN
 	process(clk)
 	begin
 		if (clk'event and clk='1') then
-			volume_reg <= volume_next_real;
+			volume_reg <= volume_next;
+			volume_all_reg <= volume_all_next;
 		end if;
 	end process;
 	
@@ -225,17 +227,12 @@ BEGIN
 			when others =>
 				volume_next <= X"79FF"; -- in case GTIA playing at full vol!
 		end case;
+        end process;
 		
---		volume_next_real <= std_LOGIC_vector(
---			(unsigned('0'&volume_next(15 downto 1)) 
---			+ unsigned(gtia_en)) 
---			+ (unsigned("00"&covox_CHANNEL_0) 
---			+ unsigned("00"&covox_CHANNEL_1)));
-		
-		--volume_next_real <= '0'&volume_next(15 downto 1);
-		
-		volume_next_real <= std_LOGIC_vector(
-			(unsigned("00"&volume_next(15 downto 2)) 
+        process(volume_reg, gtia_en, covox_channel_0, covox_channel_1)
+        begin
+		volume_all_next <= std_LOGIC_vector(
+			(unsigned("00"&volume_reg(15 downto 2)) 
 			+ unsigned(gtia_en)) 		
 			+ (unsigned("000"&covox_CHANNEL_0&"00000") 
 			+ unsigned("000"&covox_CHANNEL_1&"00000")));
@@ -243,7 +240,6 @@ BEGIN
 	end process;
 			
 	-- output
-	-- TODO
-	volume_out <= volume_reg;
+	volume_out <= volume_all_reg;
 		
 END vhdl;
