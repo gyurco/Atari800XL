@@ -173,7 +173,7 @@ begin
 	--  16-31: POKEY! Low bytes only... i.e. pokey reg every 4 bytes...
 				
 	-- Writes to registers
-	process(cpu_data_in,wr_en,addr,addr_decoded, spi_speed_reg, spi_addr_reg, out1_reg, out2_reg, out3_reg, out4_reg, pause_reg)
+	process(cpu_data_in,wr_en,addr,addr_decoded, spi_speed_reg, spi_addr_reg, out1_reg, out2_reg, out3_reg, out4_reg, pause_reg, pokey_enable)
 	begin
 		spi_speed_next <= spi_speed_reg;
 		spi_addr_next <= spi_addr_reg;
@@ -181,7 +181,7 @@ begin
 		spi_enable <= '0';
 		
 		paused_next <= '0';
-		if (not(pause_reg = X"00000000")) then
+		if (not(pause_reg = X"00000000") and POKEY_ENABLE='1') then
 			pause_next <= std_LOGIC_VECTOR(unsigned(pause_reg)-to_unsigned(1,32));
 			paused_next <= '1';
 		end if;
