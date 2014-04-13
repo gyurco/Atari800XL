@@ -28,18 +28,31 @@ END generic_ram_infer;
 
 ARCHITECTURE rtl OF generic_ram_infer IS
    TYPE mem IS ARRAY(0 TO space-1) OF std_logic_vector(data_width-1 DOWNTO 0);
-   SIGNAL ram_block : mem;
+   SIGNAL ram_block : mem;	
+
+   SIGNAL q_ram : std_logic_vector(data_width-1 downto 0);
+   SIGNAL we_ram : std_logic;
 BEGIN
+
    PROCESS (clock)
    BEGIN
-      IF (clock'event AND clock = '1') THEN
-         q<= (others=>'1');
-         IF (to_integer(to_01(unsigned(address))) < space) THEN
-           IF (we = '1') THEN
-              ram_block(to_integer(to_01(unsigned(address)))) <= data;
-           END IF;
-           q <= ram_block(to_integer(to_01(unsigned(address))));
-         END IF;
-      END IF;
+     IF (clock'event AND clock = '1') THEN
+	 IF (we_ram = '1') THEN
+		 ram_block(to_integer(to_01(unsigned(address)))) <= data;
+		 q_ram <= data;
+	 ELSE
+		 q_ram <= ram_block(to_integer(to_01(unsigned(address))));
+	  END IF;
+     END IF;
    END PROCESS;
+
+   PROCESS(address)
+   begin
+	q <= (others=>'1');
+	we_ram <= '0';
+	IF (to_integer(to_01(unsigned(address))) < space) THEN
+		q <= q_ram;
+		we_ram <= we;
+	end if;
+   end process;
 END rtl;
