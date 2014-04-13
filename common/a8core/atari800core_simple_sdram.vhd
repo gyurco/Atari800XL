@@ -48,8 +48,8 @@ ENTITY atari800core_simple_sdram is
 		AUDIO_R : OUT std_logic_vector(15 downto 0);
 
 		-- JOYSTICK
-		JOY1_n : IN std_logic_vector(4 downto 0); -- FUPLR, 0=pressed
-		JOY2_n : IN std_logic_vector(4 downto 0); -- FUPLR, 0=pressed
+		JOY1_n : IN std_logic_vector(4 downto 0); -- FRLDU, 0=pressed
+		JOY2_n : IN std_logic_vector(4 downto 0); -- FRLDU, 0=pressed
 
 		-- Pokey keyboard matrix
 		-- Standard component available to connect this to PS2
@@ -136,10 +136,13 @@ SIGNAL	PORTA_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	PORTA_DIR_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	PORTB_IN :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	PORTB_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	PORTB_DIR_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+--SIGNAL	PORTB_DIR_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 
 -- GTIA
 signal GTIA_TRIG : std_logic_vector(3 downto 0);
+
+-- ANTIC
+signal ANTIC_LIGHTPEN : std_logic;
 
 -- CARTRIDGE ACCESS
 SIGNAL	CART_RD4 :  STD_LOGIC;
@@ -172,11 +175,14 @@ CB1_IN <= '1';
 CA2_IN <= CA2_OUT when CA2_DIR_OUT='1' else '1';
 CB2_IN <= CB2_OUT when CB2_DIR_OUT='1' else '1';
 SIO_COMMAND <= CB2_OUT;
-PORTA_IN <= ((JOY1_n(3)&JOY1_n(2)&JOY1_n(1)&JOY1_n(0)&JOY2_n(3)&JOY2_n(2)&JOY2_n(1)&JOY2_n(0)) and not (porta_dir_out)) or (porta_dir_out and porta_out);
+PORTA_IN <= ((JOY2_n(3)&JOY2_n(2)&JOY2_n(1)&JOY2_n(0)&JOY1_n(3)&JOY1_n(2)&JOY1_n(1)&JOY1_n(0)) and not (porta_dir_out)) or (porta_dir_out and porta_out);
 PORTB_IN <= PORTB_OUT;
 
+-- ANTIC lightpen
+ANTIC_LIGHTPEN <= JOY2_n(4) and JOY1_n(4);
+
 -- GTIA triggers
-GTIA_TRIG <= CART_RD5&"1"&JOY1_n(4)&JOY2_n(4);
+GTIA_TRIG <= CART_RD5&"1"&JOY2_n(4)&JOY1_n(4);
 
 -- Cartridge not inserted
 CART_RD4 <= '0';
@@ -240,12 +246,15 @@ atari800xl : entity work.atari800core
 		PORTA_DIR_OUT => PORTA_DIR_OUT,
 		PORTA_OUT => PORTA_OUT,
 		PORTB_IN => PORTB_IN,
-		PORTB_DIR_OUT => PORTB_DIR_OUT,
+		PORTB_DIR_OUT => open,--PORTB_DIR_OUT,
 		PORTB_OUT => PORTB_OUT,
 
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 
+		POT_IN => "00000000",
+      POT_RESET => open,
+		
 		-- PBI
 		PBI_ADDR => open,
 		PBI_WRITE_ENABLE => open,
@@ -272,6 +281,8 @@ atari800xl : entity work.atari800core
 		CONSOL_SELECT => CONSOL_SELECT,
 		CONSOL_START=> CONSOL_START,
 		GTIA_TRIG => GTIA_TRIG,
+		
+		ANTIC_LIGHTPEN => ANTIC_LIGHTPEN,
 
 		SDRAM_REQUEST => SDRAM_REQUEST,
 		SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
@@ -302,8 +313,8 @@ atari800xl : entity work.atari800core
 		DMA_WRITE_DATA => DMA_WRITE_DATA,
 		MEMORY_READY_DMA => MEMORY_READY_DMA,
 
-   		RAM_SELECT => RAM_SELECT,
-    		ROM_SELECT => ROM_SELECT,
+   	RAM_SELECT => RAM_SELECT,
+    	ROM_SELECT => ROM_SELECT,
 		CART_EMULATION_SELECT => "0000000",
 		CART_EMULATION_ACTIVATE => '0',
 		PAL => PAL,

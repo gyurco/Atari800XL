@@ -59,6 +59,10 @@ ENTITY atari800core IS
 		KEYBOARD_RESPONSE : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
 		KEYBOARD_SCAN : OUT STD_LOGIC_VECTOR(5 DOWNTO 0);
 
+		-- Pokey pots
+		POT_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+		POT_RESET : OUT STD_LOGIC;
+		
 		-- PBI
 		PBI_ADDR : out STD_LOGIC_VECTOR(15 DOWNTO 0);
 		PBI_WRITE_ENABLE : out STD_LOGIC; -- currently only for CART config...
@@ -97,6 +101,9 @@ ENTITY atari800core IS
 		CONSOL_START : IN STD_LOGIC;
 		GTIA_TRIG : IN STD_LOGIC_VECTOR(3 downto 0);
 
+		-- ANTIC lightpen
+		ANTIC_LIGHTPEN : IN std_logic;
+		
 		-----------------------
 		-- After here all FPGA implementation specific
 		-- e.g. need to write up RAM/ROM
@@ -163,7 +170,7 @@ ENTITY atari800core IS
 
 		-- Special config params
    		RAM_SELECT : in std_logic_vector(2 downto 0); -- 64K,128K,320KB Compy, 320KB Rambo, 576K Compy, 576K Rambo, 1088K, 4MB
-    		ROM_SELECT : in std_logic_vector(5 downto 0); -- 16KB ROM Bank - 0 is illegal (slot used for BASIC!)
+    		ROM_SELECT : in std_logic_vector(5 downto 0); -- 16KB ROM Bank - 0 is illegal (slot used for BASIC!) TODO FIXME, change stupid slot 0 thing...
 		CART_EMULATION_SELECT : in std_logic_vector(6 downto 0); -- from where
 		CART_EMULATION_ACTIVATE : in std_logic; -- to where? TODO, these needs redoing and wiring up!
 		PAL :  in STD_LOGIC;
@@ -177,7 +184,6 @@ END atari800core;
 ARCHITECTURE bdf_type OF atari800core IS 
 
 -- ANTIC
-SIGNAL	LIGHTPEN :  STD_LOGIC;
 SIGNAL	ANTIC_ADDR :  STD_LOGIC_VECTOR(15 DOWNTO 0);
 SIGNAL	ANTIC_AN :  STD_LOGIC_VECTOR(2 DOWNTO 0);
 SIGNAL	ANTIC_COLOUR_CLOCK_OUT :  STD_LOGIC;
@@ -219,8 +225,6 @@ SIGNAL	ANTIC_ENABLE_179 :  STD_LOGIC;
 
 -- POKEY
 SIGNAL	POKEY_IRQ :  STD_LOGIC;
-SIGNAL	POT_IN :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	POT_RESET :  STD_LOGIC;
 
 SIGNAL	POKEY_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	CACHE_POKEY_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -313,7 +317,7 @@ PORT MAP(CLK => CLK,
 		 MEMORY_READY_CPU => MEMORY_READY_CPU,
 		 ANTIC_ENABLE_179 => ANTIC_ENABLE_179,
 		 PAL => PAL,
-		 lightpen => LIGHTPEN,
+		 lightpen => ANTIC_LIGHTPEN,
 		 ADDR => PBI_ADDR_INT(3 DOWNTO 0),
 		 CPU_DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		 MEMORY_DATA_IN => MEMORY_DATA(7 DOWNTO 0),

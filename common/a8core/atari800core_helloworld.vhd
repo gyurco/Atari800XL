@@ -46,8 +46,8 @@ ENTITY atari800core_helloworld is
 		AUDIO_R : OUT std_logic_vector(15 downto 0);
 
 		-- JOYSTICK
-		JOY1_n : IN std_logic_vector(4 downto 0); -- FUPLR, 0=pressed
-		JOY2_n : IN std_logic_vector(4 downto 0); -- FUPLR, 0=pressed
+		JOY1_n : IN std_logic_vector(4 downto 0); -- FRLDU, 0=pressed
+		JOY2_n : IN std_logic_vector(4 downto 0); -- FRLDU, 0=pressed
 
 		-- KEYBOARD
 		PS2_CLK : IN STD_LOGIC;
