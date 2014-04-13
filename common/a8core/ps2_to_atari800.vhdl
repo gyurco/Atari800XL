@@ -73,7 +73,7 @@ BEGIN
 	end process;
 
 	-- 1 bit per PS2 key
-	process(KEY_EVENT, KEY_VALUE, KEY_EXTENDED, KEY_UP)
+	process(KEY_EVENT, KEY_VALUE, KEY_EXTENDED, KEY_UP, ps2_keys_reg)
 	begin
 		ps2_keys_next <= ps2_keys_reg;
 
