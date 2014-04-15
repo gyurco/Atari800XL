@@ -38,10 +38,10 @@ BEGIN
    BEGIN
      IF (clock'event AND clock = '1') THEN
 	 IF (we_ram = '1') THEN
-		 ram_block(to_integer(to_01(unsigned(address)))) <= data;
+		 ram_block(to_integer(to_01(unsigned(address), '0'))) <= data;
 		 q_ram <= data;
 	 ELSE
-		 q_ram <= ram_block(to_integer(to_01(unsigned(address))));
+		 q_ram <= ram_block(to_integer(to_01(unsigned(address), '0')));
 	  END IF;
      END IF;
    END PROCESS;

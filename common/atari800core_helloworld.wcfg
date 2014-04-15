@@ -18,7 +18,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="20" />
+   <WVObjectSize size="22" />
    <wvobject fp_name="/atari800core_helloworld_tb/clk_a" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">clk_a</obj_property>
       <obj_property name="ObjectShortName">clk_a</obj_property>
@@ -53,10 +53,6 @@
       <obj_property name="ElementShortName">antic_enable_179</obj_property>
       <obj_property name="ObjectShortName">antic_enable_179</obj_property>
    </wvobject>
-   <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/atari800xl/enables/pokey_enable_179" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">pokey_enable_179</obj_property>
-      <obj_property name="ObjectShortName">pokey_enable_179</obj_property>
-   </wvobject>
    <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/atari800xl/pokey1/enable_179" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">enable_179</obj_property>
       <obj_property name="ObjectShortName">enable_179</obj_property>
@@ -77,30 +73,40 @@
       <obj_property name="ElementShortName">reset_n</obj_property>
       <obj_property name="ObjectShortName">reset_n</obj_property>
    </wvobject>
-   <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/internalromram1/rom_data" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">rom_data[7:0]</obj_property>
-      <obj_property name="ObjectShortName">rom_data[7:0]</obj_property>
+   <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/internalromram1/gen_internal_ram/ramint1/data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data[7:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/internalromram1/rom_addr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">rom_addr[21:0]</obj_property>
-      <obj_property name="ObjectShortName">rom_addr[21:0]</obj_property>
+   <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/internalromram1/gen_internal_ram/ramint1/address" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">address[18:0]</obj_property>
+      <obj_property name="ObjectShortName">address[18:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/internalromram1/ram_data_in" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">ram_data_in[7:0]</obj_property>
-      <obj_property name="ObjectShortName">ram_data_in[7:0]</obj_property>
+   <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/internalromram1/gen_internal_ram/ramint1/q" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">q[7:0]</obj_property>
+      <obj_property name="ObjectShortName">q[7:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/internalromram1/ram_data" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">ram_data[7:0]</obj_property>
-      <obj_property name="ObjectShortName">ram_data[7:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
+   <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/internalromram1/gen_internal_ram/ramint1/we" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">we</obj_property>
+      <obj_property name="ObjectShortName">we</obj_property>
    </wvobject>
-   <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/internalromram1/ram_addr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">ram_addr[18:0]</obj_property>
-      <obj_property name="ObjectShortName">ram_addr[18:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
+   <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/internalromram1/ram_request_complete" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ram_request_complete</obj_property>
+      <obj_property name="ObjectShortName">ram_request_complete</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/internalromram1/ram_request" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ram_request</obj_property>
+      <obj_property name="ObjectShortName">ram_request</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/internalromram1/we_next" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">we_next</obj_property>
+      <obj_property name="ObjectShortName">we_next</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/internalromram1/we_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">we_reg</obj_property>
+      <obj_property name="ObjectShortName">we_reg</obj_property>
    </wvobject>
    <wvobject fp_name="/atari800core_helloworld_tb/atari800xl/atarixl_simple_sdram1/internalromram1/ram_wr_enable" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">ram_wr_enable</obj_property>
