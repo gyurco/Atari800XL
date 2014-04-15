@@ -908,7 +908,7 @@ calcNextOpcode: process(clk, d, reset, processInt)
 		nextOpcode <= myNextOpcode;
 	end process;
 
-	nextOpcInfo <= opcodeInfoTable(to_integer(to_01(nextOpcode)));
+	nextOpcInfo <= opcodeInfoTable(to_integer(to_01(nextOpcode, '0')));
 	process(clk)
 	begin
 		if rising_edge(clk) then
