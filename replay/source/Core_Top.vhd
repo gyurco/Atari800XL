@@ -53,6 +53,7 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.std_logic_unsigned.all;
   use ieee.numeric_std.all;
+  use IEEE.STD_LOGIC_MISC.all;
 
   use work.Replay_Pack.all;
   use work.Replay_VideoTiming_Pack.all;
@@ -215,17 +216,80 @@ architecture RTL of Core_Top is
   signal core_blank_count_next : std_logic_vector(23 downto 0);
   signal core_blank_count_reg : std_logic_vector(23 downto 0);
 
+  SIGNAL	THROTTLE_COUNT_6502 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+
+  SIGNAL	CONSOL_OPTION :  STD_LOGIC;
+  SIGNAL	CONSOL_SELECT :  STD_LOGIC;
+  SIGNAL	CONSOL_START :  STD_LOGIC;
+
+  SIGNAL	KEYBOARD_RESPONSE :  STD_LOGIC_VECTOR(1 DOWNTO 0);
+  SIGNAL	KEYBOARD_SCAN :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+
+  signal keyboard_scan_inv : std_logic_vector(5 downto 0);
+  signal matrix_out_match : std_logic_vector(7 downto 0);
+
 begin
   -- core control
   res_s <= i_Rst_Core;
   core_en_s <= i_Ena_Sys and not i_Halt_Core and not pause_key;
 
-PLL_LOCKED <= not(i_rst_sys or i_Rst_Core);
-atari800core : entity work.atari800core
-	PORT map
+  -- atari keyboard
+	keyboard_scan_inv <= not(keyboard_scan);
+
+a4051: entity work.complete_address_decoder
+	generic map (width => 3)
+	PORT map ( addr_in => keyboard_scan_inv(5 downto 3), addr_decoded => matrix_in ); 
+
+b4051: entity work.complete_address_decoder
+	generic map (width => 3)
+	PORT map ( addr_in => keyboard_scan_inv(2 downto 0), addr_decoded => matrix_out_match ); 
+
+	process(matrix_out, matrix_out_match)
+	begin
+		keyboard_response(0) <= '1';
+
+		if (or_reduce(matrix_out(7 downto 0) and matrix_out_match(7 downto 0)) = '1') then
+			keyboard_response(0) <= '0';
+		end if;
+	end process;
+
+	process(static_keys, pause_key)
+	begin
+		keyboard_response(1) <= '1';
+
+		if (keyboard_scan(5 downto 4)="00" and pause_key = '1') then
+			keyboard_response(1) <= '0';
+		end if;
+		
+		if (keyboard_scan(5 downto 4)="10" and static_keys(0) = '1') then
+			keyboard_response(1) <= '0';
+		end if;
+
+		if (keyboard_scan(5 downto 4)="11" and static_keys(1) = '1') then
+			keyboard_response(1) <= '0';
+		end if;
+	end process;
+
+	CONSOL_START <= static_keys(6);
+	CONSOL_SELECT <= static_keys(5);
+	CONSOL_OPTION <= static_keys(4);
+--	system_reset_request <= static_keys(3);
+
+	PLL_LOCKED <= not(i_rst_sys or i_Rst_Core);
+	
+	THROTTLE_COUNT_6502 <= std_logic_vector(to_unsigned(16-1,6));
+
+atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
+	GENERIC MAP
+	(
+		cycle_length => 16,
+		internal_rom => 0,
+		internal_ram => 0
+	)
+	PORT MAP
 	(
 		CLK => i_clk_sys,
-		PLL_LOCKED => PLL_LOCKED,
+		RESET_N => PLL_LOCKED,
 
 		VGA_VS => core_vsync,
 		VGA_HS => core_hsync,
@@ -233,16 +297,22 @@ atari800core : entity work.atari800core
 		VGA_G => core_g_s,
 		VGA_R => core_r_s,
 
-		matrix_out => matrix_out,
-		matrix_in => matrix_in,
-		static_keys => static_keys,
-		pause_key => pause_key,
-
-		JOY1_n => i_Joy_A,
-		JOY2_n => i_Joy_B,
-		
 		AUDIO_L => lsound_s,
 		AUDIO_R => rsound_s,
+
+		JOY1_n => i_Joy_B(4 downto 0),
+		JOY2_n => i_Joy_A(4 downto 0),
+
+		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
+		KEYBOARD_SCAN => KEYBOARD_SCAN,
+
+		SIO_COMMAND => o_RS232_RTS,
+		SIO_RXD => i_RS232_RXD,
+		SIO_TXD => o_RS232_TXD,
+
+		CONSOL_OPTION => CONSOL_OPTION,
+		CONSOL_SELECT => CONSOL_SELECT,
+		CONSOL_START => CONSOL_START,
 
 		SDRAM_REQUEST => SDRAM_REQUEST,
 		SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
@@ -251,19 +321,71 @@ atari800core : entity work.atari800core
 		SDRAM_ADDR => SDRAM_ADDR,
 		SDRAM_DO => SDRAM_DO,
 		SDRAM_DI => SDRAM_DI,
-		SDRAM_WIDTH_8bit_ACCESS => SDRAM_WIDTH_8bit_ACCESS,
-		SDRAM_WIDTH_16bit_ACCESS => SDRAM_WIDTH_16bit_ACCESS,
-		SDRAM_WIDTH_32bit_ACCESS => SDRAM_WIDTH_32bit_ACCESS,
+		SDRAM_32BIT_WRITE_ENABLE => SDRAM_WIDTH_32bit_ACCESS,
+		SDRAM_16BIT_WRITE_ENABLE => SDRAM_WIDTH_16bit_ACCESS,
+		SDRAM_8BIT_WRITE_ENABLE => SDRAM_WIDTH_8bit_ACCESS,
 
-		SIO_RXD => i_RS232_RXD,
-		SIO_TXD => o_RS232_TXD,
-		SIO_COMMAND_TX => o_RS232_RTS,
+		-- TODO, these sdram signals should come from PBI, not from DMA...
+		-- TODO, review what I can share form PBI/DMA...
+		DMA_FETCH => '0',
+		DMA_READ_ENABLE => '0',
+		DMA_32BIT_WRITE_ENABLE => '0',
+		DMA_16BIT_WRITE_ENABLE => '0',
+		DMA_8BIT_WRITE_ENABLE => '0',
+		DMA_ADDR => (others=>'1'),
+		DMA_WRITE_DATA => (others=>'0'),
+		MEMORY_READY_DMA => open,
 
-		ram_select => ram_select,
-		rom_select => rom_select,
-
-		halt => i_Halt_Core
+   		RAM_SELECT => ram_select,
+    		ROM_SELECT => rom_select,
+		PAL => '1',
+		HALT => i_Halt_Core,
+		THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502
 	);
+
+--atari800core : entity work.atari800core
+--	PORT map
+--	(
+--		CLK => i_clk_sys,
+--		PLL_LOCKED => PLL_LOCKED,
+--
+--		VGA_VS => core_vsync,
+--		VGA_HS => core_hsync,
+--		VGA_B => core_b_s,
+--		VGA_G => core_g_s,
+--		VGA_R => core_r_s,
+--
+--		matrix_out => matrix_out,
+--		matrix_in => matrix_in,
+--		static_keys => static_keys,
+--		pause_key => pause_key,
+--
+--		JOY1_n => i_Joy_A,
+--		JOY2_n => i_Joy_B,
+--		
+--		AUDIO_L => lsound_s,
+--		AUDIO_R => rsound_s,
+--
+--		SDRAM_REQUEST => SDRAM_REQUEST,
+--		SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
+--		SDRAM_READ_ENABLE => SDRAM_READ_ENABLE,
+--		SDRAM_WRITE_ENABLE => SDRAM_WRITE_ENABLE,
+--		SDRAM_ADDR => SDRAM_ADDR,
+--		SDRAM_DO => SDRAM_DO,
+--		SDRAM_DI => SDRAM_DI,
+--		SDRAM_WIDTH_8bit_ACCESS => SDRAM_WIDTH_8bit_ACCESS,
+--		SDRAM_WIDTH_16bit_ACCESS => SDRAM_WIDTH_16bit_ACCESS,
+--		SDRAM_WIDTH_32bit_ACCESS => SDRAM_WIDTH_32bit_ACCESS,
+--
+--		SIO_RXD => i_RS232_RXD,
+--		SIO_TXD => o_RS232_TXD,
+--		SIO_COMMAND_TX => o_RS232_RTS,
+--
+--		ram_select => ram_select,
+--		rom_select => rom_select,
+--
+--		halt => i_Halt_Core
+--	);
 
   ----------------------------------------------------------
   -- KEYBOARD MAPPER

@@ -7,9 +7,10 @@ echo "---------------------------------------------------------"
 
 name=Replay
 
+REPLAY_BASE=/home/markw/fpga/svn/replay/src/hw/replay/cores/replay_lib/
 
 
-. /home/markw/altera/xilinx/ise/14.7/ISE_DS/settings32.sh
+. /home/markw/fpga/xilinx/14.7/ISE_DS/settings64.sh
 
 mkdir -p sim
 pushd sim
@@ -26,14 +27,18 @@ if [ ! -e $name.wdb -o "$1" != "-view" ]; then
 
         # copy testbench files
         cp -p ../tb/Replay_tb.vhd .
-        cp -p ../../replay_lib/tb/ddr.v .
-        cp -p ../../replay_lib/tb/ddr_parameters.vh .
-        cp -p ../../replay_lib/tb/Replay_I2C_CH7301.vhd .
+        cp -p ${REPLAY_BASE}/tb/ddr.v .
+        cp -p ${REPLAY_BASE}/tb/ddr_parameters.vh .
+        cp -p ${REPLAY_BASE}/tb/Replay_I2C_CH7301.vhd .
 
         # copy source files
-        cp -p ../../replay_lib/rtl/*.vhd .
+        cp -p ${REPLAY_BASE}/rtl/*.vhd .
         cp -p ../source/*.vhd .
         cp -p ../source/*.vhdl .
+	cp -p ../../common/a8core/*.vhd .
+	cp -p ../../common/a8core/*.vhdl .
+	cp -p ../../common/components/*.vhd .
+	cp -p ../../common/components/*.vhdl .
 
 
         # set up project definition file

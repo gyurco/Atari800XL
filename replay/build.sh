@@ -6,8 +6,9 @@ shift
 
 embed_roms=0
 
+REPLAY_BASE=/home/markw/fpga/svn/replay/src/hw/replay/cores/replay_lib/
 
-. /home/markw/altera/xilinx/ise/14.7/ISE_DS/settings32.sh
+. /home/markw/fpga/xilinx/14.7/ISE_DS/settings64.sh
 
 if [ $embed_roms = 1 ]; then
     pushd sdcard
@@ -24,8 +25,14 @@ fi
 mkdir -p build
 pushd build
 
-cp -p ../../replay_lib/rtl/*.vhd .
-cp -p ../source/*.v* .
+# copy source files
+cp -p ${REPLAY_BASE}/rtl/*.vhd .
+cp -p ../source/*.vhd .
+cp -p ../source/*.vhdl .
+cp -p ../../common/a8core/*.vhd .
+cp -p ../../common/a8core/*.vhdl .
+cp -p ../../common/components/*.vhd .
+cp -p ../../common/components/*.vhdl .
 
 cp -p ../$name.ucf .
 cp -p ../$name.ut .
