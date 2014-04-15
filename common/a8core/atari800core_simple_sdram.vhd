@@ -95,6 +95,10 @@ ENTITY atari800core_simple_sdram is
 		SDRAM_WRITE_ENABLE : out std_logic;
 		SDRAM_ADDR : out STD_LOGIC_VECTOR(22 DOWNTO 0);
 		SDRAM_DO : in STD_LOGIC_VECTOR(31 DOWNTO 0);
+		SDRAM_DI : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+		SDRAM_32BIT_WRITE_ENABLE : out std_logic;
+		SDRAM_16BIT_WRITE_ENABLE : out std_logic;
+		SDRAM_8BIT_WRITE_ENABLE : out std_logic;
 
 		-- DMA memory map differs
 		-- e.g. some special addresses to read behind hardware registers
@@ -188,6 +192,9 @@ GTIA_TRIG <= CART_RD5&"1"&JOY2_n(4)&JOY1_n(4);
 CART_RD4 <= '0';
 CART_RD5 <= '0';
 
+-- Since we're not exposing PBI, expose a few key parts needed for SDRAM
+SDRAM_DI <= PBI_WRITE_DATA;
+
 -- Internal rom/ram
 internalromram1 : entity work.internalromram
 	GENERIC MAP
@@ -260,9 +267,9 @@ atari800xl : entity work.atari800core
 		PBI_WRITE_ENABLE => open,
 		PBI_SNOOP_DATA => open,
 		PBI_WRITE_DATA => PBI_WRITE_DATA,
-		PBI_WIDTH_8bit_ACCESS => open,
-		PBI_WIDTH_16bit_ACCESS => open,
-		PBI_WIDTH_32bit_ACCESS => open,
+		PBI_WIDTH_8bit_ACCESS => SDRAM_8BIT_WRITE_ENABLE,
+		PBI_WIDTH_16bit_ACCESS => SDRAM_16BIT_WRITE_ENABLE,
+		PBI_WIDTH_32bit_ACCESS => SDRAM_32BIT_WRITE_ENABLE,
 
 		PBI_ROM_DO => "11111111",
 		PBI_REQUEST => open,
