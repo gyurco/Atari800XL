@@ -85,9 +85,6 @@ end component;
   signal AUDIO_L_PCM : std_logic_vector(15 downto 0);
   signal AUDIO_R_PCM : std_logic_vector(15 downto 0);
 
-  signal VGA_R_WIDE : std_logic_vector(7 downto 0);
-  signal VGA_G_WIDE : std_logic_vector(7 downto 0);
-  signal VGA_B_WIDE : std_logic_vector(7 downto 0);
   signal VGA_VS_RAW : std_logic;
   signal VGA_HS_RAW : std_logic;
 
@@ -463,7 +460,8 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	(
 		cycle_length => 32,
 		internal_rom => 1,
-		internal_ram => 0
+		internal_ram => 0,
+		video_bits => 6
 	)
 	PORT MAP
 	(
@@ -472,9 +470,9 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 
 		VGA_VS => VGA_VS_RAW,
 		VGA_HS => VGA_HS_RAW,
-		VGA_B => VGA_B_WIDE,
-		VGA_G => VGA_G_WIDE,
-		VGA_R => VGA_R_WIDE,
+		VGA_B => VGA_B,
+		VGA_G => VGA_G,
+		VGA_R => VGA_R,
 
 		AUDIO_L => AUDIO_L_PCM,
 		AUDIO_R => AUDIO_R_PCM,
@@ -566,8 +564,5 @@ LED <= '0';
 
 VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
 VGA_VS <= not(VGA_VS_RAW);
-VGA_R <= VGA_R_WIDE(7 downto 2);
-VGA_G <= VGA_G_WIDE(7 downto 2);
-VGA_B <= VGA_B_WIDE(7 downto 2);
 
 END vhdl;
