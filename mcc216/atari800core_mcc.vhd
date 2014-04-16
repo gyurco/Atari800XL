@@ -74,9 +74,6 @@ END COMPONENT;
   signal AUDIO_L_PCM : std_logic_vector(15 downto 0);
   signal AUDIO_R_PCM : std_logic_vector(15 downto 0);
 
-  signal VGA_R_WIDE : std_logic_vector(7 downto 0);
-  signal VGA_G_WIDE : std_logic_vector(7 downto 0);
-  signal VGA_B_WIDE : std_logic_vector(7 downto 0);
   signal VGA_VS_RAW : std_logic;
   signal VGA_HS_RAW : std_logic;
 
@@ -123,14 +120,12 @@ JOY2_IN_N <= JOY2_n(4)&JOY2_n(0)&JOY2_n(1)&JOY2_n(2)&JOY2_n(3);
 
 VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
 VGA_VS <= not(VGA_VS_RAW);
-VGA_R <= VGA_R_WIDE(7 downto 4);
-VGA_G <= VGA_G_WIDE(7 downto 4);
-VGA_B <= VGA_B_WIDE(7 downto 4);
 
 atari800xl : entity work.atari800core_helloworld
 	GENERIC MAP
 	(
 		cycle_length => 32,
+		video_bits => 4,
 		internal_ram => 16384
 	)
 	PORT MAP
@@ -140,9 +135,9 @@ atari800xl : entity work.atari800core_helloworld
 
 		VGA_VS => vga_vs_raw,
 		VGA_HS => vga_hs_raw,
-		VGA_B => vga_b_wide,
-		VGA_G => vga_g_wide,
-		VGA_R => vga_r_wide,
+		VGA_B => vga_b,
+		VGA_G => vga_g,
+		VGA_R => vga_r,
 
 		AUDIO_L => AUDIO_L_PCM,
 		AUDIO_R => AUDIO_R_PCM,
