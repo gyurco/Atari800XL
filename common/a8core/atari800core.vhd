@@ -19,6 +19,7 @@ ENTITY atari800core IS
 	GENERIC
 	(
 		cycle_length : integer := 16; -- or 32...
+		video_bits : integer := 8;
 		palette : integer :=1 -- 0:gtia colour on VGA_B, 1:altirra, 2:laoo
 	);
 	PORT
@@ -29,9 +30,9 @@ ENTITY atari800core IS
 		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
 		VGA_VS :  OUT  STD_LOGIC;
 		VGA_HS :  OUT  STD_LOGIC;
-		VGA_B :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
-		VGA_G :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
-		VGA_R :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
+		VGA_B :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
+		VGA_G :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
+		VGA_R :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
 
 		-- AUDIO OUT - Pokey/GTIA 1-bit and Covox all mixed
 		-- TODO - choose stereo/mono pokey
@@ -207,6 +208,11 @@ SIGNAL	CACHE_GTIA_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	GTIA_WRITE_ENABLE :  STD_LOGIC;
 
 signal COLOUR : std_logic_vector(7 downto 0);
+
+-- GTIA PALETTE
+signal VGA_R_WIDE : std_logic_vector(7 downto 0);
+signal VGA_G_WIDE : std_logic_vector(7 downto 0);
+signal VGA_B_WIDE : std_logic_vector(7 downto 0);
 
 -- CPU
 SIGNAL	CPU_6502_RESET :  STD_LOGIC;
@@ -552,13 +558,17 @@ end generate;
 
 gen_palette_altirra : if palette=1 generate
 	palette1 : entity work.gtia_palette(altirra)
-		port map (ATARI_COLOUR=>COLOUR, R_next=>VGA_R, G_next=>VGA_G, B_next=>VGA_B);
+		port map (ATARI_COLOUR=>COLOUR, R_next=>VGA_R_WIDE, G_next=>VGA_G_WIDE, B_next=>VGA_B_WIDE);
 end generate;
 
 gen_palette_laoo : if palette=2 generate
 	palette2 : entity work.gtia_palette(laoo)
-		port map (ATARI_COLOUR=>COLOUR, R_next=>VGA_R, G_next=>VGA_G, B_next=>VGA_B);		
+		port map (ATARI_COLOUR=>COLOUR, R_next=>VGA_R_WIDE, G_next=>VGA_G_WIDE, B_next=>VGA_B_WIDE);		
 end generate;
+
+VGA_R(video_bits-1 downto 0) <= VGA_R_WIDE(7 downto 8-video_bits);
+VGA_G(video_bits-1 downto 0) <= VGA_G_WIDE(7 downto 8-video_bits);
+VGA_B(video_bits-1 downto 0) <= VGA_B_WIDE(7 downto 8-video_bits);
 
 irq_glue1 : entity work.irq_glue
 PORT MAP(pokey_irq => POKEY_IRQ,

@@ -25,6 +25,8 @@ ENTITY atari800core_helloworld is
 		-- use CLK of 1.79*cycle_length
 		-- I've tested 16 and 32 only, but 4 and 8 might work...
 		cycle_length : integer := 16; -- or 32...
+
+		video_bits : integer := 8;
 	
 		internal_ram : integer := 16384  -- at start of memory map
 	);
@@ -36,9 +38,9 @@ ENTITY atari800core_helloworld is
 		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
 		VGA_VS :  OUT  STD_LOGIC;
 		VGA_HS :  OUT  STD_LOGIC;
-		VGA_B :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
-		VGA_G :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
-		VGA_R :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
+		VGA_B :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
+		VGA_G :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
+		VGA_R :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
 
 		-- AUDIO OUT - Pokey/GTIA 1-bit and Covox all mixed
 		-- TODO - choose stereo/mono pokey
