@@ -103,7 +103,8 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	(
 		cycle_length => cycle_length,
 		internal_rom => 1,
-		internal_ram =>internal_ram
+		internal_ram =>internal_ram,
+		video_bits => video_bits
 	)
 	PORT MAP
 	(
