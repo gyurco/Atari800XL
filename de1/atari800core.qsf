@@ -38,7 +38,7 @@
 
 set_global_assignment -name FAMILY "Cyclone II"
 set_global_assignment -name DEVICE EP2C20F484C7
-set_global_assignment -name TOP_LEVEL_ENTITY atari800core
+set_global_assignment -name TOP_LEVEL_ENTITY atari800core_de1
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "12.1 SP1"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:58:39  APRIL 11, 2013"
 set_global_assignment -name LAST_QUARTUS_VERSION "12.1 SP1.33"
@@ -555,64 +555,6 @@ set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 set_global_assignment -name AUTO_PACKED_REGISTERS_STRATIXII NORMAL
 set_global_assignment -name FITTER_EFFORT "AUTO FIT"
 set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
-set_global_assignment -name VHDL_FILE atari800core.vhd
-set_global_assignment -name VHDL_FILE spi_master.vhd
-set_global_assignment -name VHDL_FILE zpu_config_regs.vhdl
-set_global_assignment -name VHDL_FILE zpu_rom.vhd
-set_global_assignment -name SOURCE_FILE zpu_rom.cmp
-set_global_assignment -name VHDL_FILE zpu_core.vhd
-set_global_assignment -name VHDL_FILE zpupkg.vhd
-set_global_assignment -name VHDL_FILE sdram_statemachine.vhdl
-set_global_assignment -name VHDL_FILE cpu_65xx_e.vhd
-set_global_assignment -name VHDL_FILE cpu_65xx_a.vhd
-set_global_assignment -name VHDL_FILE i2s_intf.vhd
-set_global_assignment -name VHDL_FILE i2c_loader.vhd
-set_global_assignment -name VHDL_FILE cpu.vhd
-set_global_assignment -name VHDL_FILE ledsw.vhd
-set_global_assignment -name VHDL_FILE hexdecoder.vhd
-set_global_assignment -name QIP_FILE pll.qip
-set_global_assignment -name SDC_FILE atari800core.sdc
-set_global_assignment -name VHDL_FILE dumprom.vhdl
-set_global_assignment -name VHDL_FILE reg_file.vhdl
-set_global_assignment -name VHDL_FILE address_decoder.vhdl
-set_global_assignment -name VHDL_FILE i2sslave.vhdl
-set_global_assignment -name VHDL_FILE pokey.vhdl
-set_global_assignment -name VHDL_FILE nmigen.vhdl
-set_global_assignment -name VHDL_FILE enable_divider.vhdl
-set_global_assignment -name VHDL_FILE poly_17_9.vhdl
-set_global_assignment -name VHDL_FILE poly_5.vhdl
-set_global_assignment -name VHDL_FILE poly_4.vhdl
-set_global_assignment -name VHDL_FILE delay_line.vhdl
-set_global_assignment -name VHDL_FILE countdown_timer.vhdl
-set_global_assignment -name VHDL_FILE pokey_mixer.vhdl
-set_global_assignment -name VHDL_FILE pokey_noise_filter.vhdl
-set_global_assignment -name VHDL_FILE complete_address_decoder.vhdl
-set_global_assignment -name VHDL_FILE tvsync.vhdl
-set_global_assignment -name VHDL_FILE ps2_keyboard.vhdl
-set_global_assignment -name VHDL_FILE pokey_ps2_decoder.vhdl
-set_global_assignment -name VHDL_FILE flashrom.vhdl
-set_global_assignment -name VHDL_FILE sram.vhdl
-set_global_assignment -name VHDL_FILE antic.vhdl
-set_global_assignment -name VHDL_FILE antic_dma_clock.vhdl
-set_global_assignment -name VHDL_FILE antic_counter.vhdl
-set_global_assignment -name VHDL_FILE simple_counter.vhdl
-set_global_assignment -name VHDL_FILE gtia.vhdl
-set_global_assignment -name VHDL_FILE gtia_palette.vhdl
-set_global_assignment -name VHDL_FILE pia.vhdl
-set_global_assignment -name VHDL_FILE shared_enable.vhdl
-set_global_assignment -name VHDL_FILE gtia_player.vhdl
-set_global_assignment -name VHDL_FILE gtia_priority.vhdl
-set_global_assignment -name VHDL_FILE synchronizer.vhdl
-set_global_assignment -name VHDL_FILE scandoubler.vhdl
-set_global_assignment -name VHDL_FILE scandouble_ram_infer.vhdl
-set_global_assignment -name VHDL_FILE syncreset_enable_divider.vhd
-set_global_assignment -name VHDL_FILE wide_delay_line.vhdl
-set_global_assignment -name VHDL_FILE irq_glue.vhdl
-set_global_assignment -name VHDL_FILE gpio.vhd
-set_global_assignment -name VHDL_FILE pokey_keyboard_scanner.vhdl
-set_global_assignment -name VHDL_FILE zpu_glue.vhdl
-set_global_assignment -name QIP_FILE zpu_ram.qip
-set_global_assignment -name QIP_FILE zpu_rom.qip
 set_location_assignment PIN_A13 -to GPIO_0[0]
 set_location_assignment PIN_B13 -to GPIO_0[1]
 set_location_assignment PIN_A14 -to GPIO_0[2]
@@ -621,6 +563,14 @@ set_location_assignment PIN_B14 -to GPIO_0[3]
 set_global_assignment -name USE_SIGNALTAP_FILE output_files/stp1.stp
 set_global_assignment -name SIGNALTAP_FILE output_files/stp1.stp
 
-
-
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+
+set_global_assignment -name VHDL_FILE atari800core_de1.vhd
+set_global_assignment -name VHDL_FILE hexdecoder.vhd
+set_global_assignment -name VHDL_FILE i2c_loader.vhd
+set_global_assignment -name VHDL_FILE i2s_intf.vhd
+set_global_assignment -name VHDL_FILE i2sslave.vhdl
+set_global_assignment -name QIP_FILE pll.qip
+set_global_assignment -name VHDL_FILE sram.vhdl
+set_global_assignment -name VHDL_FILE sync_switches.vhd
+

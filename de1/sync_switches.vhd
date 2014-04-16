@@ -7,8 +7,7 @@
 ---------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
--- Simple module that connects the SW switches to the LEDR lights
-ENTITY ledsw IS
+ENTITY sync_switches IS
 PORT ( 
 	CLK : IN STD_LOGIC;
 
@@ -18,9 +17,9 @@ PORT (
 	SYNC_KEYS : out std_logic_vector(3 downto 0);
 	SYNC_SWITCHES : out std_logic_vector(9 downto 0)
 ); 
-END ledsw;
+END sync_switches;
 
-ARCHITECTURE Behavior OF ledsw IS
+ARCHITECTURE Behavior OF sync_switches IS
 	component synchronizer IS
 	PORT 
 	( 

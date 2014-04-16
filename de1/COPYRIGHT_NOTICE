@@ -70,7 +70,6 @@ See header for Mike's copyright note
 Parameters modified for my use case
 
 i2c_loader.vhd
-i2s_intf.vhd
 
 -----------------------------------------------------------------------------------
 (c) Peter Wendrich
