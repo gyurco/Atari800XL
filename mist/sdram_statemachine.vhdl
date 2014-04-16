@@ -50,7 +50,9 @@ PORT
 	SDRAM_WE_N : out std_logic;
 	
 	SDRAM_ldqm : out std_logic; -- low enable, high disable - for byte addressing - NB, cas latency applies to reads
-	SDRAM_udqm : out std_logic
+	SDRAM_udqm : out std_logic;
+	
+	reset_client_n : out std_logic
 );
 END sdram_statemachine;
 
@@ -187,6 +189,9 @@ ARCHITECTURE vhdl OF sdram_statemachine IS
 	signal sdram_request_reg : std_logic;
 	signal sdram_request_next : std_logic;
 	
+	signal reset_client_n_reg : std_logic;
+	signal reset_client_n_next : std_logic;
+	
 BEGIN
 	-- register
 	process(CLK_SDRAM,reset_n)
@@ -252,6 +257,9 @@ BEGIN
 			reply_sreg <= '0';
 			
 			sdram_request_reg <= '0';
+			
+			reset_client_n_reg <= '0';
+			
 		elsif (CLK_SYSTEM'event and CLK_SYSTEM='1') then
 			data_in_sreg <= data_in_snext;
 			address_in_sreg <= address_in_snext;
@@ -265,6 +273,8 @@ BEGIN
 			reply_sreg <= reply_snext;
 			
 			sdram_request_reg <= sdram_request_next;
+			
+			reset_client_n_reg <= reset_client_n_next;
 		end if;
 	end process;
 
@@ -332,10 +342,12 @@ BEGIN
 	end process;
 	
 	--
-	process(sdram_state_reg,delay_reg, idle_priority, data_out_reg, read_en_sreg, write_en_sreg, address_in_sreg, data_in_sreg, reply_reg, require_refresh, dq_in_next, dqm_mask_sreg, request_sreg)
+	process(reset_client_n_reg,sdram_state_reg,delay_reg, idle_priority, data_out_reg, read_en_sreg, write_en_sreg, address_in_sreg, data_in_sreg, reply_reg, require_refresh, dq_in_next, dqm_mask_sreg, request_sreg)
 	begin
 		idle_priority <= (others=>'0');
 		refreshing_now <= '0';
+	
+		reset_client_n_next <= reset_client_n_reg;
 	
 		sdram_state_next <= sdram_state_reg;
 		
@@ -392,6 +404,7 @@ BEGIN
 				-- nop
 			end case;
 		when sdram_state_idle =>
+			reset_client_n_next <= '1';		
 			delay_next <= (others=>'0');						
 			
 			idle_priority <= (request_sreg xor reply_reg)&require_refresh&write_en_sreg&read_en_sreg;
@@ -522,5 +535,7 @@ BEGIN
 	-- a little sdram glue - move to sdram wrapper?
 	COMPLETE <= (reply_sreg xnor sdram_request_reg) and not(request);
 	sdram_request_next <= sdram_request_reg xor request;
+	
+	reset_client_n <= reset_client_n_reg;
 	
 END vhdl;

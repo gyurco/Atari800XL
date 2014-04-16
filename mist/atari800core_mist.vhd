@@ -141,6 +141,24 @@ end component;
   SIGNAL	THROTTLE_COUNT_6502 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
 
   SIGNAL PAL : std_logic;
+
+  signal SDRAM_REQUEST : std_logic;
+  signal SDRAM_REQUEST_COMPLETE : std_logic;
+  signal SDRAM_READ_ENABLE :  STD_LOGIC;
+  signal SDRAM_WRITE_ENABLE : std_logic;
+  signal SDRAM_ADDR : STD_LOGIC_VECTOR(22 DOWNTO 0);
+  signal SDRAM_DO : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  signal SDRAM_DI : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  signal SDRAM_WIDTH_8bit_ACCESS : std_logic;
+  signal SDRAM_WIDTH_16bit_ACCESS : std_logic;
+  signal SDRAM_WIDTH_32bit_ACCESS : std_logic;
+
+  signal SDRAM_REFRESH : std_logic;
+  
+  signal SYSTEM_RESET_REQUEST: std_logic;
+  
+  signal SDRAM_RESET_N : std_logic;
+
 BEGIN 
 pal <= '1'; -- TODO, two builds, with appropriate pll settings
 
@@ -380,7 +398,7 @@ consol_option <= keyboard(62); -- F4
 
 --HOT KEYS! Connect to ZPU when present...
 --virtual_keys <= keyboard(65)&keyboard(66)&keyboard(67)&keyboard(68);
---SYSTEM_RESET_REQUEST <= keyboard(63);
+SYSTEM_RESET_REQUEST <= keyboard(63);
 
 -- TODO this should be common, same for PS2 after mapping...
 process(keyboard_scan, atari_keyboard, control_pressed, shift_pressed, break_pressed)
@@ -445,12 +463,12 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	(
 		cycle_length => 32,
 		internal_rom => 1,
-		internal_ram => 16384
+		internal_ram => 0
 	)
 	PORT MAP
 	(
 		CLK => CLK,
-		RESET_N => RESET_N,
+		RESET_N => RESET_N and SDRAM_RESET_N and not(SYSTEM_RESET_REQUEST),
 
 		VGA_VS => VGA_VS_RAW,
 		VGA_HS => VGA_HS_RAW,
@@ -475,12 +493,16 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		CONSOL_SELECT => CONSOL_SELECT,
 		CONSOL_START => CONSOL_START,
 
-		SDRAM_REQUEST => open,
-		SDRAM_REQUEST_COMPLETE => '1',
-		SDRAM_READ_ENABLE => open,
-		SDRAM_WRITE_ENABLE => open,
-		SDRAM_ADDR => open,
-		SDRAM_DO => (others=>'1'),
+		SDRAM_REQUEST => SDRAM_REQUEST,
+		SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
+		SDRAM_READ_ENABLE => SDRAM_READ_ENABLE,
+		SDRAM_WRITE_ENABLE => SDRAM_WRITE_ENABLE,
+		SDRAM_ADDR => SDRAM_ADDR,
+		SDRAM_DO => SDRAM_DO,
+		SDRAM_DI => SDRAM_DI,
+		SDRAM_32BIT_WRITE_ENABLE => SDRAM_WIDTH_32bit_ACCESS,
+		SDRAM_16BIT_WRITE_ENABLE => SDRAM_WIDTH_16bit_ACCESS,
+		SDRAM_8BIT_WRITE_ENABLE => SDRAM_WIDTH_8bit_ACCESS,
 
 		DMA_FETCH => '0',
 		DMA_READ_ENABLE => '0',
@@ -498,43 +520,46 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502
 	);
 
---b2v_inst20 : sdram_statemachine
---GENERIC MAP(ADDRESS_WIDTH => 22,
---			AP_BIT => 10,
---			COLUMN_WIDTH => 8,
---			ROW_WIDTH => 12
---			)
---PORT MAP(CLK_SYSTEM => CLK,
---		 CLK_SDRAM => CLK_SDRAM,
---		 RESET_N => RESET_N,
---		 READ_EN => SDRAM_READ_ENABLE,
---		 WRITE_EN => SDRAM_WRITE_ENABLE,
---		 REQUEST => SDRAM_REQUEST,
---		 BYTE_ACCESS => WIDTH_8BIT_ACCESS,
---		 WORD_ACCESS => WIDTH_16BIT_ACCESS,
---		 LONGWORD_ACCESS => WIDTH_32BIT_ACCESS,
---		 REFRESH => SDRAM_REFRESH,
---		 ADDRESS_IN => SDRAM_ADDR,
---		 DATA_IN => WRITE_DATA,
---		 SDRAM_DQ => SDRAM_DQ,
---		 COMPLETE => SDRAM_REQUEST_COMPLETE,
---		 SDRAM_BA0 => SDRAM_BA(0),
---		 SDRAM_BA1 => SDRAM_BA(1),
---		 SDRAM_CKE => SDRAM_CKE,
---		 SDRAM_CS_N => SDRAM_nCS,
---		 SDRAM_RAS_N => SDRAM_nRAS,
---		 SDRAM_CAS_N => SDRAM_nCAS,
---		 SDRAM_WE_N => SDRAM_nWE,
---		 SDRAM_ldqm => SDRAM_DQML,
---		 SDRAM_udqm => SDRAM_DQMH,
---		 DATA_OUT => SDRAM_DO,
---		 SDRAM_ADDR => SDRAM_A(11 downto 0));
---		 
---SDRAM_A(12) <= '0';
+sdram_adaptor : entity work.sdram_statemachine
+GENERIC MAP(ADDRESS_WIDTH => 22,
+			AP_BIT => 10,
+			COLUMN_WIDTH => 8,
+			ROW_WIDTH => 12
+			)
+PORT MAP(CLK_SYSTEM => CLK,
+		 CLK_SDRAM => CLK_SDRAM,
+		 RESET_N =>  RESET_N and not(SYSTEM_RESET_REQUEST),
+		 READ_EN => SDRAM_READ_ENABLE,
+		 WRITE_EN => SDRAM_WRITE_ENABLE,
+		 REQUEST => SDRAM_REQUEST,
+		 BYTE_ACCESS => SDRAM_WIDTH_8BIT_ACCESS,
+		 WORD_ACCESS => SDRAM_WIDTH_16BIT_ACCESS,
+		 LONGWORD_ACCESS => SDRAM_WIDTH_32BIT_ACCESS,
+		 REFRESH => SDRAM_REFRESH,
+		 ADDRESS_IN => SDRAM_ADDR,
+		 DATA_IN => SDRAM_DI,
+		 SDRAM_DQ => SDRAM_DQ,
+		 COMPLETE => SDRAM_REQUEST_COMPLETE,
+		 SDRAM_BA0 => SDRAM_BA(0),
+		 SDRAM_BA1 => SDRAM_BA(1),
+		 SDRAM_CKE => SDRAM_CKE,
+		 SDRAM_CS_N => SDRAM_nCS,
+		 SDRAM_RAS_N => SDRAM_nRAS,
+		 SDRAM_CAS_N => SDRAM_nCAS,
+		 SDRAM_WE_N => SDRAM_nWE,
+		 SDRAM_ldqm => SDRAM_DQML,
+		 SDRAM_udqm => SDRAM_DQMH,
+		 DATA_OUT => SDRAM_DO,
+		 SDRAM_ADDR => SDRAM_A(11 downto 0),
+		 reset_client_n => SDRAM_RESET_N
+		 );
+		 
+SDRAM_A(12) <= '0';
+SDRAM_REFRESH <= '0'; -- TODO
 
 -- Until SDRAM enabled... TODO
-SDRAM_nCS <= '1';
-SDRAM_DQ <= (others=>'Z');
+--SDRAM_nCS <= '1';
+--SDRAM_DQ <= (others=>'Z');
 
 --SDRAM_CKE <= '1';		 
 LED <= '0';
