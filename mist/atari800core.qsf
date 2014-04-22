@@ -311,7 +311,6 @@ set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_
 set_global_assignment -name VHDL_FILE data_io.vhdl
 set_global_assignment -name SDC_FILE atari800core.sdc
 set_global_assignment -name QIP_FILE mist_sector_buffer.qip
-set_global_assignment -name VHDL_FILE sdram_statemachine.vhdl
 set_global_assignment -name VHDL_FILE atari800core_mist.vhd
 set_global_assignment -name VERILOG_FILE user_io.v
 set_global_assignment -name QIP_FILE pll.qip

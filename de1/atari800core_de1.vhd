@@ -90,6 +90,7 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 	SIGNAL CLK : STD_LOGIC;
 	SIGNAL CLK_SDRAM : STD_LOGIC;
 	SIGNAL RESET_N : STD_LOGIC;
+	signal SDRAM_RESET_N : std_logic;
 	SIGNAL PLL_LOCKED : STD_LOGIC;
 
 	-- PIA
@@ -136,6 +137,18 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 	SIGNAL	ROM_REQUEST :  STD_LOGIC;
 	SIGNAL	ROM_REQUEST_COMPLETE :  STD_LOGIC;
 
+	-- SDRAM
+	signal SDRAM_REQUEST : std_logic;
+	signal SDRAM_REQUEST_COMPLETE : std_logic;
+	signal SDRAM_READ_ENABLE :  STD_LOGIC;
+	signal SDRAM_WRITE_ENABLE : std_logic;
+	signal SDRAM_ADDR : STD_LOGIC_VECTOR(22 DOWNTO 0);
+	signal SDRAM_DO : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	
+	signal SDRAM_REFRESH : std_logic;
+	
+	signal SYSTEM_RESET_REQUEST: std_logic;
+
 	-- pokey keyboard
 	SIGNAL KEYBOARD_SCAN : std_logic_vector(5 downto 0);
 	SIGNAL KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
@@ -173,24 +186,14 @@ FL_WE_N <= '1';
 FL_RST_N <= '1';
 FL_ADDR <= (others=>'0');
 
-DRAM_BA_0 <= '1';
-DRAM_BA_1 <= '1';
-DRAM_CS_N <= '1';
-DRAM_RAS_N <= '1';
-DRAM_CAS_N <= '1';
-DRAM_WE_N <= '1';
-DRAM_LDQM <= '1';
-DRAM_UDQM <= '1';
-DRAM_CKE <= '0';
-DRAM_ADDR <= (others=>'0');
-DRAM_DQ <= (others=>'Z');
-
 SD_CLK <= '1';
 SD_CMD <= '1';
 SD_THREE <= '1';
 
 LEDG <= (others=>'1');
 LEDR <= (others=>'1');
+
+SYSTEM_RESET_REQUEST <= '0';
 
 -- TODO FUJI? Or Program counter or...
 hexdecoder0 : entity work.hexdecoder
@@ -234,6 +237,42 @@ PORT MAP(WREN => RAM_WRITE_ENABLE,
 		 DOUT => RAM_DO,
 		 SRAM_ADDR => SRAM_ADDR);
 
+sdram_adaptor : entity work.sdram_statemachine
+GENERIC MAP(ADDRESS_WIDTH => 22,
+			AP_BIT => 10,
+			COLUMN_WIDTH => 8,
+			ROW_WIDTH => 12
+			)
+PORT MAP(CLK_SYSTEM => CLK,
+		 CLK_SDRAM => CLK_SDRAM,
+		 RESET_N =>  RESET_N and not(SYSTEM_RESET_REQUEST),
+		 READ_EN => SDRAM_READ_ENABLE,
+		 WRITE_EN => SDRAM_WRITE_ENABLE,
+		 REQUEST => SDRAM_REQUEST,
+		 BYTE_ACCESS => PBI_WIDTH_8BIT_ACCESS,
+		 WORD_ACCESS => PBI_WIDTH_16BIT_ACCESS,
+		 LONGWORD_ACCESS => PBI_WIDTH_32BIT_ACCESS,
+		 REFRESH => SDRAM_REFRESH,
+		 ADDRESS_IN => SDRAM_ADDR,
+		 DATA_IN => PBI_WRITE_DATA(31 downto 0),
+		 SDRAM_DQ => DRAM_DQ,
+		 COMPLETE => SDRAM_REQUEST_COMPLETE,
+		 SDRAM_BA0 => DRAM_BA_0,
+		 SDRAM_BA1 => DRAM_BA_1,
+		 SDRAM_CKE => DRAM_CKE,
+		 SDRAM_CS_N => DRAM_CS_N,
+		 SDRAM_RAS_N => DRAM_RAS_N,
+		 SDRAM_CAS_N => DRAM_CAS_N,
+		 SDRAM_WE_N => DRAM_WE_N,
+		 SDRAM_ldqm => DRAM_LDQM,
+		 SDRAM_udqm => DRAM_UDQM,
+		 DATA_OUT => SDRAM_DO,
+		 SDRAM_ADDR => DRAM_ADDR(11 downto 0),
+		 reset_client_n => SDRAM_RESET_N
+		 );
+		 
+SDRAM_REFRESH <= '0'; -- TODO
+
 -- PIA mapping
 CA1_IN <= '1';
 CB1_IN <= '1';
@@ -254,9 +293,6 @@ GTIA_TRIG <= CART_RD5&"111";
 -- Cartridge not inserted
 CART_RD4 <= '0';
 CART_RD5 <= '0';
-
--- Since we're not exposing PBI, expose a few key parts needed for SDRAM
---SDRAM_DI <= PBI_WRITE_DATA;
 
 -- Internal rom/ram
 internalromram1 : entity work.internalromram
@@ -431,7 +467,7 @@ atari800 : entity work.atari800core
 	PORT MAP
 	(
 		CLK => CLK,
-		RESET_N => RESET_N,
+		RESET_N => RESET_N and SDRAM_RESET_N and not(SYSTEM_RESET_REQUEST),
 
 		VGA_VS => VGA_VS_RAW,
 		VGA_HS => VGA_HS_RAW,
@@ -491,12 +527,12 @@ atari800 : entity work.atari800core
 		
 		ANTIC_LIGHTPEN => ANTIC_LIGHTPEN,
 
-		SDRAM_REQUEST => open,
-		SDRAM_REQUEST_COMPLETE => '0',
-		SDRAM_READ_ENABLE => open,
-		SDRAM_WRITE_ENABLE => open,
-		SDRAM_ADDR => open,
-		SDRAM_DO => (others=>'0'),
+		SDRAM_REQUEST => SDRAM_REQUEST,
+		SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
+		SDRAM_READ_ENABLE => SDRAM_READ_ENABLE,
+		SDRAM_WRITE_ENABLE => SDRAM_WRITE_ENABLE,
+		SDRAM_ADDR => SDRAM_ADDR,
+		SDRAM_DO => SDRAM_DO,
 
 		SDRAM_REFRESH => open, -- TODO
 
@@ -520,12 +556,12 @@ atari800 : entity work.atari800core
 		DMA_WRITE_DATA => (others=>'0'),
 		MEMORY_READY_DMA => open,
 
-		RAM_SELECT => (others=>'0'),
+		RAM_SELECT => "110",
 		ROM_SELECT => (others=>'0'),
 		CART_EMULATION_SELECT => "0000000",
 		CART_EMULATION_ACTIVATE => '0',
 		PAL => '1',
-		USE_SDRAM => '0',
+		USE_SDRAM => '1',
 		ROM_IN_RAM => '0',
 		THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
 		HALT => '0' 

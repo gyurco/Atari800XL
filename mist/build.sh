@@ -1,7 +1,6 @@
 rm -rf build
 mkdir build
 cp atari800core_mist.vhd build
-cp sdram_statemachine.vhdl build
 cp pll.* build
 cp atari800core.sdc build
 cp data_io.vhdl build
