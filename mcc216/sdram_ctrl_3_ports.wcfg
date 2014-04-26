@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="sdram_ctrl_3_ports.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="numeric_std" />
+            <top_module name="sdram_ctrl_3_ports_tb" />
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_textio" />
+            <top_module name="std_logic_unsigned" />
+            <top_module name="textio" />
+            <top_module name="vl_types" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="24" />
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/clk_a" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_a</obj_property>
+      <obj_property name="ObjectShortName">clk_a</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/reset_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">reset_n</obj_property>
+      <obj_property name="ObjectShortName">reset_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/sdram_rdy" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_rdy</obj_property>
+      <obj_property name="ObjectShortName">sdram_rdy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/sdram_cs_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_cs_n</obj_property>
+      <obj_property name="ObjectShortName">sdram_cs_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/sdram_ras_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_ras_n</obj_property>
+      <obj_property name="ObjectShortName">sdram_ras_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/sdram_cas_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_cas_n</obj_property>
+      <obj_property name="ObjectShortName">sdram_cas_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/sdram_we_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_we_n</obj_property>
+      <obj_property name="ObjectShortName">sdram_we_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/sdram_dqm_n" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_dqm_n[1:0]</obj_property>
+      <obj_property name="ObjectShortName">sdram_dqm_n[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/sdram_ba" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_ba[1:0]</obj_property>
+      <obj_property name="ObjectShortName">sdram_ba[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/sdram_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_addr[11:0]</obj_property>
+      <obj_property name="ObjectShortName">sdram_addr[11:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/sdram_dq_oe" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_dq_oe</obj_property>
+      <obj_property name="ObjectShortName">sdram_dq_oe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/sdram_dq_o" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_dq_o[15:0]</obj_property>
+      <obj_property name="ObjectShortName">sdram_dq_o[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/sdram_dq_i" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_dq_i[15:0]</obj_property>
+      <obj_property name="ObjectShortName">sdram_dq_i[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/seq_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">seq_reg[11:0]</obj_property>
+      <obj_property name="ObjectShortName">seq_reg[11:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/seq_ph_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">seq_ph_reg</obj_property>
+      <obj_property name="ObjectShortName">seq_ph_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/ram_rd_active" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ram_rd_active[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_rd_active[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/ram_wr_active" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ram_wr_active[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_wr_active[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/ref_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ref_reg</obj_property>
+      <obj_property name="ObjectShortName">ref_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/sdram_controller/r_refr_req" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_refr_req</obj_property>
+      <obj_property name="ObjectShortName">r_refr_req</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/sdram_controller/r_psel" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">r_psel[2:0]</obj_property>
+      <obj_property name="ObjectShortName">r_psel[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/ram_di" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ram_di[15:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_di[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/ram_di2" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ram_di2[15:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_di2[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/ram_do" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ram_do[15:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_do[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+      <obj_property name="CustomSignalColor">#0000ff</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sdram_ctrl_3_ports_tb/ram_do2" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ram_do2[15:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_do2[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+      <obj_property name="CustomSignalColor">#0000ff</obj_property>
+   </wvobject>
+</wave_config>
