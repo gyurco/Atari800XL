@@ -65,6 +65,7 @@ syncreset_enable_divider.vhd
 wide_delay_line.vhdl
 basic.vhdl
 os16.vhdl
+os16_loop.vhdl
 covox.vhd
 atari800core.vhd
 atari800core_simple_sdram.vhd
