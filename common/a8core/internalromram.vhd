@@ -28,41 +28,6 @@ ENTITY internalromram IS
 END internalromram;
 
 architecture vhdl of internalromram is
-component generic_ram_infer IS
-        generic
-        (
-                ADDRESS_WIDTH : natural := 9;
-                SPACE : natural := 512;
-                DATA_WIDTH : natural := 8
-        );
-   PORT
-   (
-      clock: IN   std_logic;
-      data:  IN   std_logic_vector (data_width-1 DOWNTO 0);
-      address:  IN   std_logic_vector(address_width-1 downto 0);
-      we:    IN   std_logic;
-      q:     OUT  std_logic_vector (data_width-1 DOWNTO 0)
-   );
-END component;
-
-component os16 IS
-	PORT
-	(
-		address		: IN STD_LOGIC_VECTOR (13 DOWNTO 0);
-		clock		: IN STD_LOGIC  := '1';
-		q		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
-	);
-END component;
-
-component basic IS
-	PORT
-	(
-		address		: IN STD_LOGIC_VECTOR (12 DOWNTO 0);
-		clock		: IN STD_LOGIC  := '1';
-		q		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
-	);
-END component;
-
 	signal rom_request_reg : std_logic;
 	signal ram_request_reg : std_logic;
 	
@@ -81,14 +46,27 @@ begin
 		end if;
 	end process;
 
-gen_internal_os : if internal_rom=1 generate
-	rom16a : os16
+gen_internal_os_loop : if internal_rom=2 generate
+	rom16a : entity work.os16_loop
 	PORT MAP(clock => clock,
 			 address => rom_addr(13 downto 0),
 			 q => ROM16_data
 			 );
 
-	basic1 : basic
+	ROM_DATA <= ROM16_DATA;
+
+	rom_request_complete <= rom_request_reg;
+	
+end generate;
+
+gen_internal_os : if internal_rom=1 generate
+	rom16a : entity work.os16
+	PORT MAP(clock => clock,
+			 address => rom_addr(13 downto 0),
+			 q => ROM16_data
+			 );
+
+	basic1 : entity work.basic
 	PORT MAP(clock => clock,
 			 address => rom_addr(12 downto 0),
 			 q => BASIC_data
@@ -112,7 +90,7 @@ gen_no_internal_os : if internal_rom=0 generate
 end generate;
 	
 gen_internal_ram: if internal_ram>0 generate
-	ramint1 : generic_ram_infer
+	ramint1 : entity work.generic_ram_infer
         generic map
         (
                 ADDRESS_WIDTH => 19,
