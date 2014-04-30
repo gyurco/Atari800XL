@@ -13,6 +13,13 @@ use ieee.numeric_std.all;
 LIBRARY work;
 
 ENTITY atari800core_mcc IS 
+	GENERIC
+	(
+		TV : integer;  -- 1 = PAL, 0=NTSC
+		VIDEO : integer; -- 1 = SVIDEO, 2 = VGA
+		SCANDOUBLE : integer; -- 1 = YES, 0=NO, (+ later scanlines etc)
+		internal_ram : integer
+	);
 	PORT
 	(
 		FPGA_CLK :  IN  STD_LOGIC;
@@ -175,20 +182,21 @@ port
 );
 END COMPONENT;
 
-COMPONENT pll
-	PORT(inclk0 : IN STD_LOGIC;
-		 c0 : OUT STD_LOGIC;
-		 c1 : OUT STD_LOGIC;
-		 c2 : OUT STD_LOGIC;
-		 locked : OUT STD_LOGIC
-	);
-END COMPONENT;
-
 	signal AUDIO_L_PCM : std_logic_vector(15 downto 0);
 	signal AUDIO_R_PCM : std_logic_vector(15 downto 0);
 	
-	signal VGA_VS_RAW : std_logic;
-	signal VGA_HS_RAW : std_logic;
+	signal VIDEO_VS : std_logic;
+	signal VIDEO_HS : std_logic;
+	signal VIDEO_R : std_logic_vector(7 downto 0);
+	signal VIDEO_G : std_logic_vector(7 downto 0);
+	signal VIDEO_B : std_logic_vector(7 downto 0);
+
+	signal VIDEO_BLANK : std_logic;
+	signal VIDEO_BURST : std_logic;
+	signal VIDEO_START_OF_FIELD : std_logic;
+	signal VIDEO_ODD_LINE : std_logic;
+
+	signal PAL : std_logic;
 	
 	signal JOY1_IN_n : std_logic_vector(4 downto 0);
 	signal JOY2_IN_n : std_logic_vector(4 downto 0);
@@ -260,6 +268,27 @@ END COMPONENT;
 	-- 6502 throttling
 	SIGNAL THROTTLE_COUNT_6502 : std_logic_vector(5 downto 0);
 
+	-- scandoubler
+	signal scandouble_clk : std_logic;
+
+	signal half_scandouble_enable_reg : std_logic;
+	signal half_scandouble_enable_next : std_logic;
+
+	function palette_from_scandouble( scandouble : integer ) return integer is
+	begin
+		if (scandouble = 1) then
+			return 0;
+		else
+			return 1;
+		end if;
+	end palette_from_scandouble;
+	
+	-- svideo
+	signal svideo_dac_clk : std_logic;
+
+	signal svideo_y : std_logic_vector(7 downto 0);
+	signal svideo_c : std_logic_vector(5 downto 0);
+
 BEGIN 
 
 dac_left : hq_dac
@@ -282,12 +311,27 @@ port map
   dac_out => audio_r
 );
 
-mcc_pll : pll
-PORT MAP(inclk0 => FPGA_CLK,
-		 c0 => CLK_SDRAM,
-		 c1 => CLK,
-		 c2 => SDRAM_CLK,
-		 locked => PLL_LOCKED);
+gen_tv_pal : if tv=1 generate
+	mcc_pll : entity work.pal_pll
+	PORT MAP(inclk0 => FPGA_CLK,
+			 c0 => CLK_SDRAM,
+			 c1 => CLK,
+			 c2 => SDRAM_CLK,
+                         c3 => SVIDEO_DAC_CLK,
+                         c4 => SCANDOUBLE_CLK,      
+			 locked => PLL_LOCKED);
+end generate;
+
+gen_tv_ntsc : if tv=0 generate
+	mcc_pll : entity work.ntsc_pll
+	PORT MAP(inclk0 => FPGA_CLK,
+			 c0 => CLK_SDRAM,
+			 c1 => CLK,
+			 c2 => SDRAM_CLK,
+                         c3 => SVIDEO_DAC_CLK,
+                         c4 => SCANDOUBLE_CLK,      
+			 locked => PLL_LOCKED);
+end generate;
 
 reset_n <= PLL_LOCKED;
 JOY1_IN_N <= JOY1_n(4)&JOY1_n(0)&JOY1_n(1)&JOY1_n(2)&JOY1_n(3);
@@ -295,10 +339,6 @@ JOY2_IN_N <= JOY2_n(4)&JOY2_n(0)&JOY2_n(1)&JOY2_n(2)&JOY2_n(3);
 
 -- THROTTLE
 THROTTLE_COUNT_6502 <= std_logic_vector(to_unsigned(32-1,6));
-
--- VIDEO
-VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
-VGA_VS <= not(VGA_VS_RAW);
 
 --atari800xl : entity work.atari800core_helloworld
 --	GENERIC MAP
@@ -349,13 +389,16 @@ keyboard_map1 : entity work.ps2_to_atari800
 		-- TODO - reset!
 	);
 
+PAL <= '1' when TV=1 else '0';
+
 atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
 	(
 		cycle_length => 16,
 		internal_rom => 1,
-		internal_ram => 0,
-		video_bits => 4
+		internal_ram => internal_ram,
+		video_bits => 8,
+		palette => palette_from_scandouble(scandouble)
 	)
 	PORT MAP
 	(
@@ -363,11 +406,15 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		--RESET_N => RESET_N and SDRAM_RESET_N and not(SYSTEM_RESET_REQUEST),
 		RESET_N => RESET_N and sdram_rdy,
 
-		VGA_VS => VGA_VS_RAW,
-		VGA_HS => VGA_HS_RAW,
-		VGA_B => VGA_B,
-		VGA_G => VGA_G,
-		VGA_R => VGA_R,
+		VIDEO_VS => VIDEO_VS,
+		VIDEO_HS => VIDEO_HS,
+		VIDEO_B => VIDEO_B,
+		VIDEO_G => VIDEO_G,
+		VIDEO_R => VIDEO_R,
+		VIDEO_BLANK =>VIDEO_BLANK,
+		VIDEO_BURST =>VIDEO_BURST,
+		VIDEO_START_OF_FIELD =>VIDEO_START_OF_FIELD,
+		VIDEO_ODD_LINE =>VIDEO_ODD_LINE,
 
 		AUDIO_L => AUDIO_L_PCM,
 		AUDIO_R => AUDIO_R_PCM,
@@ -396,6 +443,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		SDRAM_32BIT_WRITE_ENABLE => SDRAM_WIDTH_32bit_ACCESS,
 		SDRAM_16BIT_WRITE_ENABLE => SDRAM_WIDTH_16bit_ACCESS,
 		SDRAM_8BIT_WRITE_ENABLE => SDRAM_WIDTH_8bit_ACCESS,
+		SDRAM_REFRESH => SDRAM_REFRESH,
 
 		DMA_FETCH => '0',
 		DMA_READ_ENABLE => '0',
@@ -408,42 +456,10 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 
    		RAM_SELECT => (others=>'0'),
     		ROM_SELECT => "000001",
-		PAL => '1',
+		PAL => PAL,
 		HALT => '0',
 		THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502
 	);
-
---b2v_inst20 : sdram_statemachine_mcc
---GENERIC MAP(ADDRESS_WIDTH => 22,
---			AP_BIT => 10,
---			COLUMN_WIDTH => 8,
---			ROW_WIDTH => 12
---			)
---PORT MAP(CLK_SYSTEM => CLK,
---		 CLK_SDRAM => CLK_SDRAM,
---		 RESET_N => RESET_N,
---		 READ_EN => SDRAM_READ_ENABLE,
---		 WRITE_EN => SDRAM_WRITE_ENABLE,
---		 REQUEST => SDRAM_REQUEST,
---		 BYTE_ACCESS => WIDTH_8BIT_ACCESS,
---		 WORD_ACCESS => WIDTH_16BIT_ACCESS,
---		 LONGWORD_ACCESS => WIDTH_32BIT_ACCESS,
---		 REFRESH => SDRAM_REFRESH,
---		 ADDRESS_IN => SDRAM_ADDR,
---		 DATA_IN => WRITE_DATA,
---		 SDRAM_DQ => SDRAM_DQ,
---		 REPLY => SDRAM_REQUEST_COMPLETE,
---		 SDRAM_BA0 => SDRAM_BA(0),
---		 SDRAM_BA1 => SDRAM_BA(1),
---		 --SDRAM_CKE => SDRAM_A(12), -- TODO?
---		 SDRAM_CS_N => SDRAM_CS_N,
---		 SDRAM_RAS_N => SDRAM_RAS_N,
---		 SDRAM_CAS_N => SDRAM_CAS_N,
---		 SDRAM_WE_N => SDRAM_WE_N,
---		 SDRAM_ldqm => SDRAM_DQM_n(0),
---		 SDRAM_udqm => SDRAM_DQM_n(1),
---		 DATA_OUT => SDRAM_DO,
---		 SDRAM_ADDR => SDRAM_A(12 downto 0)); -- TODO?
 
 	process(clk_sdram,reset_n)
 	begin
@@ -570,7 +586,8 @@ sdram_controller : sdram_ctrl
 		rst => not(reset_n),
 		seq_cyc => seq_reg(11 downto 0),
 		seq_ph => seq_ph_reg,
-		refr_cyc => ref_reg,
+		--refr_cyc => ref_reg,
+		refr_cyc => SDRAM_REFRESH,
 
 		ap1_ram_sel => SDRAM_REQUEST_REG,
 		ap1_address => '0'&SDRAM_ADDR(22 downto 1),
@@ -621,5 +638,87 @@ sdram_controller : sdram_ctrl
 sdram_dq <= sdram_dq_o when sdram_dq_oe='1' else (others=>'Z');
 sdram_dq_i <= sdram_dq;
 sdram_a(12) <= '1';
+
+-- Video options
+gen_video_vga : if video=2 generate
+	gen_scandouble_off: if scandouble=0 generate
+		VGA_HS <= not(VIDEO_HS xor VIDEO_VS);
+		VGA_VS <= not(VIDEO_VS);
+		VGA_B <= VIDEO_B(7 downto 4);
+		VGA_G <= VIDEO_G(7 downto 4);
+		VGA_R <= VIDEO_R(7 downto 4);
+	end generate;
+
+	gen_scandouble_on: if scandouble=1 generate
+		process(scandouble_clk,reset_n)
+		begin
+			if (reset_n='0') then
+				half_scandouble_enable_reg <= '0';
+			elsif (scandouble_clk'event and scandouble_clk='1') then
+				half_scandouble_enable_reg <= half_scandouble_enable_next;
+			end if;
+		end process;
+
+		half_scandouble_enable_next <= not(half_scandouble_enable_reg);
+
+		scandoubler1: entity work.scandoubler
+		PORT MAP
+		( 
+			CLK => SCANDOUBLE_CLK,
+		        RESET_N => RESET_N and sdram_rdy,
+			
+			VGA => '1',
+			COMPOSITE_ON_HSYNC => '0', -- TODO
+
+			colour_enable => half_scandouble_enable_reg,
+			doubled_enable => '1',
+			
+			-- GTIA interface
+			colour_in => VIDEO_B,
+			vsync_in => VIDEO_VS,
+			hsync_in => VIDEO_HS,
+			
+			-- TO TV...
+			R => VGA_R,
+			G => VGA_G,
+			B => VGA_B,
+			
+			VSYNC => VGA_VS,
+			HSYNC => VGA_HS
+		);
+	end generate;
+
+end generate;
+
+gen_video_svideo: if video=1 generate
+
+	-- SVIDEO COMPONENT
+	svideo : entity work.svideo
+	PORT MAP
+	(
+		areset_n => RESET_N,
+		ecs_clk => CLK,
+		dac_clk => SVIDEO_DAC_CLK,
+		r_in => VIDEO_R,
+		g_in => VIDEO_G,
+		b_in => VIDEO_B,
+		sof => VIDEO_VS, -- base on vsync?
+		vpos_lsb => VIDEO_ODD_LINE,
+		blank => VIDEO_BLANK,
+		burst => VIDEO_BURST,
+		csync_n => not(VIDEO_HS xor VIDEO_VS),
 		
+		y_out => svideo_y,
+		c_out => svideo_c,
+		
+		pal_ntsc => not(pal)
+	);
+	VGA_B <= svideo_y(7 downto 4);
+	VGA_G <= svideo_y(3 downto 0);
+	VGA_R <= svideo_c(5 downto 2);
+	VGA_HS <= svideo_c(1);
+	VGA_VS <= svideo_c(0);
+
+end generate;
+
 END vhdl;

@@ -5,36 +5,36 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 
-PACKAGE svideo_pkg IS
-  COMPONENT svideo
-  PORT(
-    -- Power up reset
-    areset_n    : IN  STD_LOGIC;
-    -- Main clock (28.636363 MHz)
-    ecs_clk     : IN  STD_LOGIC;
-    -- DAC clock (114.545454 MHz)
-    dac_clk     : IN  STD_LOGIC;
-    -- RGB input
-    r_in        : IN  STD_LOGIC_VECTOR(7 DOWNTO 0);
-    g_in        : IN  STD_LOGIC_VECTOR(7 DOWNTO 0);
-    b_in        : IN  STD_LOGIC_VECTOR(7 DOWNTO 0);
-    -- Start of frame flag
-    sof         : IN  STD_LOGIC;
-    -- PAL burst phase
-    vpos_lsb    : IN  STD_LOGIC;
-    -- Burst/Synchro/Blanking inputs
-    blank       : IN  STD_LOGIC;
-    burst       : IN  STD_LOGIC;
-    csync_n     : IN  STD_LOGIC;
-    -- S-Video output
-    y_out       : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-    c_out       : OUT STD_LOGIC_VECTOR(5 DOWNTO 0);
-    -- PAL(0)/NTSC(1) mode
-    pal_ntsc    : IN  STD_LOGIC
-  );
-  END COMPONENT;
-
-END PACKAGE;
+--PACKAGE svideo_pkg IS
+--  COMPONENT svideo
+--  PORT(
+--    -- Power up reset
+--    areset_n    : IN  STD_LOGIC;
+--    -- Main clock (28.636363 MHz)
+--    ecs_clk     : IN  STD_LOGIC;
+--    -- DAC clock (114.545454 MHz)
+--    dac_clk     : IN  STD_LOGIC;
+--    -- RGB input
+--    r_in        : IN  STD_LOGIC_VECTOR(7 DOWNTO 0);
+--    g_in        : IN  STD_LOGIC_VECTOR(7 DOWNTO 0);
+--    b_in        : IN  STD_LOGIC_VECTOR(7 DOWNTO 0);
+--    -- Start of frame flag
+--    sof         : IN  STD_LOGIC;
+--    -- PAL burst phase
+--    vpos_lsb    : IN  STD_LOGIC;
+--    -- Burst/Synchro/Blanking inputs
+--    blank       : IN  STD_LOGIC;
+--    burst       : IN  STD_LOGIC;
+--    csync_n     : IN  STD_LOGIC;
+--    -- S-Video output
+--    y_out       : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+--    c_out       : OUT STD_LOGIC_VECTOR(5 DOWNTO 0);
+--    -- PAL(0)/NTSC(1) mode
+--    pal_ntsc    : IN  STD_LOGIC
+--  );
+--  END COMPONENT;
+--
+--END PACKAGE;
 
 -- ===================================================================================
 -- Entity / Architecture definition
