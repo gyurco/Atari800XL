@@ -66,7 +66,7 @@ foreach my $variant (sort keys %variants)
 	`rm -rf $dir`;
 	mkdir $dir;
 	`cp atari800core_mcc.vhd $dir`;
-	`cp *pll.* $dir`;
+	`cp *pll*.* $dir`;
 	`cp sdram_ctrl_3_ports.v $dir`;
 	`cp atari800core.sdc $dir`;
 

@@ -200,6 +200,9 @@ END COMPONENT;
 	
 	signal JOY1_IN_n : std_logic_vector(4 downto 0);
 	signal JOY2_IN_n : std_logic_vector(4 downto 0);
+
+	signal PLL1_LOCKED : std_logic;
+	signal CLK_PLL1 : std_logic;
 	
 	signal RESET_n : std_logic;
 	signal PLL_LOCKED : std_logic;
@@ -314,22 +317,32 @@ port map
 gen_tv_pal : if tv=1 generate
 	mcc_pll : entity work.pal_pll
 	PORT MAP(inclk0 => FPGA_CLK,
+			 c0 => CLK_PLL1,
+			 locked => PLL1_LOCKED);
+	mcc_pll2 : entity work.pll_downstream_pal
+	PORT MAP(inclk0 => CLK_PLL1,
 			 c0 => CLK_SDRAM,
 			 c1 => CLK,
 			 c2 => SDRAM_CLK,
                          c3 => SVIDEO_DAC_CLK,
                          c4 => SCANDOUBLE_CLK,      
+			 areset => not(PLL1_LOCKED),
 			 locked => PLL_LOCKED);
 end generate;
 
 gen_tv_ntsc : if tv=0 generate
 	mcc_pll : entity work.ntsc_pll
 	PORT MAP(inclk0 => FPGA_CLK,
+			 c0 => CLK_PLL1,
+			 locked => PLL1_LOCKED);
+	mcc_pll2 : entity work.pll_downstream_ntsc
+	PORT MAP(inclk0 => CLK_PLL1,
 			 c0 => CLK_SDRAM,
 			 c1 => CLK,
 			 c2 => SDRAM_CLK,
                          c3 => SVIDEO_DAC_CLK,
                          c4 => SCANDOUBLE_CLK,      
+			 areset => not(PLL1_LOCKED),
 			 locked => PLL_LOCKED);
 end generate;
 
