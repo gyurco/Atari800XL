@@ -61,18 +61,6 @@ PORT
 END antic;
 
 ARCHITECTURE vhdl OF antic IS
-	component enable_divider IS
-	generic(COUNT : natural := 1);
-	PORT 
-	( 
-		CLK : IN STD_LOGIC;
-		RESET_N : IN STD_LOGIC;
-		ENABLE_IN : IN STD_LOGIC;
-		
-		ENABLE_OUT : OUT STD_LOGIC
-	);
-	END component;
-	
 	COMPONENT complete_address_decoder IS
 	generic (width : natural := 1);
 	PORT 
@@ -650,9 +638,6 @@ BEGIN
 	-- Colour clock (3.57MHz for PAL)
 	-- TODO - allow double for 640 pixel width and quadruple for 1280 pixel width)
 	-- TODO - allow other clocks for driving VGA (mostly higher dot clock + line doubling (buffer between antic and gtia??))
-	--enable_colour_clock_div : enable_divider
-		--generic map (COUNT=>7)
-		--port map(clk=>clk,reset_n=>reset_n,enable_in=>'1',enable_out=>enable_colour_clock);	
 
         colour_clock_count_reg_topthree <= colour_clock_count_reg(cycle_length_bits-1 downto cycle_length_bits-3);
 	process(colour_clock_count_reg, colour_clock_count_reg_topthree, ANTIC_ENABLE_179)		
@@ -727,10 +712,6 @@ BEGIN
 		end case;		
 	end process;	
 		
-	--enable_dma_clock_div : enable_divider
-	--	generic map (COUNT=>2)
-	--	port map(clk=>clk,reset_n=>reset_n,enable_in=>colour_clock_selected,enable_out=>enable_dma);		
-
 	-- Counters (memory address for data, memory address for display list)
 	antic_counter_memory_scan : antic_counter
 		generic map (STORE_WIDTH=>16, COUNT_WIDTH=>12)
@@ -1117,7 +1098,7 @@ BEGIN
 	begin
 		increment_refresh_count <= '0';
 		refresh_pending_next <= refresh_pending_reg;
-		refresh_fetch_next <= not(memory_ready_antic) and refresh_fetch_reg;
+		refresh_fetch_next <= '0';
 		
 		if (colour_clock_1x = '1') then
 			-- do pending refresh once we have a spare cycle
@@ -1702,7 +1683,8 @@ BEGIN
 	-- wsync write takes 1 cycle to assert rdy
 	-- TODO - revisit antic delays in terms of cpu cycles
 	wsync_delay : delay_line
-		generic map (COUNT=>cycle_length+cycle_length/2)
+		--generic map (COUNT=>cycle_length+cycle_length/2)
+		generic map (COUNT=>cycle_length+cycle_length-2) -- TODO
 		port map (clk=>clk,sync_reset=>'0',data_in=>wsync_write,enable=>'1',reset_n=>reset_n,data_out=>wsync_delayed_write);
 
 	-- dmactl takes 1 cycle to be applied - NO IT DOES NOT - TODO FIXME
@@ -1832,7 +1814,7 @@ BEGIN
 	
 	antic_ready <= not(wsync_reg);
 	
-	dma_fetch_out <= refresh_fetch_reg or (allow_real_dma_reg and dma_fetch_reg);
+	dma_fetch_out <= allow_real_dma_reg and dma_fetch_reg;
 	dma_address_out <= dma_address_reg;
 	
 	refresh_out <= refresh_fetch_reg;

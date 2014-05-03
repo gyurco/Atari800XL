@@ -20,7 +20,7 @@ ENTITY atari800core IS
 	(
 		cycle_length : integer := 16; -- or 32...
 		video_bits : integer := 8;
-		palette : integer :=1 -- 0:gtia colour on VGA_B, 1:altirra, 2:laoo
+		palette : integer :=1 -- 0:gtia colour on VIDEO_B, 1:altirra, 2:laoo
 	);
 	PORT
 	(
@@ -28,11 +28,15 @@ ENTITY atari800core IS
 		RESET_N : IN STD_LOGIC;
 
 		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
-		VGA_VS :  OUT  STD_LOGIC;
-		VGA_HS :  OUT  STD_LOGIC;
-		VGA_B :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
-		VGA_G :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
-		VGA_R :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
+		VIDEO_VS :  OUT  STD_LOGIC;
+		VIDEO_HS :  OUT  STD_LOGIC;
+		VIDEO_B :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
+		VIDEO_G :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
+		VIDEO_R :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
+		VIDEO_BLANK : out std_logic;
+		VIDEO_BURST : out std_logic;
+		VIDEO_START_OF_FIELD : out std_logic;
+		VIDEO_ODD_LINE : out std_logic;
 
 		-- AUDIO OUT - Pokey/GTIA 1-bit and Covox all mixed
 		-- TODO - choose stereo/mono pokey
@@ -104,6 +108,7 @@ ENTITY atari800core IS
 
 		-- ANTIC lightpen
 		ANTIC_LIGHTPEN : IN std_logic;
+		ANTIC_REFRESH : out STD_LOGIC; -- 1 cycle high when antic doing refresh cycle..., propose locking out for the next 'cycle_length'
 		
 		-----------------------
 		-- After here all FPGA implementation specific
@@ -137,10 +142,6 @@ ENTITY atari800core IS
 		SDRAM_WRITE_ENABLE : out std_logic;
 		SDRAM_ADDR : out STD_LOGIC_VECTOR(22 DOWNTO 0);
 		SDRAM_DO : in STD_LOGIC_VECTOR(31 DOWNTO 0);
-
-		-- ANTIC refresh cycles
-		-- TODO, expose a better way...
-		SDRAM_REFRESH : out STD_LOGIC;
 
 		RAM_ADDR : OUT STD_LOGIC_VECTOR(18 DOWNTO 0);
 		RAM_DO : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -194,11 +195,11 @@ SIGNAL	ANTIC_FETCH :  STD_LOGIC;
 SIGNAL	ANTIC_HIGHRES_COLOUR_CLOCK_OUT :  STD_LOGIC;
 SIGNAL	ANTIC_ORIGINAL_COLOUR_CLOCK_OUT :  STD_LOGIC;
 SIGNAL	ANTIC_RDY :  STD_LOGIC;
-SIGNAL	ANTIC_REFRESH :  STD_LOGIC;
 SIGNAL	ANTIC_WRITE_ENABLE :  STD_LOGIC;
 SIGNAL	BREAK_PRESSED :  STD_LOGIC;
 signal hcount_temp : std_logic_vector(7 downto 0);
 signal vcount_temp : std_logic_vector(8 downto 0);
+signal ANTIC_REFRESH_CYCLE : STD_LOGIC;
 
 -- GTIA
 SIGNAL	GTIA_SOUND :  STD_LOGIC;
@@ -210,9 +211,9 @@ SIGNAL	GTIA_WRITE_ENABLE :  STD_LOGIC;
 signal COLOUR : std_logic_vector(7 downto 0);
 
 -- GTIA PALETTE
-signal VGA_R_WIDE : std_logic_vector(7 downto 0);
-signal VGA_G_WIDE : std_logic_vector(7 downto 0);
-signal VGA_B_WIDE : std_logic_vector(7 downto 0);
+signal VIDEO_R_WIDE : std_logic_vector(7 downto 0);
+signal VIDEO_G_WIDE : std_logic_vector(7 downto 0);
+signal VIDEO_B_WIDE : std_logic_vector(7 downto 0);
 
 -- CPU
 SIGNAL	CPU_6502_RESET :  STD_LOGIC;
@@ -291,6 +292,7 @@ PORT MAP(CLK => CLK,
 		 RESET_N => RESET_N,
 		 MEMORY_READY_CPU => MEMORY_READY_CPU,
 		 MEMORY_READY_ANTIC => MEMORY_READY_ANTIC,
+		 ANTIC_REFRESH => ANTIC_REFRESH_CYCLE,
 		 PAUSE_6502 => HALT,
 		 THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
 		 ANTIC_ENABLE_179 => ANTIC_ENABLE_179,
@@ -335,7 +337,7 @@ PORT MAP(CLK => CLK,
 		 dma_fetch_out => ANTIC_FETCH,
 		 hcount_out => hcount_temp,
 		 vcount_out => vcount_temp,
-		 refresh_out => ANTIC_REFRESH,
+		 refresh_out => ANTIC_REFRESH_CYCLE,
 		 AN => ANTIC_AN,
 		 DATA_OUT => ANTIC_DO,
 		 dma_address_out => ANTIC_ADDR);
@@ -366,8 +368,7 @@ PORT MAP(CLK => CLK,
 
 pokey2 : entity work.pokey
 PORT MAP(CLK => CLK,
-		 CPU_MEMORY_READY => MEMORY_READY_CPU,
-		 ANTIC_MEMORY_READY => MEMORY_READY_ANTIC,
+		 ENABLE_179 => ENABLE_179_MEMWAIT,
 		 WR_EN => POKEY2_WRITE_ENABLE,
 		 RESET_N => RESET_N,
 		 ADDR => PBI_ADDR_INT(3 DOWNTO 0),
@@ -413,7 +414,6 @@ PORT MAP(CLK => CLK,
 		 CPU_FETCH => CPU_FETCH,
 		 CPU_WRITE_N => R_W_N,
 		 ANTIC_FETCH => ANTIC_FETCH,
-		 antic_refresh => ANTIC_REFRESH,
 		 DMA_FETCH => DMA_FETCH,
 		 DMA_READ_ENABLE => DMA_READ_ENABLE,
 		 DMA_32BIT_WRITE_ENABLE => DMA_32BIT_WRITE_ENABLE,
@@ -471,7 +471,6 @@ PORT MAP(CLK => CLK,
 		 SDRAM_READ_EN => SDRAM_READ_ENABLE,
 		 SDRAM_WRITE_EN => SDRAM_WRITE_ENABLE,
 		 SDRAM_REQUEST => SDRAM_REQUEST,
-		 SDRAM_REFRESH => SDRAM_REFRESH,
 		 MEMORY_DATA => MEMORY_DATA,
 		 PBI_ADDR => PBI_ADDR_INT,
 		 RAM_ADDR => RAM_ADDR,
@@ -485,8 +484,7 @@ PORT MAP(CLK => CLK,
 
 pokey1 : entity work.pokey
 PORT MAP(CLK => CLK,
-		 CPU_MEMORY_READY => MEMORY_READY_CPU,
-		 ANTIC_MEMORY_READY => MEMORY_READY_ANTIC,
+		 ENABLE_179 => ENABLE_179_MEMWAIT,
 		 WR_EN => POKEY_WRITE_ENABLE,
 		 RESET_N => RESET_N,
 		 SIO_IN1 => SIO_RXD,
@@ -512,10 +510,8 @@ PORT MAP(CLK => CLK,
 gtia1 : entity work.gtia
 PORT MAP(CLK => CLK,
 		 WR_EN => GTIA_WRITE_ENABLE,
-		 CPU_MEMORY_READY => MEMORY_READY_CPU,
-		 ANTIC_MEMORY_READY => MEMORY_READY_ANTIC,
-		 ANTIC_FETCH => ANTIC_FETCH,
-		 CPU_ENABLE_ORIGINAL => ENABLE_179_MEMWAIT,
+		 ANTIC_FETCH => ANTIC_FETCH, -- for first pmg fetch
+		 CPU_ENABLE_ORIGINAL => ENABLE_179_MEMWAIT, -- for subsequent pmg fetches
 		 RESET_N => RESET_N,
 		 PAL => PAL,
 		 COLOUR_CLOCK_ORIGINAL => ANTIC_ORIGINAL_COLOUR_CLOCK_OUT,
@@ -532,9 +528,12 @@ PORT MAP(CLK => CLK,
 		 AN => ANTIC_AN,
 		 CPU_DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		 MEMORY_DATA_IN => MEMORY_DATA(7 DOWNTO 0),
-		 VSYNC => VGA_VS,
-		 HSYNC => VGA_HS,
-		 BLANK => open,
+		 VSYNC => VIDEO_VS,
+		 HSYNC => VIDEO_HS,
+		 BLANK => VIDEO_BLANK,
+		 BURST => VIDEO_BURST,
+		 START_OF_FIELD => VIDEO_START_OF_FIELD,
+		 ODD_LINE => VIDEO_ODD_LINE,
 		 sound => GTIA_SOUND,
 		 COLOUR_out => COLOUR,
 		 DATA_OUT => GTIA_DO);
@@ -551,24 +550,24 @@ PORT MAP(CLK => CLK,
 --Ultramarine     7,    112       Orange         15,    240
 
 gen_palette_none : if palette=0 generate
-	VGA_B <= COLOUR;
-	VGA_R <= (others => '0');
-	VGA_G <= (others => '0');
+	VIDEO_B_WIDE <= COLOUR;
+	VIDEO_R_WIDE <= (others => '0');
+	VIDEO_G_WIDE <= (others => '0');
 end generate;
 
 gen_palette_altirra : if palette=1 generate
 	palette1 : entity work.gtia_palette(altirra)
-		port map (ATARI_COLOUR=>COLOUR, R_next=>VGA_R_WIDE, G_next=>VGA_G_WIDE, B_next=>VGA_B_WIDE);
+		port map (ATARI_COLOUR=>COLOUR, R_next=>VIDEO_R_WIDE, G_next=>VIDEO_G_WIDE, B_next=>VIDEO_B_WIDE);
 end generate;
 
 gen_palette_laoo : if palette=2 generate
 	palette2 : entity work.gtia_palette(laoo)
-		port map (ATARI_COLOUR=>COLOUR, R_next=>VGA_R_WIDE, G_next=>VGA_G_WIDE, B_next=>VGA_B_WIDE);		
+		port map (ATARI_COLOUR=>COLOUR, R_next=>VIDEO_R_WIDE, G_next=>VIDEO_G_WIDE, B_next=>VIDEO_B_WIDE);		
 end generate;
 
-VGA_R(video_bits-1 downto 0) <= VGA_R_WIDE(7 downto 8-video_bits);
-VGA_G(video_bits-1 downto 0) <= VGA_G_WIDE(7 downto 8-video_bits);
-VGA_B(video_bits-1 downto 0) <= VGA_B_WIDE(7 downto 8-video_bits);
+VIDEO_R(video_bits-1 downto 0) <= VIDEO_R_WIDE(7 downto 8-video_bits);
+VIDEO_G(video_bits-1 downto 0) <= VIDEO_G_WIDE(7 downto 8-video_bits);
+VIDEO_B(video_bits-1 downto 0) <= VIDEO_B_WIDE(7 downto 8-video_bits);
 
 irq_glue1 : entity work.irq_glue
 PORT MAP(pokey_irq => POKEY_IRQ,
@@ -633,5 +632,6 @@ covox1 : entity work.covox
 -- outputs
 PBI_ADDR <= PBI_ADDR_INT;
 PORTB_OUT <= PORTB_OUT_INT;
+ANTIC_REFRESH <= ANTIC_REFRESH_CYCLE;
 
 END bdf_type;

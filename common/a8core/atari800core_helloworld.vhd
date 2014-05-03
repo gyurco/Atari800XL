@@ -28,6 +28,7 @@ ENTITY atari800core_helloworld is
 
 		video_bits : integer := 8;
 	
+		internal_rom : integer :=1;
 		internal_ram : integer := 16384  -- at start of memory map
 	);
 	PORT
@@ -36,11 +37,11 @@ ENTITY atari800core_helloworld is
 		RESET_N : IN STD_LOGIC;
 
 		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
-		VGA_VS :  OUT  STD_LOGIC;
-		VGA_HS :  OUT  STD_LOGIC;
-		VGA_B :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
-		VGA_G :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
-		VGA_R :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
+		VIDEO_VS :  OUT  STD_LOGIC;
+		VIDEO_HS :  OUT  STD_LOGIC;
+		VIDEO_B :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
+		VIDEO_G :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
+		VIDEO_R :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
 
 		-- AUDIO OUT - Pokey/GTIA 1-bit and Covox all mixed
 		-- TODO - choose stereo/mono pokey
@@ -102,7 +103,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
 	(
 		cycle_length => cycle_length,
-		internal_rom => 1,
+		internal_rom => internal_rom,
 		internal_ram =>internal_ram,
 		video_bits => video_bits
 	)
@@ -111,11 +112,15 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		CLK => CLK,
 		RESET_N => RESET_N,
 
-		VGA_VS => VGA_VS,
-		VGA_HS => VGA_HS,
-		VGA_B => VGA_B,
-		VGA_G => VGA_G,
-		VGA_R => VGA_R,
+		VIDEO_VS => VIDEO_VS,
+		VIDEO_HS => VIDEO_HS,
+		VIDEO_B => VIDEO_B,
+		VIDEO_G => VIDEO_G,
+		VIDEO_R => VIDEO_R,
+		VIDEO_BLANK => open,
+		VIDEO_BURST => open,
+		VIDEO_START_OF_FIELD => open,
+		VIDEO_ODD_LINE => open,
 
 		AUDIO_L => AUDIO_L,
 		AUDIO_R => AUDIO_R,

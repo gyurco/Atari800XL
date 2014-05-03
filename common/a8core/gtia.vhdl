@@ -18,11 +18,9 @@ PORT
 	WR_EN : IN STD_LOGIC;
 	
 	MEMORY_DATA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-	CPU_MEMORY_READY : IN STD_LOGIC;
-	ANTIC_MEMORY_READY : IN STD_LOGIC;
-	ANTIC_FETCH : IN STD_LOGIC;
+	ANTIC_FETCH : in std_logic;
 	
-	CPU_ENABLE_ORIGINAL : in std_logic;
+	CPU_ENABLE_ORIGINAL : in std_logic; -- on cycle data is ready
 	
 	RESET_N : IN STD_LOGIC;
 	
@@ -54,6 +52,9 @@ PORT
 	VSYNC : out std_logic;
 	HSYNC : out std_logic;
 	BLANK : out std_logic;
+	BURST : out std_logic;
+	START_OF_FIELD : out std_logic;
+	ODD_LINE : out std_logic;
 	
 	-- To speaker
 	sound : out std_logic
@@ -339,6 +340,12 @@ ARCHITECTURE vhdl OF gtia IS
 	
 	signal hsync_start : std_logic;
 	signal hsync_end : std_logic;
+
+	signal burst_next : std_logic;
+	signal burst_reg : std_logic;
+	
+	signal burst_start : std_logic;
+	signal burst_end : std_logic;
 	
 	signal hblank_next : std_logic;
 	signal hblank_reg : std_logic;
@@ -416,8 +423,6 @@ ARCHITECTURE vhdl OF gtia IS
 	constant pmg_dma_done    : std_logic_vector(2 downto 0) := "101";	
 	constant pmg_dma_instruction : std_logic_vector(2 downto 0) := "110";	
 	
-	signal memory_ready : std_logic;
-	
 begin
 	-- register
 	process(clk,reset_n)
@@ -472,6 +477,7 @@ begin
 			
 			vsync_reg <= '0';
 			hsync_reg <= '0';
+			burst_reg <= '0';
 			hblank_reg <= '0';
 			
 			an_prev_reg <= (others=>'0');
@@ -561,6 +567,7 @@ begin
 			
 			vsync_reg <= vsync_next;
 			hsync_reg <= hsync_next;
+			burst_reg <= burst_next;
 			hblank_reg <= hblank_next;
 			
 			an_prev_reg <= an_prev_next;
@@ -616,6 +623,8 @@ begin
 		vsync_next <= vsync_reg;
 		
 		odd_scanline_next <= odd_scanline_reg;
+
+		start_of_field <= '0';
 			
 		-- NB high res mode gives pf2 - which is or of the two pixels
 		highres_next <= highres_reg;
@@ -856,6 +865,8 @@ begin
 				odd_scanline_next <= '0';
 				
 				visible_live <= '0';
+
+				start_of_field <= not(vsync_reg);
 			end if;
 			
 			-- during vblank we reset our own counter - since Antic does not clear hblank_reg
@@ -895,10 +906,13 @@ begin
 --	end process;
 	
 	-- generate hsync
-	process(hpos_reg, hsync_reg, hsync_end, vsync_reg, vsync_next)
+	process(hpos_reg, hsync_reg, hsync_end, burst_reg, burst_end, vsync_reg, vsync_next)
 	begin
 		hsync_start <= '0';
 		hsync_next <= hsync_reg;
+	
+		burst_start <= '0';
+		burst_next <= burst_reg;
 
 		if (unsigned(hpos_reg) = X"D4" and vsync_reg = '1') then
 			hsync_start <= '1';
@@ -909,9 +923,18 @@ begin
 			hsync_start <= '1';
 			hsync_next <= '1';
 		end if;
+
+		if (unsigned(hpos_reg) = X"14" and vsync_reg = '0' ) then
+			burst_start <= '1';
+			burst_next <= '1';
+		end if;
 			
 		if (hsync_end = '1') then
 			hsync_next <= '0';
+		end if;
+
+		if (burst_end = '1') then
+			burst_next <= '0';
 		end if;
 		
 		if (vsync_next = '0' and vsync_reg = '1') then
@@ -923,9 +946,12 @@ begin
 		generic map (COUNT=>15)
 		port map(clk=>clk,sync_reset=>'0',data_in=>hsync_start,enable=>COLOUR_CLOCK_ORIGINAL,reset_n=>reset_n,data_out=>hsync_end);	
 
+	burst_delay : delay_line
+		generic map (COUNT=>8)
+		port map(clk=>clk,sync_reset=>'0',data_in=>burst_start,enable=>COLOUR_CLOCK_ORIGINAL,reset_n=>reset_n,data_out=>burst_end);	
+
 	-- pmg dma
-	MEMORY_READY <= CPU_MEMORY_READY or ANTIC_MEMORY_READY; -- TODO, REVIEW timing vs CPU/ANTIC - simpler may be possible now
-	process(antic_fetch,CPU_ENABLE_ORIGINAL,memory_ready,memory_data_in,hsync_start,pmg_dma_state_reg,gractl_reg,odd_scanline_reg,vdelay_reg,grafm_reg, visible_live,hpos_reg, hblank_reg)
+	process(CPU_ENABLE_ORIGINAL,antic_fetch,memory_data_in,hsync_start,pmg_dma_state_reg,gractl_reg,odd_scanline_reg,vdelay_reg,grafm_reg, visible_live,hpos_reg, hblank_reg)
 	begin
 		pmg_dma_state_next <= pmg_dma_state_reg;
 		grafm_dma_load <= '0';
@@ -944,11 +970,11 @@ begin
 			pmg_dma_state_next <= pmg_dma_missile;
 		end if;
 		
-		-- we start from the first antic refresh cycle
+		-- we start from the first antic fetch
 		-- TODO - CPU enable does not identify next 'antic' cycle in turbo mode...
 		case pmg_dma_state_reg is
 			when pmg_dma_missile =>
-				if (antic_fetch = '1' and memory_ready = '1' and hblank_reg = '1' and visible_live = '0' and hpos_reg(7 downto 4) = "0000") then
+				if (antic_fetch = '1' and cpu_enable_original = '1' and hblank_reg = '1' and visible_live = '0' and hpos_reg(7 downto 4) = "0000") then
 					-- here we have the missile0					
 					grafm_dma_load <= gractl_reg(0);
 				
@@ -968,32 +994,32 @@ begin
 					pmg_dma_state_next <= pmg_dma_instruction;
 				end if;
 			when pmg_dma_instruction =>
-				if (((CPU_ENABLE_ORIGINAL or antic_fetch) and memory_ready) = '1') then
+				if (CPU_ENABLE_ORIGINAL = '1') then
 					pmg_dma_state_next <= pmg_dma_player0;
 				end if;			
 			when pmg_dma_player0 =>
-				if (((CPU_ENABLE_ORIGINAL or antic_fetch) and memory_ready) = '1') then
+				if (CPU_ENABLE_ORIGINAL = '1') then
 					-- here we have player0
 					grafp0_dma_next <= memory_data_in;				
 					grafp0_dma_load <= gractl_reg(1) and (odd_scanline_reg or not(vdelay_reg(4)));
 					pmg_dma_state_next <= pmg_dma_player1;
 				end if;
 			when pmg_dma_player1 =>
-				if (((CPU_ENABLE_ORIGINAL or antic_fetch) and memory_ready) = '1') then
+				if (CPU_ENABLE_ORIGINAL = '1') then
 					-- here we have player1
 					grafp1_dma_next <= memory_data_in;
 					grafp1_dma_load <= gractl_reg(1) and (odd_scanline_reg or not(vdelay_reg(5)));
 					pmg_dma_state_next <= pmg_dma_player2;
 				end if;
 			when pmg_dma_player2 =>
-				if (((CPU_ENABLE_ORIGINAL or antic_fetch) and memory_ready) = '1') then
+				if (CPU_ENABLE_ORIGINAL = '1') then
 					-- here we have player1
 					grafp2_dma_next <= memory_data_in;
 					grafp2_dma_load <= gractl_reg(1) and (odd_scanline_reg or not(vdelay_reg(6)));
 					pmg_dma_state_next <= pmg_dma_player3;
 				end if;				
 			when pmg_dma_player3 =>
-				if (((CPU_ENABLE_ORIGINAL or antic_fetch) and memory_ready) = '1') then
+				if (CPU_ENABLE_ORIGINAL = '1') then
 					-- here we have player1
 					grafp3_dma_next <= memory_data_in;				
 					grafp3_dma_load <= gractl_reg(1) and (odd_scanline_reg or not(vdelay_reg(7)));
@@ -1561,6 +1587,8 @@ begin
 	vsync<=vsync_reg;
 	hsync<=hsync_reg;
 	blank<=hblank_reg or vsync_reg;
+	burst<=burst_reg;
+	odd_line<=odd_scanline_reg;
 	
 	sound <= consol_output_reg(3);
 

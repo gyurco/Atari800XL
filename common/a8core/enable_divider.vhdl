@@ -45,7 +45,7 @@ BEGIN
 	process(clk,reset_n)
 	begin
 		if (reset_n = '0') then
-			count_reg <= (others=>'0');
+			count_reg <=std_logic_vector(to_unsigned(COUNT-1,WIDTH));
 			enabled_out_reg <= '0';
 		elsif (clk'event and clk='1') then
 			count_reg <= count_next;

@@ -25,7 +25,6 @@ PORT
 	
 	ANTIC_ADDR : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
 	ANTIC_FETCH : IN STD_LOGIC;
-	antic_refresh : in std_logic; -- use for sdram refresh (sdram needs more, but this is a start)
 
 	DMA_ADDR : in std_logic_vector(23 downto 0);	
 	DMA_FETCH : in std_logic;
@@ -118,7 +117,6 @@ PORT
 	SDRAM_WRITE_EN : out std_logic;
 	--SDRAM_REQUEST : out std_logic; -- Toggle this to issue a new request
 	SDRAM_REQUEST : out std_logic; -- Usual pattern
-	SDRAM_REFRESH : out std_logic;
 
 	--SDRAM_REPLY : in std_logic; -- This matches the request once complete
 	SDRAM_REQUEST_COMPLETE : in std_logic;
@@ -348,7 +346,6 @@ BEGIN
 		
 	SDRAM_REQUEST <= sdram_chip_select;
 	--SDRAM_REQUEST <= sdram_request_next;
-	SDRAM_REFRESH <= '0'; --fetch_wait_reg(7); -- TODO, BROKEN! antic_refresh;
 	SDRAM_READ_EN <= not(write_enable_next);
 	SDRAM_WRITE_EN <= write_enable_next;
 	

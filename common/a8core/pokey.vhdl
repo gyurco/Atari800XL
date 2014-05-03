@@ -15,9 +15,7 @@ ENTITY pokey IS
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
-	--ENABLE_179 :in std_logic;
-	CPU_MEMORY_READY :in std_logic;
-	ANTIC_MEMORY_READY :in std_logic;
+	ENABLE_179 :in std_logic;
 	ADDR : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
 	DATA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
 	WR_EN : IN STD_LOGIC;
@@ -397,12 +395,7 @@ ARCHITECTURE vhdl OF pokey IS
 	
 	signal pot_reset_next : std_logic;
 	signal pot_reset_reg : std_logic;
-	
-	signal enable_179 : std_logic;
 BEGIN
-	--HACK FIXME TODO
-	enable_179 <= cpu_MEMORY_READY or antIC_MEMORY_READY;
-
 	-- register
 	process(clk,reset_n)
 	begin

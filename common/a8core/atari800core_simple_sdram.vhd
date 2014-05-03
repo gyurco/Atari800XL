@@ -28,6 +28,7 @@ ENTITY atari800core_simple_sdram is
 
 		-- how many bits for video
 		video_bits : integer := 8;
+		palette : integer :=1; -- 0:gtia colour on VIDEO_B, 1:altirra, 2:laoo
 	
 		-- For initial port may help to have no
 		internal_rom : integer := 1;  -- if 0 expects it in sdram,is 1:16k os+basic, is 2:... TODO
@@ -39,11 +40,16 @@ ENTITY atari800core_simple_sdram is
 		RESET_N : IN STD_LOGIC;
 
 		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
-		VGA_VS :  OUT  STD_LOGIC;
-		VGA_HS :  OUT  STD_LOGIC;
-		VGA_B :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
-		VGA_G :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
-		VGA_R :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
+		VIDEO_VS :  OUT  STD_LOGIC;
+		VIDEO_HS :  OUT  STD_LOGIC;
+		VIDEO_B :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
+		VIDEO_G :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
+		VIDEO_R :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
+			-- These ones are probably only needed for e.g. svideo
+		VIDEO_BLANK : out std_logic;
+		VIDEO_BURST : out std_logic;
+		VIDEO_START_OF_FIELD : out std_logic;
+		VIDEO_ODD_LINE : out std_logic;
 
 		-- AUDIO OUT - Pokey/GTIA 1-bit and Covox all mixed
 		-- TODO - choose stereo/mono pokey
@@ -102,6 +108,7 @@ ENTITY atari800core_simple_sdram is
 		SDRAM_32BIT_WRITE_ENABLE : out std_logic;
 		SDRAM_16BIT_WRITE_ENABLE : out std_logic;
 		SDRAM_8BIT_WRITE_ENABLE : out std_logic;
+		SDRAM_REFRESH : out std_logic;
 
 		-- DMA memory map differs
 		-- e.g. some special addresses to read behind hardware registers
@@ -150,6 +157,10 @@ ARCHITECTURE vhdl OF atari800core_simple_sdram IS
 	
 	-- ANTIC
 	signal ANTIC_LIGHTPEN : std_logic;
+	signal ANTIC_REFRESH : std_logic;
+	signal ANTIC_REFRESH_END : std_logic;
+	signal SDRAM_REFRESH_NEXT : std_logic;
+	signal SDRAM_REFRESH_REG : std_logic;
 	
 	-- CARTRIDGE ACCESS
 	SIGNAL	CART_RD4 :  STD_LOGIC;
@@ -187,6 +198,36 @@ PORTB_IN <= PORTB_OUT;
 
 -- ANTIC lightpen
 ANTIC_LIGHTPEN <= JOY2_n(4) and JOY1_n(4);
+
+-- ANTIC REFRESH - provide hint to SDRAM of a good time to refresh
+process(clk,reset_n)
+begin
+	if (reset_n='0') then
+		SDRAM_REFRESH_REG <= '0';
+	elsif (clk'event and clk='1') then
+		SDRAM_REFRESH_REG <= SDRAM_REFRESH_NEXT;
+	end if;
+end process;
+
+process(ANTIC_REFRESH, ANTIC_REFRESH_END, SDRAM_REFRESH_REG)
+begin
+	SDRAM_REFRESH_NEXT <= SDRAM_REFRESH_REG;
+
+	if (ANTIC_REFRESH = '1') then
+		SDRAM_REFRESH_NEXT <= '1';
+	end if;
+
+	if (ANTIC_REFRESH_END = '1') then
+		SDRAM_REFRESH_NEXT <= '0';
+	end if;
+end process;
+
+
+refresh_delay : entity work.delay_line
+	generic map (COUNT=>cycle_length)
+	port map(clk=>clk,sync_reset=>'0',data_in=>ANTIC_REFRESH,enable=>'1',reset_n=>reset_n,data_out=>ANTIC_REFRESH_END);	
+
+SDRAM_REFRESH <= SDRAM_REFRESH_NEXT;
 
 -- GTIA triggers
 GTIA_TRIG <= CART_RD5&"1"&JOY2_n(4)&JOY1_n(4);
@@ -229,18 +270,23 @@ atari800xl : entity work.atari800core
 	GENERIC MAP
 	(
 		cycle_length => cycle_length,
-		video_bits => video_bits
+		video_bits => video_bits,
+		palette => palette
 	)
 	PORT MAP
 	(
 		CLK => CLK,
 		RESET_N => RESET_N,
 
-		VGA_VS => VGA_VS,
-		VGA_HS => VGA_HS,
-		VGA_B => VGA_B,
-		VGA_G => VGA_G,
-		VGA_R => VGA_R,
+		VIDEO_VS => VIDEO_VS,
+		VIDEO_HS => VIDEO_HS,
+		VIDEO_B => VIDEO_B,
+		VIDEO_G => VIDEO_G,
+		VIDEO_R => VIDEO_R,
+		VIDEO_BLANK => VIDEO_BLANK,
+		VIDEO_BURST => VIDEO_BURST,
+		VIDEO_START_OF_FIELD => VIDEO_START_OF_FIELD,
+		VIDEO_ODD_LINE => VIDEO_ODD_LINE,
 
 		AUDIO_L => AUDIO_L,
 		AUDIO_R => AUDIO_R,
@@ -294,6 +340,7 @@ atari800xl : entity work.atari800core
 		GTIA_TRIG => GTIA_TRIG,
 		
 		ANTIC_LIGHTPEN => ANTIC_LIGHTPEN,
+		ANTIC_REFRESH => ANTIC_REFRESH,
 
 		SDRAM_REQUEST => SDRAM_REQUEST,
 		SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
@@ -301,8 +348,6 @@ atari800xl : entity work.atari800core
 		SDRAM_WRITE_ENABLE => SDRAM_WRITE_ENABLE,
 		SDRAM_ADDR => SDRAM_ADDR,
 		SDRAM_DO => SDRAM_DO,
-
-		SDRAM_REFRESH => open, -- TODO
 
 		RAM_ADDR => RAM_ADDR,
 		RAM_DO => RAM_DO,
