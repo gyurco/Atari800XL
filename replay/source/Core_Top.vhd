@@ -211,8 +211,8 @@ architecture RTL of Core_Top is
   signal SDRAM_WIDTH_16bit_ACCESS : std_logic;
   signal SDRAM_WIDTH_32bit_ACCESS : std_logic;
 
-  signal ddr_response_pending_next : std_logic;
-  signal ddr_response_pending_reg : std_logic;
+  signal ddr_response_pending_next : std_logic_vector(2 downto 0);
+  signal ddr_response_pending_reg : std_logic_vector(2 downto 0);
 
   signal ddr_request_pending_next : std_logic;
   signal ddr_request_pending_reg : std_logic;
@@ -590,7 +590,7 @@ b4051: entity work.complete_address_decoder
 	
 	
 	THROTTLE_COUNT_6502 <= '0'&speed_select;
-	--THROTTLE_COUNT_6502 <= "000100";
+	--THROTTLE_COUNT_6502 <= "010000";
 
 atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
@@ -876,24 +876,24 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 process(i_ena_sys, SDRAM_REQUEST, SDRAM_READ_ENABLE, SDRAM_WRITE_ENABLE, SDRAM_ADDR, SDRAM_DI, SDRAM_WIDTH_8bit_access, SDRAM_WIDTH_16bit_ACCESS, SDRAM_WIDTH_32bit_ACCESS, ddr_request_pending_reg, ddr_response_pending_reg, hp_ddr_wr, hp_ddr_taken)
 begin
 	ddr_request_pending_next <= ddr_request_pending_reg or sdram_request;
-	dDR_REsponse_pending_next <= ddr_response_pending_reg;
+	ddr_response_pending_next <= ddr_response_pending_reg(1 downto 0)&'0';
 
 	sdram_request_complete <= '0';
 	hp_ddr_valid <= '0';
 
 	if (i_ena_sys='1') then
-		if (((ddr_request_pending_reg or sdram_request) and not (ddr_response_pending_reg)) = '1') then
+		if (((ddr_request_pending_reg or sdram_request) and not (or_reduce(ddr_response_pending_reg))) = '1') then
 			hp_ddr_valid <= '1';
 			ddr_request_pending_next <= '0';
-			ddr_response_pending_next <= '1';
+			ddr_response_pending_next <= "001";
 		end if;
+	end if;
 
-		-- Is there an issue with hp_ddr_wr - it gets cleared before the enable??
-		if (ddr_response_pending_reg = '1') then
-			-- previous request completed
-			sdram_request_complete <= '1';
-			ddr_response_pending_next <= '0';
-		end if;
+	-- Is there an issue with hp_ddr_wr - it gets cleared before the enable??
+	if (ddr_response_pending_reg(2) = '1') then
+		-- previous request completed
+		sdram_request_complete <= '1';
+		ddr_response_pending_next <= "000";
 	end if;
 
 	hp_ddr_addr <= "000"&sdram_addr(22 downto 2);
@@ -936,7 +936,7 @@ process(i_Clk_sys,i_rst_sys)
 begin
 	if (i_rst_sys = '1') then
 		ddr_request_pending_reg <= '0';
-		ddr_response_pending_reg <= '0';
+		ddr_response_pending_reg <= (others=>'0');
 		pll_locked_reg <= (others=>'0');
 	elsif (i_clk_sys'event and i_clk_sys='1') then
 		ddr_request_pending_reg <= ddr_request_pending_next;
