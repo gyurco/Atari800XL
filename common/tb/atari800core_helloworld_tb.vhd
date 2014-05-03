@@ -14,12 +14,12 @@ architecture rtl of atari800core_helloworld_tb is
 
   constant CLK_A_PERIOD : time := 1 us / (1.79*32);
 
-  signal VGA_VS : std_logic;
-  signal VGA_HS : std_logic;
+  signal VIDEO_VS : std_logic;
+  signal VIDEO_HS : std_logic;
 
-  signal VGA_G : std_logic_vector(7 downto 0);
-  signal VGA_B : std_logic_vector(7 downto 0);
-  signal VGA_R : std_logic_vector(7 downto 0);
+  signal VIDEO_G : std_logic_vector(7 downto 0);
+  signal VIDEO_B : std_logic_vector(7 downto 0);
+  signal VIDEO_R : std_logic_vector(7 downto 0);
 
   signal AUDIO_L : std_logic_vector(15 downto 0);
   signal AUDIO_R : std_logic_vector(15 downto 0);
@@ -55,18 +55,19 @@ atari800xl : entity work.atari800core_helloworld
 	GENERIC MAP
 	(
 		cycle_length => 32,
-		internal_ram => 16384
+		internal_ram => 16384,
+		internal_rom => 1
 	)
 	PORT MAP
 	(
 		CLK => clk_a,
 		RESET_N => reset_n,
 
-		VGA_VS => vga_vs,
-		VGA_HS => vga_hs,
-		VGA_B => vga_b,
-		VGA_G => vga_g,
-		VGA_R => vga_r,
+		VIDEO_VS => video_vs,
+		VIDEO_HS => video_hs,
+		VIDEO_B => video_b,
+		VIDEO_G => video_g,
+		VIDEO_R => video_r,
 
 		AUDIO_L => audio_l,
 		AUDIO_R => audio_r,

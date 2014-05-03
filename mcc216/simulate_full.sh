@@ -32,9 +32,10 @@ if [ ! -e $name.wdb -o "$1" != "-view" ]; then
 	cp `find ../../common/a8core/ -iname "*.vhdl"` .
 	cp `find ../../common/components/ -iname "*.vhd"` .
 	cp `find ../../common/components/ -iname "*.vhdl"` .
-	cp ../atari800core_mcc_nopll.vhd .
-	cp ../pll.vhd .
+	cp ../atari800core_mcc.vhd .
 	cp ../sdram_ctrl_3_ports.v .
+	cp ../*pll*.vhd* .
+	cp ../svideo/* .
 
         # set up project definition file
 	ls *.v | perl -e 'while (<>){s/(.*)/verilog work $1/;print $_;}' | cat > $name.prj

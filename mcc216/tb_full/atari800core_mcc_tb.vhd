@@ -12,13 +12,18 @@ end;
 
 architecture rtl of atari800core_mcc_tb is
 
-  constant CLK_A_PERIOD : time := 1 us / (1.79*16);
-
-  signal CLK_A : std_logic;
-
-  constant CLK_B_PERIOD : time := 3 us / (1.79*16);
-
-  signal CLK_B : std_logic;
+--  constant CLK_PERIOD : time := 1 us / (1.79*16);
+--  constant CLK_PERIOD_FOUR : time := 1 us / (1.79*64);
+--  constant CLK_PERIOD_THREE : time := 1 us / (1.79*48);
+--  constant CLK_PERIOD_TWO : time := 1 us / (1.79*32);
+  constant CLK_PERIOD : time := 36ns;
+  constant CLK_PERIOD_FOUR : time := 9ns;
+  constant CLK_PERIOD_THREE : time := 12ns;
+  constant CLK_PERIOD_TWO : time := 18ns;
+  signal CLK : std_logic;
+  signal CLK_TWO : std_logic;
+  signal CLK_THREE : std_logic;
+  signal CLK_FOUR : std_logic;
 
   signal reset_n : std_logic;
   signal reset : std_logic;
@@ -41,20 +46,36 @@ architecture rtl of atari800core_mcc_tb is
   signal	SDRAM_DQ : std_logic_vector(15 downto 0);
 
 begin
-	p_clk_gen_a : process
+	p_clk_gen_1 : process
 	begin
-	clk_a <= '1';
-	wait for CLK_A_PERIOD/2;
-	clk_a <= '0';
-	wait for CLK_A_PERIOD - (CLK_A_PERIOD/2 );
+	clk <= '1';
+	wait for CLK_PERIOD/2;
+	clk <= '0';
+	wait for CLK_PERIOD - (CLK_PERIOD/2 );
 	end process;
 
-	p_clk_gen_b : process
+	p_clk_gen_2 : process
 	begin
-	clk_b <= '1';
-	wait for CLK_B_PERIOD/2;
-	clk_b <= '0';
-	wait for CLK_B_PERIOD - (CLK_B_PERIOD/2 );
+	clk_two <= '1';
+	wait for CLK_PERIOD_TWO/2;
+	clk_two <= '0';
+	wait for CLK_PERIOD_TWO - (CLK_PERIOD_TWO/2 );
+	end process;
+
+	p_clk_gen_3 : process
+	begin
+	clk_three <= '1';
+	wait for CLK_PERIOD_three/2;
+	clk_three <= '0';
+	wait for CLK_PERIOD_three - (CLK_PERIOD_three/2 );
+	end process;
+
+	p_clk_gen_4 : process
+	begin
+	clk_four <= '1';
+	wait for CLK_PERIOD_four/2;
+	clk_four <= '0';
+	wait for CLK_PERIOD_four - (CLK_PERIOD_four/2 );
 	end process;
 
 	reset_n <= '0', '1' after 1000ns;
@@ -62,11 +83,24 @@ begin
 	reset <= not(reset_n);
 
 atari : ENTITY work.atari800core_mcc 
+	GENERIC map
+	(
+		TV => 1,
+		VIDEO => 2,
+		SCANDOUBLE => 1,
+		internal_ram => 0,
+		ext_clock => 1
+	)
 	port map
 	(
-		CLK => clk_b,
-		CLK_SDRAM =>clk_a,
-		PLL_LOCKED=>reset_n,
+		FPGA_CLK => '0',
+
+		EXT_CLK_SDRAM(1) => clk_three,
+		EXT_CLK(1) => clk,
+		EXT_SDRAM_CLK(1) => clk_three,
+                EXT_SVIDEO_DAC_CLK(1) => clk_four,
+                EXT_SCANDOUBLE_CLK(1) => clk_two,
+                EXT_PLL_LOCKED(1) => reset_n,
 
 		PS2K_CLK => '1',
 		PS2K_DAT => '1',

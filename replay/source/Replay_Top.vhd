@@ -472,6 +472,7 @@ begin
     i_Rst_Core            => rst_soft,
     i_Halt_Core           => halt_soft,
     i_HD_Mode             => cfg_dynamic(16),
+    i_scn_lvl             => cfg_dynamic(20 downto 19), -- sets scanline strength: "00": off ... "11": maximum
     o_act_led_n           => o_Disk_Led,
     --
     i_Audio_lvl           => cfg_dynamic(18 downto 17),
@@ -523,7 +524,8 @@ begin
     CONF_DI               => mch_data,
     -- 
     ram_select            => cfg_dynamic(2 downto 0),
-    rom_select           => cfg_dynamic(8 downto 3)
+    rom_select            => cfg_dynamic(8 downto 3),
+    speed_select          => cfg_dynamic(13 downto 9)
     );
 
   --                            8                16              1             1           1            1           1           1            1        1          1           1                 2

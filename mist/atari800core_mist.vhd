@@ -453,7 +453,7 @@ PORT MAP(inclk0 => CLOCK_27(0),
 reset_n <= PLL_LOCKED;
 
 -- THROTTLE
-THROTTLE_COUNT_6502 <= std_logic_vector(to_unsigned(32-1,6));
+THROTTLE_COUNT_6502 <= std_logic_vector(to_unsigned(1,6));
 
 atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
@@ -468,11 +468,11 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		CLK => CLK,
 		RESET_N => RESET_N and SDRAM_RESET_N and not(SYSTEM_RESET_REQUEST),
 
-		VGA_VS => VGA_VS_RAW,
-		VGA_HS => VGA_HS_RAW,
-		VGA_B => VGA_B,
-		VGA_G => VGA_G,
-		VGA_R => VGA_R,
+		VIDEO_VS => VGA_VS_RAW,
+		VIDEO_HS => VGA_HS_RAW,
+		VIDEO_B => VGA_B,
+		VIDEO_G => VGA_G,
+		VIDEO_R => VGA_R,
 
 		AUDIO_L => AUDIO_L_PCM,
 		AUDIO_R => AUDIO_R_PCM,

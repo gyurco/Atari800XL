@@ -93,6 +93,7 @@ entity Core_Top is
     i_Rst_Core            : in    bit1;
     i_Halt_Core           : in    bit1;
     i_HD_Mode             : in    bit1; -- selects between the HD and SD video mode generic
+    i_scn_lvl             : in  word(1 downto 0); -- sets scanline strength: "00": off ... "11": maximum
     o_act_led_n           : out   bit1;
     --
     i_Audio_lvl           : in    word(1 downto 0);
@@ -145,7 +146,8 @@ entity Core_Top is
     CONF_DI               : in    word(7 downto 0);
 
     ram_select            : in word(2 downto 0);
-    rom_select            : in word(5 downto 0)
+    rom_select            : in word(5 downto 0);
+    speed_select          : in word(4 downto 0)
     );
 end;
 
@@ -155,6 +157,8 @@ architecture RTL of Core_Top is
   constant int_dla_core_debug : boolean := false;
 
   signal PLL_LOCKED : std_logic;
+  signal PLL_LOCKED_NEXT : std_logic_vector(2 downto 0);
+  signal PLL_LOCKED_REG : std_logic_vector(2 downto 0);
 
   signal res_s                     : bit1;
   signal core_en_s                 : bit1;
@@ -228,6 +232,304 @@ architecture RTL of Core_Top is
   signal keyboard_scan_inv : std_logic_vector(5 downto 0);
   signal matrix_out_match : std_logic_vector(7 downto 0);
 
+  constant c_800xl_kb_map : keylut_type := (
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"88",X"ff",
+X"a0",X"ff",
+X"00",X"ff",
+X"c0",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"90",X"ff",
+X"54",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"81",X"ff",
+X"ff",X"ff",
+X"82",X"ff",
+X"57",X"ff",
+X"37",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"27",X"ff",
+X"76",X"ff",
+X"77",X"ff",
+X"56",X"ff",
+X"36",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"22",X"ff",
+X"26",X"ff",
+X"72",X"ff",
+X"52",X"ff",
+X"30",X"ff",
+X"32",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"41",X"ff",
+X"20",X"ff",
+X"70",X"ff",
+X"55",X"ff",
+X"50",X"ff",
+X"35",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"43",X"ff",
+X"25",X"ff",
+X"71",X"ff",
+X"75",X"ff",
+X"53",X"ff",
+X"33",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"45",X"ff",
+X"01",X"ff",
+X"13",X"ff",
+X"63",X"ff",
+X"65",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"40",X"ff",
+X"05",X"ff",
+X"15",X"ff",
+X"10",X"ff",
+X"62",X"ff",
+X"60",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"42",X"ff",
+X"46",X"ff",
+X"00",X"ff",
+X"02",X"ff",
+X"12",X"ff",
+X"66",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"06",X"ff",
+X"ff",X"ff",
+X"16",X"ff",
+X"67",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"74",X"ff",
+X"81",X"ff",
+X"14",X"ff",
+X"17",X"ff",
+X"ff",X"ff",
+X"07",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"64",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"34",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"47",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"82",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"21",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff",
+X"ff",X"ff"
+
+--    --    x0          x1          x2          x3          x4          x5          x6          x7          x8          x9          xA          xB          xC          xD          xE          xF               
+--    --    --    --    F9    F9    --    --    F5    F5    F3    F3    F1    F1    F2    F2    F12   F12   --    --    F10   F10   F8    F8    F6    F6    F4    F4    STOP  STOP  POUND POUND --    --         
+--        X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"71",X"FF",X"72",X"FF",X"73",X"FF",X"60",X"73",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"60",X"74",X"60",X"71",X"60",X"72",X"00",X"FF",X"17",X"FF",X"FF",X"FF",  -- 0x
+--    --    --    --   lALT  lALT  lSHI  lSHI   --    --    +     +     Q     Q     1     1     --    --    --    --    --    --    Z     Z     S     S     A     A     W     W     2     2     --    --         
+--        X"FF",X"FF",X"FF",X"FF",X"60",X"FF",X"FF",X"FF",X"27",X"FF",X"01",X"FF",X"07",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"63",X"FF",X"62",X"FF",X"65",X"FF",X"66",X"FF",X"04",X"FF",X"FF",X"FF",  -- 1x
+--    --    --    --    C     C     X     X     D     D     E     E     4     4     3     3     --    --    --    --   SPAC  SPAC   V     V     F     F     T     T     R     R     5     5     --    --         
+--        X"FF",X"FF",X"53",X"FF",X"50",X"FF",X"55",X"FF",X"61",X"FF",x"64",X"FF",X"67",X"FF",X"FF",X"FF",X"FF",X"FF",X"03",X"FF",X"40",X"FF",X"52",X"FF",X"51",X"FF",X"56",X"FF",X"57",X"FF",X"FF",X"FF",  -- 2x
+--    --    --    --    N     N     B     B     H     H     G     G     Y     Y     6     6     --    --    --    --    --    --    M     M     J     J     U     U     7     7     8     8     --    --         
+--        X"FF",X"FF",X"30",X"FF",X"43",X"FF",X"42",X"FF",X"45",X"FF",X"46",X"FF",X"54",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"33",X"FF",X"35",X"FF",X"41",X"FF",X"47",X"FF",X"44",X"FF",X"FF",X"FF",  -- 3x
+--    --    --    --    ,     ,     K     K     I     I     O     O     0     0     9     9     --    --    --    --    .     .     /     /     L     L     ;     ;     P     P     +     +     --    --         
+--        X"FF",X"FF",X"20",X"FF",X"32",X"FF",X"36",X"FF",X"31",X"FF",X"34",X"FF",X"37",X"FF",X"FF",X"FF",X"FF",X"FF",X"23",X"FF",X"10",X"FF",X"25",X"FF",X"15",X"FF",X"26",X"FF",X"27",X"FF",X"FF",X"FF",  -- 4x
+--    --    --    --    --    --    :     :     --    --    @     @     -     -     --    --    --    --   CAPS  CAPS  rSHI  rSHI  ENTE  ENTE   *     *     --    --    UP    UP    --    --    --    --         
+--        X"FF",X"FF",X"FF",X"FF",X"22",X"FF",X"FF",X"FF",X"21",X"FF",X"24",X"FF",X"FF",X"FF",X"FF",X"FF",X"C0",X"FF",X"13",X"FF",X"76",X"FF",X"16",X"FF",X"FF",X"FF",X"11",X"FF",X"FF",X"FF",X"FF",X"FF",  -- 5x
+--    --    --    --    --    --    --    --    --    --    --    --    --    --   BKSP  BKSP   --    --    --    --    KP1   KP1   --    --    KP4   KP4   KP7   KP7   --    --    --    --    --    --         
+--        X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"77",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",x"84",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",  -- 6x
+--    --    KP0   KP0   KP.   KP.   KP2   KP2   KP5   KP5   KP6   KP6   KP8   KP8   ESC   ESC   NUM   NUM   F11   F11   KP+   KP+   KP3   KP3   KP-   KP-   KP*   KP*   KP9   KP9  SCRL  SCRL   --    --         
+--        X"FF",X"FF",X"FF",X"FF",X"82",X"FF",X"90",X"FF",X"88",X"FF",X"81",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",  -- 7x
+--    --
+--    -- "0xE0-based" PS/2 SET 2
+--    --
+--    --    x0          x1          x2          x3          x4          x5          x6          x7          x8          x9          xA          xB          xC          xD          xE          xF               
+--    --    --    --    --    --    --    --    F7    F7    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --         
+--        X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"74",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",  -- 0x
+--    --    --    --   rALT  rALT *PRNT *PRNT   --    --   rCTL  rCTL   --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --   lGUI  lGUI        
+--        X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"06",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"02",X"FF",  -- 1x
+--    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --   rGUI  rGUI   --    --    --    --    --    --    --    --    --    --    --    --    --    --   APPS  APPS        
+--        X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"02",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",  -- 2x
+--    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    PWR   PWR   --    --    --    --    --    --    --    --    --    --    --    --    --    --   SLEE  SLEE        
+--        X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",  -- 3x
+--    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    KP/   KP/   --    --    --    --    --    --    --    --    --    --         
+--        X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",  -- 4x
+--    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --   KPen  KPen   --    --    --    --    --    --   WAKE  WAKE   --    --         
+--        X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",  -- 5x
+--    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    --    END   END   --    --   lARR  lARR  HOME  HOME   --    --    --    --    --    --         
+--        X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"77",X"FF",X"FF",X"FF",X"60",X"75",X"14",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",  -- 6x
+--    --    INS   INS   DEL   DEL  dARR  dARR   --    --   rARR  rARR  uARR  uARR   --    --    --    --    --    --    --    --    =     =     --    --  *SCRN *SCRN  PGUP  PGUP   --    --    --    --         
+--        X"FF",X"FF",X"FF",X"FF",X"70",X"FF",X"FF",X"FF",X"75",X"FF",X"60",X"70",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"FF",X"12",X"FF",X"FF",X"FF",X"FF",X"FF",X"A0",X"FF",X"FF",X"FF",X"FF",X"FF"   -- 7x
+       );
+
+
 begin
   -- core control
   res_s <= i_Rst_Core;
@@ -275,9 +577,20 @@ b4051: entity work.complete_address_decoder
 	CONSOL_OPTION <= static_keys(4);
 --	system_reset_request <= static_keys(3);
 
-	PLL_LOCKED <= not(i_rst_sys or i_Rst_Core);
+	PLL_LOCKED <= pll_locked_reg(2);
+
+	process(i_rst_sys, i_rst_core, pll_locked_reg, i_ena_sys)
+	begin
+		pll_locked_next <= pll_locked_reg;
+		if (i_ena_sys = '1') then
+			pll_locked_next(0) <= not(i_rst_sys or i_Rst_Core);
+		end if;
+		pll_locked_next(2 downto 1) <= pll_locked_reg(1 downto 0);
+	end process;
 	
-	THROTTLE_COUNT_6502 <= std_logic_vector(to_unsigned(16-1,6));
+	
+	THROTTLE_COUNT_6502 <= '0'&speed_select;
+	--THROTTLE_COUNT_6502 <= "000100";
 
 atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
@@ -291,11 +604,11 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		CLK => i_clk_sys,
 		RESET_N => PLL_LOCKED,
 
-		VGA_VS => core_vsync,
-		VGA_HS => core_hsync,
-		VGA_B => core_b_s,
-		VGA_G => core_g_s,
-		VGA_R => core_r_s,
+		VIDEO_VS => core_vsync,
+		VIDEO_HS => core_hsync,
+		VIDEO_B => core_b_s,
+		VIDEO_G => core_g_s,
+		VIDEO_R => core_r_s,
 
 		AUDIO_L => lsound_s,
 		AUDIO_R => rsound_s,
@@ -393,7 +706,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 
   u_Kbd : entity work.Replay_TranslatePS2
   generic map (
-    g_kb_map              => c_vic20_kb_map -- TODO make atari version rather than putting it all in the ini file!
+    g_kb_map              => c_800xl_kb_map
   )
   port map (
     i_ClK_Sys               => i_ClK_Sys,
@@ -518,6 +831,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
       i_Rst_Sys       => i_Rst_Sys,
       --
       i_HD_Mode       => i_HD_Mode,
+      i_scanline_lvl  => i_scn_lvl,
       --
       i_Vid_r         => std_logic_vector(core_r_s),
       i_Vid_g         => std_logic_vector(core_g_s),
@@ -623,9 +937,11 @@ begin
 	if (i_rst_sys = '1') then
 		ddr_request_pending_reg <= '0';
 		ddr_response_pending_reg <= '0';
+		pll_locked_reg <= (others=>'0');
 	elsif (i_clk_sys'event and i_clk_sys='1') then
 		ddr_request_pending_reg <= ddr_request_pending_next;
 		ddr_response_pending_reg <= ddr_response_pending_next;
+		pll_locked_reg <= pll_locked_next;
 	end if;
 end process;
 

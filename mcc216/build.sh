@@ -20,35 +20,40 @@ my %variants =
 		"TV" => $PAL,
 		"SCANDOUBLE" => 0,
 		"VIDEO" => $VGA,
-		"internal_ram" => 16384
+		"internal_ram" => 16384,
+		"ext_clock" => 0
 	},
 	"PAL_SVIDEO" => 
 	{
 		"TV" => $PAL,
 		"SCANDOUBLE" => 0,
 		"VIDEO" => $SVIDEO,
-		"internal_ram" => 0
+		"internal_ram" => 0,
+		"ext_clock" => 0
 	},
 	"PAL_VGA" =>
 	{
 		"TV" => $PAL,
 		"SCANDOUBLE" => 1,
 		"VIDEO" => $VGA,
-		"internal_ram" => 0
+		"internal_ram" => 0,
+		"ext_clock" => 0
 	},
 	"NTSC_SVIDEO" =>
 	{
 		"TV" => $NTSC,
 		"SCANDOUBLE" => 0,
 		"VIDEO" => $SVIDEO,
-		"internal_ram" => 0
+		"internal_ram" => 0,
+		"ext_clock" => 0
 	},
 	"NTSC_VGA" => 
 	{
 		"TV" => $NTSC,
 		"SCANDOUBLE" => 1,
 		"VIDEO" => $VGA,
-		"internal_ram" => 0
+		"internal_ram" => 0,
+		"ext_clock" => 0
 	}
 );
 

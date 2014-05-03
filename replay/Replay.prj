@@ -46,7 +46,6 @@ gtia_palette.vhdl
 gtia_player.vhdl
 gtia_priority.vhdl
 gtia.vhdl
-internalromram.vhd
 irq_glue.vhdl
 pia.vhdl
 pokey_countdown_timer.vhdl
@@ -66,6 +65,7 @@ wide_delay_line.vhdl
 basic.vhdl
 os16.vhdl
 os16_loop.vhdl
+internalromram.vhd
 covox.vhd
 atari800core.vhd
 atari800core_simple_sdram.vhd

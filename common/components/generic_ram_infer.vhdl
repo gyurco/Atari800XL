@@ -32,27 +32,31 @@ ARCHITECTURE rtl OF generic_ram_infer IS
 
    SIGNAL q_ram : std_logic_vector(data_width-1 downto 0);
    SIGNAL we_ram : std_logic;
+
+   signal address2 : std_logic_vector(address_width-1 downto 0);
 BEGIN
 
    PROCESS (clock)
    BEGIN
      IF (clock'event AND clock = '1') THEN
 	 IF (we_ram = '1') THEN
-		 ram_block(to_integer(to_01(unsigned(address), '0'))) <= data;
+		 ram_block(to_integer(to_01(unsigned(address2), '0'))) <= data;
 		 q_ram <= data;
 	 ELSE
-		 q_ram <= ram_block(to_integer(to_01(unsigned(address), '0')));
+		 q_ram <= ram_block(to_integer(to_01(unsigned(address2), '0')));
 	  END IF;
      END IF;
    END PROCESS;
 
-   PROCESS(address)
+   PROCESS(address, we, q_ram)
    begin
 	q <= (others=>'1');
 	we_ram <= '0';
+	address2 <= (others=>'0');
 	IF (to_integer(to_01(unsigned(address))) < space) THEN
 		q <= q_ram;
 		we_ram <= we;
+		address2 <= address;
 	end if;
    end process;
 END rtl;

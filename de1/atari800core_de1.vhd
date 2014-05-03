@@ -452,7 +452,7 @@ UART_TXD <= SIO_TXD;
 GPIO_0(1) <= SIO_COMMAND;
 
 -- THROTTLE
-THROTTLE_COUNT_6502 <= std_logic_vector(to_unsigned(32-1,6));
+THROTTLE_COUNT_6502 <= std_logic_vector(to_unsigned(1,6));
 
 -- VIDEO
 VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
@@ -469,11 +469,11 @@ atari800 : entity work.atari800core
 		CLK => CLK,
 		RESET_N => RESET_N and SDRAM_RESET_N and not(SYSTEM_RESET_REQUEST),
 
-		VGA_VS => VGA_VS_RAW,
-		VGA_HS => VGA_HS_RAW,
-		VGA_B => VGA_B,
-		VGA_G => VGA_G,
-		VGA_R => VGA_R,
+		VIDEO_VS => VGA_VS_RAW,
+		VIDEO_HS => VGA_HS_RAW,
+		VIDEO_B => VGA_B,
+		VIDEO_G => VGA_G,
+		VIDEO_R => VGA_R,
 
 		AUDIO_L => AUDIO_LEFT,
 		AUDIO_R => AUDIO_RIGHT,
@@ -534,7 +534,7 @@ atari800 : entity work.atari800core
 		SDRAM_ADDR => SDRAM_ADDR,
 		SDRAM_DO => SDRAM_DO,
 
-		SDRAM_REFRESH => open, -- TODO
+		ANTIC_REFRESH => open, -- TODO
 
 		RAM_ADDR => RAM_ADDR,
 		RAM_DO => RAM_DO,

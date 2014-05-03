@@ -6,4 +6,8 @@ cd ../replay
 cd ../mist
 ./build.sh > build.log 2> build.err&
 cd ../mcc216
-./build.sh > build.log 2> build.err&
+./build.sh ALL &
+
+# TODO variations?
+# TODO SOCkit
+

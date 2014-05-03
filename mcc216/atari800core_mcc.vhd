@@ -18,11 +18,20 @@ ENTITY atari800core_mcc IS
 		TV : integer;  -- 1 = PAL, 0=NTSC
 		VIDEO : integer; -- 1 = SVIDEO, 2 = VGA
 		SCANDOUBLE : integer; -- 1 = YES, 0=NO, (+ later scanlines etc)
-		internal_ram : integer
+		internal_ram : integer;
+		ext_clock : integer
 	);
 	PORT
 	(
 		FPGA_CLK :  IN  STD_LOGIC;
+
+		-- For test bench
+		EXT_CLK_SDRAM : in std_logic_vector(ext_clock downto 1);
+		EXT_CLK : in std_logic_vector(ext_clock downto 1);
+		EXT_SDRAM_CLK : in std_logic_vector(ext_clock downto 1);
+                EXT_SVIDEO_DAC_CLK : in std_logic_vector(ext_clock downto 1);
+                EXT_SCANDOUBLE_CLK : in std_logic_vector(ext_clock downto 1);
+                EXT_PLL_LOCKED : in std_logic_vector(ext_clock downto 1);
 
 		PS2K_CLK :  IN  STD_LOGIC;
 		PS2K_DAT :  IN  STD_LOGIC;
@@ -258,6 +267,10 @@ END COMPONENT;
 	signal sdram_dq_i : std_logic_vector(15 downto 0);
 	
 	signal sdram_rdy : std_logic;
+	signal sdram_reset_ctrl_n_next : std_logic;
+	signal sdram_reset_ctrl_n_reg : std_logic;
+	signal sdram_reset_n_next : std_logic;
+	signal sdram_reset_n_reg : std_logic;
 
 	-- pokey keyboard
 	SIGNAL KEYBOARD_SCAN : std_logic_vector(5 downto 0);
@@ -314,36 +327,47 @@ port map
   dac_out => audio_r
 );
 
-gen_tv_pal : if tv=1 generate
-	mcc_pll : entity work.pal_pll
-	PORT MAP(inclk0 => FPGA_CLK,
-			 c0 => CLK_PLL1,
-			 locked => PLL1_LOCKED);
-	mcc_pll2 : entity work.pll_downstream_pal
-	PORT MAP(inclk0 => CLK_PLL1,
-			 c0 => CLK_SDRAM,
-			 c1 => CLK,
-			 c2 => SDRAM_CLK,
-                         c3 => SVIDEO_DAC_CLK,
-                         c4 => SCANDOUBLE_CLK,      
-			 areset => not(PLL1_LOCKED),
-			 locked => PLL_LOCKED);
+gen_fake_pll : if ext_clock=1 generate
+	CLK_SDRAM <= EXT_CLK_SDRAM(1);
+	CLK <= EXT_CLK(1);
+	SDRAM_CLK <= EXT_CLK_SDRAM(1);
+	SVIDEO_DAC_CLK <= EXT_SVIDEO_DAC_CLK(1);
+	SCANDOUBLE_CLK <= EXT_SCANDOUBLE_CLK(1);
+	PLL_LOCKED <= EXT_PLL_LOCKED(1);
 end generate;
 
-gen_tv_ntsc : if tv=0 generate
-	mcc_pll : entity work.ntsc_pll
-	PORT MAP(inclk0 => FPGA_CLK,
-			 c0 => CLK_PLL1,
-			 locked => PLL1_LOCKED);
-	mcc_pll2 : entity work.pll_downstream_ntsc
-	PORT MAP(inclk0 => CLK_PLL1,
-			 c0 => CLK_SDRAM,
-			 c1 => CLK,
-			 c2 => SDRAM_CLK,
-                         c3 => SVIDEO_DAC_CLK,
-                         c4 => SCANDOUBLE_CLK,      
-			 areset => not(PLL1_LOCKED),
-			 locked => PLL_LOCKED);
+gen_real_pll : if ext_clock=0 generate
+	gen_tv_pal : if tv=1 generate
+		mcc_pll : entity work.pal_pll
+		PORT MAP(inclk0 => FPGA_CLK,
+				 c0 => CLK_PLL1,
+				 locked => PLL1_LOCKED);
+		mcc_pll2 : entity work.pll_downstream_pal
+		PORT MAP(inclk0 => CLK_PLL1,
+				 c0 => CLK_SDRAM,
+				 c1 => CLK,
+				 c2 => SDRAM_CLK,
+				 c3 => SVIDEO_DAC_CLK,
+				 c4 => SCANDOUBLE_CLK,      
+				 areset => not(PLL1_LOCKED),
+				 locked => PLL_LOCKED);
+	end generate;
+
+	gen_tv_ntsc : if tv=0 generate
+		mcc_pll : entity work.ntsc_pll
+		PORT MAP(inclk0 => FPGA_CLK,
+				 c0 => CLK_PLL1,
+				 locked => PLL1_LOCKED);
+		mcc_pll2 : entity work.pll_downstream_ntsc
+		PORT MAP(inclk0 => CLK_PLL1,
+				 c0 => CLK_SDRAM,
+				 c1 => CLK,
+				 c2 => SDRAM_CLK,
+				 c3 => SVIDEO_DAC_CLK,
+				 c4 => SCANDOUBLE_CLK,      
+				 areset => not(PLL1_LOCKED),
+				 locked => PLL_LOCKED);
+	end generate;
 end generate;
 
 reset_n <= PLL_LOCKED;
@@ -351,7 +375,7 @@ JOY1_IN_N <= JOY1_n(4)&JOY1_n(0)&JOY1_n(1)&JOY1_n(2)&JOY1_n(3);
 JOY2_IN_N <= JOY2_n(4)&JOY2_n(0)&JOY2_n(1)&JOY2_n(2)&JOY2_n(3);
 
 -- THROTTLE
-THROTTLE_COUNT_6502 <= std_logic_vector(to_unsigned(32-1,6));
+THROTTLE_COUNT_6502 <= std_logic_vector(to_unsigned(1,6));
 
 --atari800xl : entity work.atari800core_helloworld
 --	GENERIC MAP
@@ -417,7 +441,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	(
 		CLK => CLK,
 		--RESET_N => RESET_N and SDRAM_RESET_N and not(SYSTEM_RESET_REQUEST),
-		RESET_N => RESET_N and sdram_rdy,
+		RESET_N => RESET_N and SDRAM_RESET_N_REG,
 
 		VIDEO_VS => VIDEO_VS,
 		VIDEO_HS => VIDEO_HS,
@@ -474,11 +498,11 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502
 	);
 
-	process(clk_sdram,reset_n)
+	process(clk_sdram,sdram_reset_ctrl_n_reg)
 	begin
-		if (reset_n='0') then
-			seq_reg <= "000000000001";
-			seq_ph_reg <= '0';
+		if (sdram_reset_ctrl_n_reg='0') then
+			seq_reg <= "100000000000";
+			seq_ph_reg <= '1';
 			ref_reg <= '0';
 
 			ram_do_reg <= (others=>'0');
@@ -499,15 +523,34 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		end if;
 	end process;
 
+	process(clk,reset_n)
+	begin
+		if (reset_n='0') then
+			sdram_reset_n_reg <= '0';
+			sdram_reset_ctrl_n_reg <= '0';
+		elsif (clk'event and clk = '1') then
+			sdram_reset_n_reg <= sdram_reset_n_next;
+			sdram_reset_ctrl_n_reg <= reset_n;
+		end if;
+	end process;
+
 	-- Generate sdram sequence
 	process(seq_reg, seq_ph_reg, ref_reg)
 	begin
 		seq_next <= seq_reg(10 downto 0)&seq_reg(11);
 		seq_ph_next <= seq_ph_reg;
 		ref_next <= ref_reg;
-		if (seq_reg(10) = '1') then
+		if (seq_reg(11) = '1') then
 			seq_ph_next <= not(seq_ph_reg);
 			ref_next <= not(ref_reg);
+		end if;
+	end process;
+
+	process(seq_reg, seq_next, sdram_rdy, sdram_reset_n_reg)
+	begin
+		sdram_reset_n_next <= sdram_reset_n_reg;
+		if (sdram_rdy = '1' and seq_next(8)='1' and seq_reg(8)='0') then
+			sdram_reset_n_next <= '1';
 		end if;
 	end process;
 
@@ -549,11 +592,11 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		when "000000001000" =>
 			-- nop
 		when "000000010000" =>
+			sdram_request_complete_next <= '0';
 			-- nop
 		when "000000100000" =>
 			-- nop
 		when "000001000000" =>
-			sdram_request_complete_next <= '0';
 			if (SDRAM_READ_ENABLE = '1') then
 				if (SDRAM_WIDTH_8BIT_ACCESS = '1') then
 					if (SDRAM_ADDR(0) = '0') then
@@ -582,9 +625,9 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		when "001000000000" =>
 			-- nop
 		when "010000000000" =>
+			sdram_request_complete_next <= '0';
 			-- nop
 		when "100000000000" =>
-			sdram_request_complete_next <= '0';
 			-- nop
 		when others =>
 			-- never
@@ -596,13 +639,13 @@ sdram_controller : sdram_ctrl
 	PORT MAP
 	(
 		CLK => CLK_SDRAM,
-		rst => not(reset_n),
+		rst => not(sdram_reset_ctrl_n_reg),
 		seq_cyc => seq_reg(11 downto 0),
 		seq_ph => seq_ph_reg,
 		--refr_cyc => ref_reg,
 		refr_cyc => SDRAM_REFRESH,
 
-		ap1_ram_sel => SDRAM_REQUEST_REG,
+		ap1_ram_sel => SDRAM_REQUEST_NEXT,
 		ap1_address => '0'&SDRAM_ADDR(22 downto 1),
 		ap1_rden => SDRAM_READ_ENABLE,
 		ap1_wren => SDRAM_WRITE_ENABLE,

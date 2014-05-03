@@ -10,6 +10,7 @@ USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 ENTITY scandoubler IS
+--TODO video bits
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
