@@ -106,7 +106,7 @@ gen_internal_ram: if internal_ram>0 generate
 	ram_request_complete <= ram_request_reg;
 end generate;
 gen_no_internal_ram : if internal_ram=0 generate
-	ram_request_complete <='0';
+	ram_request_complete <='1';
 	ram_data <= (others=>'1');
 end generate;
         
