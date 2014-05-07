@@ -32,7 +32,10 @@ if [ ! -e $name.wdb -o "$1" != "-view" ]; then
 	cp `find ../../common/a8core/ -iname "*.vhdl"` .
 	cp `find ../../common/components/ -iname "*.vhd"` .
 	cp `find ../../common/components/ -iname "*.vhdl"` .
+	cp `find ../../common/zpu/ -iname "*.vhd"` .
+	cp `find ../../common/zpu/ -iname "*.vhdl"` .
 	cp ../atari800core_mcc.vhd .
+	cp ../zpu_rom.vhdl .
 	cp ../sdram_ctrl_3_ports.v .
 	cp ../*pll*.vhd* .
 	cp ../svideo/* .

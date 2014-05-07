@@ -296,6 +296,7 @@ set_global_assignment -name QIP_FILE ntsc_pll.qip
 set_global_assignment -name QIP_FILE pll_downstream_ntsc.qip
 set_global_assignment -name SDC_FILE atari800core.sdc
 set_global_assignment -name VERILOG_FILE sdram_ctrl_3_ports.v
+set_global_assignment -name VHDL_FILE zpu_rom.vhdl
 set_global_assignment -name VHDL_FILE atari800core_mcc.vhd
 
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
