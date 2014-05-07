@@ -134,6 +134,11 @@ begin
 
 	-- spi - for sd card access without bit banging...
 	-- 200KHz to start with - probably fine for 8-bit, can up it later after init
+	spi_master1 : entity work.spi_master
+		generic map(slaves=>1,d_width=>8)
+		port map (clock=>clk,reset_n=>reset_n,enable=>spi_enable,cpol=>'0',cpha=>'0',cont=>'0',clk_div=>to_integer(unsigned(spi_speed_reg)),addr=>to_integer(unsigned(vectorize(spi_addr_reg))),
+		          tx_data=>spi_tx_data, miso=>spi_miso,sclk=>spi_clk_out,ss_n=>spi_chip_select,mosi=>spi_mosi,
+					 rx_data=>spi_rx_data,busy=>spi_busy);
 					 
 	-- spi-programming model:
 	-- reg for write/read
@@ -145,7 +150,7 @@ begin
 	-- uart - another Pokey! Running at atari frequency.
 	wr_en_pokey <= addr(4) and wr_en;
 	pokey1 : entity work.pokey
-		port map (clk=>clk,CPU_MEMORY_READY=>pokey_enable,ANTIC_MEMORY_READY=>pokey_enable,addr=>addr(3 downto 0),data_in=>cpu_data_in(7 downto 0),wr_en=>wr_en_pokey, 
+		port map (clk=>clk,ENABLE_179=>pokey_enable,addr=>addr(3 downto 0),data_in=>cpu_data_in(7 downto 0),wr_en=>wr_en_pokey, 
 		reset_n=>reset_n,keyboard_response=>"11",pot_in=>X"00",
 		sio_in1=>sio_data_out,sio_in2=>'1',sio_in3=>'1', -- TODO, pokey dir...
 		data_out=>pokey_data_out, 
@@ -179,10 +184,18 @@ begin
 		spi_addr_next <= spi_addr_reg;
 		spi_tx_data <= (others=>'0');
 		spi_enable <= '0';
+
+		out1_next <= out1_reg;
+		out2_next <= out2_reg;
+		out3_next <= out3_reg;
+		out4_next <= out4_reg;
 		
 		paused_next <= '0';
-		if (not(pause_reg = X"00000000") and POKEY_ENABLE='1') then
-			pause_next <= std_LOGIC_VECTOR(unsigned(pause_reg)-to_unsigned(1,32));
+		pause_next <= pause_reg;
+		if (not(pause_reg = X"00000000")) then
+			if (POKEY_ENABLE='1') then
+				pause_next <= std_LOGIC_VECTOR(unsigned(pause_reg)-to_unsigned(1,32));
+			end if;
 			paused_next <= '1';
 		end if;
 	
