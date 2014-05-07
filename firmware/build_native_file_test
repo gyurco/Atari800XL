@@ -1,0 +1,1 @@
+gcc -g -O0 test_file.c fat/pff_file.c fat/pff.c common/utils.c native/diskio_image.c -I. -Ifat -Icommon
