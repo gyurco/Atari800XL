@@ -125,6 +125,7 @@ ENTITY atari800core_simple_sdram is
 		DMA_ADDR : in std_logic_vector(23 downto 0);
 		DMA_WRITE_DATA : in std_logic_vector(31 downto 0);
 		MEMORY_READY_DMA : out std_logic; -- op complete
+		DMA_MEMORY_DATA : out std_logic_vector(31 downto 0);
 
 		-- Special config params
    		RAM_SELECT : in std_logic_vector(2 downto 0); -- 64K,128K,320KB Compy, 320KB Rambo, 576K Compy, 576K Rambo, 1088K, 4MB
@@ -315,7 +316,7 @@ atari800xl : entity work.atari800core
 		-- PBI
 		PBI_ADDR => open,
 		PBI_WRITE_ENABLE => open,
-		PBI_SNOOP_DATA => open,
+		PBI_SNOOP_DATA => DMA_MEMORY_DATA,
 		PBI_WRITE_DATA => PBI_WRITE_DATA,
 		PBI_WIDTH_8bit_ACCESS => SDRAM_8BIT_WRITE_ENABLE,
 		PBI_WIDTH_16bit_ACCESS => SDRAM_16BIT_WRITE_ENABLE,

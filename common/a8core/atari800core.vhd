@@ -299,8 +299,7 @@ PORT MAP(CLK => CLK,
 		 oldcpu_enable => ENABLE_179_MEMWAIT,
 		 CPU_ENABLE_OUT => CPU_SHARED_ENABLE);
 
-
-CPU_6502_RESET <= NOT(RESET_N); -- TODO, allow external reset
+CPU_6502_RESET <= NOT(RESET_N); 
 cpu6502 : entity work.cpu
 PORT MAP(CLK => CLK,
 		 RESET => CPU_6502_RESET,
