@@ -1,48 +1,65 @@
 #include "freeze.h"
 
+#include "regs.h"
+
+unsigned char store_portb;
+unsigned volatile int * store_mem;
+unsigned volatile char * store_custom;
+unsigned volatile char * custom_mirror;
+unsigned volatile char * atari_base;
+
+void freeze_init(void * memory)
+{
+	store_mem  = memory;
+	store_custom = memory;
+
+	custom_mirror = (unsigned volatile char *)atari_regmirror;
+	atari_base = (unsigned volatile char *)atari_regbase;
+}
+
 void freeze()
 {
-	// Copy base 64k to ...
-
-	unsigned volatile char * store  = 0xf80000; // SRAM...
-	unsigned volatile char * store2 = 0xfc0000; // custom chips...
-
-	mem = 0x9c00 + 0x10000;
-	// Copy 1k from 0x$9c00 to sdram
-	// 0x200000; sram
-	// 0x800000; sdram (always use...)
-	for (i=0x0; i!=1024; i++)
-	{
-		store[i] = mem[i];
-	}
-	for (i=0x40; i!=1024; i++)
-	{
-		mem[i] = 0;
-	}
-
+	int i;
 	// store custom chips
 	store_portb = *atari_portb;
 	{
 		//gtia
-		mem2 = 0x20000;
-		mem3 = 0x10000;
 		for (i=0xd000; i!=0xd01f; i++)
 		{
-			store2[i] = mem2[i];
-			mem3[i] = 0;
+			store_custom[i] = custom_mirror[i];
+			atari_base[i] = 0;
 		}
 		//pokey1/2
 		for (i=0xd200; i!=0xd21f; i++)
 		{
-			store2[i] = mem2[i];
-			mem3[i] = 0;
+			store_custom[i] = custom_mirror[i];
+			atari_base[i] = 0;
 		}
 		//antic
 		for (i=0xd400; i!=0xd40f; i++)
 		{
-			store2[i] = mem2[i];
-			mem3[i] = 0;
+			store_custom[i] = custom_mirror[i];
+			atari_base[i] = 0;
 		}
+	}
+
+	*atari_portb = 0xff;
+
+	// Copy 64k ram to sdram
+	// Atari screen memory...
+	for (i=0x0; i!=0x3400; ++i)
+	{
+		store_mem[i] = atari_base[i];
+	}
+	for (i=0x3600; i!=0x4000; ++i)
+	{
+		store_mem[i] = atari_base[i];
+	}
+
+	//Clear, except dl (first 0x40 bytes)
+	for (i=0x40; i!=1024; i++)
+	{
+		atari_base[i] = 0;
 	}
 
 	// Put custom chips in a safe state
@@ -58,9 +75,10 @@ void freeze()
 		0x70,
 		0x41,0x00,0x9c
 	};
-	for (i=0; i!=sizeof(dl); ++i)
+	int end=0x9c00+sizeof(dl);
+	for (i=0x9c00; i!=end; ++i)
 	{
-		mem[i] = dl[i];
+		atari_base[i] = dl[i];
 	}
 
 	// point antic at my display list
@@ -72,37 +90,40 @@ void freeze()
 	*atari_prior = 0x00;
 	*atari_chbase = 0xe0;
 	*atari_dmactl = 0x22;
-	*atari_portb = 0xff;
 	*atari_skctl = 0x3;
 	*atari_chactl = 0x2;
 }
 
 void restore()
 {
+	int i;
+
 	// Restore memory
-	mem = 0x9c00 + 0x10000;
-	for (i=0x040; i!=1024; i++)
+	for (i=0x0; i!=0x3400; ++i)
 	{
-		mem[i] = store[i];
+		atari_base[i] = store_mem[i];
+	}
+	for (i=0x3600; i!=0x4000; ++i)
+	{
+		atari_base[i] = store_mem[i];
 	}
 
 	// Restore custom chips
 	{
 		//gtia
-		mem3 = 0x10000;
 		for (i=0xd000; i!=0xd01f; i++)
 		{
-			mem3[i] = store2[i];
+			atari_base[i] = store_custom[i];
 		}
 		//pokey1/2
 		for (i=0xd200; i!=0xd21f; i++)
 		{
-			mem3[i] = store2[i];
+			atari_base[i] = store_custom[i];
 		}
 		//antic
 		for (i=0xd400; i!=0xd40f; i++)
 		{
-			mem3[i] = store2[i];
+			atari_base[i] = store_custom[i];
 		}
 	}
 

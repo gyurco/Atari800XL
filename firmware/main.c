@@ -43,11 +43,23 @@ void set_ ## name(int param) \
 	*reg = val; \
 }
 
+#define BIT_REG_RO(op,mask,shift,name,reg) \
+int get_ ## name() \
+{ \
+	int val = *reg; \
+	return op((val>>shift)&mask); \
+}
+
 BIT_REG(,0x1,0,pause_6502,zpu_out1)
 BIT_REG(,0x1,1,reset_6502,zpu_out1)
 BIT_REG(,0x3f,2,turbo_6502,zpu_out1)
 BIT_REG(,0x7,8,ram_select,zpu_out1)
 BIT_REG(,0x3f,11,rom_select,zpu_out1)
+
+BIT_REG_RO(,0x1,0,hotkey_softboot,zpu_in1)
+BIT_REG_RO(,0x1,1,hotkey_coldboot,zpu_in1)
+BIT_REG_RO(,0x1,2,hotkey_fileselect,zpu_in1)
+BIT_REG_RO(,0x1,3,hotkey_settings,zpu_in1)
 
 void
 wait_us(int unsigned num)
@@ -78,10 +90,10 @@ void clear_64k_ram()
 }
 
 void
-coldstart(int clearram)
+reboot(int cold)
 {
 	set_reset_6502(1);
-	if (clearram)
+	if (cold)
 	{
 		clear_64k_ram();
 	}
@@ -129,23 +141,27 @@ unsigned char volatile * baseaddr;
 void char_out ( void* p, char c)
 {
 	unsigned char val = toatarichar(c);
-	//*(baseaddr+debug_pos) = val;
-	//++debug_pos;
+	if (debug_pos>0)
+	{
+		*(baseaddr+debug_pos) = val;
+		++debug_pos;
+	}
 }
 
 // Memory usage...
 // 0x410000-0x41FFFF (0xc10000 in zpu space) = directory cache - 64k
+// 0x420000-0x43FFFF (0xc20000 in zpu space) = freeze backup
 
 int main(void)
 {
-	debug_pos = 0;
+	freeze_init((void*)0xc20000); // 128k
+
+	debug_pos = -1;
 	baseaddr = (unsigned char volatile *)(40000 + atari_regbase);
 	set_reset_6502(1);
 	set_turbo_6502(1);
 
 	init_printf(0, char_out);
-
-	debug_pos = 0;
 
 	// TODO...
 
@@ -154,36 +170,68 @@ int main(void)
 	if (SimpleFile_OK == dir_init((void *)0xc10000, 65536))
 	{
 		printf("DIR init ok\n");
-		struct SimpleFile * file = alloca(file_struct_size());
-		printf("Opening file\n");
-		if (SimpleFile_OK == file_open_name("GUNPOWDR.ATR",file))
-		{
-			printf("FILE open ok\n");
-			init_drive_emulator();
-
-			set_drive_status(0,file);
-
-			coldstart(1);
-
-			run_drive_emulator();
-		}
-		else
-		{
-			printf("FILE open failed\n");
-		}
+		init_drive_emulator();
+		reboot(1);
+		run_drive_emulator();
 	}
 	else
 	{
 		printf("DIR init failed\n");
 	}
-
-	for(;;) actions();
+	reboot(1);
+	for (;;) actions();
 }
+
+//		struct SimpleFile * file = alloca(file_struct_size());
+//		printf("Opening file\n");
+//		if (SimpleFile_OK == file_open_name("GUNPOWDR.ATR",file))
+//		{
+//			printf("FILE open ok\n");
+//
+//			set_drive_status(0,file);
+//
+//		}
+//		else
+//		{
+//			printf("FILE open failed\n");
+//		}
 
 void actions()
 {
-	// NOP
+	// Show some activity!
 	*atari_colbk = *atari_random;
+	
+	// Hot keys
+	if (get_hotkey_softboot())
+	{
+		reboot(0);	
+	}
+	else if (get_hotkey_coldboot())
+	{
+		reboot(1);	
+	}
+	else if (get_hotkey_settings())
+	{
+		set_pause_6502(1);
+		freeze();
+		debug_pos = 0;	
+		printf("Hello world - settings");
+		debug_pos = -1;
+		wait_us(1000000);
+		restore();
+		set_pause_6502(0);
+	}
+	else if (get_hotkey_fileselect())
+	{
+		set_pause_6502(1);
+		freeze();
+		debug_pos = 0;	
+		printf("Hello world - fileselect");
+		debug_pos = -1;
+		wait_us(1000000);
+		restore();
+		set_pause_6502(0);
+	}
 }
 
 
