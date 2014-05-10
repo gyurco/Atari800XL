@@ -3,15 +3,13 @@
 #include "regs.h"
 
 unsigned char store_portb;
-unsigned volatile int * store_mem;
-unsigned volatile char * store_custom;
+unsigned volatile char * store_mem;
 unsigned volatile char * custom_mirror;
 unsigned volatile char * atari_base;
 
 void freeze_init(void * memory)
 {
-	store_mem  = memory;
-	store_custom = memory;
+	store_mem = (unsigned volatile char *)memory;
 
 	custom_mirror = (unsigned volatile char *)atari_regmirror;
 	atari_base = (unsigned volatile char *)atari_regbase;
@@ -24,21 +22,21 @@ void freeze()
 	store_portb = *atari_portb;
 	{
 		//gtia
-		for (i=0xd000; i!=0xd01f; i++)
+		for (i=0xd000; i!=0xd020; i++)
 		{
-			store_custom[i] = custom_mirror[i];
+			store_mem[i] = custom_mirror[i];
 			atari_base[i] = 0;
 		}
 		//pokey1/2
-		for (i=0xd200; i!=0xd21f; i++)
+		for (i=0xd200; i!=0xd220; i++)
 		{
-			store_custom[i] = custom_mirror[i];
+			store_mem[i] = custom_mirror[i];
 			atari_base[i] = 0;
 		}
 		//antic
-		for (i=0xd400; i!=0xd40f; i++)
+		for (i=0xd400; i!=0xd410; i++)
 		{
-			store_custom[i] = custom_mirror[i];
+			store_mem[i] = custom_mirror[i];
 			atari_base[i] = 0;
 		}
 	}
@@ -47,17 +45,17 @@ void freeze()
 
 	// Copy 64k ram to sdram
 	// Atari screen memory...
-	for (i=0x0; i!=0x3400; ++i)
+	for (i=0x0; i!=0xd000; ++i)
 	{
 		store_mem[i] = atari_base[i];
 	}
-	for (i=0x3600; i!=0x4000; ++i)
+	for (i=0xd800; i!=0x10000; ++i)
 	{
 		store_mem[i] = atari_base[i];
 	}
 
 	//Clear, except dl (first 0x40 bytes)
-	for (i=0x40; i!=1024; i++)
+	for (i=0x9c40; i!=(0x9c40+1024); i++)
 	{
 		atari_base[i] = 0;
 	}
@@ -75,10 +73,10 @@ void freeze()
 		0x70,
 		0x41,0x00,0x9c
 	};
-	int end=0x9c00+sizeof(dl);
-	for (i=0x9c00; i!=end; ++i)
+	int j = 0;
+	for (i=0x9c00; j!=sizeof(dl); ++i,++j)
 	{
-		atari_base[i] = dl[i];
+		atari_base[i] = dl[j];
 	}
 
 	// point antic at my display list
@@ -99,11 +97,11 @@ void restore()
 	int i;
 
 	// Restore memory
-	for (i=0x0; i!=0x3400; ++i)
+	for (i=0x0; i!=0xd000; ++i)
 	{
 		atari_base[i] = store_mem[i];
 	}
-	for (i=0x3600; i!=0x4000; ++i)
+	for (i=0xd800; i!=0x10000; ++i)
 	{
 		atari_base[i] = store_mem[i];
 	}
@@ -111,19 +109,19 @@ void restore()
 	// Restore custom chips
 	{
 		//gtia
-		for (i=0xd000; i!=0xd01f; i++)
+		for (i=0xd000; i!=0xd020; i++)
 		{
-			atari_base[i] = store_custom[i];
+			atari_base[i] = store_mem[i];
 		}
 		//pokey1/2
-		for (i=0xd200; i!=0xd21f; i++)
+		for (i=0xd200; i!=0xd220; i++)
 		{
-			atari_base[i] = store_custom[i];
+			atari_base[i] = store_mem[i];
 		}
 		//antic
-		for (i=0xd400; i!=0xd40f; i++)
+		for (i=0xd400; i!=0xd410; i++)
 		{
-			atari_base[i] = store_custom[i];
+			atari_base[i] = store_mem[i];
 		}
 	}
 
