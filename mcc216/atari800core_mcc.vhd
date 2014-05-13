@@ -280,6 +280,7 @@ END COMPONENT;
 	SIGNAL CONSOL_START : std_logic;
 	SIGNAL CONSOL_SELECT : std_logic;
 	SIGNAL CONSOL_OPTION : std_logic;
+	SIGNAL FKEYS : std_logic_vector(11 downto 0);
 
 	-- scandoubler
 	signal scandouble_clk : std_logic;
@@ -447,9 +448,9 @@ keyboard_map1 : entity work.ps2_to_atari800
 
 		CONSOL_START => CONSOL_START,
 		CONSOL_SELECT => CONSOL_SELECT,
-		CONSOL_OPTION => CONSOL_OPTION
+		CONSOL_OPTION => CONSOL_OPTION,
 		
-		-- TODO - reset!
+		FKEYS => FKEYS
 	);
 
 PAL <= '1' when TV=1 else '0';
@@ -850,7 +851,7 @@ zpu: entity work.zpucore
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
-		ZPU_IN1 => X"00000000",
+		ZPU_IN1 => X"00000"&FKEYS,
 		ZPU_IN2 => X"00000000",
 		ZPU_IN3 => X"00000000",
 		ZPU_IN4 => X"00000000",
