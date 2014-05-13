@@ -23,13 +23,15 @@ PORT
 
 	CONSOL_START : OUT STD_LOGIC;
 	CONSOL_SELECT : OUT STD_LOGIC;
-	CONSOL_OPTION : OUT STD_LOGIC
+	CONSOL_OPTION : OUT STD_LOGIC;
+   
+	FKEYS : OUT STD_LOGIC_VECTOR(11 downto 0)
 );
 END ps2_to_atari800;
 
 ARCHITECTURE vhdl OF ps2_to_atari800 IS
-	signal ps2_keys_next : std_logic_vector(255 downto 0);
-	signal ps2_keys_reg : std_logic_vector(255 downto 0);
+	signal ps2_keys_next : std_logic_vector(511 downto 0);
+	signal ps2_keys_reg : std_logic_vector(511 downto 0);
 
 	signal key_event : std_logic;
 	signal key_value : std_logic_vector(7 downto 0);
@@ -39,6 +41,8 @@ ARCHITECTURE vhdl OF ps2_to_atari800 IS
 	signal CONSOL_START_INT : std_logic;
 	signal CONSOL_SELECT_INT : std_logic;
 	signal CONSOL_OPTION_INT : std_logic;
+
+	signal FKEYS_INT : std_logic_vector(11 downto 0);
 
 	signal atari_keyboard : std_logic_vector(63 downto 0);
 	SIGNAL	SHIFT_PRESSED :  STD_LOGIC;
@@ -130,10 +134,12 @@ BEGIN
 		atari_keyboard(51)<=ps2_keys_reg(16#3D#);
 		atari_keyboard(53)<=ps2_keys_reg(16#3E#);
 		atari_keyboard(48)<=ps2_keys_reg(16#46#);
-		atari_keyboard(17)<=ps2_keys_reg(16#ec#);
+		--atari_keyboard(17)<=ps2_keys_reg(16#ec#);
+		atari_keyboard(17)<=ps2_keys_reg(16#16c#);
 		atari_keyboard(52)<=ps2_keys_reg(16#66#);
 		atari_keyboard(28)<=ps2_keys_reg(16#76#);
-		atari_keyboard(39)<=ps2_keys_reg(16#91#);
+		--atari_keyboard(39)<=ps2_keys_reg(16#91#);
+		atari_keyboard(39)<=ps2_keys_reg(16#111#);
 		atari_keyboard(60)<=ps2_keys_reg(16#58#);
 		atari_keyboard(44)<=ps2_keys_reg(16#0D#);
 		atari_keyboard(12)<=ps2_keys_reg(16#5A#);
@@ -153,8 +159,22 @@ BEGIN
 		consol_select_int<=ps2_keys_reg(16#04#);
 		consol_option_int<=ps2_keys_reg(16#0C#);
 		shift_pressed<=ps2_keys_reg(16#12#) or ps2_keys_reg(16#59#);
-		control_pressed<=ps2_keys_reg(16#14#) or ps2_keys_reg(16#94#);
+		--control_pressed<=ps2_keys_reg(16#14#) or ps2_keys_reg(16#94#);
+		control_pressed<=ps2_keys_reg(16#14#) or ps2_keys_reg(16#114#);
 		break_pressed<=ps2_keys_reg(16#77#);
+
+		fkeys_int(0)<=ps2_keys_reg(16#05#);
+		fkeys_int(1)<=ps2_keys_reg(16#06#);
+		fkeys_int(2)<=ps2_keys_reg(16#04#);
+		fkeys_int(3)<=ps2_keys_reg(16#0C#);
+		fkeys_int(4)<=ps2_keys_reg(16#03#);
+		fkeys_int(5)<=ps2_keys_reg(16#0B#);
+		fkeys_int(6)<=ps2_keys_reg(16#83#);
+		fkeys_int(7)<=ps2_keys_reg(16#0a#);
+		fkeys_int(8)<=ps2_keys_reg(16#01#);
+		fkeys_int(9)<=ps2_keys_reg(16#09#);
+		fkeys_int(10)<=ps2_keys_reg(16#78#);
+		fkeys_int(11)<=ps2_keys_reg(16#07#);
 	end process;
 
 	-- provide results as if we were a grid to pokey...
@@ -183,5 +203,7 @@ BEGIN
 	CONSOL_START <= CONSOL_START_INT;
 	CONSOL_SELECT <= CONSOL_SELECT_INT;
 	CONSOL_OPTION <= CONSOL_OPTION_INT;
+
+	FKEYS <= FKEYS_INT;
 END vhdl;
 
