@@ -18,6 +18,17 @@ void strcpy(char * dest, char const * src)
 	while (*dest++=*src++);
 }
 
+void stricpy(char * dest, char const * src)
+{
+	while (*src)
+	{
+		char val = *src++;
+		if (val>='A' && val<='Z') val-='A'+'a';
+
+		*dest++ = val;
+	}
+}
+
 int strlen(char const * a)
 {
 	int count;

@@ -2,9 +2,9 @@
 
 struct joystick_status
 {
-	char x_;
-	char y_;
-	char fire_;
+	int x_;
+	int y_;
+	int fire_;
 };
 
 enum JoyWait {WAIT_QUIET, WAIT_FIRE, WAIT_MOVE, WAIT_EITHER};

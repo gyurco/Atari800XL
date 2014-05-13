@@ -2,9 +2,11 @@
 #include "regs.h"
 #include "pause.h"
 #include "printf.h"
+#include "joystick.h"
 
 #include "simpledir.h"
 #include "simplefile.h"
+#include "fileselector.h"
 
 #include "atari_drive_emulator.h"
 
@@ -56,10 +58,10 @@ BIT_REG(,0x3f,2,turbo_6502,zpu_out1)
 BIT_REG(,0x7,8,ram_select,zpu_out1)
 BIT_REG(,0x3f,11,rom_select,zpu_out1)
 
-BIT_REG_RO(,0x1,0,hotkey_softboot,zpu_in1)
-BIT_REG_RO(,0x1,1,hotkey_coldboot,zpu_in1)
-BIT_REG_RO(,0x1,2,hotkey_fileselect,zpu_in1)
-BIT_REG_RO(,0x1,3,hotkey_settings,zpu_in1)
+BIT_REG_RO(,0x1,4,hotkey_softboot,zpu_in1)
+BIT_REG_RO(,0x1,5,hotkey_coldboot,zpu_in1)
+BIT_REG_RO(,0x1,6,hotkey_fileselect,zpu_in1)
+BIT_REG_RO(,0x1,7,hotkey_settings,zpu_in1)
 
 void
 wait_us(int unsigned num)
@@ -136,14 +138,22 @@ unsigned char toatarichar(int val)
 }
 
 int debug_pos;
+int debug_adjust;
 unsigned char volatile * baseaddr;
+
+void clearscreen()
+{
+	unsigned volatile char * screen;
+	for (screen=(unsigned volatile char *)40000+atari_regbase; screen!=(unsigned volatile char *)(atari_regbase+40000+1024); ++screen)
+		*screen = 0x00;
+}
 
 void char_out ( void* p, char c)
 {
 	unsigned char val = toatarichar(c);
-	if (debug_pos>0)
+	if (debug_pos>=0)
 	{
-		*(baseaddr+debug_pos) = val;
+		*(baseaddr+debug_pos) = val|debug_adjust;
 		++debug_pos;
 	}
 }
@@ -152,11 +162,20 @@ void char_out ( void* p, char c)
 // 0x410000-0x41FFFF (0xc10000 in zpu space) = directory cache - 64k
 // 0x420000-0x43FFFF (0xc20000 in zpu space) = freeze backup
 
+struct SimpleFile * files[4];
+
 int main(void)
 {
+	int i;
+	for (i=0; i!=4; ++i)
+	{
+		files[i] = (struct SimpleFile *)alloca(file_struct_size());
+	}
+
 	freeze_init((void*)0xc20000); // 128k
 
 	debug_pos = -1;
+	debug_adjust = 0;
 	baseaddr = (unsigned char volatile *)(40000 + atari_regbase);
 	set_reset_6502(1);
 	set_turbo_6502(1);
@@ -196,10 +215,102 @@ int main(void)
 //			printf("FILE open failed\n");
 //		}
 
+char const * get_ram()
+{
+	switch(get_ram_select())
+	{
+	case 0:
+		return "64K";
+	case 1:
+		return "128";
+	case 2:
+		return "320K(Compy)";
+	case 3:
+		return "320K(Rambo)";
+	case 4:
+		return "576K(Compy)";
+	case 5:
+		return "576K(Rambo)";
+	case 6:
+		return "1MB";
+	case 7:
+		return "4MB";
+	}
+}
+
+void settings()
+{
+	struct joystick_status joy;
+	joy.x_ = joy.y_ = joy.fire_ = 0;
+
+	int row = 0;
+
+	for (;;)
+	{
+		// Render
+		clearscreen();
+		debug_pos = 20;
+		debug_adjust = 0;
+		printf("Settings");
+		debug_pos = 80;
+		debug_adjust = row==0 ? 128 : 0;
+		printf("Turbo:%dx", get_turbo_6502());
+		debug_pos = 120;
+		debug_adjust = row==1 ? 128 : 0;
+		printf("Ram:%s", get_ram());
+		debug_pos = 160;
+		debug_adjust = row==2 ? 128 : 0;
+		printf("Rom bank:%d", get_rom_select());
+
+		// Slow it down a bit
+		wait_us(100000);
+
+		// move
+		joystick_wait(&joy,WAIT_QUIET);
+		joystick_wait(&joy,WAIT_EITHER);
+
+		if (joy.fire_) break;
+		row+=joy.y_;
+		if (row<0) row = 0;
+		if (row>2) row = 2;
+		switch (row)
+		{
+		case 0:
+			{
+				int turbo = get_turbo_6502();
+				if (joy.x_==1) turbo<<=1;
+				if (joy.x_==-1) turbo>>=1;
+				if (turbo>16) turbo = 16;
+				if (turbo<1) turbo = 1;
+				set_turbo_6502(turbo);
+			}
+			break;
+		case 1:
+			{
+				int ram_select = get_ram_select();
+				ram_select+=joy.x_;
+				if (ram_select<0) ram_select = 0;
+				if (ram_select>7) ram_select = 7;
+				set_ram_select(ram_select);
+			}
+			break;
+		case 2:
+			{
+				int rom_select = get_rom_select();
+				rom_select+=joy.x_;
+				if (rom_select<0) rom_select = 0;
+				if (rom_select>7) rom_select = 7; // TODO
+				set_rom_select(rom_select);
+			}
+			break;
+		}
+	}
+}
+
 void actions()
 {
 	// Show some activity!
-	*atari_colbk = *atari_random;
+	//*atari_colbk = *atari_random;
 	
 	// Hot keys
 	if (get_hotkey_softboot())
@@ -215,9 +326,8 @@ void actions()
 		set_pause_6502(1);
 		freeze();
 		debug_pos = 0;	
-		printf("Hello world - settings");
+		settings();
 		debug_pos = -1;
-		wait_us(1000000);
 		restore();
 		set_pause_6502(0);
 	}
@@ -225,12 +335,11 @@ void actions()
 	{
 		set_pause_6502(1);
 		freeze();
-		debug_pos = 0;	
-		printf("Hello world - fileselect");
+		file_selector(files[0]);
 		debug_pos = -1;
-		wait_us(1000000);
 		restore();
-		set_pause_6502(0);
+		set_drive_status(0,files[0]);
+		reboot(1);
 	}
 }
 

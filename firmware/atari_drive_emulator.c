@@ -1,4 +1,5 @@
 #include "atari_drive_emulator.h"
+#include "fileutils.h"
 
 #include "uart.h"
 #include "pause.h"
@@ -6,6 +7,8 @@
 
 #include "printf.h"
 #include "integer.h"
+
+extern int debug_pos; // ARG!
 
 #define send_ACK()	USART_Transmit_Byte('A');
 #define send_NACK()	USART_Transmit_Byte('N');
@@ -36,17 +39,25 @@ struct ATRHeader
 	u16 wSecSize;
 	u08 btParsHigh;
 	u32 dwCRC;
+	u32 dwUNUSED;
+	u08 btFlags;
 } __attribute__((packed));
 struct ATRHeader atr_header;
+int offset;
+int xex_loader;
+int xex_size;
+
 int speed;
 
 int badcommandcount;
 int commandcount;
 int opendrive;
 
+int readonly;
+
 unsigned char atari_sector_buffer[256];
 
-unsigned char get_checksum(unsigned char* buffer, u16 len);
+unsigned char get_checksum(unsigned char* buffer, int len);
 
 #define    TWOBYTESTOWORD(ptr,val)           (*((u08*)(ptr)) = val&0xff);(*(1+(u08*)(ptr)) = (val>>8)&0xff);
 
@@ -59,9 +70,6 @@ void clearAtariSectorBuffer()
 		atari_sector_buffer[i] = 0;
 }
 
-int offset;
-int xex_loader;
-int xex_size;
 uint8_t boot_xex_loader[179] = {
 	0x72,0x02,0x5f,0x07,0xf8,0x07,0xa9,0x00,0x8d,0x04,0x03,0x8d,0x44,0x02,0xa9,0x07,
 	0x8d,0x05,0x03,0xa9,0x70,0x8d,0x0a,0x03,0xa9,0x01,0x8d,0x0b,0x03,0x85,0x09,0x60,
@@ -167,32 +175,6 @@ void getCommand(struct command * cmd)
 	DELAY_T2_MIN;
 }
 
-int compare_ext(char const * filename, char const * ext)
-{
-	int dot = 0;
-
-	while (1)
-	{
-		if (filename[dot] == '\0')
-			break;
-		if (filename[dot] != '.')
-		{
-			++dot;
-			continue;
-		}
-		if (filename[dot+1] == ext[0])
-			if (filename[dot+2] == ext[1])
-				if (filename[dot+3] == ext[2])
-				{
-					return 1;
-					break;
-				}
-		break;
-	}
-
-	return 0;
-}
-
 // Called whenever file changed
 void set_drive_status(int driveNumber, struct SimpleFile * file)
 {
@@ -229,7 +211,7 @@ void set_drive_status(int driveNumber, struct SimpleFile * file)
 	*/
 
 	xex_loader = 0;
-	xfd = compare_ext(file_name(file),"XFD") || compare_ext(file_name(file),"xfd");
+	xfd = compare_ext(file_name(file),"XFD");
 
 	if (xfd == 1)
 	{
@@ -239,6 +221,7 @@ void set_drive_status(int driveNumber, struct SimpleFile * file)
 		atr_header.wMagic = 0x296;
 		atr_header.wPars = file_size(file)/16;
 		atr_header.wSecSize = 0x80;
+		atr_header.btFlags = 0;
 	}
 	else if (atr_header.wMagic == 0xFFFF) // XEX
 	{
@@ -250,6 +233,7 @@ void set_drive_status(int driveNumber, struct SimpleFile * file)
 		xex_size = file_size(file);
 		atr_header.wPars = xex_size/16;
 		atr_header.wSecSize = XEX_SECTOR_SIZE;
+		atr_header.btFlags = 1;
 	}
 	else if (atr_header.wMagic == 0x296) // ATR
 	{
@@ -345,9 +329,10 @@ void processCommand()
 		printf("%d",drive);
 		if (drive!=opendrive)
 		{
-			if (drive<MAX_DRIVES)
+			if (drive<MAX_DRIVES && drive>=0)
 			{
 				opendrive = drive;
+				set_drive_status(drive, drives[drive]);
 			}
 		}
 
@@ -423,14 +408,114 @@ void processCommand()
 			printf(":done\n");
 			}
 			break;
-		case 0x50: // write
-		case 0x57: // write with verify
 		default:
 			// TODO
 			//USART_Transmit_Mode();
 			//send_NACK();
 			//USART_Wait_Transmit_Complete();
 			//USART_Receive_Mode();
+			break;
+		case 0x50: // write
+		case 0x57: // write with verify
+			{
+			//debug_pos = 0;
+
+			int sector = ((int)command.aux1) + (((int)command.aux2&0x7f)<<8);
+			int sectorSize = 0;
+			int location =0;
+
+			printf("WACK:");
+			USART_Transmit_Mode();
+			send_ACK();
+			USART_Wait_Transmit_Complete();
+			USART_Receive_Mode();
+	
+			location = offset;
+			if (sector>3)
+			{
+				sector-=4;
+				location += 128*3;
+				location += sector*atr_header.wSecSize;
+				sectorSize = atr_header.wSecSize;
+			}
+			else
+			{
+				location += 128*(sector-1);
+				sectorSize = 128;
+			}
+
+			// Receive the data
+			int i;
+			for (i=0;i!=sectorSize;++i)
+			{
+				unsigned char temp = USART_Receive_Byte();
+				atari_sector_buffer[i] = temp;
+				//printf("%02x",temp);
+			}
+			unsigned char checksum = USART_Receive_Byte();
+			//hexdump_pure(atari_sector_buffer,sectorSize); // Somehow with this...
+			unsigned char expchk = get_checksum(&atari_sector_buffer[0],sectorSize);
+			printf("DATA:%d:",sectorSize);
+			printf("CHK:%02x EXP:%02x", checksum, expchk);
+			//printf(" %d",atari_sector_buffer[0]); // and this... The wrong checksum is sent!!
+			printf(":done\n");
+			if (checksum==expchk)
+			{
+				USART_Transmit_Mode();
+				printf(":WACK2:");
+				send_ACK();
+				USART_Wait_Transmit_Complete();
+
+				printf("%d",location);
+				printf("\n");
+				file_seek(file,location);
+				int written = 0;
+				file_write(file,&atari_sector_buffer[0], sectorSize, &written);
+
+				int ok = 0;
+
+				if (command.command == 0x57)
+				{
+					char buffer[256];
+					int read;
+					file_read(file,buffer,sectorSize,&read);
+
+					ok = 1;
+					for (i=0;i!=sectorSize;++i)
+					{
+						if (buffer[i] != atari_sector_buffer[i]) ok = 0;
+					}
+				}
+				else
+					ok = 1;
+
+				DELAY_T5_MIN;
+				if (ok)
+				{
+					printf(":CMPL:");
+					send_CMPL();
+				}
+				else
+				{
+					printf(":NACK:");
+					send_NACK();
+				}
+
+				USART_Wait_Transmit_Complete();
+				USART_Receive_Mode();
+			}
+			else
+			{
+				printf(":NACK:");
+				send_NACK();
+
+				USART_Wait_Transmit_Complete();
+				USART_Receive_Mode();
+			}
+
+			//debug_pos = -1;
+			}
+
 			break;
 		case 0x52: // read
 			{
@@ -594,7 +679,7 @@ set_number_of_sectors_to_buffer_1_2:
 	}
 }
 	
-unsigned char get_checksum(unsigned char* buffer, u16 len)
+unsigned char get_checksum(unsigned char* buffer, int len)
 {
 	u16 i;
 	u08 sumo,sum;
@@ -604,6 +689,8 @@ unsigned char get_checksum(unsigned char* buffer, u16 len)
 		sum+=buffer[i];
 		if(sum<sumo) sum++;
 		sumo = sum;
+
+		//printf("c:%02x:",sumo);
 	}
 	return sum;
 }

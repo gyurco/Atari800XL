@@ -15,6 +15,8 @@ FATFS fatfs;
 DIR dir;
 FILINFO filinfo;
 
+int write_pending;
+
 enum SimpleFileStatus translateStatus(FRESULT res)
 {
 	return res == FR_OK ? SimpleFile_OK: SimpleFile_FAIL;
@@ -65,6 +67,8 @@ void file_check_open(struct SimpleFile * file)
 {
 	if (openfile!=file)
 	{
+		file_write_flush();
+
 		pf_open(&file->path[0]);
 		openfile = file;
 	}
@@ -75,6 +79,7 @@ enum SimpleFileStatus file_read(struct SimpleFile * file, void * buffer, int byt
 	WORD bytesread_word;
 	FRESULT res;
 
+	file_write_flush();
 	file_check_open(file);
 
 	res = pf_read(buffer, bytes, &bytesread_word);
@@ -88,17 +93,77 @@ enum SimpleFileStatus file_write(struct SimpleFile * file, void * buffer, int by
 	WORD byteswritten_word;
 	FRESULT res;
 
-	file_check_open(file);
-	
-	res = pf_write(buffer, bytes, &byteswritten_word);
-	*byteswritten = byteswritten_word;
+	printf("went\n");
 
+	file_check_open(file);
+
+	int rem = bytes;
+	while (rem>0)
+	{
+		int sector = fatfs.fptr>>9;
+		int pos = fatfs.fptr&0x1ff;
+
+		int bytes_this_cycle = rem;
+		if (bytes_this_cycle>(512-pos))
+			bytes_this_cycle = 512-pos;
+
+		printf("file_write:%d/%d - %d/%d\n",sector,pos,bytes_this_cycle,bytes);
+
+		if (sector != write_pending)
+		{
+			file_write_flush();
+		}
+
+		if (write_pending <0)
+		{
+			// read the sector into our 512 byte buffer...
+			pf_lseek(sector<<9);
+			int fptr = fatfs.fptr;
+
+			char temp_buffer[1];
+			pf_read(&temp_buffer[0], 1, &byteswritten_word);
+
+			printf("Writing initial pos:%d\n",pos);
+
+			// seek to the initial pos
+			fatfs.fptr = fptr + pos;
+
+			write_pending = sector;
+		}
+
+		res = disk_writep(buffer, pos, bytes_this_cycle);
+
+		fatfs.fptr += bytes_this_cycle;
+		rem-=bytes_this_cycle;
+		buffer+=bytes_this_cycle;
+	}
+	*byteswritten = bytes;
+
+	printf("wend\n");
 	return translateStatus(res);
+}
+
+enum SimpleFileStatus file_write_flush()
+{
+	if (write_pending >= 0)
+	{
+		printf("wflush\n");
+		disk_writeflush();
+		write_pending = -1;
+	}
+	return SimpleFile_OK;
 }
 
 enum SimpleFileStatus file_seek(struct SimpleFile * file, int offsetFromStart)
 {
 	FRESULT res;
+
+	int location = offsetFromStart>>9;
+	if (write_pending >=0 && write_pending != offsetFromStart)
+	{
+		printf("flush on seek\n");
+		file_write_flush();
+	}
 
 	file_check_open(file);
 
@@ -121,6 +186,8 @@ enum SimpleFileStatus file_open_name(char const * path, struct SimpleFile * file
 	char dirname[MAX_DIR_LENGTH];
 	char const * filename = file_of(path);
 	dir_of(&dirname[0], path);
+
+	file_write_flush();
 
 	printf("filename:%s dirname:%s ", filename,&dirname[0]);
 
@@ -145,6 +212,8 @@ enum SimpleFileStatus file_open_dir(struct SimpleDirEntry * dir, struct SimpleFi
 	strcpy(&file->path[0],dir->path);
 	file->size = dir->size;
 
+	file_write_flush();
+
 	res = pf_open(&file->path[0]);
 	openfile = file;
 
@@ -155,6 +224,8 @@ enum SimpleFileStatus dir_init(void * mem, int space)
 {
 	FRESULT fres;
 	DSTATUS res;
+
+	write_pending = -1;
 
 	printf("dir_init\n");
 
@@ -174,11 +245,16 @@ enum SimpleFileStatus dir_init(void * mem, int space)
 }
 
 // Read entire dir into memory (i.e. give it a decent chunk of sdram)
-// TODO - dir cache, so we don't need to know where everywhere!
 struct SimpleDirEntry * dir_entries(char const * dirPath)
 {
-	struct SimpleDirEntry * entry = 0;
+	return dir_entries_filtered(dirPath,0);
+}
+
+struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(struct SimpleDirEntry *))
+{
 	int room = dir_cache_size/sizeof(struct SimpleDirEntry);
+
+	file_write_flush();
 
 	printf("opendir ");
 	if (FR_OK != pf_opendir(&dir,dirPath))
@@ -188,6 +264,14 @@ struct SimpleDirEntry * dir_entries(char const * dirPath)
 	}
 	printf("OK ");
 
+	struct SimpleDirEntry * prev = (struct SimpleDirEntry *)dir_cache;
+	strcpy(prev->path,"..");
+	prev->filename_ptr = prev->path;
+	prev->size = 0;
+	prev->is_subdir = 1;
+	--room;
+
+	struct SimpleDirEntry * entry = 0;
 	while (FR_OK == pf_readdir(&dir,&filinfo) && filinfo.fname[0]!='\0')
 	{
 		char * ptr;
@@ -201,12 +285,9 @@ struct SimpleDirEntry * dir_entries(char const * dirPath)
 			continue;
 		}
 
-		if (!entry)
-			entry = (struct SimpleDirEntry *) dir_cache;
-		else if (room)
+		if (room)
 		{
-			printf("inc %x %x ",entry,entry->next);
-			entry = entry->next;
+			entry = prev+1;
 			--room;
 		}
 		else
@@ -228,7 +309,17 @@ struct SimpleDirEntry * dir_entries(char const * dirPath)
 		strcpy(ptr,filinfo.fname);
 		entry->size = filinfo.fsize;
 
-		entry->next = entry + 1;
+		entry->next = 0;
+
+		if (filter && !filter(entry))
+		{
+			continue;	
+		}
+
+		if (prev)
+			prev->next = entry;
+		prev = entry;
+
 		printf("n %d %d %x ",filinfo.fsize, entry->size, entry->next);
 	}
 

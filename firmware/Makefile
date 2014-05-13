@@ -19,7 +19,7 @@ MINSTARTUP_SRC = mycrt0.s
 MINSTARTUP_OBJ = $(patsubst $(STARTUP_DIR)/%.s,$(BUILD_DIR)/%.o,$(MINSTARTUP_SRC))
 
 MAIN_PRJ = JustStartAtari
-MAIN_SRC = main.c regs.c freeze.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc.c
+MAIN_SRC = main.c regs.c freeze.c joystick.c fileutils.c fileselector.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc.c
 #gcc -g -O0 -DLITTLE_ENDIAN test_drive.c atari_drive_emulator.c native/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c native/diskio_image.c -I. -Iprintf -Ifat -Icommon
 #MAIN_SRC = stuff.c
 MAIN_OBJ = $(COMMON_OBJ) $(patsubst %.c,$(BUILD_DIR)/%.o,$(MAIN_SRC))

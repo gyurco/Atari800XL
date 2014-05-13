@@ -12,6 +12,7 @@ enum SimpleFileStatus file_open_dir(struct SimpleDirEntry * filename, struct Sim
 
 // Reads entire dir into memory (i.e. give it a decent chunk of sdram)
 enum SimpleFileStatus dir_init(void * mem, int space);
+struct SimpleDirEntry * dir_entries_filtered(char const * dirPath, int (*filter)(struct SimpleDirEntry *));
 struct SimpleDirEntry * dir_entries(char const * dirPath);
 
 char const * dir_filename(struct SimpleDirEntry *);

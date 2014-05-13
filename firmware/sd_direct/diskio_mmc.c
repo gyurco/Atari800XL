@@ -96,7 +96,7 @@ DRESULT disk_readp (
 	for(;count>0;++sofs,--count)
 	{
 		unsigned char x = mmc_sector_buffer[sofs];
-		//printf("char:%02x loc:%d", x,sofs);
+		//printf("char:%c loc:%d ", x,sofs);
 		*dest++ = x;
 	}
 
@@ -111,26 +111,36 @@ DRESULT disk_readp (
 /* Write Partial Sector                                                  */
 /*-----------------------------------------------------------------------*/
 
-DRESULT disk_writep (const BYTE* buff, DWORD sc)
+DRESULT disk_writep (const BYTE* buff, DWORD sofs, DWORD count)
 {
 	DRESULT res;
 
-
-	if (!buff) {
-		if (sc) {
-
-			// Initiate write process
-
-		} else {
-
-			// Finalize write process
-
-		}
-	} else {
-
-		// Send data to the disk
-
+	int i=sofs;
+	int end=sofs+count;
+	int pos = 0;
+	for (;i!=end;++i,++pos)
+	{
+		mmc_sector_buffer[i] = buff[pos];
+		//printf("char:%c loc:%d,", buff[pos],i);
 	}
+
+	res = RES_OK;
 
 	return res;
 }
+
+void disk_writeflush()
+{
+	// Finalize write process
+	int retry=16; //zkusi to maximalne 16x
+	int ret;
+	printf(":WSECT:%d",n_actual_mmc_sector);
+	do
+	{
+		ret = mmcWrite(n_actual_mmc_sector); //vraci 0 kdyz ok
+		retry--;
+	} while (ret && retry);
+	printf(":WD:");
+}
+
+
