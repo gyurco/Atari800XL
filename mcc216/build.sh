@@ -98,7 +98,7 @@ foreach my $variant (sort keys %variants)
 	my $version = `svn info  | grep Revision: | cut -c11`;
 	chomp $version;
 	$version.=".0";
-	`wine ../rbf2arg/rbf2arg.exe $vga A 0.3 "Atari 800XL" output_files/atari800core.rbf output_files/atari800core.arg`;
+	`wine ../rbf2arg/rbf2arg.exe $vga A 0.4 "Atari 800XL $variant" output_files/atari800core.rbf output_files/atari800core_$variant.arg`;
 	
 	chdir "..";
 }
