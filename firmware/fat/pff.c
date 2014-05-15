@@ -24,6 +24,7 @@
 
 #include "pff.h"		/* Petit FatFs configurations and declarations */
 #include "diskio.h"		/* Declarations of low level disk I/O functions */
+#include "printf.h"
 
 
 
@@ -527,25 +528,54 @@ FRESULT dir_find (
 static
 FRESULT dir_read (
 	DIR *dj,		/* Pointer to the directory object to store read object name */
-	BYTE *dir		/* 32-byte working buffer */
+	BYTE *dir,		/* 32-byte working buffer */
+	BYTE *lfn_buffer        /* 256-byte lfn buffer */
 )
 {
 	FRESULT res;
 	BYTE a, c;
 
 
+	int lfn = 0;
+	char *lfn_pos = &lfn_buffer[255];
+	lfn_buffer[255] = '\0';
+
 	res = FR_NO_FILE;
 	while (dj->sect) {
 		res = disk_readp(dir, dj->sect, (WORD)((dj->index % 16) * 32), 32)	/* Read an entry */
 			? FR_DISK_ERR : FR_OK;
+
 		if (res != FR_OK) break;
 		c = dir[DIR_Name];
 		if (c == 0) { res = FR_NO_FILE; break; }	/* Reached to end of table */
 		a = dir[DIR_Attr] & AM_MASK;
+		if (a&AM_LFN == AM_LFN && ((dir[0]&0xbf) < 16) && dir[0x1a]==0 && dir[0x1c]!=0)
+		{
+			lfn_pos-=13;
+			char * ptr = lfn_pos;
+			int i;
+			for (i=1;i!=32;i+=2)
+			{
+				if (i==0xb) i=0xe;
+				if (i==0x1a) i=0x1c;
+				char b1 = dir[i];
+				char b2 = dir[i+1];
+				if (b2==0) *ptr++ = b1; else *ptr++ = '_';
+			}
+			//printf("LFN seq:%d %c%c%c%c%c%c%c%c%c%c%c%c%c \n",dir[0],dir[1],dir[3],dir[5],dir[7],dir[9],dir[14],dir[16],dir[18],dir[20],dir[22],dir[24],dir[28],dir[30]);
+			lfn = 1;
+		}
+
 		if (c != 0xE5 && c != '.' && !(a & AM_VOL))	/* Is it a valid entry? */
 			break;
 		res = dir_next(dj);			/* Next entry */
 		if (res != FR_OK) break;
+	}
+
+	lfn_buffer[0] = '\0';
+	if (lfn)
+	{
+		strcpy(&lfn_buffer[0],lfn_pos);
 	}
 
 	if (res != FR_OK) dj->sect = 0;
@@ -1091,7 +1121,7 @@ FRESULT pf_readdir (
 		if (!fno) {
 			res = dir_rewind(dj);
 		} else {
-			res = dir_read(dj, dir);
+			res = dir_read(dj, dir, &fno->lfname[0]);
 			if (res == FR_NO_FILE) {
 				dj->sect = 0;
 				res = FR_OK;
@@ -1107,6 +1137,8 @@ FRESULT pf_readdir (
 		}
 	}
 
+	if (fno->lfname[0] == '\0') strcpy(&fno->lfname[0],&fno->fname[0]);
+	//printf("%s %s(%d)\n",&fno->fname[0], &fno->lfname[0],strlen(&fno->lfname[0]));
 	return res;
 }
 

@@ -112,6 +112,7 @@ typedef struct {
 	WORD	ftime;		/* Last modified time */
 	BYTE	fattrib;	/* Attribute */
 	char	fname[13];	/* File name */
+	char	lfname[256];	/* File name */
 } FILINFO;
 
 

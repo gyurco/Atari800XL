@@ -86,10 +86,12 @@ void actions()
 			once = 1;
 
 			receive_buffer[receive_buffer_last++] = 0x31;
+			//receive_buffer[receive_buffer_last++] = 0x32;
 			receive_buffer[receive_buffer_last++] = 0x52;
 			receive_buffer[receive_buffer_last++] = 0x01;
 			receive_buffer[receive_buffer_last++] = 0x00;
 			receive_buffer[receive_buffer_last++] = 0x84;
+			//receive_buffer[receive_buffer_last++] = 0x85;
 		}
 		else
 		{

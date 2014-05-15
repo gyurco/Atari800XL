@@ -170,6 +170,7 @@ int main(void)
 	for (i=0; i!=4; ++i)
 	{
 		files[i] = (struct SimpleFile *)alloca(file_struct_size());
+		file_init(files[i]);
 	}
 
 	freeze_init((void*)0xc20000); // 128k
@@ -245,7 +246,8 @@ void settings()
 
 	int row = 0;
 
-	for (;;)
+	int done = 0;
+	for (;!done;)
 	{
 		// Render
 		clearscreen();
@@ -261,6 +263,19 @@ void settings()
 		debug_pos = 160;
 		debug_adjust = row==2 ? 128 : 0;
 		printf("Rom bank:%d", get_rom_select());
+		debug_pos = 240;
+		int i;
+		for (i=1;i!=5;++i)
+		{
+			int temp = debug_pos;
+			debug_adjust = row==i+2 ? 128 : 0;
+			printf("Drive %d:%s", i, file_name(files[i-1]));
+			debug_pos = temp+40;
+		}
+
+		debug_pos = 440;
+		debug_adjust = row==7 ? 128 : 0;
+		printf("Exit");
 
 		// Slow it down a bit
 		wait_us(100000);
@@ -269,10 +284,9 @@ void settings()
 		joystick_wait(&joy,WAIT_QUIET);
 		joystick_wait(&joy,WAIT_EITHER);
 
-		if (joy.fire_) break;
 		row+=joy.y_;
 		if (row<0) row = 0;
-		if (row>2) row = 2;
+		if (row>7) row = 7;
 		switch (row)
 		{
 		case 0:
@@ -301,6 +315,40 @@ void settings()
 				if (rom_select<0) rom_select = 0;
 				if (rom_select>7) rom_select = 7; // TODO
 				set_rom_select(rom_select);
+			}
+			break;
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+			{
+				if (joy.x_>0)
+				{
+					// Choose new disk
+					file_selector(files[row-3]);
+					set_drive_status(row-3,files[row-3]);
+				}
+				else if(joy.x_<0)
+				{
+					// Remove disk
+					file_init(files[row-3]);
+					set_drive_status(row-3,files[row-3]);
+				}
+				else if (joy.fire_)
+				{
+					struct SimpleFile * temp;
+					temp = files[0];
+					files[0] = files[row-3];
+					files[row-3] = temp;
+					set_drive_status(row-3,temp);
+					set_drive_status(0,files[0]);
+				}
+			}
+			break;
+		case 7:
+			if (joy.fire_)
+			{
+				done = 1;
 			}
 			break;
 		}

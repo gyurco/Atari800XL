@@ -112,6 +112,8 @@ int main(void)
 	}*/
 	file_write(file,"Blah",4,&written);
 
+	printf("\n*** WTF:%s - %s - %s\n",file_name(file), file_of("/WTF"),file_of("/BLAH/BOOP"));
+
 	// So... for write can only seek to nearest 512...
 
 	fprintf(stderr,"\n\n");
@@ -123,7 +125,7 @@ int main(void)
 		fprintf(stderr,"%c", buffer[i]);
 	}
 
-	//file_selector(file);
+	file_selector(file);
 
 	return 0;
 }

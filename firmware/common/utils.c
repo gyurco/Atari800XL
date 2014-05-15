@@ -23,10 +23,11 @@ void stricpy(char * dest, char const * src)
 	while (*src)
 	{
 		char val = *src++;
-		if (val>='A' && val<='Z') val-='A'+'a';
+		if (val>='A' && val<='Z') val+=-'A'+'a';
 
 		*dest++ = val;
 	}
+	*dest = '\0';
 }
 
 int strlen(char const * a)

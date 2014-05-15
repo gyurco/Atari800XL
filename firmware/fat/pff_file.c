@@ -35,7 +35,7 @@ char const * file_of(char const * path)
 		--start;
 		if (*start == '/')
 		{
-			--start;
+			++start;
 			break;
 		}
 	}
@@ -61,6 +61,12 @@ void dir_of(char * dir, char const * path)
 char const * file_name(struct SimpleFile * file)
 {
 	return file_of(&file->path[0]);
+}
+
+void file_init(struct SimpleFile * file)
+{
+	file->path[0] = '\0';
+	file->size = 0;
 }
 
 void file_check_open(struct SimpleFile * file)
@@ -250,6 +256,58 @@ struct SimpleDirEntry * dir_entries(char const * dirPath)
 	return dir_entries_filtered(dirPath,0);
 }
 
+int dircmp(struct SimpleDirEntry * a, struct SimpleDirEntry * b)
+{
+	if (a->is_subdir==b->is_subdir)
+		return strcmp(a->lfn,b->lfn);
+	else
+		return a->is_subdir<b->is_subdir;
+}
+
+void sort_ll(struct SimpleDirEntry * h)
+{
+//struct SimpleDirEntry
+//{
+//	char path[MAX_PATH_LENGTH];
+//	char * filename_ptr;
+//	int size;
+//	int is_subdir;
+//	struct SimpleDirEntry * next; // as linked list - want to allow sorting...
+//};
+
+	struct SimpleDirEntry * p,*temp,*prev;
+	int i,j,n,sorted=0;
+	temp=h;
+	prev=0;
+	for(n=0;temp!=0;temp=temp->next) n++;
+
+	for(i=0;i<n-1 && !sorted;i++){
+		p=h;sorted=1;
+		prev=0;
+		for(j=0;j<n-(i+1);j++){
+	//		printf("p->issubdir:%d(%s) p->next->issubdir:%d(%s)",p->is_subdir,p->path,p->next->is_subdir,p->next->path);
+
+			if(dircmp(p,p->next)>0) {
+	//			printf("SWITCH!\n");
+				struct SimpleDirEntry * a = p;
+				struct SimpleDirEntry * b = p->next;
+				a->next=b->next;
+				b->next=a;
+				if (prev)
+					prev->next=b;
+				p=b;
+
+				sorted=0;
+			}
+			prev=p;
+			p=p->next;
+		}
+	}
+
+	//temp=h;
+	//for(n=0;temp!=0;temp=temp->next) printf("POST:%s\n",temp->path);
+}
+
 struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(struct SimpleDirEntry *))
 {
 	int room = dir_cache_size/sizeof(struct SimpleDirEntry);
@@ -266,11 +324,13 @@ struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(
 
 	struct SimpleDirEntry * prev = (struct SimpleDirEntry *)dir_cache;
 	strcpy(prev->path,"..");
+	strcpy(prev->lfn,"..");
 	prev->filename_ptr = prev->path;
 	prev->size = 0;
 	prev->is_subdir = 1;
 	--room;
 
+	//int count=0;
 	struct SimpleDirEntry * entry = 0;
 	while (FR_OK == pf_readdir(&dir,&filinfo) && filinfo.fname[0]!='\0')
 	{
@@ -295,11 +355,11 @@ struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(
 			break; // OUT OF ROOM!
 		}
 
-		printf("next %x %d ",entry,room);
+		//printf("next %x %d ",entry,room);
 
 		entry->is_subdir = (filinfo.fattrib & AM_DIR) ? 1 : 0;
 
-		printf("%s ",filinfo.fname);
+		//printf("%s ",filinfo.fname);
 
 		strcpy(&entry->path[0],dirPath);
 		ptr = &entry->path[0];
@@ -308,6 +368,10 @@ struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(
 		entry->filename_ptr = ptr;
 		strcpy(ptr,filinfo.fname);
 		entry->size = filinfo.fsize;
+
+		strcpy(&entry->lfn[0],&filinfo.lfname[0]);
+
+	//	printf("%d %s %s\n",count++, filinfo.fname, filinfo.lfname);
 
 		entry->next = 0;
 
@@ -320,12 +384,22 @@ struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(
 			prev->next = entry;
 		prev = entry;
 
-		printf("n %d %d %x ",filinfo.fsize, entry->size, entry->next);
+		//printf("n %d %d %x ",filinfo.fsize, entry->size, entry->next);
 	}
 
-	printf("dir_entries done ");
+	//printf("dir_entries done ");
 
 	entry->next = 0;
+
+/*	struct SimpleDirEntry * begin = (struct SimpleDirEntry *) dir_cache;
+	count = 0;
+	while (begin)
+	{
+		printf("%d %s\n",count++, begin->path);
+		begin = begin->next;
+	}*/
+
+	sort_ll((struct SimpleDirEntry *) dir_cache);
 	return (struct SimpleDirEntry *) dir_cache;
 }
 
@@ -336,7 +410,8 @@ char const * dir_path(struct SimpleDirEntry * entry)
 
 char const * dir_filename(struct SimpleDirEntry * entry)
 {
-	return entry->filename_ptr;
+	//return entry->filename_ptr;
+	return &entry->lfn[0];
 }
 
 int dir_filesize(struct SimpleDirEntry * entry)

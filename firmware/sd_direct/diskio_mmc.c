@@ -134,13 +134,13 @@ void disk_writeflush()
 	// Finalize write process
 	int retry=16; //zkusi to maximalne 16x
 	int ret;
-	printf(":WSECT:%d",n_actual_mmc_sector);
+	//printf(":WSECT:%d",n_actual_mmc_sector);
 	do
 	{
 		ret = mmcWrite(n_actual_mmc_sector); //vraci 0 kdyz ok
 		retry--;
 	} while (ret && retry);
-	printf(":WD:");
+	//printf(":WD:");
 }
 
 

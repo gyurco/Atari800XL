@@ -18,6 +18,7 @@ struct SimpleDirEntry
 {
 	char path[MAX_PATH_LENGTH];
 	char * filename_ptr;
+	char lfn[256];
 	int size;
 	int is_subdir;
 	struct SimpleDirEntry * next; // as linked list - want to allow sorting...

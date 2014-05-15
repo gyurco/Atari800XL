@@ -34,6 +34,7 @@ void file_selector(struct SimpleFile * file)
 			++entries;
 			temp_entry = dir_next(temp_entry);
 		}
+		printf("Entries:%d\n",entries);
 
 		// Selected item
 		int pos = 0;
@@ -49,8 +50,12 @@ void file_selector(struct SimpleFile * file)
 			// render
 			{
 				// find which chunk to render
-				int startpos = pos-20;
+				int startpos = pos-10;
+				//printf("\nA pos:%d, startpos:%d\n",pos,startpos);
+				//startpos &= 0xfffffffe;
+				//printf("startpos:%d\n",startpos);
 				if (startpos<0) startpos=0;
+				//printf("pos:%d, startpos:%d\n",pos,startpos);
 
 				// get the dir entries for these
 				struct SimpleDirEntry * render_entry = entry;
@@ -73,11 +78,13 @@ void file_selector(struct SimpleFile * file)
 
 				// output the new entries
 				int line;
-				for (line=0; line<44; ++line)
+				debug_pos = 0;
+				int end = 21*40;
+				for (;;)
 				{
 					if (!render_entry) break;
 					
-					debug_pos = line*20;
+					int prev_debug_pos = debug_pos;
 					if (render_entry == sel_entry)
 					{
 						debug_adjust = 128;
@@ -93,6 +100,14 @@ void file_selector(struct SimpleFile * file)
 					printf("%s",dir_filename(render_entry));
 
 					render_entry = dir_next(render_entry);
+
+					while(prev_debug_pos<debug_pos)
+					{
+						prev_debug_pos+=40;
+					}
+					debug_pos = prev_debug_pos;
+					//printf("debug_pos:%d",debug_pos);
+					if (debug_pos>=end) break;
 				}
 
 				debug_pos = 40*23;
@@ -154,8 +169,8 @@ void file_selector(struct SimpleFile * file)
 				return;
 			}
 			
-			pos += joy.x_;
-			pos += joy.y_*2;
+			pos += joy.x_*10;
+			pos += joy.y_;
 		}
 	}
 }
