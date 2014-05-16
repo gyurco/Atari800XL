@@ -18,6 +18,7 @@ ENTITY atari800core_mcc IS
 		TV : integer;  -- 1 = PAL, 0=NTSC
 		VIDEO : integer; -- 1 = SVIDEO, 2 = VGA
 		SCANDOUBLE : integer; -- 1 = YES, 0=NO, (+ later scanlines etc)
+		internal_rom : integer;
 		internal_ram : integer;
 		ext_clock : integer
 	);
@@ -459,7 +460,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
 	(
 		cycle_length => 16,
-		internal_rom => 1,
+		internal_rom => internal_rom,
 		internal_ram => internal_ram,
 		video_bits => 8,
 		palette => palette_from_scandouble(scandouble)
@@ -520,7 +521,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		DMA_MEMORY_DATA => dma_memory_data, 
 
    		RAM_SELECT => ram_select,
-    		ROM_SELECT => "000001",
+    		ROM_SELECT => rom_select,
 		PAL => PAL,
 		HALT => pause_atari,
 		THROTTLE_COUNT_6502 => speed_6502

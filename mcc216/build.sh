@@ -21,6 +21,7 @@ my %variants =
 		"SCANDOUBLE" => 0,
 		"VIDEO" => $VGA,
 		"internal_ram" => 16384,
+		"internal_rom" => 1,
 		"ext_clock" => 0
 	},
 	"PAL_SVIDEO" => 
@@ -29,6 +30,7 @@ my %variants =
 		"SCANDOUBLE" => 0,
 		"VIDEO" => $SVIDEO,
 		"internal_ram" => 0,
+		"internal_rom" => 0,
 		"ext_clock" => 0
 	},
 	"PAL_VGA" =>
@@ -37,6 +39,7 @@ my %variants =
 		"SCANDOUBLE" => 1,
 		"VIDEO" => $VGA,
 		"internal_ram" => 0,
+		"internal_rom" => 0,
 		"ext_clock" => 0
 	},
 	"NTSC_SVIDEO" =>
@@ -45,6 +48,7 @@ my %variants =
 		"SCANDOUBLE" => 0,
 		"VIDEO" => $SVIDEO,
 		"internal_ram" => 0,
+		"internal_rom" => 0,
 		"ext_clock" => 0
 	},
 	"NTSC_VGA" => 
@@ -53,6 +57,7 @@ my %variants =
 		"SCANDOUBLE" => 1,
 		"VIDEO" => $VGA,
 		"internal_ram" => 0,
+		"internal_rom" => 0,
 		"ext_clock" => 0
 	}
 );
