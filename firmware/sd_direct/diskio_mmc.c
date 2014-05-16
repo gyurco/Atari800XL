@@ -45,7 +45,7 @@ DSTATUS disk_initialize (void)
 {
 	DSTATUS stat;
 
-	printf(" in init ");
+	//printf(" in init ");
 	n_actual_mmc_sector = 0xffffffff;
 	do
 	{
@@ -53,7 +53,7 @@ DSTATUS disk_initialize (void)
 	}
 	while(mmcReset());	//dokud nenulove, tak smycka (return 0 => ok!)
 
-	printf(" setting freq ");
+	//printf(" setting freq ");
 
 	set_spi_clock_freq();
 

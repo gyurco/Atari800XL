@@ -11,12 +11,22 @@ extern int debug_adjust; // ARG!
 // TODO!
 #define MAX_PATH_LENGTH (9*5 + 8+3+1 + 1) 
 
-int filter(struct SimpleDirEntry * entry)
+int (* filter)(struct SimpleDirEntry * entry);
+
+int filter_disks(struct SimpleDirEntry * entry)
 {
 	if (dir_is_subdir(entry)) return 1;
 	char const * f = dir_filename(entry);
 	return (compare_ext(f,"ATR") || compare_ext(f,"XFD") || compare_ext(f,"XEX"));
 }
+
+int filter_roms(struct SimpleDirEntry * entry)
+{
+	if (dir_is_subdir(entry)) return 1;
+	char const * f = dir_filename(entry);
+	return (compare_ext(f,"ROM"));
+}
+
 
 void file_selector(struct SimpleFile * file)
 {
@@ -34,7 +44,7 @@ void file_selector(struct SimpleFile * file)
 			++entries;
 			temp_entry = dir_next(temp_entry);
 		}
-		printf("Entries:%d\n",entries);
+		//printf("Entries:%d\n",entries);
 
 		// Selected item
 		int pos = 0;
@@ -79,7 +89,12 @@ void file_selector(struct SimpleFile * file)
 				// output the new entries
 				int line;
 				debug_pos = 0;
-				int end = 21*40;
+				debug_adjust = 0;
+				printf("Choose ");
+				debug_adjust = 128;
+				printf("file");
+				debug_pos = 40;
+				int end = 22*40;
 				for (;;)
 				{
 					if (!render_entry) break;
@@ -113,7 +128,8 @@ void file_selector(struct SimpleFile * file)
 				debug_pos = 40*23;
 				if (sel_entry)
 				{
-					printf("%s %s %d %d %d",dir_is_subdir(sel_entry) ? "DIR":"", dir_filename(sel_entry), joy.x_, joy.y_, pos);
+					//printf("%s %s %d %d %d",dir_is_subdir(sel_entry) ? "DIR":"", dir_filename(sel_entry), joy.x_, joy.y_, pos);
+					printf("%s %s",dir_is_subdir(sel_entry) ? "DIR":"", dir_filename(sel_entry));
 				}
 			}
 

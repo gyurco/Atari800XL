@@ -250,10 +250,10 @@ void set_drive_status(int driveNumber, struct SimpleFile * file)
 
 	if (atr_header.wSecSize == 0x80)
 	{
-		if (atr_header.wPars>(720*128/16))
+	/*	if (atr_header.wPars>(720*128/16))
 			printf("MD ");
 		else
-			printf("SD ");
+			printf("SD ");*/
 	}
 	else if (atr_header.wSecSize == 0x100)
 	{
@@ -480,7 +480,7 @@ void processCommand()
 
 				if (command.command == 0x57)
 				{
-					char buffer[256];
+					unsigned char buffer[256];
 					int read;
 					file_read(file,buffer,sectorSize,&read);
 

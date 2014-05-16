@@ -42,6 +42,8 @@ extern unsigned char volatile * atari_dlisth;
 extern unsigned char volatile * atari_colbk;
 extern unsigned char volatile * atari_colpf1;
 extern unsigned char volatile * atari_colpf2;
+extern unsigned char volatile * atari_colpf3;
+extern unsigned char volatile * atari_colpf0;
 extern unsigned char volatile * atari_prior;
 extern unsigned char volatile * atari_random;
 extern unsigned char volatile * atari_porta;

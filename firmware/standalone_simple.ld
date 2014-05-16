@@ -5,7 +5,7 @@
 MEMORY
 {
   CODE (rx) : ORIGIN = 0x00000000, LENGTH = 0x04000 /* 16k */
-  RAM (rx) : ORIGIN = 0x0000f000, LENGTH = 0x500 /* 32 bytes */
+  RAM (rx) : ORIGIN = 0x0000f000, LENGTH = 0x600 /* 32 bytes */
 }
 
 

@@ -162,12 +162,22 @@ void char_out ( void* p, char c)
 // 0x410000-0x41FFFF (0xc10000 in zpu space) = directory cache - 64k
 // 0x420000-0x43FFFF (0xc20000 in zpu space) = freeze backup
 
-struct SimpleFile * files[4];
+struct SimpleFile * files[5];
+
+void loadrom(char const * path, int size, void * ram_address)
+{
+	ram_address += 0x800000;
+	if (SimpleFile_OK == file_open_name(path, files[4]))
+	{
+		int read = 0;
+		file_read(files[4], ram_address, size, &read);
+	}
+}
 
 int main(void)
 {
 	int i;
-	for (i=0; i!=4; ++i)
+	for (i=0; i!=5; ++i)
 	{
 		files[i] = (struct SimpleFile *)alloca(file_struct_size());
 		file_init(files[i]);
@@ -180,23 +190,42 @@ int main(void)
 	baseaddr = (unsigned char volatile *)(40000 + atari_regbase);
 	set_reset_6502(1);
 	set_turbo_6502(1);
+	set_rom_select(1);
 
 	init_printf(0, char_out);
 
 	// TODO...
 
-	printf("Hello World\n I am an Atari!\n");
-
 	if (SimpleFile_OK == dir_init((void *)0xc10000, 65536))
 	{
-		printf("DIR init ok\n");
+	//	printf("DIR init ok\n");
 		init_drive_emulator();
+
+		loadrom("xlorig.rom",0x4000, (void *)0x704000);
+		loadrom("xlhias.rom",0x4000, (void *)0x708000);
+		loadrom("ultimon.rom",0x4000, (void *)0x70c000);
+		loadrom("osbhias.rom",0x4000, (void *)0x710000);
+		loadrom("osborig.rom",0x2800, (void *)0x715800);
+		loadrom("osaorig.rom",0x2800, (void *)0x719800);
+		loadrom("ataribas.rom",0x2000,(void *)0x700000);
+
+		//ROM = xlorig.rom,0x4000, (void *)0x704000
+		//ROM = xlhias.rom,0x4000, (void *)0x708000
+		//ROM = ultimon.rom,0x4000, (void *)0x70c000
+		//ROM = osbhias.rom,0x4000, (void *)0x710000
+		//ROM = osborig.rom,0x2800, (void *)0x715800
+		//ROM = osaorig.rom,0x2800, (void *)0x719800
+		//
+		//ROM = ataribas.rom,0x2000,(void *)0x700000
+
+		//--SDRAM_BASIC_ROM_ADDR <= "111"&"000000"   &"00000000000000";
+		//--SDRAM_OS_ROM_ADDR    <= "111"&rom_select &"00000000000000";
 		reboot(1);
 		run_drive_emulator();
 	}
 	else
 	{
-		printf("DIR init failed\n");
+		//printf("DIR init failed\n");
 	}
 	reboot(1);
 	for (;;) actions();
@@ -223,7 +252,7 @@ char const * get_ram()
 	case 0:
 		return "64K";
 	case 1:
-		return "128";
+		return "128K";
 	case 2:
 		return "320K(Compy)";
 	case 3:
@@ -239,7 +268,7 @@ char const * get_ram()
 	}
 }
 
-void settings()
+int settings()
 {
 	struct joystick_status joy;
 	joy.x_ = joy.y_ = joy.fire_ = 0;
@@ -251,9 +280,11 @@ void settings()
 	{
 		// Render
 		clearscreen();
-		debug_pos = 20;
+		debug_pos = 0;
 		debug_adjust = 0;
-		printf("Settings");
+		printf("Se");
+		debug_adjust = 128;
+		printf("ttings");
 		debug_pos = 80;
 		debug_adjust = row==0 ? 128 : 0;
 		printf("Turbo:%dx", get_turbo_6502());
@@ -273,8 +304,12 @@ void settings()
 			debug_pos = temp+40;
 		}
 
-		debug_pos = 440;
+		debug_pos = 400;
 		debug_adjust = row==7 ? 128 : 0;
+		printf("Cartridge 8k simple");
+
+		debug_pos = 480;
+		debug_adjust = row==8 ? 128 : 0;
 		printf("Exit");
 
 		// Slow it down a bit
@@ -286,7 +321,7 @@ void settings()
 
 		row+=joy.y_;
 		if (row<0) row = 0;
-		if (row>7) row = 7;
+		if (row>8) row = 8;
 		switch (row)
 		{
 		case 0:
@@ -312,8 +347,8 @@ void settings()
 			{
 				int rom_select = get_rom_select();
 				rom_select+=joy.x_;
-				if (rom_select<0) rom_select = 0;
-				if (rom_select>7) rom_select = 7; // TODO
+				if (rom_select<1) rom_select = 1;
+				if (rom_select>6) rom_select = 6; // TODO
 				set_rom_select(rom_select);
 			}
 			break;
@@ -325,6 +360,7 @@ void settings()
 				if (joy.x_>0)
 				{
 					// Choose new disk
+					filter = filter_disks;
 					file_selector(files[row-3]);
 					set_drive_status(row-3,files[row-3]);
 				}
@@ -346,6 +382,17 @@ void settings()
 			}
 			break;
 		case 7:
+			{
+				if (joy.fire_)
+				{
+					filter = filter_roms;
+					file_selector(files[4]);
+					loadrom(file_name(files[4]),0x2000,(void *)0x700000);
+					return 1;
+				}
+			}
+			break;
+		case 8:
 			if (joy.fire_)
 			{
 				done = 1;
@@ -353,6 +400,8 @@ void settings()
 			break;
 		}
 	}
+
+	return 0;
 }
 
 void actions()
@@ -374,15 +423,19 @@ void actions()
 		set_pause_6502(1);
 		freeze();
 		debug_pos = 0;	
-		settings();
+		int do_reboot = settings();
 		debug_pos = -1;
 		restore();
-		set_pause_6502(0);
+		if (do_reboot)
+			reboot(1);
+		else
+			set_pause_6502(0);
 	}
 	else if (get_hotkey_fileselect())
 	{
 		set_pause_6502(1);
 		freeze();
+		filter = filter_disks;
 		file_selector(files[0]);
 		debug_pos = -1;
 		restore();

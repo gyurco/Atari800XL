@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "diskio.h"
 #include "simplefile.h"
-#include "printf.h"
+//#include "printf.h"
 
 struct SimpleFile * openfile;
 
@@ -99,7 +99,7 @@ enum SimpleFileStatus file_write(struct SimpleFile * file, void * buffer, int by
 	WORD byteswritten_word;
 	FRESULT res;
 
-	printf("went\n");
+	//printf("went\n");
 
 	file_check_open(file);
 
@@ -113,7 +113,7 @@ enum SimpleFileStatus file_write(struct SimpleFile * file, void * buffer, int by
 		if (bytes_this_cycle>(512-pos))
 			bytes_this_cycle = 512-pos;
 
-		printf("file_write:%d/%d - %d/%d\n",sector,pos,bytes_this_cycle,bytes);
+		//printf("file_write:%d/%d - %d/%d\n",sector,pos,bytes_this_cycle,bytes);
 
 		if (sector != write_pending)
 		{
@@ -129,7 +129,7 @@ enum SimpleFileStatus file_write(struct SimpleFile * file, void * buffer, int by
 			char temp_buffer[1];
 			pf_read(&temp_buffer[0], 1, &byteswritten_word);
 
-			printf("Writing initial pos:%d\n",pos);
+			//printf("Writing initial pos:%d\n",pos);
 
 			// seek to the initial pos
 			fatfs.fptr = fptr + pos;
@@ -145,7 +145,7 @@ enum SimpleFileStatus file_write(struct SimpleFile * file, void * buffer, int by
 	}
 	*byteswritten = bytes;
 
-	printf("wend\n");
+	//printf("wend\n");
 	return translateStatus(res);
 }
 
@@ -153,7 +153,7 @@ enum SimpleFileStatus file_write_flush()
 {
 	if (write_pending >= 0)
 	{
-		printf("wflush\n");
+		//printf("wflush\n");
 		disk_writeflush();
 		write_pending = -1;
 	}
@@ -167,7 +167,7 @@ enum SimpleFileStatus file_seek(struct SimpleFile * file, int offsetFromStart)
 	int location = offsetFromStart>>9;
 	if (write_pending >=0 && write_pending != offsetFromStart)
 	{
-		printf("flush on seek\n");
+		//printf("flush on seek\n");
 		file_write_flush();
 	}
 
@@ -195,13 +195,13 @@ enum SimpleFileStatus file_open_name(char const * path, struct SimpleFile * file
 
 	file_write_flush();
 
-	printf("filename:%s dirname:%s ", filename,&dirname[0]);
+	//printf("filename:%s dirname:%s ", filename,&dirname[0]);
 
 	struct SimpleDirEntry * entry = dir_entries(&dirname[0]);
 	while (entry)
 	{
-		printf("%s ",entry->filename_ptr);
-		if (0==strcmp(filename,entry->filename_ptr))
+		//printf("%s ",entry->filename_ptr);
+		if (0==stricmp(filename,entry->filename_ptr))
 		{
 			return file_open_dir(entry, file);
 		}
@@ -233,19 +233,19 @@ enum SimpleFileStatus dir_init(void * mem, int space)
 
 	write_pending = -1;
 
-	printf("dir_init\n");
+	//printf("dir_init\n");
 
 	dir_cache = mem;
 	dir_cache_size = space;
 
-	printf("disk_init go\n");
+	//printf("disk_init go\n");
 	res = disk_initialize();
-	printf("disk_init done\n");
+	//printf("disk_init done\n");
 	if (res!=RES_OK) return translateDStatus(res);
 
-	printf("pf_mount\n");
+	//printf("pf_mount\n");
 	fres = pf_mount(&fatfs);
-	printf("pf_mount done\n");
+	//printf("pf_mount done\n");
 
 	return translateStatus(fres);
 }
@@ -314,13 +314,13 @@ struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(
 
 	file_write_flush();
 
-	printf("opendir ");
+	//printf("opendir ");
 	if (FR_OK != pf_opendir(&dir,dirPath))
 	{
-		printf("FAIL ");
+		//printf("FAIL ");
 		return 0;
 	}
-	printf("OK ");
+	//printf("OK ");
 
 	struct SimpleDirEntry * prev = (struct SimpleDirEntry *)dir_cache;
 	strcpy(prev->path,"..");
@@ -352,6 +352,7 @@ struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(
 		}
 		else
 		{
+			//printf("OUT of room!\n");
 			break; // OUT OF ROOM!
 		}
 
@@ -371,7 +372,8 @@ struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(
 
 		strcpy(&entry->lfn[0],&filinfo.lfname[0]);
 
-	//	printf("%d %s %s\n",count++, filinfo.fname, filinfo.lfname);
+		//int count;
+		//printf("%d %s %s\n",count++, filinfo.fname, filinfo.lfname);
 
 		entry->next = 0;
 
@@ -391,8 +393,8 @@ struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(
 
 	entry->next = 0;
 
-/*	struct SimpleDirEntry * begin = (struct SimpleDirEntry *) dir_cache;
-	count = 0;
+	/*struct SimpleDirEntry * begin = (struct SimpleDirEntry *) dir_cache;
+	int count = 0;
 	while (begin)
 	{
 		printf("%d %s\n",count++, begin->path);

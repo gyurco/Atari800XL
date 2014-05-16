@@ -1,3 +1,5 @@
+#include "utils.h"
+
 int strcmp(char const * a, char const * b)
 {
 	while (*a || *b)
@@ -11,6 +13,15 @@ int strcmp(char const * a, char const * b)
 		++b;
 	}
 	return 0;
+}
+
+int stricmp(char const * a, char const * b)
+{
+	char buffer[128];
+	char buffer2[128];
+	stricpy(&buffer[0],a);
+	stricpy(&buffer2[0],b);
+	return strcmp(&buffer[0],&buffer2[0]);
 }
 
 void strcpy(char * dest, char const * src)
