@@ -108,7 +108,7 @@ ENTITY atari800core IS
 
 		-- ANTIC lightpen
 		ANTIC_LIGHTPEN : IN std_logic;
-		ANTIC_REFRESH : out STD_LOGIC; -- 1 cycle high when antic doing refresh cycle..., propose locking out for the next 'cycle_length'
+		ANTIC_REFRESH : out STD_LOGIC; -- 1 'original' cycle high when antic doing refresh cycle...
 		
 		-----------------------
 		-- After here all FPGA implementation specific

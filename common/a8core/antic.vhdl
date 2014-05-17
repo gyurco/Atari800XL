@@ -1098,22 +1098,28 @@ BEGIN
 	begin
 		increment_refresh_count <= '0';
 		refresh_pending_next <= refresh_pending_reg;
-		refresh_fetch_next <= '0';
+		refresh_fetch_next <= refresh_fetch_reg;
 		
-		if (colour_clock_1x = '1') then
+		if (colour_clock_1x = '1' and hcount_reg(0) = '0') then
+			refresh_fetch_next <= '0';
+		
 			-- do pending refresh once we have a spare cycle
-			if (refresh_pending_reg='1' and (dma_fetch_next='0' or allow_real_dma_next='0') and hcount_reg(0) = '0') then
+			if (refresh_pending_reg='1' and (dma_fetch_next='0' or allow_real_dma_next='0')) then
 				refresh_fetch_next <= '1';		
 				refresh_pending_next <= '0';
 			end if;
 		
 			-- do scheduled refresh - if block, enable pending one
-			if (hcount_reg(2 downto 0) = "010" and unsigned(refresh_count_reg)<9) then
+			if (hcount_reg(2 downto 1) = "01" and unsigned(refresh_count_reg)<9) then
 				increment_refresh_count <= '1';
 				refresh_fetch_next <= not(dma_fetch_next);
 				refresh_pending_next <= dma_fetch_next;
 			end if;
 		end if;
+	end process;
+	
+	process(refresh_fetch_next)
+	begin
 	end process;
 	
 	-- nmi handling
