@@ -15,7 +15,8 @@ LIBRARY work;
 ENTITY zpucore IS 
 	GENERIC
 	(
-		platform : integer := 1 -- So ROM can detect which type of system...
+		platform : integer := 1; -- So ROM can detect which type of system...
+		spi_clock_div : integer := 4  -- see notes on zpu_config_regs
 	);
 	PORT
 	(
@@ -106,7 +107,8 @@ PORT MAP(CLK => CLK,
 
 config_regs : entity work.zpu_config_regs
 GENERIC MAP (
-	platform => platform
+	platform => platform,
+	spi_clock_div => spi_clock_div
 )
 PORT MAP (
 	CLK => CLK,

@@ -12,7 +12,8 @@ use ieee.numeric_std.all;
 ENTITY zpu_config_regs IS
 GENERIC
 (
-	platform : integer := 1 -- So ROM can detect which type of system...
+	platform : integer := 1; -- So ROM can detect which type of system...
+	spi_clock_div : integer := 4 -- Quite conservative by default - probably want to use 1 with 28MHz input clock, 2 for 57MHz input clock, 4 for 114MHz input clock etc
 );
 PORT 
 ( 
@@ -232,7 +233,7 @@ begin
 				if (cpu_data_in(1) = '1') then
 					spi_speed_next <= X"80"; -- slow, for init
 				else
-					spi_speed_next <= X"04"; -- turbo!
+					spi_speed_next <= std_logic_vector(to_unsigned(spi_clock_div,8)); -- turbo - up to 25MHz for SD, 20MHz for MMC I believe... If 1 then clock is half input, if 2 then clock is 1/4 input etc.
 				end if;
 			end if;	
 			
