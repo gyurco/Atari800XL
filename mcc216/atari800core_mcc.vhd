@@ -812,7 +812,8 @@ end generate;
 zpu: entity work.zpucore
 	GENERIC MAP
 	(
-		platform => 1 -- TODO
+		platform => 1,
+		spi_clock_div => 1 -- 28MHz/2. Max for SD cards is 25MHz...
 	)
 	PORT MAP
 	(
