@@ -80,9 +80,18 @@ foreach my $variant (sort keys %variants)
 	`cp sdram_ctrl_3_ports.v $dir`;
 	`cp zpu_rom.vhdl $dir`;
 	`cp atari800core.sdc $dir`;
+	`mkdir $dir/common`;
+	`mkdir $dir/common/a8core`;
+	`mkdir $dir/common/components`;
+	`mkdir $dir/common/zpu`;
+	`mkdir $dir/svideo`;
+	`cp ../common/a8core/* ./$dir/common/a8core`;
+	`cp ../common/components/* ./$dir/common/components`;
+	`cp ../common/zpu/* ./$dir/common/zpu`;
+	`cp ./svideo/* ./$dir/svideo`;
 
 	chdir $dir;
-	`../makeqsf ../atari800core.qsf ../svideo ../../common/a8core ../../common/components ../../common/zpu`;
+	`../makeqsf ../atari800core.qsf ./svideo ./common/a8core ./common/components ./common/zpu`;
 
 	foreach my $key (sort keys %{$variants{$variant}})
 	{
