@@ -1,7 +1,9 @@
-cp /home/markw/altera/atari_xe_fpga/zpu/leds_nosdrive/HelloTinyROM.bin .
-cp /home/markw/altera/atari_xe_fpga/zpu/leds_nosdrive/HelloTinyROM.dis .
+#cp /home/markw/altera/atari_xe_fpga/zpu/leds_nosdrive/HelloTinyROM.bin .
+#cp /home/markw/altera/atari_xe_fpga/zpu/leds_nosdrive/HelloTinyROM.dis .
 ./create_rom.pl 1 ATARIXL.ROM os16 > os16.vhdl
 ./create_rom.pl 1 ATARIBAS.ROM basic > basic.vhdl
-./create_rom.pl 4 HelloTinyROM.bin zpu_rom 12 > zpu_rom.vhdl
-cp *.vhdl ../source/
-cp *.vhdl ../sim/
+./create_rom.pl 4 JustStartAtari.bin zpu_rom 12 > zpu_rom.vhdl
+#./create_rom.pl 4 HelloTinyROM.bin zpu_rom 12 > zpu_rom.vhdl
+#cp *.vhdl ../source/
+#cp *.vhdl ../sim/
+cp zpu_rom.vhdl ../../mcc216/
