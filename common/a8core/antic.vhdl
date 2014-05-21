@@ -242,6 +242,11 @@ ARCHITECTURE vhdl OF antic IS
 	signal dma_fetch_reg : std_logic;
 	signal dma_address_next : std_logic_vector(15 downto 0);
 	signal dma_address_reg : std_logic_vector(15 downto 0);
+
+	signal dma_cache_next : std_logic_vector(7 downto 0);
+	signal dma_cache_reg : std_logic_vector(7 downto 0);
+	signal dma_cache_ready_next : std_logic;
+	signal dma_cache_ready_reg : std_logic;
 	
 	constant dma_fetch_line_buffer : std_logic_vector(2 downto 0) := "000";
 	constant dma_fetch_shiftreg : std_logic_vector(2 downto 0) := "001";
@@ -258,10 +263,9 @@ ARCHITECTURE vhdl OF antic IS
 	
 	signal character_next : std_logic_vector(7 downto 0);
 	signal character_reg : std_logic_vector(7 downto 0);
-
 	signal displayed_character_next : std_logic_vector(7 downto 0);
 	signal displayed_character_reg : std_logic_vector(7 downto 0);
-	
+
 	-- instruction decode
 	signal instruction_next : std_logic_vector(7 downto 0);
 	signal instruction_reg : std_logic_vector(7 downto 0);
@@ -530,6 +534,8 @@ BEGIN
 			
 			dma_fetch_reg <= '0';
 			dma_address_reg <= (others=>'0');			
+			dma_cache_reg <= (others=>'0');
+			dma_cache_ready_reg <= '0';
 			dma_fetch_destination_reg <= dma_fetch_null;
 			
 			playfield_display_active_reg <= '0';
@@ -606,6 +612,8 @@ BEGIN
 			
 			dma_fetch_reg <= dma_fetch_next;
 			dma_address_reg <= dma_address_next;
+			dma_cache_reg <= dma_cache_next;
+			dma_cache_ready_reg <= dma_cache_ready_next;
 			dma_fetch_destination_reg <= dma_fetch_destination_next;
 			
 			playfield_display_active_reg <= playfield_display_active_next;
@@ -873,7 +881,7 @@ BEGIN
 	end process;
 	
 	-- Actions done based on horizontal position - notably dma!
-	process (dmactl_delayed_enabled, hcount_reg, vcount_reg, vblank_reg, hblank_reg, dmactl_delayed_reg, playfield_dma_start_cycle, playfield_dma_end_cycle, playfield_display_start_cycle, playfield_display_end_cycle, instruction_final_row_reg, display_list_address_reg, pmbase_reg, first_line_of_instruction_reg, last_line_of_instruction_live, last_line_of_instruction_reg, instruction_type_reg, dma_clock_character_name, dma_clock_character_data, dma_clock_bitmap_data, allow_real_dma_reg, row_count_reg, dma_address_reg, memory_scan_address_reg, chbase_delayed_reg, line_buffer_data_out, enable_dma, colour_clock_1x, two_part_instruction_reg, dma_fetch_destination_reg, playfield_display_active_reg, character_reg, dma_clock_character_inc, single_colour_character_reg, twoline_character_reg, displayed_character_reg, instruction_reg, dli_enabled_reg, refresh_fetch_next, chactl_reg, vscrol_enabled_reg, vscrol_last_enabled_reg,twopixel_reg,dli_nmi_reg,vbi_nmi_reg)
+	process (dmactl_delayed_enabled, hcount_reg, vcount_reg, vblank_reg, hblank_reg, dmactl_delayed_reg, playfield_dma_start_cycle, playfield_dma_end_cycle, playfield_display_start_cycle, playfield_display_end_cycle, instruction_final_row_reg, display_list_address_reg, pmbase_reg, first_line_of_instruction_reg, last_line_of_instruction_live, last_line_of_instruction_reg, instruction_type_reg, dma_clock_character_name, dma_clock_character_data, dma_clock_bitmap_data, allow_real_dma_reg, row_count_reg, dma_address_reg, memory_scan_address_reg, chbase_delayed_reg, line_buffer_data_out, enable_dma, colour_clock_1x, two_part_instruction_reg, dma_fetch_destination_reg, playfield_display_active_reg, character_reg, dma_clock_character_inc, single_colour_character_reg, twoline_character_reg, instruction_reg, dli_enabled_reg, refresh_fetch_next, chactl_reg, vscrol_enabled_reg, vscrol_last_enabled_reg,twopixel_reg,dli_nmi_reg,vbi_nmi_reg,displayed_character_reg)
 	begin
 		allow_real_dma_next <= allow_real_dma_reg;
 
@@ -953,7 +961,7 @@ BEGIN
 						dma_address_next <= chbase_delayed_reg(7 downto 2)&character_reg(6 downto 0)&(row_count_reg(2 downto 0)xor chactl_reg(2)&chactl_reg(2)&chactl_reg(2));
 					end if;
 				end if;
-				
+
 				displayed_character_next <= character_reg;
 				
 				-- TODO
@@ -992,7 +1000,7 @@ BEGIN
 						end if;
 					end if;					
 				
-				when X"03" =>				
+				when X"05" =>				
 					update_row_count <= '1'; -- done after instruction fetch...
 					
 				when X"04"|X"06"|X"08"|X"0A" =>  -- player DMA, if enabled
@@ -1094,7 +1102,7 @@ BEGIN
 	end process;
 	
 	-- refresh handling
-	process(hcount_reg,refresh_count_reg,colour_clock_1x,dma_fetch_next,refresh_pending_reg, refresh_fetch_reg, memory_ready_antic, allow_real_dma_next)
+	process(hcount_reg,refresh_count_reg,colour_clock_1x,dma_fetch_next,refresh_pending_reg, refresh_fetch_reg, allow_real_dma_next)
 	begin
 		increment_refresh_count <= '0';
 		refresh_pending_next <= refresh_pending_reg;
@@ -1408,10 +1416,11 @@ BEGIN
 	end process;
 
 	-- dma fetching
-	process(dma_fetch_reg,dma_address_reg,dma_fetch_destination_reg,memory_ready_both,memory_data_in,dma_fetch_request,vblank_reg, instruction_type_reg, instruction_reg, display_list_address_reg, memory_scan_address_reg, enable_dma, display_list_address_low_temp_reg)
+	-- dma fetch - cache response until needed
+	-- we allow two colour clocks for each fetch...
+	process(memory_ready_both,hcount_reg,dma_fetch_reg,dma_address_reg,dma_fetch_destination_reg,dma_cache_ready_reg,dma_cache_reg,dma_fetch_request,vblank_reg, instruction_type_reg, instruction_reg, display_list_address_reg, memory_scan_address_reg, enable_dma, display_list_address_low_temp_reg)
 	begin	
 		instruction_next <= instruction_reg;
-		dma_fetch_next <= dma_fetch_request or dma_fetch_reg;
 		
 		display_list_address_next_dma <= display_list_address_reg;
 		load_display_list_address_dma <= '0';
@@ -1424,42 +1433,53 @@ BEGIN
 		
 		line_buffer_data_in <= (others=>'0');
 		line_buffer_write <= '0';
+
+		dma_cache_next <= dma_cache_reg;
+		dma_cache_ready_next <= dma_cache_ready_reg;
+		dma_fetch_next <= dma_fetch_request or dma_fetch_reg;
+
+		if (dma_fetch_reg = '1' and memory_ready_both = '1') then
+			dma_cache_next <= memory_data_in;
+			dma_cache_ready_next <= '1';
+			dma_fetch_next <= '0';
+		end if;
 		
 		if (vblank_reg = '1' and instruction_type_reg = mode_jvb) then
 			instruction_next <= (others=>'0');
 		end if;
 	
-		if (dma_fetch_reg='1' and memory_ready_both='1') then
+		if (dma_cache_ready_reg='1' and hcount_reg(0)='0') then
+		--if (dma_cache_ready_reg='1') then
 			case dma_fetch_destination_reg is 
 				when dma_fetch_line_buffer =>
-					line_buffer_data_in <= memory_data_in;					
+					line_buffer_data_in <= dma_cache_reg;					
 					line_buffer_write <= '1';
 				when dma_fetch_shiftreg =>
 					load_display_shift_from_memory <= '1';
 				when dma_fetch_null =>
 					-- nothing (C/G/MTIA listens to bus)
 				when dma_fetch_instruction =>
-					instruction_next <= memory_data_in;
+					instruction_next <= dma_cache_reg;
 					
 					increment_display_list_address <= '1';
 					
 				when dma_fetch_list_low =>
 					if (instruction_type_reg = mode_jump or instruction_type_reg = mode_jvb) then
-						--display_list_address_next_dma(7 downto 0) <= memory_data_in; Changing this so soon messes up next dma cycle
-						display_list_address_low_temp_next <= memory_data_in;
+						--display_list_address_next_dma(7 downto 0) <= dma_cache_reg; Changing this so soon messes up next dma cycle
+						display_list_address_low_temp_next <= dma_cache_reg;
 						increment_display_list_address <= '1';
 					else
 						increment_display_list_address <= '1';
-						memory_scan_address_next(7 downto 0) <= memory_data_in;
+						memory_scan_address_next(7 downto 0) <= dma_cache_reg;
 						load_memory_scan_address <= '1';
 					end if;
 				when dma_fetch_list_high =>
 					if (instruction_type_reg = mode_jump or instruction_type_reg = mode_jvb) then
-						 display_list_address_next_dma <= memory_data_in&display_list_address_low_temp_reg;
+						 display_list_address_next_dma <= dma_cache_reg&display_list_address_low_temp_reg;
 						 load_display_list_address_dma <= '1';
 					else
 						increment_display_list_address <= '1';
-						memory_scan_address_next(15 downto 8) <= memory_data_in;
+						memory_scan_address_next(15 downto 8) <= dma_cache_reg;
 						load_memory_scan_address <= '1';
 					end if;
 				
@@ -1468,7 +1488,7 @@ BEGIN
 				
 			end case;
 
-			dma_fetch_next <= '0';
+			dma_cache_ready_next <= '0';
 		end if;
 	end process;
 	
@@ -1510,7 +1530,7 @@ BEGIN
 	end process;
 
 	-- shift reg
-	process (enable_shift, shift_twobit_reg, display_shift_reg, load_display_shift_from_memory, load_display_shift_from_line_buffer, memory_data_in, line_buffer_data_out)
+	process (enable_shift, shift_twobit_reg, display_shift_reg, load_display_shift_from_memory, load_display_shift_from_line_buffer, dma_cache_reg, line_buffer_data_out)
 	begin
 		display_shift_next <= display_shift_reg;
 		
@@ -1523,7 +1543,7 @@ BEGIN
 		end if;
 		
 		if (load_display_shift_from_memory = '1') then
-			display_shift_next(7 downto 0) <= memory_data_in;
+			display_shift_next(7 downto 0) <= dma_cache_reg;
 		end if;
 
 		if (load_display_shift_from_line_buffer = '1') then
@@ -1533,12 +1553,18 @@ BEGIN
 	end process;
 	
 	-- delay shift reg output for n cycles, so we can match AN with antic output
-	process(colour_clock_selected, display_shift_reg, delay_display_shift_reg, displayed_character_reg)
+	process(colour_clock_selected, display_shift_reg, delay_display_shift_reg, displayed_character_reg, instruction_type_reg)
 	begin
 		delay_display_shift_next <= delay_display_shift_reg;
 		
 		if (colour_clock_selected = '1') then
-			delay_display_shift_next <= displayed_character_reg(7 downto 5)&display_shift_reg(7 downto 6)&delay_display_shift_reg(24 downto 5);
+			-- TODO - RAM accesses are now processed in the 2nd colour clock
+			-- This is too late for character modes, so delay needs adjusting...
+			if (instruction_type_reg=mode_character) then	
+				delay_display_shift_next <= displayed_character_reg(7 downto 5)&"00"&delay_display_shift_reg(24 downto 22)&display_shift_reg(7 downto 6)&delay_display_shift_reg(19 downto 5);
+			else
+				delay_display_shift_next <= displayed_character_reg(7 downto 5)&display_shift_reg(7 downto 6)&delay_display_shift_reg(24 downto 5);
+			end if;
 		end if;
 		
 	end process;
