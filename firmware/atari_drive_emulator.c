@@ -31,6 +31,8 @@ extern int debug_pos; // ARG!
 #define MAX_DRIVES 4
 
 struct SimpleFile * drives[MAX_DRIVES];
+unsigned char drive_info[MAX_DRIVES];
+enum DriveInfo {DI_XD=0,DI_SD=1,DI_MD=2,DI_DD=3,DI_BITS=3,DI_RO=4};
 
 struct ATRHeader
 {
@@ -180,8 +182,10 @@ void set_drive_status(int driveNumber, struct SimpleFile * file)
 {
 	int read = 0;
 	int xfd = 0;
+	unsigned char info;
 
 	drives[driveNumber] = 0;
+	drive_info[driveNumber] = 0;
 
 	if (!file) return;
 
@@ -223,7 +227,7 @@ void set_drive_status(int driveNumber, struct SimpleFile * file)
 		atr_header.wMagic = 0x296;
 		atr_header.wPars = file_size(file)/16;
 		atr_header.wSecSize = 0x80;
-		atr_header.btFlags = 0;
+		atr_header.btFlags |= file_readonly(file);
 	}
 	else if (atr_header.wMagic == 0xFFFF) // XEX
 	{
@@ -241,6 +245,7 @@ void set_drive_status(int driveNumber, struct SimpleFile * file)
 	{
 		//printf("ATR ");
 		offset = 16;
+		atr_header.btFlags |= file_readonly(file);
 	}
 	else
 	{
@@ -248,20 +253,25 @@ void set_drive_status(int driveNumber, struct SimpleFile * file)
 		return;
 	}
 
+	if (atr_header.btFlags&1)
+	{
+		info |= DI_RO;
+	}
+
 	if (atr_header.wSecSize == 0x80)
 	{
-	/*	if (atr_header.wPars>(720*128/16))
-			printf("MD ");
+		if (atr_header.wPars>(720*128/16))
+			info |= DI_MD;
 		else
-			printf("SD ");*/
+			info |= DI_SD;
 	}
 	else if (atr_header.wSecSize == 0x100)
 	{
-		//printf("DD ");
+		info |= DI_DD;
 	}
 	else if (atr_header.wSecSize < 0x100)
 	{
-		//printf("XD ");
+		info |= DI_XD;
 	}
 	else
 	{
@@ -272,6 +282,7 @@ void set_drive_status(int driveNumber, struct SimpleFile * file)
 	//printf("0\n");
 
 	drives[driveNumber] = file;
+	drive_info[driveNumber] = info;
 	//printf("appears valid\n");
 }
 
@@ -389,7 +400,10 @@ void processCommand()
 			clearAtariSectorBuffer();
 
 			status = 0x10; // Motor on;
-			status |= 0x08; // write protected; // no write support yet...
+			if (atr_header.btFlags&1)
+			{
+				status |= 0x08; // write protected; // no write support yet...
+			}
 			if (atr_header.wSecSize == 0x80) // normal sector size
 			{
 				if (atr_header.wPars>(720*128/16))
@@ -430,6 +444,13 @@ void processCommand()
 
 			//printf("WACK:");
 			USART_Transmit_Mode();
+			if (file_readonly(file))
+			{
+				send_NACK();
+				USART_Wait_Transmit_Complete();
+				USART_Receive_Mode();
+				return;
+			}
 			send_ACK();
 			USART_Wait_Transmit_Complete();
 			USART_Receive_Mode();
@@ -727,4 +748,41 @@ void USART_Send_cmpl_and_atari_sector_buffer_and_check_sum(unsigned short len)
 	/*printf(":chk:");
 	printf("%d",check_sum);
 	printf(")");*/
+}
+
+void describe_disk(int driveNumber, char * buffer)
+{
+	if (drives[driveNumber]==0)
+	{
+		buffer[0] = 'N';
+		buffer[1] = 'O';
+		buffer[2] = 'N';
+		buffer[3] = 'E';
+		buffer[4] = '\0';
+		return;
+	}
+//enum DriveInfo {DI_XD=0,DI_SD=1,DI_MD=2,DI_DD=3,DI_BITS=3,DI_RO=4};
+	unsigned char info = drive_info[driveNumber];
+	buffer[0] = 'R';
+	buffer[1] = info&DI_RO ? 'O' : 'W';
+	buffer[2] = ' ';
+	unsigned char density;
+	switch (info&3)
+	{
+	case DI_XD:
+		density = 'X';
+		break;
+	case DI_SD:
+		density = 'S';
+		break;
+	case DI_MD:
+		density = 'M';
+		break;
+	case DI_DD:
+		density = 'D';
+		break;
+	}
+	buffer[3] = density;
+	buffer[4] = 'D';
+	buffer[5] = '\0';
 }

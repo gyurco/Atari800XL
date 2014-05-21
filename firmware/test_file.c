@@ -157,7 +157,12 @@ int main(void)
 		loadrom("osaorig.rom",0x2800, (void *)0x719800);
 		loadrom("ataribas.rom",0x2000,(void *)0x700000);
 
-	//file_selector(file);
+	entry = dir_entries("/DCIM");
+	entry = dir_next(entry);
+	fprintf(stderr, " Name:%s", dir_filename(entry));
+	struct SimpleFile * file = alloca(file_struct_size());
+	file_open_dir(entry,file);
+	file_selector(file);
 
 	return 0;
 }

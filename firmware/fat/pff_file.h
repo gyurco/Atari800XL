@@ -11,6 +11,7 @@
 struct SimpleFile
 {
 	char path[MAX_PATH_LENGTH];
+	int is_readonly;
 	int size;
 };
 
@@ -21,6 +22,7 @@ struct SimpleDirEntry
 	char lfn[256];
 	int size;
 	int is_subdir;
+	int is_readonly;
 	struct SimpleDirEntry * next; // as linked list - want to allow sorting...
 };
 

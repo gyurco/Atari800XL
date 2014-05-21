@@ -66,6 +66,7 @@ char const * file_name(struct SimpleFile * file)
 void file_init(struct SimpleFile * file)
 {
 	file->path[0] = '\0';
+	file->is_readonly = 1;
 	file->size = 0;
 }
 
@@ -100,6 +101,7 @@ enum SimpleFileStatus file_write(struct SimpleFile * file, void * buffer, int by
 	FRESULT res;
 
 	//printf("went\n");
+	if (file->is_readonly) return SimpleFile_FAIL;
 
 	file_check_open(file);
 
@@ -182,6 +184,11 @@ int file_size(struct SimpleFile * file)
 	return file->size;
 }
 
+int file_readonly(struct SimpleFile * file)
+{
+	return file->is_readonly;
+}
+
 int file_struct_size()
 {
 	return sizeof(struct SimpleFile);
@@ -216,6 +223,7 @@ enum SimpleFileStatus file_open_dir(struct SimpleDirEntry * dir, struct SimpleFi
 	FRESULT res;
 
 	strcpy(&file->path[0],dir->path);
+	file->is_readonly = dir->is_readonly;
 	file->size = dir->size;
 
 	file_write_flush();
@@ -328,6 +336,7 @@ struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(
 	prev->filename_ptr = prev->path;
 	prev->size = 0;
 	prev->is_subdir = 1;
+	prev->is_readonly = 1;
 	--room;
 
 	//int count=0;
@@ -359,6 +368,7 @@ struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(
 		//printf("next %x %d ",entry,room);
 
 		entry->is_subdir = (filinfo.fattrib & AM_DIR) ? 1 : 0;
+		entry->is_readonly = (filinfo.fattrib & AM_RDO) ? 1 : 0;
 
 		//printf("%s ",filinfo.fname);
 

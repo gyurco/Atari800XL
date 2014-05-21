@@ -300,7 +300,9 @@ int settings()
 		{
 			int temp = debug_pos;
 			debug_adjust = row==i+2 ? 128 : 0;
-			printf("Drive %d:%s", i, file_name(files[i-1]));
+			char buffer[20];
+			describe_disk(i-1,&buffer[0]);
+			printf("Drive %d:%s %s", i, file_name(files[i-1]), &buffer[0]);
 			debug_pos = temp+40;
 		}
 
@@ -368,7 +370,7 @@ int settings()
 				{
 					// Remove disk
 					file_init(files[row-3]);
-					set_drive_status(row-3,files[row-3]);
+					set_drive_status(row-3,0);
 				}
 				else if (joy.fire_)
 				{

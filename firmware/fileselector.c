@@ -27,13 +27,14 @@ int filter_roms(struct SimpleDirEntry * entry)
 	return (compare_ext(f,"ROM"));
 }
 
+void dir_of(char * dir, char const * path); // TODO - into simpledir
 
 void file_selector(struct SimpleFile * file)
 {
-	char dir[MAX_PATH_LENGTH] = "";
+	char dir[MAX_PATH_LENGTH];
+	dir_of(&dir[0],file_name(file));
 	for (;;)
 	{
-		// TODO last selected dir...
 		struct SimpleDirEntry * entry = dir_entries_filtered(dir,filter);
 
 		// Count how many we have
@@ -48,6 +49,7 @@ void file_selector(struct SimpleFile * file)
 
 		// Selected item
 		int pos = 0;
+		int prevstartpos = -1;
 
 		struct joystick_status joy;
 		joy.x_ = joy.y_ = joy.fire_ = 0;
@@ -76,7 +78,11 @@ void file_selector(struct SimpleFile * file)
 				}
 
 				// clear the screen
-				clearscreen();
+				if (startpos!=prevstartpos)
+				{
+					clearscreen();
+					prevstartpos = startpos;
+				}
 
 				// find selected entry
 				struct SimpleDirEntry * sel_entry = entry;
@@ -131,6 +137,8 @@ void file_selector(struct SimpleFile * file)
 					//printf("%s %s %d %d %d",dir_is_subdir(sel_entry) ? "DIR":"", dir_filename(sel_entry), joy.x_, joy.y_, pos);
 					printf("%s %s",dir_is_subdir(sel_entry) ? "DIR":"", dir_filename(sel_entry));
 				}
+				int i;
+				for (i=0;i!=40;++i) printf(" ");
 			}
 
 			// Slow it down a bit
