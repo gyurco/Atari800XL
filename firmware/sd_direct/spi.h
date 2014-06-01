@@ -63,4 +63,6 @@ void spiTransferTwoFF();
 
 void spiDisplay(int i);
 
+void spiReceiveData(u08 * from, u08 * to);
+
 #endif

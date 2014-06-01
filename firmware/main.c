@@ -163,19 +163,44 @@ void char_out ( void* p, char c)
 // 0x420000-0x43FFFF (0xc20000 in zpu space) = freeze backup
 
 struct SimpleFile * files[5];
+void loadromfile(struct SimpleFile * file, int size, void * ram_address)
+{
+	ram_address += 0x800000;
+	int read = 0;
+	file_read(file, ram_address, size, &read);
+}
 
 void loadrom(char const * path, int size, void * ram_address)
 {
-	ram_address += 0x800000;
 	if (SimpleFile_OK == file_open_name(path, files[4]))
 	{
-		int read = 0;
-		file_read(files[4], ram_address, size, &read);
+		loadromfile(files[4], size, ram_address);
+	}
+}
+
+void loadrom_indir(struct SimpleDirEntry * entries, char const * filename, int size, void * ram_address)
+{
+	if (SimpleFile_OK == file_open_name_in_dir(entries, filename, files[4]))
+	{
+		loadromfile(files[4], size, ram_address);
 	}
 }
 
 int main(void)
 {
+/*	spiInit();
+	set_spi_clock_freq();
+	mmcReadLoop();*/
+
+/*	spiInit();
+	set_spi_clock_freq();
+	char buffer[512];
+	while (1)
+	{
+		mmcReadLoop();
+		wait_us(500);
+	}*/
+
 	int i;
 	for (i=0; i!=5; ++i)
 	{
@@ -201,13 +226,16 @@ int main(void)
 	//	printf("DIR init ok\n");
 		init_drive_emulator();
 
-		loadrom("xlorig.rom",0x4000, (void *)0x704000);
-		loadrom("xlhias.rom",0x4000, (void *)0x708000);
-		loadrom("ultimon.rom",0x4000, (void *)0x70c000);
-		loadrom("osbhias.rom",0x4000, (void *)0x710000);
-		loadrom("osborig.rom",0x2800, (void *)0x715800);
-		loadrom("osaorig.rom",0x2800, (void *)0x719800);
-		loadrom("ataribas.rom",0x2000,(void *)0x700000);
+		
+		struct SimpleDirEntry * entries = dir_entries("");
+		
+		loadrom_indir(entries,"xlorig.rom",0x4000, (void *)0x704000);
+		loadrom_indir(entries,"xlhias.rom",0x4000, (void *)0x708000);
+		loadrom_indir(entries,"ultimon.rom",0x4000, (void *)0x70c000);
+		loadrom_indir(entries,"osbhias.rom",0x4000, (void *)0x710000);
+		loadrom_indir(entries,"osborig.rom",0x2800, (void *)0x715800);
+		loadrom_indir(entries,"osaorig.rom",0x2800, (void *)0x719800);
+		loadrom_indir(entries,"ataribas.rom",0x2000,(void *)0x700000);
 
 		//ROM = xlorig.rom,0x4000, (void *)0x704000
 		//ROM = xlhias.rom,0x4000, (void *)0x708000

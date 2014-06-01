@@ -8,6 +8,7 @@
 struct SimpleDirEntry;
 
 enum SimpleFileStatus file_open_name(char const * path, struct SimpleFile * file);
+enum SimpleFileStatus file_open_name_in_dir(struct SimpleDirEntry * entries, char const * filename, struct SimpleFile * file);
 enum SimpleFileStatus file_open_dir(struct SimpleDirEntry * filename, struct SimpleFile * file);
 
 // Reads entire dir into memory (i.e. give it a decent chunk of sdram)

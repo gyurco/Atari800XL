@@ -116,3 +116,11 @@ void spiDisplay(int i)
 	display = i;
 }
 
+void spiReceiveData(u08 * from, u08 * to)
+{
+	u32 from32 = (u32)from;
+	u32 to32 = (u32)to;
+	u32 val = to32<<16 | from32;
+	*zpu_spi_dma = val;
+}
+

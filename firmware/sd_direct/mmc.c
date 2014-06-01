@@ -139,7 +139,10 @@ void mmcReadLoop()
 	u16 i;
 	u08 *buffer=mmc_sector_buffer;	//natvrdo!
 
-	i=0x80;	//512
+	spiReceiveData(buffer,buffer+512);
+	//spiReceiveData(buffer,buffer+3);
+
+/*	i=0x80;	//512
 	do { *buffer++ = spiTransferFF(); i--; } while(i);
 
 	//spiDisplay(1);
@@ -150,7 +153,7 @@ void mmcReadLoop()
 	do { *buffer++ = spiTransferFF(); i--; } while(i);
 
 	i=0x80;	//512
-	do { *buffer++ = spiTransferFF(); i--; } while(i);
+	do { *buffer++ = spiTransferFF(); i--; } while(i);*/
 
 	//spiDisplay(0);
 

@@ -26,7 +26,7 @@ u08 mmcReset(void){ return 0;}
 /// Returns zero if successful.
 u08 mmcRead(u32 sector)
 {
-	fprintf(stderr,"mmcRead:%x\n",sector);
+	//fprintf(stderr,"mmcRead:%x\n",sector);
 
 	fseek(disk_image, sector*512, SEEK_SET);
 	fread(&mmc_sector_buffer,512,1,disk_image);

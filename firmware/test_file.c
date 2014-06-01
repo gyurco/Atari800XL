@@ -22,7 +22,7 @@ void char_out ( void* p, char c)
 
 struct SimpleFile * temp_file;
 
-void loadrom(char const * path, int size, void * ram_address)
+/*void loadrom(char const * path, int size, void * ram_address)
 {
 	filter = 0;
 	fprintf(stderr,"loadrom:%s\n",path);
@@ -30,8 +30,40 @@ void loadrom(char const * path, int size, void * ram_address)
 	if (SimpleFile_OK == file_open_name(path, temp_file))
 	{
 		int read = 0;
-		//file_read(files[4], ram_address, size, &read);
+		//file_read(temp_file, ram_address, size, &read);
 		printf("file_read:%s %x %x\n",file_name(temp_file), ram_address,size); 
+	}
+	else
+	{
+		printf("%s:FAILED\n",path);
+	}
+}*/
+
+void loadromfile(struct SimpleFile * file, int size, void * ram_address)
+{
+	ram_address += 0x800000;
+	int read = 0;
+	//file_read(file, ram_address, size, &read);
+	printf("file_read:%s %x %x\n",file_name(temp_file), ram_address,size); 
+}
+
+void loadrom(char const * path, int size, void * ram_address)
+{
+	if (SimpleFile_OK == file_open_name(path, temp_file))
+	{
+		loadromfile(temp_file, size, ram_address);
+	}
+	else
+	{
+		printf("%s:FAILED\n",path);
+	}
+}
+
+void loadrom_indir(struct SimpleDirEntry * entries, char const * filename, int size, void * ram_address)
+{
+	if (SimpleFile_OK == file_open_name_in_dir(entries, filename, temp_file))
+	{
+		loadromfile(temp_file, size, ram_address);
 	}
 	else
 	{
@@ -156,6 +188,19 @@ int main(void)
 		loadrom("osborig.rom",0x2800, (void *)0x715800);
 		loadrom("osaorig.rom",0x2800, (void *)0x719800);
 		loadrom("ataribas.rom",0x2000,(void *)0x700000);
+
+	{
+		printf("WTF\n");
+		struct SimpleDirEntry * entries = dir_entries("");
+		
+		loadrom_indir(entries,"xlorig.rom",0x4000, (void *)0x704000);
+		loadrom_indir(entries,"xlhias.rom",0x4000, (void *)0x708000);
+		loadrom_indir(entries,"ultimon.rom",0x4000, (void *)0x70c000);
+		loadrom_indir(entries,"osbhias.rom",0x4000, (void *)0x710000);
+		loadrom_indir(entries,"osborig.rom",0x2800, (void *)0x715800);
+		loadrom_indir(entries,"osaorig.rom",0x2800, (void *)0x719800);
+		loadrom_indir(entries,"ataribas.rom",0x2000,(void *)0x700000);
+	}
 
 	entry = dir_entries("/DCIM");
 	entry = dir_next(entry);

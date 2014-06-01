@@ -20,6 +20,8 @@ int volatile * zpu_sio = (int *)(11*4+config_regbase);
 
 int volatile * zpu_board = (int *)(12*4+config_regbase);
 
+int volatile * zpu_spi_dma = (int *)(13*4+config_regbase);
+
 unsigned char volatile * zpu_pokey_audf0 = (unsigned char *)(0x10*4+config_regbase);
 unsigned char volatile * zpu_pokey_audc0 = (unsigned char *)(0x11*4+config_regbase);
 unsigned char volatile * zpu_pokey_audf1 = (unsigned char *)(0x12*4+config_regbase);

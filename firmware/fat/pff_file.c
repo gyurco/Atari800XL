@@ -194,17 +194,10 @@ int file_struct_size()
 	return sizeof(struct SimpleFile);
 }
 
-enum SimpleFileStatus file_open_name(char const * path, struct SimpleFile * file)
+enum SimpleFileStatus file_open_name_in_dir(struct SimpleDirEntry * entry, char const * filename, struct SimpleFile * file)
 {
-	char dirname[MAX_DIR_LENGTH];
-	char const * filename = file_of(path);
-	dir_of(&dirname[0], path);
-
 	file_write_flush();
 
-	//printf("filename:%s dirname:%s ", filename,&dirname[0]);
-
-	struct SimpleDirEntry * entry = dir_entries(&dirname[0]);
 	while (entry)
 	{
 		//printf("%s ",entry->filename_ptr);
@@ -216,6 +209,20 @@ enum SimpleFileStatus file_open_name(char const * path, struct SimpleFile * file
 	}
 
 	return SimpleFile_FAIL;
+}
+
+enum SimpleFileStatus file_open_name(char const * path, struct SimpleFile * file)
+{
+	char dirname[MAX_DIR_LENGTH];
+	char const * filename = file_of(path);
+	dir_of(&dirname[0], path);
+
+	file_write_flush();
+
+	//printf("filename:%s dirname:%s ", filename,&dirname[0]);
+
+	struct SimpleDirEntry * entry = dir_entries(&dirname[0]);
+	return file_open_name_in_dir(entry,filename, file);
 }
 
 enum SimpleFileStatus file_open_dir(struct SimpleDirEntry * dir, struct SimpleFile * file)
@@ -411,7 +418,10 @@ struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(
 		begin = begin->next;
 	}*/
 
-	sort_ll((struct SimpleDirEntry *) dir_cache);
+	if (filter)
+	{
+		sort_ll((struct SimpleDirEntry *) dir_cache);
+	}
 	return (struct SimpleDirEntry *) dir_cache;
 }
 

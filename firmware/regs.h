@@ -19,6 +19,8 @@ extern int volatile * zpu_spi_data;
 extern int volatile * zpu_spi_state;
 extern int volatile * zpu_sio;
 extern int volatile * zpu_board;
+
+extern int volatile * zpu_spi_dma;
  
 extern unsigned char volatile * zpu_pokey_audf0;
 extern unsigned char volatile * zpu_pokey_audc0;
