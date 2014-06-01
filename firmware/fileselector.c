@@ -32,7 +32,14 @@ void dir_of(char * dir, char const * path); // TODO - into simpledir
 void file_selector(struct SimpleFile * file)
 {
 	char dir[MAX_PATH_LENGTH];
-	dir_of(&dir[0],file_name(file));
+	if (file_name(file)[0] == '\0')
+	{
+		strcpy(&dir[0],"/atari800/user");
+	}
+	else
+	{
+		dir_of(&dir[0],file_path(file));
+	}
 	for (;;)
 	{
 		struct SimpleDirEntry * entry = dir_entries_filtered(dir,filter);

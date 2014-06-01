@@ -58,10 +58,10 @@ BIT_REG(,0x3f,2,turbo_6502,zpu_out1)
 BIT_REG(,0x7,8,ram_select,zpu_out1)
 BIT_REG(,0x3f,11,rom_select,zpu_out1)
 
-BIT_REG_RO(,0x1,4,hotkey_softboot,zpu_in1)
-BIT_REG_RO(,0x1,5,hotkey_coldboot,zpu_in1)
-BIT_REG_RO(,0x1,6,hotkey_fileselect,zpu_in1)
-BIT_REG_RO(,0x1,7,hotkey_settings,zpu_in1)
+BIT_REG_RO(,0x1,8,hotkey_softboot,zpu_in1)
+BIT_REG_RO(,0x1,9,hotkey_coldboot,zpu_in1)
+BIT_REG_RO(,0x1,10,hotkey_fileselect,zpu_in1)
+BIT_REG_RO(,0x1,11,hotkey_settings,zpu_in1)
 
 void
 wait_us(int unsigned num)
@@ -215,7 +215,8 @@ int main(void)
 	baseaddr = (unsigned char volatile *)(40000 + atari_regbase);
 	set_reset_6502(1);
 	set_turbo_6502(1);
-	set_rom_select(1);
+	set_rom_select(2);
+	set_ram_select(2);
 
 	init_printf(0, char_out);
 
@@ -227,7 +228,7 @@ int main(void)
 		init_drive_emulator();
 
 		
-		struct SimpleDirEntry * entries = dir_entries("");
+		struct SimpleDirEntry * entries = dir_entries("/system/rom/atari800");
 		
 		loadrom_indir(entries,"xlorig.rom",0x4000, (void *)0x704000);
 		loadrom_indir(entries,"xlhias.rom",0x4000, (void *)0x708000);
@@ -235,6 +236,7 @@ int main(void)
 		loadrom_indir(entries,"osbhias.rom",0x4000, (void *)0x710000);
 		loadrom_indir(entries,"osborig.rom",0x2800, (void *)0x715800);
 		loadrom_indir(entries,"osaorig.rom",0x2800, (void *)0x719800);
+
 		loadrom_indir(entries,"ataribas.rom",0x2000,(void *)0x700000);
 
 		//ROM = xlorig.rom,0x4000, (void *)0x704000

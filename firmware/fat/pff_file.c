@@ -52,6 +52,7 @@ void dir_of(char * dir, char const * path)
 		{
 			*dir++ = *path++;
 		}
+		--dir;
 	}
 
 	*dir = '\0';
@@ -61,6 +62,11 @@ void dir_of(char * dir, char const * path)
 char const * file_name(struct SimpleFile * file)
 {
 	return file_of(&file->path[0]);
+}
+
+char const * file_path(struct SimpleFile * file)
+{
+	return &file->path[0];
 }
 
 void file_init(struct SimpleFile * file)

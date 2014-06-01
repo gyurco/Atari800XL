@@ -94,7 +94,7 @@ int main(void)
 
 	fprintf(stderr,"\n\n");
 
-	entry = dir_entries("/UAE4ALL");
+	entry = dir_entries("/atari800");
 	while (entry)
 	{
 		fprintf(stderr, "Path:%s", dir_path(entry));
@@ -107,7 +107,7 @@ int main(void)
 
 	fprintf(stderr,"\n\n");
 
-	entry = dir_entries("/UAE4ALL/DATA");
+	entry = dir_entries("/atari800/user");
 	while (entry)
 	{
 		fprintf(stderr, "Path:%s", dir_path(entry));
@@ -191,7 +191,9 @@ int main(void)
 
 	{
 		printf("WTF\n");
-		struct SimpleDirEntry * entries = dir_entries("");
+		struct SimpleDirEntry * entries = dir_entries("/system/rom/atari800");
+		entries = dir_next(entries);
+		printf("WTF:%s\n",dir_filename(entries));
 		
 		loadrom_indir(entries,"xlorig.rom",0x4000, (void *)0x704000);
 		loadrom_indir(entries,"xlhias.rom",0x4000, (void *)0x708000);
@@ -202,11 +204,12 @@ int main(void)
 		loadrom_indir(entries,"ataribas.rom",0x2000,(void *)0x700000);
 	}
 
-	entry = dir_entries("/DCIM");
-	entry = dir_next(entry);
-	fprintf(stderr, " Name:%s", dir_filename(entry));
+	//entry = dir_entries("/atari800/user");
+	//entry = dir_next(entry);
+	//fprintf(stderr, " Name:%s", dir_filename(entry));
 	struct SimpleFile * file = alloca(file_struct_size());
-	file_open_dir(entry,file);
+	file_open_name("/atari800/user/acid800.atr",file);
+	fprintf(stderr, "XXX Name:%s", file_name(file));
 	file_selector(file);
 
 	return 0;

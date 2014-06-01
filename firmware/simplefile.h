@@ -10,6 +10,7 @@ int file_struct_size();
 
 void file_init(struct SimpleFile * file);
 
+char const * file_path(struct SimpleFile * file);
 char const * file_name(struct SimpleFile * file);
 enum SimpleFileStatus file_read(struct SimpleFile * file, void * buffer, int bytes, int * bytesread);
 enum SimpleFileStatus file_seek(struct SimpleFile * file, int offsetFromStart);
