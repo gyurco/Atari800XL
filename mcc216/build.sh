@@ -109,10 +109,9 @@ foreach my $variant (sort keys %variants)
 	}
 	
 	#TODO - generate automated version number
-	my $version = `svn info  | grep Revision: | cut -c11`;
+	my $version = `svn info  | grep Revision: | cut -d' ' -f 2`;
 	chomp $version;
-	$version.=".0";
-	`wine ../rbf2arg/rbf2arg.exe $vga A 0.4 "Atari 800XL $variant" output_files/atari800core.rbf output_files/atari800core_$variant.arg`;
+	`wine ../rbf2arg/rbf2arg.exe $vga A 0.$version "Atari 800XL $variant" output_files/atari800core.rbf output_files/atari800core_$variant.arg`;
 	
 	chdir "..";
 }

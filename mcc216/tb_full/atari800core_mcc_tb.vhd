@@ -45,6 +45,9 @@ architecture rtl of atari800core_mcc_tb is
   signal	SDRAM_A : std_logic_vector(12 downto 0);
   signal	SDRAM_DQ : std_logic_vector(15 downto 0);
 
+  signal sd_clk : std_logic;
+  signal sd_dat : std_logic;
+
 begin
 	p_clk_gen_1 : process
 	begin
@@ -87,8 +90,9 @@ atari : ENTITY work.atari800core_mcc
 	(
 		TV => 1,
 		VIDEO => 2,
-		SCANDOUBLE => 1,
+		SCANDOUBLE => 0,
 		internal_ram => 0,
+		internal_rom => 1,
 		ext_clock => 1
 	)
 	port map
@@ -130,10 +134,31 @@ atari : ENTITY work.atari800core_mcc
 		SDRAM_A => SDRAM_A,
 		SDRAM_DQ => SDRAM_DQ,
 
-		SD_DAT0 => '1',
-		SD_CLK => open,
+		SD_DAT0 => sd_dat,
+		SD_CLK => sd_clk,
 		SD_CMD => open,
 		SD_DAT3 => open
+	);
+
+--ENTITY pokey_poly_5 IS
+--PORT 
+--( 
+--	CLK : IN STD_LOGIC;
+--	RESET_N : IN STD_LOGIC;
+--	ENABLE : IN STD_LOGIC;
+--	INIT : IN STD_LOGIC;
+--	
+--	BIT_OUT : OUT STD_LOGIC
+--);
+--END pokey_poly_5;
+	poly : entity work.pokey_poly_5
+	port map
+	(
+		clk=>sd_clk,
+		reset_n=>reset_n,
+		enable=>'1',
+		init=>not(reset_n),
+		bit_out=>sd_dat
 	);
 
 end rtl;
