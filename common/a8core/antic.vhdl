@@ -1418,7 +1418,7 @@ BEGIN
 	-- dma fetching
 	-- dma fetch - cache response until needed
 	-- we allow two colour clocks for each fetch...
-	process(memory_ready_both,hcount_reg,dma_fetch_reg,dma_address_reg,dma_fetch_destination_reg,dma_cache_ready_reg,dma_cache_reg,dma_fetch_request,vblank_reg, instruction_type_reg, instruction_reg, display_list_address_reg, memory_scan_address_reg, enable_dma, display_list_address_low_temp_reg)
+	process(memory_data_in,memory_ready_both,hcount_reg,dma_fetch_reg,dma_address_reg,dma_fetch_destination_reg,dma_cache_ready_reg,dma_cache_reg,dma_fetch_request,vblank_reg, instruction_type_reg, instruction_reg, display_list_address_reg, memory_scan_address_reg, enable_dma, display_list_address_low_temp_reg)
 	begin	
 		instruction_next <= instruction_reg;
 		
