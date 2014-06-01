@@ -135,7 +135,8 @@ BEGIN
 		atari_keyboard(53)<=ps2_keys_reg(16#3E#);
 		atari_keyboard(48)<=ps2_keys_reg(16#46#);
 		--atari_keyboard(17)<=ps2_keys_reg(16#ec#);
-		atari_keyboard(17)<=ps2_keys_reg(16#16c#);
+		--atari_keyboard(17)<=ps2_keys_reg(16#16c#);
+		atari_keyboard(17)<=ps2_keys_reg(16#16c#) or ps2_keys_reg(16#03#);
 		atari_keyboard(52)<=ps2_keys_reg(16#66#);
 		atari_keyboard(28)<=ps2_keys_reg(16#76#);
 		--atari_keyboard(39)<=ps2_keys_reg(16#91#);
@@ -155,9 +156,14 @@ BEGIN
 		atari_keyboard(32)<=ps2_keys_reg(16#41#);
 		atari_keyboard(34)<=ps2_keys_reg(16#49#);
 
-		consol_start_int<=ps2_keys_reg(16#06#);
-		consol_select_int<=ps2_keys_reg(16#04#);
-		consol_option_int<=ps2_keys_reg(16#0C#);
+		atari_keyboard(3)<=ps2_keys_reg(16#05#);
+		atari_keyboard(4)<=ps2_keys_reg(16#06#);
+		atari_keyboard(19)<=ps2_keys_reg(16#04#);
+		atari_keyboard(20)<=ps2_keys_reg(16#0c#);
+
+		consol_start_int<=ps2_keys_reg(16#0B#);
+		consol_select_int<=ps2_keys_reg(16#83#);
+		consol_option_int<=ps2_keys_reg(16#0a#);
 		shift_pressed<=ps2_keys_reg(16#12#) or ps2_keys_reg(16#59#);
 		--control_pressed<=ps2_keys_reg(16#14#) or ps2_keys_reg(16#94#);
 		control_pressed<=ps2_keys_reg(16#14#) or ps2_keys_reg(16#114#);
