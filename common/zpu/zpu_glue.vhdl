@@ -199,7 +199,7 @@ begin
 
 	ZPU_READ_TEMP <= zpu_32bit_read_enable_temp or zpu_8BIT_read_enable_temp;
 	ZPU_WRITE_TEMP<= zpu_32BIT_WRITE_ENABLE_temp or zpu_16BIT_WRITE_ENABLE_temp or zpu_8BIT_WRITE_ENABLE_temp;
-	process(zpu_addr_reg,pause,memory_ready,zpu_memory_fetch_pending_next,request_type, zpu_memory_fetch_pending_reg, memory_ready_reg, zpu_ADDR_unsigned, zpu_8bit_read_enable_temp, zpu_write_temp, result_reg, block_mem, config_mem, memORY_ACCESS,
+	process(zpu_addr_reg,pause,memory_ready,zpu_memory_fetch_pending_next,request_type, zpu_memory_fetch_pending_reg, memory_ready_reg, zpu_ADDR_unsigned, zpu_8bit_read_enable_temp, zpu_write_temp, result_reg, block_mem, config_mem, special_mem, memORY_ACCESS,
 	        zpu_read_reg,zpu_8BIT_WRITE_ENABLE_reg, zpu_16BIT_WRITE_ENABLE_reg, zpu_32BIT_WRITE_ENABLE_reg,
 			  zpu_read_temp,zpu_8BIT_WRITE_ENABLE_temp, zpu_16BIT_WRITE_ENABLE_temp, zpu_32BIT_WRITE_ENABLE_temp,
 	zpu_do_unsigned, zpu_do_reg

@@ -82,6 +82,15 @@ ARCHITECTURE vhdl OF zpucore IS
 
 	signal ZPU_CONFIG_DO : std_logic_vector(31 downto 0);
 	signal ZPU_CONFIG_WRITE_ENABLE : std_logic;
+
+	signal ZPU_SD_DMA_ADDR : std_logic_vector(15 downto 0);
+	signal ZPU_SD_DMA_DATA : std_logic_vector(7 downto 0);
+	signal ZPU_SD_DMA_WRITE : std_logic;
+	signal ZPU_SD_DMA_WRITE_BITS : std_logic_vector(3 downto 0);
+
+	signal ZPU_ADDR_ROM_RAM_DMA : std_logic_vector(15 downto 0);
+	signal ZPU_DO_DMA : std_logic_vector(31 downto 0);
+	signal ZPU_STACK_WRITE_DMA : std_logic_vector(3 downto 0);
 BEGIN 
 
 ZPU_RESET <= not(reset_n);
@@ -138,10 +147,32 @@ PORT MAP (
 	SIO_DATA_IN => ZPU_SIO_TXD,
 	SIO_DATA_OUT => ZPU_SIO_RXD,
 	SIO_COMMAND => ZPU_SIO_COMMAND,
+
+	sd_addr => ZPU_SD_DMA_ADDR,
+	sd_data => ZPU_SD_DMA_DATA,
+	sd_write => ZPU_SD_DMA_WRITE,
 	
 	DATA_OUT => ZPU_CONFIG_DO,
 	PAUSE_ZPU => ZPU_PAUSE
 	);
+
+decode_addr1 : entity work.complete_address_decoder
+	generic map(width=>2)
+	port map (addr_in=>ZPU_SD_DMA_ADDR(1 downto 0), addr_decoded=>ZPU_SD_DMA_WRITE_BITS);
+
+process(ZPU_DO, ZPU_ADDR_ROM_RAM, ZPU_STACK_WRITE, ZPU_SD_DMA_ADDR, ZPU_SD_DMA_DATA, ZPU_SD_DMA_WRITE, ZPU_SD_DMA_WRITE_BITS)
+begin
+	ZPU_DO_DMA <= ZPU_DO;
+	ZPU_ADDR_ROM_RAM_DMA <= ZPU_ADDR_ROM_RAM;
+	ZPU_STACK_WRITE_DMA <= ZPU_STACK_WRITE;
+
+	if (ZPU_SD_DMA_WRITE = '1') then
+		ZPU_DO_DMA <= ZPU_SD_DMA_DATA&ZPU_SD_DMA_DATA&ZPU_SD_DMA_DATA&ZPU_SD_DMA_DATA;
+		ZPU_ADDR_ROM_RAM_DMA <= ZPU_SD_DMA_ADDR(15 downto 2)&"00";
+		ZPU_STACK_WRITE_DMA <= ZPU_SD_DMA_WRITE_BITS(0)&ZPU_SD_DMA_WRITE_BITS(1)&ZPU_SD_DMA_WRITE_BITS(2)&ZPU_SD_DMA_WRITE_BITS(3);
+	end if;
+	
+end process;
 
 ram_31_24 : entity work.generic_ram_infer
 	GENERIC MAP
@@ -152,10 +183,10 @@ ram_31_24 : entity work.generic_ram_infer
 	)
 	PORT MAP
 	(
-		we => ZPU_STACK_WRITE(3),
+		we => ZPU_STACK_WRITE_DMA(3),
 		clock => CLK,
-		address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
-		data => ZPU_DO(31 DOWNTO 24),
+		address => ZPU_ADDR_ROM_RAM_DMA(11 DOWNTO 2),
+		data => ZPU_DO_DMA(31 DOWNTO 24),
 		q => ZPU_RAM_DATA(31 DOWNTO 24)
 	);
 
@@ -168,10 +199,10 @@ ram23_16 : entity work.generic_ram_infer
 	)
 	PORT MAP
 	(
-		we => ZPU_STACK_WRITE(2),
+		we => ZPU_STACK_WRITE_DMA(2),
 		clock => CLK,
-		address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
-		data => ZPU_DO(23 DOWNTO 16),
+		address => ZPU_ADDR_ROM_RAM_DMA(11 DOWNTO 2),
+		data => ZPU_DO_DMA(23 DOWNTO 16),
 		q => ZPU_RAM_DATA(23 DOWNTO 16)
 	);
 
@@ -184,10 +215,10 @@ ram_15_8 : entity work.generic_ram_infer
 	)
 	PORT MAP
 	(
-		we => ZPU_STACK_WRITE(1),
+		we => ZPU_STACK_WRITE_DMA(1),
 		clock => CLK,
-		address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
-		data => ZPU_DO(15 DOWNTO 8),
+		address => ZPU_ADDR_ROM_RAM_DMA(11 DOWNTO 2),
+		data => ZPU_DO_DMA(15 DOWNTO 8),
 		q => ZPU_RAM_DATA(15 DOWNTO 8)
 	);
 
@@ -200,10 +231,10 @@ ram_7_0 : entity work.generic_ram_infer
 	)
 	PORT MAP
 	(
-		we => ZPU_STACK_WRITE(0),
+		we => ZPU_STACK_WRITE_DMA(0),
 		clock => CLK,
-		address => ZPU_ADDR_ROM_RAM(11 DOWNTO 2),
-		data => ZPU_DO(7 DOWNTO 0),
+		address => ZPU_ADDR_ROM_RAM_DMA(11 DOWNTO 2),
+		data => ZPU_DO_DMA(7 DOWNTO 0),
 		q => ZPU_RAM_DATA(7 DOWNTO 0)
 	);
 

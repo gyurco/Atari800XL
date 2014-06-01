@@ -43,6 +43,11 @@ PORT
 	SDCARD_CMD : out std_logic;
 	SDCARD_DAT : in std_logic;
 	SDCARD_DAT3 : out std_logic;
+
+	-- SD DMA
+	sd_addr : out std_logic_vector(15 downto 0);
+	sd_data : out std_logic_vector(7 downto 0);
+	sd_write : out std_logic;
 	
 	-- ATARI interface (in future we can also turbo load by directly hitting memory...)
 	SIO_DATA_IN  : out std_logic;
@@ -99,6 +104,14 @@ ARCHITECTURE vhdl OF zpu_config_regs IS
 	signal pause_reg : std_logic_vector(31 downto 0);
 	signal paused_next : std_logic;
 	signal paused_reg : std_logic;
+
+	signal spi_dma_addr_next : std_logic_vector(15 downto 0);
+	signal spi_dma_addrend_next : std_logic_vector(15 downto 0);
+	signal spi_dma_wr : std_logic;
+	signal spi_dma_next : std_logic;
+	signal spi_dma_addr_reg : std_logic_vector(15 downto 0);
+	signal spi_dma_addrend_reg : std_logic_vector(15 downto 0);
+	signal spi_dma_reg : std_logic;
 begin
 	-- register
 	process(clk,reset_n)
@@ -114,6 +127,10 @@ begin
 
 			pause_reg <= (others=>'0');
 			paused_reg <= '0';
+
+			spi_dma_addr_reg <= (others=>'0');
+			spi_dma_addrend_reg <= (others=>'0');
+			spi_dma_reg <= '0';
 		elsif (clk'event and clk='1') then	
 			out1_reg <= out1_next;
 			out2_reg <= out2_next;
@@ -125,6 +142,10 @@ begin
 
 			pause_reg <= pause_next;
 			paused_reg <= paused_next;
+
+			spi_dma_addr_reg <= spi_dma_addr_next;
+			spi_dma_addrend_reg <= spi_dma_addrend_next;
+			spi_dma_reg <= spi_dma_next;
 		end if;
 	end process;
 
@@ -176,10 +197,12 @@ begin
 	--  12: TYPE
 	-- FPGA board (DONE) 
 	--    R(32 bits) 0=DE1
+	--  13 : SPI_DMA
+	--    W(15 downto 0 = addr),(31 downto 16 = endAddr)
 	--  16-31: POKEY! Low bytes only... i.e. pokey reg every 4 bytes...
 				
 	-- Writes to registers
-	process(cpu_data_in,wr_en,addr,addr_decoded, spi_speed_reg, spi_addr_reg, out1_reg, out2_reg, out3_reg, out4_reg, pause_reg, pokey_enable)
+	process(cpu_data_in,wr_en,addr,addr_decoded, spi_speed_reg, spi_addr_reg, out1_reg, out2_reg, out3_reg, out4_reg, pause_reg, pokey_enable, spi_dma_addr_reg, spi_dma_addrend_reg, spi_dma_reg, spi_busy, spi_dma_addr_next)
 	begin
 		spi_speed_next <= spi_speed_reg;
 		spi_addr_next <= spi_addr_reg;
@@ -190,7 +213,7 @@ begin
 		out2_next <= out2_reg;
 		out3_next <= out3_reg;
 		out4_next <= out4_reg;
-		
+
 		paused_next <= '0';
 		pause_next <= pause_reg;
 		if (not(pause_reg = X"00000000")) then
@@ -198,6 +221,26 @@ begin
 				pause_next <= std_LOGIC_VECTOR(unsigned(pause_reg)-to_unsigned(1,32));
 			end if;
 			paused_next <= '1';
+		end if;
+
+		spi_dma_addr_next <= spi_dma_addr_reg;
+		spi_dma_addrend_next <= spi_dma_addrend_reg;
+		spi_dma_wr <= '0';
+		spi_dma_next <= spi_dma_reg;
+		if (spi_dma_reg = '1') then
+			paused_next <= '1';
+
+			if (spi_busy = '0') then
+				spi_dma_wr <= '1';
+				spi_dma_addr_next <= std_logic_vector(unsigned(spi_dma_addr_reg)+1);
+				spi_dma_next <= '0';
+
+				if (not(spi_dma_addr_next = spi_dma_addrend_reg)) then
+					spi_tx_data <= X"ff";
+					spi_enable <= '1';
+					spi_dma_next <= '1';
+				end if;
+			end if;
 		end if;
 	
 		if (wr_en = '1' and addr(4) = '0') then
@@ -236,6 +279,17 @@ begin
 					spi_speed_next <= std_logic_vector(to_unsigned(spi_clock_div,8)); -- turbo - up to 25MHz for SD, 20MHz for MMC I believe... If 1 then clock is half input, if 2 then clock is 1/4 input etc.
 				end if;
 			end if;	
+
+			if(addr_decoded(13) = '1') then
+				paused_next <= '1';
+				spi_dma_addr_next <= cpu_data_in(15 downto 0);
+				spi_dma_addrend_next <= cpu_data_in(31 downto 16);
+
+				spi_dma_next <= '1';
+
+				spi_tx_data <= X"ff";
+				spi_enable <= '1';
+			end if;
 			
 		end if;
 	end process;
@@ -310,6 +364,10 @@ begin
 	SDCARD_CMD <= spi_mosi;
 	spi_miso <= SDCARD_DAT; -- INPUT!! XXX
 	SDCARD_DAT3 <= spi_chip_select(0);
+
+	sd_addr <= spi_dma_addr_reg;
+	sd_data <= spi_rx_data;
+	sd_write <= spi_dma_wr;
 end vhdl;
 
 
