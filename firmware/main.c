@@ -10,6 +10,8 @@
 
 #include "atari_drive_emulator.h"
 
+extern char ROM_DIR[];
+
 // FUNCTIONS in here
 // i) pff init - NOT USED EVERYWHERE
 // ii) file selector - kind of crap, no fine scrolling - NOT USED EVERYWHERE
@@ -94,11 +96,13 @@ void clear_64k_ram()
 void
 reboot(int cold)
 {
-	set_reset_6502(1);
+	set_pause_6502(1);
 	if (cold)
 	{
 		clear_64k_ram();
 	}
+	set_reset_6502(1);
+	// Do nothing in here - this resets the memory controller!
 	set_reset_6502(0);
 	set_pause_6502(0);
 }
@@ -162,7 +166,7 @@ void char_out ( void* p, char c)
 // 0x410000-0x41FFFF (0xc10000 in zpu space) = directory cache - 64k
 // 0x420000-0x43FFFF (0xc20000 in zpu space) = freeze backup
 
-struct SimpleFile * files[5];
+struct SimpleFile * files[6];
 void loadromfile(struct SimpleFile * file, int size, void * ram_address)
 {
 	ram_address += 0x800000;
@@ -186,8 +190,93 @@ void loadrom_indir(struct SimpleDirEntry * entries, char const * filename, int s
 	}
 }
 
+void loadosrom()
+{
+	if (file_size(files[5]) == 0x4000)
+	{
+		loadromfile(files[5],0x4000, (void *)0x704000);
+	}
+	else if (file_size(files[5]) ==0x2800)
+	{
+		loadromfile(files[5],0x2800, (void *)0x705800);
+	}
+}
+
 int main(void)
 {
+/*	disk_initialize();
+	{
+		char buffer[512];
+
+		freeze_init((void*)0xc20000); // 128k
+	
+		debug_pos = -1;
+		debug_adjust = 0;
+		baseaddr = (unsigned char volatile *)(40000 + atari_regbase);
+		set_pause_6502(1);
+		set_reset_6502(1);
+		set_reset_6502(0);
+		set_turbo_6502(1);
+		set_rom_select(1);
+		set_ram_select(0);
+	
+		init_printf(0, char_out);
+		reboot(1);
+	//	for (;;);
+		wait_us(5000000);
+
+		set_pause_6502(1);
+		freeze();
+		debug_pos = 0;	
+
+		printf("Hello world 3");
+		debug_pos = 40;
+		int i;
+		for (i=0;i!=512; ++i)
+		{
+			buffer[i] = i;
+		}
+		int volatile * x = (int volatile *)0x4000;
+		int volatile * y = (int volatile *)&buffer[0];
+		for (i=0;i!=128; ++i)
+		{
+			x[i] = y[i];
+		}
+		hexdump_pure(0x4000,8);
+		hexdump_pure(0x41f8,8);
+		debug_pos = 120;
+
+		printf(" Writing sector ");
+		n_actual_mmc_sector = 30;
+		disk_writeflush();
+		printf(" Wrote sector ");
+
+		for (i=0;i!=128; ++i)
+		{
+			x[i] = 0;
+		}
+		n_actual_mmc_sector = -1;
+		disk_readp(&buffer[0],30,0,512);
+		hexdump_pure(0x4000,8);
+		hexdump_pure(0x41f8,8);
+		debug_pos = 200;
+
+		disk_readp(&buffer[0],0x103,0,512);
+		hexdump_pure(0x4000,8);
+		hexdump_pure(0x41f8,8);
+		debug_pos = 280;
+
+		disk_readp(&buffer[0],0,0,512);
+		hexdump_pure(0x4000,8);
+		hexdump_pure(0x41f8,8);
+		debug_pos = 360;
+
+		printf("OK...");
+
+		//for (;;);
+		wait_us(10000000);
+	}*/
+
 /*	spiInit();
 	set_spi_clock_freq();
 	mmcReadLoop();*/
@@ -202,7 +291,7 @@ int main(void)
 	}*/
 
 	int i;
-	for (i=0; i!=5; ++i)
+	for (i=0; i!=6; ++i)
 	{
 		files[i] = (struct SimpleFile *)alloca(file_struct_size());
 		file_init(files[i]);
@@ -213,9 +302,11 @@ int main(void)
 	debug_pos = -1;
 	debug_adjust = 0;
 	baseaddr = (unsigned char volatile *)(40000 + atari_regbase);
+	set_pause_6502(1);
 	set_reset_6502(1);
+	set_reset_6502(0);
 	set_turbo_6502(1);
-	set_rom_select(2);
+	set_rom_select(1);
 	set_ram_select(2);
 
 	init_printf(0, char_out);
@@ -228,14 +319,19 @@ int main(void)
 		init_drive_emulator();
 
 		
-		struct SimpleDirEntry * entries = dir_entries("/system/rom/atari800");
+		struct SimpleDirEntry * entries = dir_entries(ROM_DIR);
 		
-		loadrom_indir(entries,"xlorig.rom",0x4000, (void *)0x704000);
-		loadrom_indir(entries,"xlhias.rom",0x4000, (void *)0x708000);
+		//loadrom_indir(entries,"atarixl.rom",0x4000, (void *)0x704000);
+		if (SimpleFile_OK == file_open_name_in_dir(entries, "atarixl.rom", files[5]))
+		{
+			loadosrom();
+		}
+
+		/*loadrom_indir(entries,"xlhias.rom",0x4000, (void *)0x708000);
 		loadrom_indir(entries,"ultimon.rom",0x4000, (void *)0x70c000);
 		loadrom_indir(entries,"osbhias.rom",0x4000, (void *)0x710000);
 		loadrom_indir(entries,"osborig.rom",0x2800, (void *)0x715800);
-		loadrom_indir(entries,"osaorig.rom",0x2800, (void *)0x719800);
+		loadrom_indir(entries,"osaorig.rom",0x2800, (void *)0x719800);*/
 
 		loadrom_indir(entries,"ataribas.rom",0x2000,(void *)0x700000);
 
@@ -323,7 +419,9 @@ int settings()
 		printf("Ram:%s", get_ram());
 		debug_pos = 160;
 		debug_adjust = row==2 ? 128 : 0;
-		printf("Rom bank:%d", get_rom_select());
+		{
+			printf("Rom:%s", file_name(files[5]));
+		}
 		debug_pos = 240;
 		int i;
 		for (i=1;i!=5;++i)
@@ -377,11 +475,12 @@ int settings()
 			break;
 		case 2:
 			{
-				int rom_select = get_rom_select();
-				rom_select+=joy.x_;
-				if (rom_select<1) rom_select = 1;
-				if (rom_select>6) rom_select = 6; // TODO
-				set_rom_select(rom_select);
+				if (joy.x_ || joy.fire_)
+				{
+					filter = filter_roms;
+					file_selector(files[5]);
+					loadosrom();
+				}
 			}
 			break;
 		case 3:
@@ -404,12 +503,19 @@ int settings()
 				}
 				else if (joy.fire_)
 				{
-					struct SimpleFile * temp;
-					temp = files[0];
-					files[0] = files[row-3];
-					files[row-3] = temp;
-					set_drive_status(row-3,temp);
-					set_drive_status(0,files[0]);
+					{
+						// Swap files
+						struct SimpleFile * temp = files[row-3];
+						files[row-3] = files[0];
+						files[0] = temp;
+					}
+
+					{
+						// Swap disks
+						struct SimpleFile * temp = get_drive_status(row-3);
+						set_drive_status(row-3, get_drive_status(0));
+						set_drive_status(0,temp);
+					}
 				}
 			}
 			break;

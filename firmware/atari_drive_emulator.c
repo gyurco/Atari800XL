@@ -286,6 +286,11 @@ void set_drive_status(int driveNumber, struct SimpleFile * file)
 	//printf("appears valid\n");
 }
 
+struct SimpleFile * get_drive_status(int driveNumber)
+{
+	return drives[driveNumber];
+}
+
 void init_drive_emulator()
 {
 	int i;

@@ -2,6 +2,9 @@
 
 #include "regs.h"
 
+#include "printf.h"
+extern int debug_pos;
+
 void mmcReadCached(u32 sector);
 u32 n_actual_mmc_sector;
 unsigned char * mmc_sector_buffer;
@@ -31,11 +34,20 @@ void mmcReadCached(u32 sector)
 	while(ret); //a pokud se vubec nepovedlo, tady zustane zablokovany cely SDrive!
 */
 
-	*zpu_out4 = (sector<<8)|0xa5;
-	while (*zpu_in4 != *zpu_out4)
+	//printf("Reading sector:%d", sector);
+	*zpu_out4 = sector|0x01000000;
+	while (!*zpu_in4)
 	{
 		// Wait until ready
 	}
+	*zpu_out4 = 0;
+	//printf(" RD1 ");
+	while (*zpu_in4)
+	{
+		// Wait until ready cleared
+	}
+
+	//printf(" RD2 ");
 
 	n_actual_mmc_sector=sector;
 }
@@ -59,7 +71,7 @@ DSTATUS disk_initialize (void)
 	//set_spi_clock_freq();
 
 	// no longer in ram (yet!), misuse will break us...
-	mmc_sector_buffer = (unsigned char *)0x8000;  // 512 bytes in the middle of memory space!
+	mmc_sector_buffer = (unsigned char *)0x4000;  // 512 bytes in the middle of memory space!
 
 	stat = RES_OK;
 
@@ -115,27 +127,76 @@ DRESULT disk_readp (
 /* Write Partial Sector                                                  */
 /*-----------------------------------------------------------------------*/
 
-DRESULT disk_writep (const BYTE* buff, DWORD sc)
+DRESULT disk_writep (const BYTE* buff, DWORD sofs, DWORD count)
 {
 	DRESULT res;
 
+	int i=sofs;
+	int end=sofs+count;
+	int pos = 0;
 
-	if (!buff) {
-		if (sc) {
+/*	debug_pos = 0;
+	printf("WP:%x %d %d"),buff,sofs,count;
+	debug_pos = -1;*/
 
-			// Initiate write process
+	for (;i!=end;++i,++pos)
+	{
+                unsigned char temp = buff[pos];
 
-		} else {
-
-			// Finalize write process
-
-		}
-	} else {
-
-		// Send data to the disk
-
+                unsigned int volatile* addr = (unsigned int volatile *)&mmc_sector_buffer[i&~3];
+                unsigned int prev = *(unsigned int volatile*)addr;
+                ((char unsigned *)&prev)[i&3] = temp;
+                *addr = prev;
+		
+		//mmc_sector_buffer[i] = buff[pos];
+		//printf("char:%c loc:%d,", buff[pos],i);
 	}
 
+/*	debug_pos = 40;
+	printf("WP DONE:%x %d %d"),buff,sofs,count;
+	debug_pos = -1;*/
+
+	res = RES_OK;
+
 	return res;
+}
+
+void disk_writeflush()
+{
+/*	// Finalize write process
+	int retry=16; //zkusi to maximalne 16x
+	int ret;
+	//printf(":WSECT:%d",n_actual_mmc_sector);
+	do
+	{
+		ret = mmcWrite(n_actual_mmc_sector); //vraci 0 kdyz ok
+		retry--;
+	} while (ret && retry);
+	//printf(":WD:");
+*/
+
+	/*debug_pos = 0;
+	printf("WF");
+	debug_pos = -1;*/
+
+	//printf(" WTF:%d:%x ", n_actual_mmc_sector, ((unsigned int *)mmc_sector_buffer)[0]);
+
+	*zpu_out4 = n_actual_mmc_sector|0x02000000;
+	while (!*zpu_in4)
+	{
+		// Wait until ready
+	}
+	*zpu_out4 = 0;
+	//printf(" PT1 ");
+	while (*zpu_in4)
+	{
+		// Wait until ready cleared
+	}
+
+	//printf(" PT2 ");
+
+	/*debug_pos = 40;
+	printf("DONE");
+	debug_pos = -1;*/
 }
 

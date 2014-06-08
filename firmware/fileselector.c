@@ -7,6 +7,7 @@
 
 extern int debug_pos; // ARG!
 extern int debug_adjust; // ARG!
+extern char USER_DIR[];
 
 // TODO!
 #define MAX_PATH_LENGTH (9*5 + 8+3+1 + 1) 
@@ -34,7 +35,7 @@ void file_selector(struct SimpleFile * file)
 	char dir[MAX_PATH_LENGTH];
 	if (file_name(file)[0] == '\0')
 	{
-		strcpy(&dir[0],"/atari800/user");
+		strcpy(&dir[0],USER_DIR);
 	}
 	else
 	{

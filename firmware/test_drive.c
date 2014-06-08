@@ -27,6 +27,8 @@ void char_out ( void* p, char c)
 	putc(c, stderr);
 }
 
+struct SimpleFile * files[5];
+
 int main(void)
 {
 	init_printf(NULL, char_out);
@@ -41,15 +43,26 @@ int main(void)
 	entry = dir_entries("");
 	entry = dir_next(dir_next(dir_next(entry)));
 	fprintf(stderr, " Name:%s", dir_filename(entry));
-	struct SimpleFile * file = alloca(file_struct_size());
+	int i;
+	for (i=0;i!=5;++i)
+	{
+		struct SimpleFile * file = alloca(file_struct_size());
+		file_init(file);
+		files[i] = file;
+	}
 	//file_open_dir(entry,file);
-	file_open_name("GUNPOWDR.ATR",file);
+	if (SimpleFile_OK == file_open_name("GUNPOWDR.ATR",files[0]))
+	{
+	}
+	else
+	{
+		fprintf(stderr,"\nARG\n");
+	}
 
 	int read = 0;
 	char buffer[1024];
 	//file_seek(file,100);
-	file_read(file,&buffer[0],1024,&read);
-	int i;
+	file_read(files[0],&buffer[0],1024,&read);
 	for (i=0; i!=read; ++i)
 	{
 		fprintf(stderr,"|%02x", (unsigned char)buffer[i]);
@@ -62,7 +75,34 @@ int main(void)
 
 	init_drive_emulator();
 
-	set_drive_status(0,file);
+	//set_drive_status(0,files[0]);
+	for (i=1;i!=5;++i)
+	{
+		char buffer[20];
+		describe_disk(i-1,&buffer[0]);
+		fprintf(stderr, "Drive %d:%s %s\n", i, file_name(get_file_status(i-1)), &buffer[0]);
+	}
+
+					int row = 6;
+					{
+						// Swap files
+						struct SimpleFile * temp = files[row-3];
+						files[row-3] = files[0];
+						files[0] = temp;
+					}
+
+					{
+						// Swap disks
+						struct SimpleFile * temp = get_drive_status(row-3);
+						set_drive_status(row-3, get_drive_status(0));
+						set_drive_status(0,temp);
+					}
+	for (i=1;i!=5;++i)
+	{
+		char buffer[20];
+		describe_disk(i-1,&buffer[0]);
+		fprintf(stderr, "Drive %d:%s %s\n", i, file_name(get_file_status(i-1)), &buffer[0]);
+	}
 
 	start_time = now();
 	run_drive_emulator();

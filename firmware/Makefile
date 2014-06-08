@@ -18,11 +18,13 @@ BUILD_DIR=zpu_obj
 MINSTARTUP_SRC = mycrt0.s
 MINSTARTUP_OBJ = $(patsubst $(STARTUP_DIR)/%.s,$(BUILD_DIR)/%.o,$(MINSTARTUP_SRC))
 
-MAIN_PRJ = JustStartAtari
-MAIN_SRC = main.c regs.c freeze.c joystick.c fileutils.c fileselector.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc.c
-#gcc -g -O0 -DLITTLE_ENDIAN test_drive.c atari_drive_emulator.c native/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c native/diskio_image.c -I. -Iprintf -Ifat -Icommon
-#MAIN_SRC = stuff.c
-MAIN_OBJ = $(COMMON_OBJ) $(patsubst %.c,$(BUILD_DIR)/%.o,$(MAIN_SRC))
+MCC_PRJ = MCC216
+MCC_SRC = main.c regs.c freeze.c joystick.c fileutils.c fileselector.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc.c mcc/dirs.c
+MCC_OBJ = $(patsubst %.c,$(BUILD_DIR)/%.o,$(MCC_SRC))
+
+MIST_PRJ = MIST
+MIST_SRC = main.c regs.c freeze.c joystick.c fileutils.c fileselector.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c mist/diskio_sectorrequest.c mist/dirs.c
+MIST_OBJ = $(patsubst %.c,$(BUILD_DIR)/%.o,$(MIST_SRC))
 
 LINKMAP  = ./standalone_simple.ld
 
@@ -39,10 +41,17 @@ LFLAGS  = -nostartfiles -Wl,--relax -g -Os
 
 
 # Our target.
-all: $(BUILD_DIR) $(MAIN_PRJ).bin $(MAIN_PRJ).rpt
+all: mcc mist
+
+install:
+	cd ../common/romgen && ./createall && cd ../../firmware
+
+mcc: $(BUILD_DIR) $(MCC_PRJ).bin $(MCC_PRJ).rpt
+
+mist: $(BUILD_DIR) $(MIST_PRJ).bin $(MIST_PRJ).rpt
 
 clean:
-	rm -f $(BUILD_DIR)/*.o *.hex *.elf *.map *.lst *.srec $(MAIN_PRJ).rom *~ */*.o *.bin
+	rm -f $(BUILD_DIR)/*.o *.hex *.elf *.map *.lst *.srec $(MIST_PRJ).rom $(MCC_PRJ).rom *~ */*.o *.bin
 
 
 # Convert ELF binary to bin file.
@@ -60,7 +69,10 @@ clean:
 
 # Link - this produces an ELF binary.
 
-$(MAIN_PRJ).elf: $(MINSTARTUP_OBJ) $(MAIN_OBJ)
+$(MCC_PRJ).elf: $(MINSTARTUP_OBJ) $(MCC_OBJ)
+	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
+
+$(MIST_PRJ).elf: $(MINSTARTUP_OBJ) $(MIST_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
 $(BUILD_DIR)/%.o: %.c Makefile
