@@ -16,8 +16,9 @@ ENTITY data_io IS
 	   SPI_MISO: out std_logic;
 	   SPI_MOSI : in std_logic;
 		
-		-- Sector access request
-		request : in std_logic;
+		-- Sector access read_request
+		read_request : in std_logic;
+		write_request : in std_logic;
 		sector : in std_logic_vector(23 downto 0);
 		ready : out std_logic;
 		
@@ -41,6 +42,9 @@ architecture vhdl of data_io is
 	signal cnt_next : std_logic_vector(15 downto 0);
 	signal cnt_reg : std_logic_vector(15 downto 0);
 
+	signal data_in_next : std_logic_vector(7 downto 0);
+	signal data_in_reg : std_logic_vector(7 downto 0);
+
 	signal data_out_next : std_logic_vector(7 downto 0);
 	signal data_out_reg : std_logic_vector(7 downto 0);
 
@@ -59,18 +63,29 @@ architecture vhdl of data_io is
 	signal sector_next : std_logic_vector(23 downto 0);
 	signal sector_reg : std_logic_vector(23 downto 0);
 	
-	signal request_next : std_logic;
-	signal request_reg : std_logic;
+	signal read_request_next : std_logic;
+	signal read_request_reg : std_logic;
 	
+	signal write_request_next : std_logic;
+	signal write_request_reg : std_logic;
+
+	signal clk2 : std_logic;
 begin	 
-	process(clk,reset_n)
+	clk2 <= clk or spi_ss_io;
+
+	process(clk2,reset_n,spi_ss_io)
 	begin
-		if (reset_n = '0') then
+		if (spi_ss_io = '1') then
+			cnt_reg <= (others=>'0');
+			cmd_reg <= (others=>'0');
+			wren_reg <= '0';
+		elsif (reset_n = '0') then
 			cnt_reg <= (others=>'0');
 			cmd_reg <= (others=>'0');
 			sbuf_reg <= (others=>'0');
 			
 			addr_reg <= (others => '0');
+			data_in_reg <= (others => '0');
 			data_out_reg <= (others => '0');
 			wren_reg <= '0';			
 			
@@ -78,14 +93,16 @@ begin
 			
 			transmit_reg <= (others=>'0');
 			
-			request_reg <= '0';
+			read_request_reg <= '0';
+			write_request_reg <= '0';
 			sector_reg <=(others=>'0');
-		elsif (clk'event and clk='1') then
+		elsif (clk2'event and clk2='1') then
 			cnt_reg <= cnt_next;
 			cmd_reg <= cmd_next;
 			sbuf_reg <= sbuf_next;			
 			
 			addr_reg <= addr_next;
+			data_in_reg <= data_in_next;
 			data_out_reg <= data_out_next;
 			wren_reg <= wren_next;
 			
@@ -93,7 +110,8 @@ begin
 		
 			transmit_reg <= transmit_next;
 
-			request_reg <= request_next;
+			read_request_reg <= read_request_next;
+			write_request_reg <= write_request_next;
 			sector_reg <= sector_next;			
 		end if;
 	end process;	
@@ -108,12 +126,14 @@ begin
 --	select_sync : synchronizer
 --	PORT MAP ( CLK => clk, raw => spi_ss_io, sync=>spi_ss_next);
 
-	process(spi_ss_io,cnt_reg, sbuf_reg, transmit_reg, spi_mosi, addr_reg, cmd_reg, sector_reg, request_reg, ready_reg,request,sector)
+	data_in_next <= data_in;
+
+	process(spi_ss_io,cnt_reg, sbuf_reg, transmit_reg, spi_mosi, addr_reg, cmd_reg, sector_reg, write_request_reg, read_request_reg, ready_reg,read_request,write_request,sector,data_in_reg)
 	begin
 		cnt_next <= cnt_reg;
 		sbuf_next <= sbuf_reg;
 		cmd_next <= cmd_reg;
-		ready_next <= ready_reg and request; -- stay ready until request cleared (received by other end)
+		ready_next <= ready_reg and (read_request or write_request); -- stay ready until read_request cleared (received by other end)
 		
 		transmit_next <= transmit_reg;
 		
@@ -122,7 +142,8 @@ begin
 		addr_next <= addr_reg;
 		
 		sector_next <= sector_reg;
-		request_next <= request_reg;		
+		read_request_next <= read_request_reg;		
+		write_request_next <= write_request_reg;		
 		
 --- It polls get_status 10 times a second
 --- it uses SPI_SS2 for this
@@ -146,22 +167,21 @@ begin
 		
 		sbuf_next(6 downto 1) <= sbuf_reg(5 downto 0);
 		sbuf_next(0) <= SPI_MOSI;
+
+		if (cnt_reg = X"0000") then
+			addr_next <= (others=>'0');
+		end if;
 			
 		if (cnt_reg = X"0007") then
 			cmd_next(7 downto 1) <= sbuf_reg;
 			cmd_next(0) <= SPI_MOSI;
-			addr_next <= (others=>'1');
 			
 			sector_next <= sector;
-			request_next <= request;		
+			read_request_next <= read_request;		
+			write_request_next <= write_request;		
 		end if;
 			
 		--end if;
-		
-		if (spi_ss_io = '1') then
-			cnt_next <= (others=>'0');
-			cmd_next <= (others=>'0');
-		end if;	
 		
 		case cmd_reg is
 		when X"50" => --get status
@@ -173,16 +193,28 @@ begin
 			when X"0018" =>
 				transmit_next <= sector_reg(7 downto 0);				
 			when X"0020" =>
-				transmit_next <= "1010010"&request_reg; --read request
+				transmit_next <= "101001"&write_request_reg&read_request_reg; --read read_request
 			when others =>
 				-- nothing
 			end case;
 		when X"51" => --sector read from sd, write it...
+			if (cnt_reg = X"0008") then
+				addr_next <= (others=>'1');
+			end if;
 			if (cnt_reg(2 downto 0) = "111") then
 				addr_next <= std_logic_vector(unsigned(addr_reg) + 1);
 				data_out_next(7 downto 1) <= sbuf_reg;
 				data_out_next(0) <= SPI_MOSI;
-				wren_next <= request;
+				wren_next <= read_request;
+				
+				if (cnt_reg(12) = '1')then
+					ready_next <= '1';
+				end if;
+			end if;
+		when X"52" => -- read from write, write to sd
+			if (cnt_reg(2 downto 0) = "000") then
+				addr_next <= std_logic_vector(unsigned(addr_reg) + 1);
+				transmit_next <= data_in_reg;
 				
 				if (cnt_reg(12) = '1')then
 					ready_next <= '1';
@@ -194,9 +226,9 @@ begin
 	end process;
 
 	-- outputs
-	addr <= addr_reg;
-	data_out <= data_out_reg;
-	wr_en <= wren_reg;
+	addr <= addr_next;
+	data_out <= data_out_next;
+	wr_en <= wren_next;
 	
 	ready <= ready_reg;
 
