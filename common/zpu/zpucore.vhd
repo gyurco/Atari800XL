@@ -39,6 +39,7 @@ ENTITY zpucore IS
 		-- data on next cycle after addr
 		ZPU_ADDR_ROM : out std_logic_vector(15 downto 0);
 		ZPU_ROM_DATA : in std_logic_vector(31 downto 0);
+		ZPU_ROM_WREN : out std_logic;
 
 		-- spi master
 		-- Too painful to bit bang spi from zpu, so we have a hardware master in here
@@ -112,7 +113,8 @@ PORT MAP(CLK => CLK,
 		 ZPU_ADDR_FETCH => ZPU_ADDR_FETCH,
 		 ZPU_ADDR_ROM_RAM => ZPU_ADDR_ROM_RAM,
 		 ZPU_DO => ZPU_DO,
-		 ZPU_STACK_WRITE => ZPU_STACK_WRITE);
+		 ZPU_STACK_WRITE => ZPU_STACK_WRITE,
+		 ZPU_ROM_WREN => ZPU_ROM_WREN);
 
 config_regs : entity work.zpu_config_regs
 GENERIC MAP (

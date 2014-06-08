@@ -44,6 +44,9 @@ PORT
 	-- stack request
 	ZPU_STACK_WRITE : out std_logic_vector(3 downto 0);
 
+	-- write to ROM!!
+	ZPU_ROM_WREN : out std_logic;
+
 	-- response
 	MEMORY_READY : in std_logic
 );
@@ -209,6 +212,7 @@ begin
 		result_next <= result_reg;
 		memory_ready_next <= memory_ready;
 		zpu_stACK_WRITE <= (others=>'0');
+		ZPU_ROM_WREN <= '0';
 		ZPU_config_write <= '0';
 		zpu_addr_next <= zpu_addr_reg;
 		zpu_do_next <= zpu_do_reg;
@@ -261,6 +265,7 @@ begin
 				else
 					result_next <= result_rom;
 				end if;
+				ZPU_ROM_WREN <= ZPU_WRITE_TEMP;
 				ZPU_MEM_BUSY <= '1';
 				zpu_addr_next <= std_logic_vector(zpu_addr_unsigned);
 			when "01110" =>
