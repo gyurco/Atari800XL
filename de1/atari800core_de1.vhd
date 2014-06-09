@@ -147,8 +147,6 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 	
 	signal SDRAM_REFRESH : std_logic;
 	
-	signal SYSTEM_RESET_REQUEST: std_logic;
-
 	-- pokey keyboard
 	SIGNAL KEYBOARD_SCAN : std_logic_vector(5 downto 0);
 	SIGNAL KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
@@ -158,9 +156,6 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 	SIGNAL CONSOL_SELECT : std_logic;
 	SIGNAL CONSOL_OPTION : std_logic;
 	
-	-- 6502 throttling
-	SIGNAL THROTTLE_COUNT_6502 : std_logic_vector(5 downto 0);
-
 	-- SIO
 	SIGNAL SIO_RXD : std_logic;
 	SIGNAL SIO_COMMAND : std_logic;
@@ -174,6 +169,39 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 	signal AUDIO_LEFT : std_logic_vector(15 downto 0);
 	signal AUDIO_RIGHT : std_logic_vector(15 downto 0);
 
+	-- dma/virtual drive
+	signal DMA_ADDR_FETCH : std_logic_vector(23 downto 0);
+	signal DMA_WRITE_DATA : std_logic_vector(31 downto 0);
+	signal DMA_FETCH : std_logic;
+	signal DMA_32BIT_WRITE_ENABLE : std_logic;
+	signal DMA_16BIT_WRITE_ENABLE : std_logic;
+	signal DMA_8BIT_WRITE_ENABLE : std_logic;
+	signal DMA_READ_ENABLE : std_logic;
+	signal DMA_MEMORY_READY : std_logic;
+	signal DMA_MEMORY_DATA : std_logic_vector(31 downto 0);
+
+	signal ZPU_ADDR_ROM : std_logic_vector(15 downto 0);
+	signal ZPU_ROM_DATA :  std_logic_vector(31 downto 0);
+
+	signal ZPU_OUT1 : std_logic_vector(31 downto 0);
+	signal ZPU_OUT2 : std_logic_vector(31 downto 0);
+	signal ZPU_OUT3 : std_logic_vector(31 downto 0);
+	signal ZPU_OUT4 : std_logic_vector(31 downto 0);
+
+	signal zpu_pokey_enable : std_logic;
+	signal zpu_sio_txd : std_logic;
+	signal zpu_sio_rxd : std_logic;
+	signal zpu_sio_command : std_logic;
+
+	SIGNAL FKEYS : std_logic_vector(11 downto 0);
+
+	-- system control from zpu
+	signal ram_select : std_logic_vector(2 downto 0);
+	signal rom_select : std_logic_vector(5 downto 0);
+	signal reset_atari : std_logic;
+	signal pause_atari : std_logic;
+	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
+
 BEGIN 
 
 -- ANYTHING NOT CONNECTED...
@@ -186,14 +214,8 @@ FL_WE_N <= '1';
 FL_RST_N <= '1';
 FL_ADDR <= (others=>'0');
 
-SD_CLK <= '1';
-SD_CMD <= '1';
-SD_THREE <= '1';
-
 LEDG <= (others=>'1');
 LEDR <= (others=>'1');
-
-SYSTEM_RESET_REQUEST <= '0';
 
 -- TODO FUJI? Or Program counter or...
 hexdecoder0 : entity work.hexdecoder
@@ -245,7 +267,7 @@ GENERIC MAP(ADDRESS_WIDTH => 22,
 			)
 PORT MAP(CLK_SYSTEM => CLK,
 		 CLK_SDRAM => CLK_SDRAM,
-		 RESET_N =>  RESET_N and not(SYSTEM_RESET_REQUEST),
+		 RESET_N =>  RESET_N,
 		 READ_EN => SDRAM_READ_ENABLE,
 		 WRITE_EN => SDRAM_WRITE_ENABLE,
 		 REQUEST => SDRAM_REQUEST,
@@ -298,7 +320,7 @@ CART_RD5 <= '0';
 internalromram1 : entity work.internalromram
 	GENERIC MAP
 	(
-		internal_rom => 1,
+		internal_rom => 0,
 		internal_ram => 0
 	)
 	PORT MAP (
@@ -334,7 +356,7 @@ internalromram1 : entity work.internalromram
 --   for I in 0 to 35 generate
 --		gpio_1(I) <= gpio_1_out(I) when gpio_1_dir_out(I)='1' else 'Z';
 --   end generate gpio1_gen;
-	
+
 --b2v_inst19 : entity work.gpio
 --PORT MAP(clk => CLK,
 --		 gpio_enable => GPIO_ENABLE,
@@ -441,18 +463,20 @@ keyboard_map1 : entity work.ps2_to_atari800
 
 		CONSOL_START => CONSOL_START,
 		CONSOL_SELECT => CONSOL_SELECT,
-		CONSOL_OPTION => CONSOL_OPTION
+		CONSOL_OPTION => CONSOL_OPTION,
 		
-		-- TODO - reset!
+		FKEYS => FKEYS
 	);
 
 -- SIO
-SIO_RXD <= UART_RXD;
+-- TODO combine
+--SIO_RXD <= UART_RXD;
 UART_TXD <= SIO_TXD;
 GPIO_0(1) <= SIO_COMMAND;
 
--- THROTTLE
-THROTTLE_COUNT_6502 <= std_logic_vector(to_unsigned(1,6));
+zpu_sio_command <= SIO_COMMAND;
+zpu_sio_rxd <= SIO_TXD;
+SIO_RXD <= zpu_sio_txd;
 
 -- VIDEO
 VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
@@ -467,7 +491,7 @@ atari800 : entity work.atari800core
 	PORT MAP
 	(
 		CLK => CLK,
-		RESET_N => RESET_N and SDRAM_RESET_N and not(SYSTEM_RESET_REQUEST),
+		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
 
 		VIDEO_VS => VGA_VS_RAW,
 		VIDEO_HS => VGA_HS_RAW,
@@ -547,24 +571,99 @@ atari800 : entity work.atari800core
 		ROM_REQUEST => ROM_REQUEST,
 		ROM_REQUEST_COMPLETE => ROM_REQUEST_COMPLETE,
 
-		DMA_FETCH => '0',
-		DMA_READ_ENABLE => '0',
-		DMA_32BIT_WRITE_ENABLE => '0',
-		DMA_16BIT_WRITE_ENABLE => '0',
-		DMA_8BIT_WRITE_ENABLE => '0',
-		DMA_ADDR => (others=>'0'),
-		DMA_WRITE_DATA => (others=>'0'),
-		MEMORY_READY_DMA => open,
+		DMA_FETCH => dma_fetch,
+		DMA_READ_ENABLE => dma_read_enable,
+		DMA_32BIT_WRITE_ENABLE => dma_32bit_write_enable,
+		DMA_16BIT_WRITE_ENABLE => dma_16bit_write_enable,
+		DMA_8BIT_WRITE_ENABLE => dma_8bit_write_enable,
+		DMA_ADDR => dma_addr_fetch,
+		DMA_WRITE_DATA => dma_write_data,
+		MEMORY_READY_DMA => dma_memory_ready,
+		--DMA_MEMORY_DATA => dma_memory_data,  
+		PBI_SNOOP_DATA => DMA_MEMORY_DATA,
 
-		RAM_SELECT => "110",
-		ROM_SELECT => (others=>'0'),
+		RAM_SELECT => ram_select,
+		ROM_SELECT => rom_select,
 		CART_EMULATION_SELECT => "0000000",
 		CART_EMULATION_ACTIVATE => '0',
 		PAL => '1',
 		USE_SDRAM => '1',
-		ROM_IN_RAM => '0',
-		THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
-		HALT => '0' 
+		ROM_IN_RAM => '1',
+		THROTTLE_COUNT_6502 => speed_6502,
+		HALT => pause_atari
 	);
+
+zpu: entity work.zpucore
+	GENERIC MAP
+	(
+		platform => 1,
+		spi_clock_div => 1 -- 28MHz/2. Max for SD cards is 25MHz...
+	)
+	PORT MAP
+	(
+		-- standard...
+		CLK => CLK,
+		RESET_N => RESET_N and sdram_reset_n,
+
+		-- dma bus master (with many waitstates...)
+		ZPU_ADDR_FETCH => dma_addr_fetch,
+		ZPU_DATA_OUT => dma_write_data,
+		ZPU_FETCH => dma_fetch,
+		ZPU_32BIT_WRITE_ENABLE => dma_32bit_write_enable,
+		ZPU_16BIT_WRITE_ENABLE => dma_16bit_write_enable,
+		ZPU_8BIT_WRITE_ENABLE => dma_8bit_write_enable,
+		ZPU_READ_ENABLE => dma_read_enable,
+		ZPU_MEMORY_READY => dma_memory_ready,
+		ZPU_MEMORY_DATA => dma_memory_data, 
+
+		-- rom bus master
+		-- data on next cycle after addr
+		ZPU_ADDR_ROM => zpu_addr_rom,
+		ZPU_ROM_DATA => zpu_rom_data,
+
+		-- spi master
+		-- Too painful to bit bang spi from zpu, so we have a hardware master in here
+		ZPU_SD_DAT0 => sd_data,
+		ZPU_SD_CLK => sd_clk,
+		ZPU_SD_CMD => sd_cmd,
+		ZPU_SD_DAT3 => sd_three,
+
+		-- SIO
+		-- Ditto for speaking to Atari, we have a built in Pokey
+		ZPU_POKEY_ENABLE => zpu_pokey_enable,
+		ZPU_SIO_TXD => zpu_sio_txd,
+		ZPU_SIO_RXD => zpu_sio_rxd,
+		ZPU_SIO_COMMAND => zpu_sio_command,
+
+		-- external control
+		-- switches etc. sector DMA blah blah.
+		ZPU_IN1 => X"00000"&FKEYS,
+		ZPU_IN2 => X"00000000",
+		ZPU_IN3 => X"00000000",
+		ZPU_IN4 => X"00000000",
+
+		-- ouputs - e.g. Atari system control, halt, throttle, rom select
+		ZPU_OUT1 => zpu_out1,
+		ZPU_OUT2 => zpu_out2,
+		ZPU_OUT3 => zpu_out3,
+		ZPU_OUT4 => zpu_out4
+	);
+
+	pause_atari <= zpu_out1(0);
+	reset_atari <= zpu_out1(1);
+	speed_6502 <= zpu_out1(7 downto 2);
+	ram_select <= zpu_out1(10 downto 8);
+	rom_select <= zpu_out1(16 downto 11);
+
+zpu_rom1: entity work.zpu_rom
+	port map(
+	        clock => clk,
+	        address => zpu_addr_rom(13 downto 2),
+	        q => zpu_rom_data
+	);
+
+enable_179_clock_div_zpu_pokey : entity work.enable_divider
+	generic map (COUNT=>32) -- cycle_length
+	port map(clk=>clk,reset_n=>reset_n,enable_in=>'1',enable_out=>zpu_pokey_enable);
 
 END vhdl;
