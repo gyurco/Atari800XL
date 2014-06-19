@@ -1,21 +1,105 @@
-rm -rf build
-mkdir build
-cp atari800core_mist.vhd build
-cp pll.* build
-cp atari800core.sdc build
-cp data_io.vhdl build
-cp user_io.v build
-cp mist_sector_buffer.* build
-cp zpu_rom.vhdl build
-mkdir build/common
-mkdir build/common/a8core
-mkdir build/common/components
-mkdir build/common/zpu
-cp ../common/a8core/* ./build/common/a8core
-cp ../common/components/* ./build/common/components
-cp ../common/zpu/* ./build/common/zpu
+#!/usr/bin/perl -w
+use strict;
 
-cd build
-../makeqsf ../atari800core.qsf ./common/a8core ./common/components ./common/zpu
+my $wanted_variant = shift @ARGV;
 
-quartus_sh --flow compile atari800core
+#variants...
+my $PAL = 1;
+my $NTSC = 0;
+
+my $RGB = 1; # i.e. not scandoubled
+my $VGA = 2;
+
+#Added like this to the generated qsf
+#set_parameter -name TV 1
+
+my %variants = 
+(
+	"PAL_RGB" => 
+	{
+		"TV" => $PAL,
+		"SCANDOUBLE" => 0,
+		"VIDEO" => $RGB,
+		"COMPOSITE_SYNC" => 1
+	},
+	"PAL_VGA" =>
+	{
+		"TV" => $PAL,
+		"SCANDOUBLE" => 1,
+		"VIDEO" => $VGA,
+		"COMPOSITE_SYNC" => 0
+	},
+	"PAL_VGA_CS" =>
+	{
+		"TV" => $PAL,
+		"SCANDOUBLE" => 1,
+		"VIDEO" => $VGA,
+		"COMPOSITE_SYNC" => 1
+	},
+	"NTSC_RGB" =>
+	{
+		"TV" => $NTSC,
+		"SCANDOUBLE" => 0,
+		"VIDEO" => $RGB, 
+		"COMPOSITE_SYNC" => 1
+	},
+	"NTSC_VGA" => 
+	{
+		"TV" => $NTSC,
+		"SCANDOUBLE" => 1,
+		"VIDEO" => $VGA,
+		"COMPOSITE_SYNC" => 0
+	},
+	"NTSC_VGA_CS" => 
+	{
+		"TV" => $NTSC,
+		"SCANDOUBLE" => 1,
+		"VIDEO" => $VGA,
+		"COMPOSITE_SYNC" => 1
+	}
+);
+
+if (not defined $wanted_variant or (not exists $variants{$wanted_variant} and $wanted_variant ne "ALL"))
+{
+	die "Provide variant of ALL or ".join ",",sort keys %variants;
+}
+
+foreach my $variant (sort keys %variants)
+{
+	next if ($wanted_variant ne $variant and $wanted_variant ne "ALL");
+	print "Building $variant\n";
+
+	my $dir = "build_$variant";
+	`rm -rf $dir`;
+	mkdir $dir;
+	`cp atari800core_mist.vhd $dir`;
+	`cp *pll*.* $dir`;
+	`cp *mist_sector*.* $dir`;
+	`cp *.v $dir`;
+	`cp *.vhdl $dir`;
+	`cp zpu_rom.vhdl $dir`;
+	`cp atari800core.sdc $dir`;
+	`mkdir $dir/common`;
+	`mkdir $dir/common/a8core`;
+	`mkdir $dir/common/components`;
+	`mkdir $dir/common/zpu`;
+	`cp ../common/a8core/* ./$dir/common/a8core`;
+	`cp ../common/components/* ./$dir/common/components`;
+	`cp ../common/zpu/* ./$dir/common/zpu`;
+
+	chdir $dir;
+	`../makeqsf ../atari800core.qsf ./common/a8core ./common/components ./common/zpu`;
+
+	foreach my $key (sort keys %{$variants{$variant}})
+	{
+		my $val = $variants{$variant}->{$key};
+		`echo set_parameter -name $key $val >> atari800core.qsf`;
+	}
+
+	`quartus_sh --flow compile atari800core > build.log 2> build.err`;
+
+	`quartus_cpf --convert ../output_file.cof`;
+	
+	chdir "..";
+}
+

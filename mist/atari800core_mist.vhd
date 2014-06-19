@@ -12,6 +12,13 @@ use ieee.numeric_std.all;
 LIBRARY work;
 
 ENTITY atari800core_mist IS 
+	GENERIC
+	(
+		TV : integer;  -- 1 = PAL, 0=NTSC
+		VIDEO : integer; -- 1 = RGB, 2 = VGA
+		COMPOSITE_SYNC : integer; --0 = no, 1 = yes!
+		SCANDOUBLE : integer -- 1 = YES, 0=NO, (+ later scanlines etc)
+	);
 	PORT
 	(
 		CLOCK_27 :  IN  STD_LOGIC_VECTOR(1 downto 0);
@@ -133,6 +140,8 @@ end component;
   SIGNAL	KEYBOARD_SCAN :  STD_LOGIC_VECTOR(5 DOWNTO 0);
 
   SIGNAL PAL : std_logic;
+  SIGNAL COMPOSITE_ON_HSYNC : std_logic;
+  SIGNAL VGA : std_logic;
 
   signal SDRAM_REQUEST : std_logic;
   signal SDRAM_REQUEST_COMPLETE : std_logic;
@@ -189,8 +198,15 @@ end component;
 	-- ps2
 	signal SLOW_PS2_CLK : std_logic; -- around 16KHz
 
+	-- scandoubler
+	signal half_scandouble_enable_reg : std_logic;
+	signal half_scandouble_enable_next : std_logic;
+	signal VIDEO_B : std_logic_vector(7 downto 0);
+
 BEGIN 
-pal <= '1'; -- TODO, two builds, with appropriate pll settings
+pal <= '1' when tv=1 else '0';
+vga <= '1' when video=2 else '0';
+composite_on_hsync <= '1' when composite_sync=1 else '0';
 
 -- mist spi io
 mist_spi_interface : entity work.data_io 
@@ -393,7 +409,8 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		cycle_length => 32,
 		internal_rom => 0,
 		internal_ram => 0,
-		video_bits => 6
+		video_bits => 8,
+		palette => 0
 	)
 	PORT MAP
 	(
@@ -402,9 +419,9 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 
 		VIDEO_VS => VGA_VS_RAW,
 		VIDEO_HS => VGA_HS_RAW,
-		VIDEO_B => VGA_B,
-		VIDEO_G => VGA_G,
-		VIDEO_R => VGA_R,
+		VIDEO_B => VIDEO_B,
+		VIDEO_G => open,
+		VIDEO_R => open,
 
 		AUDIO_L => AUDIO_L_PCM,
 		AUDIO_R => AUDIO_R_PCM,
@@ -496,8 +513,49 @@ SDRAM_A(12) <= '0';
 --SDRAM_CKE <= '1';		 
 LED <= '0';
 
-VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
-VGA_VS <= not(VGA_VS_RAW);
+--VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
+--VGA_VS <= not(VGA_VS_RAW);
+
+	process(clk,RESET_N,SDRAM_RESET_N,reset_atari)
+	begin
+		if ((RESET_N and SDRAM_RESET_N and not(reset_atari))='0') then
+			half_scandouble_enable_reg <= '0';
+		elsif (clk'event and clk='1') then
+			half_scandouble_enable_reg <= half_scandouble_enable_next;
+		end if;
+	end process;
+
+	half_scandouble_enable_next <= not(half_scandouble_enable_reg);
+
+	scandoubler1: entity work.scandoubler
+	GENERIC MAP
+	(
+		video_bits=>6
+	)
+	PORT MAP
+	( 
+		CLK => CLK,
+		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
+		
+		VGA => vga,
+		COMPOSITE_ON_HSYNC => composite_on_hsync,
+
+		colour_enable => half_scandouble_enable_reg,
+		doubled_enable => '1',
+		
+		-- GTIA interface
+		colour_in => VIDEO_B,
+		vsync_in => VGA_VS_RAW,
+		hsync_in => VGA_HS_RAW,
+		
+		-- TO TV...
+		R => VGA_R,
+		G => VGA_G,
+		B => VGA_B,
+		
+		VSYNC => VGA_VS,
+		HSYNC => VGA_HS
+	);
 
 zpu: entity work.zpucore
 	GENERIC MAP
