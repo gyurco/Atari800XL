@@ -18,7 +18,6 @@ port
 
 	-- pia
 	porta_in : out std_logic_vector(7 downto 0);
-	virtual_stick_in : in std_logic_vector(7 downto 0);
 	porta_out : in std_logic_vector(7 downto 0);
 	porta_output : in std_logic_vector(7 downto 0);
 	CA2_DIR_OUT : IN std_logic;
@@ -29,7 +28,6 @@ port
 	CB2_IN : OUT STD_LOGIC;
 	
 	-- gtia
-	virtual_trig_in : in std_logic_vector(3 downto 0);
 	trig_in : out std_logic_vector(3 downto 0);
 	
 	-- antic
@@ -40,11 +38,6 @@ port
 	pot_in : out std_logic_vector(7 downto 0);
 	keyboard_scan : in std_logic_vector(5 downto 0);
 	keyboard_response : out std_logic_vector(1 downto 0);
-	virtual_keycode : in std_logic_vector(5 downto 0);
-	virtual_keyheld : in std_logic;
-	virtual_shift_pressed : in std_logic;
-	virtual_control_pressed : in std_logic;
-	virtual_break_pressed : in std_logic;
 	SIO_IN : OUT STD_LOGIC;
 	SIO_OUT : IN STD_LOGIC;
 	
@@ -60,8 +53,6 @@ port
 	s4_n : in std_logic;
 	s5_n : in std_logic;
 	cctl_n : in std_logic;
-	
-	monitor : in std_logic;
 	
 	-- gpio connections
 	GPIO_0_IN : in std_logic_vector(35 downto 0);
@@ -116,8 +107,8 @@ begin
 	GPIO_0_DIR_OUT(3) <= '0';
 	GPIO_0_OUT(3) <= '0';
 	
-	GPIO_0_DIR_OUT(4) <= '1';
-	GPIO_0_OUT(4) <= MONITOR; -- zpu output for logic analyzer
+	GPIO_0_DIR_OUT(4) <= 'Z';
+	GPIO_0_OUT(4) <= '0'; -- zpu output for logic analyzer
 	
 	CA2_in <= GPIO_0_IN(0);
 	CB2_in <= GPIO_0_IN(1);
@@ -262,11 +253,10 @@ begin
 	porta_in7_synchronizer : synchronizer
 		port map (clk=>clk, raw=>porta_in_async(7), sync=>porta_in_gpio(7));
 		
-	porta_in(7 downto 4) <= porta_in_gpio(7 downto 4) when virtual_stick_in(7 downto 4) = "1111" else virtual_stick_in(7 downto 4);
-	porta_in(3 downto 0) <= porta_in_gpio(3 downto 0) when virtual_stick_in(3 downto 0) = "1111" else virtual_stick_in(3 downto 0);
+	porta_in(7 downto 4) <= porta_in_gpio(7 downto 4);
+	porta_in(3 downto 0) <= porta_in_gpio(3 downto 0);
 		
-	--trig_in_async <= virtual_trig_in and (not(gpio_enable&gpio_enable&gpio_enable&gpio_enable) or (rd5_async&"1"&GPIO_1_IN(25)&GPIO_1_IN(35)));	-- 28/40
-	trig_in_async <= virtual_trig_in and (not(gpio_enable&gpio_enable&"11") or (rd5_async&"1"&GPIO_1_IN(25)&GPIO_1_IN(35)));	-- 28/40
+	trig_in_async <= (not(gpio_enable&gpio_enable&"11") or (rd5_async&"1"&GPIO_1_IN(25)&GPIO_1_IN(35)));	-- 28/40
 	trig_in0_synchronizer : synchronizer
 		port map (clk=>clk, raw=>trig_in_async(0), sync=>trig_in_sync(0));							
 	trig_in1_synchronizer : synchronizer
@@ -287,30 +277,7 @@ begin
 	keyboard_response2_synchronizer : synchronizer
 		port map (clk=>clk, raw=>keyboard_response_async(1), sync=>keyboard_response_gpio(1));			
 		
-	process(gpio_enable, keyboard_scan, keyboard_response_gpio, virtual_keycode, virtual_keyheld, virtual_shift_pressed, virtual_control_pressed, virtual_break_pressed, virtual_stick_in, virtual_trig_in)
-	begin	
-		keyboard_response <= keyboard_response_gpio;
-		
-		if (gpio_enable = '0') then
-			keyboard_response <= (others=>'1');
-		end if;
-		
-		if (virtual_keyheld='1' and virtual_keycode = not(keyboard_scan)) then
-			keyboard_response(0) <= '0';
-		end if;
-		
-		if (keyboard_scan(5 downto 4)="00" and virtual_break_pressed = '1') then
-			keyboard_response(1) <= '0';
-		end if;
-		
-		if (keyboard_scan(5 downto 4)="10" and virtual_shift_pressed = '1') then
-			keyboard_response(1) <= '0';
-		end if;
-
-		if (keyboard_scan(5 downto 4)="11" and virtual_control_pressed = '1') then
-			keyboard_response(1) <= '0';
-		end if;
-	end process;	
+	keyboard_response <= keyboard_response_gpio;
 	
 	-- cartridge
 --	 1(21). S4' Chip Select--$8000 to $9FFF  A(22). RD4 ROM present--$8000 to $9FFF

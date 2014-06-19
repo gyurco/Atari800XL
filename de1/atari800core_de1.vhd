@@ -118,6 +118,9 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 	-- CARTRIDGE ACCESS
 	SIGNAL	CART_RD4 :  STD_LOGIC;
 	SIGNAL	CART_RD5 :  STD_LOGIC;
+	SIGNAL	CART_S4_n :  STD_LOGIC;
+	SIGNAL	CART_S5_n :  STD_LOGIC;
+	SIGNAL	CART_CCTL_n :  STD_LOGIC;
 	
 	-- PBI
 	SIGNAL PBI_WRITE_DATA : std_logic_vector(31 downto 0);
@@ -161,6 +164,8 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 	SIGNAL SIO_COMMAND : std_logic;
 	SIGNAL SIO_TXD : std_logic;
 
+	SIGNAL GPIO_SIO_RXD : std_logic;
+
 	-- VIDEO
 	signal VGA_VS_RAW : std_logic;
 	signal VGA_HS_RAW : std_logic;
@@ -202,12 +207,19 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
 
+	-- GPIO
+	signal GPIO_0_DIR_OUT : std_logic_vector(35 downto 0);
+	signal GPIO_0_OUT : std_logic_vector(35 downto 0);
+	signal GPIO_1_DIR_OUT : std_logic_vector(35 downto 0);
+	signal GPIO_1_OUT : std_logic_vector(35 downto 0);
+	signal TRIGGERS : std_logic_vector(3 downto 0);
+
 BEGIN 
 
 -- ANYTHING NOT CONNECTED...
-GPIO_0(0) <= 'Z';
-GPIO_0(35 downto 2) <= (others=>'Z');
-GPIO_1(35 downto 0) <= (others=>'Z');
+--GPIO_0(0) <= 'Z';
+--GPIO_0(35 downto 2) <= (others=>'Z');
+--GPIO_1(35 downto 0) <= (others=>'Z');
 
 FL_OE_N <= '1';
 FL_WE_N <= '1';
@@ -292,8 +304,6 @@ PORT MAP(CLK_SYSTEM => CLK,
 		 SDRAM_ADDR => DRAM_ADDR(11 downto 0),
 		 reset_client_n => SDRAM_RESET_N
 		 );
-		 
-SDRAM_REFRESH <= '0'; -- TODO
 
 -- PIA mapping
 CA1_IN <= '1';
@@ -302,15 +312,12 @@ CA2_IN <= CA2_OUT when CA2_DIR_OUT='1' else '1';
 CB2_IN <= CB2_OUT when CB2_DIR_OUT='1' else '1';
 SIO_COMMAND <= CB2_OUT;
 --PORTA_IN <= ((JOY2_n(3)&JOY2_n(2)&JOY2_n(1)&JOY2_n(0)&JOY1_n(3)&JOY1_n(2)&JOY1_n(1)&JOY1_n(0)) and not (porta_dir_out)) or (porta_dir_out and porta_out);
-PORTA_IN <= (not (porta_dir_out)) or (porta_dir_out and porta_out);
+--PORTA_IN <= (not (porta_dir_out)) or (porta_dir_out and porta_out);
 PORTB_IN <= PORTB_OUT;
-
--- ANTIC lightpen
-ANTIC_LIGHTPEN <= '1'; --JOY2_n(4) and JOY1_n(4);
 
 -- GTIA triggers
 --GTIA_TRIG <= CART_RD5&"1"&JOY2_n(4)&JOY1_n(4);
-GTIA_TRIG <= CART_RD5&"111";
+GTIA_TRIG <= CART_RD5&"1"&TRIGGERS(1 downto 0);
 
 -- Cartridge not inserted
 CART_RD4 <= '0';
@@ -347,62 +354,54 @@ internalromram1 : entity work.internalromram
 --		 SYNC_KEYS => SYNC_KEYS,
 --		 SYNC_SWITCHES => SYNC_SWITCHES);
 
---gpio0_gen:
---   for I in 0 to 35 generate
---		gpio_0(I) <= gpio_0_out(I) when gpio_0_dir_out(I)='1' else 'Z';
---   end generate gpio0_gen;
---
---gpio1_gen:
---   for I in 0 to 35 generate
---		gpio_1(I) <= gpio_1_out(I) when gpio_1_dir_out(I)='1' else 'Z';
---   end generate gpio1_gen;
+gpio0_gen:
+   for I in 0 to 35 generate
+		gpio_0(I) <= gpio_0_out(I) when gpio_0_dir_out(I)='1' else 'Z';
+   end generate gpio0_gen;
 
---b2v_inst19 : entity work.gpio
---PORT MAP(clk => CLK,
---		 gpio_enable => GPIO_ENABLE,
---		 pot_reset => POT_RESET,
---		 virtual_keyheld => KEY_HELD,
---		 virtual_shift_pressed => SHIFT_PRESSED,
---		 virtual_control_pressed => KBCODE(7),
---		 virtual_break_pressed => BREAK_PRESSED,
---		 pbi_write_enable => PBI_WRITE_ENABLE,
---		 cart_request => CART_REQUEST,
---		 s4_n => CART_S4_n,
---		 s5_n => CART_S5_N,
---		 cctl_n => CART_CCTL_N,
---		 cart_data_write => WRITE_DATA(7 DOWNTO 0),
---		 GPIO_0_IN => GPIO_0,
---		 GPIO_0_OUT => GPIO_0_OUT,
---		 GPIO_0_DIR_OUT => GPIO_0_DIR_OUT,
---		 GPIO_1_IN => GPIO_1,
---		 GPIO_1_OUT => GPIO_1_OUT,
---		 GPIO_1_DIR_OUT => GPIO_1_DIR_OUT,		 
---		 keyboard_scan => KEYBOARD_SCAN,
---		 pbi_addr_out => PBI_ADDR,
---		 porta_out => PORTA_OUT,
---		 porta_output => PORTA_DIR_OUT,
---		 virtual_keycode => KBCODE(5 DOWNTO 0),
---		 virtual_stick_in => VIRTUAL_STICKS,
---		 virtual_trig_in => VIRTUAL_TRIGGERS,
---		 lightpen => LIGHTPEN,
---		 cart_complete => CART_REQUEST_COMPLETE,
---		 rd4 => CART_RD4,
---		 rd5 => CART_RD5,
---		 cart_data_read => CART_ROM_DO,
---		 keyboard_response => KEYBOARD_RESPONSE,
---		 porta_in => GPIO_PORTA_IN,
---		 pot_in => POT_IN,
---		 trig_in => TRIGGERS,
---		 monitor => SIO_DATA_IN, -- i.e. zpu sio out
---		 CA2_DIR_OUT => CA2_DIR_OUT,
---		 CA2_OUT => CA2_OUT,
---		 CA2_IN => GPIO_CA2_IN,
---		 CB2_DIR_OUT => CB2_DIR_OUT,
---		 CB2_OUT => CB2_OUT,
---		 CB2_IN => GPIO_CB2_IN,
---		 SIO_IN => GPIO_SIO_IN,
---		 SIO_OUT => GPIO_SIO_OUT
---		 );
+gpio1_gen:
+   for I in 0 to 35 generate
+		gpio_1(I) <= gpio_1_out(I) when gpio_1_dir_out(I)='1' else 'Z';
+   end generate gpio1_gen;
+
+gpio1 : entity work.gpio
+PORT MAP(clk => CLK,
+		 gpio_enable => '1',
+		 pot_reset => '0',
+		 pbi_write_enable => '0',
+		 cart_request => '0',
+		 cart_complete => open,
+		 cart_data_read => open,
+		 s4_n => cart_s4_n,
+		 s5_n => cart_s5_n,
+		 cctl_n => cart_cctl_n,
+		 cart_data_write => x"00",
+		 GPIO_0_IN => GPIO_0,
+		 GPIO_0_OUT => GPIO_0_OUT,
+		 GPIO_0_DIR_OUT => GPIO_0_DIR_OUT,
+		 GPIO_1_IN => GPIO_1,
+		 GPIO_1_OUT => GPIO_1_OUT,
+		 GPIO_1_DIR_OUT => GPIO_1_DIR_OUT,		 
+		 keyboard_scan => KEYBOARD_SCAN,
+		 pbi_addr_out => X"0000",
+		 porta_out => PORTA_OUT,
+		 porta_output => PORTA_DIR_OUT,
+		 lightpen => ANTIC_LIGHTPEN,
+		 rd4 => open,
+		 rd5 => open,
+		 keyboard_response => open,
+		 porta_in => PORTA_IN,
+		 pot_in => open,
+		 trig_in => TRIGGERS,
+		 CA2_DIR_OUT => CA2_DIR_OUT,
+		 CA2_OUT => CA2_OUT,
+		 CA2_IN => open,
+		 CB2_DIR_OUT => CB2_DIR_OUT,
+		 CB2_OUT => CB2_OUT,
+		 CB2_IN => open,
+		 SIO_IN => GPIO_SIO_RXD,
+		 SIO_OUT => SIO_TXD
+		 );
 
 --b2v_inst22 : entity work.scandoubler
 --PORT MAP(CLK => CLK,
@@ -472,7 +471,7 @@ keyboard_map1 : entity work.ps2_to_atari800
 -- TODO combine
 --SIO_RXD <= UART_RXD;
 UART_TXD <= SIO_TXD;
-GPIO_0(1) <= SIO_COMMAND;
+--GPIO_0(1) <= SIO_COMMAND;
 
 zpu_sio_command <= SIO_COMMAND;
 zpu_sio_rxd <= SIO_TXD;
@@ -537,9 +536,9 @@ atari800 : entity work.atari800core
 
 		CART_RD4 => CART_RD4,
 		CART_RD5 => CART_RD5,
-		CART_S4_n => open,
-		CART_S5_N => open,
-		CART_CCTL_N => open,
+		CART_S4_n => CART_S4_n,
+		CART_S5_N => CART_S5_n,
+		CART_CCTL_N => CART_CCTL_n,
 
 		SIO_RXD => SIO_RXD,
 		SIO_TXD => SIO_TXD,
@@ -558,7 +557,7 @@ atari800 : entity work.atari800core
 		SDRAM_ADDR => SDRAM_ADDR,
 		SDRAM_DO => SDRAM_DO,
 
-		ANTIC_REFRESH => open, -- TODO
+		ANTIC_REFRESH => SDRAM_REFRESH,
 
 		RAM_ADDR => RAM_ADDR,
 		RAM_DO => RAM_DO,
@@ -586,8 +585,8 @@ atari800 : entity work.atari800core
 		ROM_SELECT => rom_select,
 		CART_EMULATION_SELECT => "0000000",
 		CART_EMULATION_ACTIVATE => '0',
-		PAL => '1',
-		USE_SDRAM => '1',
+		PAL => SW(8),
+		USE_SDRAM => SW(9),
 		ROM_IN_RAM => '1',
 		THROTTLE_COUNT_6502 => speed_6502,
 		HALT => pause_atari

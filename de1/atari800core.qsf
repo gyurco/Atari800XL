@@ -565,6 +565,7 @@ set_global_assignment -name SIGNALTAP_FILE output_files/stp1.stp
 
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 
+set_global_assignment -name VHDL_FILE gpio.vhd
 set_global_assignment -name VHDL_FILE atari800core_de1.vhd
 set_global_assignment -name VHDL_FILE hexdecoder.vhd
 set_global_assignment -name VHDL_FILE i2c_loader.vhd

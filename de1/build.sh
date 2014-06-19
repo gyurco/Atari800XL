@@ -9,6 +9,7 @@ cp i2sslave.vhdl build
 cp sram.vhdl build
 cp sync_switches.vhd build
 cp zpu_rom.vhdl build
+cp gpio.vhd build
 
 mkdir build/common
 mkdir build/common/a8core
