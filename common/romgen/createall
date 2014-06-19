@@ -2,3 +2,4 @@
 ./create_rom.pl 1 ATARIBAS.ROM basic > ../a8core/basic.vhdl
 ./create_rom.pl 4 ../../firmware/MCC216.bin zpu_rom 12 > ../../mcc216/zpu_rom.vhdl
 ./create_rom.pl 4 ../../firmware/MIST.bin zpu_rom 12 > ../../mist/zpu_rom.vhdl
+./create_rom.pl 4 ../../firmware/DE1.bin zpu_rom 12 > ../../de1/zpu_rom.vhdl
