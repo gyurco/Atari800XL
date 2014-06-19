@@ -10,7 +10,10 @@ USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 ENTITY scandoubler IS
---TODO video bits
+GENERIC
+(
+	video_bits : integer := 4
+);
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
@@ -28,9 +31,9 @@ PORT
 	hsync_in : in std_logic;
 	
 	-- TO TV...
-	R : OUT STD_LOGIC_vector(3 downto 0);
-	G : OUT STD_LOGIC_vector(3 downto 0);
-	B : OUT STD_LOGIC_vector(3 downto 0);
+	R : OUT STD_LOGIC_vector(video_bits-1 downto 0);
+	G : OUT STD_LOGIC_vector(video_bits-1 downto 0);
+	B : OUT STD_LOGIC_vector(video_bits-1 downto 0);
 	
 	VSYNC : out std_logic;
 	HSYNC : out std_logic
@@ -290,9 +293,9 @@ begin
 	
 	-- output	
 		-- TODO - for DE2, output full 8 bits
-	R <= R_reg(7 downto 4);
-	G <= G_reg(7 downto 4);
-	B <= B_reg(7 downto 4);
+	R <= R_reg(7 downto 8-video_bits);
+	G <= G_reg(7 downto 8-video_bits);
+	B <= B_reg(7 downto 8-video_bits);
 	
 	vsync<=vsync_reg;
 	hsync<=hsync_reg;
