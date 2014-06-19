@@ -1715,8 +1715,8 @@ BEGIN
 	-- wsync write takes 1 cycle to assert rdy
 	-- TODO - revisit antic delays in terms of cpu cycles
 	wsync_delay : delay_line
-		--generic map (COUNT=>cycle_length+cycle_length/2)
-		generic map (COUNT=>cycle_length+cycle_length-2) -- TODO
+		generic map (COUNT=>cycle_length+cycle_length/2)
+		--generic map (COUNT=>cycle_length+cycle_length-2) -- TODO
 		port map (clk=>clk,sync_reset=>'0',data_in=>wsync_write,enable=>'1',reset_n=>reset_n,data_out=>wsync_delayed_write);
 
 	-- dmactl takes 1 cycle to be applied - NO IT DOES NOT - TODO FIXME
