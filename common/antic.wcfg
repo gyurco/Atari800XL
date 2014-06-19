@@ -18,7 +18,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="34" />
+   <WVObjectSize size="36" />
    <wave_markers>
       <marker time="517213670600" label="" />
    </wave_markers>
@@ -171,5 +171,13 @@
       <obj_property name="ElementShortName">delay_display_shift_reg[24:0]</obj_property>
       <obj_property name="ObjectShortName">delay_display_shift_reg[24:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/antic_tb/antic1/antic_ready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">antic_ready</obj_property>
+      <obj_property name="ObjectShortName">antic_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/antic_tb/antic1/wsync_delay/data_in" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">data_in</obj_property>
+      <obj_property name="ObjectShortName">data_in</obj_property>
    </wvobject>
 </wave_config>

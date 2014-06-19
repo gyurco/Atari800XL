@@ -68,20 +68,35 @@ begin
 
 	wait for 1100ns;
 
+	wait until cpu_shared_enable = '1';
 	cpu_wr_en <= '1';
 	cpu_addr<= x"d402";
 	cpu_data_in <= x"00";
-	wait for clk_a_period;
+	wait until cpu_shared_enable = '0';
+	cpu_wr_en <= '0';
 
+	wait until cpu_shared_enable = '1';
+	cpu_wr_en <= '1';
 	cpu_addr<= x"d403";
 	cpu_data_in <= x"06";
-	wait for clk_a_period;
+	wait until cpu_shared_enable = '0';
+	cpu_wr_en <= '0';
 
+	wait until cpu_shared_enable = '1';
+	cpu_wr_en <= '1';
 	cpu_addr <= x"d400";
 	cpu_data_in <= x"22";
-	wait for clk_a_period;
-
+	wait until cpu_shared_enable = '0';
 	cpu_wr_en <= '0';
+
+	wait until cpu_shared_enable = '1';
+	wait for clk_a_period*7;
+	cpu_wr_en <= '1';
+	cpu_addr <= x"d40a";
+	cpu_data_in <= x"11";
+	wait for clk_a_period*1;
+	cpu_wr_en <= '0';
+
 	wait for 100000000us;
 
 	end process;
