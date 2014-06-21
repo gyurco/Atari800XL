@@ -101,8 +101,11 @@ end component;
 
   SIGNAL PS2_CLK : std_logic;
   SIGNAL PS2_DAT : std_logic;
+  SIGNAL	CONSOL_OPTION_RAW :  STD_LOGIC;
   SIGNAL	CONSOL_OPTION :  STD_LOGIC;
+  SIGNAL	CONSOL_SELECT_RAW :  STD_LOGIC;
   SIGNAL	CONSOL_SELECT :  STD_LOGIC;
+  SIGNAL	CONSOL_START_RAW :  STD_LOGIC;
   SIGNAL	CONSOL_START :  STD_LOGIC;
   SIGNAL FKEYS : std_logic_vector(11 downto 0);
 
@@ -135,6 +138,7 @@ end component;
   signal		JOY2 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
   signal		JOY1_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
   signal		JOY2_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
+  signal joy_still : std_logic;
 
   SIGNAL	KEYBOARD_RESPONSE :  STD_LOGIC_VECTOR(1 DOWNTO 0);
   SIGNAL	KEYBOARD_SCAN :  STD_LOGIC_VECTOR(5 DOWNTO 0);
@@ -366,12 +370,17 @@ keyboard_map1 : entity work.ps2_to_atari800
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
 
-		CONSOL_START => CONSOL_START,
-		CONSOL_SELECT => CONSOL_SELECT,
-		CONSOL_OPTION => CONSOL_OPTION,
+		CONSOL_START => CONSOL_START_RAW,
+		CONSOL_SELECT => CONSOL_SELECT_RAW,
+		CONSOL_OPTION => CONSOL_OPTION_RAW,
 		
 		FKEYS => FKEYS
 	);
+
+CONSOL_START <= CONSOL_START_RAW or (mist_buttons(1) and not(joy1_n(4)));
+joy_still <= joy1_n(3) and joy1_n(2) and joy1_n(1) and joy1_n(0);
+CONSOL_SELECT <= CONSOL_SELECT_RAW or (mist_buttons(1) and joy1_n(4) and not(joy_still));
+CONSOL_OPTION <= CONSOL_OPTION_RAW or (mist_buttons(1) and joy1_n(4) and joy_still);
 	 
 dac_left : hq_dac
 port map
@@ -603,7 +612,7 @@ zpu: entity work.zpucore
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
-		ZPU_IN1 => X"00000"&FKEYS(11)&(FKEYS(10) or mist_buttons(0))&FKEYS(9 downto 0),
+		ZPU_IN1 => X"00000"&(FKEYS(11) or (mist_buttons(0) and not(joy1_n(4))))&(FKEYS(10) or (mist_buttons(0) and joy1_n(4) and joy_still))&(FKEYS(9) or (mist_buttons(0) and joy1_n(4) and not(joy_still)))&FKEYS(8 downto 0),
 		ZPU_IN2 => X"00000000",
 		ZPU_IN3 => X"00000000",
 		ZPU_IN4 => X"000000"&"0000000"&mist_sector_ready_sync,
