@@ -342,8 +342,8 @@ my_user_io : user_io
 	   SPI_MISO => SPI_miso_io,
 	   SPI_MOSI => SPI_DI,
 	   CORE_TYPE => x"A4",
-		JOY0 => joy1,
-		JOY1 => joy2,
+		JOY0 => joy2,
+		JOY1 => joy1,
 		BUTTONS => mist_buttons,
 		SWITCHES => mist_switches,
 		CLK => SLOW_PS2_CLK,
@@ -511,7 +511,7 @@ SDRAM_A(12) <= '0';
 --SDRAM_DQ <= (others=>'Z');
 
 --SDRAM_CKE <= '1';		 
-LED <= '0';
+LED <= zpu_sio_rxd;
 
 --VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
 --VGA_VS <= not(VGA_VS_RAW);
@@ -603,7 +603,7 @@ zpu: entity work.zpucore
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
-		ZPU_IN1 => X"00000"&FKEYS,
+		ZPU_IN1 => X"00000"&FKEYS(11)&(FKEYS(10) or mist_buttons(0))&FKEYS(9 downto 0),
 		ZPU_IN2 => X"00000000",
 		ZPU_IN3 => X"00000000",
 		ZPU_IN4 => X"000000"&"0000000"&mist_sector_ready_sync,
