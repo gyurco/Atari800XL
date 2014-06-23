@@ -4,6 +4,7 @@
 #include "uart.h"
 #include "pause.h"
 #include "simplefile.h"
+#include "hexdump.h"
 
 #include "printf.h"
 #include "integer.h"
@@ -182,7 +183,7 @@ void set_drive_status(int driveNumber, struct SimpleFile * file)
 {
 	int read = 0;
 	int xfd = 0;
-	unsigned char info;
+	unsigned char info = 0;
 
 	drives[driveNumber] = 0;
 	drive_info[driveNumber] = 0;
