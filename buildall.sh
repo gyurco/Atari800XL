@@ -4,7 +4,7 @@ cd de1
 cd ../replay
 ./build.sh > build.log 2> build.err&
 cd ../mist
-./build.sh > build.log 2> build.err&
+./build.sh ALL > build.log 2> build.err&
 cd ../mcc216
 ./build.sh ALL &
 
