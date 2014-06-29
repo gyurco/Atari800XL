@@ -33,13 +33,13 @@ my %variants =
 		"internal_rom" => 0,
 		"ext_clock" => 0
 	},
-	"PAL_VGA_INTROM" =>
+	"PAL_RGB" =>
 	{
 		"TV" => $PAL,
-		"SCANDOUBLE" => 1,
+		"SCANDOUBLE" => 0,
 		"VIDEO" => $VGA,
 		"internal_ram" => 0,
-		"internal_rom" => 1,
+		"internal_rom" => 0,
 		"ext_clock" => 0
 	},
 	"PAL_VGA" =>
@@ -56,6 +56,15 @@ my %variants =
 		"TV" => $NTSC,
 		"SCANDOUBLE" => 0,
 		"VIDEO" => $SVIDEO,
+		"internal_ram" => 0,
+		"internal_rom" => 0,
+		"ext_clock" => 0
+	},
+	"NTSC_RGB" => 
+	{
+		"TV" => $NTSC,
+		"SCANDOUBLE" => 0,
+		"VIDEO" => $VGA,
 		"internal_ram" => 0,
 		"internal_rom" => 0,
 		"ext_clock" => 0
