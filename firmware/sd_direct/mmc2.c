@@ -5,6 +5,8 @@
 #include "pff.h"
 #include "diskio.h"
 
+//#include "printf.h"
+
 /*-------------------------------------------------------------------------*/
 /* Platform dependent macros and functions needed to be modified           */
 /*-------------------------------------------------------------------------*/
@@ -13,6 +15,8 @@
 #define	DESELECT() mmcChipSelect(0)
 
 unsigned char mmc_sector_buffer[512];
+
+extern u32 n_actual_mmc_sector;
 
 /*--------------------------------------------------------------------------
 
@@ -39,6 +43,41 @@ unsigned char mmc_sector_buffer[512];
 #define CT_BLOCK			0x08	/* Block addressing */
 
 BYTE CardType;
+
+
+extern int debug_pos;
+
+void disk_debug()
+{
+/*	{
+		char buffer[512];
+		set_pause_6502(1);
+		freeze();
+		debug_pos = 0;	
+
+		printf("Hello world 5");
+		debug_pos = 40;
+
+		printf("Di");
+
+		debug_pos = 80;
+		disk_initialize();
+
+		printf("Did:%02x",CardType);
+
+		debug_pos = 120;
+
+		n_actual_mmc_sector = -1;
+		printf(" PP");
+		disk_readp(&buffer[0],0,0,512);
+		printf(" DD");
+		hexdump_pure(&buffer[0],512);
+
+		wait_us(10000000);
+		restore();
+	}
+*/
+}
 
 /*-----------------------------------------------------------------------*/
 /* Send a command packet to the SDC/MMC                                  */
@@ -147,6 +186,8 @@ u08 mmcRead(u32 sector)
 	BYTE rc;
 	UINT bc;
 
+	//printf("mr:%x",sector);
+
 	if (!(CardType & CT_BLOCK)) sector *= 512;	/* Convert to byte address if needed */
 
 	if (send_cmd(CMD17, sector) == 0) {		/* READ_SINGLE_BLOCK */
@@ -170,6 +211,7 @@ u08 mmcRead(u32 sector)
 
 	DESELECT();
 	spiTransferFF();
+	return 0;
 }
 
 
@@ -204,4 +246,5 @@ u08 mmcWrite(u32 sc)
 		DESELECT();
 		spiTransferFF();
 	}
+	return 0;
 }
