@@ -4,11 +4,14 @@
 
 //#include "fat/pff_file.h"
 // XXX - BEST NOT to include this?
+char USER_DIR[]="/";
+char ROM_DIR[]="/";
 
 #include "stdio.h"
 #include "stdlib.h"
 
 int debug_pos = 0;
+int prev_debug_pos = 0;
 int debug_adjust = 0;
 void wait_us(int us)
 {
@@ -17,7 +20,18 @@ void wait_us(int us)
 
 void char_out ( void* p, char c)
 {
+	if (debug_pos!=prev_debug_pos)
+	{
+		fprintf(stderr,"\n");
+	}
+	//fprintf(stderr,"\n%dWTFWTF\n", debug_pos);
+	if (debug_adjust == 128)
+	{
+		putc('*',stderr);
+	}
 	putc(c, stderr);
+	++debug_pos;
+	prev_debug_pos = debug_pos;
 }
 
 struct SimpleFile * temp_file;
@@ -189,7 +203,7 @@ int main(void)
 		loadrom("osaorig.rom",0x2800, (void *)0x719800);
 		loadrom("ataribas.rom",0x2000,(void *)0x700000);
 
-	{
+	/*{
 		printf("WTF\n");
 		struct SimpleDirEntry * entries = dir_entries("/system/rom/atari800");
 		entries = dir_next(entries);
@@ -202,14 +216,14 @@ int main(void)
 		loadrom_indir(entries,"osborig.rom",0x2800, (void *)0x715800);
 		loadrom_indir(entries,"osaorig.rom",0x2800, (void *)0x719800);
 		loadrom_indir(entries,"ataribas.rom",0x2000,(void *)0x700000);
-	}
+	}*/
 
 	//entry = dir_entries("/atari800/user");
 	//entry = dir_next(entry);
 	//fprintf(stderr, " Name:%s", dir_filename(entry));
 	struct SimpleFile * file = alloca(file_struct_size());
-	file_open_name("/atari800/user/acid800.atr",file);
-	fprintf(stderr, "XXX Name:%s", file_name(file));
+	//file_open_name("/atari800/user/acid800.atr",file);
+	//fprintf(stderr, "XXX Name:%s", file_name(file));
 	file_selector(file);
 
 	return 0;

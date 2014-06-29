@@ -13,7 +13,8 @@ void set_spi_clock_freq()
 /// Prepares hardware for MMC access.
 void mmcInit(void)
 {
-	disk_image = fopen("sd.image","r+");
+	//disk_image = fopen("/home/markw/fpga/sd_images/sd.image","r+");
+	disk_image = fopen("/home/markw/fpga/sd_images/sd_large.image","r+");
 
 	fprintf(stderr,"mmcInit:%x\n",disk_image);
 }

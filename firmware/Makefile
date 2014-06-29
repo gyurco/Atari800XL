@@ -57,7 +57,7 @@ mcc: $(BUILD_DIR) $(MCC_PRJ).bin $(MCC_PRJ).rpt
 mist: $(BUILD_DIR) $(MIST_PRJ).bin $(MIST_PRJ).rpt
 
 clean:
-	rm -f $(BUILD_DIR)/*.o *.hex *.elf *.map *.lst *.srec $(MIST_PRJ).rom $(MCC_PRJ).rom ${DE1_PRJ).rom *~ */*.o *.bin
+	rm -rf $(BUILD_DIR)/* *.hex *.elf *.map *.lst *.srec *.bin *.rpt
 
 
 # Convert ELF binary to bin file.
