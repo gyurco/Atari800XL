@@ -447,7 +447,7 @@ FRESULT dir_rewind (
 /*-----------------------------------------------------------------------*/
 
 static
-FRESULT dir_next (	/* FR_OK:Succeeded, FR_NO_FILE:End of table */
+FRESULT dir_next2 (	/* FR_OK:Succeeded, FR_NO_FILE:End of table */
 	DIR *dj			/* Pointer to directory object */
 )
 {
@@ -512,7 +512,7 @@ FRESULT dir_find (
 		if (c == 0) { res = FR_NO_FILE; break; }	/* Reached to end of table */
 		if (!(dir[DIR_Attr] & AM_VOL) && !mem_cmp(dir, dj->fn, 11)) /* Is it a valid entry? */
 			break;
-		res = dir_next(dj);					/* Next entry */
+		res = dir_next2(dj);					/* Next entry */
 	} while (res == FR_OK);
 
 	return res;
@@ -568,7 +568,7 @@ FRESULT dir_read (
 
 		if (c != 0xE5 && c != '.' && !(a & AM_VOL))	/* Is it a valid entry? */
 			break;
-		res = dir_next(dj);			/* Next entry */
+		res = dir_next2(dj);			/* Next entry */
 		if (res != FR_OK) break;
 	}
 
@@ -1128,7 +1128,7 @@ FRESULT pf_readdir (
 			}
 			if (res == FR_OK) {				/* A valid entry is found */
 				get_fileinfo(dj, dir, fno);	/* Get the object information */
-				res = dir_next(dj);			/* Increment index for next */
+				res = dir_next2(dj);			/* Increment index for next */
 				if (res == FR_NO_FILE) {
 					dj->sect = 0;
 					res = FR_OK;
