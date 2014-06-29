@@ -1,4 +1,6 @@
 ./create_rom.pl 1 ATARIXL.ROM os16 > ../a8core/os16.vhdl
+./create_rom.pl 1 osborig_high.rom os8 > ../a8core/os8.vhdl
+./create_rom.pl 1 osborig_low.rom os2 > ../a8core/os2.vhdl
 ./create_rom.pl 1 ATARIBAS.ROM basic > ../a8core/basic.vhdl
 ./create_rom.pl 4 ../../firmware/MCC216.bin zpu_rom 12 > ../../mcc216/zpu_rom.vhdl
 ./create_rom.pl 4 ../../firmware/MIST.bin zpu_rom 12 > ../../mist/zpu_rom.vhdl

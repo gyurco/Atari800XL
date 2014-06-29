@@ -10,6 +10,7 @@ my $fixedsize = shift @ARGV;
 
 #Based on file size
 my $filesize = -s $filename;
+#print STDERR "$filename is $filesize\n";
 my $addr_max = ceil((log($filesize/$length)/log(2)))-1;
 if (defined $fixedsize)
 {

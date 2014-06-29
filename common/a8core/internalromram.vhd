@@ -32,6 +32,8 @@ architecture vhdl of internalromram is
 	signal ram_request_reg : std_logic;
 	
 	signal ROM16_DATA : std_logic_vector(7 downto 0);
+	signal ROM8_DATA : std_logic_vector(7 downto 0);
+	signal ROM2_DATA : std_logic_vector(7 downto 0);
 	signal BASIC_DATA : std_logic_vector(7 downto 0);	
 	
 begin
@@ -45,6 +47,37 @@ begin
 			ram_request_reg <= ram_request;
 		end if;
 	end process;
+
+gen_internal_os_b : if internal_rom=3 generate
+	-- d800 to dfff (2k)
+	rom2 : entity work.os2
+	PORT MAP(clock => clock,
+			 address => rom_addr(10 downto 0),
+			 q => ROM2_data
+			 );
+
+	-- e000 to ffff (8k)
+	rom10 : entity work.os8
+	PORT MAP(clock => clock,
+			 address => rom_addr(12 downto 0),
+			 q => ROM8_data
+			 );
+
+	process(rom_addr)
+	begin
+		case rom_addr(13 downto 11) is
+		when "011" =>
+			ROM_DATA <= ROM2_data;
+		when "100"|"101"|"110"|"111" =>
+			ROM_DATA <= ROM8_data;
+		when others=>
+			ROM_DATA <= x"ff";
+		end case;
+	end process;
+
+	rom_request_complete <= rom_request_reg;
+	
+end generate;
 
 gen_internal_os_loop : if internal_rom=2 generate
 	rom16a : entity work.os16_loop
