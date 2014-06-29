@@ -589,14 +589,14 @@ b4051: entity work.complete_address_decoder
 	end process;
 	
 	
-	--THROTTLE_COUNT_6502 <= '0'&speed_select;
-	THROTTLE_COUNT_6502 <= "010000";
+	THROTTLE_COUNT_6502 <= '0'&speed_select;
+	--THROTTLE_COUNT_6502 <= "010000";
 
 atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
 	(
 		cycle_length => 16,
-		internal_rom => 1,
+		internal_rom => 0,
 		internal_ram => 0
 	)
 	PORT MAP
