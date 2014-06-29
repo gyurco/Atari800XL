@@ -475,7 +475,7 @@ UART_TXD <= SIO_TXD;
 
 zpu_sio_command <= SIO_COMMAND;
 zpu_sio_rxd <= SIO_TXD;
-SIO_RXD <= zpu_sio_txd;
+SIO_RXD <= zpu_sio_txd and UART_RXD;
 
 -- VIDEO
 VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
