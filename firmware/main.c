@@ -3,6 +3,7 @@
 #include "pause.h"
 #include "printf.h"
 #include "joystick.h"
+#include "freeze.h"
 
 #include "simpledir.h"
 #include "simplefile.h"
@@ -373,7 +374,19 @@ int main(void)
 
 char const * get_ram()
 {
-	switch(get_ram_select())
+	static char const * ram[] = 
+	{
+		"64K",
+		"128K",
+		"320K(Compy)",
+		"320K(Rambo)",
+		"576K(Compy)",
+		"576K(Rambo)",
+		"1MB",
+		"4MB"
+	};
+	return ram[get_ram_select()];
+	/*switch(get_ram_select())
 	{
 	case 0:
 		return "64K";
@@ -391,7 +404,7 @@ char const * get_ram()
 		return "1MB";
 	case 7:
 		return "4MB";
-	}
+	}*/
 }
 
 int settings()
@@ -579,6 +592,24 @@ void actions()
 		restore();
 		set_drive_status(0,files[0]);
 		reboot(1);
+
+
+/*	disk_initialize();
+	{
+		char buffer[512];
+		set_pause_6502(1);
+		freeze();
+		debug_pos = 0;	
+
+		printf("Hello world 3");
+		debug_pos = 40;
+		n_actual_mmc_sector = -1;
+		disk_readp(&buffer[0],0,0,512);
+		hexdump_pure(&buffer[0],512);
+
+		wait_us(10000000);
+		restore();
+	}*/
 	}
 }
 
