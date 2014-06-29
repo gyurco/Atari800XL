@@ -376,7 +376,7 @@ void processCommand()
 		case 0x3f:
 			{
 			//printf("Speed:");
-			int sector = ((int)command.aux1) + (((int)command.aux2&0x7f)<<8);
+			int sector = ((int)command.aux1) + (((int)command.aux2)<<8);
 			USART_Transmit_Mode();
 			send_ACK();
 			clearAtariSectorBuffer();
@@ -444,7 +444,7 @@ void processCommand()
 			{
 			//debug_pos = 0;
 
-			int sector = ((int)command.aux1) + (((int)command.aux2&0x7f)<<8);
+			int sector = ((int)command.aux1) + (((int)command.aux2)<<8);
 			int sectorSize = 0;
 			int location =0;
 
@@ -550,7 +550,7 @@ void processCommand()
 			break;
 		case 0x52: // read
 			{
-			int sector = ((int)command.aux1) + (((int)command.aux2&0x7f)<<8);
+			int sector = ((int)command.aux1) + (((int)command.aux2)<<8);
 			int sectorSize = 0;
 			int read = 0;
 			int location =0;
