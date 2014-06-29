@@ -724,10 +724,11 @@ begin
     -- defaults
     g_Cfg_Static          => x"00000000",
     g_Cfg_Dynamic         => x"00000000",
-    g_Cfg_FileIO          => "00000000",   --  7..4 HD MASK 2..0 #FD
+    g_cfg_fileio_hd_ena   => "0000",
+    g_cfg_fileio_fd_ena   => "0000",
     g_Cfg_Ctrl            => x"0080",
     --
-    g_Version             => x"0001" -- top bit DRAM disabled
+    g_Version             => x"1001" -- top bit DRAM disabled
     )
   port map (
     i_Clk_Vid             => clk_vid,
@@ -748,12 +749,11 @@ begin
     --
     o_VBL                 => o_SSC_RD,
      -- Config
-    i_cfg_fileio_mask     => cfg_fileio, -- tells the system what the core supports.
     i_cfg_status          => x"0000",
     --
     o_cfg_Static          => cfg_static,
     o_cfg_Dynamic         => cfg_dynamic,
-    o_Cfg_FileIO          => cfg_fileio_i,
+    o_Cfg_FileIO          => open,
     o_Cfg_Ctrl            => cfg_ctrl,
     --
     i_Kb_PS2_We           => kb_we,
