@@ -17,6 +17,10 @@ FILINFO filinfo;
 
 int write_pending;
 
+#define translateStatus(res) (res == FR_OK ? SimpleFile_OK: SimpleFile_FAIL)
+#define translateDStatus(res) (res == RES_OK ? SimpleFile_OK: SimpleFile_FAIL)
+
+/*
 enum SimpleFileStatus translateStatus(FRESULT res)
 {
 	return res == FR_OK ? SimpleFile_OK: SimpleFile_FAIL;
@@ -25,7 +29,7 @@ enum SimpleFileStatus translateStatus(FRESULT res)
 enum SimpleFileStatus translateDStatus(DSTATUS res)
 {
 	return res == RES_OK ? SimpleFile_OK: SimpleFile_FAIL;
-}
+}*/
 
 char const * file_of(char const * path)
 {
