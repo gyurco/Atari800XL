@@ -3,7 +3,7 @@
 #include "mmc.h"
 #include "spi.h"
 
-#include "printf.h"
+//#include "printf.h"
 
 void mmcReadCached(u32 sector);
 u32 n_actual_mmc_sector;
@@ -47,11 +47,7 @@ DSTATUS disk_initialize (void)
 
 	//printf(" in init ");
 	n_actual_mmc_sector = 0xffffffff;
-	do
-	{
-		mmcInit();
-	}
-	while(mmcReset());	//dokud nenulove, tak smycka (return 0 => ok!)
+	mmc_init();
 
 	//printf(" setting freq ");
 

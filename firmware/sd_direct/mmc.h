@@ -120,15 +120,15 @@
 
 //! Initialize AVR<->MMC hardware interface.
 /// Prepares hardware for MMC access.
-void mmcInit(void);
+void mmc_init(void);
 
 //! Initialize the card and prepare it for use.
 /// Returns zero if successful.
-u08 mmcReset(void);
+//u08 mmcReset(void);
 
 //! Send card an MMC command.
 /// Returns R1 result code.
-u08 mmcSendCommand(u08 cmd, u32 arg);
+//u08 mmcSendCommand(u08 cmd, u32 arg);
 
 //! Read 512-byte sector from card to buffer
 /// Returns zero if successful.
@@ -140,6 +140,6 @@ u08 mmcWrite(u32 sector);
 
 //! Internal command function.
 /// Issues a generic MMC command as specified by cmd and arg.
-u08 mmcCommand(u08 cmd, u32 arg);
+//u08 mmcCommand(u08 cmd, u32 arg);
 
 #endif

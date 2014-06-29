@@ -40,6 +40,9 @@
 #include "mmcconf.h"
 #include "debug.h"
 
+u08 mmcSendCommand(u08 cmd, u32 arg);
+u08 mmcCommand(u08 cmd, u32 arg);
+
 void mmcInit(void)
 {
 	// initialize SPI interface
@@ -112,6 +115,15 @@ u08 mmcReset(void)
 
 	// return success
 	return 0;
+}
+
+void mmc_init()
+{
+       do
+       {
+               mmcInit();
+       }
+       while(mmcReset());      //dokud nenulove, tak smycka (return 0 => ok!)
 }
 
 u08 mmcSendCommand(u08 cmd, u32 arg)
