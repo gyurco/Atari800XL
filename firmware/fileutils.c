@@ -1,5 +1,7 @@
 #include "printf.h"
 
+#include "utils.h"
+
 int compare_ext(char const * filenamein, char const * extin)
 {
 	int dot = 0;
