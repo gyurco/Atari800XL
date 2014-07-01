@@ -64,6 +64,8 @@ syncreset_enable_divider.vhd
 wide_delay_line.vhdl
 basic.vhdl
 os16.vhdl
+os2.vhdl
+os8.vhdl
 os16_loop.vhdl
 internalromram.vhd
 covox.vhd
