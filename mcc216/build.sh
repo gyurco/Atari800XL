@@ -129,7 +129,8 @@ foreach my $variant (sort keys %variants)
 	#TODO - generate automated version number
 	my $version = `svn info  | grep Revision: | cut -d' ' -f 2`;
 	chomp $version;
-	$version = 5;
+	$version = `date +%Y%m%d`;
+	chomp $version;
 	my $cmd = "wine ../rbf2arg/rbf2arg.exe $vga A 0.$version \"Atari 800XL $variant\" output_files/atari800core.rbf output_files/atari800core_$variant.arg";
 	print "Running $cmd\n";
 	`$cmd`;
