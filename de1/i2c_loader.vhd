@@ -70,10 +70,10 @@ constant init_regs : regs := (
 	X"02", X"97",
 	-- Left headphone out, -29dB, zero cross disabled
 	--X"04", X"58",
-	X"04", X"78",
+	X"04", X"68",
 	-- Right headphone out, -29dB, zero cross disabled
 	--X"06", X"58",
-	X"06", X"78",
+	X"06", X"68",
 	-- Audio path, DAC enabled, Line in, Bypass off, mic muted
 	X"08", X"12",
 	-- Digital path, Unmute, HP filter enabled
