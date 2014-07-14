@@ -12,6 +12,10 @@ use IEEE.STD_LOGIC_MISC.all;
 
 
 ENTITY address_decoder IS
+GENERIC
+(
+	low_memory : integer := 0 -- if 0, we assume 8MB SDRAM, if 1, we assume 1MB 'SDRAM'.
+);
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
@@ -416,7 +420,8 @@ BEGIN
 		end case;
 	end process;
 
-	
+gen_normal_memory : if low_memory=0 generate
+
 	-- SRAM memory map (512k)
 	-- base 64k RAM  - banks 0-3    "000 0000 1111 1111 1111 1111" (TOP)
 	-- to 512k RAM   - banks 4-31   "000 0111 1111 1111 1111 1111" (TOP)
@@ -432,6 +437,28 @@ BEGIN
 	SDRAM_BASIC_ROM_ADDR <= "111"&"000000"   &"00000000000000";
 	SDRAM_OS_ROM_ADDR    <= "111"&rom_select &"00000000000000";
 	-- SYSTEM        -              "111 1000 0000 0000 0000 0000" (BOT) - LAST 512K
+
+end generate;
+
+gen_low_memory : if low_memory=1 generate
+
+	-- SRAM memory map (512k)
+	-- base 64k RAM  - banks 0-3    "000 0000 1111 1111 1111 1111" (TOP)
+	-- to 512k RAM   - banks 4-31   "000 0111 1111 1111 1111 1111" (TOP)
+	-- SDRAM memory map (8MB)
+	-- base 64k RAM  - banks 0-3    "000 0000 1111 1111 1111 1111" (TOP)
+	-- to 512k RAM   - banks 4-31   "000 0111 1111 1111 1111 1111" (TOP) 
+	-- to 576k RAM   - banks 32-35
+	-- CARTS         -              "101 YYYY YYY0 0000 0000 0000" (BOT) - 2MB! 8kb banks
+
+	-- TODO, Dmitriy set these correctly!
+	SDRAM_CART_ADDR      <= "101"&cart_select& "0000000000000";
+	-- BASIC/OS ROM  -              "111 XXXX XX00 0000 0000 0000" (BOT) (BASIC IN SLOT 0!), 2nd to last 512K				
+	SDRAM_BASIC_ROM_ADDR <= "111"&"000000"   &"00000000000000";
+	SDRAM_OS_ROM_ADDR    <= "111"&rom_select &"00000000000000";
+	-- SYSTEM        -              "111 1000 0000 0000 0000 0000" (BOT) - LAST 512K
+
+end generate;
 	
   	process(
 		-- address and writing absolutely points us at a device
