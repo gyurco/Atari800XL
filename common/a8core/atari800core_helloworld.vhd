@@ -97,7 +97,7 @@ keyboard_map1 : entity work.ps2_to_atari800
 	);
 
 -- THROTTLE
-THROTTLE_COUNT_6502 <= std_logic_vector(to_unsigned(cycle_length-1,6));
+THROTTLE_COUNT_6502 <= "000001";
 
 atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
