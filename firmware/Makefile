@@ -18,6 +18,10 @@ BUILD_DIR=zpu_obj
 MINSTARTUP_SRC = mycrt0.s
 MINSTARTUP_OBJ = $(patsubst $(STARTUP_DIR)/%.s,$(BUILD_DIR)/%.o,$(MINSTARTUP_SRC))
 
+AEON_LITE_PRJ = AEON_LITE
+AEON_LITE_SRC = main_aeon_lite.c regs.c freeze.c joystick.c fileutils.c fileselector.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc2.c de1/dirs.c
+AEON_LITE_OBJ = $(patsubst %.c,$(BUILD_DIR)/%.o,$(AEON_LITE_SRC))
+
 DE1_PRJ = DE1
 DE1_SRC = main.c regs.c freeze.c joystick.c fileutils.c fileselector.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc2.c de1/dirs.c
 DE1_OBJ = $(patsubst %.c,$(BUILD_DIR)/%.o,$(DE1_SRC))
@@ -45,10 +49,12 @@ LFLAGS  = -nostartfiles -Wl,--relax -g -Os
 
 
 # Our target.
-all: mcc mist de1
+all: mcc mist de1 aeon_lite
 
 install:
 	cd ../common/romgen && ./createall && cd ../../firmware
+
+aeon_lite: $(BUILD_DIR) $(AEON_LITE_PRJ).bin $(AEON_LITE_PRJ).rpt
 
 de1: $(BUILD_DIR) $(DE1_PRJ).bin $(DE1_PRJ).rpt
 
@@ -74,6 +80,9 @@ clean:
 	cat $@
 
 # Link - this produces an ELF binary.
+
+$(AEON_LITE_PRJ).elf: $(MINSTARTUP_OBJ) $(AEON_LITE_OBJ)
+	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
 $(DE1_PRJ).elf: $(MINSTARTUP_OBJ) $(DE1_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)

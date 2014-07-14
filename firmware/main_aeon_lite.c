@@ -11,7 +11,7 @@
 
 #include "atari_drive_emulator.h"
 
-#include "sdram_common/memory.h"
+#include "aeon_lite/memory.h"
 
 extern char ROM_DIR[];
 
