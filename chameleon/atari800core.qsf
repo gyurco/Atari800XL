@@ -191,6 +191,7 @@ set_instance_assignment -name FAST_INPUT_REGISTER ON -to sd_data[1]
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to sd_data[0]
 set_location_assignment PIN_23 -to freeze_n
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name VHDL_FILE zpu_rom.vhdl
 set_global_assignment -name CDF_FILE atari800core.cdf
 set_global_assignment -name VHDL_FILE chameleon_docking_station.vhd
 set_global_assignment -name VHDL_FILE chameleon_1mhz.vhd
