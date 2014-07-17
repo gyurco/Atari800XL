@@ -279,7 +279,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
 	(
 		cycle_length => 32,
-		internal_rom => 1,
+		internal_rom => 0,
 		internal_ram => 0,
 		video_bits => 8,
 		palette => 0
