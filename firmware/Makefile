@@ -26,6 +26,10 @@ DE1_PRJ = DE1
 DE1_SRC = main.c regs.c freeze.c joystick.c fileutils.c fileselector.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc2.c de1/dirs.c
 DE1_OBJ = $(patsubst %.c,$(BUILD_DIR)/%.o,$(DE1_SRC))
 
+CHAMELEON_PRJ = CHAMELEON
+CHAMELEON_SRC = main.c regs.c freeze.c joystick.c fileutils.c fileselector.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc2.c chameleon/dirs.c
+CHAMELEON_OBJ = $(patsubst %.c,$(BUILD_DIR)/%.o,$(CHAMELEON_SRC))
+
 MCC_PRJ = MCC216
 MCC_SRC = main.c regs.c freeze.c joystick.c fileutils.c fileselector.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc2.c mcc/dirs.c
 MCC_OBJ = $(patsubst %.c,$(BUILD_DIR)/%.o,$(MCC_SRC))
@@ -49,7 +53,7 @@ LFLAGS  = -nostartfiles -Wl,--relax -g -Os
 
 
 # Our target.
-all: mcc mist de1 aeon_lite
+all: mcc mist de1 aeon_lite chameleon 
 
 install:
 	cd ../common/romgen && ./createall && cd ../../firmware
@@ -57,6 +61,8 @@ install:
 aeon_lite: $(BUILD_DIR) $(AEON_LITE_PRJ).bin $(AEON_LITE_PRJ).rpt
 
 de1: $(BUILD_DIR) $(DE1_PRJ).bin $(DE1_PRJ).rpt
+
+chameleon: $(BUILD_DIR) $(CHAMELEON_PRJ).bin $(CHAMELEON_PRJ).rpt
 
 mcc: $(BUILD_DIR) $(MCC_PRJ).bin $(MCC_PRJ).rpt
 
@@ -85,6 +91,9 @@ $(AEON_LITE_PRJ).elf: $(MINSTARTUP_OBJ) $(AEON_LITE_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
 $(DE1_PRJ).elf: $(MINSTARTUP_OBJ) $(DE1_OBJ)
+	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
+
+$(CHAMELEON_PRJ).elf: $(MINSTARTUP_OBJ) $(CHAMELEON_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
 $(MCC_PRJ).elf: $(MINSTARTUP_OBJ) $(MCC_OBJ)

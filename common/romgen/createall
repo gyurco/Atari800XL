@@ -6,3 +6,4 @@
 ./create_rom.pl 4 ../../firmware/MIST.bin zpu_rom 12 > ../../mist/zpu_rom.vhdl
 ./create_rom.pl 4 ../../firmware/DE1.bin zpu_rom 12 > ../../de1/zpu_rom.vhdl
 ./create_rom.pl 4 ../../firmware/AEON_LITE.bin zpu_rom 12 > ../../aeon_lite/zpu_rom.vhdl
+./create_rom.pl 4 ../../firmware/CHAMELEON.bin zpu_rom 12 > ../../chameleon/zpu_rom.vhdl
