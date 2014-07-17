@@ -13,6 +13,13 @@ use ieee.numeric_std.all;
 LIBRARY work;
 
 entity atari800core_chameleon is
+GENERIC
+(
+	TV : integer;  -- 1 = PAL, 0=NTSC
+	VIDEO : integer; -- 1 = RGB, 2 = VGA
+	COMPOSITE_SYNC : integer; --0 = no, 1 = yes!
+	SCANDOUBLE : integer -- 1 = YES, 0=NO, (+ later scanlines etc)
+);
 port
 (
    -- VGA
@@ -182,16 +189,27 @@ end component;
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
 
-        SIGNAL PAL : std_logic;
+	SIGNAL PAL : std_logic;
+	SIGNAL COMPOSITE_ON_HSYNC : std_logic;
+	SIGNAL VGA : std_logic;
 
 	-- spi
 	signal spi_cs_n : std_logic;
 	signal spi_mosi : std_logic;
 	signal spi_clk : std_logic;
 
+	-- scandoubler
+	signal half_scandouble_enable_reg : std_logic;
+	signal half_scandouble_enable_next : std_logic;
+	signal VIDEO_B : std_logic_vector(7 downto 0);
+	signal VGA_VS : std_logic;
+	signal VGA_HS : std_logic;
+
 begin
+pal <= '1' when tv=1 else '0';
+vga <= '1' when video=2 else '0';
+composite_on_hsync <= '1' when composite_sync=1 else '0';
 RESET_N <= PLL_LOCKED;
-PAL <= '1';
 
 -- disable unused parts
 --   sdram
@@ -263,7 +281,8 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		cycle_length => 32,
 		internal_rom => 1,
 		internal_ram => 0,
-		video_bits => 5
+		video_bits => 8,
+		palette => 0
 	)
 	PORT MAP
 	(
@@ -271,11 +290,11 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
 
 		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
-		VIDEO_VS => vga_vs_raw,
-		VIDEO_HS => vga_hs_raw,
-		VIDEO_B => blu,
-		VIDEO_G => grn,
-		VIDEO_R => red,
+		VIDEO_VS => VGA_VS_RAW,
+		VIDEO_HS => VGA_HS_RAW,
+		VIDEO_B => VIDEO_B,
+		VIDEO_G => open,
+		VIDEO_R => open,
 
 		-- AUDIO OUT - Pokey/GTIA 1-bit and Covox all mixed
 		AUDIO_L => audio_l_raw,
@@ -326,8 +345,8 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	);
 
 -- video glue
-nHSync <= (VGA_HS_RAW xor VGA_VS_RAW);
-nVSync <= (VGA_VS_RAW);
+--nHSync <= (VGA_HS_RAW xor VGA_VS_RAW);
+--nVSync <= (VGA_VS_RAW);
 
 -- audio glue
 dac_left : hq_dac
@@ -655,5 +674,51 @@ zpu_rom1: entity work.zpu_rom
 enable_179_clock_div_zpu_pokey : entity work.enable_divider
 	generic map (COUNT=>32) -- cycle_length
 	port map(clk=>clk,reset_n=>reset_n,enable_in=>'1',enable_out=>zpu_pokey_enable);
+
+-----
+-- scandoubler
+-----
+	process(clk,RESET_N,SDRAM_RESET_N,reset_atari)
+	begin
+		if ((RESET_N and SDRAM_RESET_N and not(reset_atari))='0') then
+			half_scandouble_enable_reg <= '0';
+		elsif (clk'event and clk='1') then
+			half_scandouble_enable_reg <= half_scandouble_enable_next;
+		end if;
+	end process;
+
+	half_scandouble_enable_next <= not(half_scandouble_enable_reg);
+
+	scandoubler1: entity work.scandoubler
+	GENERIC MAP
+	(
+		video_bits=>5
+	)
+	PORT MAP
+	( 
+		CLK => CLK,
+		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
+		
+		VGA => vga,
+		COMPOSITE_ON_HSYNC => composite_on_hsync,
+
+		colour_enable => half_scandouble_enable_reg,
+		doubled_enable => '1',
+		
+		-- GTIA interface
+		colour_in => VIDEO_B,
+		vsync_in => VGA_VS_RAW,
+		hsync_in => VGA_HS_RAW,
+		
+		-- TO TV...
+		R => red,
+		G => grn,
+		B => blu,
+		
+		VSYNC => VGA_VS,
+		HSYNC => VGA_HS
+	);
+nHSync <= not(VGA_HS);
+nVSync <= not(VGA_VS);
 
 end vhdl;
