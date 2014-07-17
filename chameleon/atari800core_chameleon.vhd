@@ -91,6 +91,25 @@ end component;
   signal RESET_n : std_logic;
   signal PLL_LOCKED : std_logic;
   signal CLK : std_logic;
+  signal CLK_SDRAM : std_logic;
+
+
+-- SDRAM
+  signal SDRAM_REQUEST : std_logic;
+  signal SDRAM_REQUEST_COMPLETE : std_logic;
+  signal SDRAM_READ_ENABLE :  STD_LOGIC;
+  signal SDRAM_WRITE_ENABLE : std_logic;
+  signal SDRAM_ADDR : STD_LOGIC_VECTOR(22 DOWNTO 0);
+  signal SDRAM_DO : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  signal SDRAM_DI : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  signal SDRAM_WIDTH_8bit_ACCESS : std_logic;
+  signal SDRAM_WIDTH_16bit_ACCESS : std_logic;
+  signal SDRAM_WIDTH_32bit_ACCESS : std_logic;
+
+  signal SDRAM_REFRESH : std_logic;
+  
+  signal SDRAM_RESET_N : std_logic;
+
 
 -- MUX
 	signal mux_clk_reg : std_logic := '0';
@@ -125,21 +144,28 @@ end component;
 	--signal ps2_keyboard_clk_out : std_logic;
 	--signal ps2_keyboard_dat_out : std_logic;
 
+  SIGNAL	KEYBOARD_RESPONSE :  STD_LOGIC_VECTOR(1 DOWNTO 0);
+  SIGNAL	KEYBOARD_SCAN :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+  SIGNAL	CONSOL_OPTION :  STD_LOGIC;
+  SIGNAL	CONSOL_SELECT :  STD_LOGIC;
+  SIGNAL	CONSOL_START :  STD_LOGIC;
+  SIGNAL FKEYS : std_logic_vector(11 downto 0);
+
 begin
 RESET_N <= PLL_LOCKED;
 
 -- disable unused parts
 --   sdram
-sd_clk <= 'Z';
-sd_addr <= (others=>'0');
-sd_ba_0 <= '0';
-sd_ba_1 <= '0';
-sd_we_n <= '1';
-sd_ras_n <= '1';
-sd_cas_n <= '1';
-sd_data <= (others=>'Z');
-sd_ldqm <= '0';
-sd_udqm <= '0';
+--sd_clk <= 'Z';
+--sd_addr <= (others=>'0');
+--sd_ba_0 <= '0';
+--sd_ba_1 <= '0';
+--sd_we_n <= '1';
+--sd_ras_n <= '1';
+--sd_cas_n <= '1';
+--sd_data <= (others=>'Z');
+--sd_ldqm <= '0';
+--sd_udqm <= '0';
 
 -- simplest possible implementation
 -- pll
@@ -147,25 +173,64 @@ pll : ENTITY work.pll
 	PORT MAP
 	(
 		inclk0 => clk8,
-		c0 => clk,
+		c0 => clk_sdram,
+		c1 => clk,
+		c2 => sd_clk,
 		locked => pll_locked
 	);
 	
 -- core
-atari800core : ENTITY work.atari800core_helloworld
+--atari800core : ENTITY work.atari800core_helloworld
+--	GENERIC MAP
+--	(
+--		cycle_length => 32,
+--
+--		video_bits => 5,
+--	
+--		internal_rom => 1,
+--		internal_ram => 16384
+--	)
+--	PORT MAP
+--	(
+--		CLK => clk,
+--		RESET_N => RESET_N,
+--
+--		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
+--		VIDEO_VS => vga_vs_raw,
+--		VIDEO_HS => vga_hs_raw,
+--		VIDEO_B => blu,
+--		VIDEO_G => grn,
+--		VIDEO_R => red,
+--
+--		-- AUDIO OUT - Pokey/GTIA 1-bit and Covox all mixed
+--		AUDIO_L => audio_l_raw,
+--		AUDIO_R => audio_r_raw,
+--
+--		-- JOYSTICK
+--		JOY1_n => std_logic_vector(docking_joystick1)(4 downto 0),
+--		JOY2_n => std_logic_vector(docking_joystick2)(4 downto 0),
+--
+--		-- KEYBOARD
+--		PS2_CLK => ps2_keyboard_clk_in,
+--		PS2_DAT => ps2_keyboard_dat_in,
+--
+--		-- video standard
+--		PAL => '1'
+--	);
+
+atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
 	(
 		cycle_length => 32,
-
-		video_bits => 5,
-	
 		internal_rom => 1,
-		internal_ram => 16384
+		internal_ram => 0,
+		video_bits => 5
 	)
 	PORT MAP
 	(
-		CLK => clk,
-		RESET_N => RESET_N,
+		CLK => CLK,
+		--RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
+		RESET_N => RESET_N and SDRAM_RESET_N,
 
 		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
 		VIDEO_VS => vga_vs_raw,
@@ -182,12 +247,44 @@ atari800core : ENTITY work.atari800core_helloworld
 		JOY1_n => std_logic_vector(docking_joystick1)(4 downto 0),
 		JOY2_n => std_logic_vector(docking_joystick2)(4 downto 0),
 
-		-- KEYBOARD
-		PS2_CLK => ps2_keyboard_clk_in,
-		PS2_DAT => ps2_keyboard_dat_in,
+		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
+		KEYBOARD_SCAN => KEYBOARD_SCAN,
 
-		-- video standard
-		PAL => '1'
+		SIO_COMMAND => open,
+		SIO_RXD => '1',
+		SIO_TXD => open,
+
+		CONSOL_OPTION => CONSOL_OPTION,
+		CONSOL_SELECT => CONSOL_SELECT,
+		CONSOL_START => CONSOL_START,
+
+		SDRAM_REQUEST => SDRAM_REQUEST,
+		SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
+		SDRAM_READ_ENABLE => SDRAM_READ_ENABLE,
+		SDRAM_WRITE_ENABLE => SDRAM_WRITE_ENABLE,
+		SDRAM_ADDR => SDRAM_ADDR,
+		SDRAM_DO => SDRAM_DO,
+		SDRAM_DI => SDRAM_DI,
+		SDRAM_32BIT_WRITE_ENABLE => SDRAM_WIDTH_32bit_ACCESS,
+		SDRAM_16BIT_WRITE_ENABLE => SDRAM_WIDTH_16bit_ACCESS,
+		SDRAM_8BIT_WRITE_ENABLE => SDRAM_WIDTH_8bit_ACCESS,
+		SDRAM_REFRESH => SDRAM_REFRESH,
+
+		DMA_FETCH => '0',
+		DMA_READ_ENABLE => '0',
+		DMA_32BIT_WRITE_ENABLE => '0',
+		DMA_16BIT_WRITE_ENABLE => '0',
+		DMA_8BIT_WRITE_ENABLE => '0',
+		DMA_ADDR => (others=>'0'),
+		DMA_WRITE_DATA => (others=>'0'),
+		MEMORY_READY_DMA => open,
+		DMA_MEMORY_DATA => open, 
+
+   		RAM_SELECT => (others=>'0'),
+    		ROM_SELECT => (others=>'0'),
+		PAL => '1',
+		HALT => '0',
+		THROTTLE_COUNT_6502 => "000001"
 	);
 
 -- video glue
@@ -387,6 +484,62 @@ sysclk <= clk;
 		);
 
 
+-- -----------------------------------------------------------------------
+-- SDRAM
+-- -----------------------------------------------------------------------
+sdram_adaptor : entity work.sdram_statemachine
+GENERIC MAP(ADDRESS_WIDTH => 22,
+			AP_BIT => 10,
+			COLUMN_WIDTH => 8,
+			ROW_WIDTH => 12
+			)
+PORT MAP(CLK_SYSTEM => CLK,
+		 CLK_SDRAM => CLK_SDRAM,
+		 RESET_N =>  RESET_N,
+		 READ_EN => SDRAM_READ_ENABLE,
+		 WRITE_EN => SDRAM_WRITE_ENABLE,
+		 REQUEST => SDRAM_REQUEST,
+		 BYTE_ACCESS => SDRAM_WIDTH_8BIT_ACCESS,
+		 WORD_ACCESS => SDRAM_WIDTH_16BIT_ACCESS,
+		 LONGWORD_ACCESS => SDRAM_WIDTH_32BIT_ACCESS,
+		 REFRESH => SDRAM_REFRESH,
+		 ADDRESS_IN => SDRAM_ADDR,
+		 DATA_IN => SDRAM_DI,
+		 SDRAM_DQ => sd_data,
+		 COMPLETE => SDRAM_REQUEST_COMPLETE,
+		 SDRAM_BA0 => sd_ba_0,
+		 SDRAM_BA1 => sd_ba_1,
+		 SDRAM_CKE => open,
+		 SDRAM_CS_N => open,
+		 SDRAM_RAS_N => sd_ras_n,
+		 SDRAM_CAS_N => sd_cas_n,
+		 SDRAM_WE_N => sd_we_n,
+		 SDRAM_ldqm => sd_ldqm,
+		 SDRAM_udqm => sd_udqm,
+		 DATA_OUT => SDRAM_DO,
+		 SDRAM_ADDR => sd_addr(11 downto 0),
+		 reset_client_n => SDRAM_RESET_N
+		 );
+		 
+sd_addr(12) <= '0';
 
+-- PS2 to pokey
+keyboard_map1 : entity work.ps2_to_atari800
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,
+		PS2_CLK => ps2_keyboard_clk_in,
+		PS2_DAT => ps2_keyboard_dat_in,
+		
+		KEYBOARD_SCAN => KEYBOARD_SCAN,
+		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
+
+		CONSOL_START => CONSOL_START,
+		CONSOL_SELECT => CONSOL_SELECT,
+		CONSOL_OPTION => CONSOL_OPTION,
+		
+		FKEYS => FKEYS
+	);
 
 end vhdl;
