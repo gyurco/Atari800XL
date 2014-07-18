@@ -14,10 +14,10 @@ push @files, glob("mist/build*/out/*.rbf");
 push @files, glob("mist/build*/out/*.summary");
 push @files, glob("mist/build*/out/*.rpt");
 
-push @files, glob("chameleon/build*/out/*.sof");
-push @files, glob("chameleon/build*/out/*.rbf");
-push @files, glob("chameleon/build*/out/*.summary");
-push @files, glob("chameleon/build*/out/*.rpt");
+push @files, glob("chameleon/build*/output_files/*.sof");
+push @files, glob("chameleon/build*/output_files/*.rbf");
+push @files, glob("chameleon/build*/output_files/*.summary");
+push @files, glob("chameleon/build*/output_files/*.rpt");
 
 push @files, glob("de1/build*/output_files/*.sof");
 push @files, glob("de1/build*/output_files/*.summary");
