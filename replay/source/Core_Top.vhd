@@ -174,6 +174,8 @@ architecture RTL of Core_Top is
   signal cclk_o                    : bit1;
   signal cdata_o                   : bit1;
 
+  signal lsound_u : std_logic_vector(15 downto 0);
+  signal rsound_u : std_logic_vector(15 downto 0);
   signal lsound_s                   : std_logic_vector(15 downto 0);
   signal rsound_s                   : std_logic_vector(15 downto 0);
   signal lsample_s                  : word(23 downto 0);
@@ -610,8 +612,8 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		VIDEO_G => core_g_s,
 		VIDEO_R => core_r_s,
 
-		AUDIO_L => lsound_s,
-		AUDIO_R => rsound_s,
+		AUDIO_L => lsound_u,
+		AUDIO_R => rsound_u,
 
 		JOY1_n => i_Joy_B(4 downto 0),
 		JOY2_n => i_Joy_A(4 downto 0),
@@ -655,6 +657,9 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		HALT => i_Halt_Core,
 		THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502
 	);
+-- looking at the volume code think these are signed, while mine are unsigned...
+lsound_s <= '0'&lsound_u(15 downto 1);
+rsound_s <= '0'&rsound_u(15 downto 1);
 
 --atari800core : entity work.atari800core
 --	PORT map
