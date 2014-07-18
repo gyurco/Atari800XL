@@ -24,6 +24,8 @@ PORT
 
 	colour_enable : in std_logic;
 	doubled_enable : in std_logic;
+
+	scanlines_on : in std_logic := '0';
 	
 	-- GTIA interface
 	colour_in : in std_logic_vector(7 downto 0);
@@ -134,6 +136,9 @@ ARCHITECTURE vhdl OF scandoubler IS
 	signal vga_hsync_reg : std_logic;
 	signal vga_hsync_start : std_logic;
 	signal vga_hsync_end : std_logic;
+
+	signal vga_odd_reg : std_logic;
+	signal vga_odd_next : std_logic;
 	
 begin
 	-- register
@@ -153,6 +158,8 @@ begin
 			buffer_select_reg <= '0';
 			
 			vga_hsync_reg <= '0';
+
+			vga_odd_reg <= '0';
 		elsif (clk'event and clk='1') then										
 			r_reg <= r_next;
 			g_reg <= g_next;
@@ -169,6 +176,8 @@ begin
 			hsync_in_reg <= hsync_in;
 			
 			vga_hsync_reg <= vga_hsync_next;
+
+			vga_odd_reg <= vga_odd_next;
 		end if;
 	end process;
 	
@@ -209,11 +218,12 @@ begin
 	end process;
 	
 	-- output
-	process(vga_hsync_reg,vga_hsync_end,output_address_reg,doubled_enable)
+	process(vga_hsync_reg,vga_hsync_end,output_address_reg,doubled_enable,vga_odd_reg)
 	begin
 		output_address_next <= output_address_reg;
 		vga_hsync_start<='0';
 		vga_hsync_next <= vga_hsync_reg;
+		vga_odd_next <= vga_odd_reg;
 		
 		if (doubled_enable = '1') then
 			output_address_next <= std_logic_vector(unsigned(output_address_reg)+1);
@@ -227,6 +237,7 @@ begin
 		
 		if (vga_hsync_end = '1') then
 			vga_hsync_next <= '0';
+			vga_odd_next <= not(vga_odd_reg);
 		end if;
 	end process;
 	
@@ -238,7 +249,7 @@ begin
 		port map(clk=>clk,sync_reset=>'0',data_in=>vga_hsync_start,enable=>doubled_enable,reset_n=>reset_n,data_out=>vga_hsync_end);			
 	
 	-- display
-	process(colour_reg,vsync_reg,vga_hsync_reg,hsync_reg,colour_in,vsync_in,hsync_in,colour_enable,doubled_enable,vga,composite_on_hsync,buffer_select_reg,linea_out,lineb_out)
+	process(colour_reg,vsync_reg,vga_hsync_reg,hsync_reg,colour_in,vsync_in,hsync_in,colour_enable,doubled_enable,vga,composite_on_hsync,buffer_select_reg,linea_out,lineb_out, scanlines_on, vga_odd_reg)
 	begin	
 		colour_next <= colour_reg;
 		vsync_next <= vsync_reg;
@@ -257,9 +268,21 @@ begin
 		else
 			-- vga mode, store all inputs - then play back!			
 			if (buffer_select_reg = '0') then
-				colour_next <= linea_out; -- todo, smoothly increase/decrease...
+				if (scanlines_on ='1' and vga_odd_reg='1') then
+					colour_next(7 downto 4) <= linea_out(7 downto 4);
+					colour_next(3) <= '0';
+					colour_next(2 downto 0) <= linea_out(3 downto 1);
+				else
+					colour_next <= linea_out;
+				end if;
 			else
-				colour_next <= lineb_out;
+				if (scanlines_on ='1' and vga_odd_reg='1') then
+					colour_next(7 downto 4) <= lineb_out(7 downto 4);
+					colour_next(3) <= '0';
+					colour_next(2 downto 0) <= lineb_out(3 downto 1);
+				else
+					colour_next <= lineb_out;
+				end if;
 			end if;
 			
 			vsync_next <= not(vsync_in);
