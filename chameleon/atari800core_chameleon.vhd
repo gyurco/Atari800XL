@@ -119,19 +119,22 @@ end component;
 
 
 -- MUX
-	signal mux_clk_reg : std_logic := '0';
-	signal mux_reg : unsigned(3 downto 0) := (others => '1');
-	signal mux_d_reg : unsigned(3 downto 0) := (others => '1');
+--	signal mux_clk_reg : std_logic := '0';
+--	signal mux_reg : unsigned(3 downto 0) := (others => '1');
+--	signal mux_d_reg : unsigned(3 downto 0) := (others => '1');
+
+-- reset from chameleon
+	signal chameleon_reset_n : std_logic;
 
 -- LEDs
-	signal led_green : std_logic;
-	signal led_red : std_logic;
+--	signal led_green : std_logic;
+--	signal led_red : std_logic;
 
 -- clocks...
 	signal sysclk : std_logic;
 	signal ena_1mhz : std_logic;
 	signal ena_1khz : std_logic;
-	signal phi2 : std_logic;
+	--signal phi2 : std_logic;
 	signal no_clock : std_logic;
 
 -- Docking station
@@ -144,6 +147,15 @@ end component;
 	signal docking_joystick2 : unsigned(5 downto 0);
 	signal docking_joystick3 : unsigned(5 downto 0);
 	signal docking_joystick4 : unsigned(5 downto 0);
+
+-- IR remote
+        signal ir_joya : unsigned(5 downto 0);
+        signal ir_joyb : unsigned(5 downto 0);
+	signal ir : std_logic;
+	signal ir_start : std_logic;
+	signal ir_select : std_logic;
+	signal ir_option : std_logic;
+	signal ir_fkeys : std_logic_vector(11 downto 0);
 
 -- PS/2 Keyboard
 	signal ps2_keyboard_clk_in : std_logic;
@@ -204,6 +216,10 @@ end component;
 	signal VIDEO_B : std_logic_vector(7 downto 0);
 	signal VGA_VS : std_logic;
 	signal VGA_HS : std_logic;
+	signal scanlines_next : std_logic;
+	signal scanlines_reg : std_logic;
+	signal freeze_n_reg : std_logic;
+	signal freeze_n_sync : std_logic;
 
 begin
 pal <= '1' when tv=1 else '0';
@@ -301,8 +317,8 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		AUDIO_R => audio_r_raw,
 
 		-- JOYSTICK
-		JOY1_n => std_logic_vector(docking_joystick1)(4 downto 0),
-		JOY2_n => std_logic_vector(docking_joystick2)(4 downto 0),
+		JOY1_n => std_logic_vector(docking_joystick1 and ir_joya)(4 downto 0),
+		JOY2_n => std_logic_vector(docking_joystick2 and ir_joyb)(4 downto 0),
 
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
@@ -311,9 +327,9 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		SIO_RXD => zpu_sio_txd,
 		SIO_TXD => zpu_sio_rxd,
 
-		CONSOL_OPTION => CONSOL_OPTION,
-		CONSOL_SELECT => CONSOL_SELECT,
-		CONSOL_START => CONSOL_START,
+		CONSOL_OPTION => CONSOL_OPTION or ir_option,
+		CONSOL_SELECT => CONSOL_SELECT or ir_select,
+		CONSOL_START => CONSOL_START or ir_start,
 
 		SDRAM_REQUEST => SDRAM_REQUEST,
 		SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
@@ -396,154 +412,322 @@ sysclk <= clk;
 -- -----------------------------------------------------------------------
 -- Phi 2
 -- -----------------------------------------------------------------------
-	myPhi2: entity work.chameleon_phi_clock
-		port map (
-			clk => sysclk,
-			phiIn => phi2,
-		
-			-- no_clock is high when there are no phiIn changes detected.
-			-- This signal allows switching between real I/O and internal emulation.
-			no_clock => no_clock,
-		
-			-- docking_station is high when there are no phiIn changes (no_clock) and
-			-- the phi signal is low. Without docking station phi is pulled up.
-			docking_station => docking_station
-		);
-
-	phi2 <= not phi2_n;
+--	myPhi2: entity work.chameleon_phi_clock
+--		port map (
+--			clk => sysclk,
+--			phiIn => phi2,
+--		
+--			-- no_clock is high when there are no phiIn changes detected.
+--			-- This signal allows switching between real I/O and internal emulation.
+--			no_clock => no_clock,
+--		
+--			-- docking_station is high when there are no phiIn changes (no_clock) and
+--			-- the phi signal is low. Without docking station phi is pulled up.
+--			docking_station => docking_station
+--		);
+--
+--	phi2 <= not phi2_n;
 
 -- -----------------------------------------------------------------------
 -- Docking station
 -- -----------------------------------------------------------------------
-	myDockingStation : entity work.chameleon_docking_station
-		port map (
-			clk => sysclk,
-			ena_1mhz => ena_1mhz,
-			enable => docking_ena,
-			
-			docking_station => docking_station,
-			
-			dotclock_n => dotclock_n,
-			io_ef_n => ioef_n,
-			rom_lh_n => romlh_n,
-			irq_d => irq_n,
-			irq_q => docking_irq,
-			
-			joystick1 => docking_joystick1,
-			joystick2 => docking_joystick2,
-			joystick3 => docking_joystick3,
-			joystick4 => docking_joystick4,
-			keys => open,
-			restore_key_n => open,
-			
-			amiga_power_led => '0',
-			amiga_drive_led => '0',
-			amiga_reset_n => open,
-			amiga_scancode => open
-		);
+--	myDockingStation : entity work.chameleon_docking_station
+--		port map (
+--			clk => sysclk,
+--			ena_1mhz => ena_1mhz,
+--			enable => docking_ena,
+--			
+--			docking_station => docking_station,
+--			
+--			dotclock_n => dotclock_n,
+--			io_ef_n => ioef_n,
+--			rom_lh_n => romlh_n,
+--			irq_d => irq_n,
+--			irq_q => docking_irq,
+--			
+--			joystick1 => docking_joystick1,
+--			joystick2 => docking_joystick2,
+--			joystick3 => docking_joystick3,
+--			joystick4 => docking_joystick4,
+--			keys => open,
+--			restore_key_n => open,
+--			
+--			amiga_power_led => '0',
+--			amiga_drive_led => '0',
+--			amiga_reset_n => open,
+--			amiga_scancode => open
+--		);
 
 -- -----------------------------------------------------------------------
 -- MUX CPLD
 -- -----------------------------------------------------------------------
-	-- MUX clock
-	process(sysclk)
-	begin
-		if rising_edge(sysclk) then
-			mux_clk_reg <= not mux_clk_reg;
-		end if;
-	end process;
 
-	-- MUX read
-	process(sysclk)
-	begin
-		if rising_edge(sysclk) then
-			if mux_clk_reg = '1' then
-				case mux_reg is
-				when X"6" =>
-					irq_n <= mux_q(2);
-				when X"B" =>
-					--reset_button_n <= mux_q(1);
-					--ir <= mux_q(3);
-				when X"A" =>
-					--vga_id <= mux_q;
-				when X"E" =>
-					ps2_keyboard_dat_in <= mux_q(0);
-					ps2_keyboard_clk_in <= mux_q(1);
-					--ps2_mouse_dat_in <= mux_q(2);
-					--ps2_mouse_clk_in <= mux_q(3);
-				when others =>
-					null;
-				end case;
-			end if;
-		end if;
-	end process;
+chameleon_io : entity work.chameleon_io
+	generic map (
+		enable_docking_station => true,
+		enable_c64_joykeyb => true,
+		enable_c64_4player => false,
+		enable_raw_spi => true,
+		enable_iec_access => false
+	)
+	port map (
+		clk => clk,
+		clk_mux => clk,
+		ena_1mhz => ena_1mhz,
+		reset => reset_n, -- active low!
+		reset_ext => open,
 
-	-- MUX write
-	process(sysclk)
-	begin
-		if rising_edge(sysclk) then
-			docking_ena <= '0';
-			if mux_clk_reg = '1' then
-				case mux_reg is
-				when X"7" =>
-					mux_d_reg <= "1111";
-					if docking_station = '1' then
-						mux_d_reg <= "1" & docking_irq & "11";
-					end if;
-					mux_reg <= X"6";
-				when X"6" =>
-					mux_d_reg <= "1111";
-					mux_reg <= X"8";
-				when X"8" =>
-					mux_d_reg <= "1111";
-					mux_reg <= X"A";
-				when X"A" =>
-					mux_d_reg <= "10" & led_green & led_red;
-					mux_reg <= X"B";
-				when X"B" =>
-					mux_d_reg <= "1"&spi_cs_n&spi_mosi&spi_clk;
-					mux_reg <= X"C";
-				when X"C" =>
-					--mux_d_reg <= iec_reg;
-					mux_d_reg <= "1111";
-					mux_reg <= X"D";
-					docking_ena <= '1';
-				when X"D" =>
-					--mux_d_reg(0) <= ps2_keyboard_dat_out;
-					--mux_d_reg(1) <= ps2_keyboard_clk_out;
-					--mux_d_reg(2) <= ps2_mouse_dat_out;
-					--mux_d_reg(3) <= ps2_mouse_clk_out;
-					mux_d_reg <= "1111";
-					mux_reg <= X"E";
-				when X"E" =>
-					mux_d_reg <= "1111";
-					mux_reg <= X"7";
-				when others =>
-					mux_reg <= X"B";
-					mux_d_reg <= "10" & led_green & led_red;
-				end case;
-			end if;
-		end if;
-	end process;
-	
-	mux_clk <= mux_clk_reg;
-	mux_d <= mux_d_reg;
-	mux <= mux_reg;
+-- Config
+		no_clock => no_clock,
+		docking_station => docking_station,
+
+-- Chameleon FPGA pins
+		-- C64 Clocks
+		phi2_n => phi2_n,
+		dotclock_n => dotclock_n,
+		-- C64 cartridge control lines
+		io_ef_n => ioef_n,
+		rom_lh_n => romlh_n,
+		-- SPI bus
+		spi_miso => spi_miso,
+		-- CPLD multiplexer
+		mux_clk => mux_clk,
+		mux => mux,
+		mux_d => mux_d,
+		mux_q => mux_q,
+
+-- USB microcontroller (To RX of micro)
+--		to_usb_rx : in std_logic := '1';
+
+-- C64 timing (only for C64 related cores)
+		phi_mode => not(PAL),
+		phi_out => open,
+		phi_cnt => open,
+		phi_end_0 => open,
+		phi_end_1 => open,
+		phi_post_1 => open,
+		phi_post_2 => open,
+		phi_post_3 => open,
+		phi_post_4 => open,
+
+-- C64 bus
+-- (all disabled by generic for joystick anyway... - otherwise we could map c64 into Atari memory bank - he he ;-))
+		c64_irq_n => open,
+		c64_nmi_n => open,
+		c64_ba => open,
+
+--		c64_vic : in std_logic := '0';
+--		c64_cs : in std_logic := '0';
+--		c64_cs_roms : in std_logic := '0';
+--		c64_clockport : in std_logic := '0';
+--		c64_we : in std_logic := '0';
+--		c64_a : in unsigned(15 downto 0) := (others => '0');
+--		c64_d : in unsigned(7 downto 0) := (others => '1');
+--		c64_q : out unsigned(7 downto 0);
+
+-- SPI chip-selects
+		mmc_cs_n => spi_cs_n,
+		flash_cs_n => '1',
+		rtc_cs => '0',
+
+-- SPI controller (enable_raw_spi must be set to false)
+--		spi_speed : in std_logic := '1';
+--		spi_req : in std_logic := '0';
+--		spi_ack : out std_logic;
+--		spi_d : in unsigned(7 downto 0) := (others => '-');
+--		spi_q : out unsigned(7 downto 0);
+
+-- SPI raw signals (enable_raw_spi must be set to true)
+		spi_raw_clk => spi_clk,
+		spi_raw_mosi => spi_mosi,
+		spi_raw_ack => open, -- I guess so Minimig can go as fast as the mux round robin...
+		
+-- LEDs
+		led_green => not(zpu_sio_txd),
+		led_red => not(zpu_sio_rxd),
+		ir => ir,
+
+-- PS/2 Keyboard
+		ps2_keyboard_clk_out => '1',
+		ps2_keyboard_dat_out => '1',
+		ps2_keyboard_clk_in => ps2_keyboard_clk_in,
+		ps2_keyboard_dat_in => ps2_keyboard_dat_in,
+
+-- PS/2 Mouse
+--		ps2_mouse_clk_out: in std_logic := '1';
+--		ps2_mouse_dat_out: in std_logic := '1';
+--		ps2_mouse_clk_in: out std_logic;
+--		ps2_mouse_dat_in: out std_logic;
+
+-- Buttons
+		button_reset_n => chameleon_reset_n,
+		
+-- Joysticks
+		joystick1 => docking_joystick1,
+		joystick2 => docking_joystick2,
+		joystick3 => docking_joystick3,
+		joystick4 => docking_joystick4
+
+-- Keyboards
+		--  0 = col0, row0
+		--  1 = col1, row0
+		--  8 = col0, row1
+		-- 63 = col7, row7
+-- TODO - wire up to Atari keyboard...
+-- When no_clock = 0 its connected to C64...
+--		keys : out unsigned(63 downto 0);
+--		restore_key_n : out std_logic;
+--		amiga_reset_n : out std_logic;
+--		amiga_trigger : out std_logic;
+--		amiga_scancode : out unsigned(7 downto 0);
+
+-- IEC bus
+--		iec_clk_out : in std_logic := '1';
+--		iec_dat_out : in std_logic := '1';
+--		iec_atn_out : in std_logic := '1';
+--		iec_srq_out : in std_logic := '1';
+--		iec_clk_in : out std_logic;
+--		iec_dat_in : out std_logic;
+--		iec_atn_in : out std_logic;
+--		iec_srq_in : out std_logic
+	);
+
+-- CDTV IR decoder
+
+myIr : entity work.chameleon_cdtv_remote
+	port map (
+		clk => clk,
+		ena_1mhz => ena_1mhz,
+		ir => ir,
+
+--		trigger : out std_logic;
+--
+		key_1 => ir_fkeys(0),
+		key_2 => ir_fkeys(1),
+		key_3 => ir_fkeys(2),
+		key_4 => ir_fkeys(3),
+--		key_5 => ir_fkeys(4),
+--		key_6 => ir_fkeys(5),
+--		key_7 => ir_fkeys(6),
+--		key_8 => ir_fkeys(7),
+--		key_9 => ir_fkeys(8),
+--		key_0 => ir_fkeys(9),
+--		key_escape : out std_logic;
+--		key_enter : out std_logic;
+		key_genlock => ir_fkeys(10),
+		key_cdtv => ir_fkeys(11),
+		key_power => ir_fkeys(9),
+		key_rew => ir_start,
+		key_play => ir_select,
+		key_ff => ir_option,
+		key_stop => ir_fkeys(8),
+--		key_vol_up : out std_logic;
+--		key_vol_dn : out std_logic;
+		joystick_a => ir_joya,
+		joystick_b => ir_joyb
+--		debug_code : out unsigned(11 downto 0)
+	);
+
+
+--	-- MUX clock
+--	process(sysclk)
+--	begin
+--		if rising_edge(sysclk) then
+--			mux_clk_reg <= not mux_clk_reg;
+--		end if;
+--	end process;
+--
+--	-- MUX read
+--	process(sysclk)
+--	begin
+--		if rising_edge(sysclk) then
+--			if mux_clk_reg = '1' then
+--				case mux_reg is
+--				when X"6" =>
+--					irq_n <= mux_q(2);
+--				when X"B" =>
+--					--reset_button_n <= mux_q(1);
+--					--ir <= mux_q(3);
+--				when X"A" =>
+--					--vga_id <= mux_q;
+--				when X"E" =>
+--					ps2_keyboard_dat_in <= mux_q(0);
+--					ps2_keyboard_clk_in <= mux_q(1);
+--					--ps2_mouse_dat_in <= mux_q(2);
+--					--ps2_mouse_clk_in <= mux_q(3);
+--				when others =>
+--					null;
+--				end case;
+--			end if;
+--		end if;
+--	end process;
+--
+--	-- MUX write
+--	process(sysclk)
+--	begin
+--		if rising_edge(sysclk) then
+--			docking_ena <= '0';
+--			if mux_clk_reg = '1' then
+--				case mux_reg is
+--				when X"7" =>
+--					mux_d_reg <= "1111";
+--					if docking_station = '1' then
+--						mux_d_reg <= "1" & docking_irq & "11";
+--					end if;
+--					mux_reg <= X"6";
+--				when X"6" =>
+--					mux_d_reg <= "1111";
+--					mux_reg <= X"8";
+--				when X"8" =>
+--					mux_d_reg <= "1111";
+--					mux_reg <= X"A";
+--				when X"A" =>
+--					mux_d_reg <= "10" & led_green & led_red;
+--					mux_reg <= X"B";
+--				when X"B" =>
+--					mux_d_reg <= "1"&spi_cs_n&spi_mosi&spi_clk;
+--					mux_reg <= X"C";
+--				when X"C" =>
+--					--mux_d_reg <= iec_reg;
+--					mux_d_reg <= "1111";
+--					mux_reg <= X"D";
+--					docking_ena <= '1';
+--				when X"D" =>
+--					--mux_d_reg(0) <= ps2_keyboard_dat_out;
+--					--mux_d_reg(1) <= ps2_keyboard_clk_out;
+--					--mux_d_reg(2) <= ps2_mouse_dat_out;
+--					--mux_d_reg(3) <= ps2_mouse_clk_out;
+--					mux_d_reg <= "1111";
+--					mux_reg <= X"E";
+--				when X"E" =>
+--					mux_d_reg <= "1111";
+--					mux_reg <= X"7";
+--				when others =>
+--					mux_reg <= X"B";
+--					mux_d_reg <= "10" & led_green & led_red;
+--				end case;
+--			end if;
+--		end if;
+--	end process;
+--	
+--	mux_clk <= mux_clk_reg;
+--	mux_d <= mux_d_reg;
+--	mux <= mux_reg;
 
 -- -----------------------------------------------------------------------
 -- LEDs
 -- -----------------------------------------------------------------------
-	myGreenLed : entity work.chameleon_led
-		port map (
-			clk => sysclk,
-			clk_1khz => ena_1khz,
-			led_on => '0',
-			led_blink => '1',
-			led => led_red,
-			led_1hz => led_green
-		);
-
-
+--	myGreenLed : entity work.chameleon_led
+--		port map (
+--			clk => sysclk,
+--			clk_1khz => ena_1khz,
+--			led_on => '0',
+--			led_blink => '1',
+--			led => led_red,
+--			led_1hz => led_green
+--		);
+--
+--
 -- -----------------------------------------------------------------------
 -- SDRAM
 -- -----------------------------------------------------------------------
@@ -646,7 +830,7 @@ zpu: entity work.zpucore
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
-		ZPU_IN1 => X"00000"&FKEYS,
+		ZPU_IN1 => X"00000"&(FKEYS or ir_fkeys),
 		ZPU_IN2 => X"00000000",
 		ZPU_IN3 => X"00000000",
 		ZPU_IN4 => X"00000000",
@@ -659,7 +843,7 @@ zpu: entity work.zpucore
 	);
 
 	pause_atari <= zpu_out1(0);
-	reset_atari <= zpu_out1(1);
+	reset_atari <= zpu_out1(1) or not(chameleon_reset_n);
 	speed_6502 <= zpu_out1(7 downto 2);
 	ram_select <= zpu_out1(10 downto 8);
 	rom_select <= zpu_out1(16 downto 11);
@@ -704,6 +888,7 @@ enable_179_clock_div_zpu_pokey : entity work.enable_divider
 
 		colour_enable => half_scandouble_enable_reg,
 		doubled_enable => '1',
+		scanlines_on => scanlines_reg,
 		
 		-- GTIA interface
 		colour_in => VIDEO_B,
@@ -720,5 +905,27 @@ enable_179_clock_div_zpu_pokey : entity work.enable_divider
 	);
 nHSync <= not(VGA_HS);
 nVSync <= not(VGA_VS);
+
+select_sync : entity work.synchronizer
+PORT MAP ( CLK => clk, raw => freeze_n, sync=>freeze_n_sync);
+
+process(scanlines_reg, freeze_n_sync, freeze_n_reg)
+begin
+	scanlines_next <= scanlines_reg;
+	if (freeze_n_reg = '1' and freeze_n_sync = '0')then
+		scanlines_next <= not(scanlines_reg);
+	end if;
+end process;
+
+process(clk,reset_n)
+begin
+	if (reset_n='0') then
+		scanlines_reg <= '0';
+		freeze_n_reg <= '1';
+	elsif (clk'event and clk = '1') then
+		scanlines_reg <= scanlines_next;
+		freeze_n_reg <= freeze_n_sync;
+	end if;
+end process;
 
 end vhdl;

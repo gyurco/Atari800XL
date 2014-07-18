@@ -5,7 +5,7 @@
 -- Multi purpose FPGA expansion for the Commodore 64 computer
 --
 -- -----------------------------------------------------------------------
--- Copyright 2005-2010 by Peter Wendrich (pwsoft@syntiac.com)
+-- Copyright 2005-2012 by Peter Wendrich (pwsoft@syntiac.com)
 -- http://www.syntiac.com/chameleon.html
 -- -----------------------------------------------------------------------
 --
@@ -22,13 +22,12 @@ use IEEE.numeric_std.all;
 entity chameleon_phi_clock is
 	port (
 		clk : in std_logic;
-		phiIn : in std_logic;
+		phi2_n : in std_logic;
 		
 		-- Standalone mode, 0=PAL and 1=NTSC
 		mode : in std_logic := '0';
 		
-		-- Buffered phiIn (delayed)
-		phiBuffer : out std_logic;
+		-- Buffered and inverted phi_n (delayed)
 		phiLength : out unsigned(7 downto 0);
 		
 		-- no_clock is high when there are no phiIn changes detected.

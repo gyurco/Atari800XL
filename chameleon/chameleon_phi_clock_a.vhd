@@ -5,7 +5,7 @@
 -- Multi purpose FPGA expansion for the Commodore 64 computer
 --
 -- -----------------------------------------------------------------------
--- Copyright 2005-2010 by Peter Wendrich (pwsoft@syntiac.com)
+-- Copyright 2005-2012 by Peter Wendrich (pwsoft@syntiac.com)
 -- http://www.syntiac.com/chameleon.html
 -- -----------------------------------------------------------------------
 --
@@ -23,10 +23,8 @@ architecture rtl of chameleon_phi_clock is
 --constant phaseShift : integer := 5; -- Number of cycles that FPGA runs ahead of measured phi.
 constant phaseShift : integer := 8; -- Number of cycles that FPGA runs ahead of measured phi.
 constant guardBits : integer := 4; -- Extra bits to reduce rounding errors in calculations
-signal phiReg1 : std_logic;
-signal phiReg2 : std_logic;
-signal phiReg3 : std_logic;
-signal phiSync : boolean;
+signal phi2_n_reg : unsigned(7 downto 0);
+signal phiSync : std_logic := '0';
 
 signal locCnt : unsigned(7 downto 0) := (others => '0');
 signal fracCnt : unsigned(guardBits-1 downto 0) := (others => '0');
@@ -48,9 +46,6 @@ signal localPost2 : std_logic := '0';
 signal localPost3 : std_logic := '0';
 signal localPost4 : std_logic := '0';
 begin
-	-- Copy of input phi (deglitched)
-	phiBuffer <= phiReg3;
-	
 	-- Average phi length
 	phiLength <= avgLen((7+guardBits) downto guardBits);
 	
@@ -74,12 +69,14 @@ begin
 	process(clk) is
 	begin
 		if rising_edge(clk) then
-			phiReg1 <= phiIn;
-			phiReg2 <= phiReg1;
-			phiReg3 <= phiReg2;
+			phiSync <= '0';
+			phi2_n_reg <= phi2_n_reg(phi2_n_reg'high-1 downto 0) & phi2_n;
+			-- Detect falling edge of phi2 (is rising edge here as phi2_n input is inverted).
+			if phi2_n_reg = "00000001" then
+				phiSync <= '1';
+			end if;
 		end if;
 	end process;
-	phiSync <= (phiReg1 = '0') and (phiReg2 = '0') and (phiReg3 = '1');
 
 	-- Determine cycle length
 	process(clk) is
@@ -104,12 +101,12 @@ begin
 					-- NTSC mode 1.022727 Mhz
 					avgLen <= to_unsigned(1643, 8+guardBits);
 				end if;
-				if (phiReg1 = '0') and (phiReg2 = '0') and (phiReg3 = '0') then
+				if (phi2_n_reg(1) = '1') and (phi2_n_reg(2) = '1') and (phi2_n_reg(3) = '1') then
 					docking_station <= '1';
 				end if;
 				no_clock <= '1';
 			end if;
-			if phiSync then
+			if phiSync = '1' then
 				avgDelta <= signed("0" & c64Cnt) - signed("0" & avgLen((7+guardBits) downto guardBits));
 				c64Cnt <= (others => '0');
 			end if;

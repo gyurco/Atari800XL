@@ -5,8 +5,11 @@
 -- Multi purpose FPGA expansion for the Commodore 64 computer
 --
 -- -----------------------------------------------------------------------
--- Copyright 2005-2011 by Peter Wendrich (pwsoft@syntiac.com)
+-- Copyright 2005-2012 by Peter Wendrich (pwsoft@syntiac.com)
 -- All Rights Reserved.
+--
+-- Allowed to be used in your own projects that are targeted for the
+-- Turbo Chameleon 64 cartridge.
 --
 -- http://www.syntiac.com/chameleon.html
 -- -----------------------------------------------------------------------
@@ -14,10 +17,22 @@
 -- Chameleon docking station
 --
 -- -----------------------------------------------------------------------
--- clk      - system clock
--- enable   - must be cycle high to advance statemachine (sync with MUX)
--- ena_1mhz - must be one cycle high each micro-second. Used for timers.
-
+-- clk             - system clock
+-- docking_station - must be high when docking-station is available.
+--                   This can be determined by the state of the phi2 pin.
+-- dotclock_n      - Connect to the dotclock_n pin.
+-- io_ef_n         - Connect to the io_ef_n pin.
+-- rom_hl_n        - Connect to the rom_hl_n pin.
+-- irq_q           - IRQ pin output (open drain output, 0 is drive low, 1 is input)
+-- joystick*       - Joystick outputs (fire2, fire1, right, left, down, up) low active
+-- keys            - State of the keyboard (low is pressed)
+-- restore_key_n   - State of the restore key (low is pressed)
+--
+-- amiga_power_led - Control input for the POWER LED on the Amiga keyboard.
+-- amiga_drive_led - Control input for the DRIVE LED on the Amiga keyboard.
+-- amiga_reset_n   - Low when the Amiga keyboard does a reset.
+-- amiga_trigger   - One clock high when the Amiga keyboard has send a new scancode.
+-- amiga_scancode  - Value of the last received scancode from the Amiga keyboard.
 -- -----------------------------------------------------------------------
 
 library IEEE;
@@ -29,15 +44,11 @@ use IEEE.numeric_std.all;
 entity chameleon_docking_station is
 	port (
 		clk : in std_logic;
-		enable : in std_logic;
-		ena_1mhz : in std_logic;
-
 		docking_station : in std_logic;
 
 		dotclock_n : in std_logic;
 		io_ef_n : in std_logic;
 		rom_lh_n : in std_logic;
-		irq_d : in std_logic;
 		irq_q : out std_logic;
 		
 		joystick1 : out unsigned(5 downto 0);
@@ -64,6 +75,9 @@ end entity;
 
 architecture rtl of chameleon_docking_station is
 	constant shift_reg_bits : integer := 13*8;
+	-- We put the out-of-sync detection just before the actual sync-pulse.
+	-- Gives it the biggest chance of catching a sync-problem.
+	constant out_of_sync_pos : integer := 102; 
 	signal shift_reg : unsigned(shift_reg_bits-1 downto 0);
 	signal bit_cnt : unsigned(7 downto 0) := (others => '0');
 	signal once : std_logic := '0';
@@ -115,6 +129,12 @@ begin
 			if (dotclock_n_reg = '0') and (dotclock_n_dly = '1') then
 				shift_reg <= (not rom_lh_n_reg) & shift_reg(shift_reg'high downto 1);
 				bit_cnt <= bit_cnt + 1;
+			end if;
+			if (io_ef_n_reg = '1') and (bit_cnt = out_of_sync_pos) then
+				-- Out of sync detection.
+				-- Wait for the MCU on the docking-station to release io_ef
+				-- Then we can continue and syncronise on the next io_ef pulse that comes.
+				bit_cnt <= to_unsigned(out_of_sync_pos, bit_cnt'length);
 			end if;
 			if (io_ef_n_reg = '1') and (bit_cnt >= shift_reg_bits) then
 				-- Word trigger. Signals start of serial bit-stream.

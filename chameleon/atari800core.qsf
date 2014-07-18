@@ -199,6 +199,9 @@ set_global_assignment -name VHDL_FILE chameleon_1khz.vhd
 set_global_assignment -name VHDL_FILE chameleon_led.vhd
 set_global_assignment -name VHDL_FILE chameleon_phi_clock_e.vhd
 set_global_assignment -name VHDL_FILE chameleon_phi_clock_a.vhd
+set_global_assignment -name VHDL_FILE chameleon_io.vhd
+set_global_assignment -name VHDL_FILE chameleon_cdtv_remote.vhd
+set_global_assignment -name VHDL_FILE chameleon_c64_joykeyb.vhd
 set_global_assignment -name VHDL_FILE atari800core_chameleon.vhd
 set_global_assignment -name QIP_FILE pll.qip
 set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "USE AS REGULAR IO"

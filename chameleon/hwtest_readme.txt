@@ -1,4 +1,5 @@
 The chameleon_* files are taken from the hwtest2 project for the Chameleon.
+Also some form the minimig project
 They are under the lgpl license, which I believe allows linking, such as it is in hardware...
 ---
 Hi,
