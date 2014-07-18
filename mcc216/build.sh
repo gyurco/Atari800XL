@@ -130,7 +130,7 @@ foreach my $variant (sort keys %variants)
 	my $version = `svn info  | grep Revision: | cut -d' ' -f 2`;
 	chomp $version;
 	$version = `date +%y%m`;
-	$version2 = `date +%d`;
+	my $version2 = `date +%d`;
 	chomp $version;
 	chomp $version2;
 	my $cmd = "wine ../rbf2arg/rbf2arg.exe $vga A $version.$version2 \"Atari 800XL $variant\" output_files/atari800core.rbf output_files/atari800core_$variant.arg";
