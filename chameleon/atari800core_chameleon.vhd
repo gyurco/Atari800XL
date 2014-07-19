@@ -124,14 +124,14 @@ end component;
 --	signal mux_d_reg : unsigned(3 downto 0) := (others => '1');
 
 -- reset from chameleon
-	signal chameleon_reset_n : std_logic;
+	signal chameleon_reset_n_next : std_logic;
+	signal chameleon_reset_n_reg : std_logic;
 
 -- LEDs
 --	signal led_green : std_logic;
 --	signal led_red : std_logic;
 
 -- clocks...
-	signal sysclk : std_logic;
 	signal ena_1mhz : std_logic;
 	signal ena_1khz : std_logic;
 	--signal phi2 : std_logic;
@@ -139,9 +139,9 @@ end component;
 
 -- Docking station
 	signal docking_station : std_logic;
-	signal docking_ena : std_logic;
-	signal docking_irq : std_logic;
-	signal irq_n : std_logic;
+	--signal docking_ena : std_logic;
+	--signal docking_irq : std_logic;
+	--signal irq_n : std_logic;
 
 	signal docking_joystick1 : unsigned(5 downto 0);
 	signal docking_joystick2 : unsigned(5 downto 0);
@@ -155,7 +155,8 @@ end component;
 	signal ir_start : std_logic;
 	signal ir_select : std_logic;
 	signal ir_option : std_logic;
-	signal ir_fkeys : std_logic_vector(11 downto 0);
+	signal ir_fkeys_next : std_logic_vector(11 downto 0);
+	signal ir_fkeys_reg : std_logic_vector(11 downto 0);
 
 -- PS/2 Keyboard
 	signal ps2_keyboard_clk_in : std_logic;
@@ -386,25 +387,23 @@ port map
 );
 
 -- Some common chameleon parts - e.g. mux - taken from the hardware test
-sysclk <= clk;
 
 -- -----------------------------------------------------------------------
 -- 1 Mhz and 1 Khz clocks
 -- -----------------------------------------------------------------------
 	my1Mhz : entity work.chameleon_1mhz
 		generic map (
-			--clk_ticks_per_usec => 100
-			clk_ticks_per_usec => 57
+			clk_ticks_per_usec => 113
 		)
 		port map (
-			clk => sysclk,
+			clk => clk_sdram,
 			ena_1mhz => ena_1mhz,
 			ena_1mhz_2 => open
 		);
 
 	my1Khz : entity work.chameleon_1khz
 		port map (
-			clk => sysclk,
+			clk => clk_sdram,
 			ena_1mhz => ena_1mhz,
 			ena_1khz => ena_1khz
 		);
@@ -466,13 +465,13 @@ chameleon_io : entity work.chameleon_io
 	generic map (
 		enable_docking_station => true,
 		enable_c64_joykeyb => true,
-		enable_c64_4player => false,
+		enable_c64_4player => true,
 		enable_raw_spi => true,
 		enable_iec_access => false
 	)
 	port map (
-		clk => clk,
-		clk_mux => clk,
+		clk => clk_sdram,
+		clk_mux => clk_sdram,
 		ena_1mhz => ena_1mhz,
 		reset => reset_n, -- active low!
 		reset_ext => open,
@@ -560,7 +559,7 @@ chameleon_io : entity work.chameleon_io
 --		ps2_mouse_dat_in: out std_logic;
 
 -- Buttons
-		button_reset_n => chameleon_reset_n,
+		button_reset_n => chameleon_reset_n_next,
 		
 -- Joysticks
 		joystick1 => docking_joystick1,
@@ -596,31 +595,31 @@ chameleon_io : entity work.chameleon_io
 
 myIr : entity work.chameleon_cdtv_remote
 	port map (
-		clk => clk,
+		clk => clk_sdram,
 		ena_1mhz => ena_1mhz,
 		ir => ir,
 
 --		trigger : out std_logic;
 --
-		key_1 => ir_fkeys(0),
-		key_2 => ir_fkeys(1),
-		key_3 => ir_fkeys(2),
-		key_4 => ir_fkeys(3),
---		key_5 => ir_fkeys(4),
---		key_6 => ir_fkeys(5),
---		key_7 => ir_fkeys(6),
---		key_8 => ir_fkeys(7),
---		key_9 => ir_fkeys(8),
---		key_0 => ir_fkeys(9),
+		key_1 => ir_fkeys_next(0),
+		key_2 => ir_fkeys_next(1),
+		key_3 => ir_fkeys_next(2),
+		key_4 => ir_fkeys_next(3),
+--		key_5 => ir_fkeys_next(4),
+--		key_6 => ir_fkeys_next(5),
+--		key_7 => ir_fkeys_next(6),
+--		key_8 => ir_fkeys_next(7),
+--		key_9 => ir_fkeys_next(8),
+--		key_0 => ir_fkeys_next(9),
 --		key_escape : out std_logic;
 --		key_enter : out std_logic;
-		key_genlock => ir_fkeys(10),
-		key_cdtv => ir_fkeys(11),
-		key_power => ir_fkeys(9),
+		key_genlock => ir_fkeys_next(10),
+		key_cdtv => ir_fkeys_next(11),
+		key_power => ir_fkeys_next(9),
 		key_rew => ir_start,
 		key_play => ir_select,
 		key_ff => ir_option,
-		key_stop => ir_fkeys(8),
+		key_stop => ir_fkeys_next(8),
 --		key_vol_up : out std_logic;
 --		key_vol_dn : out std_logic;
 		joystick_a => ir_joya,
@@ -790,7 +789,7 @@ zpu: entity work.zpucore
 	GENERIC MAP
 	(
 		platform => 1, -- TODO
-		spi_clock_div => 64 -- 57MHz/32. Max for SD cards is 25MHz... TODO Same for DE1, too high??
+		spi_clock_div => 16 -- 57MHz/32. Max for SD cards is 25MHz... TODO Same for DE1, too high??
 	)
 	PORT MAP
 	(
@@ -830,7 +829,7 @@ zpu: entity work.zpucore
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
-		ZPU_IN1 => X"00000"&(FKEYS or ir_fkeys),
+		ZPU_IN1 => X"00000"&(FKEYS or ir_fkeys_reg),
 		ZPU_IN2 => X"00000000",
 		ZPU_IN3 => X"00000000",
 		ZPU_IN4 => X"00000000",
@@ -843,7 +842,7 @@ zpu: entity work.zpucore
 	);
 
 	pause_atari <= zpu_out1(0);
-	reset_atari <= zpu_out1(1) or not(chameleon_reset_n);
+	reset_atari <= zpu_out1(1) or not(chameleon_reset_n_reg);
 	speed_6502 <= zpu_out1(7 downto 2);
 	ram_select <= zpu_out1(10 downto 8);
 	rom_select <= zpu_out1(16 downto 11);
@@ -922,9 +921,13 @@ begin
 	if (reset_n='0') then
 		scanlines_reg <= '0';
 		freeze_n_reg <= '1';
+		chameleon_reset_n_reg <= '1';
+		ir_fkeys_reg <= (others=>'0');
 	elsif (clk'event and clk = '1') then
 		scanlines_reg <= scanlines_next;
 		freeze_n_reg <= freeze_n_sync;
+		chameleon_reset_n_reg <= chameleon_reset_n_next;
+		ir_fkeys_reg <= ir_fkeys_next;
 	end if;
 end process;
 
