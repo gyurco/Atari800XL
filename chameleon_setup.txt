@@ -1,0 +1,70 @@
+Here there are some quick instructions to setup the a8 core:
+
+
+First as usual, turn off the Chameleon, remove the SD card and disconnect it from the docking station.
+
+
+You need to flash with Chaco these files:
+
+
+NTSC Core (output resolution of 640x480pixels, 59Hz):
+
+http://www.scrameta.net/autobuild/YYYYMMDD/chameleon/build_NTSC_VGA/output_files/atari800core.rbf
+
+
+PAL Core (output resolution of 720x576 pixels, 50Hz):
+
+http://www.scrameta.net/autobuild/YYYYMMDD/chameleon/build_PAL_VGA/output_files/atari800core.rbf 
+
+
+I flashed the cores on Chaco's slots 14 and 15 (Chameleon’s 15 and 16).
+
+
+Then you need to create these folders on the SD card:
+
+(root)/atari800/rom/
+
+(root)/atari800/user/
+
+
+You have to download this file and unzip it:
+
+http://atariarea.krap.pl/PLus/files/xf25.zip 
+
+
+And copy these files to the SD card:
+
+
+System ROM:
+
+(root)/atari800/rom/atarixl.rom
+
+Basic:
+
+(root)/atari800/rom/ataribas.rom
+
+
+And finally you have to save your Atari games,etc. on the folder:
+
+(root)/atari800/user/
+
+
+Here you can see a list of games that have been tested on the a8 core:
+
+
+https://docs.google.com/spreadsheet/ccc?key=0ArP1zOoNTxxGdDhQbzFmUWxhWTZ4ZmtTcndIVV9XVGc#gid=4 
+
+
+From the instructions:
+
+
+“When running Atari software a lot of programs need to have basic disable. Hold Option when pressing reset (F8)”  -> very important!
+
+
+The core uses the joystick port 1 in the docking station.
+
+
+Complete instructions are here:
+
+
+http://www.scrameta.net/autobuild/YYYYMMDD/instructions.txt

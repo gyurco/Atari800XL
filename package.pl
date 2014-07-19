@@ -46,5 +46,6 @@ foreach (@files)
 }
 close(LOG);
 `cp -f instructions.txt $dir/`;
+`cp -f chameleon_setup.txt $dir/`;
 
 
