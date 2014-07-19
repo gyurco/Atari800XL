@@ -47,7 +47,12 @@ DSTATUS disk_initialize (void)
 
 	//printf(" in init ");
 	n_actual_mmc_sector = 0xffffffff;
-	mmc_init();
+	for(;;)
+	{
+		mmc_init();
+		if (0==mmcRead(1))
+			break;
+	}
 
 	//printf(" setting freq ");
 

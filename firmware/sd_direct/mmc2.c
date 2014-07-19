@@ -185,6 +185,7 @@ u08 mmcRead(u32 sector)
 {
 	BYTE rc;
 	UINT bc;
+	int res = 0;
 
 	//printf("mr:%x",sector);
 
@@ -208,10 +209,14 @@ u08 mmcRead(u32 sector)
 			do spiTransferFF(); while (--bc); // checksum
 		}
 	}
+	else
+	{
+		res = 1;
+	}
 
 	DESELECT();
 	spiTransferFF();
-	return 0;
+	return res;
 }
 
 
