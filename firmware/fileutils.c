@@ -2,35 +2,19 @@
 
 #include "utils.h"
 
-int compare_ext(char const * filenamein, char const * extin)
+int compare_ext(char const * filename, char const * ext)
 {
 	int dot = 0;
-	char filename[256];
-	char ext[4];
-	stricpy(filename,filenamein);
-	stricpy(ext,extin);
-
 	//printf("WTFA:%s %s\n",filenamein, extin);
 	//printf("WTFB:%s %s\n",filename, ext);
 
-	while (1)
+	char const * end = strlen(filename) + filename;
+	while (--end != filename)
 	{
-		if (filename[dot] == '\0')
+		if (*end == '.')
 			break;
-		if (filename[dot] != '.')
-		{
-			++dot;
-			continue;
-		}
-		if (filename[dot+1] == ext[0])
-			if (filename[dot+2] == ext[1])
-				if (filename[dot+3] == ext[2])
-				{
-					return 1;
-					break;
-				}
-		break;
 	}
+	if (0==stricmp(end+1,ext)) return 1;
 
 	return 0;
 }
