@@ -104,7 +104,7 @@ BEGIN
 
 		volume_int_sum := ((channel0_en_long + channel1_en_long) + (channel2_en_long + channel3_en_long)) + (gtia_sound_long + (covox_0_long + covox_1_long));
 
-		volume_sum(9 downto 0) <= std_logic_vector(volume_int_sum(9 downto 0)) or volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10);
+		volume_sum(9 downto 0) <= std_logic_vector(volume_int_sum(9 downto 0)) or volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10);
 	end process;
 	
  	process (volume_sum, volume_next)
