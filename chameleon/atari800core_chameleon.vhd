@@ -95,7 +95,9 @@ end component;
   signal VGA_VS_RAW : std_logic;
   signal VGA_HS_RAW : std_logic;
 
-  signal RESET_n : std_logic;
+  --signal RESET_n : std_logic;
+  signal reset_counter : unsigned(15 downto 0):=X"0000";
+  signal reset_n 	: std_logic := '1';  
   signal PLL_LOCKED : std_logic;
   signal CLK : std_logic;
   signal CLK_SDRAM : std_logic;
@@ -226,7 +228,18 @@ begin
 pal <= '1' when tv=1 else '0';
 vga <= '1' when video=2 else '0';
 composite_on_hsync <= '1' when composite_sync=1 else '0';
-RESET_N <= PLL_LOCKED;
+--RESET_N <= PLL_LOCKED;
+process(clk)
+begin
+	if rising_edge(clk) then
+		if reset_counter=X"FFFF" then
+			reset_n<='1';
+		else
+			reset_counter<=reset_counter+1;
+			reset_n<='0';
+		end if;
+	end if;
+end process;
 
 -- disable unused parts
 --   sdram
