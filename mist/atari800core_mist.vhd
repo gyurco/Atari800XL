@@ -551,6 +551,7 @@ LED <= zpu_sio_rxd;
 
 		colour_enable => half_scandouble_enable_reg,
 		doubled_enable => '1',
+		scanlines_on => mist_switches(1),
 		
 		-- GTIA interface
 		colour_in => VIDEO_B,
