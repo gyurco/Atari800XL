@@ -486,7 +486,7 @@ chameleon_io : entity work.chameleon_io
 		clk => clk_sdram,
 		clk_mux => clk_sdram,
 		ena_1mhz => ena_1mhz,
-		reset => reset_n, -- active low!
+		reset => not(reset_n), -- active high!!
 		reset_ext => open,
 
 -- Config
