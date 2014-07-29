@@ -76,6 +76,7 @@ foreach my $variant (sort keys %variants)
 	`cp *pll*.* $dir`;
 	`cp *.vhdl $dir`;
 	`cp chameleon_*.* $dir`;
+	`cp gen_*.* $dir`;
 	`cp zpu_rom.vhdl $dir`;
 	`cp atari800core.sdc $dir`;
 	`mkdir $dir/common`;

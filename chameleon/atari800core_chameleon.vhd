@@ -9,6 +9,7 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
 use ieee.numeric_std.all;
+use IEEE.STD_LOGIC_MISC.all;
 
 LIBRARY work;
 
@@ -126,19 +127,29 @@ end component;
 --	signal mux_d_reg : unsigned(3 downto 0) := (others => '1');
 
 -- reset from chameleon
-	signal chameleon_reset_n_next : std_logic;
-	signal chameleon_reset_n_reg : std_logic;
+	signal chameleon_reset_n_next : std_logic_vector(9 downto 0);
+	signal chameleon_reset_n_reg : std_logic_vector(9 downto 0);
+	signal reset_short_next : std_logic;
+	signal reset_short_reg : std_logic;
+	signal reset_long_next : std_logic;
+	signal reset_long_reg : std_logic;
+	signal reconfig_next : std_logic;
+	signal reconfig_reg : std_logic;
 
 -- LEDs
 --	signal led_green : std_logic;
 --	signal led_red : std_logic;
 
 -- clocks...
-	signal ena_1mhz : std_logic;
+	signal ena_1mhz : std_logic; --fast clk
 	signal ena_1khz : std_logic;
+
 	--signal phi2 : std_logic;
 	signal no_clock : std_logic;
 
+	signal ena_10khz : std_logic; --slow clk
+	signal ena_10hz : std_logic;	
+	
 -- Docking station
 	signal docking_station : std_logic;
 	--signal docking_ena : std_logic;
@@ -222,7 +233,11 @@ end component;
 	signal scanlines_next : std_logic;
 	signal scanlines_reg : std_logic;
 	signal freeze_n_reg : std_logic;
+	signal freeze_n_next : std_logic;
 	signal freeze_n_sync : std_logic;
+
+	-- microcontroller (for slot flash)
+	signal to_usb_rx : std_logic;
 
 begin
 pal <= '1' when tv=1 else '0';
@@ -421,6 +436,7 @@ port map
 			ena_1khz => ena_1khz
 		);
 
+		
 -- -----------------------------------------------------------------------
 -- Phi 2
 -- -----------------------------------------------------------------------
@@ -509,7 +525,7 @@ chameleon_io : entity work.chameleon_io
 		mux_q => mux_q,
 
 -- USB microcontroller (To RX of micro)
---		to_usb_rx : in std_logic := '1';
+		to_usb_rx => to_usb_rx,
 
 -- C64 timing (only for C64 related cores)
 		phi_mode => not(PAL),
@@ -572,7 +588,7 @@ chameleon_io : entity work.chameleon_io
 --		ps2_mouse_dat_in: out std_logic;
 
 -- Buttons
-		button_reset_n => chameleon_reset_n_next,
+		button_reset_n => chameleon_reset_n_next(0),
 		
 -- Joysticks
 		joystick1 => docking_joystick1,
@@ -855,7 +871,7 @@ zpu: entity work.zpucore
 	);
 
 	pause_atari <= zpu_out1(0);
-	reset_atari <= zpu_out1(1) or not(chameleon_reset_n_reg);
+	reset_atari <= zpu_out1(1) or reset_short_reg;
 	speed_6502 <= zpu_out1(7 downto 2);
 	ram_select <= zpu_out1(10 downto 8);
 	rom_select <= zpu_out1(16 downto 11);
@@ -921,11 +937,15 @@ nVSync <= not(VGA_VS);
 select_sync : entity work.synchronizer
 PORT MAP ( CLK => clk, raw => freeze_n, sync=>freeze_n_sync);
 
-process(scanlines_reg, freeze_n_sync, freeze_n_reg)
+process(scanlines_reg, freeze_n_sync, freeze_n_reg, ena_10hz)
 begin
 	scanlines_next <= scanlines_reg;
-	if (freeze_n_reg = '1' and freeze_n_sync = '0')then
-		scanlines_next <= not(scanlines_reg);
+	freeze_n_next <= freeze_n_reg;
+	if (ena_10hz = '1') then
+		freeze_n_next <= freeze_n_sync;
+		if (freeze_n_reg = '1' and freeze_n_sync = '0')then
+			scanlines_next <= not(scanlines_reg);
+		end if;
 	end if;
 end process;
 
@@ -934,14 +954,90 @@ begin
 	if (reset_n='0') then
 		scanlines_reg <= '0';
 		freeze_n_reg <= '1';
-		chameleon_reset_n_reg <= '1';
+		chameleon_reset_n_reg <= (others=>'1');
 		ir_fkeys_reg <= (others=>'0');
+		reconfig_reg <= '0';
+		reset_long_reg <= '0';
+		reset_short_reg <= '0';
 	elsif (clk'event and clk = '1') then
 		scanlines_reg <= scanlines_next;
-		freeze_n_reg <= freeze_n_sync;
+		freeze_n_reg <= freeze_n_next;
 		chameleon_reset_n_reg <= chameleon_reset_n_next;
 		ir_fkeys_reg <= ir_fkeys_next;
+		reconfig_reg <= reconfig_next;
+		reset_long_reg <= reset_long_next;
+		reset_short_reg <= reset_short_next;
 	end if;
 end process;
+
+-- 10hz for crappy debounce!
+	my10khz : entity work.enable_divider
+		generic map (
+			count => 5700
+		)
+		port map (
+			clk => clk,
+			reset_n => reset_n,
+			enable_in => '1',
+			enable_out => ena_10khz
+		);
+
+		my10hz : entity work.enable_divider
+		generic map (
+			count => 1000
+		)
+		port map (
+			clk => clk,
+			reset_n => reset_n,
+			enable_in => ena_10khz,
+			enable_out => ena_10hz
+		);
+		
+process(ena_10hz, chameleon_reset_n_reg, reconfig_reg, reset_long_reg, reset_short_reg)
+begin
+	reconfig_next <= reconfig_reg;
+	chameleon_reset_n_next(9 downto 1) <= chameleon_reset_n_reg(9 downto 1);
+	reset_short_next <= reset_short_reg;
+	reset_long_next <= reset_long_reg;
+	reconfig_next <= reconfig_reg or reset_long_reg;
+	
+	if (ena_10hz = '1') then
+		reset_short_next <= '0';
+		reset_long_next <= '0';
+	
+		chameleon_reset_n_next(9 downto 1) <= chameleon_reset_n_reg(8 downto 0);
+
+		if (chameleon_reset_n_reg(0) = '0') then
+			reset_short_next <= '1';
+		end if;
+		if (or_reduce(chameleon_reset_n_reg(9 downto 0)) = '0') then
+			reset_long_next <= '1';
+		end if;
+	end if;
+end process;
+
+usb : entity work.chameleon_usb
+	port map (
+		clk => clk_sdram,
+		
+		req => open,
+		we => open,
+		a => open,
+		q => open,
+		
+		reconfig => reconfig_reg,
+		reconfig_slot => "0000",
+		
+		flashslot => open,
+		
+		-- talk to microcontroller
+		serial_clk => usart_clk,
+		serial_rxd => usart_tx,
+		serial_txd => to_usb_rx,
+		serial_cts_n => usart_rts,
+		
+		serial_debug_trigger => open,
+		serial_debug_data => open
+	);
 
 end vhdl;
