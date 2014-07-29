@@ -127,8 +127,8 @@ end component;
 --	signal mux_d_reg : unsigned(3 downto 0) := (others => '1');
 
 -- reset from chameleon
-	signal chameleon_reset_n_next : std_logic_vector(9 downto 0);
-	signal chameleon_reset_n_reg : std_logic_vector(9 downto 0);
+	signal chameleon_reset_n_next : std_logic_vector(6 downto 0);
+	signal chameleon_reset_n_reg : std_logic_vector(6 downto 0);
 	signal reset_short_next : std_logic;
 	signal reset_short_reg : std_logic;
 	signal reset_long_next : std_logic;
@@ -996,7 +996,7 @@ end process;
 process(ena_10hz, chameleon_reset_n_reg, reconfig_reg, reset_long_reg, reset_short_reg)
 begin
 	reconfig_next <= reconfig_reg;
-	chameleon_reset_n_next(9 downto 1) <= chameleon_reset_n_reg(9 downto 1);
+	chameleon_reset_n_next(6 downto 1) <= chameleon_reset_n_reg(6 downto 1);
 	reset_short_next <= reset_short_reg;
 	reset_long_next <= reset_long_reg;
 	reconfig_next <= reconfig_reg or reset_long_reg;
@@ -1005,12 +1005,12 @@ begin
 		reset_short_next <= '0';
 		reset_long_next <= '0';
 	
-		chameleon_reset_n_next(9 downto 1) <= chameleon_reset_n_reg(8 downto 0);
+		chameleon_reset_n_next(6 downto 1) <= chameleon_reset_n_reg(5 downto 0);
 
 		if (chameleon_reset_n_reg(0) = '0') then
 			reset_short_next <= '1';
 		end if;
-		if (or_reduce(chameleon_reset_n_reg(9 downto 0)) = '0') then
+		if (or_reduce(chameleon_reset_n_reg(6 downto 0)) = '0') then
 			reset_long_next <= '1';
 		end if;
 	end if;
