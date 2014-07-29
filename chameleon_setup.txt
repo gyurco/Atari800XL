@@ -52,7 +52,7 @@ And finally you have to save your Atari games,etc. on the folder:
 Here you can see a list of games that have been tested on the a8 core:
 
 
-https://docs.google.com/spreadsheet/ccc?key=0ArP1zOoNTxxGdDhQbzFmUWxhWTZ4ZmtTcndIVV9XVGc#gid=4 
+http://goo.gl/MvUDfY
 
 
 From the instructions:
