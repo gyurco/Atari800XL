@@ -112,6 +112,9 @@ ARCHITECTURE vhdl OF zpu_config_regs IS
 	signal spi_dma_addr_reg : std_logic_vector(15 downto 0);
 	signal spi_dma_addrend_reg : std_logic_vector(15 downto 0);
 	signal spi_dma_reg : std_logic;
+
+	signal spi_clk_div_integer : integer;
+	signal spi_addr_integer : integer;
 begin
 	-- register
 	process(clk,reset_n)
@@ -156,9 +159,11 @@ begin
 
 	-- spi - for sd card access without bit banging...
 	-- 200KHz to start with - probably fine for 8-bit, can up it later after init
+	spi_clk_div_integer <= to_integer(unsigned(spi_speed_reg));
+	spi_addr_integer <= to_integer(unsigned(vectorize(spi_addr_reg)));
 	spi_master1 : entity work.spi_master
 		generic map(slaves=>1,d_width=>8)
-		port map (clock=>clk,reset_n=>reset_n,enable=>spi_enable,cpol=>'0',cpha=>'0',cont=>'0',clk_div=>to_integer(unsigned(spi_speed_reg)),addr=>to_integer(unsigned(vectorize(spi_addr_reg))),
+		port map (clock=>clk,reset_n=>reset_n,enable=>spi_enable,cpol=>'0',cpha=>'0',cont=>'0',clk_div=>spi_clk_div_integer,addr=>spi_addr_integer,
 		          tx_data=>spi_tx_data, miso=>spi_miso,sclk=>spi_clk_out,ss_n=>spi_chip_select,mosi=>spi_mosi,
 					 rx_data=>spi_rx_data,busy=>spi_busy);
 					 
@@ -232,7 +237,7 @@ begin
 
 			if (spi_busy = '0') then
 				spi_dma_wr <= '1';
-				spi_dma_addr_next <= std_logic_vector(unsigned(spi_dma_addr_reg)+1);
+				spi_dma_addr_next <= std_logic_vector(unsigned(spi_dma_addr_reg)+to_unsigned(1,16));
 				spi_dma_next <= '0';
 
 				if (not(spi_dma_addr_next = spi_dma_addrend_reg)) then

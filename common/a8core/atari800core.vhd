@@ -20,7 +20,8 @@ ENTITY atari800core IS
 	(
 		cycle_length : integer := 16; -- or 32...
 		video_bits : integer := 8;
-		palette : integer :=1 -- 0:gtia colour on VIDEO_B, 1:altirra, 2:laoo
+		palette : integer :=1; -- 0:gtia colour on VIDEO_B, 1:altirra, 2:laoo
+		low_memory : integer := 0 -- 0:8MB memory map, 1:1MB memory map
 	);
 	PORT
 	(
@@ -409,6 +410,7 @@ PORT MAP(CLK => CLK,
 		 PORTB_OUT => PORTB_OUT_INT);
 
 mmu1 : entity work.address_decoder
+GENERIC MAP(low_memory => low_memory)
 PORT MAP(CLK => CLK,
 		 CPU_FETCH => CPU_FETCH,
 		 CPU_WRITE_N => R_W_N,

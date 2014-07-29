@@ -5,6 +5,11 @@
 -- please contact me for explicit permission at scrameta (gmail).
 -- This applies for source and binary form and derived works.
 ---------------------------------------------------------------------------
+
+---------------------------------------------------------------------------
+-- (ILoveSpeccy) Added PS2_KEYS Output
+---------------------------------------------------------------------------
+
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -25,7 +30,9 @@ PORT
 	CONSOL_SELECT : OUT STD_LOGIC;
 	CONSOL_OPTION : OUT STD_LOGIC;
    
-	FKEYS : OUT STD_LOGIC_VECTOR(11 downto 0)
+	FKEYS : OUT STD_LOGIC_VECTOR(11 downto 0);
+   
+   PS2_KEYS : OUT STD_LOGIC_VECTOR(511 downto 0)
 );
 END ps2_to_atari800;
 
@@ -49,6 +56,9 @@ ARCHITECTURE vhdl OF ps2_to_atari800 IS
 	SIGNAL	BREAK_PRESSED :  STD_LOGIC;
 	SIGNAL	CONTROL_PRESSED :  STD_LOGIC;
 BEGIN
+
+   PS2_KEYS <= ps2_keys_reg;
+
 	keyboard1: entity work.ps2_keyboard
 	PORT MAP
 	( 

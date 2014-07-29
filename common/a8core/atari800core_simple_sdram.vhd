@@ -32,7 +32,10 @@ ENTITY atari800core_simple_sdram is
 	
 		-- For initial port may help to have no
 		internal_rom : integer := 1;  -- if 0 expects it in sdram,is 1:16k os+basic, is 2:... TODO
-		internal_ram : integer := 16384  -- at start of memory map
+		internal_ram : integer := 16384;  -- at start of memory map
+	
+		-- Use 1MB memory map if low memory set (for Aeon lite)
+		low_memory : integer := 0
 	);
 	PORT
 	(
@@ -238,7 +241,8 @@ atari800xl : entity work.atari800core
 	(
 		cycle_length => cycle_length,
 		video_bits => video_bits,
-		palette => palette
+		palette => palette,
+		low_memory => low_memory
 	)
 	PORT MAP
 	(

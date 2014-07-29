@@ -114,10 +114,12 @@ ARCHITECTURE vhdl OF scandoubler IS
 	signal b_reg : std_logic_vector(7 downto 0);
 	
 	signal linea_address : std_logic_vector(10 downto 0);
+	signal linea_address_integer : integer;
 	signal linea_write_enable : std_logic;
 	signal linea_out : std_logic_vector(7 downto 0);
 
 	signal lineb_address : std_logic_vector(10 downto 0);
+	signal lineb_address_integer : integer;
 	signal lineb_write_enable : std_logic;
 	signal lineb_out : std_logic_vector(7 downto 0);
 	
@@ -189,12 +191,14 @@ begin
 	--lineb : reg_file
 	--	generic map (BYTES=>456,WIDTH=>9)
 	--	port map (clk=>clk,addr=>lineb_address,wr_en=>lineb_write_enable,data_in=>colour_in,data_out=>lineb_out);	
-	
-	linea : scandouble_ram_infer
-	port map (clock=>clk,address=>to_integer(unsigned(linea_address)),we=>linea_write_enable,data=>colour_in,q=>linea_out);
 
+	linea_address_integer <= to_integer(unsigned(linea_address));
+	linea : scandouble_ram_infer
+	port map (clock=>clk,address=>linea_address_integer,we=>linea_write_enable,data=>colour_in,q=>linea_out);
+
+	lineb_address_integer <= to_integer(unsigned(lineb_address));
 	lineb : scandouble_ram_infer
-	port map (clock=>clk,address=>to_integer(unsigned(lineb_address)),we=>lineb_write_enable,data=>colour_in,q=>lineb_out);	
+	port map (clock=>clk,address=>lineb_address_integer,we=>lineb_write_enable,data=>colour_in,q=>lineb_out);	
 	
 	-- capture
 	process(input_address_reg,colour_enable,hsync_in,hsync_in_reg,buffer_select_reg)
