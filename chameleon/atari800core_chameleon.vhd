@@ -156,10 +156,21 @@ end component;
 	--signal docking_irq : std_logic;
 	--signal irq_n : std_logic;
 
-	signal docking_joystick1 : unsigned(5 downto 0);
-	signal docking_joystick2 : unsigned(5 downto 0);
-	signal docking_joystick3 : unsigned(5 downto 0);
-	signal docking_joystick4 : unsigned(5 downto 0);
+	signal docking_joystick1_next : unsigned(5 downto 0);
+	signal docking_joystick2_next : unsigned(5 downto 0);
+	signal docking_joystick3_next : unsigned(5 downto 0);
+	signal docking_joystick4_next : unsigned(5 downto 0);
+	signal c64_keys_next : unsigned(63 downto 0);
+	signal docking_joystick1_reg : unsigned(5 downto 0);
+	signal docking_joystick2_reg : unsigned(5 downto 0);
+	signal docking_joystick3_reg : unsigned(5 downto 0);
+	signal docking_joystick4_reg : unsigned(5 downto 0);
+	signal c64_keys_reg : unsigned(63 downto 0);
+       	--  0 = col0, row0
+       	--  1 = col1, row0
+       	--  8 = col0, row1
+	-- 63 = col7, row7
+	-- low is pressed
 
 -- IR remote
         signal ir_joya : unsigned(5 downto 0);
@@ -238,6 +249,21 @@ end component;
 
 	-- microcontroller (for slot flash)
 	signal to_usb_rx : std_logic;
+
+	-- atari keyboard
+	signal shift_pressed : std_logic;
+	signal control_pressed : std_logic;
+	signal break_pressed : std_logic;
+	signal consol_start_ps2 : std_logic;
+	signal consol_start_int : std_logic;
+	signal consol_select_ps2 : std_logic;
+	signal consol_select_int : std_logic;
+	signal consol_option_ps2 : std_logic;
+	signal consol_option_int : std_logic;
+	signal fkeys_ps2 : std_logic_vector(11 downto 0);
+	signal fkeys_int : std_logic_vector(11 downto 0);
+	signal keyboard_response_ps2 : std_logic_vector(1 downto 0);
+	signal atari_keyboard : std_logic_vector(63 downto 0);
 
 begin
 pal <= '1' when tv=1 else '0';
@@ -346,8 +372,8 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		AUDIO_R => audio_r_raw,
 
 		-- JOYSTICK
-		JOY1_n => std_logic_vector(docking_joystick1 and ir_joya)(4 downto 0),
-		JOY2_n => std_logic_vector(docking_joystick2 and ir_joyb)(4 downto 0),
+		JOY1_n => std_logic_vector(docking_joystick1_reg and ir_joya)(4 downto 0),
+		JOY2_n => std_logic_vector(docking_joystick2_reg and ir_joyb)(4 downto 0),
 
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
@@ -591,19 +617,14 @@ chameleon_io : entity work.chameleon_io
 		button_reset_n => chameleon_reset_n_next(0),
 		
 -- Joysticks
-		joystick1 => docking_joystick1,
-		joystick2 => docking_joystick2,
-		joystick3 => docking_joystick3,
-		joystick4 => docking_joystick4
+		joystick1 => docking_joystick1_next,
+		joystick2 => docking_joystick2_next,
+		joystick3 => docking_joystick3_next,
+		joystick4 => docking_joystick4_next,
 
 -- Keyboards
-		--  0 = col0, row0
-		--  1 = col1, row0
-		--  8 = col0, row1
-		-- 63 = col7, row7
--- TODO - wire up to Atari keyboard...
 -- When no_clock = 0 its connected to C64...
---		keys : out unsigned(63 downto 0);
+		keys => c64_keys_next
 --		restore_key_n : out std_logic;
 --		amiga_reset_n : out std_logic;
 --		amiga_trigger : out std_logic;
@@ -805,14 +826,205 @@ keyboard_map1 : entity work.ps2_to_atari800
 		PS2_DAT => ps2_keyboard_dat_in,
 		
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
-		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
+		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE_ps2,
 
-		CONSOL_START => CONSOL_START,
-		CONSOL_SELECT => CONSOL_SELECT,
-		CONSOL_OPTION => CONSOL_OPTION,
+		CONSOL_START => CONSOL_START_ps2,
+		CONSOL_SELECT => CONSOL_SELECT_ps2,
+		CONSOL_OPTION => CONSOL_OPTION_ps2,
 		
-		FKEYS => FKEYS
+		FKEYS => FKEYS_ps2
 	);
+
+	-- map to atari key code
+	process(c64_keys_reg, consol_start_ps2, consol_select_ps2, consol_option_ps2, fkeys_ps2)
+	begin
+		atari_keyboard <= (others=>'0');
+		fkeys_int <= (others=>'0');
+
+		shift_pressed <= '0';
+		control_pressed <= '0';
+		break_pressed <= '0';
+		consol_start_int <= '0';
+		consol_select_int <= '0';
+		consol_option_int <= '0';
+		
+		atari_keyboard(63)<=not(c64_keys_reg(17));
+		atari_keyboard(21)<=not(c64_keys_reg(35));
+		atari_keyboard(18)<=not(c64_keys_reg(34));
+		atari_keyboard(58)<=not(c64_keys_reg(18));
+		atari_keyboard(42)<=not(c64_keys_reg(49));
+		atari_keyboard(56)<=not(c64_keys_reg(42));
+		atari_keyboard(61)<=not(c64_keys_reg(19));
+		atari_keyboard(57)<=not(c64_keys_reg(43));
+		atari_keyboard(13)<=not(c64_keys_reg(12));
+		atari_keyboard(1)<=not(c64_keys_reg(20));
+		atari_keyboard(5)<=not(c64_keys_reg(44));
+		atari_keyboard(0)<=not(c64_keys_reg(21));
+		atari_keyboard(37)<=not(c64_keys_reg(36));
+		atari_keyboard(35)<=not(c64_keys_reg(60));
+		atari_keyboard(8)<=not(c64_keys_reg(52));
+		atari_keyboard(10)<=not(c64_keys_reg(13));
+		atari_keyboard(47)<=not(c64_keys_reg(55));
+		atari_keyboard(40)<=not(c64_keys_reg(10));
+		atari_keyboard(62)<=not(c64_keys_reg(41));
+		atari_keyboard(45)<=not(c64_keys_reg(50));
+		atari_keyboard(11)<=not(c64_keys_reg(51));
+		atari_keyboard(16)<=not(c64_keys_reg(59));
+		atari_keyboard(46)<=not(c64_keys_reg(9));
+		atari_keyboard(22)<=not(c64_keys_reg(58));
+		atari_keyboard(43)<=not(c64_keys_reg(11));
+		atari_keyboard(23)<=not(c64_keys_reg(33));
+		atari_keyboard(50)<=not(c64_keys_reg(28));
+		atari_keyboard(31)<=not(c64_keys_reg(7));
+		atari_keyboard(30)<=not(c64_keys_reg(31));
+		atari_keyboard(26)<=not(c64_keys_reg(1));
+		atari_keyboard(24)<=not(c64_keys_reg(25));
+		atari_keyboard(29)<=not(c64_keys_reg(2));
+		atari_keyboard(27)<=not(c64_keys_reg(26));
+		atari_keyboard(51)<=not(c64_keys_reg(3));
+		atari_keyboard(53)<=not(c64_keys_reg(27));
+		atari_keyboard(48)<=not(c64_keys_reg(4));
+		atari_keyboard(17)<=not(c64_keys_reg(30));
+		atari_keyboard(52)<=not(c64_keys_reg(0));
+		atari_keyboard(28)<=not(c64_keys_reg(15));
+		atari_keyboard(39)<=not(c64_keys_reg(47));
+		atari_keyboard(60)<=not(c64_keys_reg(6));
+		atari_keyboard(44)<=not(c64_keys_reg(54));
+		atari_keyboard(12)<=not(c64_keys_reg(8));
+		atari_keyboard(33)<=not(c64_keys_reg(39));
+		atari_keyboard(54)<=not(c64_keys_reg(5));
+		atari_keyboard(55)<=not(c64_keys_reg(29));
+		atari_keyboard(15)<=not(c64_keys_reg(14));
+		atari_keyboard(14)<=not(c64_keys_reg(53));
+		atari_keyboard(6)<=not(c64_keys_reg(22));
+		atari_keyboard(7)<=not(c64_keys_reg(46));
+		atari_keyboard(38)<=not(c64_keys_reg(62));
+		atari_keyboard(2)<=not(c64_keys_reg(45));
+		atari_keyboard(32)<=not(c64_keys_reg(61));
+		atari_keyboard(34)<=not(c64_keys_reg(37));
+		shift_pressed<=not(c64_keys_reg(57)) or not(c64_keys_reg(38));
+		break_pressed<=not(c64_keys_reg(63));
+		consol_start_int<=not(c64_keys_reg(32));
+		consol_select_int<=not(c64_keys_reg(40));
+		consol_option_int<=not(c64_keys_reg(48));
+		
+		fkeys_int(8)<=not(c64_keys_reg(24)) and c64_keys_reg(23);
+		fkeys_int(9)<=not(c64_keys_reg(24)) and not(c64_keys_reg(23));
+		fkeys_int(10)<=not(c64_keys_reg(56));
+		fkeys_int(11)<=not(c64_keys_reg(16));
+				
+--		atari_keyboard(63)<=ps2_keys_reg(16#1C#);
+--		atari_keyboard(21)<=ps2_keys_reg(16#32#);
+--		atari_keyboard(18)<=ps2_keys_reg(16#21#);
+--		atari_keyboard(58)<=ps2_keys_reg(16#23#);
+--		atari_keyboard(42)<=ps2_keys_reg(16#24#);
+--		atari_keyboard(56)<=ps2_keys_reg(16#2B#);
+--		atari_keyboard(61)<=ps2_keys_reg(16#34#);
+--		atari_keyboard(57)<=ps2_keys_reg(16#33#);
+--		atari_keyboard(13)<=ps2_keys_reg(16#43#);
+--		atari_keyboard(1)<=ps2_keys_reg(16#3B#);
+--		atari_keyboard(5)<=ps2_keys_reg(16#42#);
+--		atari_keyboard(0)<=ps2_keys_reg(16#4B#);
+--		atari_keyboard(37)<=ps2_keys_reg(16#3A#);
+--		atari_keyboard(35)<=ps2_keys_reg(16#31#);
+--		atari_keyboard(8)<=ps2_keys_reg(16#44#);
+--		atari_keyboard(10)<=ps2_keys_reg(16#4D#);
+--		atari_keyboard(47)<=ps2_keys_reg(16#15#);
+--		atari_keyboard(40)<=ps2_keys_reg(16#2D#);
+--		atari_keyboard(62)<=ps2_keys_reg(16#1B#);
+--		atari_keyboard(45)<=ps2_keys_reg(16#2C#);
+--		atari_keyboard(11)<=ps2_keys_reg(16#3C#);
+--		atari_keyboard(16)<=ps2_keys_reg(16#2A#);
+--		atari_keyboard(46)<=ps2_keys_reg(16#1D#);
+--		atari_keyboard(22)<=ps2_keys_reg(16#22#);
+--		atari_keyboard(43)<=ps2_keys_reg(16#35#);
+--		atari_keyboard(23)<=ps2_keys_reg(16#1A#);
+--		atari_keyboard(50)<=ps2_keys_reg(16#45#);
+--		atari_keyboard(31)<=ps2_keys_reg(16#16#);
+--		atari_keyboard(30)<=ps2_keys_reg(16#1E#);
+--		atari_keyboard(26)<=ps2_keys_reg(16#26#);
+--		atari_keyboard(24)<=ps2_keys_reg(16#25#);
+--		atari_keyboard(29)<=ps2_keys_reg(16#2E#);
+--		atari_keyboard(27)<=ps2_keys_reg(16#36#);
+--		atari_keyboard(51)<=ps2_keys_reg(16#3D#);
+--		atari_keyboard(53)<=ps2_keys_reg(16#3E#);
+--		atari_keyboard(48)<=ps2_keys_reg(16#46#);
+--		--atari_keyboard(17)<=ps2_keys_reg(16#ec#);
+--		--atari_keyboard(17)<=ps2_keys_reg(16#16c#);
+--		atari_keyboard(17)<=ps2_keys_reg(16#16c#) or ps2_keys_reg(16#03#);
+--		atari_keyboard(52)<=ps2_keys_reg(16#66#);
+--		atari_keyboard(28)<=ps2_keys_reg(16#76#);
+--		--atari_keyboard(39)<=ps2_keys_reg(16#91#);
+--		atari_keyboard(39)<=ps2_keys_reg(16#111#);
+--		atari_keyboard(60)<=ps2_keys_reg(16#58#);
+--		atari_keyboard(44)<=ps2_keys_reg(16#0D#);
+--		atari_keyboard(12)<=ps2_keys_reg(16#5A#);
+--		atari_keyboard(33)<=ps2_keys_reg(16#29#);
+--		atari_keyboard(54)<=ps2_keys_reg(16#4E#);
+--		atari_keyboard(55)<=ps2_keys_reg(16#55#);
+--		atari_keyboard(15)<=ps2_keys_reg(16#5B#);
+--		atari_keyboard(14)<=ps2_keys_reg(16#54#);
+--		atari_keyboard(6)<=ps2_keys_reg(16#52#);
+--		atari_keyboard(7)<=ps2_keys_reg(16#5D#);
+--		atari_keyboard(38)<=ps2_keys_reg(16#4A#);
+--		atari_keyboard(2)<=ps2_keys_reg(16#4C#);
+--		atari_keyboard(32)<=ps2_keys_reg(16#41#);
+--		atari_keyboard(34)<=ps2_keys_reg(16#49#);
+--
+--		atari_keyboard(3)<=ps2_keys_reg(16#05#);
+--		atari_keyboard(4)<=ps2_keys_reg(16#06#);
+--		atari_keyboard(19)<=ps2_keys_reg(16#04#);
+--		atari_keyboard(20)<=ps2_keys_reg(16#0c#);
+--
+--		consol_start_int<=ps2_keys_reg(16#0B#);
+--		consol_select_int<=ps2_keys_reg(16#83#);
+--		consol_option_int<=ps2_keys_reg(16#0a#);
+--		shift_pressed<=ps2_keys_reg(16#12#) or ps2_keys_reg(16#59#);
+--		--control_pressed<=ps2_keys_reg(16#14#) or ps2_keys_reg(16#94#);
+--		control_pressed<=ps2_keys_reg(16#14#) or ps2_keys_reg(16#114#);
+--		break_pressed<=ps2_keys_reg(16#77#);
+--
+--		fkeys_int(0)<=ps2_keys_reg(16#05#);
+--		fkeys_int(1)<=ps2_keys_reg(16#06#);
+--		fkeys_int(2)<=ps2_keys_reg(16#04#);
+--		fkeys_int(3)<=ps2_keys_reg(16#0C#);
+--		fkeys_int(4)<=ps2_keys_reg(16#03#);
+--		fkeys_int(5)<=ps2_keys_reg(16#0B#);
+--		fkeys_int(6)<=ps2_keys_reg(16#83#);
+--		fkeys_int(7)<=ps2_keys_reg(16#0a#);
+--		fkeys_int(8)<=ps2_keys_reg(16#01#);
+--		fkeys_int(9)<=ps2_keys_reg(16#09#);
+--		fkeys_int(10)<=ps2_keys_reg(16#78#);
+--		fkeys_int(11)<=ps2_keys_reg(16#07#);
+
+		--merge special keys
+		consol_start<=consol_start_ps2 or consol_start_int;
+		consol_select<=consol_select_ps2 or consol_select_int;
+		consol_option<=consol_option_ps2 or consol_option_int;
+		fkeys<=fkeys_ps2 or fkeys_int;
+
+	end process;
+
+	process(keyboard_scan, atari_keyboard, control_pressed, shift_pressed, break_pressed, keyboard_response_ps2)
+		begin	
+			keyboard_response <= keyboard_response_ps2;
+			
+			if (atari_keyboard(to_integer(unsigned(not(keyboard_scan)))) = '1') then
+				keyboard_response(0) <= '0';
+			end if;
+			
+			if (keyboard_scan(5 downto 4)="00" and break_pressed = '1') then
+				keyboard_response(1) <= '0';
+			end if;
+			
+			if (keyboard_scan(5 downto 4)="10" and shift_pressed = '1') then
+				keyboard_response(1) <= '0';
+			end if;
+
+			if (keyboard_scan(5 downto 4)="11" and control_pressed = '1') then
+				keyboard_response(1) <= '0';
+			end if;
+	end process;		 
 
 zpu: entity work.zpucore
 	GENERIC MAP
@@ -959,6 +1171,11 @@ begin
 		reconfig_reg <= '0';
 		reset_long_reg <= '0';
 		reset_short_reg <= '0';
+		c64_keys_reg <= (others=>'1');
+		docking_joystick1_reg <= (others=>'1');
+		docking_joystick2_reg <= (others=>'1');
+		docking_joystick3_reg <= (others=>'1');
+		docking_joystick4_reg <= (others=>'1');
 	elsif (clk'event and clk = '1') then
 		scanlines_reg <= scanlines_next;
 		freeze_n_reg <= freeze_n_next;
@@ -967,6 +1184,11 @@ begin
 		reconfig_reg <= reconfig_next;
 		reset_long_reg <= reset_long_next;
 		reset_short_reg <= reset_short_next;
+		c64_keys_reg <= c64_keys_next;
+		docking_joystick1_reg <= docking_joystick1_next;
+		docking_joystick2_reg <= docking_joystick2_next;
+		docking_joystick3_reg <= docking_joystick3_next;
+		docking_joystick4_reg <= docking_joystick4_next;
 	end if;
 end process;
 
