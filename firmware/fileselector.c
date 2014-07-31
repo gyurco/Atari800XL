@@ -190,9 +190,10 @@ void file_selector(struct SimpleFile * file)
 						}
 						else
 						{
-							strcpy(dir + strlen(dir),"/");
-							strcpy(dir + strlen(dir),f);
+							//strcpy(dir + strlen(dir),"/");
+							//strcpy(dir + strlen(dir),f);
 							//printf("\nDIR DOWN:%s -> %s\n",f,dir);
+							strcpy(dir,dir_path(entry));
 						}
 					}
 					break;
