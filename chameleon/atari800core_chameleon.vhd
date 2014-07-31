@@ -625,7 +625,7 @@ chameleon_io : entity work.chameleon_io
 -- Keyboards
 -- When no_clock = 0 its connected to C64...
 		keys => c64_keys_next
---		restore_key_n : out std_logic;
+--		restore_key_n => restore
 --		amiga_reset_n : out std_logic;
 --		amiga_trigger : out std_logic;
 --		amiga_scancode : out unsigned(7 downto 0);
@@ -904,6 +904,7 @@ keyboard_map1 : entity work.ps2_to_atari800
 		atari_keyboard(34)<=not(c64_keys_reg(37));
 		shift_pressed<=not(c64_keys_reg(57)) or not(c64_keys_reg(38));
 		break_pressed<=not(c64_keys_reg(63));
+		control_pressed<=not(c64_keys_reg(23));
 		consol_start_int<=not(c64_keys_reg(32));
 		consol_select_int<=not(c64_keys_reg(40));
 		consol_option_int<=not(c64_keys_reg(48));
