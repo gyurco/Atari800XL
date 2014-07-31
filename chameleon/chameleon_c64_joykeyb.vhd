@@ -85,6 +85,7 @@ architecture rtl of chameleon_c64_joykeyb is
 	signal cnt : unsigned(3 downto 0) := (others => '0');
 	signal col : integer range 0 to 7 := 0;
 	signal keys_reg : unsigned(63 downto 0) := (others => '1');
+	signal last_keys_reg : unsigned(63 downto 0) := (others => '1');
 	signal approved_keys_reg : unsigned(63 downto 0) := (others => '1');
 	signal joystick1_reg : unsigned(4 downto 0);
 	signal joystick1_prev_reg : unsigned(4 downto 0);
@@ -206,7 +207,8 @@ begin
 					if enable_4player then
 						state <= READ_JOY34;
 					end if;
-					if ((joystick1_reg and d(4 downto 0) and joystick1_prev_reg and joystick2_prev_reg) = "11111") then
+					last_keys_reg <= keys_reg;
+					if ((joystick1_reg and d(4 downto 0) and joystick1_prev_reg and joystick2_prev_reg) = "11111" and last_keys_reg = keys_reg) then
 						approved_keys_reg <= keys_reg;
 					end if;
 					joystick2_prev_reg <= d(4 downto 0);
