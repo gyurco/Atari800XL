@@ -397,6 +397,7 @@ struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(
 		strcpy(ptr,filinfo.fname);
 		entry->size = filinfo.fsize;
 
+		//printf("LFN:%s\n",&filinfo.lfname[0]);
 		strcpy(&entry->lfn[0],&filinfo.lfname[0]);
 
 		//int count;

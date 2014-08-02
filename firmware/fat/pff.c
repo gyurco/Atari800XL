@@ -549,7 +549,9 @@ FRESULT dir_read (
 		c = dir[DIR_Name];
 		if (c == 0) { res = FR_NO_FILE; break; }	/* Reached to end of table */
 		a = dir[DIR_Attr] & AM_MASK;
-		if (a&AM_LFN == AM_LFN && ((dir[0]&0xbf) < 16) && dir[0x1a]==0 && dir[0x1c]!=0)
+
+	//	printf("LFN2:%x:%x:%x:%x\n",a&AM_LFN==AM_LFN,dir[0],dir[0x1a],dir[0x1c]);
+		if (a&AM_LFN == AM_LFN && ((dir[0]&0xbf) < 16) && dir[0x1a]==0) // && dir[0x1c]!=0)
 		{
 			lfn_pos-=13;
 			char * ptr = lfn_pos;

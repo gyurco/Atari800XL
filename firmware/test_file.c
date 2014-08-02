@@ -224,6 +224,7 @@ int main(void)
 	struct SimpleFile * file = alloca(file_struct_size());
 	//file_open_name("/atari800/user/acid800.atr",file);
 	//fprintf(stderr, "XXX Name:%s", file_name(file));
+	filter = filter_disks;
 	file_selector(file);
 
 	return 0;

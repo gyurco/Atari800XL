@@ -18,7 +18,9 @@ int filter_disks(struct SimpleDirEntry * entry)
 {
 	if (dir_is_subdir(entry)) return 1;
 	char const * f = dir_filename(entry);
-	return (compare_ext(f,"ATR") || compare_ext(f,"XFD") || compare_ext(f,"XEX"));
+	int res = (compare_ext(f,"ATR") || compare_ext(f,"XFD") || compare_ext(f,"XEX"));
+	//printf("filter_disks:%s:%d\n",f,res);
+	return res;
 }
 
 int filter_roms(struct SimpleDirEntry * entry)

@@ -11,10 +11,17 @@ void set_spi_clock_freq()
 
 //! Initialize AVR<->MMC hardware interface.
 /// Prepares hardware for MMC access.
+
+void mmc_init()
+{
+	mmcInit();
+}
+
 void mmcInit(void)
 {
 	//disk_image = fopen("/home/markw/fpga/sd_images/sd.image","r+");
-	disk_image = fopen("/home/markw/fpga/sd_images/sd_large.image","r+");
+	//disk_image = fopen("/home/markw/fpga/sd_images/sd_large.image","r+");
+	disk_image = fopen("/home/markw/fpga/sd_images/sdimage_elektraglide","r+");
 
 	fprintf(stderr,"mmcInit:%x\n",disk_image);
 }
