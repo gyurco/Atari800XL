@@ -97,12 +97,15 @@ architecture rtl of chameleon_docking_station is
 	signal amiga_reset_n_reg : std_logic := '0';
 	signal amiga_trigger_reg : std_logic := '0';
 	signal amiga_scancode_reg : unsigned(7 downto 0) := (others => '0');
+
+	signal last_keys_reg : unsigned(63 downto 0) := (others => '1');
+	signal approved_keys_reg : unsigned(63 downto 0) := (others => '1');
 begin
 	joystick1 <= joystick1_reg;
 	joystick2 <= joystick2_reg;
 	joystick3 <= joystick3_reg;
 	joystick4 <= joystick4_reg;
-	keys <= key_reg;
+	keys <= approved_keys_reg;
 	restore_key_n <= restore_n_reg;
 	amiga_reset_n <= amiga_reset_n_reg;
 	amiga_trigger <= amiga_trigger_reg;
@@ -165,6 +168,12 @@ begin
 		if rising_edge(clk) then
 			if bit_cnt = shift_reg_bits then
 				-- Map shifted bits to joysticks
+				last_keys_reg <= key_reg;
+
+				if ((shift_reg(101 downto 96) and shift_reg(85 downto 80) and joystick1_reg and joystick2_reg) = "11111" and last_keys_reg = key_reg) then
+					approved_keys_reg <= key_reg;
+				end if;
+
 				joystick1_reg <= shift_reg(101 downto 96);
 				joystick2_reg <= shift_reg(85 downto 80);
 				joystick3_reg <= shift_reg(102)& shift_reg(103) & shift_reg(92) & shift_reg(93) & shift_reg(94) & shift_reg(95);
