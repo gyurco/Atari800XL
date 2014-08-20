@@ -12,6 +12,8 @@ use ieee.numeric_std.all;
 ENTITY pokey_noise_filter IS
 PORT 
 ( 
+	CLK : IN STD_LOGIC;
+
 	NOISE_SELECT : IN STD_LOGIC_VECTOR(2 downto 0);
 		
 	PULSE_IN : IN STD_LOGIC;
@@ -25,26 +27,43 @@ PORT
 END pokey_noise_filter;
 
 ARCHITECTURE vhdl OF pokey_noise_filter IS
-	signal pulse_noise_a : std_logic;
-	signal pulse_noise_b : std_logic;
-BEGIN
-	process(pulse_in, noise_4, noise_5, noise_large, pulse_noise_a, pulse_noise_b, noise_select)
-	begin
-		pulse_noise_a <= noise_large;
-		pulse_noise_b <= noise_5 and pulse_in;
-	
-		if (NOISE_SELECT(1) = '1') then
-			pulse_noise_a <= noise_4;
-		end if;
-	
-		if (NOISE_SELECT(2) = '1') then
-			pulse_noise_b <= pulse_in;
-		end if;
-		
-		PULSE_OUT <= pulse_noise_a and pulse_noise_b;
+--	signal pulse_noise_a : std_logic;
+--	signal pulse_noise_b : std_logic;
 
-		if (NOISE_SELECT(0) = '1') then
-			PULSE_OUT <= pulse_noise_b;
-		end if;		
+	signal audclk : std_logic;
+	signal out_next : std_logic;
+	signal out_reg : std_logic;
+BEGIN
+	process(clk)
+	begin
+		if (clk'event and clk='1') then
+			out_reg <= out_next;
+		end if;
+	end process;
+
+	pulse_out <= out_reg;
+
+	process(pulse_in, noise_4, noise_5, noise_large, noise_select, audclk, out_reg)
+	begin
+		audclk <= pulse_in;
+		out_next <= out_reg;
+
+		if (NOISE_SELECT(2) = '0') then
+			audclk <= pulse_in and noise_5;
+		end if;
+
+		if (audclk = '1') then
+			if (NOISE_SELECT(0) = '1') then
+				-- toggle
+				out_next <= not(out_reg);
+			else
+				-- sample
+				if (NOISE_SELECT(1) = '1') then
+					out_next <= noise_4;
+				else
+					out_next <= noise_large;
+				end if;
+			end if;
+		end if;
 	end process;
 end vhdl;
