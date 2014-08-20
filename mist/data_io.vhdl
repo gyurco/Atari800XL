@@ -19,7 +19,7 @@ ENTITY data_io IS
 		-- Sector access read_request
 		read_request : in std_logic;
 		write_request : in std_logic;
-		sector : in std_logic_vector(23 downto 0);
+		sector : in std_logic_vector(25 downto 0);
 		ready : out std_logic;
 		
 		-- DMA to RAM
@@ -60,8 +60,8 @@ architecture vhdl of data_io is
 	signal transmit_next : std_logic_vector(7 downto 0);
 	signal transmit_reg : std_logic_vector(7 downto 0);
 	
-	signal sector_next : std_logic_vector(23 downto 0);
-	signal sector_reg : std_logic_vector(23 downto 0);
+	signal sector_next : std_logic_vector(25 downto 0);
+	signal sector_reg : std_logic_vector(25 downto 0);
 	
 	signal read_request_next : std_logic;
 	signal read_request_reg : std_logic;
@@ -187,13 +187,13 @@ begin
 		when X"50" => --get status
 			case cnt_reg is 
 			when X"0008" =>
-				transmit_next <= sector_reg(23 downto 16);
+				transmit_next <= sector_reg(25 downto 18);
 			when X"0010" =>
-				transmit_next <= sector_reg(15 downto 8);
+				transmit_next <= sector_reg(17 downto 10);
 			when X"0018" =>
-				transmit_next <= sector_reg(7 downto 0);				
+				transmit_next <= sector_reg(9 downto 2);				
 			when X"0020" =>
-				transmit_next <= "101001"&write_request_reg&read_request_reg; --read read_request
+				transmit_next <= sector_reg(1 downto 0)&"1010"&write_request_reg&read_request_reg; --read read_request
 			when others =>
 				-- nothing
 			end case;

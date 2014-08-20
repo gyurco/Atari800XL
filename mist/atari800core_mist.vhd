@@ -119,8 +119,8 @@ end component;
   signal mist_sector_request_sync : std_logic;
   signal mist_sector_write : std_logic;
   signal mist_sector_write_sync : std_logic;
-  signal mist_sector : std_logic_vector(23 downto 0);
-  signal mist_sector_sync : std_logic_vector(23 downto 0);
+  signal mist_sector : std_logic_vector(25 downto 0);
+  signal mist_sector_sync : std_logic_vector(25 downto 0);
   
   		
   signal mist_addr : std_logic_vector(8 downto 0);
@@ -229,7 +229,7 @@ mist_spi_interface : entity work.data_io
 		read_request => mist_sector_request_sync,
 		write_request => mist_sector_write_sync,
 		--request => mist_sector_request_sync,
-		sector => mist_sector_sync(23 downto 0),
+		sector => mist_sector_sync(25 downto 0),
 		ready => mist_sector_ready,
 		
 		-- DMA to RAM
@@ -320,6 +320,12 @@ mist_spi_interface : entity work.data_io
 
 	sector_sync23 : entity work.synchronizer
 	PORT MAP ( CLK => spi_sck, raw => mist_sector(23), sync=>mist_sector_sync(23));
+
+	sector_sync24 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(24), sync=>mist_sector_sync(24));
+
+	sector_sync25 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(25), sync=>mist_sector_sync(25));
 	
 	
 	spi_do <= spi_miso_io when CONF_DATA0 ='0' else spi_miso_data when spi_SS2='0' else 'Z';
@@ -625,9 +631,9 @@ zpu: entity work.zpucore
 		ZPU_OUT4 => zpu_out4
 	);
 
-	mist_sector <= zpu_out4(23 downto 0);
-	mist_sector_request <= zpu_out4(24);
-	mist_sector_write <= zpu_out4(25);
+	mist_sector <= zpu_out4(25 downto 0);
+	mist_sector_request <= zpu_out4(26);
+	mist_sector_write <= zpu_out4(27);
 
 	pause_atari <= zpu_out1(0);
 	reset_atari <= zpu_out1(1);
