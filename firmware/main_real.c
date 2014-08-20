@@ -310,7 +310,7 @@ int main(void)
 
 	// TODO...
 
-	if (SimpleFile_OK == dir_init((void *)DIR_INIT_MEM, 65536))
+	if (SimpleFile_OK == dir_init((void *)DIR_INIT_MEM, DIR_INIT_MEMSIZE))
 	{
 	//	printf("DIR init ok\n");
 		init_drive_emulator();
