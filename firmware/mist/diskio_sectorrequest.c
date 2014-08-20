@@ -35,7 +35,7 @@ void mmcReadCached(u32 sector)
 */
 
 	//printf("Reading sector:%d", sector);
-	*zpu_out4 = sector|0x01000000;
+	*zpu_out4 = sector|0x04000000;
 	while (!*zpu_in4)
 	{
 		// Wait until ready
@@ -181,7 +181,7 @@ void disk_writeflush()
 
 	//printf(" WTF:%d:%x ", n_actual_mmc_sector, ((unsigned int *)mmc_sector_buffer)[0]);
 
-	*zpu_out4 = n_actual_mmc_sector|0x02000000;
+	*zpu_out4 = n_actual_mmc_sector|0x08000000;
 	while (!*zpu_in4)
 	{
 		// Wait until ready
