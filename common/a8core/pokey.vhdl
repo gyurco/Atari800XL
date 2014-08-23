@@ -272,6 +272,13 @@ ARCHITECTURE vhdl OF pokey IS
 	signal noise_4 : std_logic;
 	signal noise_5 : std_logic;
 	signal noise_large : std_logic;
+	signal noise_4_next : std_logic_vector(2 downto 0);
+	signal noise_4_reg : std_logic_vector(2 downto 0);
+	signal noise_5_next : std_logic_vector(2 downto 0);
+	signal noise_5_reg : std_logic_vector(2 downto 0);
+	signal noise_large_next : std_logic_vector(2 downto 0);
+	signal noise_large_reg : std_logic_vector(2 downto 0);
+
 	signal rand_out : std_logic_vector(7 downto 0); -- snoop part of the shift reg
 	
 	signal initmode : std_logic;
@@ -471,6 +478,10 @@ BEGIN
 			pot_counter_reg <= (others=>'0');
 			
 			pot_reset_reg <= '1';
+
+			noise_4_reg <= (others=>'0');
+			noise_5_reg <= (others=>'0');
+			noise_large_reg <= (others=>'0');
 			
 		elsif (clk'event and clk='1') then			
 			audf0_reg <= audf0_next;
@@ -544,6 +555,10 @@ BEGIN
 			pot_counter_reg <= pot_counter_next;
 			
 			pot_reset_reg <= pot_reset_next;
+
+			noise_4_reg <= noise_4_next;
+			noise_5_reg <= noise_5_next;
+			noise_large_reg <= noise_large_next;
 		end if;
 	end process;
 	
@@ -821,11 +836,11 @@ BEGIN
 	pokey_noise_filter0 : pokey_noise_filter
 		port map(clk=>clk,noise_select=>audc0_reg(7 downto 5),pulse_in=>audf0_pulse,pulse_out=>audf0_pulse_noise,noise_4=>noise_4,noise_5=>noise_5,noise_large=>noise_large);
 	pokey_noise_filter1 : pokey_noise_filter
-		port map(clk=>clk,noise_select=>audc1_reg(7 downto 5),pulse_in=>audf1_pulse,pulse_out=>audf1_pulse_noise,noise_4=>noise_4,noise_5=>noise_5,noise_large=>noise_large);
+		port map(clk=>clk,noise_select=>audc1_reg(7 downto 5),pulse_in=>audf1_pulse,pulse_out=>audf1_pulse_noise,noise_4=>noise_4_reg(0),noise_5=>noise_5_reg(0),noise_large=>noise_large_reg(0));
 	pokey_noise_filter2 : pokey_noise_filter
-		port map(clk=>clk,noise_select=>audc2_reg(7 downto 5),pulse_in=>audf2_pulse,pulse_out=>audf2_pulse_noise,noise_4=>noise_4,noise_5=>noise_5,noise_large=>noise_large);
+		port map(clk=>clk,noise_select=>audc2_reg(7 downto 5),pulse_in=>audf2_pulse,pulse_out=>audf2_pulse_noise,noise_4=>noise_4_reg(1),noise_5=>noise_5_reg(1),noise_large=>noise_large_reg(1));
 	pokey_noise_filter3 : pokey_noise_filter
-		port map(clk=>clk,noise_select=>audc3_reg(7 downto 5),pulse_in=>audf3_pulse,pulse_out=>audf3_pulse_noise,noise_4=>noise_4,noise_5=>noise_5,noise_large=>noise_large);
+		port map(clk=>clk,noise_select=>audc3_reg(7 downto 5),pulse_in=>audf3_pulse,pulse_out=>audf3_pulse_noise,noise_4=>noise_4_reg(2),noise_5=>noise_5_reg(2),noise_large=>noise_large_reg(2));
 	
 	-- Audio output stage
 	-- (toggling now handled in the noise filter - the subtlety on when to toggle and when to sample is important)
@@ -885,6 +900,20 @@ BEGIN
 		
 	poly_4_lfsr : pokey_poly_4
 		port map(clk=>clk,reset_n=>reset_n,init=>initmode,enable=>enable_179,bit_out=>noise_4);
+
+	-- Delay between feeding noise between channels
+	process(noise_large_reg, noise_5_reg, noise_4_reg, noise_large, noise_5, noise_4, enable_179)
+	begin
+		noise_large_next <= noise_large_reg;
+		noise_5_next <= noise_5_reg;
+		noise_4_next <= noise_4_reg;
+
+		if (enable_179='1') then
+			noise_large_next <= noise_large_reg(1 downto 0)&noise_large;
+			noise_5_next <= noise_5_reg(1 downto 0)&noise_5;
+			noise_4_next <= noise_4_reg(1 downto 0)&noise_4;
+		end if;
+	end process;
 	
 	--AUDIO_LEFT <= "000"&count_reg(15 downto 3);
 	process(chan0_output_reg, chan1_output_reg, chan2_output_reg, chan3_output_reg, audc0_reg, audc1_reg, audc2_reg, audc3_reg, highpass0_reg, highpass1_reg)
@@ -945,11 +974,6 @@ BEGIN
 		if (skctl_reg(3) = '1') then
 			sio_out_next <= twotone_reg;
 		end if;
-	
-		-- force break
-		if (skctl_reg(7) = '1') then
-			sio_out_next <= '0';
-		end if;
 		
 		serial_op_needed_interrupt <= '0';		
 		
@@ -979,6 +1003,11 @@ BEGIN
 			else
 				serout_bitcount_next <= std_logic_vector(unsigned(serout_bitcount_reg)-1);
 			end if;
+		end if;
+
+		-- force break
+		if (skctl_reg(7) = '1') then
+			serial_out_next <= '0';
 		end if;
 		
 		-- register to load has been written too, update our state to reflect that it is full
