@@ -408,13 +408,25 @@ port map
   dac_out => audio_r
 );
 
-mist_pll : entity work.pll
+gen_ntsc_pll : if tv=0 generate
+mist_pll : entity work.pll_ntsc
 PORT MAP(inclk0 => CLOCK_27(0),
 		 c0 => CLK_SDRAM,
 		 c1 => CLK,
 		 c2 => SDRAM_CLK,
 		 c3 => SLOW_PS2_CLK,
 		 locked => PLL_LOCKED);
+end generate;
+
+gen_pal_pll : if tv=1 generate
+mist_pll : entity work.pll_pal
+PORT MAP(inclk0 => CLOCK_27(0),
+		 c0 => CLK_SDRAM,
+		 c1 => CLK,
+		 c2 => SDRAM_CLK,
+		 c3 => SLOW_PS2_CLK,
+		 locked => PLL_LOCKED);
+end generate;
 
 reset_n <= PLL_LOCKED;
 
