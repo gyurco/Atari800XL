@@ -297,7 +297,8 @@ end process;
 
 -- simplest possible implementation
 -- pll
-pll : ENTITY work.pll
+gen_ntsc_pll : if tv=0 generate
+chameleon_pll : entity work.pll_ntsc
 	PORT MAP
 	(
 		inclk0 => clk8,
@@ -306,6 +307,19 @@ pll : ENTITY work.pll
 		c2 => sd_clk,
 		locked => pll_locked
 	);
+end generate;
+
+gen_pal_pll : if tv=1 generate
+chameleon_pll : entity work.pll_pal
+	PORT MAP
+	(
+		inclk0 => clk8,
+		c0 => clk_sdram,
+		c1 => clk,
+		c2 => sd_clk,
+		locked => pll_locked
+	);
+end generate;
 	
 -- core
 --atari800core : ENTITY work.atari800core_helloworld
