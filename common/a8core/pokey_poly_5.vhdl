@@ -45,6 +45,6 @@ BEGIN
 	end process;
 	
 	-- output
-	bit_out <= not(shift_reg(0));
+	bit_out <= shift_reg(0);
 		
 END vhdl;
