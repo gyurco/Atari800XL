@@ -294,6 +294,12 @@ architecture RTL of Replay_Top is
   signal ena_sys_c1 : bit1;
   signal ena_sys_ddr : bit1;
 
+  -- filio defaults - clearly wrong unless I want 1 fd/1hd on atari 800 :) Now implemented yet.
+  constant cfg_fileio_cha_ena   : word(3 downto 0) := "1111"; -- FD
+  constant cfg_fileio_cha_drv   : word(3 downto 0) := "0001"; -- driver 1 (FD)
+  constant cfg_fileio_chb_ena   : word(3 downto 0) := "0011"; -- HD
+  constant cfg_fileio_chb_drv   : word(3 downto 0) := "1000"; -- driver 8 (ATA)
+
 begin
   u_spi_bufg  : BUFG  port map (I => i_FPGA_SPI_Clk, O => clk_spi);
 
@@ -722,11 +728,13 @@ begin
   u_Syscon : entity work.Replay_Syscon
   generic map (
     -- defaults
-    g_Cfg_Static          => x"00000000",
-    g_Cfg_Dynamic         => x"00000000",
-    g_cfg_fileio_hd_ena   => "0000",
-    g_cfg_fileio_fd_ena   => "0000",
-    g_Cfg_Ctrl            => x"0080",
+    g_cfg_static          => x"00000000",
+    g_cfg_dynamic         => x"00000000",
+    g_cfg_fileio_cha_ena  => cfg_fileio_cha_ena,
+    g_cfg_fileio_cha_drv  => cfg_fileio_cha_drv,
+    g_cfg_fileio_chb_ena  => cfg_fileio_chb_ena,
+    g_cfg_fileio_chb_drv  => cfg_fileio_chb_drv,
+    g_cfg_ctrl            => x"0080",
     --
     g_Version             => x"1001" -- top bit DRAM disabled
     )
@@ -753,7 +761,8 @@ begin
     --
     o_cfg_Static          => cfg_static,
     o_cfg_Dynamic         => cfg_dynamic,
-    o_Cfg_FileIO          => open,
+    o_cfg_fileio_cha      => open,
+    o_cfg_fileio_chb      => open,
     o_Cfg_Ctrl            => cfg_ctrl,
     --
     i_Kb_PS2_We           => kb_we,
@@ -795,15 +804,15 @@ begin
     i_SPI_D               => b_FPGA_SPI_MOSI,
     o_SPI_D               => spi_fileio_miso,
     --
-    -- FD
+    -- FILE A
     --
-    o_fch_to_core         => open,
-    i_fch_fm_core         => z_FCh_fm_core, -- tie off
+    o_fcha_to_core        => open,
+    --i_fcha_fm_core        => fcha_fm_core,
     --
-    -- HD
+    -- FILE B
     --
-    o_hch_to_core         => open,
-    i_hch_fm_core         => z_HCh_fm_core, -- tie off
+    o_fchb_to_core        => open,
+    --i_fchb_fm_core        => fchb_fm_core,
     --
     -- Memory interface
     --

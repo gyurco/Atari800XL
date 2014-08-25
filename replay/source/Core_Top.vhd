@@ -740,9 +740,10 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
       end if;
     end if;
   end process shiftlock;
-  o_kb_led(0) <= pause_key;     -- SCROLL LOCK LED
-  o_kb_led(1) <= '0';           -- NUM LOCK LED (take care, enables overlayed NUM keys on compact keyboards as well!)
-  o_kb_led(2) <= sh_lock_key;   -- CAPS LOCK LED
+  --o_kb_led(1) <= '0';           -- NUM LOCK LED (take care, enables overlayed NUM keys on compact keyboards as well!)
+  --o_kb_led(2) <= sh_lock_key;   -- CAPS LOCK LED
+  --o_kb_led <= "000";
+  o_kb_led <= "000"; -- keyboard led code breaks some keyboards apparently
 
   -- mix keyboard matrix with shift-lock key
   matrix_out_mix <= matrix_out(7 downto 0) OR X"02" when sh_lock_key='1' and matrix_in=X"08" else
