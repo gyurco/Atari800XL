@@ -13,6 +13,7 @@ ENTITY pokey_noise_filter IS
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
+	RESET_N : IN STD_LOGIC;
 
 	NOISE_SELECT : IN STD_LOGIC_VECTOR(2 downto 0);
 		
@@ -34,9 +35,11 @@ ARCHITECTURE vhdl OF pokey_noise_filter IS
 	signal out_next : std_logic;
 	signal out_reg : std_logic;
 BEGIN
-	process(clk)
+	process(clk,reset_n)
 	begin
-		if (clk'event and clk='1') then
+		if (reset_n='0') then
+			out_reg <= '0';
+		elsif (clk'event and clk='1') then
 			out_reg <= out_next;
 		end if;
 	end process;

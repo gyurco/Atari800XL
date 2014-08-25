@@ -140,6 +140,7 @@ ARCHITECTURE vhdl OF pokey IS
 	PORT 
 	( 
 		CLK : IN STD_LOGIC;
+		RESET_N : IN STD_LOGIC;
 
 		NOISE_SELECT : IN STD_LOGIC_VECTOR(2 downto 0);
 			
@@ -834,13 +835,13 @@ BEGIN
 	
 	-- Instantiate audio noise filters
 	pokey_noise_filter0 : pokey_noise_filter
-		port map(clk=>clk,noise_select=>audc0_reg(7 downto 5),pulse_in=>audf0_pulse,pulse_out=>audf0_pulse_noise,noise_4=>noise_4,noise_5=>noise_5,noise_large=>noise_large);
+		port map(clk=>clk,reset_n=>reset_n,noise_select=>audc0_reg(7 downto 5),pulse_in=>audf0_pulse,pulse_out=>audf0_pulse_noise,noise_4=>noise_4,noise_5=>noise_5,noise_large=>noise_large);
 	pokey_noise_filter1 : pokey_noise_filter
-		port map(clk=>clk,noise_select=>audc1_reg(7 downto 5),pulse_in=>audf1_pulse,pulse_out=>audf1_pulse_noise,noise_4=>noise_4_reg(0),noise_5=>noise_5_reg(0),noise_large=>noise_large_reg(0));
+		port map(clk=>clk,reset_n=>reset_n,noise_select=>audc1_reg(7 downto 5),pulse_in=>audf1_pulse,pulse_out=>audf1_pulse_noise,noise_4=>noise_4_reg(0),noise_5=>noise_5_reg(0),noise_large=>noise_large_reg(0));
 	pokey_noise_filter2 : pokey_noise_filter
-		port map(clk=>clk,noise_select=>audc2_reg(7 downto 5),pulse_in=>audf2_pulse,pulse_out=>audf2_pulse_noise,noise_4=>noise_4_reg(1),noise_5=>noise_5_reg(1),noise_large=>noise_large_reg(1));
+		port map(clk=>clk,reset_n=>reset_n,noise_select=>audc2_reg(7 downto 5),pulse_in=>audf2_pulse,pulse_out=>audf2_pulse_noise,noise_4=>noise_4_reg(1),noise_5=>noise_5_reg(1),noise_large=>noise_large_reg(1));
 	pokey_noise_filter3 : pokey_noise_filter
-		port map(clk=>clk,noise_select=>audc3_reg(7 downto 5),pulse_in=>audf3_pulse,pulse_out=>audf3_pulse_noise,noise_4=>noise_4_reg(2),noise_5=>noise_5_reg(2),noise_large=>noise_large_reg(2));
+		port map(clk=>clk,reset_n=>reset_n,noise_select=>audc3_reg(7 downto 5),pulse_in=>audf3_pulse,pulse_out=>audf3_pulse_noise,noise_4=>noise_4_reg(2),noise_5=>noise_5_reg(2),noise_large=>noise_large_reg(2));
 	
 	-- Audio output stage
 	-- (toggling now handled in the noise filter - the subtlety on when to toggle and when to sample is important)
