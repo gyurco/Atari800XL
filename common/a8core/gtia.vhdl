@@ -33,15 +33,11 @@ PORT
 	AN : IN STD_LOGIC_VECTOR(2 downto 0);
 	
 	-- keyboard interface
-	CONSOL_START : IN STD_LOGIC;
-	CONSOL_SELECT : IN STD_LOGIC;
-	CONSOL_OPTION : IN STD_LOGIC;
+	CONSOL_IN : IN STD_LOGIC_VECTOR(3 downto 0);
+	CONSOL_OUT : out STD_LOGIC_VECTOR(3 downto 0);
 	
 	-- keyboard interface
-	TRIG0 : IN STD_LOGIC;
-	TRIG1 : IN STD_LOGIC;
-	TRIG2 : IN STD_LOGIC;
-	TRIG3 : IN STD_LOGIC;
+	TRIG : IN STD_LOGIC_VECTOR;
 	
 	-- CPU interface
 	DATA_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -54,10 +50,7 @@ PORT
 	BLANK : out std_logic;
 	BURST : out std_logic;
 	START_OF_FIELD : out std_logic;
-	ODD_LINE : out std_logic;
-	
-	-- To speaker
-	sound : out std_logic
+	ODD_LINE : out std_logic
 );
 END gtia;
 
@@ -267,14 +260,8 @@ ARCHITECTURE vhdl OF gtia IS
 	signal consol_output_next : std_logic_vector(3 downto 0);
 	signal consol_output_reg : std_logic_vector(3 downto 0);
 	
-	signal trig0_next : std_logic;
-	signal trig0_reg : std_logic;
-	signal trig1_next : std_logic;
-	signal trig1_reg : std_logic;
-	signal trig2_next : std_logic;
-	signal trig2_reg : std_logic;
-	signal trig3_next : std_logic;
-	signal trig3_reg : std_logic;
+	signal trig_next : std_logic_vector(3 downto 0);
+	signal trig_reg : std_logic_vector(3 downto 0);
 	
 	-- collisions
 	signal hitclr_write : std_logic;
@@ -487,10 +474,7 @@ begin
 			highres_reg <= '0';
 			active_hr_reg <= (others=>'0');
 			
-			trig0_reg <= '0';
-			trig1_reg <= '0';
-			trig2_reg <= '0';
-			trig3_reg <= '0';
+			trig_reg <= (others=>'0');
 			
 			odd_scanline_reg <= '0';
 			
@@ -577,10 +561,7 @@ begin
 			highres_reg <= highres_next;
 			active_hr_reg <= active_hr_next;
 			
-			trig0_reg <= trig0_next;
-			trig1_reg <= trig1_next;
-			trig2_reg <= trig2_next;
-			trig3_reg <= trig3_next;
+			trig_reg <= trig_next;
 			
 			odd_scanline_reg <= odd_scanline_next;
 			
@@ -1471,23 +1452,17 @@ begin
 		port map(clk=>clk,sync_reset=>'0',data_in=>sizem_raw_reg(7 downto 0),enable=>COLOUR_CLOCK_ORIGINAL,reset_n=>reset_n,data_out=>sizem_delayed_reg(7 downto 0));				
 		
 	-- joystick
-	process(trig0_reg, trig1_reg, trig2_reg, trig3_reg, trig0, trig1, trig2, trig3, gractl_reg)
+	process(trig_reg, trig, gractl_reg)
 	begin	
-		trig0_next <= trig0;
-		trig1_next <= trig1;
-		trig2_next <= trig2;
-		trig3_next <= trig3;
+		trig_next <= trig;
 		
 		if (gractl_reg(2) = '1') then
-			trig0_next <= trig0_reg and trig0;
-			trig1_next <= trig1_reg and trig1;
-			trig2_next <= trig2_reg and trig2;
-			trig3_next <= trig3_reg and trig3;
+			trig_next <= trig_reg and trig;
 		end if;
 	end process;
 	
 	-- Read from registers		
-	process(addr_decoded, CONSOL_OPTION, CONSOL_SELECT, CONSOL_START, consol_output_reg, trig0_reg, trig1_reg, trig2_reg, trig3_reg, m0pf_reg,m1pf_reg,m2pf_reg,m3pf_reg,m0pl_reg,m1pl_reg,m2pl_reg,m3pl_reg,p0pf_reg,p1pf_reg,p2pf_reg,p3pf_reg,p0pl_reg,p1pl_reg,p2pl_reg,p3pl_reg, pal)
+	process(addr_decoded, CONSOL_IN, consol_output_reg, trig_reg, m0pf_reg,m1pf_reg,m2pf_reg,m3pf_reg,m0pl_reg,m1pl_reg,m2pl_reg,m3pl_reg,p0pf_reg,p1pf_reg,p2pf_reg,p3pf_reg,p0pl_reg,p1pl_reg,p2pl_reg,p3pl_reg, pal)
 	begin
 		data_out <= X"0F";
 
@@ -1556,19 +1531,19 @@ begin
 		end if;		
 		
 		if (addr_decoded(16) = '1') then
-			data_out <= "0000000"&trig0_reg;
+			data_out <= "0000000"&trig_reg(0);
 		end if;
 
 		if (addr_decoded(17) = '1') then
-			data_out <= "0000000"&trig1_reg;
+			data_out <= "0000000"&trig_reg(1);
 		end if;
 
 		if (addr_decoded(18) = '1') then
-			data_out <= "0000000"&trig2_reg;
+			data_out <= "0000000"&trig_reg(3);
 		end if;
 		
 		if (addr_decoded(19) = '1') then
-			data_out <= "0000000"&trig3_reg;
+			data_out <= "0000000"&trig_reg(3);
 		end if;
 		
 		if (addr_decoded(20) = '1') then
@@ -1576,7 +1551,7 @@ begin
 		end if;
 
 		if (addr_decoded(31) = '1') then
-			data_out <= "0000"&('0'&not(CONSOL_OPTION)&not(CONSOL_SELECT)&not(CONSOL_START) and (not consol_output_reg));
+			data_out <= "0000"&(not(CONSOL_IN) and (not consol_output_reg));
 		end if;
 		
 	end process;
@@ -1590,7 +1565,7 @@ begin
 	burst<=burst_reg;
 	odd_line<=odd_scanline_reg;
 	
-	sound <= consol_output_reg(3);
+	consol_out <= consol_output_reg;
 
 end vhdl;
 

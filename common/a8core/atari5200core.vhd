@@ -15,12 +15,12 @@ LIBRARY work;
 
 -- There is a higher level that just wires up internal ROM/RAM/joysticks to demonstrate how to use this
 -- Also see board specific top levels
-ENTITY atari800core IS 
+ENTITY atari5200core IS 
 	GENERIC
 	(
 		cycle_length : integer := 16; -- or 32...
 		video_bits : integer := 8;
-		palette : integer :=1; -- 0:gtia colour on VIDEO_B, 1:altirra, 2:laoo
+		palette : integer :=1; -- 0:gtia colour on VIDEO_B, 1:altirra, 2:laoo -- TODO NTSC
 		low_memory : integer := 0 -- 0:8MB memory map, 1:1MB memory map
 	);
 	PORT
@@ -28,7 +28,7 @@ ENTITY atari800core IS
 		CLK :  IN  STD_LOGIC; -- cycle_length*1.79MHz
 		RESET_N : IN STD_LOGIC;
 
-		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
+		-- VIDEO OUT - NTSC, original Atari timings approx (may be higher res)
 		VIDEO_VS :  OUT  STD_LOGIC;
 		VIDEO_HS :  OUT  STD_LOGIC;
 		VIDEO_B :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
@@ -43,22 +43,6 @@ ENTITY atari800core IS
 		-- TODO - choose stereo/mono pokey
 		AUDIO_L : OUT std_logic_vector(15 downto 0);
 		AUDIO_R : OUT std_logic_vector(15 downto 0);
-
-		-- PIA
-		CA1_IN : IN STD_LOGIC; -- SIO Proceed
-		CB1_IN : IN STD_LOGIC; -- SIO IRQ
-		CA2_IN : IN STD_LOGIC; -- SIO Motor control
-		CA2_OUT : OUT STD_LOGIC; 
-		CA2_DIR_OUT: OUT STD_LOGIC; -- 1=output mode
-		CB2_IN: IN STD_LOGIC;
-		CB2_OUT : OUT STD_LOGIC; -- SIO Command
-		CB2_DIR_OUT: OUT STD_LOGIC; -- 1=output mode
-		PORTA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- For joystick
-		PORTA_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-		PORTA_DIR_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-		PORTB_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- For bank switching on XL/XE, for joystick on 800XL
-		PORTB_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-		PORTB_DIR_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 
 		-- Pokey keyboard matrix
 		-- Standard component available to connect this to PS2
@@ -86,13 +70,13 @@ ENTITY atari800core IS
 		-- TODO - also need to allow rest of PBI accesses, refresh handling etc. Can wait...
 		-- TODO MPD, IRQ, RDY, REFRESH, EXTSEL, RST
 
-		-- CARTRIDGE ACCESS
+		-- CARTRIDGE ACCESS (need this, but need to review how it works...)
 		-- (R/W/DO on PBI)
-		CART_RD4 : in STD_LOGIC;
-		CART_RD5 : in STD_LOGIC;
-		CART_S4_n : out STD_LOGIC;
-		CART_S5_N : out STD_LOGIC;
-		CART_CCTL_N : out std_logic;
+		--CART_RD4 : in STD_LOGIC;
+		--CART_RD5 : in STD_LOGIC;
+		--CART_S4_n : out STD_LOGIC;
+		--CART_S5_N : out STD_LOGIC;
+		--CART_CCTL_N : out std_logic;
 
 		-- SIO
 		SIO_RXD : in std_logic;
@@ -101,13 +85,11 @@ ENTITY atari800core IS
 		-- TODO CLOCK IN/CLOCK OUT (unused almost everywhere...)
 
 		-- GTIA consol
-		CONSOL_OPTION : IN STD_LOGIC;
-		CONSOL_SELECT : IN STD_LOGIC;
-		CONSOL_START : IN STD_LOGIC;
+		CONSOL_OUT : OUT STD_LOGIC_VECTOR(3 downto 0);
+		CONSOL_IN : IN STD_LOGIC_VECTOR(3 downto 0);
 		GTIA_TRIG : IN STD_LOGIC_VECTOR(3 downto 0);
 
 		-- ANTIC lightpen
-		ANTIC_LIGHTPEN : IN std_logic;
 		ANTIC_REFRESH : out STD_LOGIC; -- 1 'original' cycle high when antic doing refresh cycle...
 		
 		-----------------------
@@ -171,19 +153,13 @@ ENTITY atari800core IS
 		MEMORY_READY_DMA : out std_logic; -- op complete
 
 		-- Special config params
-   		RAM_SELECT : in std_logic_vector(2 downto 0); -- 64K,128K,320KB Compy, 320KB Rambo, 576K Compy, 576K Rambo, 1088K, 4MB
-    		ROM_SELECT : in std_logic_vector(5 downto 0); -- 16KB ROM Bank - 0 is illegal (slot used for BASIC!) TODO FIXME, change stupid slot 0 thing...
-		CART_EMULATION_SELECT : in std_logic_vector(6 downto 0); -- from where
-		CART_EMULATION_ACTIVATE : in std_logic; -- to where? TODO, these needs redoing and wiring up!
-		PAL :  in STD_LOGIC;
 		USE_SDRAM :  in STD_LOGIC;
 		ROM_IN_RAM : in std_logic;
-		THROTTLE_COUNT_6502 : in STD_LOGIC_VECTOR(5 DOWNTO 0);
 		HALT : in std_logic
 	);
-END atari800core;
+END atari5200core;
 
-ARCHITECTURE bdf_type OF atari800core IS 
+ARCHITECTURE bdf_type OF atari5200core IS 
 
 -- ANTIC
 SIGNAL	ANTIC_ADDR :  STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -196,15 +172,11 @@ SIGNAL	ANTIC_HIGHRES_COLOUR_CLOCK_OUT :  STD_LOGIC;
 SIGNAL	ANTIC_ORIGINAL_COLOUR_CLOCK_OUT :  STD_LOGIC;
 SIGNAL	ANTIC_RDY :  STD_LOGIC;
 SIGNAL	ANTIC_WRITE_ENABLE :  STD_LOGIC;
-SIGNAL	BREAK_PRESSED :  STD_LOGIC;
 signal hcount_temp : std_logic_vector(7 downto 0);
 signal vcount_temp : std_logic_vector(8 downto 0);
 signal ANTIC_REFRESH_CYCLE : STD_LOGIC;
 
 -- GTIA
-SIGNAL	GTIA_SOUND :  STD_LOGIC;
-SIGNAL	CONSOL_OUT :  STD_LOGIC_VECTOR(3 downto 0);
-
 SIGNAL	GTIA_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	CACHE_GTIA_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	GTIA_WRITE_ENABLE :  STD_LOGIC;
@@ -242,20 +214,7 @@ signal POKEY1_CHANNEL1 : std_logic_vector(3 downto 0);
 signal POKEY1_CHANNEL2 : std_logic_vector(3 downto 0);
 signal POKEY1_CHANNEL3 : std_logic_vector(3 downto 0);
 
-SIGNAL	POKEY2_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	CACHE_POKEY2_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	POKEY2_WRITE_ENABLE :  STD_LOGIC;
-signal POKEY2_CHANNEL0 : std_logic_vector(3 downto 0);
-signal POKEY2_CHANNEL1 : std_logic_vector(3 downto 0);
-signal POKEY2_CHANNEL2 : std_logic_vector(3 downto 0);
-signal POKEY2_CHANNEL3 : std_logic_vector(3 downto 0);
-
--- COVOX (after market DAC)
-signal covox_write_enable : std_logic;
-signal covox_channel0 : std_logic_vector(7 downto 0);
-signal covox_channel1 : std_logic_vector(7 downto 0);
-signal covox_channel2 : std_logic_vector(7 downto 0);
-signal covox_channel3 : std_logic_vector(7 downto 0);
+signal AUDIO_BOTH : std_logic_vector(15 downto 0);
 
 -- MEMORY IS READY - input to all devices
 SIGNAL	MEMORY_DATA :  STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -267,14 +226,6 @@ SIGNAL	WRITE_DATA :  STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL	WIDTH_16BIT_ACCESS :  STD_LOGIC;
 SIGNAL	WIDTH_32BIT_ACCESS :  STD_LOGIC;
 SIGNAL	WIDTH_8BIT_ACCESS :  STD_LOGIC;
-
--- PIA
-SIGNAL	PIA_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	PIA_IRQA :  STD_LOGIC;
-SIGNAL	PIA_IRQB :  STD_LOGIC;
-SIGNAL	PIA_READ_ENABLE :  STD_LOGIC;
-SIGNAL	PIA_WRITE_ENABLE :  STD_LOGIC;
-SIGNAL PORTB_OUT_INT : STD_LOGIC_VECTOR(7 downto 0);
 
 -- PBI
 SIGNAL PBI_ADDR_INT : std_logic_vector(15 downto 0);
@@ -295,7 +246,7 @@ PORT MAP(CLK => CLK,
 		 MEMORY_READY_ANTIC => MEMORY_READY_ANTIC,
 		 ANTIC_REFRESH => ANTIC_REFRESH_CYCLE,
 		 PAUSE_6502 => HALT,
-		 THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
+		 THROTTLE_COUNT_6502 => "000001",
 		 ANTIC_ENABLE_179 => ANTIC_ENABLE_179,
 		 oldcpu_enable => ENABLE_179_MEMWAIT,
 		 CPU_ENABLE_OUT => CPU_SHARED_ENABLE);
@@ -324,8 +275,8 @@ PORT MAP(CLK => CLK,
 		 MEMORY_READY_ANTIC => MEMORY_READY_ANTIC,
 		 MEMORY_READY_CPU => MEMORY_READY_CPU,
 		 ANTIC_ENABLE_179 => ANTIC_ENABLE_179,
-		 PAL => PAL,
-		 lightpen => ANTIC_LIGHTPEN,
+		 PAL => '0',
+		 lightpen => '0',
 		 ADDR => PBI_ADDR_INT(3 DOWNTO 0),
 		 CPU_DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		 MEMORY_DATA_IN => MEMORY_DATA(7 DOWNTO 0),
@@ -344,73 +295,22 @@ PORT MAP(CLK => CLK,
 
 pokey_mixer_l : entity work.pokey_mixer
 PORT MAP(CLK => CLK,
-		 GTIA_SOUND => GTIA_SOUND,
+		 GTIA_SOUND => '0',
 		 CHANNEL_0 => POKEY1_CHANNEL0,
 		 CHANNEL_1 => POKEY1_CHANNEL1,
 		 CHANNEL_2 => POKEY1_CHANNEL2,
 		 CHANNEL_3 => POKEY1_CHANNEL3,
 		 CHANNEL_ENABLE => "1111",
-		 COVOX_CHANNEL_0 => covox_channel0,
-		 COVOX_CHANNEL_1 => covox_channel1,
-		 VOLUME_OUT => AUDIO_L);
+		 COVOX_CHANNEL_0 => (others=>'0'),
+		 COVOX_CHANNEL_1 => (others=>'0'),
+		 VOLUME_OUT => AUDIO_BOTH);
+AUDIO_L <= AUDIO_BOTH;
+AUDIO_R <= AUDIO_BOTH;
 		 
-pokey_mixer_r : entity work.pokey_mixer
-PORT MAP(CLK => CLK,
-		 GTIA_SOUND => GTIA_SOUND,
-		 CHANNEL_0 => POKEY2_CHANNEL0,
-		 CHANNEL_1 => POKEY2_CHANNEL1,
-		 CHANNEL_2 => POKEY2_CHANNEL2,
-		 CHANNEL_3 => POKEY2_CHANNEL3,
-		 COVOX_CHANNEL_0 => covox_channel2,
-		 COVOX_CHANNEL_1 => covox_channel3,
-		 CHANNEL_ENABLE => "1111",
-		 VOLUME_OUT => AUDIO_R);
-
-pokey2 : entity work.pokey
-PORT MAP(CLK => CLK,
-		 ENABLE_179 => ENABLE_179_MEMWAIT,
-		 WR_EN => POKEY2_WRITE_ENABLE,
-		 RESET_N => RESET_N,
-		 ADDR => PBI_ADDR_INT(3 DOWNTO 0),
-		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
-		 CHANNEL_0_OUT => POKEY2_CHANNEL0,
-		 CHANNEL_1_OUT => POKEY2_CHANNEL1,
-		 CHANNEL_2_OUT => POKEY2_CHANNEL2,
-		 CHANNEL_3_OUT => POKEY2_CHANNEL3,
-		 DATA_OUT => POKEY2_DO,
-		 SIO_IN1 => '1',
-		 SIO_IN2 => '1',
-		 SIO_IN3 => '1',
-		 keyboard_response => "00",
-		 pot_in=>"00000000");
-
-pia1 : entity work.pia
-PORT MAP(CLK => CLK,
-		 EN => PIA_READ_ENABLE,
-		 WR_EN => PIA_WRITE_ENABLE,
-		 RESET_N => RESET_N,
-		 CA1 => CA1_IN,
-		 CB1 => CB1_IN,
-		 CA2_DIR_OUT => CA2_DIR_OUT,
-		 CA2_IN => CA2_IN,
-		 CA2_OUT => CA2_OUT,
-		 CB2_DIR_OUT => CB2_DIR_OUT,
-		 CB2_IN => CB2_IN,
-		 CB2_OUT => CB2_OUT,
-		 ADDR => PBI_ADDR_INT(1 DOWNTO 0),
-		 CPU_DATA_IN => WRITE_DATA(7 DOWNTO 0),
-		 IRQA_N => PIA_IRQA,
-		 IRQB_N => PIA_IRQB,
-		 DATA_OUT => PIA_DO,
-		 PORTA_IN => PORTA_IN,
-		 PORTA_DIR_OUT => PORTA_DIR_OUT,
-		 PORTA_OUT => PORTA_OUT,
-		 PORTB_IN => PORTB_IN,
-		 PORTB_DIR_OUT => PORTB_DIR_OUT,
-		 PORTB_OUT => PORTB_OUT_INT);
-
+-- TODO, this is freddy, replace with 5200 equiv rather than generic
+-- Also remove dma logic from here if possible
 mmu1 : entity work.address_decoder
-GENERIC MAP(low_memory => low_memory)
+GENERIC MAP(low_memory => low_memory, system => 10)
 PORT MAP(CLK => CLK,
 		 CPU_FETCH => CPU_FETCH,
 		 CPU_WRITE_N => R_W_N,
@@ -424,8 +324,8 @@ PORT MAP(CLK => CLK,
 		 ROM_REQUEST_COMPLETE => ROM_REQUEST_COMPLETE,
 		 CART_REQUEST_COMPLETE => PBI_REQUEST_COMPLETE,
 		 reset_n => RESET_N,
-		 CART_RD4 => CART_RD4,
-		 CART_RD5 => CART_RD5,
+		 CART_RD4 => '0', -- TODO, which line does the 5200 use?
+		 CART_RD5 => '0',
 		 use_sdram => USE_SDRAM,
 		 SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
 		 ANTIC_ADDR => ANTIC_ADDR,
@@ -436,16 +336,16 @@ PORT MAP(CLK => CLK,
 		 CPU_WRITE_DATA => CPU_DO,
 		 GTIA_DATA => GTIA_DO,
 		 CACHE_GTIA_DATA => CACHE_GTIA_DO,
-		 PIA_DATA => PIA_DO,
-		 POKEY2_DATA => POKEY2_DO,
-		 CACHE_POKEY2_DATA => CACHE_POKEY2_DO,
+		 PIA_DATA => (others=>'0'),
+		 POKEY2_DATA => (others=>'0'),
+		 CACHE_POKEY2_DATA => (others=>'0'),
 		 POKEY_DATA => POKEY_DO,
 		 CACHE_POKEY_DATA => CACHE_POKEY_DO,
-		 PORTB => PORTB_OUT_INT,
+		 PORTB => (others=>'0'),
 		 RAM_DATA => RAM_DO,
-		 ram_select => RAM_SELECT(2 downto 0),
+		 ram_select => "000",
 		 ROM_DATA => ROM_DO,
-		 rom_select => ROM_SELECT, 
+		 rom_select => "00001", 
 		 SDRAM_DATA => SDRAM_DO,
 		 DMA_ADDR => DMA_ADDR,
 		 DMA_WRITE_DATA => DMA_WRITE_DATA,
@@ -454,18 +354,18 @@ PORT MAP(CLK => CLK,
 		 MEMORY_READY_CPU => MEMORY_READY_CPU,
 		 GTIA_WR_ENABLE => GTIA_WRITE_ENABLE,
 		 POKEY_WR_ENABLE => POKEY_WRITE_ENABLE,
-		 POKEY2_WR_ENABLE => POKEY2_WRITE_ENABLE,
+		 POKEY2_WR_ENABLE => open,
 		 ANTIC_WR_ENABLE => ANTIC_WRITE_ENABLE,
-		 PIA_WR_ENABLE => PIA_WRITE_ENABLE,
-		 PIA_RD_ENABLE => PIA_READ_ENABLE,
+		 PIA_WR_ENABLE => open,
+		 PIA_RD_ENABLE => open,
 		 RAM_WR_ENABLE => RAM_WRITE_ENABLE,
 		 PBI_WR_ENABLE => PBI_WRITE_ENABLE,
 		 RAM_REQUEST => RAM_REQUEST,
 		 ROM_REQUEST => ROM_REQUEST,
 		 CART_REQUEST => PBI_REQUEST,
-		 CART_S4_n => CART_S4_n,
-		 CART_S5_n => CART_S5_N,
-		 CART_CCTL_n => CART_CCTL_N,
+		 CART_S4_n => open,
+		 CART_S5_n => open,
+		 CART_CCTL_n => open,
 		 WIDTH_8bit_ACCESS => WIDTH_8BIT_ACCESS,
 		 WIDTH_16bit_ACCESS => WIDTH_16BIT_ACCESS,
 		 WIDTH_32bit_ACCESS => WIDTH_32BIT_ACCESS,
@@ -478,9 +378,9 @@ PORT MAP(CLK => CLK,
 		 ROM_ADDR => ROM_ADDR,
 		 SDRAM_ADDR => SDRAM_ADDR,
 		 WRITE_DATA => WRITE_DATA,
-		 d6_wr_enable => covox_write_enable,
-		 cart_select => CART_EMULATION_SELECT,
-		 cart_activate => CART_EMULATION_ACTIVATE,
+		 d6_wr_enable => open,
+		 cart_select => (others=>'0'),
+		 cart_activate => '0',
 		 rom_in_ram => ROM_IN_RAM);
 
 pokey1 : entity work.pokey
@@ -514,12 +414,12 @@ PORT MAP(CLK => CLK,
 		 ANTIC_FETCH => ANTIC_FETCH, -- for first pmg fetch
 		 CPU_ENABLE_ORIGINAL => ENABLE_179_MEMWAIT, -- for subsequent pmg fetches
 		 RESET_N => RESET_N,
-		 PAL => PAL,
+		 PAL => '0',
 		 COLOUR_CLOCK_ORIGINAL => ANTIC_ORIGINAL_COLOUR_CLOCK_OUT,
 		 COLOUR_CLOCK => ANTIC_COLOUR_CLOCK_OUT,
 		 COLOUR_CLOCK_HIGHRES => ANTIC_HIGHRES_COLOUR_CLOCK_OUT,
 		 CONSOL_OUT => CONSOL_OUT,
-		 CONSOL_IN => '1'&CONSOL_OPTION&CONSOL_SELECT&CONSOL_START,
+		 CONSOL_IN => CONSOL_IN,
 		 TRIG => GTIA_TRIG,
 		 ADDR => PBI_ADDR_INT(4 DOWNTO 0),
 		 AN => ANTIC_AN,
@@ -533,8 +433,6 @@ PORT MAP(CLK => CLK,
 		 ODD_LINE => VIDEO_ODD_LINE,
 		 COLOUR_out => COLOUR,
 		 DATA_OUT => GTIA_DO);
-
-GTIA_SOUND <= CONSOL_OUT(3);
 
 	-- colour palette
 --	Color             Value         Color             Value
@@ -567,11 +465,8 @@ VIDEO_R(video_bits-1 downto 0) <= VIDEO_R_WIDE(7 downto 8-video_bits);
 VIDEO_G(video_bits-1 downto 0) <= VIDEO_G_WIDE(7 downto 8-video_bits);
 VIDEO_B(video_bits-1 downto 0) <= VIDEO_B_WIDE(7 downto 8-video_bits);
 
-irq_glue1 : entity work.irq_glue
-PORT MAP(pokey_irq => POKEY_IRQ,
-		 pia_irqa => PIA_IRQA,
-		 pia_irqb => PIA_IRQB,
-		 combined_irq => IRQ_n);
+-- Combine irq - only one here!
+IRQ_n <= POKEY_IRQ;
 		 
 -- TODO - generic ram infer?
 pokey1_mirror : entity work.reg_file
@@ -583,16 +478,6 @@ port map(
 	WR_EN => POKEY_WRITE_ENABLE,
 	DATA_OUT => CACHE_POKEY_DO
 );	 
-
-pokey2_mirror : entity work.reg_file
-generic map(BYTES=>16,WIDTH=>4)
-port map(
-	CLK => CLK,
-	ADDR => PBI_ADDR_INT(3 downto 0),
-	DATA_IN => WRITE_DATA(7 downto 0),
-	WR_EN => POKEY2_WRITE_ENABLE,
-	DATA_OUT => CACHE_POKEY2_DO
-);	 		 
 
 gtia_mirror : entity work.reg_file
 generic map(BYTES=>32,WIDTH=>5)
@@ -614,22 +499,8 @@ port map(
 	DATA_OUT => CACHE_ANTIC_DO
 );	
 
-covox1 : entity work.covox
-	PORT map
-	( 
-		clk => clk,
-		addr => pbi_addr_int(1 downto 0),
-		data_in => WRITE_DATA(7 DOWNTO 0),
-		wr_en => covox_write_enable,
-		covox_channel0 => covox_channel0,
-		covox_channel1 => covox_channel1,
-		covox_channel2 => covox_channel2,
-		covox_channel3 => covox_channel3
-	);
-
 -- outputs
 PBI_ADDR <= PBI_ADDR_INT;
-PORTB_OUT <= PORTB_OUT_INT;
 ANTIC_REFRESH <= ANTIC_REFRESH_CYCLE;
 
 END bdf_type;

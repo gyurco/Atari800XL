@@ -14,7 +14,8 @@ use IEEE.STD_LOGIC_MISC.all;
 ENTITY address_decoder IS
 GENERIC
 (
-	low_memory : integer := 0 -- if 0, we assume 8MB SDRAM, if 1, we assume 1MB 'SDRAM'.
+	low_memory : integer := 0; -- if 0, we assume 8MB SDRAM, if 1, we assume 1MB 'SDRAM'.
+	system : integer := 0 -- 0=Atari XL, 10=Atari5200 (space left for more systems)
 );
 PORT 
 ( 
@@ -529,6 +530,7 @@ end generate;
 			request_complete <= ram_request_COMPLETE;									
 		end if;
 		
+		if system=0 then
 		case addr_next(15 downto 8) is 
 				-- GTIA
 				when X"D0" =>
@@ -716,6 +718,138 @@ end generate;
 					
 				when others =>
 			end case;				
+		end if;
+
+	 	if system=10 then
+		case addr_next(15 downto 8) is 
+				-- GTIA
+				when 	X"c0"|X"c1"|X"c2"|X"c3"|X"c4"|X"c5"|X"c6"|X"c7"|
+					X"c8"|X"c9"|X"ca"|X"cb"|X"cc"|X"cd"|X"ce"|X"cf" =>
+					GTIA_WR_ENABLE <= write_enable_next;
+					MEMORY_DATA(7 downto 0) <= GTIA_DATA;
+					MEMORY_DATA(15 downto 8) <= CACHE_GTIA_DATA;
+					request_complete <= '1';
+					sdram_chip_select <= '0';
+					ram_chip_select <= '0';
+			
+				-- POKEY
+				when
+					X"e8"|X"e9"|X"ea"|X"eb"|X"ec"|X"ed"|X"ee"|X"ef" =>
+					POKEY_WR_ENABLE <= write_enable_next;
+					MEMORY_DATA(7 downto 0) <= POKEY_DATA;
+					MEMORY_DATA(15 downto 8) <= CACHE_POKEY_DATA;
+					request_complete <= '1';
+					sdram_chip_select <= '0';
+					ram_chip_select <= '0';					
+
+				-- ANTIC
+				when X"D4" =>
+					ANTIC_WR_ENABLE <= write_enable_next;
+					MEMORY_DATA(7 downto 0) <= ANTIC_DATA;
+					MEMORY_DATA(15 downto 8) <= CACHE_ANTIC_DATA;
+					request_complete <= '1';
+					sdram_chip_select <= '0';
+					ram_chip_select <= '0';					
+					
+				-- CART_CONFIG -- TODO - wait for n cycles (for now non-turbo mode should work?)
+				when
+					X"40"|X"41"|X"42"|X"43"|X"44"|X"45"|X"46"|X"47"|
+					X"48"|X"49"|X"4A"|X"4B"|X"4C"|X"4D"|X"4E"|X"4F"|
+					X"50"|X"51"|X"52"|X"53"|X"54"|X"55"|X"56"|X"57"|
+					X"58"|X"59"|X"5A"|X"5B"|X"5C"|X"5D"|X"5E"|X"5F"|
+					X"60"|X"61"|X"62"|X"63"|X"64"|X"65"|X"66"|X"67"|
+					X"68"|X"69"|X"6A"|X"6B"|X"6C"|X"6D"|X"6E"|X"6F"|
+					X"70"|X"71"|X"72"|X"73"|X"74"|X"75"|X"76"|X"77"|
+					X"78"|X"79"|X"7A"|X"7B"|X"7C"|X"7D"|X"7E"|X"7F" =>
+
+					if (write_enable_next = '1') then
+						sdram_chip_select <= '0';
+						Ram_chip_select <= '0';							
+						MEMORY_DATA(7 downto 0) <= X"FF";
+						Request_complete <= '1';
+					end if;
+			--		if (cart_rd4 = '1') then
+			--			MEMORY_DATA(7 downto 0) <= CART_ROM_DATA;
+			--			rom_request <= start_request;
+			--			CART_S4_n <= '0';
+			--			request_complete <= CART_REQUEST_COMPLETE;
+			--			sdram_chip_select <= '0';
+			--			ram_chip_select <= '0';							
+			--		else
+			--			MEMORY_DATA(7 downto 0) <= X"FF";
+			--			request_complete <= '1';
+			--		end if;
+
+				when
+					X"80"|X"81"|X"82"|X"83"|X"84"|X"85"|X"86"|X"87"|
+					X"88"|X"89"|X"8A"|X"8B"|X"8C"|X"8D"|X"8E"|X"8F"|
+					X"90"|X"91"|X"92"|X"93"|X"94"|X"95"|X"96"|X"97"|
+					X"98"|X"99"|X"9A"|X"9B"|X"9C"|X"9D"|X"9E"|X"9F"|
+					X"a0"|X"a1"|X"a2"|X"a3"|X"a4"|X"a5"|X"a6"|X"a7"|
+					X"a8"|X"a9"|X"aA"|X"aB"|X"aC"|X"aD"|X"aE"|X"aF"|
+					X"b0"|X"b1"|X"b2"|X"b3"|X"b4"|X"b5"|X"b6"|X"b7"|
+					X"b8"|X"b9"|X"bA"|X"bB"|X"bC"|X"bD"|X"bE"|X"bF" =>
+
+					if (write_enable_next = '1') then
+						sdram_chip_select <= '0';
+						Ram_chip_select <= '0';							
+						MEMORY_DATA(7 downto 0) <= X"FF";
+						Request_complete <= '1';
+					end if;
+		
+			--		if (cart_rd5 = '1') then
+			--			MEMORY_DATA(7 downto 0) <= CART_ROM_DATA;
+			--			rom_request <= start_request;
+			--			CART_S4_n <= '0';
+			--			request_complete <= CART_REQUEST_COMPLETE;
+			--			sdram_chip_select <= '0';
+			--			ram_chip_select <= '0';							
+			--		else
+			--			MEMORY_DATA(7 downto 0) <= X"FF";
+			--			request_complete <= '1';
+			--		end if;
+			
+				-- OS ROM f000->0xfff
+				when 
+					X"F0"|X"F1"|X"F2"|X"F3"|X"F4"|X"F5"|X"F6"|X"F7"|X"F8"|X"F9"|X"FA"|X"FB"|X"FC"|X"FD"|X"FE"|X"FF" =>
+					
+					sdram_chip_select <= '0';
+					ram_chip_select <= '0';																		
+					--request_complete <= ROM_REQUEST_COMPLETE;
+					--MEMORY_DATA(7 downto 0) <= ROM_DATA;
+					--rom_request <= start_request;					
+					if (rom_in_ram = '1') then
+						MEMORY_DATA(7 downto 0) <= SDRAM_DATA(7 downto 0);
+					else
+						MEMORY_DATA(7 downto 0) <= ROM_DATA;						
+					end if;
+					if (write_enable_next = '1') then
+						request_complete <= '1';
+					else
+							if (rom_in_ram = '1') then
+								request_complete <= sdram_request_COMPLETE;							
+								sdram_chip_select <= start_request;							
+							else
+								request_complete <= rom_request_COMPLETE;							
+								rom_request <= start_request;															
+							end if;						
+					end if;																			
+
+					ROM_ADDR <= "000000"&"00"&ADDR_next(13 downto 0); -- x00000 based 16k
+					SDRAM_ADDR <= SDRAM_OS_ROM_ADDR;
+					SDRAM_ADDR(13 downto 0) <= ADDR_next(13 downto 0);
+
+				when
+					X"d0"|X"d1"|X"d2"|X"d3"|
+					X"d5"|X"d6"|X"d7"|X"d8"|X"d9"|X"dA"|X"dB"|X"dC"|X"dD"|X"dE"|X"dF"|
+					X"E0"|X"E1"|X"E2"|X"E3"|X"E4"|X"E5"|X"E6"|X"E7" =>
+
+					MEMORY_DATA(7 downto 0) <= X"FF";
+					request_complete <= '1';
+					
+				when others =>
+			end case;				
+		end if;
 		else		
 			sdram_chip_select <= '0';
 			ram_chip_select <= '0';													
@@ -744,41 +878,5 @@ end generate;
 			end case;
 		end if;
 		
---		case addr_next(15 downto 0) is
---			when X"FFFC" =>
---				MEMORY_DATA(7 downto 0) <= X"00";
---			when X"FFFD" =>
---				MEMORY_DATA(7 downto 0) <= X"06";
---			when X"0600" => --JSR 0610
---				MEMORY_DATA(7 downto 0) <= X"20";
---			when X"0601" =>
---				MEMORY_DATA(7 downto 0) <= X"10";
---			when X"0602" =>
---				MEMORY_DATA(7 downto 0) <= X"06";
---			when X"0603" => --JMP
---				MEMORY_DATA(7 downto 0) <= X"4C";
---			when X"0604" =>
---				MEMORY_DATA(7 downto 0) <= X"00";
---			when X"0605" =>
---				MEMORY_DATA(7 downto 0) <= X"06";
---			when X"0610" => --LDA RANDOM, STA 0x10, LDA 0x10, RTS
---				MEMORY_DATA(7 downto 0) <= X"AD";
---			when X"0611" =>
---				MEMORY_DATA(7 downto 0) <= X"0A";
---			when X"0612" =>
---				MEMORY_DATA(7 downto 0) <= X"D2";
---			when X"0613" =>
---				MEMORY_DATA(7 downto 0) <= X"85";
---			when X"0614" =>
---				MEMORY_DATA(7 downto 0) <= X"10";
---			when X"0615" =>
---				MEMORY_DATA(7 downto 0) <= X"44";
---			when X"0616" =>
---				MEMORY_DATA(7 downto 0) <= X"10";
---			when X"0617" =>
---				MEMORY_DATA(7 downto 0) <= X"60";
---			when others =>
---		end case;
-			
 	end process;
 END vhdl;
