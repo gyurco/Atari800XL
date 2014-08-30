@@ -99,6 +99,9 @@ end component;
   signal CLK : std_logic;
   signal CLK_SDRAM : std_logic;
 
+  signal CLK_PLL1 : std_logic; -- cascaded to get better pal clock
+  signal PLL1_LOCKED : std_logic;
+
   SIGNAL PS2_CLK : std_logic;
   SIGNAL PS2_DAT : std_logic;
   SIGNAL	CONSOL_OPTION_RAW :  STD_LOGIC;
@@ -419,12 +422,17 @@ PORT MAP(inclk0 => CLOCK_27(0),
 end generate;
 
 gen_pal_pll : if tv=1 generate
-mist_pll : entity work.pll_pal
+mist_pll : entity work.pll_pal_pre
 PORT MAP(inclk0 => CLOCK_27(0),
+		 c0 => CLK_PLL1,
+		 locked => PLL1_LOCKED);
+mist_pll2 : entity work.pll_pal_post
+PORT MAP(inclk0 => CLK_PLL1,
 		 c0 => CLK_SDRAM,
 		 c1 => CLK,
 		 c2 => SDRAM_CLK,
 		 c3 => SLOW_PS2_CLK,
+		 areset => not(PLL1_LOCKED),
 		 locked => PLL_LOCKED);
 end generate;
 

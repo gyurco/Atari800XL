@@ -314,6 +314,7 @@ set_global_assignment -name SDC_FILE atari800core.sdc
 set_global_assignment -name QIP_FILE mist_sector_buffer.qip
 set_global_assignment -name VHDL_FILE atari800core_mist.vhd
 set_global_assignment -name VERILOG_FILE user_io.v
-set_global_assignment -name QIP_FILE pll_pal.qip
+set_global_assignment -name QIP_FILE pll_pal_pre.qip
+set_global_assignment -name QIP_FILE pll_pal_post.qip
 set_global_assignment -name QIP_FILE pll_ntsc.qip
 
