@@ -103,6 +103,8 @@ end component;
   signal CLK : std_logic;
   signal CLK_SDRAM : std_logic;
 
+  signal CLK_PLL1 : std_logic; -- cascaded to get better clock
+  signal PLL1_LOCKED : std_logic;
 
 -- SDRAM
   signal SDRAM_REQUEST : std_logic;
@@ -295,28 +297,34 @@ end process;
 --sd_ldqm <= '0';
 --sd_udqm <= '0';
 
--- simplest possible implementation
 -- pll
+chameleon_pll : entity work.pll_pre
+PORT MAP(inclk0 => clk8,
+		 c0 => CLK_PLL1,
+		 locked => PLL1_LOCKED);
+
 gen_ntsc_pll : if tv=0 generate
-chameleon_pll : entity work.pll_ntsc
+chameleon_pll2 : entity work.pll_ntsc_post
 	PORT MAP
 	(
-		inclk0 => clk8,
+		inclk0 => CLK_PLL1,
 		c0 => clk_sdram,
 		c1 => clk,
 		c2 => sd_clk,
+		areset => not(PLL1_LOCKED),
 		locked => pll_locked
 	);
 end generate;
 
 gen_pal_pll : if tv=1 generate
-chameleon_pll : entity work.pll_pal
+chameleon_pll2 : entity work.pll_pal_post
 	PORT MAP
 	(
-		inclk0 => clk8,
+		inclk0 => CLK_PLL1,
 		c0 => clk_sdram,
 		c1 => clk,
 		c2 => sd_clk,
+		areset => not(PLL1_LOCKED),
 		locked => pll_locked
 	);
 end generate;

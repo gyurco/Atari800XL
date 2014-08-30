@@ -205,8 +205,9 @@ set_global_assignment -name VHDL_FILE chameleon_c64_joykeyb.vhd
 set_global_assignment -name VHDL_FILE gen_usart.vhd
 set_global_assignment -name VHDL_FILE chameleon_usb.vhd
 set_global_assignment -name VHDL_FILE atari800core_chameleon.vhd
-set_global_assignment -name QIP_FILE pll_pal.qip
-set_global_assignment -name QIP_FILE pll_ntsc.qip
+set_global_assignment -name QIP_FILE pll_pal_post.qip
+set_global_assignment -name QIP_FILE pll_ntsc_post.qip
+set_global_assignment -name QIP_FILE pll_pre.qip
 set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
