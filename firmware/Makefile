@@ -14,39 +14,53 @@ RTL_DIR = $(ZPUFLEXDIR)/RTL/
 
 BUILD_DIR=zpu_obj
 
+AEON_LITE_DIR = aeon_lite
+DE1_DIR = de1
+CHAMELEON_DIR = chameleon
+MCC_DIR = mcc
+MIST_DIR = mist
+
+AEON_LITE_BUILD_DIR = $(BUILD_DIR)/$(AEON_LITE_DIR)
+DE1_BUILD_DIR = $(BUILD_DIR)/$(DE1_DIR)
+CHAMELEON_BUILD_DIR = $(BUILD_DIR)/$(CHAMELEON_DIR)
+MCC_BUILD_DIR = $(BUILD_DIR)/$(MCC_DIR)
+MIST_BUILD_DIR = $(BUILD_DIR)/$(MIST_DIR)
+
 #MINSTARTUP_SRC = mincrt0.s
 MINSTARTUP_SRC = mycrt0.s
 MINSTARTUP_OBJ = $(patsubst $(STARTUP_DIR)/%.s,$(BUILD_DIR)/%.o,$(MINSTARTUP_SRC))
 
+COMMON_SRC = main.c regs.c freeze.c joystick.c fileutils.c fileselector.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c
+SDCARD_SRC = sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc2.c
+
 AEON_LITE_PRJ = AEON_LITE
-AEON_LITE_SRC = main_aeon_lite.c regs.c freeze.c joystick.c fileutils.c fileselector.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc2.c de1/dirs.c
-AEON_LITE_OBJ = $(patsubst %.c,$(BUILD_DIR)/%.o,$(AEON_LITE_SRC))
+AEON_LITE_SRC = $(COMMON_SRC) $(SDCARD_SRC) de1/dirs.c
+AEON_LITE_OBJ = $(patsubst %.c,$(AEON_LITE_BUILD_DIR)/%.o,$(AEON_LITE_SRC))
 
 DE1_PRJ = DE1
-DE1_SRC = main.c regs.c freeze.c joystick.c fileutils.c fileselector.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc2.c de1/dirs.c
-DE1_OBJ = $(patsubst %.c,$(BUILD_DIR)/%.o,$(DE1_SRC))
+DE1_SRC = $(COMMON_SRC) $(SDCARD_SRC) de1/dirs.c
+DE1_OBJ = $(patsubst %.c,$(DE1_BUILD_DIR)/%.o,$(DE1_SRC))
 
 CHAMELEON_PRJ = CHAMELEON
-CHAMELEON_SRC = main.c regs.c freeze.c joystick.c fileutils.c fileselector.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc2.c chameleon/dirs.c
-CHAMELEON_OBJ = $(patsubst %.c,$(BUILD_DIR)/%.o,$(CHAMELEON_SRC))
+CHAMELEON_SRC = $(COMMON_SRC) $(SDCARD_SRC) chameleon/dirs.c
+CHAMELEON_OBJ = $(patsubst %.c,$(CHAMELEON_BUILD_DIR)/%.o,$(CHAMELEON_SRC))
 
 MCC_PRJ = MCC216
-MCC_SRC = main.c regs.c freeze.c joystick.c fileutils.c fileselector.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc2.c mcc/dirs.c
-MCC_OBJ = $(patsubst %.c,$(BUILD_DIR)/%.o,$(MCC_SRC))
+MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) mcc/dirs.c
+MCC_OBJ = $(patsubst %.c,$(MCC_BUILD_DIR)/%.o,$(MCC_SRC))
 
 MIST_PRJ = MIST
-MIST_SRC = main.c regs.c freeze.c joystick.c fileutils.c fileselector.c atari_drive_emulator.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c mist/diskio_sectorrequest.c mist/dirs.c
-MIST_OBJ = $(patsubst %.c,$(BUILD_DIR)/%.o,$(MIST_SRC))
+MIST_SRC = $(COMMON_SRC) mist/diskio_sectorrequest.c mist/dirs.c
+MIST_OBJ = $(patsubst %.c,$(MIST_BUILD_DIR)/%.o,$(MIST_SRC))
 
 LINKMAP  = ./standalone_simple.ld
-
 
 # Commandline options for each tool.
 
 #ZPUOPTS= -mno-poppcrel -mno-pushspadd -mno-callpcrel -mno-shortop -mno-neg # No-neg requires bugfixed toolchain
 #Include everything -> need to include emulation rom...
 ZPUOPTS =
-CFLAGS  = -I. -Isd_direct -Iprintf -Ifat -Icommon -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX
+CFLAGS  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX
 
 LFLAGS  = -nostartfiles -Wl,--relax -g -Os
 #LFLAGS  = -nostartfiles -Os
@@ -102,9 +116,25 @@ $(MCC_PRJ).elf: $(MINSTARTUP_OBJ) $(MCC_OBJ)
 $(MIST_PRJ).elf: $(MINSTARTUP_OBJ) $(MIST_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
-$(BUILD_DIR)/%.o: %.c Makefile
+$(AEON_LITE_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) $(CFLAGS)  -o $@ -c $<
+	$(CC) -I$(AEON_LITE_DIR) $(CFLAGS)  -o $@ -c $<
+
+$(CHAMELEON_BUILD_DIR)/%.o: %.c Makefile
+	mkdir -p `dirname $@`
+	$(CC) -I$(CHAMELEON_DIR) $(CFLAGS)  -o $@ -c $<
+
+$(DE1_BUILD_DIR)/%.o: %.c Makefile
+	mkdir -p `dirname $@`
+	$(CC) -I$(DE1_DIR) $(CFLAGS)  -o $@ -c $<
+
+$(MCC_BUILD_DIR)/%.o: %.c Makefile
+	mkdir -p `dirname $@`
+	$(CC) -I$(MCC_DIR) $(CFLAGS)  -o $@ -c $<
+
+$(MIST_BUILD_DIR)/%.o: %.c Makefile
+	mkdir -p `dirname $@`
+	$(CC) -I$(MIST_DIR) $(CFLAGS)  -o $@ -c $<
 
 $(BUILD_DIR)/%.o: %.s
 	$(AS) -o $@ $<

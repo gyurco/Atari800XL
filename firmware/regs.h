@@ -1,9 +1,6 @@
 #ifndef regs_h
 #define regs_h
 
-#define atari_regbase  0x10000
-#define atari_regmirror  0x20000
-
 extern int volatile * zpu_in1;
 extern int volatile * zpu_in2;
 extern int volatile * zpu_in3;
