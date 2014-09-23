@@ -1,0 +1,1 @@
+gcc -g -O0 printf/printf.c test_sd.c fileutils.c fileselector.c fat/pff_file.c fat/pff.c common/utils.c native/regs.c native/joystick.c sd_direct/mmc.c sd_direct/diskio_mmc.c  native/screen.c native/spi.c -I. -Ifat -Icommon -Iprintf

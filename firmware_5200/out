@@ -1,0 +1,84 @@
+In file included from fileutils.c:3:0:
+common/utils.h:3:6: warning: conflicting types for built-in function ‘strcpy’ [enabled by default]
+ void strcpy(char * dest, char const * src);
+      ^
+common/utils.h:5:5: warning: conflicting types for built-in function ‘strlen’ [enabled by default]
+ int strlen(char const * a);
+     ^
+fileselector.c: In function ‘file_selector’:
+fileselector.c:38:3: warning: incompatible implicit declaration of built-in function ‘strcpy’ [enabled by default]
+   strcpy(&dir[0],USER_DIR);
+   ^
+fileselector.c:180:16: warning: incompatible implicit declaration of built-in function ‘strlen’ [enabled by default]
+        int x = strlen(dir);
+                ^
+fileselector.c:193:8: warning: incompatible implicit declaration of built-in function ‘strcpy’ [enabled by default]
+        strcpy(dir + strlen(dir),"/");
+        ^
+fileselector.c:193:21: warning: incompatible implicit declaration of built-in function ‘strlen’ [enabled by default]
+        strcpy(dir + strlen(dir),"/");
+                     ^
+In file included from fat/pff_file.c:4:0:
+common/utils.h:3:6: warning: conflicting types for built-in function ‘strcpy’ [enabled by default]
+ void strcpy(char * dest, char const * src);
+      ^
+common/utils.h:5:5: warning: conflicting types for built-in function ‘strlen’ [enabled by default]
+ int strlen(char const * a);
+     ^
+fat/pff.c: In function ‘dir_read’:
+fat/pff.c:578:3: warning: incompatible implicit declaration of built-in function ‘strcpy’ [enabled by default]
+   strcpy(&lfn_buffer[0],lfn_pos);
+   ^
+fat/pff.c: In function ‘pf_readdir’:
+fat/pff.c:1140:30: warning: incompatible implicit declaration of built-in function ‘strcpy’ [enabled by default]
+  if (fno->lfname[0] == '\0') strcpy(&fno->lfname[0],&fno->fname[0]);
+                              ^
+In file included from common/utils.c:1:0:
+common/utils.h:3:6: warning: conflicting types for built-in function ‘strcpy’ [enabled by default]
+ void strcpy(char * dest, char const * src);
+      ^
+common/utils.h:5:5: warning: conflicting types for built-in function ‘strlen’ [enabled by default]
+ int strlen(char const * a);
+     ^
+/tmp/ccxbYgZ4.o: In function `mmcInit':
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:48: undefined reference to `spiInit'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:50: undefined reference to `mmcChipSelect'
+/tmp/ccxbYgZ4.o: In function `mmcReset':
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:62: undefined reference to `spiTransferFF'
+/tmp/ccxbYgZ4.o: In function `mmcSendCommand':
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:124: undefined reference to `mmcChipSelect'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:132: undefined reference to `mmcChipSelect'
+/tmp/ccxbYgZ4.o: In function `mmcReadLoop':
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:144: undefined reference to `spiReceiveData'
+/tmp/ccxbYgZ4.o: In function `mmcRead':
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:169: undefined reference to `mmcChipSelect'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:177: undefined reference to `spiTransferFF'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:186: undefined reference to `spiTransferFF'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:187: undefined reference to `spiTransferFF'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:192: undefined reference to `mmcChipSelect'
+/tmp/ccxbYgZ4.o: In function `mmcWrite':
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:208: undefined reference to `mmcChipSelect'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:215: undefined reference to `spiTransferFF'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:217: undefined reference to `spiTransferByte'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:221: undefined reference to `spiTransferByte'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:225: undefined reference to `spiTransferFF'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:226: undefined reference to `spiTransferFF'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:228: undefined reference to `spiTransferFF'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:232: undefined reference to `spiTransferFF'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:234: undefined reference to `mmcChipSelect'
+/tmp/ccxbYgZ4.o: In function `mmcCommand':
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:245: undefined reference to `spiTransferFF'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:247: undefined reference to `spiTransferFF'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:248: undefined reference to `spiTransferFF'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:249: undefined reference to `spiTransferFF'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:252: undefined reference to `spiTransferByte'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:254: undefined reference to `spiTransferByte'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:255: undefined reference to `spiTransferByte'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:256: undefined reference to `spiTransferByte'
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:257: undefined reference to `spiTransferByte'
+/tmp/ccxbYgZ4.o:/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:260: more undefined references to `spiTransferByte' follow
+/tmp/ccxbYgZ4.o: In function `mmcCommand':
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/mmc.c:267: undefined reference to `spiTransferFF'
+/tmp/ccE4noa4.o: In function `disk_initialize':
+/home/markw/fpga/svn/repo/trunk/atari_800xl/firmware/sd_direct/diskio_mmc.c:54: undefined reference to `set_spi_clock_freq'
+collect2: error: ld returned 1 exit status
