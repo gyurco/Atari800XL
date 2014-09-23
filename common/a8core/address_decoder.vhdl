@@ -835,9 +835,9 @@ end generate;
 							end if;						
 					end if;																			
 
-					ROM_ADDR <= "000000"&"00"&ADDR_next(13 downto 0); -- x00000 based 16k
+					ROM_ADDR <= "000000"&"0000"&ADDR_next(11 downto 0); -- x00000 based 4k
 					SDRAM_ADDR <= SDRAM_OS_ROM_ADDR;
-					SDRAM_ADDR(13 downto 0) <= ADDR_next(13 downto 0);
+					SDRAM_ADDR(11 downto 0) <= ADDR_next(11 downto 0);
 
 				when
 					X"d0"|X"d1"|X"d2"|X"d3"|

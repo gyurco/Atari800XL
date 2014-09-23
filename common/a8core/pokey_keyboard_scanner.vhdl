@@ -123,7 +123,7 @@ begin
 				end if;
 				
 			when state_key_bounce =>
-				if (keyboard_response(0) = '0') then -- detected key press
+				if (keyboard_response(0) = '0' or debounce_disable='1') then -- detected key press
 					if (my_key = '1') then -- same key
 						keycode_latch_next <= compare_latch_reg;
 						irq_next <= '1';

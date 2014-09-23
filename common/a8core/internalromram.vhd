@@ -48,6 +48,17 @@ begin
 		end if;
 	end process;
 
+gen_internal_5200 : if internal_rom=4 generate
+	-- f000 to ffff (4k)
+	rom4 : entity work.os_5200
+	PORT MAP(clock => clock,
+			 address => rom_addr(10 downto 0),
+			 q => ROM_data
+			 );
+	rom_request_complete <= rom_request_reg;
+	
+end generate;
+
 gen_internal_os_b : if internal_rom=3 generate
 	-- d800 to dfff (2k)
 	rom2 : entity work.os2

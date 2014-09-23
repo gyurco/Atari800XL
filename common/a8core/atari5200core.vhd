@@ -155,7 +155,8 @@ ENTITY atari5200core IS
 		-- Special config params
 		USE_SDRAM :  in STD_LOGIC;
 		ROM_IN_RAM : in std_logic;
-		HALT : in std_logic
+		HALT : in std_logic;
+		THROTTLE_COUNT_6502 : in STD_LOGIC_VECTOR(5 DOWNTO 0)
 	);
 END atari5200core;
 
@@ -246,7 +247,7 @@ PORT MAP(CLK => CLK,
 		 MEMORY_READY_ANTIC => MEMORY_READY_ANTIC,
 		 ANTIC_REFRESH => ANTIC_REFRESH_CYCLE,
 		 PAUSE_6502 => HALT,
-		 THROTTLE_COUNT_6502 => "000001",
+		 THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
 		 ANTIC_ENABLE_179 => ANTIC_ENABLE_179,
 		 oldcpu_enable => ENABLE_179_MEMWAIT,
 		 CPU_ENABLE_OUT => CPU_SHARED_ENABLE);
@@ -345,7 +346,7 @@ PORT MAP(CLK => CLK,
 		 RAM_DATA => RAM_DO,
 		 ram_select => "000",
 		 ROM_DATA => ROM_DO,
-		 rom_select => "00001", 
+		 rom_select => "000001", 
 		 SDRAM_DATA => SDRAM_DO,
 		 DMA_ADDR => DMA_ADDR,
 		 DMA_WRITE_DATA => DMA_WRITE_DATA,
