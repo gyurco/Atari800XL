@@ -90,9 +90,7 @@ foreach my $variant (sort keys %variants)
 	my $version2 = `date +%d`;
 	chomp $version;
 	chomp $version2;
-	$version = 0
-	$version2 = 6
-	my $cmd = "wine ../rbf2arg/rbf2arg.exe $vga A $version.$version2 \"Atari 800XL $variant\" output_files/atari800core.rbf output_files/atari800core_$variant.arg";
+	my $cmd = "wine ../rbf2arg/rbf2arg.exe 2 A $version.$version2 \"Atari 800XL $variant\" output_files/atari800core.rbf output_files/atari800core_$variant.arg";
 	print "Running $cmd\n";
 	`$cmd`;
 	
