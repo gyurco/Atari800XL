@@ -1,0 +1,93 @@
+===========================================
+ MCCTV Atari 800XL core v0.60 release note
+===========================================
+Mark Watson
+scrameta@gmail.com
+-------------------------------------------
+
+All control is via the MCC controller.
+
+Currently games are limited to those that can be played with start/select/option/reset and joystick.
+
+Special/console keys (joystick 1):
+Start button or button 4  - Start
+Select button or button 3  - Select
+button 2  - Option
+left shoulder 1  - Reset
+left shoulder 2 - Cold start (clear base 64KB RAM and reset) 
+right shoulder 1 - Select drive 1 and cold start
+	Use joystick to make selection in menu
+		Left - up several lines
+		Right - down several lines
+		Up - up 1 line
+		Down - down 1 line
+		Fire - select
+	Remember many titles require holding 'option'
+	Select "DIR .." to go up a directory
+	Select "DIR xxx" to go down a directory
+right shoulder 2 - System settings menu
+	Use joystick to make selection
+	Turbo - system speed
+		Left/right to select
+		1x (default): is very compatible - speed closely matches original hardware ~1.7MHz
+		2x: ~3.4MHz - less compatible
+		4x: ~6.8MHz - less compatible
+		8x/16x: 13MHz, 27MHZ - limited by SDRAM latency, not quicker than 4x yet.
+	RAM
+		Left/right to select
+		64KB:  like 65XE
+		128KB: like 130XE, 64KB ext ram, switchable by antic/cpu
+		320KB(Compy shop)(default): 256KB ext ram, switchable by antic/cpu 
+		320KB(Rambo): 256KB ext ram, both antic/cpu switch together
+		576KB(Compy shop): 512KB ext ram, switchable by antic/cpu 
+		576KB(Rambo): 512KB ext ram, both antic/cpu switch together
+		1088KB: 1024KB ext ram, both antic/cpu switch together
+		4160KB: - very imcompatible!
+	ROM
+		Right/fire: File selector
+		Select a different system OS ROM - can by 16KB or 10KB
+	Drive
+		Left: Remove disk
+		Right: File selector
+		Fire: Put this disk in F1
+	Cartridge 8K simple
+		Fire: select file
+		This allows a ROM to be loaded in the place of BASIC
+		Some simple ROM cartridges can be used
+		This is temporary until proper cartridge support is implemented
+
+System ROM:
+	Loaded from /System/rom/atari800/atarixl.rom
+
+Basic:
+	Loaded from /System/rom/atari800/ataribas.rom
+
+Disk images:
+	Default dir: /atari800/user
+	Supported types: 
+		.ATR - Atari disk image with header. single/medium/double density.
+		.XFD - Atari disk image without header. 
+		.XEX - Atari executable. A simple bootloader is loaded, not 100% compatible. 
+
+Important notes:
+	When running Atari software a lot of programs need to have basic disable. Hold option when pressing reset.
+
+Features
+
+* Acid 800 test pass
+* 99% of software runs
+* Version for PAL/NTSC VGA/SVIDEO
+* Write support
+* Drive emulation
+
+Known issues
+
+* No keyboard support yet
+* ~1% of programs fail
+* Copymate write verify fails
+* Entering menu during disk access may hang ZPU (used for drive emulation/menus)
+* Hardware matches Atari very closely - including overscan corruption - this often shows up on VGA monitors.
+* Cartridge support may be broken
+
+Enjoy !
+

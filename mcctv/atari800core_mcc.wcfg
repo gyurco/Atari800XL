@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="atari800core_mcc.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="atari800core_mcc_tb" />
+            <top_module name="attributes" />
+            <top_module name="math_real" />
+            <top_module name="numeric_std" />
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_misc" />
+            <top_module name="std_logic_textio" />
+            <top_module name="std_logic_unsigned" />
+            <top_module name="textio" />
+            <top_module name="vl_types" />
+            <top_module name="zpupkg" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="50" />
+   <wvobject fp_name="/atari800core_mcc_tb/reset_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">reset_n</obj_property>
+      <obj_property name="ObjectShortName">reset_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/reset" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/sdram_ba" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_ba[1:0]</obj_property>
+      <obj_property name="ObjectShortName">sdram_ba[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/sdram_cs_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_cs_n</obj_property>
+      <obj_property name="ObjectShortName">sdram_cs_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/sdram_ras_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_ras_n</obj_property>
+      <obj_property name="ObjectShortName">sdram_ras_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/sdram_cas_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_cas_n</obj_property>
+      <obj_property name="ObjectShortName">sdram_cas_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/sdram_we_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_we_n</obj_property>
+      <obj_property name="ObjectShortName">sdram_we_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/sdram_dqm_n" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_dqm_n[1:0]</obj_property>
+      <obj_property name="ObjectShortName">sdram_dqm_n[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/sdram_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_clk</obj_property>
+      <obj_property name="ObjectShortName">sdram_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/sdram_a" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_a[12:0]</obj_property>
+      <obj_property name="ObjectShortName">sdram_a[12:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/sdram_dq" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_dq[15:0]</obj_property>
+      <obj_property name="ObjectShortName">sdram_dq[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/atari800xl/cpu6502/reset" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/atari800xl/cpu6502/di" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">di[7:0]</obj_property>
+      <obj_property name="ObjectShortName">di[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/atari800xl/cpu6502/do" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">do[7:0]</obj_property>
+      <obj_property name="ObjectShortName">do[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/atari800xl/cpu6502/a" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">a[15:0]</obj_property>
+      <obj_property name="ObjectShortName">a[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/atari800xl/cpu6502/throttle" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">throttle</obj_property>
+      <obj_property name="ObjectShortName">throttle</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/atari800xl/cpu6502/memory_ready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">memory_ready</obj_property>
+      <obj_property name="ObjectShortName">memory_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/sdram_request" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_request</obj_property>
+      <obj_property name="ObjectShortName">sdram_request</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/sdram_request_next" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_request_next</obj_property>
+      <obj_property name="ObjectShortName">sdram_request_next</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/sdram_request_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_request_reg</obj_property>
+      <obj_property name="ObjectShortName">sdram_request_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/sdram_request_complete_next" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_request_complete_next</obj_property>
+      <obj_property name="ObjectShortName">sdram_request_complete_next</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/sdram_request_complete_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_request_complete_reg</obj_property>
+      <obj_property name="ObjectShortName">sdram_request_complete_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/sdram_request_complete" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_request_complete</obj_property>
+      <obj_property name="ObjectShortName">sdram_request_complete</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/sdram_rdy" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_rdy</obj_property>
+      <obj_property name="ObjectShortName">sdram_rdy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/sdram_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_addr[22:0]</obj_property>
+      <obj_property name="ObjectShortName">sdram_addr[22:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/atari800xl/mmu1/cpu_fetch" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cpu_fetch</obj_property>
+      <obj_property name="ObjectShortName">cpu_fetch</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/atari800xl/mmu1/antic_fetch" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">antic_fetch</obj_property>
+      <obj_property name="ObjectShortName">antic_fetch</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/sdram_controller/ap1_rden" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ap1_rden</obj_property>
+      <obj_property name="ObjectShortName">ap1_rden</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/sdram_controller/ap1_wren" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ap1_wren</obj_property>
+      <obj_property name="ObjectShortName">ap1_wren</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/ram_rd_active" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ram_rd_active</obj_property>
+      <obj_property name="ObjectShortName">ram_rd_active</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/ram_wr_active" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ram_wr_active</obj_property>
+      <obj_property name="ObjectShortName">ram_wr_active</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/seq_ph_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">seq_ph_reg</obj_property>
+      <obj_property name="ObjectShortName">seq_ph_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/seq_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">seq_reg[11:0]</obj_property>
+      <obj_property name="ObjectShortName">seq_reg[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/sd_dat0" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sd_dat0</obj_property>
+      <obj_property name="ObjectShortName">sd_dat0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/sd_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sd_clk</obj_property>
+      <obj_property name="ObjectShortName">sd_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/sd_cmd" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sd_cmd</obj_property>
+      <obj_property name="ObjectShortName">sd_cmd</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/sd_dat3" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sd_dat3</obj_property>
+      <obj_property name="ObjectShortName">sd_dat3</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/zpu/config_regs/spi_master1/clock" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clock</obj_property>
+      <obj_property name="ObjectShortName">clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/zpu/config_regs/spi_master1/reset_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">reset_n</obj_property>
+      <obj_property name="ObjectShortName">reset_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/zpu/config_regs/spi_master1/enable" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">enable</obj_property>
+      <obj_property name="ObjectShortName">enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/zpu/config_regs/spi_master1/cpol" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cpol</obj_property>
+      <obj_property name="ObjectShortName">cpol</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/zpu/config_regs/spi_master1/cpha" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cpha</obj_property>
+      <obj_property name="ObjectShortName">cpha</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/zpu/config_regs/spi_master1/cont" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cont</obj_property>
+      <obj_property name="ObjectShortName">cont</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/zpu/config_regs/spi_master1/clk_div" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_div</obj_property>
+      <obj_property name="ObjectShortName">clk_div</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/zpu/config_regs/spi_master1/addr" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">addr</obj_property>
+      <obj_property name="ObjectShortName">addr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/zpu/config_regs/spi_master1/tx_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">tx_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tx_data[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/zpu/config_regs/spi_master1/miso" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">miso</obj_property>
+      <obj_property name="ObjectShortName">miso</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/zpu/config_regs/spi_master1/mosi" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mosi</obj_property>
+      <obj_property name="ObjectShortName">mosi</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/zpu/config_regs/spi_master1/busy" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">busy</obj_property>
+      <obj_property name="ObjectShortName">busy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/zpu/config_regs/spi_master1/rx_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">rx_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_data[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+</wave_config>
