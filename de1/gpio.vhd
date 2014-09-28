@@ -10,9 +10,14 @@ USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity gpio is
+generic
+(
+	cartridge_cycle_length : in integer := 32
+);
 port
 (
 	clk : in std_logic;
+	reset_n : in std_logic;
 	
 	gpio_enable : in std_logic;
 
@@ -305,7 +310,9 @@ begin
 	
 	read_write_n <= not(pbi_write_enable);
 	
-	cart_complete <= cart_request; -- TODO!
+	cart_delay : entity work.delay_line
+		generic map (COUNT=>cartridge_cycle_length-1)
+		port map(clk=>clk,sync_reset=>'0',data_in=>cart_request,enable=>'1',reset_n=>reset_n,data_out=>cart_complete);	
 	
 	rd4_async <= gpio_enable and GPIO_0_IN(22);
 	cart_rd4_synchronizer : synchronizer
