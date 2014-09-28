@@ -354,11 +354,12 @@ struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(
 	prev->size = 0;
 	prev->is_subdir = 1;
 	prev->is_readonly = 1;
+	prev->next = 0;
 	--room;
 
 	//int count=0;
-	struct SimpleDirEntry * entry = 0;
-	while (FR_OK == pf_readdir(&dir,&filinfo) && filinfo.fname[0]!='\0')
+	struct SimpleDirEntry * entry = prev + 1;
+	while (room && FR_OK == pf_readdir(&dir,&filinfo) && filinfo.fname[0]!='\0')
 	{
 		char * ptr;
 
@@ -369,17 +370,6 @@ struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(
 		if (filinfo.fattrib & AM_HID)
 		{
 			continue;
-		}
-
-		if (room)
-		{
-			entry = prev+1;
-			--room;
-		}
-		else
-		{
-			//printf("OUT of room!\n");
-			break; // OUT OF ROOM!
 		}
 
 		//printf("next %x %d ",entry,room);
@@ -403,23 +393,24 @@ struct SimpleDirEntry * dir_entries_filtered(char const * dirPath,int(* filter)(
 		//int count;
 		//printf("%d %s %s\n",count++, filinfo.fname, filinfo.lfname);
 
-		entry->next = 0;
 
 		if (filter && !filter(entry))
 		{
-			continue;	
+			continue;
 		}
+
+		entry->next = 0;
 
 		if (prev)
 			prev->next = entry;
 		prev = entry;
+		entry++;
+		room--;
 
 		//printf("n %d %d %x ",filinfo.fsize, entry->size, entry->next);
 	}
 
 	//printf("dir_entries done ");
-
-	entry->next = 0;
 
 	/*struct SimpleDirEntry * begin = (struct SimpleDirEntry *) dir_cache;
 	int count = 0;
