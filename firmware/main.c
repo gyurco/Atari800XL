@@ -1,3 +1,4 @@
+#include <alloca.h>
 #include <sys/types.h>
 #include "integer.h"
 #include "regs.h"
@@ -9,6 +10,13 @@
 #include "simpledir.h"
 #include "simplefile.h"
 #include "fileselector.h"
+
+#ifdef LINUX_BUILD
+#include "curses_screen.h"
+#define after_set_reg_hook() display_out_regs()
+#else
+#define after_set_reg_hook() do { } while(0)
+#endif
 
 #include "atari_drive_emulator.h"
 #include "memory.h"
@@ -48,6 +56,7 @@ void set_ ## name(int param) \
 	val |= op(param)<<shift; \
 	 \
 	*reg = val; \
+	after_set_reg_hook(); \
 }
 
 #define BIT_REG_RO(op,mask,shift,name,reg) \
@@ -148,6 +157,19 @@ int debug_pos;
 int debug_adjust;
 unsigned char volatile * baseaddr;
 
+#ifdef LINUX_BUILD
+void char_out(void* p, char c)
+{
+	// get rid of unused parameter p warning
+	(void)(p);
+	int x, y;
+	x = debug_pos % 40;
+	y = debug_pos / 40;
+	display_char(x, y, c, debug_adjust == 128);
+	debug_pos++;
+}
+
+#else
 void clearscreen()
 {
 	unsigned volatile char * screen;
@@ -164,6 +186,7 @@ void char_out ( void* p, char c)
 		++debug_pos;
 	}
 }
+#endif
 
 struct SimpleFile * files[6];
 void loadromfile(struct SimpleFile * file, int size, size_t ram_address)
@@ -201,7 +224,11 @@ void loadosrom()
 	}
 }
 
+#ifdef LINUX_BUILD
+int zpu_main(void)
+#else
 int main(void)
+#endif
 {
 /*	disk_initialize();
 	{
@@ -555,6 +582,9 @@ int settings()
 
 void actions()
 {
+#ifdef LINUX_BUILD
+	check_keys();
+#endif
 	// Show some activity!
 	//*atari_colbk = *atari_random;
 	
