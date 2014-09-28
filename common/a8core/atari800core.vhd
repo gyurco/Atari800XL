@@ -342,30 +342,24 @@ PORT MAP(CLK => CLK,
 		 DATA_OUT => ANTIC_DO,
 		 dma_address_out => ANTIC_ADDR);
 
-pokey_mixer_l : entity work.pokey_mixer
+pokey_mixer_both : entity work.pokey_mixer_mux
 PORT MAP(CLK => CLK,
 		 GTIA_SOUND => GTIA_SOUND,
-		 CHANNEL_0 => POKEY1_CHANNEL0,
-		 CHANNEL_1 => POKEY1_CHANNEL1,
-		 CHANNEL_2 => POKEY1_CHANNEL2,
-		 CHANNEL_3 => POKEY1_CHANNEL3,
-		 CHANNEL_ENABLE => "1111",
-		 COVOX_CHANNEL_0 => covox_channel0,
-		 COVOX_CHANNEL_1 => covox_channel1,
-		 VOLUME_OUT => AUDIO_L);
+		 CHANNEL_L_0 => POKEY1_CHANNEL0,
+		 CHANNEL_L_1 => POKEY1_CHANNEL1,
+		 CHANNEL_L_2 => POKEY1_CHANNEL2,
+		 CHANNEL_L_3 => POKEY1_CHANNEL3,
+		 COVOX_CHANNEL_L_0 => covox_channel0,
+		 COVOX_CHANNEL_L_1 => covox_channel1,
+		 CHANNEL_R_0 => POKEY2_CHANNEL0,
+		 CHANNEL_R_1 => POKEY2_CHANNEL1,
+		 CHANNEL_R_2 => POKEY2_CHANNEL2,
+		 CHANNEL_R_3 => POKEY2_CHANNEL3,
+		 COVOX_CHANNEL_R_0 => covox_channel2,
+		 COVOX_CHANNEL_R_1 => covox_channel3,
+		 VOLUME_OUT_L => AUDIO_L,
+		 VOLUME_OUT_R => AUDIO_R);
 		 
-pokey_mixer_r : entity work.pokey_mixer
-PORT MAP(CLK => CLK,
-		 GTIA_SOUND => GTIA_SOUND,
-		 CHANNEL_0 => POKEY2_CHANNEL0,
-		 CHANNEL_1 => POKEY2_CHANNEL1,
-		 CHANNEL_2 => POKEY2_CHANNEL2,
-		 CHANNEL_3 => POKEY2_CHANNEL3,
-		 COVOX_CHANNEL_0 => covox_channel2,
-		 COVOX_CHANNEL_1 => covox_channel3,
-		 CHANNEL_ENABLE => "1111",
-		 VOLUME_OUT => AUDIO_R);
-
 pokey2 : entity work.pokey
 PORT MAP(CLK => CLK,
 		 ENABLE_179 => ENABLE_179_MEMWAIT,

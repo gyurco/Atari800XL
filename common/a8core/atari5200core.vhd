@@ -215,8 +215,6 @@ signal POKEY1_CHANNEL1 : std_logic_vector(3 downto 0);
 signal POKEY1_CHANNEL2 : std_logic_vector(3 downto 0);
 signal POKEY1_CHANNEL3 : std_logic_vector(3 downto 0);
 
-signal AUDIO_BOTH : std_logic_vector(15 downto 0);
-
 -- MEMORY IS READY - input to all devices
 SIGNAL	MEMORY_DATA :  STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL	MEMORY_READY_ANTIC :  STD_LOGIC;
@@ -294,19 +292,23 @@ PORT MAP(CLK => CLK,
 		 DATA_OUT => ANTIC_DO,
 		 dma_address_out => ANTIC_ADDR);
 
-pokey_mixer_l : entity work.pokey_mixer
+pokey_mixer : entity work.pokey_mixer_mux
 PORT MAP(CLK => CLK,
 		 GTIA_SOUND => '0',
-		 CHANNEL_0 => POKEY1_CHANNEL0,
-		 CHANNEL_1 => POKEY1_CHANNEL1,
-		 CHANNEL_2 => POKEY1_CHANNEL2,
-		 CHANNEL_3 => POKEY1_CHANNEL3,
-		 CHANNEL_ENABLE => "1111",
-		 COVOX_CHANNEL_0 => (others=>'0'),
-		 COVOX_CHANNEL_1 => (others=>'0'),
-		 VOLUME_OUT => AUDIO_BOTH);
-AUDIO_L <= AUDIO_BOTH;
-AUDIO_R <= AUDIO_BOTH;
+		 CHANNEL_L_0 => POKEY1_CHANNEL0,
+		 CHANNEL_L_1 => POKEY1_CHANNEL1,
+		 CHANNEL_L_2 => POKEY1_CHANNEL2,
+		 CHANNEL_L_3 => POKEY1_CHANNEL3,
+		 COVOX_CHANNEL_L_0 => (others=>'0'),
+		 COVOX_CHANNEL_L_1 => (others=>'0'),
+		 CHANNEL_R_0 => POKEY1_CHANNEL0,
+		 CHANNEL_R_1 => POKEY1_CHANNEL1,
+		 CHANNEL_R_2 => POKEY1_CHANNEL2,
+		 CHANNEL_R_3 => POKEY1_CHANNEL3,
+		 COVOX_CHANNEL_R_0 => (others=>'0'),
+		 COVOX_CHANNEL_R_1 => (others=>'0'),
+		 VOLUME_OUT_L => AUDIO_L,
+		 VOLUME_OUT_R => AUDIO_R);
 		 
 -- TODO, this is freddy, replace with 5200 equiv rather than generic
 -- Also remove dma logic from here if possible

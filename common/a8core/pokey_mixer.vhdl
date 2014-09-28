@@ -13,10 +13,6 @@ use IEEE.STD_LOGIC_MISC.all;
 ENTITY pokey_mixer IS
 PORT 
 ( 
-	CLK : IN STD_LOGIC;
-	
-	CHANNEL_ENABLE : IN STD_LOGIC_VECTOR(3 downto 0);
-		
 	CHANNEL_0 : IN STD_LOGIC_VECTOR(3 downto 0);
 	CHANNEL_1 : IN STD_LOGIC_VECTOR(3 downto 0);
 	CHANNEL_2 : IN STD_LOGIC_VECTOR(3 downto 0);
@@ -27,55 +23,16 @@ PORT
 	COVOX_CHANNEL_0 : IN STD_LOGIC_VECTOR(7 downto 0);
 	COVOX_CHANNEL_1 : IN STD_LOGIC_VECTOR(7 downto 0);
 	
-	VOLUME_OUT : OUT STD_LOGIC_vector(15 downto 0)
+	VOLUME_OUT_NEXT : OUT STD_LOGIC_vector(15 downto 0)
 );
 END pokey_mixer;
 
 ARCHITECTURE vhdl OF pokey_mixer IS
-	signal volume_next : std_logic_vector(15 downto 0);
-	signal volume_reg : std_logic_vector(15 downto 0);
-	
 	signal volume_sum : std_logic_vector(9 downto 0);
-	
-	signal channel_0_en : std_logic_vector(3 downto 0);
-	signal channel_1_en : std_logic_vector(3 downto 0);
-	signal channel_2_en : std_logic_vector(3 downto 0);
-	signal channel_3_en : std_logic_vector(3 downto 0);
+	signal volume_next : std_logic_vector(15 downto 0);
 BEGIN
-	-- register
-	process(clk)
-	begin
-		if (clk'event and clk='1') then
-			volume_reg <= volume_next;
-		end if;
-	end process;
-	
 	-- next state
-	process(channel_enable,channel_0,channel_1,channel_2,channel_3)
-	begin
-		channel_0_en <= channel_0;
-		channel_1_en <= channel_1;
-		channel_2_en <= channel_2;
-		channel_3_en <= channel_3;
-	
---		if (channel_enable(3)='0') then
---			channel_0_en <= X"0";
---		end if;
---		
---		if (channel_enable(2)='0') then
---			channel_1_en <= X"0";
---		end if;
---
---		if (channel_enable(1)='0') then
---			channel_2_en <= X"0";
---		end if;
---		
---		if (channel_enable(0)='0') then
---			channel_3_en <= X"0";
---		end if;
-	end process;
-	
-	process (channel_0_en,channel_1_en,channel_2_en,channel_3_en,covox_CHANNEL_0,covox_channel_1,gtia_sound)
+	process (channel_0,channel_1,channel_2,channel_3,covox_CHANNEL_0,covox_channel_1,gtia_sound)
 		variable channel0_en_long : unsigned(10 downto 0);
 		variable channel1_en_long : unsigned(10 downto 0);
 		variable channel2_en_long : unsigned(10 downto 0);
@@ -94,10 +51,10 @@ BEGIN
 		covox_0_long := (others=>'0');
 		covox_1_long := (others=>'0');
 
-		channel0_en_long(7 downto 4) := unsigned(channel_0_en);
-		channel1_en_long(7 downto 4) := unsigned(channel_1_en);
-		channel2_en_long(7 downto 4) := unsigned(channel_2_en);
-		channel3_en_long(7 downto 4) := unsigned(channel_3_en);
+		channel0_en_long(7 downto 4) := unsigned(channel_0);
+		channel1_en_long(7 downto 4) := unsigned(channel_1);
+		channel2_en_long(7 downto 4) := unsigned(channel_2);
+		channel3_en_long(7 downto 4) := unsigned(channel_3);
 		gtia_sound_long(7 downto 4) := gtia_sound&gtia_sound&gtia_sound&gtia_sound;
 		covox_0_long(7 downto 0) := unsigned(covox_channel_0);
 		covox_1_long(7 downto 0) := unsigned(covox_channel_1);
@@ -2038,6 +1995,6 @@ BEGIN
         end process;
 
 	-- output
-	volume_out <= volume_reg(15 downto 0);
+	volume_out_next <= volume_next;
 		
 END vhdl;
