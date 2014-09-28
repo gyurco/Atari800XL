@@ -631,7 +631,7 @@ end generate;
 		
 					if (cart_rd4 = '1') then
 						MEMORY_DATA(7 downto 0) <= CART_ROM_DATA;
-						rom_request <= start_request;
+						cart_request <= start_request;
 						CART_S4_n <= '0';
 						request_complete <= CART_REQUEST_COMPLETE;
 						sdram_chip_select <= '0';

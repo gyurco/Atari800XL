@@ -218,10 +218,21 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 	signal GPIO_1_DIR_OUT : std_logic_vector(35 downto 0);
 	signal GPIO_1_OUT : std_logic_vector(35 downto 0);
 	signal TRIGGERS : std_logic_vector(3 downto 0);
+
 	signal POT_RESET : std_logic;
 	signal POT_IN : std_logic_vector(7 downto 0);
+
 	signal GPIO_KEYBOARD_RESPONSE  : std_logic_vector(1 downto 0);
 	signal PS2_KEYBOARD_RESPONSE  : std_logic_vector(1 downto 0);
+
+	signal PBI_WRITE_ENABLE : std_logic;
+	signal PBI_ADDRESS : std_logic_vector(15 downto 0);
+
+	signal cart_request : std_logic;
+	signal cart_request_complete : std_logic;
+	signal cart_data : std_logic_vector(7 downto 0);
+
+	signal pbi_addr : std_logic_vector(15 downto 0);
 
 	-- scandoubler
 	signal half_scandouble_enable_reg : std_logic;
@@ -334,8 +345,8 @@ PORTB_IN <= PORTB_OUT;
 GTIA_TRIG <= CART_RD5&"1"&TRIGGERS(1 downto 0);
 
 -- Cartridge not inserted
-CART_RD4 <= '0';
-CART_RD5 <= '0';
+--CART_RD4 <= '0';
+--CART_RD5 <= '0';
 
 -- Internal rom/ram
 internalromram1 : entity work.internalromram
@@ -379,17 +390,21 @@ gpio1_gen:
    end generate gpio1_gen;
 
 gpio1 : entity work.gpio
+GENERIC MAP(
+		cartridge_cycle_length => 26
+)
 PORT MAP(clk => CLK,
+	reset_n => reset_n,
 		 gpio_enable => SW(4),
 		 pot_reset => pot_reset,
-		 pbi_write_enable => '0',
-		 cart_request => '0',
-		 cart_complete => open,
-		 cart_data_read => open,
+		 pbi_write_enable => pbi_write_enable,
+		 cart_request => cart_request,
+		 cart_complete => cart_request_complete,
+		 cart_data_read => cart_data,
 		 s4_n => cart_s4_n,
 		 s5_n => cart_s5_n,
 		 cctl_n => cart_cctl_n,
-		 cart_data_write => x"00",
+		 cart_data_write => pbi_write_data(7 downto 0),
 		 GPIO_0_IN => GPIO_0,
 		 GPIO_0_OUT => GPIO_0_OUT,
 		 GPIO_0_DIR_OUT => GPIO_0_DIR_OUT,
@@ -397,12 +412,12 @@ PORT MAP(clk => CLK,
 		 GPIO_1_OUT => GPIO_1_OUT,
 		 GPIO_1_DIR_OUT => GPIO_1_DIR_OUT,		 
 		 keyboard_scan => KEYBOARD_SCAN,
-		 pbi_addr_out => X"0000",
+		 pbi_addr_out => pbi_addr,
 		 porta_out => PORTA_OUT,
 		 porta_output => PORTA_DIR_OUT,
 		 lightpen => ANTIC_LIGHTPEN,
-		 rd4 => open,
-		 rd5 => open,
+		 rd4 => CART_RD4,
+		 rd5 => CART_RD5,
 		 keyboard_response => GPIO_KEYBOARD_RESPONSE,
 		 porta_in => PORTA_IN,
 		 pot_in => pot_in,
@@ -574,17 +589,17 @@ atari800 : entity work.atari800core
 		POT_IN => POT_IN,
 		POT_RESET => POT_RESET,
 		
-		PBI_ADDR => open,
-		PBI_WRITE_ENABLE => open,
+		PBI_ADDR => PBI_ADDR,
+		PBI_WRITE_ENABLE => PBI_WRITE_ENABLE,
 		PBI_SNOOP_DATA => open,
 		PBI_WRITE_DATA => PBI_WRITE_DATA,
 		PBI_WIDTH_8bit_ACCESS => PBI_WIDTH_8bit_ACCESS,
 		PBI_WIDTH_16bit_ACCESS => PBI_WIDTH_16bit_ACCESS,
 		PBI_WIDTH_32bit_ACCESS => PBI_WIDTH_32bit_ACCESS,
 
-		PBI_ROM_DO => "11111111",
-		PBI_REQUEST => open,
-		PBI_REQUEST_COMPLETE => '1',
+		PBI_ROM_DO => CART_DATA,
+		PBI_REQUEST => CART_REQUEST,
+		PBI_REQUEST_COMPLETE => CART_REQUEST_COMPLETE,
 
 		CART_RD4 => CART_RD4,
 		CART_RD5 => CART_RD5,
