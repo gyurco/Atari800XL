@@ -218,6 +218,10 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 	signal GPIO_1_DIR_OUT : std_logic_vector(35 downto 0);
 	signal GPIO_1_OUT : std_logic_vector(35 downto 0);
 	signal TRIGGERS : std_logic_vector(3 downto 0);
+	signal POT_RESET : std_logic;
+	signal POT_IN : std_logic_vector(7 downto 0);
+	signal GPIO_KEYBOARD_RESPONSE  : std_logic_vector(1 downto 0);
+	signal PS2_KEYBOARD_RESPONSE  : std_logic_vector(1 downto 0);
 
 	-- scandoubler
 	signal half_scandouble_enable_reg : std_logic;
@@ -376,8 +380,8 @@ gpio1_gen:
 
 gpio1 : entity work.gpio
 PORT MAP(clk => CLK,
-		 gpio_enable => '1',
-		 pot_reset => '0',
+		 gpio_enable => SW(4),
+		 pot_reset => pot_reset,
 		 pbi_write_enable => '0',
 		 cart_request => '0',
 		 cart_complete => open,
@@ -399,9 +403,9 @@ PORT MAP(clk => CLK,
 		 lightpen => ANTIC_LIGHTPEN,
 		 rd4 => open,
 		 rd5 => open,
-		 keyboard_response => open,
+		 keyboard_response => GPIO_KEYBOARD_RESPONSE,
 		 porta_in => PORTA_IN,
-		 pot_in => open,
+		 pot_in => pot_in,
 		 trig_in => TRIGGERS,
 		 CA2_DIR_OUT => CA2_DIR_OUT,
 		 CA2_OUT => CA2_OUT,
@@ -503,7 +507,7 @@ keyboard_map1 : entity work.ps2_to_atari800
 		PS2_DAT => ps2_dat,
 		
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
-		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
+		KEYBOARD_RESPONSE => PS2_KEYBOARD_RESPONSE,
 
 		CONSOL_START => CONSOL_START,
 		CONSOL_SELECT => CONSOL_SELECT,
@@ -511,6 +515,8 @@ keyboard_map1 : entity work.ps2_to_atari800
 		
 		FKEYS => FKEYS
 	);
+
+KEYBOARD_RESPONSE <= PS2_KEYBOARD_RESPONSE and GPIO_KEYBOARD_RESPONSE;
 
 -- SIO
 -- TODO combine
@@ -565,8 +571,8 @@ atari800 : entity work.atari800core
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 
-		POT_IN => "00000000",
-		POT_RESET => open,
+		POT_IN => POT_IN,
+		POT_RESET => POT_RESET,
 		
 		PBI_ADDR => open,
 		PBI_WRITE_ENABLE => open,
