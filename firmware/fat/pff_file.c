@@ -93,7 +93,7 @@ void file_check_open(struct SimpleFile * file)
 
 enum SimpleFileStatus file_read(struct SimpleFile * file, void * buffer, int bytes, int * bytesread)
 {
-	WORD bytesread_word;
+	UINT bytesread_word;
 	FRESULT res;
 
 	file_write_flush();
@@ -107,7 +107,7 @@ enum SimpleFileStatus file_read(struct SimpleFile * file, void * buffer, int byt
 
 enum SimpleFileStatus file_write(struct SimpleFile * file, void * buffer, int bytes, int * byteswritten)
 {
-	WORD byteswritten_word;
+	UINT byteswritten_word;
 	FRESULT res;
 
 	//printf("went\n");
