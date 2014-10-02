@@ -1,6 +1,8 @@
 #ifndef regs_h
 #define regs_h
 
+static const int screen_address = 11328;
+
 extern int volatile * zpu_in1;
 extern int volatile * zpu_in2;
 extern int volatile * zpu_in3;
@@ -52,5 +54,6 @@ extern unsigned char volatile * atari_chbase;
 extern unsigned char volatile * atari_chactl;
 extern unsigned char volatile * atari_dmactl;
 extern unsigned char volatile * atari_skctl;
+extern unsigned char volatile * atari_kbcode;
 
 #endif // regs_h

@@ -1,6 +1,7 @@
 #include "freeze.h"
 
 #include "regs.h"
+#include "memory.h"
 
 unsigned char store_portb;
 unsigned volatile char * store_mem;

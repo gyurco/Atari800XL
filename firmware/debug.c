@@ -92,7 +92,7 @@ void plot(unsigned char val, int x, int y)
 {
 	if (onoff == 0) return;
 
-	unsigned char volatile * baseaddr = (unsigned char volatile *)(40000 + atari_regbase);
+	unsigned char volatile * baseaddr = (unsigned char volatile *)(screen_address + atari_regbase);
 	*(baseaddr + y*40+x) = val+debugoffsetval;
 }
 void debugoffset(int x)

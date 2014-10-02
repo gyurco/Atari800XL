@@ -1,6 +1,6 @@
 #include "regs.h"
+#include "memory.h"
 
-#define config_regbase 0x40000
 int volatile * zpu_in1 = (int *)(0*4+config_regbase);
 int volatile * zpu_in2 = (int *)(1*4+config_regbase);
 int volatile * zpu_in3 = (int *)(2*4+config_regbase);

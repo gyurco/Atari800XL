@@ -30,6 +30,13 @@ int filter_roms(struct SimpleDirEntry * entry)
 	return (compare_ext(f,"ROM"));
 }
 
+int filter_bins(struct SimpleDirEntry * entry)
+{
+	if (dir_is_subdir(entry)) return 1;
+	char const * f = dir_filename(entry);
+	return (compare_ext(f,"BIN"));
+}
+
 void dir_of(char * dir, char const * path); // TODO - into simpledir
 
 void file_selector(struct SimpleFile * file)
