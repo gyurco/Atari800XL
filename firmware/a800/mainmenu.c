@@ -226,7 +226,7 @@ int settings()
 					fil_type = fil_type_car;
 					filter = filter_specified;
 					file_selector(files[4]);
-					unsigned char mode = 0; // TODO load_car(files[4]);
+					unsigned char mode = load_car(files[4]);
 					set_cart_select(mode);
 					if (mode) {
 						return 1;
