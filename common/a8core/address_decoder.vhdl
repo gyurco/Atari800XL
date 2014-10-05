@@ -66,8 +66,7 @@ PORT
 	rom_in_ram : in std_logic;
 	
 	rom_select : in std_logic_vector(5 downto 0);
-	cart_select : in std_logic_vector(6 downto 0);
-	cart_activate : in std_logic;
+	cart_select : in std_logic_vector(5 downto 0);
 	
 	ram_select : in std_logic_vector(2 downto 0);
 	
@@ -110,6 +109,8 @@ PORT
 	CART_S4_n : out std_logic;
 	CART_S5_n : out std_logic;
 	CART_CCTL_n : out std_logic;
+
+	CART_TRIG3_OUT: out std_logic;
 	
 	-- width of access
 	WIDTH_8bit_ACCESS : out std_logic;
@@ -195,6 +196,22 @@ ARCHITECTURE vhdl OF address_decoder IS
 	signal SDRAM_OS_ROM_ADDR : std_logic_vector(22 downto 0);
 	
 	signal sdram_only_bank : std_logic;
+
+	signal emu_cart_enable: std_logic;
+
+	signal emu_cart_cctl_n: std_logic;
+	signal emu_cart_data_in: std_logic_vector(7 downto 0);
+	signal emu_cart_rw: std_logic;
+	signal emu_cart_s4_n: std_logic;
+	signal emu_cart_s5_n: std_logic;
+	signal emu_cart_s4_n_out: std_logic;
+	signal emu_cart_s5_n_out: std_logic;
+	signal emu_cart_rd4: std_logic;
+	signal emu_cart_rd5: std_logic;
+	signal emu_cart_address: std_logic_vector(20 downto 0);
+	signal emu_cart_address_enable: boolean;
+	signal emu_cart_cctl_dout: std_logic_vector(7 downto 0);
+	signal emu_cart_cctl_dout_enable: boolean;
 	
 BEGIN
 		-- register
@@ -228,6 +245,41 @@ BEGIN
 			antic_fetch_real_reg <= antic_fetch_real_next;
 		end if;
 	end process;
+
+	-- emulated cart
+	emu_cart: entity work.CartLogic
+	port map (clk => clk,
+		cart_mode => cart_select(5 downto 0),
+		a => addr_next(12 downto 0),
+		cctl_n => emu_cart_cctl_n,
+		d_in => cpu_write_data,
+		rw => emu_cart_rw,
+		s4_n => emu_cart_s4_n,
+		s5_n => emu_cart_s5_n,
+		s4_n_out => emu_cart_s4_n_out,
+		s5_n_out => emu_cart_s5_n_out,
+		rd4 => emu_cart_rd4,
+		rd5 => emu_cart_rd5,
+		cart_address => emu_cart_address,
+		cart_address_enable => emu_cart_address_enable,
+		cctl_dout => emu_cart_cctl_dout,
+		cctl_dout_enable => emu_cart_cctl_dout_enable
+	);
+
+	process(cart_select)
+	begin
+		if (cart_select(5 downto 0) = "000000") then
+			emu_cart_enable <= '0';
+		else
+			emu_cart_enable <= '1';
+		end if;
+	end process;
+
+	-- use "real" cart as if it was stacked on top of the emulated cart
+	--cart_s4_n <= emu_cart_s4_n_out;
+	--cart_s5_n <= emu_cart_s5_n_out;
+
+	CART_TRIG3_OUT <= CART_RD5 or emu_cart_rd5;
 	
 	-- ANTIC FETCH
 	
@@ -255,7 +307,7 @@ BEGIN
 		notify_cpu <= '0';
 		notify_DMA <= '0';
 		state_next <= state_reg;
-		fetch_wait_next <= std_logic_vector(unsigned(fetch_wait_reg) +1);
+		fetch_wait_next <= std_logic_vector(unsigned(fetch_wait_reg) + to_unsigned(1,9));
 
 		addr_next <= addr_reg;
 		data_WRITE_next <= data_WRITE_reg;
@@ -433,7 +485,8 @@ gen_normal_memory : if low_memory=0 generate
 	-- +64k          - banks 256-259"100 0000 0000 1111 1111 1111" (TOP)
 	-- SCRATCH       - 4MB+64k-5MB
 	-- CARTS         -              "101 YYYY YYY0 0000 0000 0000" (BOT) - 2MB! 8kb banks
-	SDRAM_CART_ADDR      <= "101"&cart_select& "0000000000000";
+	--SDRAM_CART_ADDR      <= "101"&cart_select& "0000000000000";
+	SDRAM_CART_ADDR	<= "1" & emu_cart_address(20) & (not emu_cart_address(20)) & emu_cart_address(19 downto 0);
 	-- BASIC/OS ROM  -              "111 XXXX XX00 0000 0000 0000" (BOT) (BASIC IN SLOT 0!), 2nd to last 512K				
 	SDRAM_BASIC_ROM_ADDR <= "111"&"000000"   &"00000000000000";
 	SDRAM_OS_ROM_ADDR    <= "111"&rom_select &"00000000000000";
@@ -444,7 +497,7 @@ end generate;
 gen_low_memory : if low_memory=1 generate
 
 	-- SRAM memory map (1024k) for Aeon Lite
-	SDRAM_CART_ADDR      <= "000" & "111" & cart_select(3 downto 0) & "0000000000000";
+	SDRAM_CART_ADDR      <= "000" & "111" & emu_cart_address(16 downto 0);
 	SDRAM_BASIC_ROM_ADDR <= "000" & "110" &                       "00000000000000000";
 	SDRAM_OS_ROM_ADDR    <= "000" & "110" & rom_select(2 downto 0) & "00000000000000";
 
@@ -458,8 +511,16 @@ end generate;
 		portb, 
 		antic_fetch,
 		rom_select,
-		ram_select,cart_rd4,cart_rd5,
+		ram_select,
 		use_sdram,
+
+		-- cart stuff
+		cart_rd4,cart_rd5,
+		emu_cart_rd4,emu_cart_rd5,
+
+		emu_cart_enable,
+		emu_cart_address, emu_cart_address_enable,
+		emu_cart_cctl_dout, emu_cart_cctl_dout_enable,
 		
 		-- input data from n sources
 		GTIA_DATA,POKEY_DATA,POKEY2_DATA,PIA_DATA,ANTIC_DATA,CART_ROM_DATA,ROM_DATA,RAM_DATA,SDRAM_DATA,
@@ -476,7 +537,9 @@ end generate;
 		
 		-- SDRAM base addresses
 		extended_self_test,extended_bank,sdram_only_bank,
-		SDRAM_BASIC_ROM_ADDR,SDRAM_CART_ADDR,SDRAM_OS_ROM_ADDR
+		SDRAM_BASIC_ROM_ADDR,
+		SDRAM_CART_ADDR,
+		SDRAM_OS_ROM_ADDR
 		
 	)
 	begin
@@ -505,7 +568,18 @@ end generate;
 		CART_S4_n <= '1';
 		CART_S5_n <= '1';
 		CART_CCTL_n <= '1';
-		
+
+		emu_cart_s4_n <= '1';
+		emu_cart_s5_n <= '1';
+
+		emu_cart_cctl_n <= '1';
+
+		if (write_enable_next = '1') then
+			emu_cart_rw <= '0';
+		else
+			emu_cart_rw <= '1';
+		end if;
+
 		rom_request <= '0';
 		cart_request <= '0';
 		
@@ -577,16 +651,33 @@ end generate;
 				-- CART_CONFIG -- TODO - wait for n cycles (for now non-turbo mode should work?)
 				when X"D5" =>
 					sdram_chip_select <= '0';
-					ram_chip_select <= '0';				
-					if ((CART_RD4 or CART_RD5) = '1') then
-						PBI_WR_ENABLE <= write_enable_next;
-						MEMORY_DATA(7 downto 0) <= CART_ROM_DATA;
-						cart_request <= start_request;
-						CART_CCTL_n <= '0';
-						request_complete <= CART_REQUEST_COMPLETE;
+					ram_chip_select <= '0';	
+
+					if (emu_cart_enable = '1') then
+						emu_cart_cctl_n <= '0';
+						if write_enable_next = '1' then
+							-- TODO: write to both emulated and real cart
+							request_complete <= '1';
+						else
+							-- read only from emulated
+							if emu_cart_cctl_dout_enable then
+								MEMORY_DATA(7 downto 0) <= emu_cart_cctl_dout;
+							else
+								MEMORY_DATA(7 downto 0) <= x"ff";
+							end if;
+							request_complete <= '1';
+						end if;
 					else
-						MEMORY_DATA(7 downto 0) <= X"FF";
-						request_complete <= '1';
+						if ((CART_RD4 or CART_RD5) = '1') then
+							PBI_WR_ENABLE <= write_enable_next;
+							MEMORY_DATA(7 downto 0) <= CART_ROM_DATA;
+							cart_request <= start_request;
+							CART_CCTL_n <= '0';
+							request_complete <= CART_REQUEST_COMPLETE;
+						else
+							MEMORY_DATA(7 downto 0) <= X"FF";
+							request_complete <= '1';
+						end if;
 					end if;
 					
 				when X"D6" =>
@@ -629,7 +720,22 @@ end generate;
 					X"80"|X"81"|X"82"|X"83"|X"84"|X"85"|X"86"|X"87"|X"88"|X"89"|X"8A"|X"8B"|X"8C"|X"8D"|X"8E"|X"8F"
 					|X"90"|X"91"|X"92"|X"93"|X"94"|X"95"|X"96"|X"97"|X"98"|X"99"|X"9A"|X"9B"|X"9C"|X"9D"|X"9E"|X"9F" =>
 		
-					if (cart_rd4 = '1') then
+					if (emu_cart_enable = '1' and emu_cart_rd4 = '1') then
+						emu_cart_s4_n <= '0';
+						-- remap to SDRAM
+						if (emu_cart_address_enable) then
+							SDRAM_ADDR <= SDRAM_CART_ADDR;
+							MEMORY_DATA(7 downto 0) <= SDRAM_DATA(7 downto 0);
+							request_complete <= sdram_request_COMPLETE;
+							sdram_chip_select <= start_request;
+							ram_chip_select <= '0';
+						else
+							MEMORY_DATA(7 downto 0) <= x"ff";
+							request_complete <= '1';
+							sdram_chip_select <= '0';
+							ram_chip_select <= '0';
+						end if;
+					elsif (cart_rd4 = '1') then
 						MEMORY_DATA(7 downto 0) <= CART_ROM_DATA;
 						cart_request <= start_request;
 						CART_S4_n <= '0';
@@ -643,7 +749,22 @@ end generate;
 					X"A0"|X"A1"|X"A2"|X"A3"|X"A4"|X"A5"|X"A6"|X"A7"|X"A8"|X"A9"|X"AA"|X"AB"|X"AC"|X"AD"|X"AE"|X"AF"
 					|X"B0"|X"B1"|X"B2"|X"B3"|X"B4"|X"B5"|X"B6"|X"B7"|X"B8"|X"B9"|X"BA"|X"BB"|X"BC"|X"BD"|X"BE"|X"BF" =>
 					
-					if (cart_rd5 = '1') then
+					if (emu_cart_enable = '1' and emu_cart_rd5 = '1') then
+						emu_cart_s5_n <= '0';
+						-- remap to SDRAM
+						if (emu_cart_address_enable) then
+							SDRAM_ADDR <= SDRAM_CART_ADDR;
+							MEMORY_DATA(7 downto 0) <= SDRAM_DATA(7 downto 0);
+							request_complete <= sdram_request_COMPLETE;							
+							sdram_chip_select <= start_request;
+							ram_chip_select <= '0';
+						else
+							MEMORY_DATA(7 downto 0) <= x"ff";
+							request_complete <= '1';
+							sdram_chip_select <= '0';
+							ram_chip_select <= '0';
+						end if;
+					elsif (cart_rd5 = '1') then
 						MEMORY_DATA(7 downto 0) <= CART_ROM_DATA;
 						cart_request <= start_request;
 						CART_S5_n <= '0';

@@ -211,6 +211,7 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 	signal reset_atari : std_logic;
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
+	signal emulated_cartridge_select: std_logic_vector(5 downto 0);
 
 	-- GPIO
 	signal GPIO_0_DIR_OUT : std_logic_vector(35 downto 0);
@@ -342,7 +343,7 @@ PORTB_IN <= PORTB_OUT;
 
 -- GTIA triggers
 --GTIA_TRIG <= CART_RD5&"1"&JOY2_n(4)&JOY1_n(4);
-GTIA_TRIG <= CART_RD5&"1"&TRIGGERS(1 downto 0);
+GTIA_TRIG <= "11"&TRIGGERS(1 downto 0);
 
 -- Cartridge not inserted
 --CART_RD4 <= '0';
@@ -650,8 +651,7 @@ atari800 : entity work.atari800core
 
 		RAM_SELECT => ram_select,
 		ROM_SELECT => rom_select,
-		CART_EMULATION_SELECT => "0000000",
-		CART_EMULATION_ACTIVATE => '0',
+		CART_EMULATION_SELECT => emulated_cartridge_select,
 		PAL => SW(8),
 		USE_SDRAM => SW(9),
 		ROM_IN_RAM => '1',
@@ -720,6 +720,7 @@ zpu: entity work.zpucore
 	speed_6502 <= zpu_out1(7 downto 2);
 	ram_select <= zpu_out1(10 downto 8);
 	rom_select <= zpu_out1(16 downto 11);
+	emulated_cartridge_select <= zpu_out1(22 downto 17);
 
 zpu_rom1: entity work.zpu_rom
 	port map(

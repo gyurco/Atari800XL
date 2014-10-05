@@ -135,7 +135,8 @@ ENTITY atari800core_simple_sdram is
     		ROM_SELECT : in std_logic_vector(5 downto 0); -- 16KB ROM Bank - 0 is illegal (slot used for BASIC!)
 		PAL :  in STD_LOGIC;
 		HALT : in std_logic;
-		THROTTLE_COUNT_6502 : in std_logic_vector(5 downto 0) -- standard speed is cycle_length-1
+		THROTTLE_COUNT_6502 : in std_logic_vector(5 downto 0); -- standard speed is cycle_length-1
+		emulated_cartridge_select: in std_logic_vector(5 downto 0)
 	);
 end atari800core_simple_sdram;
 
@@ -200,7 +201,7 @@ PORTB_IN <= PORTB_OUT;
 ANTIC_LIGHTPEN <= JOY2_n(4) and JOY1_n(4);
 
 -- GTIA triggers
-GTIA_TRIG <= CART_RD5&"1"&JOY2_n(4)&JOY1_n(4);
+GTIA_TRIG <= "11"&JOY2_n(4)&JOY1_n(4);
 
 -- Cartridge not inserted
 CART_RD4 <= '0';
@@ -342,8 +343,7 @@ atari800xl : entity work.atari800core
 
 		RAM_SELECT => RAM_SELECT,
 		ROM_SELECT => ROM_SELECT,
-		CART_EMULATION_SELECT => "0000000",
-		CART_EMULATION_ACTIVATE => '0',
+		CART_EMULATION_SELECT => emulated_cartridge_select,
 		PAL => PAL,
 		USE_SDRAM => USE_SDRAM,
 		ROM_IN_RAM => ROM_IN_RAM,

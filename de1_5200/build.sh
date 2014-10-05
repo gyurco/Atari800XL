@@ -4,7 +4,7 @@ use strict;
 my $wanted_variant = shift @ARGV;
 
 #variants...
-my $PAL = 1;
+##my $PAL = 1;
 my $NTSC = 0;
 
 my $RGB = 1; # i.e. not scandoubled
@@ -15,10 +15,10 @@ my $VGA = 2;
 
 my %variants = 
 (
-	"PAL" => 
-	{
-		"TV" => $PAL
-	},
+#	"PAL" => 
+#	{
+#		"TV" => $PAL
+#	},
 	"NTSC" =>
 	{
 		"TV" => $NTSC

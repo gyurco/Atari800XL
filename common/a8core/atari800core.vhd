@@ -173,8 +173,7 @@ ENTITY atari800core IS
 		-- Special config params
    		RAM_SELECT : in std_logic_vector(2 downto 0); -- 64K,128K,320KB Compy, 320KB Rambo, 576K Compy, 576K Rambo, 1088K, 4MB
     		ROM_SELECT : in std_logic_vector(5 downto 0); -- 16KB ROM Bank - 0 is illegal (slot used for BASIC!) TODO FIXME, change stupid slot 0 thing...
-		CART_EMULATION_SELECT : in std_logic_vector(6 downto 0); -- from where
-		CART_EMULATION_ACTIVATE : in std_logic; -- to where? TODO, these needs redoing and wiring up!
+		CART_EMULATION_SELECT : in std_logic_vector(5 downto 0);
 		PAL :  in STD_LOGIC;
 		USE_SDRAM :  in STD_LOGIC;
 		ROM_IN_RAM : in std_logic;
@@ -204,6 +203,8 @@ signal ANTIC_REFRESH_CYCLE : STD_LOGIC;
 -- GTIA
 SIGNAL	GTIA_SOUND :  STD_LOGIC;
 SIGNAL	CONSOL_OUT :  STD_LOGIC_VECTOR(3 downto 0);
+SIGNAL	CONSOL_IN :  STD_LOGIC_VECTOR(3 downto 0);
+SIGNAL  GTIA_TRIG_MERGED : STD_LOGIC_VECTOR(3 downto 0);
 
 SIGNAL	GTIA_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	CACHE_GTIA_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -278,6 +279,9 @@ SIGNAL PORTB_OUT_INT : STD_LOGIC_VECTOR(7 downto 0);
 
 -- PBI
 SIGNAL PBI_ADDR_INT : std_logic_vector(15 downto 0);
+
+-- cart
+signal cart_trig3_out: std_logic;
 
 BEGIN 
 
@@ -460,6 +464,7 @@ PORT MAP(CLK => CLK,
 		 CART_S4_n => CART_S4_n,
 		 CART_S5_n => CART_S5_N,
 		 CART_CCTL_n => CART_CCTL_N,
+		 CART_TRIG3_OUT => cart_trig3_out,
 		 WIDTH_8bit_ACCESS => WIDTH_8BIT_ACCESS,
 		 WIDTH_16bit_ACCESS => WIDTH_16BIT_ACCESS,
 		 WIDTH_32bit_ACCESS => WIDTH_32BIT_ACCESS,
@@ -474,7 +479,6 @@ PORT MAP(CLK => CLK,
 		 WRITE_DATA => WRITE_DATA,
 		 d6_wr_enable => covox_write_enable,
 		 cart_select => CART_EMULATION_SELECT,
-		 cart_activate => CART_EMULATION_ACTIVATE,
 		 rom_in_ram => ROM_IN_RAM);
 
 pokey1 : entity work.pokey
@@ -501,6 +505,8 @@ PORT MAP(CLK => CLK,
 		 DATA_OUT => POKEY_DO,
 		 keyboard_scan => KEYBOARD_SCAN);
 
+CONSOL_IN <= '1'&CONSOL_OPTION&CONSOL_SELECT&CONSOL_START;
+GTIA_TRIG_MERGED <= cart_trig3_out & GTIA_TRIG(2 downto 0); -- NOTE, inputs ignored, careful when adding 4 joystick support
 		 	 
 gtia1 : entity work.gtia
 PORT MAP(CLK => CLK,
@@ -513,8 +519,8 @@ PORT MAP(CLK => CLK,
 		 COLOUR_CLOCK => ANTIC_COLOUR_CLOCK_OUT,
 		 COLOUR_CLOCK_HIGHRES => ANTIC_HIGHRES_COLOUR_CLOCK_OUT,
 		 CONSOL_OUT => CONSOL_OUT,
-		 CONSOL_IN => '1'&CONSOL_OPTION&CONSOL_SELECT&CONSOL_START,
-		 TRIG => GTIA_TRIG,
+		 CONSOL_IN => CONSOL_IN,
+		 TRIG => GTIA_TRIG_MERGED,
 		 ADDR => PBI_ADDR_INT(4 DOWNTO 0),
 		 AN => ANTIC_AN,
 		 CPU_DATA_IN => WRITE_DATA(7 DOWNTO 0),

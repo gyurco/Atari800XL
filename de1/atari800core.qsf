@@ -571,6 +571,8 @@ set_global_assignment -name VHDL_FILE hexdecoder.vhd
 set_global_assignment -name VHDL_FILE i2c_loader.vhd
 set_global_assignment -name VHDL_FILE i2s_intf.vhd
 set_global_assignment -name VHDL_FILE i2sslave.vhdl
+set_global_assignment -name QIP_FILE pll_pal.qip
+set_global_assignment -name QIP_FILE pll_ntsc.qip
 set_global_assignment -name QIP_FILE pll.qip
 set_global_assignment -name VHDL_FILE sram.vhdl
 set_global_assignment -name VHDL_FILE sync_switches.vhd

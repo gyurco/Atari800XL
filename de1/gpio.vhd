@@ -88,6 +88,10 @@ architecture vhdl of gpio is
 	signal cart_data_read_async : std_logic_vector(7 downto 0);
 	signal rd4_async : std_logic;
 	signal rd5_async : std_logic;	
+
+	signal cart_complete_early : std_logic;
+	signal read_write_next : std_logic;
+	signal read_write_reg : std_logic;
 	
 	signal keyboard_response_async : std_logic_vector(1 downto 0);
 	signal keyboard_response_gpio : std_logic_vector(1 downto 0);
@@ -308,7 +312,31 @@ begin
 	-- RD5 ROM present (in)
 	-- RD4 ROM present (in)
 	
-	read_write_n <= not(pbi_write_enable);
+	read_write_n <= read_write_reg;
+
+	process(clk)
+	begin
+		if (clk'event and clk='1') then
+			read_write_reg <= read_write_next;
+		end if;
+	end process;
+
+	process(pbi_write_enable, cart_request, cart_complete_early)
+	begin
+		read_write_next <= '1';
+
+		if (pbi_write_enable = '1' and cart_request = '1') then
+			read_write_next <= '0';
+		end if;
+
+		if (cart_complete_early = '1') then
+			read_write_next <= '1';
+		end if;
+	end process;
+
+	cart_delay2 : entity work.delay_line
+		generic map (COUNT=>cartridge_cycle_length-4)
+		port map(clk=>clk,sync_reset=>'0',data_in=>cart_request,enable=>'1',reset_n=>reset_n,data_out=>cart_complete_early);	
 	
 	cart_delay : entity work.delay_line
 		generic map (COUNT=>cartridge_cycle_length-1)

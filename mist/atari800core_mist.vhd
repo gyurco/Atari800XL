@@ -195,6 +195,7 @@ end component;
 	signal reset_atari : std_logic;
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
+	signal emulated_cartridge_select: std_logic_vector(5 downto 0);
 
 	-- mist sector
 	signal ZPU_ROM_DATA_MUX :  std_logic_vector(31 downto 0);
@@ -501,7 +502,8 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
     		ROM_SELECT => rom_select,
 		PAL => PAL,
 		HALT => pause_atari,
-		THROTTLE_COUNT_6502 => speed_6502
+		THROTTLE_COUNT_6502 => speed_6502,
+		emulated_cartridge_select => emulated_cartridge_select
 	);
 
 sdram_adaptor : entity work.sdram_statemachine
@@ -660,6 +662,7 @@ zpu: entity work.zpucore
 	speed_6502 <= zpu_out1(7 downto 2);
 	ram_select <= zpu_out1(10 downto 8);
 	rom_select <= zpu_out1(16 downto 11);
+	emulated_cartridge_select <= zpu_out1(22 downto 17);
 
 zpu_rom1: entity work.zpu_rom
 	port map(

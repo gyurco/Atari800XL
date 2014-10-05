@@ -30,6 +30,7 @@ Replay_DDRCtrl.vhd
 Replay_JoyPS2.vhd
 Replay_Audio.vhd
 Replay_MousePointer.vhd
+cart_logic.vhd
 address_decoder.vhdl
 antic_counter.vhdl
 antic_dma_clock.vhdl
@@ -50,6 +51,7 @@ irq_glue.vhdl
 pia.vhdl
 pokey_countdown_timer.vhdl
 pokey_keyboard_scanner.vhdl
+pokey_mixer_mux.vhdl
 pokey_mixer.vhdl
 pokey_noise_filter.vhdl
 pokey.vhdl
@@ -63,6 +65,7 @@ synchronizer.vhdl
 syncreset_enable_divider.vhd
 wide_delay_line.vhdl
 basic.vhdl
+os_5200.vhdl
 os16.vhdl
 os2.vhdl
 os8.vhdl
