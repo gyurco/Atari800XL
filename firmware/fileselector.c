@@ -23,10 +23,10 @@ int filter_disks(struct SimpleDirEntry * entry)
 	return res;
 }
 
-char const * fil_type = 0;
-char const * fil_type_rom = "ROM";
-char const * fil_type_bin = "BIN";
-char const * fil_type_car = "CAR";
+char const * fil_type;
+char const * fil_type_rom;
+char const * fil_type_bin;
+char const * fil_type_car;
 int filter_specified(struct SimpleDirEntry * entry)
 {
 	if (dir_is_subdir(entry)) return 1;

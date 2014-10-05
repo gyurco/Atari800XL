@@ -224,6 +224,10 @@ int zpu_main(void)
 int main(void)
 #endif
 {
+	fil_type_rom = "ROM";
+	fil_type_bin = "BIN";
+	fil_type_car = "CAR";
+
 	int i;
 	for (i=0; i!=6; ++i)
 	{
