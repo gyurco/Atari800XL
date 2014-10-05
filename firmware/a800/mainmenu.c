@@ -24,10 +24,6 @@ void mainmenu()
 		struct SimpleDirEntry * entries = dir_entries(ROM_DIR);
 		
 		//loadrom_indir(entries,"atarixl.rom",0x4000, (void *)0x704000);
-		if (SimpleFile_OK == file_open_name_in_dir(entries, "atarixl.rom", files[5]))
-		{
-			loadosrom();
-		}
 
 		/*loadrom_indir(entries,"xlhias.rom",0x4000, (void *)0x708000);
 		loadrom_indir(entries,"ultimon.rom",0x4000, (void *)0x70c000);
@@ -36,6 +32,10 @@ void mainmenu()
 		loadrom_indir(entries,"osaorig.rom",0x2800, (void *)0x719800);*/
 
 		loadrom_indir(entries,"ataribas.rom",0x2000,ROM_OFS);
+		if (SimpleFile_OK == file_open_name_in_dir(entries, "atarixl.rom", files[5]))
+		{
+			loadosrom();
+		}
 
 		//ROM = xlorig.rom,0x4000, (void *)0x704000
 		//ROM = xlhias.rom,0x4000, (void *)0x708000

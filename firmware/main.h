@@ -204,17 +204,17 @@ void loadromfile(struct SimpleFile * file, int size, size_t ram_address)
 
 void loadrom(char const * path, int size, size_t ram_address)
 {
-	if (SimpleFile_OK == file_open_name(path, files[4]))
+	if (SimpleFile_OK == file_open_name(path, files[5]))
 	{
-		loadromfile(files[4], size, ram_address);
+		loadromfile(files[5], size, ram_address);
 	}
 }
 
 void loadrom_indir(struct SimpleDirEntry * entries, char const * filename, int size, size_t ram_address)
 {
-	if (SimpleFile_OK == file_open_name_in_dir(entries, filename, files[4]))
+	if (SimpleFile_OK == file_open_name_in_dir(entries, filename, files[5]))
 	{
-		loadromfile(files[4], size, ram_address);
+		loadromfile(files[5], size, ram_address);
 	}
 }
 
