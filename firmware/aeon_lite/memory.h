@@ -13,8 +13,12 @@
 #define DIR_INIT_MEMSIZE 65536
 #define FREEZE_MEM (SDRAM_BASE + 0xa0000)
 
+// disabled
+#define CARTRIDGE_MEM ((void*) 0)
+
 // offset in SDRAM area
 #define ROM_OFS 0xc0000
+
 
 #define atari_regbase  ((void*) 0x10000)
 #define atari_regmirror  ((void*) 0x20000)

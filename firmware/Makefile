@@ -51,7 +51,7 @@ LINUXSIM_5200_BUILD_DIR = $(BUILD_DIR)/$(LINUXSIM_5200_DIR)
 MINSTARTUP_SRC = mycrt0.s
 MINSTARTUP_OBJ = $(patsubst $(STARTUP_DIR)/%.s,$(BUILD_DIR)/%.o,$(MINSTARTUP_SRC))
 
-COMMON_SRC = fileutils.c fileselector.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c
+COMMON_SRC = cartridge.c fileutils.c fileselector.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c
 SDCARD_SRC = sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc2.c
 A800_SRC_LIGHT = a800/freeze.c  a800/mainmenu.c atari_drive_emulator.c
 A800_SRC = ${A800_SRC_LIGHT} a800/joystick.c a800/regs.c
@@ -110,7 +110,7 @@ CFLAGS  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -c -g -Os $(ZPU
 
 HOST_CFLAGS += -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -DDISABLE_UART_RX
 
-LFLAGS  = -nostartfiles -Wl,--relax -g -Os
+LFLAGS  = -nostartfiles -Wl,--relax -g -Os -Wl,-Map=out.map
 #LFLAGS  = -nostartfiles -Os
 
 

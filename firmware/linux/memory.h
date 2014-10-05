@@ -3,6 +3,7 @@
 
 extern void* SDRAM_BASE;
 extern void* SRAM_BASE;
+extern void* CARTRIDGE_MEM;
 
 // Memory usage...
 // 0x410000-0x44FFFF (0xc10000 in zpu space) = directory cache - 256k

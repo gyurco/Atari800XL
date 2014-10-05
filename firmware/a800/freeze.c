@@ -11,6 +11,23 @@ unsigned volatile char * atari_base;
 // TODO - almost the same as 5200 one
 // skctl, chbase and lack of portb to merge into one file...
 
+void memset8(void * address, int value, int length);
+
+// Moving this outside function removes gcc pulling in memcpy
+unsigned char dl[] = {
+	0x70,
+	0x70,
+	0x47,0x40,0x2c,
+	0x70,
+	0x42,0x68,0x2c,
+	0x2,0x2,0x2,0x2,0x2,
+	0x2,0x2,0x2,0x2,0x2,
+	0x2,0x2,0x2,0x2,0x2,
+	0x2,0x2,0x2,0x2,0x2,
+	0x2,0x2,
+	0x41,0x00,0x06
+};
+
 void freeze_init(void * memory)
 {
 	store_mem = (unsigned volatile char *)memory;
@@ -19,68 +36,47 @@ void freeze_init(void * memory)
 	atari_base = (unsigned volatile char *)atari_regbase;
 }
 
+void memcp8(char const volatile * from, char volatile * to, int offset, int len)
+{
+	from+=offset;
+	to+=offset;
+	while (len--)
+		*to++ = *from++;
+}
+
 void freeze()
 {
 	int i;
 	// store custom chips
 	store_portb = *atari_portb;
 	{
+		//backup last value written to custom chip regs
 		//gtia
-		for (i=0xd000; i!=0xd020; i++)
-		{
-			store_mem[i] = custom_mirror[i];
-			atari_base[i] = 0;
-		}
+		memcp8(custom_mirror,store_mem,0xd000,0x20);
 		//pokey1/2
-		for (i=0xd200; i!=0xd220; i++)
-		{
-			store_mem[i] = custom_mirror[i];
-			atari_base[i] = 0;
-		}
+		memcp8(custom_mirror,store_mem,0xd200,0x20);
 		//antic
-		for (i=0xd400; i!=0xd410; i++)
-		{
-			store_mem[i] = custom_mirror[i];
-			atari_base[i] = 0;
-		}
+		memcp8(custom_mirror,store_mem,0xd400,0x10);
+
+		// Write 0 to custom chip regs
+		memset8(atari_base+0xd000,0,0x20);
+		memset8(atari_base+0xd200,0,0x20);
+		memset8(atari_base+0xd400,0,0x10);
 	}
 
 	*atari_portb = 0xff;
 
 	// Copy 64k ram to sdram
 	// Atari screen memory...
-	for (i=0x0; i!=0xd000; ++i)
-	{
-		store_mem[i] = atari_base[i];
-	}
-	for (i=0xd800; i!=0x10000; ++i)
-	{
-		store_mem[i] = atari_base[i];
-	}
+	memcp8(atari_base,store_mem,0,0xd000);
+	memcp8(atari_base,store_mem,0xd800,0x2800);
 
 	//Clear, except dl (first 0x40 bytes)
 	clearscreen();
 
 	// Put custom chips in a safe state
 	// write a display list at 0600
-	unsigned char dl[] = {
-		0x70,
-		0x70,
-		0x47,0x40,0x2c,
-		0x70,
-		0x42,0x68,0x2c,
-		0x2,0x2,0x2,0x2,0x2,
-		0x2,0x2,0x2,0x2,0x2,
-		0x2,0x2,0x2,0x2,0x2,
-		0x2,0x2,0x2,0x2,0x2,
-		0x2,0x2,
-		0x41,0x00,0x06
-	};
-	int j = 0;
-	for (i=0x0600; j!=sizeof(dl); ++i,++j)
-	{
-		atari_base[i] = dl[j];
-	}
+	memcp8(dl,atari_base+0x600,0,sizeof(dl));
 
 	// point antic at my display list
 	*atari_dlisth = 0x06;
@@ -100,35 +96,18 @@ void freeze()
 
 void restore()
 {
-	int i;
-
 	// Restore memory
-	for (i=0x0; i!=0xd000; ++i)
-	{
-		atari_base[i] = store_mem[i];
-	}
-	for (i=0xd800; i!=0x10000; ++i)
-	{
-		atari_base[i] = store_mem[i];
-	}
+	memcp8(store_mem,atari_base,0,0xd000);
+	memcp8(store_mem,atari_base,0xd800,0x2800);
 
 	// Restore custom chips
 	{
-		//gtia
-		for (i=0xd000; i!=0xd020; i++)
-		{
-			atari_base[i] = store_mem[i];
-		}
-		//pokey1/2
-		for (i=0xd200; i!=0xd220; i++)
-		{
-			atari_base[i] = store_mem[i];
-		}
-		//antic
-		for (i=0xd400; i!=0xd410; i++)
-		{
-			atari_base[i] = store_mem[i];
-		}
+		// gtia
+		memcp8(store_mem,atari_base,0xd000,0x20);
+		// pokey
+		memcp8(store_mem,atari_base,0xd200,0x20);
+		// antic
+		memcp8(store_mem,atari_base,0xd400,0x10);
 	}
 
 	*atari_portb = store_portb;

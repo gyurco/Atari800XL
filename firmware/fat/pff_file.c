@@ -185,7 +185,7 @@ enum SimpleFileStatus file_seek(struct SimpleFile * file, int offsetFromStart)
 
 	file_check_open(file);
 
-	pf_lseek(offsetFromStart);
+	res = pf_lseek(offsetFromStart);
 	return translateStatus(res);
 }
 

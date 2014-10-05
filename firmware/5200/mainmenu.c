@@ -127,7 +127,8 @@ int settings()
 			{
 				if (joy.x_ || joy.fire_)
 				{
-					filter = filter_roms;
+					fil_type = fil_type_rom;
+					filter = filter_specified;
 					file_selector(files[5]);
 					loadosrom();
 				}
@@ -139,7 +140,8 @@ int settings()
 			{
 				if (joy.fire_)
 				{
-					filter = filter_bins;
+					fil_type = fil_type_bin;
+					filter = filter_specified;
 					file_selector(files[4]);
 					//loadrom_indir(entries,"acid5200.rom",0x8000,(void *)0x004000); // XXX - just for 5200 test... do not commit!
 					if (row == 3)

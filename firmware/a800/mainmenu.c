@@ -136,7 +136,7 @@ int settings()
 
 		debug_pos = 400;
 		debug_adjust = row==7 ? 128 : 0;
-		printf("Cartridge 8k simple");
+		printf("Cart: %s", get_cart_select() ? file_name(files[4]) : "NONE");
 
 		debug_pos = 480;
 		debug_adjust = row==8 ? 128 : 0;
@@ -177,7 +177,8 @@ int settings()
 			{
 				if (joy.x_ || joy.fire_)
 				{
-					filter = filter_roms;
+					fil_type = fil_type_rom;
+					filter = filter_specified;
 					file_selector(files[5]);
 					loadosrom();
 				}
@@ -221,12 +222,19 @@ int settings()
 			break;
 		case 7:
 			{
-				if (joy.fire_)
-				{
-					filter = filter_roms;
+				if (joy.x_>0) {
+					fil_type = fil_type_car;
+					filter = filter_specified;
 					file_selector(files[4]);
-					loadrom(file_name(files[4]),0x2000,0x700000);
-					return 1;
+					unsigned char mode = 0; // TODO load_car(files[4]);
+					set_cart_select(mode);
+					if (mode) {
+						return 1;
+					}
+				}
+				else if (joy.x_<0) {
+					file_init(files[4]);
+					set_cart_select(0);
 				}
 			}
 			break;

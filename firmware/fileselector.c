@@ -23,18 +23,15 @@ int filter_disks(struct SimpleDirEntry * entry)
 	return res;
 }
 
-int filter_roms(struct SimpleDirEntry * entry)
+char const * fil_type = 0;
+char const * fil_type_rom = "ROM";
+char const * fil_type_bin = "BIN";
+char const * fil_type_car = "CAR";
+int filter_specified(struct SimpleDirEntry * entry)
 {
 	if (dir_is_subdir(entry)) return 1;
 	char const * f = dir_filename(entry);
-	return (compare_ext(f,"ROM"));
-}
-
-int filter_bins(struct SimpleDirEntry * entry)
-{
-	if (dir_is_subdir(entry)) return 1;
-	char const * f = dir_filename(entry);
-	return (compare_ext(f,"BIN"));
+	return (compare_ext(f,fil_type));
 }
 
 void dir_of(char * dir, char const * path); // TODO - into simpledir

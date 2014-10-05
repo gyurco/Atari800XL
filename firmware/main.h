@@ -10,6 +10,7 @@
 #include "simpledir.h"
 #include "simplefile.h"
 #include "fileselector.h"
+#include "cartridge.h"
 
 #ifdef LINUX_BUILD
 #include "curses_screen.h"
@@ -74,6 +75,7 @@ BIT_REG(,0x1,1,reset_6502,zpu_out1)
 BIT_REG(,0x3f,2,turbo_6502,zpu_out1)
 BIT_REG(,0x7,8,ram_select,zpu_out1)
 BIT_REG(,0x3f,11,rom_select,zpu_out1)
+BIT_REG(,0x3f,17,cart_select,zpu_out1)
 
 BIT_REG_RO(,0x1,8,hotkey_softboot,zpu_in1)
 BIT_REG_RO(,0x1,9,hotkey_coldboot,zpu_in1)
@@ -240,6 +242,7 @@ int main(void)
 	set_turbo_6502(1);
 	set_rom_select(1);
 	set_ram_select(2);
+	set_cart_select(0);
 
 	init_printf(0, char_out);
 

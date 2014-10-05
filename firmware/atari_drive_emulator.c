@@ -110,6 +110,7 @@ struct command
 void getCommand(struct command * cmd)
 {
 	int expchk;
+	int i;
 
 	//printf("Waiting for command\n");
 	//USART_Data_Ready();
@@ -123,11 +124,13 @@ void getCommand(struct command * cmd)
 	{
 		actions();
 	}
-	cmd->deviceId = USART_Receive_Byte();
+	for (i=0;i!=5;++i)
+		((char *)cmd)[i] = USART_Receive_Byte();
+	/*cmd->deviceId = USART_Receive_Byte();
 	cmd->command = USART_Receive_Byte();
 	cmd->aux1 = USART_Receive_Byte();
 	cmd->aux2 = USART_Receive_Byte();
-	cmd->chksum = USART_Receive_Byte();
+	cmd->chksum = USART_Receive_Byte();*/
 	while (0 == USART_Command_Line())
 	{
 		actions();
