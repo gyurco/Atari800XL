@@ -14,7 +14,7 @@ cd ../mcctv
 ./build.sh ALL &
 cd ../mist_5200
 ./build.sh ALL > build.log 2> build.err&
-cd de1_5200
+cd ../de1_5200
 ./build.sh ALL > build.log 2> build.err&
 
 # TODO variations?
