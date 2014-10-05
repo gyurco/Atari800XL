@@ -9,10 +9,21 @@ push @files, glob("mcc216/build*/output_files/*.rbf");
 push @files, glob("mcc216/build*/output_files/*.summary");
 push @files, glob("mcc216/build*/output_files/*.rpt");
 
+push @files, glob("mcctv/build*/output_files/*.arg");
+push @files, glob("mcctv/build*/output_files/*.sof");
+push @files, glob("mcctv/build*/output_files/*.rbf");
+push @files, glob("mcctv/build*/output_files/*.summary");
+push @files, glob("mcctv/build*/output_files/*.rpt");
+
 push @files, glob("mist/build*/out/*.sof");
 push @files, glob("mist/build*/out/*.rbf");
 push @files, glob("mist/build*/out/*.summary");
 push @files, glob("mist/build*/out/*.rpt");
+
+push @files, glob("mist_5200/build*/out/*.sof");
+push @files, glob("mist_5200/build*/out/*.rbf");
+push @files, glob("mist_5200/build*/out/*.summary");
+push @files, glob("mist_5200/build*/out/*.rpt");
 
 push @files, glob("chameleon/build*/output_files/*.sof");
 push @files, glob("chameleon/build*/output_files/*.rbf");
@@ -22,6 +33,10 @@ push @files, glob("chameleon/build*/output_files/*.rpt");
 push @files, glob("de1/build*/output_files/*.sof");
 push @files, glob("de1/build*/output_files/*.summary");
 push @files, glob("de1/build*/output_files/*.rpt");
+
+push @files, glob("de1_5200/build*/output_files/*.sof");
+push @files, glob("de1_5200/build*/output_files/*.summary");
+push @files, glob("de1_5200/build*/output_files/*.rpt");
 
 push @files, glob("replay/sdcard/*.bin");
 push @files, glob("replay/sdcard/*.ini");
