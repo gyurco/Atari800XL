@@ -54,9 +54,9 @@ MINSTARTUP_OBJ = $(patsubst $(STARTUP_DIR)/%.s,$(BUILD_DIR)/%.o,$(MINSTARTUP_SRC
 COMMON_SRC = cartridge.c fileutils.c fileselector.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c
 SDCARD_SRC = sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc2.c
 A800_SRC_LIGHT = a800/freeze.c  a800/mainmenu.c atari_drive_emulator.c
-A800_SRC = ${A800_SRC_LIGHT} a800/joystick.c a800/regs.c
+A800_SRC = ${A800_SRC_LIGHT} a800/joystick.c libgcc_divmod.c
 5200_SRC_LIGHT = 5200/freeze.c  5200/mainmenu.c
-5200_SRC = ${5200_SRC_LIGHT} 5200/joystick.c 5200/regs.c
+5200_SRC = ${5200_SRC_LIGHT} 5200/joystick.c
 
 AEON_LITE_PRJ = AEON_LITE
 AEON_LITE_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) de1/dirs.c
@@ -110,9 +110,12 @@ CFLAGS  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -c -g -Os $(ZPU
 
 HOST_CFLAGS += -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -DDISABLE_UART_RX
 
-LFLAGS  = -nostartfiles -Wl,--relax -g -Os -Wl,-Map=out.map
+LFLAGS  = -nostartfiles -nostdlib -Wl,--relax -g -Os -Wl,-Map=out.map
+LFLAGS_5200  = -nostartfiles -Wl,--relax -g -Os -Wl,-Map=out.map
 #LFLAGS  = -nostartfiles -Os
 
+CFLAGS_5200 = $(CFLAGS) -DFIRMWARE_5200
+HOST_CFLAGS_5200 = $(HOST_CFLAGS) -DFIRMWARE_5200
 
 # Our target.
 all: mcc mist de1 aeon_lite chameleon  de1_5200 mist_5200
@@ -166,7 +169,7 @@ $(DE1_PRJ).elf: $(MINSTARTUP_OBJ) $(DE1_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
 $(DE1_5200_PRJ).elf: $(MINSTARTUP_OBJ) $(DE1_5200_OBJ)
-	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
+	$(LD) $(LFLAGS_5200) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
 $(CHAMELEON_PRJ).elf: $(MINSTARTUP_OBJ) $(CHAMELEON_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
@@ -178,7 +181,7 @@ $(MIST_PRJ).elf: $(MINSTARTUP_OBJ) $(MIST_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
 $(MIST_5200_PRJ).elf: $(MINSTARTUP_OBJ) $(MIST_5200_OBJ)
-	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
+	$(LD) $(LFLAGS_5200) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
 $(LINUXSIM_EXE): $(LINUXSIM_OBJ)
 	$(HOST_LD) $(HOST_LDFLAGS) -o $@ $+
@@ -200,7 +203,7 @@ $(DE1_BUILD_DIR)/%.o: %.c Makefile
 
 $(DE1_5200_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(DE1_5200_DIR) $(CFLAGS)  -o $@ -c $<
+	$(CC) -I$(DE1_5200_DIR) $(CFLAGS_5200)  -o $@ -c $<
 
 $(MCC_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
@@ -212,7 +215,7 @@ $(MIST_BUILD_DIR)/%.o: %.c Makefile
 
 $(MIST_5200_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(MIST_5200_DIR) $(CFLAGS)  -o $@ -c $<
+	$(CC) -I$(MIST_5200_DIR) $(CFLAGS_5200)  -o $@ -c $<
 
 $(LINUXSIM_BUILD_DIR)/%.o: %.c Makefile
 	@mkdir -p `dirname $@`
@@ -220,7 +223,7 @@ $(LINUXSIM_BUILD_DIR)/%.o: %.c Makefile
 
 $(LINUXSIM_5200_BUILD_DIR)/%.o: %.c Makefile
 	@mkdir -p `dirname $@`
-	$(HOST_CC) -I$(LINUXSIM_DIR) $(HOST_CFLAGS)  -o $@ -c $<
+	$(HOST_CC) -I$(LINUXSIM_DIR) $(HOST_CFLAGS_5200)  -o $@ -c $<
 
 $(BUILD_DIR)/%.o: %.s
 	$(AS) -o $@ $<

@@ -110,14 +110,11 @@ int load_car(struct SimpleFile* file)
 		LOG("illegal cart type %d\n", carttype);
 		return 0;
 	}
-	// read data in 8k chunks
-	unsigned int block;
-	for(block = 0; block < def->size >> 3; block++) {
-		ok = file_read(file, CARTRIDGE_MEM + block * 0x2000, 0x2000, &len);
-		if (ok != SimpleFile_OK || len != 0x2000) {
-			LOG("cannot read cart data\n");
-			return 0;
-		}
+	unsigned int byte_len = (unsigned int) def->size << 10;
+	ok = file_read(file, CARTRIDGE_MEM, byte_len, &len);
+	if (ok != SimpleFile_OK || len != byte_len) {
+		LOG("cannot read cart data\n");
+		return 0;
 	}
 	LOG("cart type: %d size: %dk\n",
 		 def->mode, def->size);
