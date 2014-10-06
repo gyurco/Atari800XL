@@ -73,11 +73,10 @@ F12 - System settings menu
 		Left: Remove disk
 		Right: File selector
 		Fire: Put this disk in F1
-	Cartridge 8K simple
-		Fire: select file
-		This allows a ROM to be loaded in the place of BASIC
-		Some simple ROM cartridges can be used
-		This is temporary until proper cartridge support is implemented
+	Cartridge
+		Left: Remove cart
+		Right: File selector
+		Fire: Put this cart in
 
 System ROM:
 	Loaded from /System/rom/atari800/atarixl.rom
@@ -91,6 +90,12 @@ Disk images:
 		.ATR - Atari disk image with header. single/medium/double density.
 		.XFD - Atari disk image without header. 
 		.XEX - Atari executable. A simple bootloader is loaded, not 100% compatible. 
+
+Cartridges:
+	Default dir: /atari800/user
+	Supported types:
+		.CAR - Atari 800 cartridge with header.
+		NB .BIN files can be converted using various programs - e.g. Atari800WinPlus.
 
 Important notes:
 	When running Atari software a lot of programs need to have basic disable. Hold option when pressing reset.
