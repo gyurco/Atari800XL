@@ -26,6 +26,14 @@ CHAMELEON: (BREAK)(SHIFT LOCK)ASDFGHJKL;+*(RETURN)
 CHAMELEON: (INV)(SHIFT)ZXCVBNM,./(SHIFT)(F11/disk and boot)(F12/settings)
 CHAMELEON: F1/F2=START,F3/F4=SELECT,F5/F6=OPTION,F7/F8=RESET(F9),CONTROL+F7/F8=COLD START(F10)
 MCC216: As below... Official releases will lag but be better tested. This is a beta.
+MCCTV: Special/console keys (joystick 1):
+MCCTV: Start button or button 4  - Start
+MCCTV: Select button or button 3  - Select
+MCCTV: button 2  - Option
+MCCTV: left shoulder 1  - Reset
+MCCTV: left shoulder 2 - Cold start (clear base 64KB RAM and reset)
+MCCTV: right shoulder 1 - Select drive 1 and cold start
+
 
 -------------------------------------------
 
