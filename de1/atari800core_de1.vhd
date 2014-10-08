@@ -235,6 +235,8 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 
 	signal pbi_addr : std_logic_vector(15 downto 0);
 
+	signal enable_179_early : std_logic;
+
 	-- scandoubler
 	signal half_scandouble_enable_reg : std_logic;
 	signal half_scandouble_enable_next : std_logic;
@@ -399,6 +401,7 @@ PORT MAP(clk => CLK,
 		 gpio_enable => SW(4),
 		 pot_reset => pot_reset,
 		 pbi_write_enable => pbi_write_enable,
+		 enable_179_early => enable_179_early,
 		 cart_request => cart_request,
 		 cart_complete => cart_request_complete,
 		 cart_data_read => cart_data,
@@ -590,6 +593,7 @@ atari800 : entity work.atari800core
 		POT_IN => POT_IN,
 		POT_RESET => POT_RESET,
 		
+		ENABLE_179_EARLY => ENABLE_179_EARLY,
 		PBI_ADDR => PBI_ADDR,
 		PBI_WRITE_ENABLE => PBI_WRITE_ENABLE,
 		PBI_SNOOP_DATA => open,

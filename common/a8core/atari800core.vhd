@@ -70,6 +70,7 @@ ENTITY atari800core IS
 		POT_RESET : OUT STD_LOGIC;
 		
 		-- PBI
+		ENABLE_179_EARLY : out std_logic; -- used for phi2 generation - 1 cycle before orig cpu runs
 		PBI_ADDR : out STD_LOGIC_VECTOR(15 DOWNTO 0);
 		PBI_WRITE_ENABLE : out STD_LOGIC; -- currently only for CART config...
 		PBI_SNOOP_DATA : out std_logic_vector(31 downto 0); -- snoop the bus (i.e. what gets feed to the CPU data in)
@@ -629,6 +630,7 @@ covox1 : entity work.covox
 
 -- outputs
 PBI_ADDR <= PBI_ADDR_INT;
+ENABLE_179_EARLY <= ANTIC_ENABLE_179;
 PORTB_OUT <= PORTB_OUT_INT;
 ANTIC_REFRESH <= ANTIC_REFRESH_CYCLE;
 

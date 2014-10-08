@@ -47,6 +47,7 @@ port
 	SIO_OUT : IN STD_LOGIC;
 	
 	-- cartridge
+	enable_179_early : in std_logic;
 	pbi_addr_out : in std_logic_vector(15 downto 0);
 	pbi_write_enable : in std_logic;
 	cart_data_read : out std_logic_vector(7 downto 0);
@@ -84,15 +85,17 @@ architecture vhdl of gpio is
 	signal trig_in_async : std_logic_vector(3 downto 0);
 	signal trig_in_sync : std_logic_vector(3 downto 0);
 	
-	signal read_write_n : std_logic;	
-	signal cart_data_read_async : std_logic_vector(7 downto 0);
+	signal bus_data_in : std_logic_vector(7 downto 0);
+	signal bus_data_out : std_logic_vector(7 downto 0);
+	signal bus_data_oe : std_logic;
+	signal bus_addr_out : std_logic_vector(15 downto 0);
+	signal bus_addr_oe : std_logic;
+	signal bus_write_n : std_logic;
+	signal phi2 : std_logic;
+
 	signal rd4_async : std_logic;
 	signal rd5_async : std_logic;	
 
-	signal cart_complete_early : std_logic;
-	signal read_write_next : std_logic;
-	signal read_write_reg : std_logic;
-	
 	signal keyboard_response_async : std_logic_vector(1 downto 0);
 	signal keyboard_response_gpio : std_logic_vector(1 downto 0);
 	
@@ -155,56 +158,56 @@ begin
 	GPIO_1_DIR_OUT(0) <= gpio_enable and not(keyboard_scan(0)); -- keyboard scan 0
 	
 	-- cart
-	GPIO_0_DIR_OUT(35) <= '0'; -- clock - TODO
-	GPIO_0_OUT(35) <= '0'; -- clock - TODO
+	GPIO_0_DIR_OUT(35) <= '1';
+	GPIO_0_OUT(35) <= phi2;
 	GPIO_0_DIR_OUT(34) <= gpio_enable; 
-	GPIO_0_OUT(34) <= read_write_n; 
-	GPIO_0_DIR_OUT(33) <= gpio_enable;
-	GPIO_0_OUT(33) <= pbi_addr_out(10);
-	GPIO_0_DIR_OUT(32) <= gpio_enable;
-	GPIO_0_OUT(32) <= pbi_addr_out(11);
-	GPIO_0_DIR_OUT(31) <= gpio_enable and pbi_write_enable; -- d7
-	GPIO_0_OUT(31) <= cart_data_write(7); -- d7
-	GPIO_0_DIR_OUT(30) <= gpio_enable and pbi_write_enable; -- d3
-	GPIO_0_OUT(30) <= cart_data_write(3); -- d3
-	GPIO_0_DIR_OUT(29) <= gpio_enable;
-	GPIO_0_OUT(29) <= pbi_addr_out(12);
-	GPIO_0_DIR_OUT(28) <= gpio_enable;
-	GPIO_0_OUT(28) <= pbi_addr_out(9);
-	GPIO_0_DIR_OUT(27) <= gpio_enable;
-	GPIO_0_OUT(27) <= pbi_addr_out(8);
-	GPIO_0_DIR_OUT(26) <= gpio_enable;
-	GPIO_0_OUT(26) <= pbi_addr_out(7);
-	GPIO_0_DIR_OUT(25) <= gpio_enable;
-	GPIO_0_OUT(25) <= pbi_addr_out(6);
-	GPIO_0_DIR_OUT(24) <= gpio_enable;
-	GPIO_0_OUT(24) <= pbi_addr_out(5);
-	GPIO_0_DIR_OUT(23) <= gpio_enable;
-	GPIO_0_OUT(23) <= pbi_addr_out(4);
+	GPIO_0_OUT(34) <= bus_write_n; 
+	GPIO_0_DIR_OUT(33) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(33) <= bus_addr_out(10);
+	GPIO_0_DIR_OUT(32) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(32) <= bus_addr_out(11);
+	GPIO_0_DIR_OUT(31) <= gpio_enable and bus_data_oe; -- d7
+	GPIO_0_OUT(31) <= bus_data_out(7); -- d7
+	GPIO_0_DIR_OUT(30) <= gpio_enable and bus_data_oe; -- d3
+	GPIO_0_OUT(30) <= bus_data_out(3); -- d3
+	GPIO_0_DIR_OUT(29) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(29) <= bus_addr_out(12);
+	GPIO_0_DIR_OUT(28) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(28) <= bus_addr_out(9);
+	GPIO_0_DIR_OUT(27) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(27) <= bus_addr_out(8);
+	GPIO_0_DIR_OUT(26) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(26) <= bus_addr_out(7);
+	GPIO_0_DIR_OUT(25) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(25) <= bus_addr_out(6);
+	GPIO_0_DIR_OUT(24) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(24) <= bus_addr_out(5);
+	GPIO_0_DIR_OUT(23) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(23) <= bus_addr_out(4);
 	GPIO_0_DIR_OUT(22) <= '0'; -- RD4 rom present
 	GPIO_0_OUT(22) <= '0'; -- RD4 rom present
 	GPIO_0_DIR_OUT(21) <= gpio_enable;
 	GPIO_0_OUT(21) <= S4_n;
-	GPIO_0_DIR_OUT(20) <= gpio_enable;
-	GPIO_0_OUT(20) <= pbi_addr_out(3);
-	GPIO_0_DIR_OUT(19) <= gpio_enable;
-	GPIO_0_OUT(19) <= pbi_addr_out(2);
-	GPIO_0_DIR_OUT(18) <= gpio_enable;
-	GPIO_0_OUT(18) <= pbi_addr_out(1);
-	GPIO_0_DIR_OUT(17) <= gpio_enable;
-	GPIO_0_OUT(17) <= pbi_addr_out(0);
-	GPIO_0_DIR_OUT(16) <= gpio_enable and pbi_write_enable; -- d4
-	GPIO_0_OUT(16) <= cart_data_write(4); -- d4
-	GPIO_0_DIR_OUT(15) <= gpio_enable and pbi_write_enable; -- d5
-	GPIO_0_OUT(15) <= cart_data_write(5); -- d5
-	GPIO_0_DIR_OUT(14) <= gpio_enable and pbi_write_enable; -- d2
-	GPIO_0_OUT(14) <= cart_data_write(2); -- d2
-	GPIO_0_DIR_OUT(13) <= gpio_enable and pbi_write_enable; -- d1
-	GPIO_0_OUT(13) <= cart_data_write(1); -- d1
-	GPIO_0_DIR_OUT(12) <= gpio_enable and pbi_write_enable; -- d0
-	GPIO_0_OUT(12) <= cart_data_write(0); -- d0
-	GPIO_0_DIR_OUT(11) <= gpio_enable and pbi_write_enable; -- d6
-	GPIO_0_OUT(11) <= cart_data_write(6); -- d6
+	GPIO_0_DIR_OUT(20) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(20) <= bus_addr_out(3);
+	GPIO_0_DIR_OUT(19) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(19) <= bus_addr_out(2);
+	GPIO_0_DIR_OUT(18) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(18) <= bus_addr_out(1);
+	GPIO_0_DIR_OUT(17) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(17) <= bus_addr_out(0);
+	GPIO_0_DIR_OUT(16) <= gpio_enable and bus_data_oe; -- d4
+	GPIO_0_OUT(16) <= bus_data_out(4); -- d4
+	GPIO_0_DIR_OUT(15) <= gpio_enable and bus_data_oe; -- d5
+	GPIO_0_OUT(15) <= bus_data_out(5); -- d5
+	GPIO_0_DIR_OUT(14) <= gpio_enable and bus_data_oe; -- d2
+	GPIO_0_OUT(14) <= bus_data_out(2); -- d2
+	GPIO_0_DIR_OUT(13) <= gpio_enable and bus_data_oe; -- d1
+	GPIO_0_OUT(13) <= bus_data_out(1); -- d1
+	GPIO_0_DIR_OUT(12) <= gpio_enable and bus_data_oe; -- d0
+	GPIO_0_OUT(12) <= bus_data_out(0); -- d0
+	GPIO_0_DIR_OUT(11) <= gpio_enable and bus_data_oe; -- d6
+	GPIO_0_OUT(11) <= bus_data_out(6); -- d6
 	GPIO_0_DIR_OUT(10) <= gpio_enable;
 	GPIO_0_OUT(10) <= S5_n;
 	GPIO_0_DIR_OUT(9) <= '0'; -- RD5 rom present
@@ -311,37 +314,42 @@ begin
 	-- clock (not needed for rom?)
 	-- RD5 ROM present (in)
 	-- RD4 ROM present (in)
+
+
+bus_adaptor : ENTITY work.timing6502
+GENERIC MAP
+(
+	CYCLE_LENGTH => cartridge_cycle_length
+)
+PORT MAP
+( 
+	CLK => clk,
+	RESET_N => reset_n,
+
+	-- FPGA side
+	ENABLE_179_EARLY =>enable_179_early,
+
+	REQUEST => cart_request,
+	ADDR_IN => pbi_addr_out,
+	DATA_IN => cart_data_write,
+	WRITE_IN => pbi_write_enable,
+
+	DATA_OUT => cart_data_read,
+	COMPLETE => cart_complete,
+
+	-- 6502 side
+	BUS_DATA_IN => bus_data_in,
 	
-	read_write_n <= read_write_reg;
+	BUS_PHI1 => open,
+	BUS_PHI2 => phi2,
+	BUS_SUBCYCLE => open,
+	BUS_ADDR_OUT => bus_addr_out,
+	BUS_ADDR_OE => bus_addr_oe,
+	BUS_DATA_OUT => bus_data_out,
+	BUS_DATA_OE => bus_data_oe,
+	BUS_WRITE_N => bus_write_n
+);
 
-	process(clk)
-	begin
-		if (clk'event and clk='1') then
-			read_write_reg <= read_write_next;
-		end if;
-	end process;
-
-	process(pbi_write_enable, cart_request, cart_complete_early)
-	begin
-		read_write_next <= '1';
-
-		if (pbi_write_enable = '1' and cart_request = '1') then
-			read_write_next <= '0';
-		end if;
-
-		if (cart_complete_early = '1') then
-			read_write_next <= '1';
-		end if;
-	end process;
-
-	cart_delay2 : entity work.delay_line
-		generic map (COUNT=>cartridge_cycle_length-4)
-		port map(clk=>clk,sync_reset=>'0',data_in=>cart_request,enable=>'1',reset_n=>reset_n,data_out=>cart_complete_early);	
-	
-	cart_delay : entity work.delay_line
-		generic map (COUNT=>cartridge_cycle_length-1)
-		port map(clk=>clk,sync_reset=>'0',data_in=>cart_request,enable=>'1',reset_n=>reset_n,data_out=>cart_complete);	
-	
 	rd4_async <= gpio_enable and GPIO_0_IN(22);
 	cart_rd4_synchronizer : synchronizer
 		port map (clk=>clk, raw=>rd4_async, sync=>rd4);							
@@ -349,23 +357,23 @@ begin
 	cart_rd5_synchronizer : synchronizer
 		port map (clk=>clk, raw=>rd5_async, sync=>rd5);							
 	
-	cart_data_read_async <= GPIO_0_IN(31)&GPIO_0_IN(11)&GPIO_0_IN(15)&GPIO_0_IN(16)&GPIO_0_IN(30)&GPIO_0_IN(14)&GPIO_0_IN(13)&GPIO_0_IN(12);	
-	cart_data0_synchronizer : synchronizer
-		port map (clk=>clk, raw=>cart_data_read_async(0), sync=>cart_data_read(0));							
-	cart_data1_synchronizer : synchronizer
-		port map (clk=>clk, raw=>cart_data_read_async(1), sync=>cart_data_read(1));							
-	cart_data2_synchronizer : synchronizer
-		port map (clk=>clk, raw=>cart_data_read_async(2), sync=>cart_data_read(2));							
-	cart_data3_synchronizer : synchronizer
-		port map (clk=>clk, raw=>cart_data_read_async(3), sync=>cart_data_read(3));	
-	cart_data4_synchronizer : synchronizer
-		port map (clk=>clk, raw=>cart_data_read_async(4), sync=>cart_data_read(4));							
-	cart_data5_synchronizer : synchronizer
-		port map (clk=>clk, raw=>cart_data_read_async(5), sync=>cart_data_read(5));							
-	cart_data6_synchronizer : synchronizer
-		port map (clk=>clk, raw=>cart_data_read_async(6), sync=>cart_data_read(6));							
-	cart_data7_synchronizer : synchronizer
-		port map (clk=>clk, raw=>cart_data_read_async(7), sync=>cart_data_read(7));
+	bus_data_in <= GPIO_0_IN(31)&GPIO_0_IN(11)&GPIO_0_IN(15)&GPIO_0_IN(16)&GPIO_0_IN(30)&GPIO_0_IN(14)&GPIO_0_IN(13)&GPIO_0_IN(12);	
+--	cart_data0_synchronizer : synchronizer
+--		port map (clk=>clk, raw=>cart_data_read_async(0), sync=>cart_data_read(0));							
+--	cart_data1_synchronizer : synchronizer
+--		port map (clk=>clk, raw=>cart_data_read_async(1), sync=>cart_data_read(1));							
+--	cart_data2_synchronizer : synchronizer
+--		port map (clk=>clk, raw=>cart_data_read_async(2), sync=>cart_data_read(2));							
+--	cart_data3_synchronizer : synchronizer
+--		port map (clk=>clk, raw=>cart_data_read_async(3), sync=>cart_data_read(3));	
+--	cart_data4_synchronizer : synchronizer
+--		port map (clk=>clk, raw=>cart_data_read_async(4), sync=>cart_data_read(4));							
+--	cart_data5_synchronizer : synchronizer
+--		port map (clk=>clk, raw=>cart_data_read_async(5), sync=>cart_data_read(5));							
+--	cart_data6_synchronizer : synchronizer
+--		port map (clk=>clk, raw=>cart_data_read_async(6), sync=>cart_data_read(6));							
+--	cart_data7_synchronizer : synchronizer
+--		port map (clk=>clk, raw=>cart_data_read_async(7), sync=>cart_data_read(7));
 		
 	--GPIO_1(25) <= GPIO_1(29);
 	
