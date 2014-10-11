@@ -196,7 +196,7 @@ begin
 		-- shadow writes to D0xx, D2xx, D4xx
 		if (rw = '0') then
 			case a(15 downto 8) is
-			when x"D0" | x"D2" | x"D4" =>
+			when x"D0" | x"D2" | x"D3" | x"D4" =>
 				output.shadow_enable <= true;
 				output.adr(16 downto 8) <= freezer_def_ram_bank & a(11 downto 8);
 				-- GTIA/D000 needs 32 bytes, others 16 bytes
@@ -270,7 +270,7 @@ begin
 	bram_request <= '0';
 
 	if (output.shadow_enable) then
-		bram_adr <= output.adr(10 downto 9) & output.adr(4 downto 0);
+		bram_adr <= output.adr(9)&(output.adr(8) or output.adr(10))&output.adr(4 downto 0);
 		bram_we <= '1';
 	elsif (output.dout_enable) then
 		access_type <= access_type_data;
@@ -284,9 +284,9 @@ begin
 		-- map shadow ram access to blockram
 		if (output.adr(16 downto 12) = freezer_def_ram_bank) and (output.adr(7 downto 5) = "000") then
 			case output.adr(11 downto 8) is
-			when x"0" | x"2" | x"4" =>
+			when x"0" | x"2" | x"3" | x"4" =>
 				access_type <= access_type_data;
-				bram_adr <= output.adr(10 downto 9) & output.adr(4 downto 0);
+				bram_adr <= output.adr(9)&(output.adr(8) or output.adr(10))&output.adr(4 downto 0);
 				bram_we <= request and not rw;
 				bram_request <= request;
 				request_complete <= bram_request_complete;
@@ -312,7 +312,7 @@ freezer_bram: entity work.generic_ram_infer
 	generic map
         (
 		ADDRESS_WIDTH => 7,
-		SPACE => 96,
+		SPACE => 128,
 		DATA_WIDTH =>8
 	)
 	PORT MAP(clock => clk,
