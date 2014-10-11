@@ -211,6 +211,10 @@ end component;
 	signal half_scandouble_enable_next : std_logic;
 	signal VIDEO_B : std_logic_vector(7 downto 0);
 
+	-- turbo freezer!
+	signal freezer_enable : std_logic;
+	signal freezer_activate: std_logic;
+
 BEGIN 
 pal <= '1' when tv=1 else '0';
 vga <= '1' when video=2 else '0';
@@ -384,7 +388,8 @@ keyboard_map1 : entity work.ps2_to_atari800
 		CONSOL_SELECT => CONSOL_SELECT_RAW,
 		CONSOL_OPTION => CONSOL_OPTION_RAW,
 		
-		FKEYS => FKEYS
+		FKEYS => FKEYS,
+		FREEZER_ACTIVATE => freezer_activate
 	);
 
 CONSOL_START <= CONSOL_START_RAW or (mist_buttons(1) and not(joy1_n(4)));
@@ -503,7 +508,9 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		PAL => PAL,
 		HALT => pause_atari,
 		THROTTLE_COUNT_6502 => speed_6502,
-		emulated_cartridge_select => emulated_cartridge_select
+		emulated_cartridge_select => emulated_cartridge_select,
+		freezer_enable => freezer_enable,
+		freezer_activate => freezer_activate
 	);
 
 sdram_adaptor : entity work.sdram_statemachine
@@ -663,6 +670,7 @@ zpu: entity work.zpucore
 	ram_select <= zpu_out1(10 downto 8);
 	rom_select <= zpu_out1(16 downto 11);
 	emulated_cartridge_select <= zpu_out1(22 downto 17);
+	freezer_enable <= zpu_out1(25);
 
 zpu_rom1: entity work.zpu_rom
 	port map(

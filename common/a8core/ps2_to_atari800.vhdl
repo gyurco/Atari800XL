@@ -31,6 +31,8 @@ PORT
 	CONSOL_OPTION : OUT STD_LOGIC;
    
 	FKEYS : OUT STD_LOGIC_VECTOR(11 downto 0);
+
+	FREEZER_ACTIVATE : OUT STD_LOGIC;
    
    PS2_KEYS : OUT STD_LOGIC_VECTOR(511 downto 0)
 );
@@ -50,6 +52,8 @@ ARCHITECTURE vhdl OF ps2_to_atari800 IS
 	signal CONSOL_OPTION_INT : std_logic;
 
 	signal FKEYS_INT : std_logic_vector(11 downto 0);
+
+	signal FREEZER_ACTIVATE_INT : std_logic;
 
 	signal atari_keyboard : std_logic_vector(63 downto 0);
 	SIGNAL	SHIFT_PRESSED :  STD_LOGIC;
@@ -191,6 +195,9 @@ BEGIN
 		fkeys_int(9)<=ps2_keys_reg(16#09#);
 		fkeys_int(10)<=ps2_keys_reg(16#78#);
 		fkeys_int(11)<=ps2_keys_reg(16#07#);
+
+		-- use scroll lock to activate freezer
+		freezer_activate_int <= ps2_keys_reg(16#7e#);
 	end process;
 
 	-- provide results as if we were a grid to pokey...
@@ -221,5 +228,6 @@ BEGIN
 	CONSOL_OPTION <= CONSOL_OPTION_INT;
 
 	FKEYS <= FKEYS_INT;
+	FREEZER_ACTIVATE <= FREEZER_ACTIVATE_INT;
 END vhdl;
 

@@ -22,6 +22,7 @@
 #include "memory.h"
 
 extern char ROM_DIR[];
+extern unsigned char freezer_rom_present;
 
 void mainmenu();
 
@@ -76,6 +77,8 @@ BIT_REG(,0x3f,2,turbo_6502,zpu_out1)
 BIT_REG(,0x7,8,ram_select,zpu_out1)
 BIT_REG(,0x3f,11,rom_select,zpu_out1)
 BIT_REG(,0x3f,17,cart_select,zpu_out1)
+// reserve 2 bits for extending cart_select
+BIT_REG(,0x01,25,freezer_enable,zpu_out1)
 
 BIT_REG_RO(,0x1,8,hotkey_softboot,zpu_in1)
 BIT_REG_RO(,0x1,9,hotkey_coldboot,zpu_in1)
@@ -117,7 +120,9 @@ reboot(int cold)
 	set_pause_6502(1);
 	if (cold)
 	{
+		set_freezer_enable(0);
 		clear_main_ram();
+		set_freezer_enable(freezer_rom_present);
 	}
 	set_reset_6502(1);
 	// Do nothing in here - this resets the memory controller!
@@ -194,7 +199,9 @@ void char_out ( void* p, char c)
 }
 #endif
 
-struct SimpleFile * files[6];
+#define NUM_FILES 7
+struct SimpleFile * files[NUM_FILES];
+
 void loadromfile(struct SimpleFile * file, int size, size_t ram_address)
 {
 	void* absolute_ram_address = SDRAM_BASE + ram_address;
@@ -229,7 +236,7 @@ int main(void)
 	fil_type_car = "CAR";
 
 	int i;
-	for (i=0; i!=6; ++i)
+	for (i=0; i!=NUM_FILES; ++i)
 	{
 		files[i] = (struct SimpleFile *)alloca(file_struct_size());
 		file_init(files[i]);
@@ -247,6 +254,7 @@ int main(void)
 	set_rom_select(1);
 	set_ram_select(2);
 	set_cart_select(0);
+	set_freezer_enable(0);
 
 	init_printf(0, char_out);
 

@@ -383,7 +383,9 @@ PORT MAP(CLK => CLK,
 		 WRITE_DATA => WRITE_DATA,
 		 d6_wr_enable => open,
 		 cart_select => (others=>'0'),
-		 rom_in_ram => ROM_IN_RAM);
+		 rom_in_ram => ROM_IN_RAM,
+		 freezer_enable => '0',
+		 freezer_activate => '0');
 
 pokey1 : entity work.pokey
 PORT MAP(CLK => CLK,

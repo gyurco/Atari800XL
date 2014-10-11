@@ -83,11 +83,12 @@ void display_out_regs(void)
 	snprintf(tmpstr, MAXSTR, "out1: %08x", out1);
 	mvwaddstr(status_window, 0, 1, tmpstr);
 
-	snprintf(tmpstr, MAXSTR, "- - tur %02x ram %02x rom %02x car %02x",
+	snprintf(tmpstr, MAXSTR, "- - tur %02x ram %02x rom %02x car %02x frz %1d",
 		(out1 >> 2) & 0x3f,
 		(out1 >> 8) & 0x07,
 		(out1 >> 11) & 0x3f,
-		(out1 >> 17) & 0x3f);
+		(out1 >> 17) & 0x3f,
+		(out1 >> 25) & 1);
 	if (out1 & 1) {
 		tmpstr[0] = 'P';
 	}

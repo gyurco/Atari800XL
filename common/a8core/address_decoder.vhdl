@@ -128,7 +128,11 @@ PORT
 	SDRAM_REQUEST_COMPLETE : in std_logic;
 	SDRAM_DATA : in std_logic_vector(31 downto 0);
 	
-	WRITE_DATA : out std_logic_vector(31 downto 0)
+	WRITE_DATA : out std_logic_vector(31 downto 0);
+	
+	freezer_enable: in std_logic;
+	freezer_activate: in std_logic;
+	freezer_state_out: out std_logic_vector(2 downto 0)
 );
 
 END address_decoder;
@@ -194,6 +198,8 @@ ARCHITECTURE vhdl OF address_decoder IS
 	signal SDRAM_CART_ADDR   : std_logic_vector(22 downto 0);
 	signal SDRAM_BASIC_ROM_ADDR  : std_logic_vector(22 downto 0);
 	signal SDRAM_OS_ROM_ADDR : std_logic_vector(22 downto 0);
+	signal SDRAM_FREEZER_RAM_ADDR   : std_logic_vector(22 downto 0);
+	signal SDRAM_FREEZER_ROM_ADDR   : std_logic_vector(22 downto 0);
 	
 	signal sdram_only_bank : std_logic;
 
@@ -212,6 +218,14 @@ ARCHITECTURE vhdl OF address_decoder IS
 	signal emu_cart_address_enable: boolean;
 	signal emu_cart_cctl_dout: std_logic_vector(7 downto 0);
 	signal emu_cart_cctl_dout_enable: boolean;
+
+	signal atari_clk_enable: std_logic;
+	signal freezer_disable_atari: boolean;
+	signal freezer_access_type: std_logic_vector(1 downto 0);
+	signal freezer_access_address: std_logic_vector(16 downto 0);
+	signal freezer_dout: std_logic_vector(7 downto 0);
+	signal freezer_request: std_logic;
+	signal freezer_request_complete: std_logic;
 	
 BEGIN
 		-- register
@@ -247,12 +261,14 @@ BEGIN
 	end process;
 
 	-- emulated cart
+	atari_clk_enable <= notify_cpu or notify_antic; -- i.e. we enable cart and freezer on the final cycle of a 6502 or antic access
 	emu_cart: entity work.CartLogic
 	port map (clk => clk,
+		clk_enable => atari_clk_enable,
 		cart_mode => cart_select(5 downto 0),
 		a => addr_next(12 downto 0),
 		cctl_n => emu_cart_cctl_n,
-		d_in => cpu_write_data,
+		d_in => data_write_next(7 downto 0),
 		rw => emu_cart_rw,
 		s4_n => emu_cart_s4_n,
 		s5_n => emu_cart_s5_n,
@@ -274,6 +290,26 @@ BEGIN
 			emu_cart_enable <= '1';
 		end if;
 	end process;
+
+	-- freezer
+	freezer: entity work.FreezerLogic
+	port map(
+		clk => clk,
+		clk_enable => atari_clk_enable,
+		a => addr_next(15 downto 0),
+		d_in => data_write_next(7 downto 0),
+		rw => not write_enable_next,
+		reset_n => reset_n,
+		activate_n => not (freezer_enable and freezer_activate),
+		dualpokey_n => '0',
+		disable_atari => freezer_disable_atari,
+		access_type => freezer_access_type,
+		access_address => freezer_access_address,
+		d_out => freezer_dout,
+		request => freezer_request,
+		request_complete => freezer_request_complete,
+		state_out => freezer_state_out
+	);
 
 	-- use "real" cart as if it was stacked on top of the emulated cart
 	--cart_s4_n <= emu_cart_s4_n_out;
@@ -484,6 +520,10 @@ gen_normal_memory : if low_memory=0 generate
 	-- to 4MB RAM    - banks 32-255 "011 1111 1111 1111 1111 1111" (TOP)
 	-- +64k          - banks 256-259"100 0000 0000 1111 1111 1111" (TOP)
 	-- SCRATCH       - 4MB+64k-5MB
+	-- 128k freezer ram		"100 100Y YYYY YYYY YYYY YYYY"
+	SDRAM_FREEZER_RAM_ADDR <= "100100" & freezer_access_address;
+	-- 64k freezer rom		"100 1010 YYYY YYYY YYYY YYYY"
+	SDRAM_FREEZER_ROM_ADDR <= "1001010" & freezer_access_address(15 downto 0);
 	-- CARTS         -              "101 YYYY YYY0 0000 0000 0000" (BOT) - 2MB! 8kb banks
 	--SDRAM_CART_ADDR      <= "101"&cart_select& "0000000000000";
 	SDRAM_CART_ADDR	<= "1" & emu_cart_address(20) & (not emu_cart_address(20)) & emu_cart_address(19 downto 0);
@@ -539,7 +579,11 @@ end generate;
 		extended_self_test,extended_bank,sdram_only_bank,
 		SDRAM_BASIC_ROM_ADDR,
 		SDRAM_CART_ADDR,
-		SDRAM_OS_ROM_ADDR
+		SDRAM_OS_ROM_ADDR,
+
+		freezer_enable, freezer_disable_atari, freezer_access_type,
+		freezer_dout, freezer_request_complete,
+		SDRAM_FREEZER_RAM_ADDR, SDRAM_FREEZER_ROM_ADDR
 		
 	)
 	begin
@@ -582,6 +626,7 @@ end generate;
 
 		rom_request <= '0';
 		cart_request <= '0';
+		freezer_request <= '0';
 		
 		ram_chip_select <= '0';
 		sdram_chip_select <= '0';
@@ -605,7 +650,7 @@ end generate;
 		end if;
 		
 		if system=0 then
-		case addr_next(15 downto 8) is 
+			case addr_next(15 downto 8) is 
 				-- GTIA
 				when X"D0" =>
 					GTIA_WR_ENABLE <= write_enable_next;
@@ -838,7 +883,32 @@ end generate;
 					end if;
 					
 				when others =>
-			end case;				
+			end case;
+
+			-- Freezer overrides bus!
+			if (freezer_enable = '1' and freezer_disable_atari) then
+				sdram_chip_select <= '0';
+				ram_chip_select <= '0';
+				case freezer_access_type is
+				when "01" => -- direct data access
+					memory_data(7 downto 0) <= freezer_dout;
+					freezer_request <= start_request;
+					request_complete <= freezer_request_complete;
+				when "10" => -- ram access
+					SDRAM_ADDR <= SDRAM_FREEZER_RAM_ADDR;
+					MEMORY_DATA(7 downto 0) <= SDRAM_DATA(7 downto 0);
+					request_complete <= sdram_request_COMPLETE;
+					sdram_chip_select <= start_request;
+				when "11" => -- ram access
+					SDRAM_ADDR <= SDRAM_FREEZER_ROM_ADDR;
+					MEMORY_DATA(7 downto 0) <= SDRAM_DATA(7 downto 0);
+					request_complete <= sdram_request_COMPLETE;
+					sdram_chip_select <= start_request;
+				when others => null;
+					MEMORY_DATA(7 downto 0) <= (others => '1');
+					request_complete <= '1';
+				end case;
+			end if;
 		end if;
 
 	 	if system=10 then

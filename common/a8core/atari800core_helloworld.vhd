@@ -160,7 +160,9 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		PAL => PAL,
 		HALT => '0',
 		THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
-		emulated_cartridge_select => (others=>'0')
+		emulated_cartridge_select => (others=>'0'),
+		freezer_enable => '0',
+		freezer_activate => '0'
 	);
 
 end vhdl;

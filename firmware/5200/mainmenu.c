@@ -1,6 +1,8 @@
 static const int main_ram_size=16384;
 #include "main.h" //!!!
 
+unsigned char freezer_rom_present = 0;
+
 void actions();
 
 void loadosrom()

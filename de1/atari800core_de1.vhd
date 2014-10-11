@@ -242,6 +242,11 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 	signal half_scandouble_enable_next : std_logic;
 	signal VIDEO_B : std_logic_vector(7 downto 0);
 
+	signal freezer_enable : std_logic;
+	signal freezer_activate: std_logic;
+
+	signal freezer_state: std_logic_vector(2 downto 0);
+
 BEGIN 
 
 -- ANYTHING NOT CONNECTED...
@@ -254,8 +259,14 @@ FL_WE_N <= '1';
 FL_RST_N <= '1';
 FL_ADDR <= (others=>'0');
 
+process(freezer_enable, freezer_activate, freezer_state)
+begin
 LEDG <= (others=>'1');
 LEDR <= (others=>'1');
+LEDG(0) <= freezer_enable;
+LEDG(1) <= freezer_activate;
+LEDG(4 downto 2) <= freezer_state;
+end process;
 
 -- TODO FUJI? Or Program counter or...
 hexdecoder0 : entity work.hexdecoder
@@ -532,7 +543,8 @@ keyboard_map1 : entity work.ps2_to_atari800
 		CONSOL_SELECT => CONSOL_SELECT,
 		CONSOL_OPTION => CONSOL_OPTION,
 		
-		FKEYS => FKEYS
+		FKEYS => FKEYS,
+		FREEZER_ACTIVATE => freezer_activate
 	);
 
 KEYBOARD_RESPONSE <= PS2_KEYBOARD_RESPONSE and GPIO_KEYBOARD_RESPONSE;
@@ -660,7 +672,11 @@ atari800 : entity work.atari800core
 		USE_SDRAM => SW(9),
 		ROM_IN_RAM => '1',
 		THROTTLE_COUNT_6502 => speed_6502,
-		HALT => pause_atari
+		HALT => pause_atari,
+
+		freezer_enable => freezer_enable,
+		freezer_activate => freezer_activate,
+		freezer_state_out => freezer_state
 	);
 
 zpu: entity work.zpucore
@@ -725,6 +741,8 @@ zpu: entity work.zpucore
 	ram_select <= zpu_out1(10 downto 8);
 	rom_select <= zpu_out1(16 downto 11);
 	emulated_cartridge_select <= zpu_out1(22 downto 17);
+
+	freezer_enable <= zpu_out1(25);
 
 zpu_rom1: entity work.zpu_rom
 	port map(

@@ -336,6 +336,10 @@ END COMPONENT;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
 	signal emulated_cartridge_select: std_logic_vector(5 downto 0);
 
+	-- turbo freezer!
+	signal freezer_enable : std_logic;
+	signal freezer_activate: std_logic;
+
 BEGIN 
 
 dac_left : hq_dac
@@ -452,7 +456,8 @@ keyboard_map1 : entity work.ps2_to_atari800
 		CONSOL_SELECT => CONSOL_SELECT,
 		CONSOL_OPTION => CONSOL_OPTION,
 		
-		FKEYS => FKEYS
+		FKEYS => FKEYS,
+		FREEZER_ACTIVATE => freezer_activate
 	);
 
 PAL <= '1' when TV=1 else '0';
@@ -526,7 +531,9 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		PAL => PAL,
 		HALT => pause_atari,
 		THROTTLE_COUNT_6502 => speed_6502,
-		emulated_cartridge_select => emulated_cartridge_select
+		emulated_cartridge_select => emulated_cartridge_select,
+		freezer_enable => freezer_enable,
+		freezer_activate => freezer_activate
 	);
 
 	process(clk_sdram,sdram_reset_ctrl_n_reg)
@@ -873,6 +880,7 @@ zpu: entity work.zpucore
 	ram_select <= zpu_out1(10 downto 8);
 	rom_select <= zpu_out1(16 downto 11);
 	emulated_cartridge_select <= zpu_out1(22 downto 17);
+	freezer_enable <= zpu_out1(25);
 
 zpu_rom1: entity work.zpu_rom
 	port map(

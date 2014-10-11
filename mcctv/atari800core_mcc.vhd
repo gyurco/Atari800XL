@@ -393,6 +393,10 @@ END COMPONENT;
   signal usb_clk : std_logic;
   signal usb_reset_n : std_logic;
 
+	-- turbo freezer!
+	signal freezer_enable : std_logic;
+	signal freezer_activate: std_logic;
+
 BEGIN 
 
 -- disable flash (not used)
@@ -549,7 +553,9 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		PAL => PAL,
 		HALT => pause_atari,
 		THROTTLE_COUNT_6502 => speed_6502,
-		emulated_cartridge_select => emulated_cartridge_select
+		emulated_cartridge_select => emulated_cartridge_select,
+		freezer_enable => freezer_enable,
+		freezer_activate => freezer_activate
 	);
 
 	process(clk_sdram,sdram_reset_ctrl_n_reg)
@@ -844,6 +850,7 @@ zpu: entity work.zpucore
 	ram_select <= zpu_out1(10 downto 8);
 	rom_select <= zpu_out1(16 downto 11);
 	emulated_cartridge_select <= zpu_out1(22 downto 17);
+	freezer_enable <= zpu_out1(25);
 
 zpu_rom1: entity work.zpu_rom
 	port map(
@@ -975,6 +982,7 @@ FKEYS(8) <= not(joyleft1_l1);
 FKEYS(9) <= not(joyleft1_l2);
 FKEYS(10) <= not(joyright1_r1);
 FKEYS(11) <= not(joyright1_r2);
+FREEZER_ACTIVATE <= not(joy1_select_fire) and not(joyright1_3);
 
   ---------------------------------
   -- process for CVBS output (TODO - merge this into the svideo.vhd component, as an option...)

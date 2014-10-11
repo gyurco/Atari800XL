@@ -25,6 +25,7 @@ library work;
 
 entity CartLogic is
     Port (	clk: in std_logic;
+		clk_enable: in std_logic;
 		cart_mode: in std_logic_vector(5 downto 0);
 		a: in std_logic_vector (12 downto 0);
 		cctl_n: std_logic;
@@ -180,7 +181,7 @@ begin
 			when others => null;
 			end case;
 		else
-			if (cctl_n = '0') then
+			if (clk_enable = '1') and (cctl_n = '0') then
 				if (rw = '0') then
 					-- modes using data lines to switch banks
 					

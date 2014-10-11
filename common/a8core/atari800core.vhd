@@ -179,7 +179,10 @@ ENTITY atari800core IS
 		USE_SDRAM :  in STD_LOGIC;
 		ROM_IN_RAM : in std_logic;
 		THROTTLE_COUNT_6502 : in STD_LOGIC_VECTOR(5 DOWNTO 0);
-		HALT : in std_logic
+		HALT : in std_logic;
+		freezer_enable: in std_logic;
+		freezer_activate: in std_logic;
+		freezer_state_out: out std_logic_vector(2 downto 0)
 	);
 END atari800core;
 
@@ -480,7 +483,10 @@ PORT MAP(CLK => CLK,
 		 WRITE_DATA => WRITE_DATA,
 		 d6_wr_enable => covox_write_enable,
 		 cart_select => CART_EMULATION_SELECT,
-		 rom_in_ram => ROM_IN_RAM);
+		 rom_in_ram => ROM_IN_RAM,
+		 freezer_enable => freezer_enable,
+		 freezer_activate => freezer_activate,
+		 freezer_state_out => freezer_state_out);
 
 pokey1 : entity work.pokey
 PORT MAP(CLK => CLK,

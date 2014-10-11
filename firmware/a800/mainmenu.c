@@ -1,6 +1,9 @@
 static const int main_ram_size=65536;
 #include "main.h" //!!!
 #include "atari_drive_emulator.h"
+#include "log.h"
+
+unsigned char freezer_rom_present;
 
 void loadosrom()
 {
@@ -17,6 +20,7 @@ void loadosrom()
 
 void mainmenu()
 {
+	freezer_rom_present = 0;
 	if (SimpleFile_OK == dir_init((void *)DIR_INIT_MEM, DIR_INIT_MEMSIZE))
 	{
 		init_drive_emulator();
@@ -36,6 +40,25 @@ void mainmenu()
 		{
 			loadosrom();
 		}
+
+#ifdef HAVE_FREEZER_ROM_MEM
+		if (SimpleFile_OK == file_open_name_in_dir(entries, "freezer.rom", files[6]))
+		{
+			enum SimpleFileStatus ok;
+			int len;
+			ok = file_read(files[6], FREEZER_ROM_MEM, 0x10000, &len);
+			if (ok == SimpleFile_OK && len == 0x10000) {
+				LOG("freezer rom loaded\n");
+				freezer_rom_present = 1;
+			} else {
+				LOG("loading freezer rom failed\n");
+				freezer_rom_present = 0;
+			}
+		} else {
+			LOG("freezer.rom not found\n");
+		}
+#endif
+		set_freezer_enable(freezer_rom_present);
 
 		//ROM = xlorig.rom,0x4000, (void *)0x704000
 		//ROM = xlhias.rom,0x4000, (void *)0x708000
@@ -272,6 +295,7 @@ void actions()
 	else if (get_hotkey_settings())
 	{
 		set_pause_6502(1);
+		set_freezer_enable(0);
 		freeze();
 		debug_pos = 0;	
 		int do_reboot = settings();
@@ -279,12 +303,15 @@ void actions()
 		restore();
 		if (do_reboot)
 			reboot(1);
-		else
+		else {
+			set_freezer_enable(freezer_rom_present);
 			set_pause_6502(0);
+		}
 	}
 	else if (get_hotkey_fileselect())
 	{
 		set_pause_6502(1);
+		set_freezer_enable(0);
 		freeze();
 		filter = filter_disks;
 		file_selector(files[0]);
