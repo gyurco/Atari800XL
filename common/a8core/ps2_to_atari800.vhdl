@@ -196,8 +196,8 @@ BEGIN
 		fkeys_int(10)<=ps2_keys_reg(16#78#);
 		fkeys_int(11)<=ps2_keys_reg(16#07#);
 
-		-- use scroll lock to activate freezer
-		freezer_activate_int <= ps2_keys_reg(16#7e#);
+		-- use scroll lock or delete to activate freezer (same key on my keyboard + scroll lock does not seem to work on mist!)
+		freezer_activate_int <= ps2_keys_reg(16#7e#) or ps2_keys_reg(16#171#);
 	end process;
 
 	-- provide results as if we were a grid to pokey...
