@@ -226,6 +226,7 @@ ARCHITECTURE vhdl OF address_decoder IS
 	signal freezer_dout: std_logic_vector(7 downto 0);
 	signal freezer_request: std_logic;
 	signal freezer_request_complete: std_logic;
+	signal freezer_activate_n: std_logic;
 	
 BEGIN
 		-- register
@@ -292,6 +293,7 @@ BEGIN
 	end process;
 
 	-- freezer
+	freezer_activate_n <= not (freezer_enable and freezer_activate);
 	freezer: entity work.FreezerLogic
 	port map(
 		clk => clk,
@@ -300,7 +302,7 @@ BEGIN
 		d_in => data_write_next(7 downto 0),
 		rw => not write_enable_next,
 		reset_n => reset_n,
-		activate_n => not (freezer_enable and freezer_activate),
+		activate_n => freezer_activate_n,
 		dualpokey_n => '0',
 		disable_atari => freezer_disable_atari,
 		access_type => freezer_access_type,

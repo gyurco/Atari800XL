@@ -31,6 +31,7 @@ Replay_JoyPS2.vhd
 Replay_Audio.vhd
 Replay_MousePointer.vhd
 cart_logic.vhd
+freezer_logic.vhd
 address_decoder.vhdl
 antic_counter.vhdl
 antic_dma_clock.vhdl
