@@ -23,6 +23,7 @@ use ieee.numeric_std.ALL;
 
 entity cpu_65xx is
 	generic (
+		enable_jam : boolean := true;
 		pipelineOpcode : boolean;
 		pipelineAluMux : boolean;
 		pipelineAluOut : boolean
@@ -42,6 +43,7 @@ entity cpu_65xx is
 		we : out std_logic;
 		
 		debugOpcode : out unsigned(7 downto 0);
+		debugJam : out std_logic;
 		debugPc : out unsigned(15 downto 0);
 		debugA : out unsigned(7 downto 0);
 		debugX : out unsigned(7 downto 0);

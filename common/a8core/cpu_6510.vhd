@@ -25,7 +25,8 @@ entity cpu_6510 is
 		pipelineOpcode : boolean;
 		pipelineAluMux : boolean;
 		pipelineAluOut : boolean;
-		emulate_bitfade : boolean
+		emulate_bitfade : boolean;
+		emulate_01_write : boolean
 	);
 	port (
 		clk : in std_logic;
@@ -41,10 +42,12 @@ entity cpu_6510 is
 		d : in unsigned(7 downto 0);
 		q : out unsigned(7 downto 0);
 
+		vic_last_data : in unsigned(7 downto 0) := (others => '1');
 		diIO : in unsigned(7 downto 0);
 		doIO : out unsigned(7 downto 0);
 		
 		debugOpcode : out unsigned(7 downto 0);
+		debugJam : out std_logic;
 		debugPc : out unsigned(15 downto 0);
 		debugA : out unsigned(7 downto 0);
 		debugX : out unsigned(7 downto 0);
@@ -67,7 +70,7 @@ architecture rtl of cpu_6510 is
 	signal ioDir : unsigned(7 downto 0);
 	signal ioData : unsigned(7 downto 0);
 	
-	signal accessIO : std_logic;
+	signal accessing_IO : boolean;
 	signal ioFade : unsigned(7 downto 0) := (others => '0');
 begin
 	cpuInstance: entity work.cpu_65xx
@@ -90,6 +93,7 @@ begin
 			we => localWe,
 
 			debugOpcode => debugOpcode,
+			debugJam => debugJam,
 			debugPc => debugPc,
 			debugA => debugA,
 			debugX => debugX,
@@ -98,18 +102,12 @@ begin
 			debug_flags => debug_flags
 		);
 	
-	process(localA)
-	begin
-		accessIO <= '0';
-		if localA(15 downto 1) = 0 then
-			accessIO <= '1';
-		end if;
-	end process;
+	accessing_IO <= localA(15 downto 1) = 0;
 	
-	process(d, localA, ioDir, currentIO, accessIO)
+	process(d, localA, ioDir, currentIO, accessing_IO)
 	begin
 		localD <= d;
-		if accessIO = '1' then
+		if accessing_IO then
 			if localA(0) = '0' then
 				localD <= ioDir;
 			else
@@ -121,7 +119,7 @@ begin
 	process(clk)
 	begin
 		if rising_edge(clk) then
-			if accessIO = '1' then
+			if accessing_IO then
 				if localWe = '1'
 				and enable = '1' then
 					if localA(0) = '0' then
@@ -137,7 +135,7 @@ begin
 		end if;
 	end process;
 	
-	process(ioDir, ioData, diIO)
+	process(ioDir, ioData, diIO, ioFade)
 	begin
 		for i in 0 to 7 loop
 			if ioDir(i) = '0' then
@@ -155,7 +153,7 @@ begin
 	
 	-- Cunnect zee wires
 	a <= localA;
-	q <= localQ;
+	q <= vic_last_data when (emulate_01_write and accessing_IO) else localQ;
 	we <= localWe;
 	doIO <= currentIO;
 	debug_io <= "00" & (ioData(5 downto 0) or (not ioDir(5 downto 0)));

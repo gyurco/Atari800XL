@@ -17,7 +17,6 @@
 
 library IEEE;
 use ieee.std_logic_1164.ALL;
-use ieee.std_logic_unsigned.ALL;
 use ieee.numeric_std.ALL;
 
 -- -----------------------------------------------------------------------
@@ -98,90 +97,92 @@ architecture rtl of cpu_65xx is
 	constant opcIncrAfter  : integer := 23; -- Insert extra cycle to increment PC (RTS)
 	constant opcRti        : integer := 24;
 	constant opcIRQ        : integer := 25;
+	constant opcJAM        : integer := 26;
 
-	constant opcInA        : integer := 26;
-	constant opcInE        : integer := 27;
-	constant opcInX        : integer := 28;
-	constant opcInY        : integer := 29;
-	constant opcInS        : integer := 30;
-	constant opcInT        : integer := 31;
-	constant opcInH        : integer := 32;
-	constant opcInClear    : integer := 33;
-	constant aluMode1From  : integer := 34;
+	constant opcInA        : integer := 27;
+	constant opcInE        : integer := 28;
+	constant opcInX        : integer := 29;
+	constant opcInY        : integer := 30;
+	constant opcInS        : integer := 31;
+	constant opcInT        : integer := 32;
+	constant opcInH        : integer := 33;
+	constant opcInClear    : integer := 34;
+	constant aluMode1From  : integer := 35;
 	--
-	constant aluMode1To    : integer := 37;
-	constant aluMode2From  : integer := 38;
+	constant aluMode1To    : integer := 38;
+	constant aluMode2From  : integer := 39;
 	--
-	constant aluMode2To    : integer := 40;
+	constant aluMode2To    : integer := 41;
 	--
-	constant opcInCmp      : integer := 41;
-	constant opcInCpx      : integer := 42;
-	constant opcInCpy      : integer := 43;
+	constant opcInCmp      : integer := 42;
+	constant opcInCpx      : integer := 43;
+	constant opcInCpy      : integer := 44;
 	
 
-	subtype addrDef is unsigned(0 to 15);
+	subtype addrDef is unsigned(0 to 16);
 	--
-	--               is Interrupt  -----------------+
-	--          instruction is RTI ----------------+|
-	--    PC++ on last cycle (RTS) ---------------+||
-	--                      RMW    --------------+|||
-	--                     Write   -------------+||||
-	--               Pop/Stack up -------------+|||||
-	--                    Branch   ---------+  ||||||
-	--                      Jump ----------+|  ||||||
-	--            Push or Pop data -------+||  ||||||
-	--            Push or Pop addr ------+|||  ||||||
-	--                   Indirect  -----+||||  ||||||
-	--                    ZeroPage ----+|||||  ||||||
-	--                    Absolute ---+||||||  ||||||
-	--              PC++ on cycle2 --+|||||||  ||||||
-	--                               |AZI||JBXY|WM|||
-	constant immediate : addrDef := "1000000000000000";
-	constant implied   : addrDef := "0000000000000000";
+	--                      is JAM ------------------+
+	--                is Interrupt -----------------+|
+	--          instruction is RTI ----------------+||
+	--    PC++ on last cycle (RTS) ---------------+|||
+	--                      RMW    --------------+||||
+	--                     Write   -------------+|||||
+	--               Pop/Stack up -------------+||||||
+	--                    Branch   ---------+  |||||||
+	--                      Jump ----------+|  |||||||
+	--            Push or Pop data -------+||  |||||||
+	--            Push or Pop addr ------+|||  |||||||
+	--                   Indirect  -----+||||  |||||||
+	--                    ZeroPage ----+|||||  |||||||
+	--                    Absolute ---+||||||  |||||||
+	--              PC++ on cycle2 --+|||||||  |||||||
+	--                               |AZI||JBXY|WM||||
+	constant immediate : addrDef := "10000000000000000";
+	constant implied   : addrDef := "00000000000000000";
 	-- Zero page
-	constant readZp    : addrDef := "1010000000000000";
-	constant writeZp   : addrDef := "1010000000010000";
-	constant rmwZp     : addrDef := "1010000000001000";
+	constant readZp    : addrDef := "10100000000000000";
+	constant writeZp   : addrDef := "10100000000100000";
+	constant rmwZp     : addrDef := "10100000000010000";
 	-- Zero page indexed
-	constant readZpX   : addrDef := "1010000010000000";
-	constant writeZpX  : addrDef := "1010000010010000";
-	constant rmwZpX    : addrDef := "1010000010001000";
-	constant readZpY   : addrDef := "1010000001000000";
-	constant writeZpY  : addrDef := "1010000001010000";
-	constant rmwZpY    : addrDef := "1010000001001000";
+	constant readZpX   : addrDef := "10100000100000000";
+	constant writeZpX  : addrDef := "10100000100100000";
+	constant rmwZpX    : addrDef := "10100000100010000";
+	constant readZpY   : addrDef := "10100000010000000";
+	constant writeZpY  : addrDef := "10100000010100000";
+	constant rmwZpY    : addrDef := "10100000010010000";
 	-- Zero page indirect
-	constant readIndX  : addrDef := "1001000010000000";
-	constant writeIndX : addrDef := "1001000010010000";
-	constant rmwIndX   : addrDef := "1001000010001000";
-	constant readIndY  : addrDef := "1001000001000000";
-	constant writeIndY : addrDef := "1001000001010000";
-	constant rmwIndY   : addrDef := "1001000001001000";
+	constant readIndX  : addrDef := "10010000100000000";
+	constant writeIndX : addrDef := "10010000100100000";
+	constant rmwIndX   : addrDef := "10010000100010000";
+	constant readIndY  : addrDef := "10010000010000000";
+	constant writeIndY : addrDef := "10010000010100000";
+	constant rmwIndY   : addrDef := "10010000010010000";
 	--                               |AZI||JBXY|WM||
 	-- Absolute
-	constant readAbs   : addrDef := "1100000000000000";	
-	constant writeAbs  : addrDef := "1100000000010000";	
-	constant rmwAbs    : addrDef := "1100000000001000";	
-	constant readAbsX  : addrDef := "1100000010000000";	
-	constant writeAbsX : addrDef := "1100000010010000";	
-	constant rmwAbsX   : addrDef := "1100000010001000";	
-	constant readAbsY  : addrDef := "1100000001000000";	
-	constant writeAbsY : addrDef := "1100000001010000";	
-	constant rmwAbsY   : addrDef := "1100000001001000";	
+	constant readAbs   : addrDef := "11000000000000000";	
+	constant writeAbs  : addrDef := "11000000000100000";	
+	constant rmwAbs    : addrDef := "11000000000010000";	
+	constant readAbsX  : addrDef := "11000000100000000";	
+	constant writeAbsX : addrDef := "11000000100100000";	
+	constant rmwAbsX   : addrDef := "11000000100010000";	
+	constant readAbsY  : addrDef := "11000000010000000";	
+	constant writeAbsY : addrDef := "11000000010100000";	
+	constant rmwAbsY   : addrDef := "11000000010010000";	
 	-- PHA PHP
-	constant push      : addrDef := "0000010000000000";
+	constant push      : addrDef := "00000100000000000";
 	-- PLA PLP
-	constant pop       : addrDef := "0000010000100000";
+	constant pop       : addrDef := "00000100001000000";
 	-- Jumps
-	constant jsr       : addrDef := "1000101000000000";
-	constant jumpAbs   : addrDef := "1000001000000000";
-	constant jumpInd   : addrDef := "1100001000000000";
-	constant relative  : addrDef := "1000000100000000";
+	constant jsr       : addrDef := "10001010000000000";
+	constant jumpAbs   : addrDef := "10000010000000000";
+	constant jumpInd   : addrDef := "11000010000000000";
+	constant relative  : addrDef := "10000001000000000";
 	-- Specials
-	constant rts       : addrDef := "0000101000100100";
-	constant rti       : addrDef := "0000111000100010";
-	constant brk       : addrDef := "1000111000000001";
+	constant rts       : addrDef := "00001010001001000";
+	constant rti       : addrDef := "00001110001000100";
+	constant brk       : addrDef := "10001110000000010";
+	constant xxxxxxxx  : addrDef := "0---------0---001";
 --	constant        : unsigned(0 to 0) := "0";
-	constant xxxxxxxx  : addrDef := "----------0---00";
 	
 	-- A = accu
 	-- E = Accu | 0xEE (for ANE, LXA)
@@ -288,7 +289,7 @@ architecture rtl of cpu_65xx is
 	constant stackDec : unsigned(0 to 0) := "1";
 	constant stackXXX : unsigned(0 to 0) := "-";
 
-	subtype decodedBitsDef is unsigned(0 to 43);
+	subtype decodedBitsDef is unsigned(0 to 44);
 	type opcodeInfoTableDef is array(0 to 255) of decodedBitsDef;
 	constant opcodeInfoTable : opcodeInfoTableDef := (
 	-- +------- Update register A
@@ -463,7 +464,7 @@ architecture rtl of cpu_65xx is
 	  "0000" & "000000" & writeAbsX & aluInYH  & aluInp, -- 9C iSHY abs,x
 	  "0000" & "000000" & writeAbsX & aluInA   & aluInp, -- 9D STA abs,x
 	  "0000" & "000000" & writeAbsY & aluInXH  & aluInp, -- 9E iSHX abs,y
-	  "0000" & "000000" & writeAbsY & aluInAX  & aluInp, -- 9F iAHX abs,y
+	  "0000" & "000000" & writeAbsY & aluInAXH & aluInp, -- 9F iAHX abs,y
 	-- AXYS     NVDIZC    addressing  aluInput  aluMode
 	  "0010" & "100010" & immediate & aluInT   & aluInp, -- A0 LDY imm
 	  "1000" & "100010" & readIndX  & aluInT   & aluInp, -- A1 LDA (zp,x)
@@ -476,7 +477,8 @@ architecture rtl of cpu_65xx is
 	  "0010" & "100010" & implied   & aluInA   & aluInp, -- A8 TAY
 	  "1000" & "100010" & immediate & aluInT   & aluInp, -- A9 LDA imm
 	  "0100" & "100010" & implied   & aluInA   & aluInp, -- AA TAX
-	  "1100" & "100010" & immediate & aluInET  & aluAnd, -- AB iLXA imm - MWW:change for Atari800 CPU
+	  --"1100" & "100010" & immediate & aluInET  & aluInp, -- AB iLXA imm
+ 	  "1100" & "100010" & immediate & aluInET  & aluAnd, -- AB iLXA imm - MWW:change for Atari800 CPU
 	  "0010" & "100010" & readAbs   & aluInT   & aluInp, -- AC LDY abs
 	  "1000" & "100010" & readAbs   & aluInT   & aluInp, -- AD LDA abs
 	  "0100" & "100010" & readAbs   & aluInT   & aluInp, -- AE LDX abs
@@ -644,6 +646,9 @@ architecture rtl of cpu_65xx is
 -- Indexing
 	signal indexOut : unsigned(8 downto 0);
 
+-- JAM
+	signal jam_flag : std_logic := '0';
+
 begin
 processAluInput: process(clk, opcInfo, A, X, Y, T, S)
 		variable temp : unsigned(7 downto 0);
@@ -708,7 +713,9 @@ processCmpInput: process(clk, opcInfo, A, X, Y)
 	-- Accumulator instructions: ADC, SBC, EOR, AND, EOR, ORA
 	-- Some instructions are both RMW and accumulator so for most
 	-- instructions the rmw results are routed through accu alu too.
-processAlu: process(clk, opcInfo, aluInput, aluCmpInput, A, T, irqActive, Nreg, Vreg, Dreg, Ireg, Zreg, Creg)
+processAlu: process(clk,
+	opcInfo, aluInput, aluInputReg, aluCmpInput, aluCmpInputReg, aluNineReg,
+	A, T, irqActive, Nreg, Vreg, Dreg, Ireg, Zreg, Creg, aluNreg, aluVreg, aluZreg, aluCreg)
 		variable lowBits: unsigned(5 downto 0);
 		variable nineBits: unsigned(8 downto 0);
 		variable rmwBits: unsigned(8 downto 0);
@@ -871,16 +878,19 @@ calcInterrupt: process(clk)
 	begin
 		if rising_edge(clk) then
 			if (enable = '1') then -- and (halt = '0') then
+
 					irqReg <= irq_n;
 					nmiEdge <= nmi_n;
 					if (nmiEdge = '1') and (nmi_n = '0') then
 						nmiReg <= '0';
 					end if;
-					
-					if theCpuCycle = cycleStack4 -- MWW
-					or reset = '1' then
-						nmiReg <= '1';
-					end if;					
+
+
+				if theCpuCycle = cycleStack4
+				or reset = '1' then
+					nmiReg <= '1';
+				end if;
+
 				if halt = '0' then
 					if theCpuCycle /= cycleBranchTaken then
 						-- The 'or opcInfo(opcSetI)' prevents NMI immediately after BRK or IRQ.
@@ -908,7 +918,7 @@ calcNextOpcode: process(clk, d, reset, processInt)
 		nextOpcode <= myNextOpcode;
 	end process;
 
-	nextOpcInfo <= opcodeInfoTable(to_integer(to_01(nextOpcode, '0')));
+	nextOpcInfo <= opcodeInfoTable(to_integer(to_01(nextOpcode,'0')));
 	process(clk)
 	begin
 		if rising_edge(clk) then
@@ -971,9 +981,11 @@ calcTheOpcode:	process(clk)
 		if rising_edge(clk) then
 			if (enable = '1') and (halt = '0') then
 				theCpuCycle <= nextCpuCycle;
+				debugJam <= jam_flag;
 			end if;
 			if reset = '1' then
 				theCpuCycle <= cycle2;
+				debugJam <= '0';
 			end if;				
 		end if;			
 	end process;
@@ -982,13 +994,18 @@ calcTheOpcode:	process(clk)
 	-- go to opcodeFetch to get the next opcode.
 calcNextCpuCycle: process(theCpuCycle, opcInfo, theOpcode, indexOut, T, Nreg, Vreg, Creg, Zreg)
 	begin
+		jam_flag <= '0';
 		nextCpuCycle <= opcodeFetch;
 
 		case theCpuCycle is
 		when opcodeFetch =>
 			nextCpuCycle <= cycle2;
 		when cycle2 =>
-			if opcInfo(opcBranch) = '1' then
+			if enable_jam and (opcInfo(opcJAM) = '1') then
+				nextCpuCycle <= cycle2;
+				jam_flag <= '1';
+				-- Stay in cycle2
+			elsif opcInfo(opcBranch) = '1' then
 				if (Nreg = theOpcode(5) and theOpcode(7 downto 6) = "00")
 				or (Vreg = theOpcode(5) and theOpcode(7 downto 6) = "01")
 				or (Creg = theOpcode(5) and theOpcode(7 downto 6) = "10")
@@ -1234,6 +1251,10 @@ calcT: process(clk)
 					Ireg <= '1';
 				end if;
 			end if;
+
+			if enable = '1' and reset = '1' then
+				Ireg <= '1';
+			end if;
 		end if;
 	end process;
 
@@ -1344,7 +1365,7 @@ calcDo: process(clk)
 		if rising_edge(clk) then
 			if (enable = '1') and (halt = '0') then
 				doReg <= aluRmwOut;
-				if opcInfo(opcInH) = '1' then
+				if opcInfo(opcInH) = '1' and (halt_dly = '0') then
 					-- For illegal opcodes SHA, SHX, SHY, SHS
 					doReg <= aluRmwOut and myAddrIncrH;
 				end if;
