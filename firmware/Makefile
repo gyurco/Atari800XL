@@ -79,7 +79,7 @@ MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mcc/dirs.c
 MCC_OBJ = $(patsubst %.c,$(MCC_BUILD_DIR)/%.o,$(MCC_SRC))
 
 MIST_PRJ = MIST
-MIST_SRC = $(COMMON_SRC) $(A800_SRC) mist/diskio_sectorrequest.c mist/dirs.c
+MIST_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mist/dirs.c
 MIST_OBJ = $(patsubst %.c,$(MIST_BUILD_DIR)/%.o,$(MIST_SRC))
 
 MIST_5200_PRJ = MIST_5200
