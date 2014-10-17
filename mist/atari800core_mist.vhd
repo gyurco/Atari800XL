@@ -316,11 +316,11 @@ my_sd_card : sd_card
 		io_conf => sd_conf,
 		io_sdhc => sd_sdhc,
 		
-		io_din => sd_din,
-		io_din_strobe => sd_din_strobe,
+		io_din => sd_dout,
+		io_din_strobe => sd_dout_strobe,
 		
-		io_dout => sd_dout,
-		io_dout_strobe => sd_dout_strobe,
+		io_dout => sd_din,
+		io_dout_strobe => sd_din_strobe,
 		
 		allow_sdhc => '1',
 	
