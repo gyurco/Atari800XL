@@ -83,7 +83,7 @@ MIST_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mist/dirs.c
 MIST_OBJ = $(patsubst %.c,$(MIST_BUILD_DIR)/%.o,$(MIST_SRC))
 
 MIST_5200_PRJ = MIST_5200
-MIST_5200_SRC = $(COMMON_SRC) $(5200_SRC) mist/diskio_sectorrequest.c mist/dirs.c
+MIST_5200_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(5200_SRC) mist/dirs.c
 MIST_5200_OBJ = $(patsubst %.c,$(MIST_5200_BUILD_DIR)/%.o,$(MIST_5200_SRC))
 
 LINKMAP  = ./standalone_simple.ld
