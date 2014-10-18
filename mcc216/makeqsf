@@ -11,6 +11,7 @@ close (QSF_IN);
 
 open (QSF_OUT,">$qsf_out") or die "Failed to open $qsf_out";
 print QSF_OUT @qsf_base;
+print QSF_OUT "\n";
 
 foreach (@ARGV)
 {
