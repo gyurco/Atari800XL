@@ -182,7 +182,8 @@ ENTITY atari800core IS
 		HALT : in std_logic;
 		freezer_enable: in std_logic;
 		freezer_activate: in std_logic;
-		freezer_state_out: out std_logic_vector(2 downto 0)
+		freezer_state_out: out std_logic_vector(2 downto 0);
+		pbi_enable: in std_logic := '0'
 	);
 END atari800core;
 
@@ -486,7 +487,8 @@ PORT MAP(CLK => CLK,
 		 rom_in_ram => ROM_IN_RAM,
 		 freezer_enable => freezer_enable,
 		 freezer_activate => freezer_activate,
-		 freezer_state_out => freezer_state_out);
+		 freezer_state_out => freezer_state_out,
+		 pbi_enable => pbi_enable);
 
 pokey1 : entity work.pokey
 PORT MAP(CLK => CLK,

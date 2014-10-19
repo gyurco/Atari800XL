@@ -106,9 +106,6 @@ begin
 	GPIO_1_DIR_OUT(18 downto 8) <= (others=>'0');
 	GPIO_1_OUT(18 downto 8) <= (others=>'0');
 	
-	GPIO_0_DIR_OUT(7 downto 5) <= (others=>'0');
-	GPIO_0_OUT(7 downto 5) <= (others=>'0');
-	
 	-- sio
 	GPIO_0_DIR_OUT(0) <= CA2_dir_out;
 	GPIO_0_OUT(0) <= CA2_out;
@@ -214,8 +211,14 @@ begin
 	GPIO_0_OUT(9) <= '0'; -- RD5 rom present
 	GPIO_0_DIR_OUT(8) <= gpio_enable; -- cart control
 	GPIO_0_OUT(8) <= CCTL_n; -- cart control
-	GPIO_0_DIR_OUT(7 downto 5) <= (others=>'0'); -- unused
-	GPIO_0_OUT(7 downto 5) <= (others=>'0'); -- unused	
+
+-- PBI: A13-A15
+	GPIO_0_DIR_OUT(7) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(7) <= bus_addr_out(15);
+	GPIO_0_DIR_OUT(6) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(6) <= bus_addr_out(14);
+	GPIO_0_DIR_OUT(5) <= gpio_enable and bus_addr_oe;
+	GPIO_0_OUT(5) <= bus_addr_out(13);
 	
 -- INPUTS FROM GPIO	
 	-- sticks

@@ -247,7 +247,10 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 
 	signal freezer_state: std_logic_vector(2 downto 0);
 
+	signal pbi_enable: std_logic;
 BEGIN 
+
+	pbi_enable <= SW(4);
 
 -- ANYTHING NOT CONNECTED...
 --GPIO_0(0) <= 'Z';
@@ -409,7 +412,7 @@ GENERIC MAP(
 )
 PORT MAP(clk => CLK,
 	reset_n => reset_n,
-		 gpio_enable => SW(4),
+		 gpio_enable => pbi_enable,
 		 pot_reset => pot_reset,
 		 pbi_write_enable => pbi_write_enable,
 		 enable_179_early => enable_179_early,
@@ -676,7 +679,9 @@ atari800 : entity work.atari800core
 
 		freezer_enable => freezer_enable,
 		freezer_activate => freezer_activate,
-		freezer_state_out => freezer_state
+		freezer_state_out => freezer_state,
+
+		pbi_enable => pbi_enable
 	);
 
 zpu: entity work.zpucore

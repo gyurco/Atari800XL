@@ -132,7 +132,8 @@ PORT
 	
 	freezer_enable: in std_logic;
 	freezer_activate: in std_logic;
-	freezer_state_out: out std_logic_vector(2 downto 0)
+	freezer_state_out: out std_logic_vector(2 downto 0);
+	pbi_enable: in std_logic := '0'
 );
 
 END address_decoder;
@@ -317,7 +318,7 @@ BEGIN
 	--cart_s4_n <= emu_cart_s4_n_out;
 	--cart_s5_n <= emu_cart_s5_n_out;
 
-	CART_TRIG3_OUT <= CART_RD5 or emu_cart_rd5;
+	CART_TRIG3_OUT <= (pbi_enable and CART_RD5) or emu_cart_rd5;
 	
 	-- ANTIC FETCH
 	
@@ -715,7 +716,7 @@ end generate;
 							request_complete <= '1';
 						end if;
 					else
-						if ((CART_RD4 or CART_RD5) = '1') then
+						if (pbi_enable = '1') then
 							PBI_WR_ENABLE <= write_enable_next;
 							MEMORY_DATA(7 downto 0) <= CART_ROM_DATA;
 							cart_request <= start_request;
@@ -782,7 +783,8 @@ end generate;
 							sdram_chip_select <= '0';
 							ram_chip_select <= '0';
 						end if;
-					elsif (cart_rd4 = '1') then
+					elsif (pbi_enable = '1' and cart_rd4 = '1') then
+						PBI_WR_ENABLE <= write_enable_next;
 						MEMORY_DATA(7 downto 0) <= CART_ROM_DATA;
 						cart_request <= start_request;
 						CART_S4_n <= '0';
@@ -811,7 +813,8 @@ end generate;
 							sdram_chip_select <= '0';
 							ram_chip_select <= '0';
 						end if;
-					elsif (cart_rd5 = '1') then
+					elsif (pbi_enable = '1' and cart_rd5 = '1') then
+						PBI_WR_ENABLE <= write_enable_next;
 						MEMORY_DATA(7 downto 0) <= CART_ROM_DATA;
 						cart_request <= start_request;
 						CART_S5_n <= '0';

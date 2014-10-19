@@ -141,15 +141,14 @@ BEGIN
 
 		case state_reg is
 		when x"0" =>
-			phi1_next <= '1';
 		when x"1"=>
 			addr_oe_next <= '1';
 		when x"2"|x"3"|x"4"|x"5" =>
 		when x"6" =>
 			phi1_next <= '0';
 		when x"7" =>
-		when x"8" =>
 			phi2_next <= '1';
+		when x"8" =>
 		when x"9"|x"a" =>
 		when x"b" =>
 			if (write_in = '1') then
@@ -165,6 +164,7 @@ BEGIN
 			addr_oe_next <= '0';
 			data_oe_next <= '0';
 			write_n_next <= '1';
+			phi1_next <= '1';
 		end case;
 
 	end process;
