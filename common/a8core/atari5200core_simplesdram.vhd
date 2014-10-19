@@ -73,25 +73,25 @@ ENTITY atari5200core_simplesdram is
 		DMA_MEMORY_DATA : out std_logic_vector(31 downto 0);
 
 		HALT : in std_logic;
-		THROTTLE_COUNT_6502 : in std_logic_vector(5 downto 0) -- standard speed is cycle_length-1
+		THROTTLE_COUNT_6502 : in std_logic_vector(5 downto 0); -- standard speed is cycle_length-1
 	
-		-- rename to simple_sdram...
-
 		-- JOYSTICK
-		--JOY1_n : IN std_logic_vector(4 downto 0); -- FRLDU, 0=pressed
-		--JOY2_n : IN std_logic_vector(4 downto 0); -- FRLDU, 0=pressed
+		JOY1_X : IN signed(7 downto 0);
+		JOY1_Y : IN signed(7 downto 0);
+		JOY1_BUTTON : IN std_logic;
+		JOY2_X : IN signed(7 downto 0);
+		JOY2_Y : IN signed(7 downto 0);
+		JOY2_BUTTON : IN std_logic;
 
-		-- KEYBOARD
-		--PS2_CLK : IN STD_LOGIC;
-		--PS2_DAT : IN STD_LOGIC;
+		-- Pokey keyboard matrix
+		-- Standard component available to connect this to PS2
+		KEYBOARD_RESPONSE : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+		KEYBOARD_SCAN : OUT STD_LOGIC_VECTOR(5 DOWNTO 0);
+		CONTROLLER_SELECT : OUT STD_LOGIC_VECTOR(1 downto 0)
 	);
 end atari5200core_simplesdram;
 
 ARCHITECTURE vhdl OF atari5200core_simplesdram IS 
-
--- pokey keyboard
-SIGNAL KEYBOARD_SCAN : std_logic_vector(5 downto 0);
-SIGNAL KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
 
 -- PBI
 SIGNAL PBI_WRITE_DATA : std_logic_vector(31 downto 0);
@@ -112,10 +112,80 @@ SIGNAL	ROM_REQUEST_COMPLETE :  STD_LOGIC;
 SIGNAL USE_SDRAM : STD_LOGIC;
 SIGNAL ROM_IN_RAM : STD_LOGIC;
 
+-- TRIG
+SIGNAL TRIG : STD_LOGIC_VECTOR(1 downto 0);
+
+-- CONSOL
+SIGNAL CONSOL_OUT : STD_LOGIC_VECTOR(3 downto 0);
+
+-- POTS
+SIGNAL ENABLE_179 : STD_LOGIC;
+SIGNAL POT_COUNT : STD_LOGIC;
+SIGNAL POT_RESET : STD_LOGIC;
+SIGNAL POT_IN : STD_LOGIC_VECTOR(7 downto 0);
+
 BEGIN
 
--- PS2 to pokey
-KEYBOARD_RESPONSE <= "11";
+-- triggers
+TRIG(0) <= JOY1_BUTTON;
+TRIG(1) <= JOY2_BUTTON;
+
+-- pots 
+-- TODO linear or not?
+enable_179_clock_div : entity work.enable_divider
+	generic map (COUNT=>cycle_length)
+	port map(clk=>clk,reset_n=>reset_n,enable_in=>'1',enable_out=>enable_179);
+
+-- 114K to 386k (51 to 172) 121 lines.  i.e. 121*114 cycles/256 values = ~54
+pot_clock_div : entity work.enable_divider
+	generic map (COUNT=>54)
+	port map(clk=>clk,reset_n=>reset_n,enable_in=>enable_179,enable_out=>pot_count);
+
+pot0 : entity work.pot_from_signed
+	PORT MAP
+	(
+		CLK => CLK,
+		RESET_N => RESET_N,
+		ENABLED => CONSOL_OUT(2),
+		POT_RESET => POT_RESET,
+		COUNT_ENABLE => POT_COUNT,
+		POS => JOY1_X,
+		POT_HIGH => POT_IN(0)
+	);
+pot1 : entity work.pot_from_signed
+	PORT MAP
+	(
+		CLK => CLK,
+		RESET_N => RESET_N,
+		ENABLED => CONSOL_OUT(2),
+		POT_RESET => POT_RESET,
+		COUNT_ENABLE => POT_COUNT,
+		POS => JOY1_Y,
+		POT_HIGH => POT_IN(1)
+	);
+pot2 : entity work.pot_from_signed
+	PORT MAP
+	(
+		CLK => CLK,
+		RESET_N => RESET_N,
+		ENABLED => CONSOL_OUT(2),
+		POT_RESET => POT_RESET,
+		COUNT_ENABLE => POT_COUNT,
+		POS => JOY2_X,
+		POT_HIGH => POT_IN(2)
+	);
+pot3 : entity work.pot_from_signed
+	PORT MAP
+	(
+		CLK => CLK,
+		RESET_N => RESET_N,
+		ENABLED => CONSOL_OUT(2),
+		POT_RESET => POT_RESET,
+		COUNT_ENABLE => POT_COUNT,
+		POS => JOY2_Y,
+		POT_HIGH => POT_IN(3)
+	);
+POT_IN(7 downto 4) <= (others=>'0');
 
 atari5200_simple_sdram1 : entity work.atari5200core
 	GENERIC MAP
@@ -144,12 +214,12 @@ atari5200_simple_sdram1 : entity work.atari5200core
 
 		-- Pokey keyboard matrix
 		-- Standard component available to connect this to PS2
-		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE, -- TODO controller
+		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 
 		-- Pokey pots
-		POT_IN => (others=>'1'), -- TODO analog controller
-		POT_RESET => open,
+		POT_IN => POT_IN,
+		POT_RESET => POT_RESET,
 		
 		-- PBI
 		PBI_ADDR => open,
@@ -171,9 +241,9 @@ atari5200_simple_sdram1 : entity work.atari5200core
 		SIO_TXD => open,
 
 		-- GTIA consol
-		CONSOL_OUT => open, -- TODO sound, pots(err, pokey?), 2bit controller keyboard select
+		CONSOL_OUT => CONSOL_OUT, -- TODO sound, pots(err, pokey?), 2bit controller keyboard select
 		CONSOL_IN => (others=>'1'),
-		GTIA_TRIG => (others=>'1'), -- triggers (4 ports...)
+		GTIA_TRIG => "11"&TRIG, -- triggers (4 ports...)
 
 		-- ANTIC 
 		ANTIC_REFRESH => SDRAM_REFRESH,
@@ -241,8 +311,10 @@ internalromram1 : entity work.internalromram
 		RAM_DATA => RAM_DO(7 downto 0)
 	);
 
-	USE_SDRAM <= '1' when internal_ram=0 else '0';
-	ROM_IN_RAM <= '1' when internal_rom=0 else '0';
+USE_SDRAM <= '1' when internal_ram=0 else '0';
+ROM_IN_RAM <= '1' when internal_rom=0 else '0';
+
+CONTROLLER_SELECT <= CONSOL_OUT(1 downto 0);
 
 end vhdl;
 

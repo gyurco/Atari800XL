@@ -88,7 +88,7 @@ component user_io
 		JOYSTICK_0 : out std_logic_vector(5 downto 0);
 		JOYSTICK_1 : out std_logic_vector(5 downto 0);
 		JOYSTICK_ANALOG_0 : out std_logic_vector(15 downto 0);
-		JOYSTICK_ANALOG_1 : out std_logic_vector(15 downto 0);
+		JOYSTICK_ANALOG_1 : out std_logic_vector(15 downto 0); -- x axis is top 8 bits, y axis is bottom 8 bits. signed.
 		BUTTONS : out std_logic_vector(1 downto 0);
 		SWITCHES : out std_logic_vector(1 downto 0);
 		STATUS : out std_logic_vector(7 downto 0); -- what is this?
@@ -160,12 +160,6 @@ component user_io
 
   SIGNAL PS2_CLK : std_logic;
   SIGNAL PS2_DAT : std_logic;
-  SIGNAL	CONSOL_OPTION_RAW :  STD_LOGIC;
-  SIGNAL	CONSOL_OPTION :  STD_LOGIC;
-  SIGNAL	CONSOL_SELECT_RAW :  STD_LOGIC;
-  SIGNAL	CONSOL_SELECT :  STD_LOGIC;
-  SIGNAL	CONSOL_START_RAW :  STD_LOGIC;
-  SIGNAL	CONSOL_START :  STD_LOGIC;
   SIGNAL FKEYS : std_logic_vector(11 downto 0);
 
   signal capslock_pressed : std_logic;
@@ -179,12 +173,17 @@ component user_io
 
   signal		JOY1 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
   signal		JOY2 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+  signal		JOY1X : std_logic_vector(7 downto 0);
+  signal		JOY1Y : std_logic_vector(7 downto 0);
+  signal		JOY2X : std_logic_vector(7 downto 0);
+  signal		JOY2Y : std_logic_vector(7 downto 0);
   signal		JOY1_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
   signal		JOY2_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
   signal joy_still : std_logic;
 
   SIGNAL	KEYBOARD_RESPONSE :  STD_LOGIC_VECTOR(1 DOWNTO 0);
   SIGNAL	KEYBOARD_SCAN :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+  signal controller_select : std_logic_vector(1 downto 0);
 
   SIGNAL PAL : std_logic;
   SIGNAL COMPOSITE_ON_HSYNC : std_logic;
@@ -277,8 +276,10 @@ my_user_io : user_io
 	   SPI_MOSI => SPI_DI,
 		JOYSTICK_0 => joy2,
 		JOYSTICK_1 => joy1,
-		JOYSTICK_ANALOG_0 => open,
-		JOYSTICK_ANALOG_1 => open, -- todo, wire up to paddles
+		JOYSTICK_ANALOG_0(15 downto 8) => joy2x,
+		JOYSTICK_ANALOG_0(7 downto 0) => joy2y,
+		JOYSTICK_ANALOG_1(15 downto 8) => joy1x,
+		JOYSTICK_ANALOG_1(7 downto 0) => joy1y,
 		BUTTONS => mist_buttons,
 		SWITCHES => mist_switches,
 		STATUS => open,
@@ -329,28 +330,25 @@ my_sd_card : sd_card
 	 joy2_n <= not(joy2(4 downto 0));
 
 -- PS2 to pokey
-keyboard_map1 : entity work.ps2_to_atari800
+keyboard_map1 : entity work.ps2_to_atari5200
 	PORT MAP
 	( 
 		CLK => clk,
 		RESET_N => reset_n,
 		PS2_CLK => ps2_clk,
 		PS2_DAT => ps2_dat,
+
+		FIRE2 => '0'&'0'&joy2(5)&joy1(5),
+		CONTROLLER_SELECT => CONTROLLER_SELECT, -- selected stick keyboard/shift button
 		
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
 
-		CONSOL_START => CONSOL_START_RAW,
-		CONSOL_SELECT => CONSOL_SELECT_RAW,
-		CONSOL_OPTION => CONSOL_OPTION_RAW,
-		
 		FKEYS => FKEYS
 	);
+-- stick 0: consol(1 downto 0)="00"
 
-CONSOL_START <= CONSOL_START_RAW or (mist_buttons(1) and not(joy1_n(4)));
-joy_still <= joy1_n(3) and joy1_n(2) and joy1_n(1) and joy1_n(0);
-CONSOL_SELECT <= CONSOL_SELECT_RAW or (mist_buttons(1) and joy1_n(4) and not(joy_still));
-CONSOL_OPTION <= CONSOL_OPTION_RAW or (mist_buttons(1) and joy1_n(4) and joy_still);
+joy_still <= joy1_n(3) and joy1_n(2) and joy1_n(1) and joy1_n(0); -- TODO, need something better here I think! e.g. keypad? 5200 not centreing
 	 
 dac_left : hq_dac
 port map
@@ -446,15 +444,21 @@ atari5200_test : entity work.atari5200core_simplesdram
 		DMA_MEMORY_DATA => dma_memory_data, 
 
 		THROTTLE_COUNT_6502 => speed_6502,
-		HALT => pause_atari
+		HALT => pause_atari,
 
 		-- JOYSTICK
-		--JOY1_n : IN std_logic_vector(4 downto 0); -- FRLDU, 0=pressed
-		--JOY2_n : IN std_logic_vector(4 downto 0); -- FRLDU, 0=pressed
+		JOY1_X => signed(joy1x),
+		JOY1_Y => signed(joy1y),
+		JOY1_BUTTON => joy1(4),
+		JOY2_X => signed(joy2x),
+		JOY2_Y => signed(joy2y),
+		JOY2_BUTTON => joy2(4),
 
-		-- KEYBOARD
-		--PS2_CLK : IN STD_LOGIC;
-		--PS2_DAT : IN STD_LOGIC;
+		-- Pokey keyboard matrix
+		-- Standard component available to connect this to PS2
+		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
+		KEYBOARD_SCAN => KEYBOARD_SCAN,
+		CONTROLLER_SELECT => CONTROLLER_SELECT
 	);
 
 --atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
