@@ -91,6 +91,10 @@ architecture vhdl of gpio is
 	signal bus_addr_out : std_logic_vector(15 downto 0);
 	signal bus_addr_oe : std_logic;
 	signal bus_write_n : std_logic;
+	signal bus_s4_n : std_logic;
+	signal bus_s5_n : std_logic;
+	signal bus_cctl_n : std_logic;
+	signal bus_control_oe : std_logic;
 	signal phi2 : std_logic;
 
 	signal rd4_async : std_logic;
@@ -183,8 +187,8 @@ begin
 	GPIO_0_OUT(23) <= bus_addr_out(4);
 	GPIO_0_DIR_OUT(22) <= '0'; -- RD4 rom present
 	GPIO_0_OUT(22) <= '0'; -- RD4 rom present
-	GPIO_0_DIR_OUT(21) <= gpio_enable;
-	GPIO_0_OUT(21) <= S4_n;
+	GPIO_0_DIR_OUT(21) <= gpio_enable and bus_control_oe;
+	GPIO_0_OUT(21) <= bus_s4_n;
 	GPIO_0_DIR_OUT(20) <= gpio_enable and bus_addr_oe;
 	GPIO_0_OUT(20) <= bus_addr_out(3);
 	GPIO_0_DIR_OUT(19) <= gpio_enable and bus_addr_oe;
@@ -205,12 +209,12 @@ begin
 	GPIO_0_OUT(12) <= bus_data_out(0); -- d0
 	GPIO_0_DIR_OUT(11) <= gpio_enable and bus_data_oe; -- d6
 	GPIO_0_OUT(11) <= bus_data_out(6); -- d6
-	GPIO_0_DIR_OUT(10) <= gpio_enable;
-	GPIO_0_OUT(10) <= S5_n;
+	GPIO_0_DIR_OUT(10) <= gpio_enable and bus_control_oe;
+	GPIO_0_OUT(10) <= bus_s5_n;
 	GPIO_0_DIR_OUT(9) <= '0'; -- RD5 rom present
 	GPIO_0_OUT(9) <= '0'; -- RD5 rom present
-	GPIO_0_DIR_OUT(8) <= gpio_enable; -- cart control
-	GPIO_0_OUT(8) <= CCTL_n; -- cart control
+	GPIO_0_DIR_OUT(8) <= gpio_enable and bus_control_oe; -- cart control
+	GPIO_0_OUT(8) <= bus_cctl_n; -- cart control
 
 -- PBI: A13-A15
 	GPIO_0_DIR_OUT(7) <= gpio_enable and bus_addr_oe;
@@ -322,7 +326,8 @@ begin
 bus_adaptor : ENTITY work.timing6502
 GENERIC MAP
 (
-	CYCLE_LENGTH => cartridge_cycle_length
+	CYCLE_LENGTH => cartridge_cycle_length,
+	CONTROl_BITS => 3
 )
 PORT MAP
 ( 
@@ -336,6 +341,7 @@ PORT MAP
 	ADDR_IN => pbi_addr_out,
 	DATA_IN => cart_data_write,
 	WRITE_IN => pbi_write_enable,
+	CONTROL_N_IN => s4_n&s5_n&cctl_n,
 
 	DATA_OUT => cart_data_read,
 	COMPLETE => cart_complete,
@@ -350,7 +356,11 @@ PORT MAP
 	BUS_ADDR_OE => bus_addr_oe,
 	BUS_DATA_OUT => bus_data_out,
 	BUS_DATA_OE => bus_data_oe,
-	BUS_WRITE_N => bus_write_n
+	BUS_WRITE_N => bus_write_n,
+	BUS_CONTROL_N(2) => bus_s4_n,
+	BUS_CONTROL_N(1) => bus_s5_n,
+	BUS_CONTROL_N(0) => bus_cctl_n,
+	BUS_CONTROL_OE => bus_control_oe
 );
 
 	rd4_async <= gpio_enable and GPIO_0_IN(22);
