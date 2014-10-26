@@ -242,7 +242,7 @@ atari5200_simple_sdram1 : entity work.atari5200core
 
 		-- GTIA consol
 		CONSOL_OUT => CONSOL_OUT, -- TODO sound, pots(err, pokey?), 2bit controller keyboard select
-		CONSOL_IN => (others=>'1'),
+		CONSOL_IN => "1000",
 		GTIA_TRIG => "11"&TRIG, -- triggers (4 ports...)
 
 		-- ANTIC 

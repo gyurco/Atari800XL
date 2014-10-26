@@ -52,7 +52,7 @@ BEGIN
 	begin
 		count_next <= count_reg;
 
-		if (pot_reset ='1' or enabled = '1') then
+		if (pot_reset ='1' or enabled = '0') then
 			count_next <= std_logic_vector(to_unsigned(to_integer(pos)+initial,10));
 		end if;
 
