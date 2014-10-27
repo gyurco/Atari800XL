@@ -138,7 +138,7 @@ enable_179_clock_div : entity work.enable_divider
 
 -- 114K to 386k (51 to 172) 121 lines.  i.e. 121*114 cycles/256 values = ~54
 pot_clock_div : entity work.enable_divider
-	generic map (COUNT=>54)
+	generic map (COUNT=>80)
 	port map(clk=>clk,reset_n=>reset_n,enable_in=>enable_179,enable_out=>pot_count);
 
 pot0 : entity work.pot_from_signed

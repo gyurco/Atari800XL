@@ -15,7 +15,7 @@ use IEEE.STD_LOGIC_MISC.all;
 ENTITY pot_from_signed IS
 GENERIC
 (
-	initial : integer := 108 + 128
+	initial : integer := 30 + 128
 );
 PORT 
 ( 
