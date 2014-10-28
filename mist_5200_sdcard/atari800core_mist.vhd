@@ -326,8 +326,8 @@ my_sd_card : sd_card
 		sd_sdo => mist_sd_sdo
 	); 
 	  
-	 joy1_n <= not(joy1(4 downto 0));
-	 joy2_n <= not(joy2(4 downto 0));
+	 joy1_n <= not(joy1(5)&joy1(3 downto 0));
+	 joy2_n <= not(joy2(5)&joy2(3 downto 0));
 
 -- PS2 to pokey
 keyboard_map1 : entity work.ps2_to_atari5200
@@ -338,7 +338,7 @@ keyboard_map1 : entity work.ps2_to_atari5200
 		PS2_CLK => ps2_clk,
 		PS2_DAT => ps2_dat,
 
-		FIRE2 => '0'&'0'&joy2(5)&joy1(5),
+		FIRE2 => '0'&'0'&joy2(4)&joy1(4),
 		CONTROLLER_SELECT => CONTROLLER_SELECT, -- selected stick keyboard/shift button
 		
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
@@ -449,10 +449,10 @@ atari5200_test : entity work.atari5200core_simplesdram
 		-- JOYSTICK
 		JOY1_X => signed(joy1x),
 		JOY1_Y => signed(joy1y),
-		JOY1_BUTTON => joy1(4),
+		JOY1_BUTTON => joy1_n(4),
 		JOY2_X => signed(joy2x),
 		JOY2_Y => signed(joy2y),
-		JOY2_BUTTON => joy2(4),
+		JOY2_BUTTON => joy2_n(4),
 
 		-- Pokey keyboard matrix
 		-- Standard component available to connect this to PS2
