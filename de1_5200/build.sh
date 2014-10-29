@@ -38,11 +38,11 @@ foreach my $variant (sort keys %variants)
 	my $dir = "build_$variant";
 	`rm -rf $dir`;
 	mkdir $dir;
-	`cp atari800core_de1.vhd $dir`;
+	`cp atari5200core_de1.vhd $dir`;
 	`cp *pll*.* $dir`;
 	`cp *.v $dir`;
 	`cp *.vhd* $dir`;
-	`cp atari800core.sdc $dir`;
+	`cp atari5200core.sdc $dir`;
 	`mkdir $dir/common`;
 	`mkdir $dir/common/a8core`;
 	`mkdir $dir/common/components`;
@@ -52,15 +52,15 @@ foreach my $variant (sort keys %variants)
 	`cp ../common/zpu/* ./$dir/common/zpu`;
 
 	chdir $dir;
-	`../makeqsf ../atari800core.qsf ./common/a8core ./common/components ./common/zpu`;
+	`../makeqsf ../atari5200core.qsf ./common/a8core ./common/components ./common/zpu`;
 
 	foreach my $key (sort keys %{$variants{$variant}})
 	{
 		my $val = $variants{$variant}->{$key};
-		`echo set_parameter -name $key $val >> atari800core.qsf`;
+		`echo set_parameter -name $key $val >> atari5200core.qsf`;
 	}
 
-	`quartus_sh --flow compile atari800core > build.log 2> build.err`;
+	`quartus_sh --flow compile atari5200core > build.log 2> build.err`;
 
 	`quartus_cpf --convert ../output_file.cof`;
 	

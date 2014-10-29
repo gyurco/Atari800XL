@@ -12,7 +12,7 @@ use ieee.numeric_std.all;
 
 LIBRARY work;
 
-ENTITY atari800core_de1 IS 
+ENTITY atari5200core_de1 IS 
 	GENERIC
 	(
 		TV : integer  -- 1 = PAL, 0=NTSC
@@ -87,9 +87,9 @@ ENTITY atari800core_de1 IS
 		VGA_G :  OUT  STD_LOGIC_VECTOR(3 DOWNTO 0);
 		VGA_R :  OUT  STD_LOGIC_VECTOR(3 DOWNTO 0)
 	);
-END atari800core_de1;
+END atari5200core_de1;
 
-ARCHITECTURE vhdl OF atari800core_de1 IS 
+ARCHITECTURE vhdl OF atari5200core_de1 IS 
 	-- SYSTEM
 	SIGNAL CLK : STD_LOGIC;
 	SIGNAL CLK_SDRAM : STD_LOGIC;
@@ -438,8 +438,8 @@ PORT MAP(inclk0 => CLOCK_50,
 
 RESET_N <= PLL_LOCKED;
 
--- PS2 to pokey (just for fkeys!)
-keyboard_map1 : entity work.ps2_to_atari800
+-- PS2 to pokey
+keyboard_map1 : entity work.ps2_to_atari5200
 	PORT MAP
 	( 
 		CLK => clk,
@@ -474,7 +474,7 @@ VGA_VS <= not(VGA_VS_RAW);
 
 CONSOL_IN <= "1000";
 
-atari800 : entity work.atari5200core
+atari5200 : entity work.atari5200core
 	GENERIC MAP
 	(
 		cycle_length => 32,
