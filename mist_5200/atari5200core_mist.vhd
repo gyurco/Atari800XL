@@ -11,7 +11,7 @@ use ieee.numeric_std.all;
 
 LIBRARY work;
 
-ENTITY atari800core_mist IS 
+ENTITY atari5200core_mist IS 
 	GENERIC
 	(
 		TV : integer;  -- 1 = PAL, 0=NTSC
@@ -57,9 +57,9 @@ ENTITY atari800core_mist IS
 		SPI_SS4 :  IN  STD_LOGIC;
 		CONF_DATA0 :  IN  STD_LOGIC -- AKA SPI_SS5
 	);
-END atari800core_mist;
+END atari5200core_mist;
 
-ARCHITECTURE vhdl OF atari800core_mist IS 
+ARCHITECTURE vhdl OF atari5200core_mist IS 
 
 component hq_dac
 port (
@@ -460,72 +460,6 @@ atari5200_test : entity work.atari5200core_simplesdram
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 		CONTROLLER_SELECT => CONTROLLER_SELECT
 	);
-
---atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
---	GENERIC MAP
---	(
---		cycle_length => 32,
---		internal_rom => 0,
---		internal_ram => 0,
---		video_bits => 8,
---		palette => 0
---	)
---	PORT MAP
---	(
---		CLK => CLK,
---		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
---
---		VIDEO_VS => VGA_VS_RAW,
---		VIDEO_HS => VGA_HS_RAW,
---		VIDEO_B => VIDEO_B,
---		VIDEO_G => open,
---		VIDEO_R => open,
---
---		AUDIO_L => AUDIO_L_PCM,
---		AUDIO_R => AUDIO_R_PCM,
---
---		JOY1_n => JOY1_n(4)&JOY1_n(0)&JOY1_n(1)&JOY1_n(2)&JOY1_n(3),
---		JOY2_n => JOY2_n(4)&JOY2_n(0)&JOY2_n(1)&JOY2_n(2)&JOY2_n(3),
---
---		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
---		KEYBOARD_SCAN => KEYBOARD_SCAN,
---
---		SIO_COMMAND => zpu_sio_command,
---		SIO_RXD => zpu_sio_txd,
---		SIO_TXD => zpu_sio_rxd,
---
---		CONSOL_OPTION => CONSOL_OPTION,
---		CONSOL_SELECT => CONSOL_SELECT,
---		CONSOL_START => CONSOL_START,
---
---		SDRAM_REQUEST => SDRAM_REQUEST,
---		SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
---		SDRAM_READ_ENABLE => SDRAM_READ_ENABLE,
---		SDRAM_WRITE_ENABLE => SDRAM_WRITE_ENABLE,
---		SDRAM_ADDR => SDRAM_ADDR,
---		SDRAM_DO => SDRAM_DO,
---		SDRAM_DI => SDRAM_DI,
---		SDRAM_32BIT_WRITE_ENABLE => SDRAM_WIDTH_32bit_ACCESS,
---		SDRAM_16BIT_WRITE_ENABLE => SDRAM_WIDTH_16bit_ACCESS,
---		SDRAM_8BIT_WRITE_ENABLE => SDRAM_WIDTH_8bit_ACCESS,
---		SDRAM_REFRESH => SDRAM_REFRESH,
---
---		DMA_FETCH => dma_fetch,
---		DMA_READ_ENABLE => dma_read_enable,
---		DMA_32BIT_WRITE_ENABLE => dma_32bit_write_enable,
---		DMA_16BIT_WRITE_ENABLE => dma_16bit_write_enable,
---		DMA_8BIT_WRITE_ENABLE => dma_8bit_write_enable,
---		DMA_ADDR => dma_addr_fetch,
---		DMA_WRITE_DATA => dma_write_data,
---		MEMORY_READY_DMA => dma_memory_ready,
---		DMA_MEMORY_DATA => dma_memory_data, 
---
---   		RAM_SELECT => ram_select,
---    		ROM_SELECT => rom_select,
---		PAL => PAL,
---		HALT => pause_atari,
---		THROTTLE_COUNT_6502 => speed_6502
---	);
 
 sdram_adaptor : entity work.sdram_statemachine
 GENERIC MAP(ADDRESS_WIDTH => 22,
