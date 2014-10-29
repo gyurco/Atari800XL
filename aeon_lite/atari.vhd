@@ -142,8 +142,12 @@ architecture rtl of ATARI is
    alias  PAUSE_ATARI         : std_logic                    is ZPU_OUT1(0);
    alias  RESET_ATARI         : std_logic                    is ZPU_OUT1(1);
    alias  SPEED_6502          : std_logic_vector(5 downto 0) is ZPU_OUT1(7 downto 2);
+   alias  EMULATED_CARTRIDGE_SELECT : std_logic_vector(5 downto 0) is ZPU_OUT1(22 downto 17);
+   alias  FREEZER_ENABLE      : std_logic                    is ZPU_OUT1(25);
    alias  RAM_SELECT          : std_logic_vector(2 downto 0) is ZPU_OUT1(10 downto 8);
    alias  ROM_SELECT          : std_logic_vector(5 downto 0) is ZPU_OUT1(16 downto 11);
+
+   signal FREEZER_ACTIVATE    : std_logic;
 
    signal reset_n_inc_zpu : std_logic;
    signal zpu_in1 : std_logic_vector(31 downto 0);
@@ -183,6 +187,7 @@ port map(
    CONSOL_SELECT              => CONSOL_SELECT,
    CONSOL_OPTION              => CONSOL_OPTION,
    FKEYS                      => FKEYS,
+   FREEZER_ACTIVATE           => FREEZER_ACTIVATE,
    PS2_KEYS                   => PS2_KEYS );
 
 u_JOYSTICKS : entity work.nes_gamepad
@@ -264,7 +269,10 @@ port map(
    ROM_SELECT                 => ROM_SELECT,
    PAL                        => PAL,
    HALT                       => PAUSE_ATARI,
-   THROTTLE_COUNT_6502        => SPEED_6502 );
+   THROTTLE_COUNT_6502        => SPEED_6502,
+   EMULATED_CARTRIDGE_SELECT  => EMULATED_CARTRIDGE_SELECT,
+   FREEZER_ENABLE             => FREEZER_ENABLE,
+   FREEZER_ACTIVATE           => FREEZER_ACTIVATE);
 
 u_SRAM : entity work.sram_statemachine
 
