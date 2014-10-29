@@ -49,8 +49,7 @@ dac.vhd
 nes_gamepad.vhd
 sram_statemachine.vhd
 zpu_rom.vhdl
-pll.xco
-pll.xise
+pll.vhd
 scandouble_ram_infer.vhdl
 scandoubler.vhdl
 spi_master.vhd

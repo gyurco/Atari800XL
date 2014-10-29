@@ -1,8 +1,3 @@
--g DonePin:PULLUP
--g TdoPin:PULLNONE
--g M0Pin:PULLUP
--g M1Pin:PULLUP
--g M2Pin:PULLUP
+-g UnusedPin:PULLUP
 -g StartUpClk:CCLK
--g DriveDone:Yes
 -g Binary:Yes
