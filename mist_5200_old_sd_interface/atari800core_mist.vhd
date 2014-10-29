@@ -116,34 +116,6 @@ component user_io
 	  );
 	end component;
 
-	component sd_card
-	PORT (
-		-- link to user_io for io controller
-		io_lba : out std_logic_vector(31 downto 0);
-		io_rd : out std_logic;
-		io_wr : out std_logic;
-		io_ack : in std_logic;
-		io_conf : out std_logic;
-		io_sdhc : out std_logic;
-		
-		-- data coming in from io controller
-		io_din : in std_logic_vector(7 downto 0);
-		io_din_strobe : in std_logic;
-		
-		-- data going out to io controller
-		io_dout : out std_logic_vector(7 downto 0);
-		io_dout_strobe : in std_logic;
-		
-		-- configuration input
-		allow_sdhc : in std_logic;
-	
-		sd_cs : in std_logic;
-		sd_sck : in std_logic;
-		sd_sdi : in std_logic;
-		sd_sdo : out std_logic
-	); 
-	end component;
-
   signal AUDIO_L_PCM : std_logic_vector(15 downto 0);
   signal AUDIO_R_PCM : std_logic_vector(15 downto 0);
 
@@ -160,12 +132,34 @@ component user_io
 
   SIGNAL PS2_CLK : std_logic;
   SIGNAL PS2_DAT : std_logic;
+  SIGNAL	CONSOL_OPTION_RAW :  STD_LOGIC;
+  SIGNAL	CONSOL_OPTION :  STD_LOGIC;
+  SIGNAL	CONSOL_SELECT_RAW :  STD_LOGIC;
+  SIGNAL	CONSOL_SELECT :  STD_LOGIC;
+  SIGNAL	CONSOL_START_RAW :  STD_LOGIC;
+  SIGNAL	CONSOL_START :  STD_LOGIC;
   SIGNAL FKEYS : std_logic_vector(11 downto 0);
 
   signal capslock_pressed : std_logic;
   signal capsheld_next : std_logic;
   signal capsheld_reg : std_logic;
   
+  signal mist_sector_ready : std_logic;
+  signal mist_sector_ready_sync : std_logic;
+  signal mist_sector_request : std_logic;
+  signal mist_sector_request_sync : std_logic;
+  signal mist_sector_write : std_logic;
+  signal mist_sector_write_sync : std_logic;
+  signal mist_sector : std_logic_vector(25 downto 0);
+  signal mist_sector_sync : std_logic_vector(25 downto 0);
+  
+  		
+  signal mist_addr : std_logic_vector(8 downto 0);
+  signal mist_do : std_logic_vector(7 downto 0);
+  signal mist_di : std_logic_vector(7 downto 0);
+  signal mist_wren : std_logic;
+  
+  signal spi_miso_data : std_logic;
   signal spi_miso_io : std_logic;
 
   signal mist_buttons : std_logic_vector(1 downto 0);
@@ -235,22 +229,11 @@ component user_io
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
 
-	-- connection to sd card emulation
-	signal sd_lba : std_logic_vector(31 downto 0);
-	signal sd_rd : std_logic;
-	signal sd_wr : std_logic;
-	signal sd_ack : std_logic;
-	signal sd_conf : std_logic;
-	signal sd_sdhc : std_logic;
-	signal sd_dout : std_logic_vector(7 downto 0);
-	signal sd_dout_strobe : std_logic;
-	signal sd_din : std_logic_vector(7 downto 0);
-	signal sd_din_strobe : std_logic;
-
-	signal mist_sd_sdo : std_logic;
-	signal mist_sd_sck : std_logic;
-	signal mist_sd_sdi : std_logic;
-	signal mist_sd_cs : std_logic;
+	-- mist sector
+	signal ZPU_ROM_DATA_MUX :  std_logic_vector(31 downto 0);
+	signal ZPU_SECTOR_DATA :  std_logic_vector(31 downto 0);
+	signal ZPU_ROM_DO :  std_logic_vector(31 downto 0);
+	signal ZPU_ROM_WREN :  std_logic;
 
 	-- ps2
 	signal SLOW_PS2_CLK : std_logic; -- around 16KHz
@@ -266,8 +249,138 @@ vga <= '1' when video=2 else '0';
 composite_on_hsync <= '1' when composite_sync=1 else '0';
 
 -- mist spi io
-	spi_do <= spi_miso_io when CONF_DATA0 ='0' else 'Z';
+mist_spi_interface : entity work.data_io 
+	PORT map
+	(
+		CLK =>spi_sck,
+		RESET_n =>reset_n,
+		
+		-- SPI connection - up to upstream to make miso 'Z' on ss_io going high
+		SPI_CLK =>spi_sck,
+		SPI_SS_IO => spi_ss2,
+		SPI_MISO => spi_miso_data,
+		SPI_MOSI => spi_di,
+		
+		-- Sector access request
+		read_request => mist_sector_request_sync,
+		write_request => mist_sector_write_sync,
+		--request => mist_sector_request_sync,
+		sector => mist_sector_sync(25 downto 0),
+		ready => mist_sector_ready,
+		
+		-- DMA to RAM
+		ADDR => mist_addr,
+		DATA_OUT => mist_do,
+		DATA_IN => mist_di,
+		WR_EN => mist_wren
+	 );
+ 
+	-- TODO, review if these are all needed when ZPU connected again...
+	select_sync : entity work.synchronizer
+	PORT MAP ( CLK => clk, raw => mist_sector_ready, sync=>mist_sector_ready_sync);
 
+	select_sync2 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector_request, sync=>mist_sector_request_sync);
+
+	select_sync3 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector_write, sync=>mist_sector_write_sync);
+
+	sector_sync0 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(0), sync=>mist_sector_sync(0));
+
+	sector_sync1 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(1), sync=>mist_sector_sync(1));
+
+	sector_sync2 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(2), sync=>mist_sector_sync(2));
+
+	sector_sync3 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(3), sync=>mist_sector_sync(3));
+
+	sector_sync4 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(4), sync=>mist_sector_sync(4));
+
+	sector_sync5 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(5), sync=>mist_sector_sync(5));
+
+	sector_sync6 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(6), sync=>mist_sector_sync(6));
+
+	sector_sync7 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(7), sync=>mist_sector_sync(7));
+
+	sector_sync8 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(8), sync=>mist_sector_sync(8));
+
+	sector_sync9 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(9), sync=>mist_sector_sync(9));
+
+	sector_sync10 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(10), sync=>mist_sector_sync(10));
+
+	sector_sync11 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(11), sync=>mist_sector_sync(11));
+
+	sector_sync12 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(12), sync=>mist_sector_sync(12));
+
+	sector_sync13 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(13), sync=>mist_sector_sync(13));
+
+	sector_sync14 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(14), sync=>mist_sector_sync(14));
+
+	sector_sync15 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(15), sync=>mist_sector_sync(15));
+
+	sector_sync16 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(16), sync=>mist_sector_sync(16));
+
+	sector_sync17 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(17), sync=>mist_sector_sync(17));
+
+	sector_sync18 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(18), sync=>mist_sector_sync(18));
+
+	sector_sync19 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(19), sync=>mist_sector_sync(19));
+
+	sector_sync20 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(20), sync=>mist_sector_sync(20));
+
+	sector_sync21 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(21), sync=>mist_sector_sync(21));
+
+	sector_sync22 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(22), sync=>mist_sector_sync(22));
+
+	sector_sync23 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(23), sync=>mist_sector_sync(23));
+
+	sector_sync24 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(24), sync=>mist_sector_sync(24));
+
+	sector_sync25 : entity work.synchronizer
+	PORT MAP ( CLK => spi_sck, raw => mist_sector(25), sync=>mist_sector_sync(25));
+	
+	
+	spi_do <= spi_miso_io when CONF_DATA0 ='0' else spi_miso_data when spi_SS2='0' else 'Z';
+
+mist_sector_buffer1 : entity work.mist_sector_buffer
+	PORT map
+	(
+		address_a		=> mist_addr,
+		address_b		=> zpu_addr_rom(8 downto 2),
+		clock_a		=> spi_sck,
+		clock_b		=> clk,
+		data_a		=> mist_do,
+		data_b		=> dma_write_data(7 downto 0)&dma_write_data(15 downto 8)&dma_write_data(23 downto 16)&dma_write_data(31 downto 24),
+		wren_a		=> mist_wren,
+		wren_b		=> zpu_rom_wren, 
+		q_a		=> mist_di,
+		q_b		=> zpu_sector_data
+	);
+	
 my_user_io : user_io
 	PORT map(
 	   SPI_CLK => SPI_SCK,
@@ -282,50 +395,22 @@ my_user_io : user_io
 		JOYSTICK_ANALOG_1(7 downto 0) => joy1y,
 		BUTTONS => mist_buttons,
 		SWITCHES => mist_switches,
-		STATUS => open,
-
 		PS2_CLK => SLOW_PS2_CLK,
 		PS2_KBD_CLK => ps2_clk,
 		PS2_KBD_DATA => ps2_dat,
-	
+		STATUS => open,
 		SERIAL_DATA => (others=>'0'),
 		SERIAL_STROBE => '0',
 
-		sd_lba => sd_lba,
-		sd_rd => sd_rd,
-		sd_wr => sd_wr,
-		sd_ack => sd_ack,
-		sd_conf => sd_conf,
-		sd_sdhc => sd_sdhc,
-		sd_dout => sd_dout,
-		sd_dout_strobe => sd_dout_strobe,
-		sd_din => sd_din,
-		sd_din_strobe => sd_din_strobe
+		sd_lba => (others=>'0'),
+		sd_rd => '0',
+		sd_wr => '0',
+		sd_conf => '0',
+		sd_sdhc => '0',
+		sd_din => (others=>'0')
+
 	  );
 
-my_sd_card : sd_card
-	PORT map (
-		io_lba => sd_lba,
-		io_rd => sd_rd,
-		io_wr => sd_wr,
-		io_ack => sd_ack,
-		io_conf => sd_conf,
-		io_sdhc => sd_sdhc,
-		
-		io_din => sd_dout,
-		io_din_strobe => sd_dout_strobe,
-		
-		io_dout => sd_din,
-		io_dout_strobe => sd_din_strobe,
-		
-		allow_sdhc => '1',
-	
-		sd_cs => mist_sd_cs,
-		sd_sck => mist_sd_sck,
-		sd_sdi => mist_sd_sdi,
-		sd_sdo => mist_sd_sdo
-	); 
-	  
 	 joy1_n <= not(joy1(5)&joy1(3 downto 0));
 	 joy2_n <= not(joy2(5)&joy2(3 downto 0));
 
@@ -346,9 +431,28 @@ keyboard_map1 : entity work.ps2_to_atari5200
 
 		FKEYS => FKEYS
 	);
--- stick 0: consol(1 downto 0)="00"
+--keyboard_map1 : entity work.ps2_to_atari800
+--	PORT MAP
+--	( 
+--		CLK => clk,
+--		RESET_N => reset_n,
+--		PS2_CLK => ps2_clk,
+--		PS2_DAT => ps2_dat,
+--		
+--		KEYBOARD_SCAN => KEYBOARD_SCAN,
+--		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
+--
+--		CONSOL_START => CONSOL_START_RAW,
+--		CONSOL_SELECT => CONSOL_SELECT_RAW,
+--		CONSOL_OPTION => CONSOL_OPTION_RAW,
+--		
+--		FKEYS => FKEYS
+--	);
 
-joy_still <= joy1_n(3) and joy1_n(2) and joy1_n(1) and joy1_n(0); -- TODO, need something better here I think! e.g. keypad? 5200 not centreing
+CONSOL_START <= CONSOL_START_RAW or (mist_buttons(1) and not(joy1_n(4)));
+joy_still <= joy1_n(3) and joy1_n(2) and joy1_n(1) and joy1_n(0);
+CONSOL_SELECT <= CONSOL_SELECT_RAW or (mist_buttons(1) and joy1_n(4) and not(joy_still));
+CONSOL_OPTION <= CONSOL_OPTION_RAW or (mist_buttons(1) and joy1_n(4) and joy_still);
 	 
 dac_left : hq_dac
 port map
@@ -620,7 +724,7 @@ zpu: entity work.zpucore
 	GENERIC MAP
 	(
 		platform => 1,
-		spi_clock_div => 16 -- 28MHz/2. Max for SD cards is 25MHz...
+		spi_clock_div => 1 -- 28MHz/2. Max for SD cards is 25MHz...
 	)
 	PORT MAP
 	(
@@ -642,15 +746,16 @@ zpu: entity work.zpucore
 		-- rom bus master
 		-- data on next cycle after addr
 		ZPU_ADDR_ROM => zpu_addr_rom,
-		ZPU_ROM_DATA => zpu_rom_data,
+		ZPU_ROM_DATA => zpu_rom_data_mux,
 	
-		ZPU_ROM_WREN => open,
+		ZPU_ROM_WREN => zpu_rom_wren, -- special for mist...
 
 		-- spi master
-		ZPU_SD_DAT0 => mist_sd_sdo,
-		ZPU_SD_CLK => mist_sd_sck,
-		ZPU_SD_CMD => mist_sd_sdi,
-		ZPU_SD_DAT3 => mist_sd_cs,
+		-- not used for mist...
+		ZPU_SD_DAT0 => '0',
+		ZPU_SD_CLK => open,
+		ZPU_SD_CMD => open,
+		ZPU_SD_DAT3 => open,
 
 		-- SIO
 		-- Ditto for speaking to Atari, we have a built in Pokey
@@ -664,7 +769,7 @@ zpu: entity work.zpucore
 		ZPU_IN1 => X"00000"&(FKEYS(11) or (mist_buttons(0) and not(joy1_n(4))))&(FKEYS(10) or (mist_buttons(0) and joy1_n(4) and joy_still))&(FKEYS(9) or (mist_buttons(0) and joy1_n(4) and not(joy_still)))&FKEYS(8 downto 0),
 		ZPU_IN2 => X"00000000",
 		ZPU_IN3 => X"00000000",
-		ZPU_IN4 => X"00000000",
+		ZPU_IN4 => X"000000"&"0000000"&mist_sector_ready_sync,
 
 		-- ouputs - e.g. Atari system control, halt, throttle, rom select
 		ZPU_OUT1 => zpu_out1,
@@ -672,6 +777,10 @@ zpu: entity work.zpucore
 		ZPU_OUT3 => zpu_out3,
 		ZPU_OUT4 => zpu_out4
 	);
+
+	mist_sector <= zpu_out4(25 downto 0);
+	mist_sector_request <= zpu_out4(26);
+	mist_sector_write <= zpu_out4(27);
 
 	pause_atari <= zpu_out1(0);
 	reset_atari <= zpu_out1(1);
@@ -685,6 +794,14 @@ zpu_rom1: entity work.zpu_rom
 	        address => zpu_addr_rom(13 downto 2),
 	        q => zpu_rom_data
 	);
+
+process(zpu_addr_rom, zpu_rom_data, zpu_sector_data)
+begin
+	zpu_rom_data_mux <= zpu_rom_data;
+	if (zpu_addr_rom(15 downto 14) = "01") then
+		zpu_rom_data_mux <= zpu_sector_data(7 downto 0)&zpu_sector_data(15 downto 8)&zpu_sector_data(23 downto 16)&zpu_sector_data(31 downto 24);
+	end if;
+end process;
 
 enable_179_clock_div_zpu_pokey : entity work.enable_divider
 	generic map (COUNT=>32) -- cycle_length
