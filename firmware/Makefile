@@ -67,7 +67,7 @@ DE1_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) de1/dirs.c
 DE1_OBJ = $(patsubst %.c,$(DE1_BUILD_DIR)/%.o,$(DE1_SRC))
 
 DE1_5200_PRJ = DE1_5200
-DE1_5200_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(5200_SRC) de1/dirs.c
+DE1_5200_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(5200_SRC) de1_5200/dirs.c
 DE1_5200_OBJ = $(patsubst %.c,$(DE1_5200_BUILD_DIR)/%.o,$(DE1_5200_SRC))
 
 CHAMELEON_PRJ = CHAMELEON
@@ -83,7 +83,7 @@ MIST_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mist/dirs.c
 MIST_OBJ = $(patsubst %.c,$(MIST_BUILD_DIR)/%.o,$(MIST_SRC))
 
 MIST_5200_PRJ = MIST_5200
-MIST_5200_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(5200_SRC) mist/dirs.c
+MIST_5200_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(5200_SRC) mist_5200/dirs.c
 MIST_5200_OBJ = $(patsubst %.c,$(MIST_5200_BUILD_DIR)/%.o,$(MIST_5200_SRC))
 
 LINKMAP  = ./standalone_simple.ld
