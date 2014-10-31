@@ -56,7 +56,8 @@ module sd_card (
 
 // set io_rd once read_state machine starts waiting (rising edge of req_io_rd)
 // and clear it once io controller uploads something (io_ack==1) 
-wire req_io_rd = (read_state == RD_STATE_WAIT_IO);
+// wire req_io_rd = (read_state == RD_STATE_WAIT_IO);
+wire req_io_rd = (read_state != RD_STATE_IDLE);
 always @(posedge req_io_rd or posedge io_ack) begin
 	if(io_ack) io_rd <= 1'b0;
 	else 		  io_rd <= 1'b1;
@@ -76,11 +77,10 @@ localparam NCR=4;
 // 0=idle, 1=wait for io ctrl, 2=wait for byte start, 3=send token, 4=send data, 5/6=send crc[0..1]
 localparam RD_STATE_IDLE       = 3'd0;
 localparam RD_STATE_WAIT_IO    = 3'd1;
-localparam RD_STATE_WAIT_START = 3'd2;
-localparam RD_STATE_SEND_TOKEN = 3'd3;
-localparam RD_STATE_SEND_DATA  = 3'd4;
-localparam RD_STATE_SEND_CRC0  = 3'd5;
-localparam RD_STATE_SEND_CRC1  = 3'd6;
+localparam RD_STATE_SEND_TOKEN = 3'd2;
+localparam RD_STATE_SEND_DATA  = 3'd3;
+localparam RD_STATE_SEND_CRC0  = 3'd4;
+localparam RD_STATE_SEND_CRC1  = 3'd5;
 reg [2:0] read_state = RD_STATE_IDLE;  
 
 // 0=idle
@@ -102,6 +102,7 @@ reg [3:0] byte_cnt= 4'd15;   // counts bytes
 
 reg [31:0] lba;
 assign io_lba = io_sdhc?lba:{9'd0, lba[31:9]};
+//assign io_lba = io_sdhc?{read_state, lba[31:3]}:{9'd0, lba[31:9]};
 
 // the command crc is actually never evaluated
 reg [7:0] crc;
@@ -117,13 +118,14 @@ reg [7:0] write_data;
 // falling edge of io_ack signals that a sector to be read has been written into
 // the sector bufffer by the io controller. This signal is kept set as long
 // as the read state machine is in the "wait for io controller" state (state 1)
-wire rd_wait_io = (read_state == RD_STATE_WAIT_IO);
+// wire rd_wait_io = (read_state == RD_STATE_WAIT_IO);
+wire rd_wait_io = (read_state != RD_STATE_IDLE);
 reg rd_io_ack = 1'b0 /* synthesis noprune */;
 always @(negedge io_ack or negedge rd_wait_io) begin
 	if(!rd_wait_io) rd_io_ack <= 1'b0;
 	else            rd_io_ack <= 1'b1;
 end
-
+ 
 wire wr_wait_io = (write_state == WR_STATE_BUSY);
 reg wr_io_ack = 1'b0 /* synthesis noprune */;
 always @(negedge io_ack or negedge wr_wait_io) begin
@@ -206,89 +208,92 @@ always @(negedge io_din_strobe) begin
 		csd_wptr	<= csd_wptr + 1;
 	end
 end
-
+ 
 always @(posedge buffer_read_latch)
 	cid_byte <= cid[buffer_rptr];
 
 always @(posedge buffer_read_latch)
 	csd_byte <= csd[buffer_rptr];
-	
+ 	
 // ----------------- spi transmitter --------------------
 reg rd_io_ackD, wr_io_ackD;
 
-always@(negedge sd_sck or posedge sd_cs) begin
-	if(sd_cs == 1) begin
-//	   sd_sdo <= 1'b1;
-//		read_state <= RD_STATE_IDLE;
-	end else begin
+reg illegal_state /* synthesis noprune */;
+
+always@(negedge sd_sck) begin
+	if(sd_cs == 0) begin
+		illegal_state <= 1'b0;
 		core_buffer_read_strobe <= 1'b0;
 
 		// using rd_io_ack directly brings the read state machine into an
 		// non-existing state every now and then. For unknown reason
 		rd_io_ackD <= rd_io_ack;
 		
-		// -------- catch read commmand and reset read state machine ------
-		if(bit_cnt == 7) begin
-			if(byte_cnt == 4) begin
+		// wait for end of command plus NCR before replying
+      if(byte_cnt < 5+NCR) begin
+		  sd_sdo <= 1'b1;				// reply $ff -> wait
+		end else if(byte_cnt == 5+NCR) begin
+			sd_sdo <= reply[~bit_cnt];
+
+			if(bit_cnt == 7) begin
+				// these three commands all have a reply_len of 0 and will thus
+				// not send more than a single reply byte
+				
+				// CMD9: SEND_CSD
+				// CMD10: SEND_CID
+				if((cmd == 8'h49)||(cmd == 8'h4a))
+					read_state <= RD_STATE_SEND_TOKEN;      // jump directly to data transmission
+						
 				// CMD17: READ_SINGLE_BLOCK
 				if(cmd == 8'h51)
 					read_state <= RD_STATE_WAIT_IO;      // start waiting for data from io controller
 			end
 		end
+		else if((reply_len > 0) && (byte_cnt == 5+NCR+1))
+			sd_sdo <= reply0[~bit_cnt];
+		else if((reply_len > 1) && (byte_cnt == 5+NCR+2))
+			sd_sdo <= reply1[~bit_cnt];
+		else if((reply_len > 2) && (byte_cnt == 5+NCR+3))
+			sd_sdo <= reply2[~bit_cnt];
+		else if((reply_len > 3) && (byte_cnt == 5+NCR+4))
+			sd_sdo <= reply3[~bit_cnt];
+		else
+			sd_sdo <= 1'b1;
 
-      if(byte_cnt < 5+NCR) begin
-		  sd_sdo <= 1'b1;				// reply $ff -> wait
-		end else begin
+		// ---------- read state machine processing -------------
 
-			if(byte_cnt == 5+NCR) begin
-				sd_sdo <= reply[~bit_cnt];
+		case(read_state)
+			RD_STATE_IDLE: ;
+				// don't do anything
 
-				if(bit_cnt == 7) begin
-					// CMD9: SEND_CSD
-					// CMD10: SEND_CID
-					if((cmd == 8'h49)||(cmd == 8'h4a))
-						read_state <= RD_STATE_SEND_TOKEN;      // jump directly to data transmission
-				end
+			// waiting for io controller to return data
+			RD_STATE_WAIT_IO: begin
+				if(rd_io_ack && (bit_cnt == 7)) 
+					read_state <= RD_STATE_SEND_TOKEN;
 			end
-			else if((reply_len > 0) && (byte_cnt == 5+NCR+1))
-				sd_sdo <= reply0[~bit_cnt];
-			else if((reply_len > 1) && (byte_cnt == 5+NCR+2))
-				sd_sdo <= reply1[~bit_cnt];
-			else if((reply_len > 2) && (byte_cnt == 5+NCR+3))
-				sd_sdo <= reply2[~bit_cnt];
-			else if((reply_len > 3) && (byte_cnt == 5+NCR+4))
-				sd_sdo <= reply3[~bit_cnt];
-			else
-				sd_sdo <= 1'b1;
-				
-			// falling edge of io_ack signals end of incoming data stream
-			if((read_state == RD_STATE_WAIT_IO) && rd_io_ackD)
-				read_state <= RD_STATE_WAIT_START;
-
-			// wait for begin of new byte
-			else if((read_state == RD_STATE_WAIT_START) && (bit_cnt == 7))
-				read_state <= RD_STATE_SEND_TOKEN;
 
 			// send data token
-			else if(read_state == RD_STATE_SEND_TOKEN) begin
+			RD_STATE_SEND_TOKEN: begin
 				sd_sdo <= READ_DATA_TOKEN[~bit_cnt];
-				
+	
 				if(bit_cnt == 7)
 					read_state <= RD_STATE_SEND_DATA;   // next: send data
 			end
-
+					
 			// send data
-			else if(read_state == RD_STATE_SEND_DATA) begin
+			RD_STATE_SEND_DATA: begin
 				if(cmd == 8'h51) 							// CMD17: READ_SINGLE_BLOCK
 					sd_sdo <= buffer_byte[~bit_cnt];
 				else if(cmd == 8'h49) 					// CMD9: SEND_CSD
 					sd_sdo <= csd_byte[~bit_cnt];
 				else if(cmd == 8'h4a) 					// CMD10: SEND_CID
 					sd_sdo <= cid_byte[~bit_cnt];
+				else
+					sd_sdo <= 1'b1;
 
 				if(bit_cnt == 7) begin
 					core_buffer_read_strobe <= 1'b1;
-				
+			
 					// send 512 sector data bytes?
 					if((cmd == 8'h51) && (buffer_rptr == 511))
 						read_state <= RD_STATE_SEND_CRC0;   // next: send crc
@@ -298,30 +303,35 @@ always@(negedge sd_sck or posedge sd_cs) begin
 						read_state <= RD_STATE_IDLE;   // return to idle state
 				end
 			end
-			
+
 			// send crc[0]
-			else if(read_state == RD_STATE_SEND_CRC0) begin
+			RD_STATE_SEND_CRC0: begin
 				sd_sdo <= 1'b1;
 				if(bit_cnt == 7)
 					read_state <= RD_STATE_SEND_CRC1;  // send second crc byte
 			end
-			
+					
 			// send crc[1]
-			else if(read_state == RD_STATE_SEND_CRC1) begin
+			RD_STATE_SEND_CRC1: begin
 				sd_sdo <= 1'b1;
 				if(bit_cnt == 7)
 					read_state <= RD_STATE_IDLE;  // return to idle state
 			end
-						
-			// ------------------ write support ----------------------
-			// send write data response
-			if(write_state == WR_STATE_SEND_DRESP) 
-				sd_sdo <= WRITE_DATA_RESPONSE[~bit_cnt];
-
-			// busy after write until the io controller sends ack
-			if(write_state == WR_STATE_BUSY) 
-				sd_sdo <= 1'b0;
-		end
+			
+			default:
+				illegal_state <= 1'b1;
+//				read_state <= RD_STATE_IDLE;
+				
+		endcase
+					
+		// ------------------ write support ----------------------
+		// send write data response
+		if(write_state == WR_STATE_SEND_DRESP) 
+			sd_sdo <= WRITE_DATA_RESPONSE[~bit_cnt];
+			
+		// busy after write until the io controller sends ack
+		if(write_state == WR_STATE_BUSY) 
+			sd_sdo <= 1'b0;
    end
 end
 
