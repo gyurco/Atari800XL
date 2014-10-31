@@ -1,2 +1,2 @@
-char USER_DIR[]="/atari5200/user";
-char ROM_DIR[]="/atari5200/rom";
+char USER_DIR[]="/atar5200/user";
+char ROM_DIR[]="/atar5200/rom";
