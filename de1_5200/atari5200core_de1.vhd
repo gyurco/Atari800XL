@@ -450,10 +450,8 @@ keyboard_map1 : entity work.ps2_to_atari5200
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 		KEYBOARD_RESPONSE => open,
 
-		CONSOL_START => open,
-		CONSOL_SELECT => open,
-		CONSOL_OPTION => open,
-		
+		FIRE2 => (others=>'0'),
+
 		FKEYS => FKEYS
 	);
 
