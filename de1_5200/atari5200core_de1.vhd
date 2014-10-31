@@ -451,6 +451,7 @@ keyboard_map1 : entity work.ps2_to_atari5200
 		KEYBOARD_RESPONSE => open,
 
 		FIRE2 => (others=>'0'),
+		CONTROLLER_SELECT => (others=>'0'),
 
 		FKEYS => FKEYS
 	);
