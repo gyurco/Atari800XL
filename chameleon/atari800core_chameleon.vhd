@@ -1165,6 +1165,7 @@ enable_179_clock_div_zpu_pokey : entity work.enable_divider
 		scanlines_on => scanlines_reg,
 		
 		-- GTIA interface
+		pal => pal,
 		colour_in => VIDEO_B,
 		vsync_in => VGA_VS_RAW,
 		hsync_in => VGA_HS_RAW,
