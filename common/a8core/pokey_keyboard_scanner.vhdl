@@ -155,6 +155,9 @@ begin
 				state_next <= state_wait_key; 
 			end case;
 
+			break_pressed_next <= '0';
+			shift_pressed_next <= '0';
+			control_pressed_next <= '0';
 			if (bincnt_reg(3 downto 0)  = "0000") then
 				case bincnt_reg(5 downto 4) is
 				when "11" =>
