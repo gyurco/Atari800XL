@@ -380,6 +380,7 @@ port map (
    
    SCANLINES_ON               => SCANLINES,
 			
+   PAL                        => PAL,
    COLOUR_IN                  => VIDEO_B,
    VSYNC_IN                   => VIDEO_VS,
    HSYNC_IN                   => VIDEO_HS,
