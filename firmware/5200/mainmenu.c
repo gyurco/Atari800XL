@@ -92,6 +92,14 @@ int settings()
 
 		debug_pos = 320;
 		debug_adjust = row==6 ? 128 : 0;
+		printf("Cartridge 8k");
+
+		debug_pos = 360;
+		debug_adjust = row==7 ? 128 : 0;
+		printf("Cartridge 4k");
+
+		debug_pos = 400;
+		debug_adjust = row==8 ? 128 : 0;
 		printf("Exit");
 
 		// Slow it down a bit
@@ -103,7 +111,7 @@ int settings()
 
 		row+=joy.y_;
 		if (row<0) row = 0;
-		if (row>6) row = 6;
+		if (row>8) row = 8;
 		switch (row)
 		{
 		case 0:
@@ -139,6 +147,8 @@ int settings()
 		case 3:
 		case 4:
 		case 5:
+		case 6:
+		case 7:
 			{
 				if (joy.fire_)
 				{
@@ -182,11 +192,53 @@ int settings()
 							dest2[i] = src2[i];
 						}
 					}
+					else if (row == 6)
+					{
+						//*atari_colbk = 0x58;
+						//wait_us(4000000);
+						loadromfile(files[4],0x2000,0x004000);
+						unsigned char * src = (unsigned char *)(0x4000 + SDRAM_BASE);
+						unsigned char * dest1 = (unsigned char *)(0x6000 + SDRAM_BASE);
+						unsigned char * dest2 = (unsigned char *)(0x8000 + SDRAM_BASE);
+						unsigned char * dest3 = (unsigned char *)(0xa000 + SDRAM_BASE);
+						int i = 0;
+						for (i=0; i!=0x2000; ++i)
+						{
+							dest1[i] = src[i];
+							dest2[i] = src[i];
+							dest3[i] = src[i];
+						}
+					}
+					else if (row == 7)
+					{
+						//*atari_colbk = 0x58;
+						//wait_us(4000000);
+						loadromfile(files[4],0x1000,0x004000);
+						unsigned char * src = (unsigned char *)(0x4000 + SDRAM_BASE);
+						unsigned char * dest1 = (unsigned char *)(0x5000 + SDRAM_BASE);
+						unsigned char * dest2 = (unsigned char *)(0x6000 + SDRAM_BASE);
+						unsigned char * dest3 = (unsigned char *)(0x7000 + SDRAM_BASE);
+						unsigned char * dest4 = (unsigned char *)(0x8000 + SDRAM_BASE);
+						unsigned char * dest5 = (unsigned char *)(0x9000 + SDRAM_BASE);
+						unsigned char * dest6 = (unsigned char *)(0xa000 + SDRAM_BASE);
+						unsigned char * dest7 = (unsigned char *)(0xb000 + SDRAM_BASE);
+						int i = 0;
+						for (i=0; i!=0x1000; ++i)
+						{
+							dest1[i] = src[i];
+							dest2[i] = src[i];
+							dest3[i] = src[i];
+							dest4[i] = src[i];
+							dest5[i] = src[i];
+							dest6[i] = src[i];
+							dest7[i] = src[i];
+						}
+					}
 					return 1;
 				}
 			}
 			break;
-		case 6:
+		case 8:
 			if (joy.fire_)
 			{
 				done = 1;
@@ -227,16 +279,5 @@ void actions()
 			reboot(1);
 		else
 			set_pause_6502(0);
-	}
-	else if (get_hotkey_fileselect())
-	{
-		set_pause_6502(1);
-		freeze();
-		//filter = filter_disks;
-		//file_selector(files[0]);
-		debug_pos = -1;
-		restore();
-		//set_drive_status(0,files[0]);
-		reboot(1);
 	}
 }

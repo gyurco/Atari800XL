@@ -183,6 +183,11 @@ component user_io
   signal		JOY2_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
   signal joy_still : std_logic;
 
+  signal		JOY1X : std_logic_vector(7 downto 0);
+  signal		JOY1Y : std_logic_vector(7 downto 0);
+  signal		JOY2X : std_logic_vector(7 downto 0);
+  signal		JOY2Y : std_logic_vector(7 downto 0);
+
   SIGNAL	KEYBOARD_RESPONSE :  STD_LOGIC_VECTOR(1 DOWNTO 0);
   SIGNAL	KEYBOARD_SCAN :  STD_LOGIC_VECTOR(5 DOWNTO 0);
 
@@ -282,8 +287,10 @@ my_user_io : user_io
 	   SPI_MOSI => SPI_DI,
 		JOYSTICK_0 => joy2,
 		JOYSTICK_1 => joy1,
-		JOYSTICK_ANALOG_0 => open,
-		JOYSTICK_ANALOG_1 => open, -- todo, wire up to paddles
+		JOYSTICK_ANALOG_0(15 downto 8) => joy2x,
+		JOYSTICK_ANALOG_0(7 downto 0) => joy2y,
+		JOYSTICK_ANALOG_1(15 downto 8) => joy1x,
+		JOYSTICK_ANALOG_1(7 downto 0) => joy1y,
 		BUTTONS => mist_buttons,
 		SWITCHES => mist_switches,
 		STATUS => open,
@@ -431,6 +438,11 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		JOY1_n => JOY1_n(4)&JOY1_n(0)&JOY1_n(1)&JOY1_n(2)&JOY1_n(3),
 		JOY2_n => JOY2_n(4)&JOY2_n(0)&JOY2_n(1)&JOY2_n(2)&JOY2_n(3),
 
+		PADDLE0 => signed(joy1x),
+		PADDLE1 => signed(joy1y),
+		PADDLE2 => signed(joy2x),
+		PADDLE3 => signed(joy2y),
+
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 
@@ -550,6 +562,7 @@ LED <= zpu_sio_rxd;
 		scanlines_on => mist_switches(1),
 		
 		-- GTIA interface
+		pal => PAL,
 		colour_in => VIDEO_B,
 		vsync_in => VGA_VS_RAW,
 		hsync_in => VGA_HS_RAW,

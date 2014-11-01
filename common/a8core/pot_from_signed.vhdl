@@ -15,7 +15,10 @@ use IEEE.STD_LOGIC_MISC.all;
 ENTITY pot_from_signed IS
 GENERIC
 (
-	initial : integer := 30 + 128
+	cycle_length : integer := 32;
+	line_length : integer := 114;
+	min_lines : integer := 0;
+	max_lines : integer := 227
 );
 PORT 
 ( 
@@ -24,19 +27,34 @@ PORT
 
 	ENABLED : IN STD_LOGIC;
 	POT_RESET : IN STD_LOGIC;
-	COUNT_ENABLE : IN STD_LOGIC;
 	POS : IN SIGNED(7 downto 0);
 	POT_HIGH : OUT STD_LOGIC
 );
 END pot_from_signed;
 
 ARCHITECTURE vhdl OF pot_from_signed IS
+	signal enable_179 : std_logic;
+	signal count_enable : std_logic;
+
 	signal count_reg : std_logic_vector(9 downto 0);
 	signal count_next : std_logic_vector(9 downto 0);
 
 	signal pot_out_reg : std_logic;
 	signal pot_out_next : std_logic;
+	
+	constant count_cycles : integer :=(max_lines-min_lines)*line_length/256; -- i.e. how many machines cycles for every change in POS
 BEGIN
+
+enable_179_clock_div : entity work.enable_divider
+	generic map (COUNT=>cycle_length)
+	port map(clk=>clk,reset_n=>reset_n,enable_in=>'1',enable_out=>enable_179);
+
+---- 114K to 386k (51 to 172) 121 lines.  i.e. 121*114 cycles/256 values = ~54
+---- TODO linear or not?
+pot_clock_div : entity work.enable_divider
+	generic map (COUNT=>count_cycles)
+	port map(clk=>clk,reset_n=>reset_n,enable_in=>enable_179,enable_out=>count_enable);
+
 	process(clk, reset_n)
 	begin
 		if (reset_n='0') then
@@ -48,12 +66,12 @@ BEGIN
 		end if;
 	end process;
 
-	process(count_reg,pot_reset,count_enable,pot_out_next,enabled)
+	process(count_reg,pot_reset,count_enable,pot_out_next,enabled,pos)
 	begin
 		count_next <= count_reg;
 
 		if (pot_reset ='1' or enabled = '0') then
-			count_next <= std_logic_vector(to_unsigned(to_integer(pos)+initial,10));
+			count_next <= std_logic_vector(to_unsigned(to_integer(pos)+128+(line_length*min_lines/count_cycles),10));
 		end if;
 
 		if (count_enable = '1') then

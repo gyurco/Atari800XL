@@ -532,6 +532,7 @@ LED <= zpu_sio_rxd;
 		VGA => vga,
 		COMPOSITE_ON_HSYNC => composite_on_hsync,
 
+		pal => '0',
 		colour_enable => half_scandouble_enable_reg,
 		doubled_enable => '1',
 		scanlines_on => mist_switches(1),

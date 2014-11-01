@@ -119,10 +119,11 @@ SIGNAL TRIG : STD_LOGIC_VECTOR(1 downto 0);
 SIGNAL CONSOL_OUT : STD_LOGIC_VECTOR(3 downto 0);
 
 -- POTS
-SIGNAL ENABLE_179 : STD_LOGIC;
-SIGNAL POT_COUNT : STD_LOGIC;
 SIGNAL POT_RESET : STD_LOGIC;
 SIGNAL POT_IN : STD_LOGIC_VECTOR(7 downto 0);
+
+constant min_lines : integer := 15;
+constant max_lines : integer := 210;
 
 BEGIN
 
@@ -131,57 +132,67 @@ TRIG(0) <= JOY1_BUTTON;
 TRIG(1) <= JOY2_BUTTON;
 
 -- pots 
--- TODO linear or not?
-enable_179_clock_div : entity work.enable_divider
-	generic map (COUNT=>cycle_length)
-	port map(clk=>clk,reset_n=>reset_n,enable_in=>'1',enable_out=>enable_179);
-
--- 114K to 386k (51 to 172) 121 lines.  i.e. 121*114 cycles/256 values = ~54
-pot_clock_div : entity work.enable_divider
-	generic map (COUNT=>80)
-	port map(clk=>clk,reset_n=>reset_n,enable_in=>enable_179,enable_out=>pot_count);
-
 pot0 : entity work.pot_from_signed
+	GENERIC MAP
+	(
+		cycle_length=>cycle_length,
+		min_lines=>min_lines,
+		max_lines=>max_lines
+	)
 	PORT MAP
 	(
 		CLK => CLK,
 		RESET_N => RESET_N,
 		ENABLED => CONSOL_OUT(2),
 		POT_RESET => POT_RESET,
-		COUNT_ENABLE => POT_COUNT,
 		POS => JOY1_X,
 		POT_HIGH => POT_IN(0)
 	);
 pot1 : entity work.pot_from_signed
+	GENERIC MAP
+	(
+		cycle_length=>cycle_length,
+		min_lines=>min_lines,
+		max_lines=>max_lines
+	)
 	PORT MAP
 	(
 		CLK => CLK,
 		RESET_N => RESET_N,
 		ENABLED => CONSOL_OUT(2),
 		POT_RESET => POT_RESET,
-		COUNT_ENABLE => POT_COUNT,
 		POS => JOY1_Y,
 		POT_HIGH => POT_IN(1)
 	);
 pot2 : entity work.pot_from_signed
+	GENERIC MAP
+	(
+		cycle_length=>cycle_length,
+		min_lines=>min_lines,
+		max_lines=>max_lines
+	)
 	PORT MAP
 	(
 		CLK => CLK,
 		RESET_N => RESET_N,
 		ENABLED => CONSOL_OUT(2),
 		POT_RESET => POT_RESET,
-		COUNT_ENABLE => POT_COUNT,
 		POS => JOY2_X,
 		POT_HIGH => POT_IN(2)
 	);
 pot3 : entity work.pot_from_signed
+	GENERIC MAP
+	(
+		cycle_length=>cycle_length,
+		min_lines=>min_lines,
+		max_lines=>max_lines
+	)
 	PORT MAP
 	(
 		CLK => CLK,
 		RESET_N => RESET_N,
 		ENABLED => CONSOL_OUT(2),
 		POT_RESET => POT_RESET,
-		COUNT_ENABLE => POT_COUNT,
 		POS => JOY2_Y,
 		POT_HIGH => POT_IN(3)
 	);

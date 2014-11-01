@@ -28,6 +28,7 @@ PORT
 	scanlines_on : in std_logic := '0';
 	
 	-- GTIA interface
+	pal : in std_logic;
 	colour_in : in std_logic_vector(7 downto 0);
 	vsync_in : in std_logic;
 	hsync_in : in std_logic;
@@ -44,34 +45,6 @@ END scandoubler;
 
 ARCHITECTURE vhdl OF scandoubler IS
 
-	COMPONENT gtia_palette IS
-	PORT 
-	( 
-		ATARI_COLOUR : IN STD_LOGIC_VECTOR(7 downto 0);
-		
-		R_next : OUT STD_LOGIC_VECTOR(7 downto 0);
-		G_next : OUT STD_LOGIC_VECTOR(7 downto 0);
-		B_next : OUT STD_LOGIC_VECTOR(7 downto 0)
-	);
-	END component;
-	
---	component reg_file IS
---	generic
---	(
---		BYTES : natural := 1;
---		WIDTH : natural := 1
---	);
---	PORT 
---	( 
---		CLK : IN STD_LOGIC;
---		ADDR : IN STD_LOGIC_VECTOR(width-1 DOWNTO 0);
---		DATA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
---		WR_EN : IN STD_LOGIC;
---		
---		DATA_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
---	);
---	END component;
-	
 	component scandouble_ram_infer IS
    PORT
    (
@@ -300,23 +273,8 @@ begin
 	end process;
 
 	-- colour palette
---	Color             Value         Color             Value
---Black           0,      0	Medium blue     8,    128
---Rust            1,     16       Dark blue       9,    144
---Red-orange      2,     32       Blue-grey      10,    160
---Dark orange     3,     48       Olive green    11,    176
---Red             4,     64       Medium green   12,    192
---Dk lavender     5,     80       Dark green     13,    208
---Cobalt blue     6,     96       Orange-green   14,    224
---Ultramarine     7,    112       Orange         15,    240
-
--- from altirra	
-	palette1 : entity work.gtia_palette(altirra)
-		port map (ATARI_COLOUR=>colour_reg, R_next=>R_next, G_next=>G_next, B_next=>B_next);
-		
--- from lao
---	palette2 : entity work.gtia_palette(laoo)
---		port map (ATARI_COLOUR=>COLOUR, R_next=>R_next, G_next=>G_next, B_next=>B_next);		
+	palette4 : entity work.gtia_palette
+		port map (PAL=>pal,ATARI_COLOUR=>colour_reg, R_next=>R_next, G_next=>G_next, B_next=>B_next);		
 	
 	-- output	
 		-- TODO - for DE2, output full 8 bits

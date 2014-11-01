@@ -20,7 +20,7 @@ ENTITY atari5200core IS
 	(
 		cycle_length : integer := 16; -- or 32...
 		video_bits : integer := 8;
-		palette : integer :=1; -- 0:gtia colour on VIDEO_B, 1:altirra, 2:laoo -- TODO NTSC
+		palette : integer :=0; -- 0:gtia colour on VIDEO_B, 1:on
 		low_memory : integer := 0 -- 0:8MB memory map, 1:1MB memory map
 	);
 	PORT
@@ -439,15 +439,6 @@ PORT MAP(CLK => CLK,
 		 DATA_OUT => GTIA_DO);
 
 	-- colour palette
---	Color             Value         Color             Value
---Black           0,      0	Medium blue     8,    128
---Rust            1,     16       Dark blue       9,    144
---Red-orange      2,     32       Blue-grey      10,    160
---Dark orange     3,     48       Olive green    11,    176
---Red             4,     64       Medium green   12,    192
---Dk lavender     5,     80       Dark green     13,    208
---Cobalt blue     6,     96       Orange-green   14,    224
---Ultramarine     7,    112       Orange         15,    240
 
 gen_palette_none : if palette=0 generate
 	VIDEO_B_WIDE <= COLOUR;
@@ -455,14 +446,9 @@ gen_palette_none : if palette=0 generate
 	VIDEO_G_WIDE <= (others => '0');
 end generate;
 
-gen_palette_altirra : if palette=1 generate
-	palette1 : entity work.gtia_palette(altirra)
-		port map (ATARI_COLOUR=>COLOUR, R_next=>VIDEO_R_WIDE, G_next=>VIDEO_G_WIDE, B_next=>VIDEO_B_WIDE);
-end generate;
-
-gen_palette_laoo : if palette=2 generate
-	palette2 : entity work.gtia_palette(laoo)
-		port map (ATARI_COLOUR=>COLOUR, R_next=>VIDEO_R_WIDE, G_next=>VIDEO_G_WIDE, B_next=>VIDEO_B_WIDE);		
+gen_palette_on : if palette=1 generate
+	palette4 : entity work.gtia_palette
+		port map (PAL=>'0', ATARI_COLOUR=>COLOUR, R_next=>VIDEO_R_WIDE, G_next=>VIDEO_G_WIDE, B_next=>VIDEO_B_WIDE);		
 end generate;
 
 VIDEO_R(video_bits-1 downto 0) <= VIDEO_R_WIDE(7 downto 8-video_bits);

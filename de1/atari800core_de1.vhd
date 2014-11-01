@@ -248,9 +248,12 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 	signal freezer_state: std_logic_vector(2 downto 0);
 
 	signal pbi_enable: std_logic;
+
+	signal pal : std_logic;
 BEGIN 
 
 	pbi_enable <= SW(4);
+	PAL <= SW(8);
 
 -- ANYTHING NOT CONNECTED...
 --GPIO_0(0) <= 'Z';
@@ -475,6 +478,7 @@ PORT MAP(CLK => CLK,
 	 	 scanlines_on => SW(5),
 		 vsync_in => VGA_VS_RAW,
 		 hsync_in => VGA_HS_RAW,
+		 pal => PAL,
 		 colour_in => VIDEO_B,
 		 VSYNC => VGA_VS,
 		 HSYNC => VGA_HS,
@@ -671,7 +675,7 @@ atari800 : entity work.atari800core
 		RAM_SELECT => ram_select,
 		ROM_SELECT => rom_select,
 		CART_EMULATION_SELECT => emulated_cartridge_select,
-		PAL => SW(8),
+		PAL => PAL,
 		USE_SDRAM => SW(9),
 		ROM_IN_RAM => '1',
 		THROTTLE_COUNT_6502 => speed_6502,
@@ -683,6 +687,7 @@ atari800 : entity work.atari800core
 
 		pbi_enable => pbi_enable
 	);
+
 
 zpu: entity work.zpucore
 	GENERIC MAP

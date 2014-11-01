@@ -62,6 +62,10 @@ ENTITY atari800core_simple_sdram is
 		-- JOYSTICK
 		JOY1_n : IN std_logic_vector(4 downto 0); -- FRLDU, 0=pressed
 		JOY2_n : IN std_logic_vector(4 downto 0); -- FRLDU, 0=pressed
+		PADDLE0 : IN signed(7 downto 0) := to_signed(-128,8);
+		PADDLE1 : IN signed(7 downto 0) := to_signed(-128,8);
+		PADDLE2 : IN signed(7 downto 0) := to_signed(-128,8);
+		PADDLE3 : IN signed(7 downto 0) := to_signed(-128,8);
 
 		-- Pokey keyboard matrix
 		-- Standard component available to connect this to PS2
@@ -188,6 +192,10 @@ ARCHITECTURE vhdl OF atari800core_simple_sdram IS
 	SIGNAL USE_SDRAM : STD_LOGIC;
 	SIGNAL ROM_IN_RAM : STD_LOGIC;
 
+	-- POTS
+	SIGNAL POT_RESET : STD_LOGIC;
+	SIGNAL POT_IN : STD_LOGIC_VECTOR(7 downto 0);
+
 BEGIN
 
 -- PIA mapping
@@ -211,6 +219,65 @@ CART_RD5 <= '0';
 
 -- Since we're not exposing PBI, expose a few key parts needed for SDRAM
 SDRAM_DI <= PBI_WRITE_DATA;
+
+-- Paddles!
+pot0 : entity work.pot_from_signed
+	GENERIC MAP
+	(
+		cycle_length=>cycle_length
+	)
+	PORT MAP
+	(
+		CLK => CLK,
+		RESET_N => RESET_N,
+		ENABLED => '1',
+		POT_RESET => POT_RESET,
+		POS => PADDLE0,
+		POT_HIGH => POT_IN(0)
+	);
+pot1 : entity work.pot_from_signed
+	GENERIC MAP
+	(
+		cycle_length=>cycle_length
+	)
+	PORT MAP
+	(
+		CLK => CLK,
+		RESET_N => RESET_N,
+		ENABLED => '1',
+		POT_RESET => POT_RESET,
+		POS => PADDLE1,
+		POT_HIGH => POT_IN(1)
+	);
+pot2 : entity work.pot_from_signed
+	GENERIC MAP
+	(
+		cycle_length=>cycle_length
+	)
+	PORT MAP
+	(
+		CLK => CLK,
+		RESET_N => RESET_N,
+		ENABLED => '1',
+		POT_RESET => POT_RESET,
+		POS => PADDLE2,
+		POT_HIGH => POT_IN(2)
+	);
+pot3 : entity work.pot_from_signed
+	GENERIC MAP
+	(
+		cycle_length=>cycle_length
+	)
+	PORT MAP
+	(
+		CLK => CLK,
+		RESET_N => RESET_N,
+		ENABLED => '1',
+		POT_RESET => POT_RESET,
+		POS => PADDLE3,
+		POT_HIGH => POT_IN(3)
+	);
+POT_IN(7 downto 4) <= (others=>'0');
 
 -- Internal rom/ram
 internalromram1 : entity work.internalromram
@@ -283,8 +350,8 @@ atari800xl : entity work.atari800core
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 
-		POT_IN => "00000000",
-		POT_RESET => open,
+		POT_IN => POT_IN,
+		POT_RESET => POT_RESET,
 		
 		-- PBI
 		PBI_ADDR => open,
