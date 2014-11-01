@@ -1040,7 +1040,7 @@ end generate;
 					X"d5"|X"d6"|X"d7"|X"d8"|X"d9"|X"dA"|X"dB"|X"dC"|X"dD"|X"dE"|X"dF"|
 					X"E0"|X"E1"|X"E2"|X"E3"|X"E4"|X"E5"|X"E6"|X"E7" =>
 
-					MEMORY_DATA(7 downto 0) <= X"FF";
+					MEMORY_DATA(7 downto 0) <= X"00";
 					request_complete <= '1';
 					
 				when others =>
