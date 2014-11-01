@@ -106,7 +106,7 @@ begin
 		key_held_next <= key_held_reg;
 		
 		my_key <= '0';
-		if (bincnt_reg = compare_latch_reg or debounce_disable='1') then
+		if (bincnt_reg = compare_latch_reg) then
 			my_key <= '1';
 		end if;
 		
@@ -123,7 +123,7 @@ begin
 				end if;
 				
 			when state_key_bounce =>
-				if (keyboard_response(0) = '0' or debounce_disable='1') then -- detected key press
+				if (keyboard_response(0) = '0') then -- detected key press
 					if (my_key = '1') then -- same key
 						keycode_latch_next <= compare_latch_reg;
 						irq_next <= '1';
@@ -154,6 +154,12 @@ begin
 			when others=> 
 				state_next <= state_wait_key; 
 			end case;
+			
+			if (debounce_disable = '1' and keyboard_response(0) = '0') then
+				keycode_latch_next <= bincnt_reg;
+				irq_next <= '1';
+				key_held_next<= '1';
+			end if;
 
 			break_pressed_next <= '0';
 			shift_pressed_next <= '0';
