@@ -771,6 +771,7 @@ gen_video_vga : if video=2 generate
 			doubled_enable => '1',
 			
 			-- GTIA interface
+			pal => PAL,
 			colour_in => VIDEO_B,
 			vsync_in => VIDEO_VS,
 			hsync_in => VIDEO_HS,
