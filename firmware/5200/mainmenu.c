@@ -24,16 +24,17 @@ void loadosrom()
 
 void mainmenu()
 {
+	memset8(SRAM_BASE+0x4000, 0, 32768);
+	memset32(SDRAM_BASE+0x4000, 0, 32768/4);
+
 	if (SimpleFile_OK == dir_init((void *)DIR_INIT_MEM, DIR_INIT_MEMSIZE))
 	{
 		struct SimpleDirEntry * entries = dir_entries(ROM_DIR);
-		
+
 		if (SimpleFile_OK == file_open_name_in_dir(entries, "5200.rom", files[5]))
 		{
 			loadosrom();
 		}
-
-		loadrom_indir(entries,"acid5200.rom",0x8000,0x004000); // XXX - just for 5200 test... remove later
 	}
 	else
 	{
@@ -46,6 +47,161 @@ void mainmenu()
 char const * get_ram()
 {
 	return "16K";
+}
+
+void load_cartridge(int type)
+{
+	switch(type)
+	{
+	case 4: //32k
+		loadromfile(files[4],0x8000,0x004000);
+		break;
+	case 6: // 16k two chip
+		{
+			unsigned char * src = (unsigned char *)(0x4000 + SDRAM_BASE);
+			unsigned char * dest1 = (unsigned char *)(0x6000 + SDRAM_BASE);
+			unsigned char * src2 = (unsigned char *)(0x8000 + SDRAM_BASE);
+			unsigned char * dest2 = (unsigned char *)(0xa000+ SDRAM_BASE);
+			int i = 0;
+			//*atari_colbk = 0x68;
+			//wait_us(5000000);
+
+			loadromfile(files[4],0x2000,0x004000);
+			loadromfile(files[4],0x2000,0x008000);
+	
+			for (i=0; i!=0x2000; ++i)
+			{
+				dest1[i] = src[i];
+				dest2[i] = src2[i];
+			}
+		}
+		break;
+	case 16: // 16k one chip
+		{
+			loadromfile(files[4],0x4000,0x008000);
+			unsigned char * src = (unsigned char *)(0x8000 + SDRAM_BASE);
+			unsigned char * dest1 = (unsigned char *)(0x4000 + SDRAM_BASE);
+			int i = 0;
+			for (i=0; i!=0x4000; ++i)
+			{
+				dest1[i] = src[i];
+			}
+		}
+		break;
+	case 19: // 8k
+		{
+			//*atari_colbk = 0x58;
+			//wait_us(4000000);
+			loadromfile(files[4],0x2000,0x004000);
+			unsigned char * src = (unsigned char *)(0x4000 + SDRAM_BASE);
+			unsigned char * dest1 = (unsigned char *)(0x6000 + SDRAM_BASE);
+			unsigned char * dest2 = (unsigned char *)(0x8000 + SDRAM_BASE);
+			unsigned char * dest3 = (unsigned char *)(0xa000 + SDRAM_BASE);
+			int i = 0;
+			for (i=0; i!=0x2000; ++i)
+			{
+				dest1[i] = src[i];
+				dest2[i] = src[i];
+				dest3[i] = src[i];
+			}
+		}
+		break;
+	case 20: // 4k
+		{
+			//*atari_colbk = 0x58;
+			//wait_us(4000000);
+			loadromfile(files[4],0x1000,0x004000);
+			unsigned char * src = (unsigned char *)(0x4000 + SDRAM_BASE);
+			unsigned char * dest1 = (unsigned char *)(0x5000 + SDRAM_BASE);
+			unsigned char * dest2 = (unsigned char *)(0x6000 + SDRAM_BASE);
+			unsigned char * dest3 = (unsigned char *)(0x7000 + SDRAM_BASE);
+			unsigned char * dest4 = (unsigned char *)(0x8000 + SDRAM_BASE);
+			unsigned char * dest5 = (unsigned char *)(0x9000 + SDRAM_BASE);
+			unsigned char * dest6 = (unsigned char *)(0xa000 + SDRAM_BASE);
+			unsigned char * dest7 = (unsigned char *)(0xb000 + SDRAM_BASE);
+			int i = 0;
+			for (i=0; i!=0x1000; ++i)
+			{
+				dest1[i] = src[i];
+				dest2[i] = src[i];
+				dest3[i] = src[i];
+				dest4[i] = src[i];
+				dest5[i] = src[i];
+				dest6[i] = src[i];
+				dest7[i] = src[i];
+			}
+		}
+		break;
+	default:
+		{
+			clearscreen();
+			debug_pos = 0;
+			debug_adjust = 0;
+			printf("Unknown type of cartridge!");
+			wait_us(3000000);
+		}
+		break;
+	}
+}
+
+int filter_5200(struct SimpleDirEntry * entry)
+{
+	if (dir_is_subdir(entry)) return 1;
+	char const * f = dir_filename(entry);
+	int res = (compare_ext(f,"A52") || compare_ext(f,"CAR") || compare_ext(f,"BIN"));
+	//printf("filter_disks:%s:%d\n",f,res);
+	return res;
+}
+
+void select_cartridge()
+{
+	filter = filter_5200; // .a52, .car and .bin
+	file_selector(files[4]);
+
+	// work out the type
+	char const * name = file_name(files[4]);
+	int type = -1;
+	if (compare_ext(name,"CAR"))
+	{
+		char header[16];
+		int read = 0;
+		file_read(files[4],&header,16,&read);
+		type = header[7];
+	}
+	else
+	{
+		int size = file_size(files[4]);
+
+		if (size == 32768) type = 4;
+		if (size == 16384) // uff!
+		{
+			struct joystick_status joy;
+			joy.x_ = joy.y_ = joy.fire_ = 0;
+
+			clearscreen();
+			debug_pos = 0;
+			debug_adjust = 0;
+			printf("16k cart type");
+			debug_pos = 80;
+			printf("Left for one chip");
+			debug_pos = 120;
+			printf("Right for two chip");
+
+			while(type <0)
+			{
+				joystick_wait(&joy,WAIT_QUIET);
+				joystick_wait(&joy,WAIT_EITHER);
+
+				if (joy.x_<0) type = 16;
+				if (joy.x_>0) type = 6;
+			}
+		}
+		
+		if (size == 8192) type = 19;
+		if (size == 4096) type = 20;
+	}
+
+	load_cartridge(type);
 }
 
 int settings()
@@ -80,27 +236,27 @@ int settings()
 
 		debug_pos = 200;
 		debug_adjust = row==3 ? 128 : 0;
-		printf("Cartridge 32k");
+		printf("Cart:%s", file_name(files[4]) ? file_name(files[4]) : "NONE");
 
 		debug_pos = 240;
 		debug_adjust = row==4 ? 128 : 0;
-		printf("Cartridge 16k one chip");
-
-		debug_pos = 280;
-		debug_adjust = row==5 ? 128 : 0;
-		printf("Cartridge 16k two chip");
-
-		debug_pos = 320;
-		debug_adjust = row==6 ? 128 : 0;
-		printf("Cartridge 8k");
-
-		debug_pos = 360;
-		debug_adjust = row==7 ? 128 : 0;
-		printf("Cartridge 4k");
-
-		debug_pos = 400;
-		debug_adjust = row==8 ? 128 : 0;
 		printf("Exit");
+
+/*
+while (1)
+{
+	*atari_consol = 4;
+	*atari_potgo = 0xff;
+
+	wait_us(1000000/25);
+
+	unsigned char pot0 = *atari_pot0;
+	unsigned char pot1 = *atari_pot1;
+		debug_pos = 320;
+		printf("                         ");
+		debug_pos = 320;
+		printf("pot0:%d pot1:%d",pot0,pot1);
+}*/
 
 		// Slow it down a bit
 		wait_us(100000);
@@ -111,7 +267,7 @@ int settings()
 
 		row+=joy.y_;
 		if (row<0) row = 0;
-		if (row>8) row = 8;
+		if (row>4) row = 4;
 		switch (row)
 		{
 		case 0:
@@ -145,100 +301,15 @@ int settings()
 			}
 			break;
 		case 3:
-		case 4:
-		case 5:
-		case 6:
-		case 7:
 			{
 				if (joy.fire_)
 				{
-					fil_type = fil_type_bin;
-					filter = filter_specified;
-					file_selector(files[4]);
-					//loadrom_indir(entries,"acid5200.rom",0x8000,(void *)0x004000); // XXX - just for 5200 test... do not commit!
-					if (row == 3)
-					{
-						loadromfile(files[4],0x8000,0x004000);
-					}
-					else if (row == 4)
-					{
-						//*atari_colbk = 0x58;
-						//wait_us(4000000);
-						loadromfile(files[4],0x4000,0x008000);
-						unsigned char * src = (unsigned char *)(0x8000 + SDRAM_BASE);
-						unsigned char * dest1 = (unsigned char *)(0x4000 + SDRAM_BASE);
-						int i = 0;
-						for (i=0; i!=0x4000; ++i)
-						{
-							dest1[i] = src[i];
-						}
-					}
-					else if (row == 5)
-					{
-						unsigned char * src = (unsigned char *)(0x4000 + SDRAM_BASE);
-						unsigned char * dest1 = (unsigned char *)(0x6000 + SDRAM_BASE);
-						unsigned char * src2 = (unsigned char *)(0x8000 + SDRAM_BASE);
-						unsigned char * dest2 = (unsigned char *)(0xa000+ SDRAM_BASE);
-						int i = 0;
-						//*atari_colbk = 0x68;
-						//wait_us(5000000);
-
-						loadromfile(files[4],0x2000,0x004000);
-						loadromfile(files[4],0x2000,0x008000);
-				
-						for (i=0; i!=0x2000; ++i)
-						{
-							dest1[i] = src[i];
-							dest2[i] = src2[i];
-						}
-					}
-					else if (row == 6)
-					{
-						//*atari_colbk = 0x58;
-						//wait_us(4000000);
-						loadromfile(files[4],0x2000,0x004000);
-						unsigned char * src = (unsigned char *)(0x4000 + SDRAM_BASE);
-						unsigned char * dest1 = (unsigned char *)(0x6000 + SDRAM_BASE);
-						unsigned char * dest2 = (unsigned char *)(0x8000 + SDRAM_BASE);
-						unsigned char * dest3 = (unsigned char *)(0xa000 + SDRAM_BASE);
-						int i = 0;
-						for (i=0; i!=0x2000; ++i)
-						{
-							dest1[i] = src[i];
-							dest2[i] = src[i];
-							dest3[i] = src[i];
-						}
-					}
-					else if (row == 7)
-					{
-						//*atari_colbk = 0x58;
-						//wait_us(4000000);
-						loadromfile(files[4],0x1000,0x004000);
-						unsigned char * src = (unsigned char *)(0x4000 + SDRAM_BASE);
-						unsigned char * dest1 = (unsigned char *)(0x5000 + SDRAM_BASE);
-						unsigned char * dest2 = (unsigned char *)(0x6000 + SDRAM_BASE);
-						unsigned char * dest3 = (unsigned char *)(0x7000 + SDRAM_BASE);
-						unsigned char * dest4 = (unsigned char *)(0x8000 + SDRAM_BASE);
-						unsigned char * dest5 = (unsigned char *)(0x9000 + SDRAM_BASE);
-						unsigned char * dest6 = (unsigned char *)(0xa000 + SDRAM_BASE);
-						unsigned char * dest7 = (unsigned char *)(0xb000 + SDRAM_BASE);
-						int i = 0;
-						for (i=0; i!=0x1000; ++i)
-						{
-							dest1[i] = src[i];
-							dest2[i] = src[i];
-							dest3[i] = src[i];
-							dest4[i] = src[i];
-							dest5[i] = src[i];
-							dest6[i] = src[i];
-							dest7[i] = src[i];
-						}
-					}
+					select_cartridge();
 					return 1;
 				}
 			}
 			break;
-		case 8:
+		case 4:
 			if (joy.fire_)
 			{
 				done = 1;
@@ -279,5 +350,13 @@ void actions()
 			reboot(1);
 		else
 			set_pause_6502(0);
+	}
+	else if (get_hotkey_fileselect())
+	{
+		set_pause_6502(1);
+		freeze();
+		select_cartridge();
+		restore();
+		reboot(1);
 	}
 }

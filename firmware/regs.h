@@ -60,10 +60,14 @@ static const int screen_address = 11328;
 #define atari_colpf3 ((unsigned char volatile *)(0xc019 + atari_regbase))
 #define atari_colpf0 ((unsigned char volatile *)(0xc016 + atari_regbase))
 #define atari_prior ((unsigned char volatile *)(0xc01b + atari_regbase))
+#define atari_consol ((unsigned char volatile *)(0xc01f + atari_regbase))
 
 #define atari_skctl ((unsigned char volatile *)(0xe80f + atari_regbase))
 #define atari_kbcode ((unsigned char volatile *)(0xe809 + atari_regbase))
 #define atari_random ((unsigned char volatile *)(0xe80a + atari_regbase))
+#define atari_pot0 ((unsigned char volatile *)(0xe800 + atari_regbase))
+#define atari_pot1 ((unsigned char volatile *)(0xe801 + atari_regbase))
+#define atari_potgo ((unsigned char volatile *)(0xe80b + atari_regbase))
 
 #else
 
