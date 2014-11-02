@@ -73,6 +73,7 @@ os8.vhdl
 os16_loop.vhdl
 internalromram.vhd
 covox.vhd
+pot_from_signed.vhdl
 atari800core.vhd
 atari800core_simple_sdram.vhd
 Core_Top.vhd
