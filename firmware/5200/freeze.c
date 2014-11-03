@@ -29,7 +29,7 @@ void freeze()
 			atari_base[i] = 0;
 		}
 		//pokey1/2
-		for (i=0xe800; i!=0xe820; i++)
+		for (i=0xe800; i!=0xe810; i++)
 		{
 			store_mem[i] = custom_mirror[i];
 			atari_base[i] = 0;
@@ -109,7 +109,7 @@ void restore()
 			atari_base[i] = store_mem[i];
 		}
 		//pokey1/2
-		for (i=0xe800; i!=0xe820; i++)
+		for (i=0xe800; i!=0xe810; i++)
 		{
 			atari_base[i] = store_mem[i];
 		}
