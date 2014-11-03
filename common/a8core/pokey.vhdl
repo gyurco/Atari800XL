@@ -23,11 +23,6 @@ PORT
 	RESET_N : IN STD_LOGIC;
 	
 	-- keyboard interface
---	KBCODE : IN STD_LOGIC_VECTOR(7 downto 0);
---	KEY_HELD : IN STD_LOGIC;
---	SHIFT_PRESSED : IN STD_LOGIC;
---	BREAK_PRESSED : IN STD_LOGIC;
---	KEY_INTERRUPT : IN STD_LOGIC;
 	keyboard_scan : out std_logic_vector(5 downto 0);
 	keyboard_response : in std_logic_vector(1 downto 0);
 	
@@ -190,12 +185,11 @@ ARCHITECTURE vhdl OF pokey IS
 		
 		keyboard_scan : out std_logic_vector(5 downto 0);
 		
-		shift_pressed : out std_logic;
-		control_pressed : out std_logic;
-		break_pressed : out std_logic;
 		key_held : out std_logic;
-		keycode : out std_logic_vector(5 downto 0);
-		other_key_irq : out std_logic
+		shift_held : out std_logic;
+		keycode : out std_logic_vector(7 downto 0);
+		other_key_irq : out std_logic;
+		break_irq : out std_logic
 	);
 	end component;
 	
@@ -372,13 +366,12 @@ ARCHITECTURE vhdl OF pokey IS
 	signal keyboard_overrun_next : std_logic;
 	signal keyboard_overrun_reg : std_logic;
 	
-	signal shift_pressed : std_logic;
-	signal control_pressed : std_logic;
-	signal break_pressed : std_logic;
+	signal shift_held : std_logic;
+	signal break_irq : std_logic;
 	signal key_held : std_logic;
 	signal other_key_irq : std_logic;
 	
-	signal kbcode : std_logic_vector(5 downto 0);
+	signal kbcode : std_logic_vector(7 downto 0);
 	
 	-- pots
 	signal pot0_next : std_logic_vector(7 downto 0);
@@ -718,7 +711,7 @@ BEGIN
 	end process;
 	
 	-- Read from registers
-	process(addr_decoded,kbcode,control_pressed,RAND_OUT,IRQST_REG,KEY_HELD,SHIFT_PRESSED,sio_in_reg,serin_reg,keyboard_overrun_reg, serial_ip_framing_reg, serial_ip_overrun_reg, waiting_for_start_bit, pot_in, pot0_reg, pot1_reg, pot2_reg, pot3_reg, pot4_reg, pot5_reg, pot6_reg, pot7_reg)
+	process(addr_decoded,kbcode,RAND_OUT,IRQST_REG,key_held,shift_held,sio_in_reg,serin_reg,keyboard_overrun_reg, serial_ip_framing_reg, serial_ip_overrun_reg, waiting_for_start_bit, pot_in, pot0_reg, pot1_reg, pot2_reg, pot3_reg, pot4_reg, pot5_reg, pot6_reg, pot7_reg)
 	begin
 		data_out <= X"FF";
 
@@ -759,7 +752,7 @@ BEGIN
 		end if;
 		
 		if(addr_decoded(9) = '1') then --KBCODE
-			data_out <= control_pressed&shift_pressed&kbcode;
+			data_out <= kbcode;
 		end if;
 		
 		if(addr_decoded(10) = '1') then -- RANDOM
@@ -776,13 +769,13 @@ BEGIN
 		end if;		
 
 		if (addr_decoded(15) = '1') then --SKSTAT
-			data_out <= not(serial_ip_framing_reg)&not(keyboard_overrun_reg)&not(serial_ip_overrun_reg)&sio_in_reg&not(SHIFT_PRESSED)&not(KEY_HELD)&waiting_for_start_bit&"1";
+			data_out <= not(serial_ip_framing_reg)&not(keyboard_overrun_reg)&not(serial_ip_overrun_reg)&sio_in_reg&not(shift_held)&not(key_held)&waiting_for_start_bit&"1";
 		end if;		
 		
 	end process;
 	
 	-- Fire interrupts
-	process (irqen_reg, irqst_reg, audf0_pulse, audf1_pulse, audf3_pulse, other_key_irq, serial_ip_ready_interrupt, serout_active_reg, serial_op_needed_interrupt, break_pressed)
+	process (irqen_reg, irqst_reg, audf0_pulse, audf1_pulse, audf3_pulse, other_key_irq, serial_ip_ready_interrupt, serout_active_reg, serial_op_needed_interrupt, break_irq)
 	begin
 		-- clear interrupts
 		irqst_next <= irqst_reg or not(irqen_reg);
@@ -810,7 +803,7 @@ BEGIN
 			irqst_next(6) <= not(irqen_reg(6));			
 		end if;
 		
-		if (break_pressed = '1') then
+		if (break_irq = '1') then
 			irqst_next(7) <= not(irqen_reg(7));			
 		end if;		
 	
@@ -1161,8 +1154,8 @@ BEGIN
 	
 	-- keyboard scan
 	pokey_keyboard_scanner1 : pokey_keyboard_scanner
-		port map (clk=>clk, reset_n=>reset_n, enable=>enable_15, keyboard_response=>keyboard_response, debounce_disable=>not(skctl_reg(0)), scan_enable=>skctl_reg(1), keyboard_scan=>keyboard_scan, shift_pressed=>shift_pressed, control_pressed=>control_pressed, break_pressed=>break_pressed, key_held=>key_held, keycode=>kbcode, other_key_irq=>other_key_irq);	
-	
+		port map (clk=>clk, reset_n=>reset_n, enable=>enable_15, keyboard_response=>keyboard_response, debounce_disable=>not(skctl_reg(0)), scan_enable=>skctl_reg(1), keyboard_scan=>keyboard_scan, key_held=>key_held, shift_held=>shift_held, keycode=>kbcode, other_key_irq=>other_key_irq, break_irq=>break_irq);
+
 	-- POT scan
 	process(potgo_write, pot_reset_reg, pot_counter_reg, pot_in, enable_15, enable_179, skctl_reg, pot0_reg, pot1_reg, pot2_reg, pot3_reg, pot4_reg, pot5_reg, pot6_reg, pot7_reg)
 	begin	

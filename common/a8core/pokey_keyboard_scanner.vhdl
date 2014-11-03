@@ -22,12 +22,11 @@ port
 	
 	keyboard_scan : out std_logic_vector(5 downto 0);
 	
-	shift_pressed : out std_logic;
-	control_pressed : out std_logic;
-	break_pressed : out std_logic;
 	key_held : out std_logic;
-	keycode : out std_logic_vector(5 downto 0);
-	other_key_irq : out std_logic
+	shift_held : out std_logic;
+	keycode : out std_logic_vector(7 downto 0);
+	other_key_irq : out std_logic;
+	break_irq : out std_logic
 );
 end pokey_keyboard_scanner;
 
@@ -47,11 +46,14 @@ architecture vhdl of pokey_keyboard_scanner is
 	signal compare_latch_next : std_logic_vector(5 downto 0);
 	signal compare_latch_reg : std_logic_vector(5 downto 0);
 	
-	signal keycode_latch_next : std_logic_vector(5 downto 0);
-	signal keycode_latch_reg : std_logic_vector(5 downto 0);
+	signal keycode_latch_next : std_logic_vector(7 downto 0);
+	signal keycode_latch_reg : std_logic_vector(7 downto 0);
 	
 	signal irq_next : std_logic;
 	signal irq_reg : std_logic;
+
+	signal break_irq_next : std_logic;
+	signal break_irq_reg : std_logic;
 	
 	signal key_held_next : std_logic;
 	signal key_held_reg : std_logic;
@@ -79,6 +81,7 @@ begin
 			key_held_reg <= '0';
 			state_reg <= state_wait_key;
 			irq_reg <= '0';
+			break_irq_reg <= '0';
 		elsif (clk'event and clk = '1') then
 			bincnt_reg <= bincnt_next;
 			state_reg <= state_next;
@@ -90,15 +93,17 @@ begin
 			key_held_reg <= key_held_next;
 			state_reg <= state_next;
 			irq_reg <= irq_next;
+			break_irq_reg <= break_irq_next;
 		end if;
 	end process;
 
-	process (enable, keyboard_response, scan_enable, key_held_reg, my_key, state_reg,bincnt_reg, compare_latch_reg, break_pressed_reg, shift_pressed_reg, control_pressed_reg, keycode_latch_reg, debounce_disable)
+	process (enable, keyboard_response, scan_enable, key_held_reg, my_key, state_reg,bincnt_reg, compare_latch_reg, break_pressed_reg, shift_pressed_reg, break_irq_reg, control_pressed_reg, keycode_latch_reg, debounce_disable)
 	begin
 		bincnt_next <= bincnt_reg;
 		state_next <= state_reg;
 		compare_latch_next <= compare_latch_reg;
 		irq_next <= '0';
+		break_irq_next <= '0';
 		break_pressed_next <= break_pressed_reg;
 		shift_pressed_next <= shift_pressed_reg;
 		control_pressed_next <= control_pressed_reg;
@@ -106,7 +111,7 @@ begin
 		key_held_next <= key_held_reg;
 		
 		my_key <= '0';
-		if (bincnt_reg = compare_latch_reg) then
+		if (bincnt_reg = compare_latch_reg or debounce_disable='1') then
 			my_key <= '1';
 		end if;
 		
@@ -118,14 +123,20 @@ begin
 			case state_reg is
 			when state_wait_key =>
 				if (keyboard_response(0) = '0') then -- detected key press
-					state_next <= state_key_bounce;
-					compare_latch_next <= bincnt_reg;
+					if (debounce_disable = '1') then
+						keycode_latch_next <= control_pressed_reg&shift_pressed_reg&bincnt_reg;
+						irq_next <= '1';
+						key_held_next<= '1';
+					else
+						state_next <= state_key_bounce;
+						compare_latch_next <= bincnt_reg;
+					end if;
 				end if;
 				
 			when state_key_bounce =>
 				if (keyboard_response(0) = '0') then -- detected key press
 					if (my_key = '1') then -- same key
-						keycode_latch_next <= compare_latch_reg;
+						keycode_latch_next <= control_pressed_reg&shift_pressed_reg&compare_latch_reg;
 						irq_next <= '1';
 						key_held_next<= '1';
 						state_next <= state_valid_key;
@@ -147,23 +158,20 @@ begin
 				end if;
 				
 			when state_key_debounce =>
+				key_held_next<= '1';
 				if (my_key = '1') then
-					state_next <= state_wait_key;
+					if (keyboard_response(0) = '1') then -- no longer pressed
+						key_held_next<= '0';
+						state_next <= state_wait_key;
+					else
+						state_next <= state_valid_key;
+					end if;					
 				end if;
 
 			when others=> 
 				state_next <= state_wait_key; 
 			end case;
 			
-			if (debounce_disable = '1' and keyboard_response(0) = '0') then
-				keycode_latch_next <= bincnt_reg;
-				irq_next <= '1';
-				key_held_next<= '1';
-			end if;
-
-			break_pressed_next <= '0';
-			shift_pressed_next <= '0';
-			control_pressed_next <= '0';
 			if (bincnt_reg(3 downto 0)  = "0000") then
 				case bincnt_reg(5 downto 4) is
 				when "11" =>
@@ -177,15 +185,18 @@ begin
 				end case;
 			end if;
 		end if;
+
+		if (break_pressed_next='1' and break_pressed_reg='0') then
+			break_irq_next <= '1';
+		end if;
 	end process;
 	
 	-- outputs
 	keyboard_scan <= not(bincnt_reg);
 	
 	key_held <= key_held_reg;	
+	shift_held <= shift_pressed_reg;
 	keycode <= keycode_latch_reg;
-	break_pressed <= break_pressed_reg;
-	shift_pressed <= shift_pressed_reg;
-	control_pressed <= control_pressed_reg;
 	other_key_irq <= irq_reg;
+	break_irq <= break_irq_reg;
 end vhdl;
