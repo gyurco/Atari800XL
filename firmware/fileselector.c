@@ -47,7 +47,10 @@ void file_selector(struct SimpleFile * file)
 	{
 		dir_of(&dir[0],file_path(file));
 	}
-	for (;;)
+
+	struct joystick_status joy;
+	joy.x_ = joy.y_ = joy.fire_ = joy.escape_ = 0;
+	for (;!joy.escape_;)
 	{
 		struct SimpleDirEntry * entry = dir_entries_filtered(dir,filter);
 
@@ -64,9 +67,6 @@ void file_selector(struct SimpleFile * file)
 		// Selected item
 		int pos = 0;
 		int prevstartpos = -1;
-
-		struct joystick_status joy;
-		joy.x_ = joy.y_ = joy.fire_ = 0;
 
 		for (;;)
 		{
@@ -161,6 +161,7 @@ void file_selector(struct SimpleFile * file)
 			// move
 			joystick_wait(&joy,WAIT_QUIET);
 			joystick_wait(&joy,WAIT_EITHER);
+			if (joy.escape_) break;
 			
 			if (joy.fire_)
 			{
@@ -212,5 +213,7 @@ void file_selector(struct SimpleFile * file)
 			pos += joy.y_;
 		}
 	}
+
+	joystick_wait(&joy,WAIT_QUIET);
 }
 

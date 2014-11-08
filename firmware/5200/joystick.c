@@ -19,6 +19,8 @@ void joystick_poll(struct joystick_status * status)
 		kbcode = 0x0;
 	}
 
+	int controls = get_controls();
+
 	/**atari_consol = 4;
 	*atari_potgo = 0xff;
 
@@ -37,6 +39,14 @@ void joystick_poll(struct joystick_status * status)
 
 	//status->fire_ = !(1&*atari_trig0);
 	status->fire_ = kbcode==0x14;
+
+	if (controls!=0)
+	{
+		status->y_ = !!(controls&0x2) -((unsigned int)!!(controls&0x1));
+		status->x_ = !!(controls&0x8) -((unsigned int)!!(controls&0x4));
+		status->fire_ = !!(controls&0x10);
+		status->escape_ = !!(controls&0x20);
+	}
 
 	//if (porta != 0xff)
 	//printf("%02x %x %x %x\n",porta,status->x_,status->y_,status->fire_);

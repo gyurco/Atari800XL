@@ -6,6 +6,7 @@ struct joystick_status
 	int x_;
 	int y_;
 	int fire_;
+	int escape_;
 };
 
 enum JoyWait {WAIT_QUIET, WAIT_FIRE, WAIT_MOVE, WAIT_EITHER};

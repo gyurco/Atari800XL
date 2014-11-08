@@ -171,6 +171,7 @@ int settings()
 		// move
 		joystick_wait(&joy,WAIT_QUIET);
 		joystick_wait(&joy,WAIT_EITHER);
+		if (joy.escape_) break;
 
 		row+=joy.y_;
 		if (row<0) row = 0;

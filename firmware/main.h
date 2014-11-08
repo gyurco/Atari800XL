@@ -85,6 +85,8 @@ BIT_REG_RO(,0x1,9,hotkey_coldboot,zpu_in1)
 BIT_REG_RO(,0x1,10,hotkey_fileselect,zpu_in1)
 BIT_REG_RO(,0x1,11,hotkey_settings,zpu_in1)
 
+BIT_REG_RO(,0x3f,12,controls,zpu_in1) // (esc)FLRDU
+
 
 void
 wait_us(int unsigned num)
