@@ -34,7 +34,8 @@ PORT
 
 	FREEZER_ACTIVATE : OUT STD_LOGIC;
    
-   PS2_KEYS : OUT STD_LOGIC_VECTOR(511 downto 0)
+	PS2_KEYS : OUT STD_LOGIC_VECTOR(511 downto 0);
+	PS2_KEYS_NEXT_OUT : OUT STD_LOGIC_VECTOR(511 downto 0)
 );
 END ps2_to_atari800;
 
@@ -60,9 +61,6 @@ ARCHITECTURE vhdl OF ps2_to_atari800 IS
 	SIGNAL	BREAK_PRESSED :  STD_LOGIC;
 	SIGNAL	CONTROL_PRESSED :  STD_LOGIC;
 BEGIN
-
-   PS2_KEYS <= ps2_keys_reg;
-
 	keyboard1: entity work.ps2_keyboard
 	PORT MAP
 	( 
@@ -229,5 +227,8 @@ BEGIN
 
 	FKEYS <= FKEYS_INT;
 	FREEZER_ACTIVATE <= FREEZER_ACTIVATE_INT;
+
+	PS2_KEYS <= ps2_keys_reg;
+	PS2_KEYS_NEXT_OUT <= ps2_keys_next;
 END vhdl;
 
