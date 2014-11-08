@@ -254,10 +254,14 @@ component user_io
 
 	-- ps2
 	signal SLOW_PS2_CLK : std_logic; -- around 16KHz
+	signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
+	signal PS2_KEYS_NEXT : STD_LOGIC_VECTOR(511 downto 0);
 
 	-- scandoubler
 	signal half_scandouble_enable_reg : std_logic;
 	signal half_scandouble_enable_next : std_logic;
+	signal scanlines_reg : std_logic;
+	signal scanlines_next : std_logic;
 	signal VIDEO_B : std_logic_vector(7 downto 0);
 
 BEGIN 
@@ -344,7 +348,10 @@ keyboard_map1 : entity work.ps2_to_atari5200
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
 
-		FKEYS => FKEYS
+		FKEYS => FKEYS,
+
+		PS2_KEYS => PS2_KEYS,
+		PS2_KEYS_NEXT_OUT => PS2_KEYS_NEXT
 	);
 -- stick 0: consol(1 downto 0)="00"
 
@@ -508,12 +515,16 @@ LED <= zpu_sio_rxd;
 --VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
 --VGA_VS <= not(VGA_VS_RAW);
 
+	scanlines_next <= scanlines_reg xor (not(ps2_keys(16#11#)) and ps2_keys_next(16#11#)); -- left alt
+
 	process(clk,RESET_N,SDRAM_RESET_N,reset_atari)
 	begin
 		if ((RESET_N and SDRAM_RESET_N and not(reset_atari))='0') then
 			half_scandouble_enable_reg <= '0';
+			scanlines_reg <= '0';
 		elsif (clk'event and clk='1') then
 			half_scandouble_enable_reg <= half_scandouble_enable_next;
+			scanlines_reg <= scanlines_next;
 		end if;
 	end process;
 
@@ -535,7 +546,7 @@ LED <= zpu_sio_rxd;
 		pal => '0',
 		colour_enable => half_scandouble_enable_reg,
 		doubled_enable => '1',
-		scanlines_on => mist_switches(1),
+		scanlines_on => scanlines_reg,
 		
 		-- GTIA interface
 		colour_in => VIDEO_B,
@@ -596,7 +607,9 @@ zpu: entity work.zpucore
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
-		ZPU_IN1 => X"00000"&(FKEYS(11) or (mist_buttons(0) and not(joy1_n(4))))&(FKEYS(10) or (mist_buttons(0) and joy1_n(4) and joy_still))&(FKEYS(9) or (mist_buttons(0) and joy1_n(4) and not(joy_still)))&FKEYS(8 downto 0),
+		ZPU_IN1 => X"000"&
+				"00"&ps2_keys(16#76#)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
+				(FKEYS(11) or (mist_buttons(0) and not(joy1_n(4))))&(FKEYS(10) or (mist_buttons(0) and joy1_n(4) and joy_still))&(FKEYS(9) or (mist_buttons(0) and joy1_n(4) and not(joy_still)))&FKEYS(8 downto 0),
 		ZPU_IN2 => X"00000000",
 		ZPU_IN3 => X"00000000",
 		ZPU_IN4 => X"00000000",
