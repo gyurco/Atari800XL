@@ -261,20 +261,56 @@ component user_io
 
 	-- ps2
 	signal SLOW_PS2_CLK : std_logic; -- around 16KHz
+	signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
+	signal PS2_KEYS_NEXT : STD_LOGIC_VECTOR(511 downto 0);
 
 	-- scandoubler
 	signal half_scandouble_enable_reg : std_logic;
 	signal half_scandouble_enable_next : std_logic;
+	signal scanlines_reg : std_logic;
+	signal scanlines_next : std_logic;
 	signal VIDEO_B : std_logic_vector(7 downto 0);
 
 	-- turbo freezer!
 	signal freezer_enable : std_logic;
 	signal freezer_activate: std_logic;
 
+	-- paddles
+	signal paddle_mode_next : std_logic;
+	signal paddle_mode_reg : std_logic;
+
 BEGIN 
 pal <= '1' when tv=1 else '0';
 vga <= '1' when video=2 else '0';
 composite_on_hsync <= '1' when composite_sync=1 else '0';
+
+
+-- hack for paddles
+	process(clk,RESET_N)
+	begin
+		if (RESET_N = '0') then
+			paddle_mode_reg <= '0';
+		elsif (clk'event and clk='1') then
+			paddle_mode_reg <= paddle_mode_next;
+		end if;
+	end process;
+
+	process(paddle_mode_reg, joy1)
+	begin
+		joy1_n <= (others=>'1');
+		joy2_n <= (others=>'1');
+
+		if (paddle_mode_reg = '1') then
+			joy1_n <= "111"&not(joy1(4)&joy1(5)); --FLRDU
+			joy2_n <= "111"&not(joy2(4)&joy2(5));
+		else
+			joy1_n <= not(joy1(4 downto 0));
+			joy2_n <= not(joy2(4 downto 0));
+		end if;
+	end process;
+
+	paddle_mode_next <= paddle_mode_reg xor (not(ps2_keys(16#11F#)) and ps2_keys_next(16#11F#)); -- left windows key
+	scanlines_next <= scanlines_reg xor (not(ps2_keys(16#11#)) and ps2_keys_next(16#11#)); -- left alt
 
 -- mist spi io
 	spi_do <= spi_miso_io when CONF_DATA0 ='0' else 'Z';
@@ -337,9 +373,6 @@ my_sd_card : sd_card
 		sd_sdo => mist_sd_sdo
 	); 
 	  
-	 joy1_n <= not(joy1(4 downto 0));
-	 joy2_n <= not(joy2(4 downto 0));
-
 -- PS2 to pokey
 keyboard_map1 : entity work.ps2_to_atari800
 	PORT MAP
@@ -357,7 +390,10 @@ keyboard_map1 : entity work.ps2_to_atari800
 		CONSOL_OPTION => CONSOL_OPTION_RAW,
 		
 		FKEYS => FKEYS,
-		FREEZER_ACTIVATE => freezer_activate
+		FREEZER_ACTIVATE => freezer_activate,
+		
+		PS2_KEYS_NEXT_OUT => ps2_keys_next,
+		PS2_KEYS => ps2_keys
 	);
 
 CONSOL_START <= CONSOL_START_RAW or (mist_buttons(1) and not(joy1_n(4)));
@@ -537,8 +573,10 @@ LED <= zpu_sio_rxd;
 	begin
 		if ((RESET_N and SDRAM_RESET_N and not(reset_atari))='0') then
 			half_scandouble_enable_reg <= '0';
+			scanlines_reg <= '0';
 		elsif (clk'event and clk='1') then
 			half_scandouble_enable_reg <= half_scandouble_enable_next;
+			scanlines_reg <= scanlines_next;
 		end if;
 	end process;
 
@@ -559,7 +597,7 @@ LED <= zpu_sio_rxd;
 
 		colour_enable => half_scandouble_enable_reg,
 		doubled_enable => '1',
-		scanlines_on => mist_switches(1),
+		scanlines_on => scanlines_reg,
 		
 		-- GTIA interface
 		pal => PAL,
@@ -621,7 +659,9 @@ zpu: entity work.zpucore
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
-		ZPU_IN1 => X"00000"&(FKEYS(11) or (mist_buttons(0) and not(joy1_n(4))))&(FKEYS(10) or (mist_buttons(0) and joy1_n(4) and joy_still))&(FKEYS(9) or (mist_buttons(0) and joy1_n(4) and not(joy_still)))&FKEYS(8 downto 0),
+		ZPU_IN1 => X"000"&
+				"00"&ps2_keys(16#76#)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
+				(FKEYS(11) or (mist_buttons(0) and not(joy1_n(4))))&(FKEYS(10) or (mist_buttons(0) and joy1_n(4) and joy_still))&(FKEYS(9) or (mist_buttons(0) and joy1_n(4) and not(joy_still)))&FKEYS(8 downto 0),
 		ZPU_IN2 => X"00000000",
 		ZPU_IN3 => X"00000000",
 		ZPU_IN4 => X"00000000",
