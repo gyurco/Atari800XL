@@ -105,11 +105,13 @@ foreach my $variant (sort keys %variants)
 	`mkdir $dir/svideo`;
 	`cp ../common/a8core/* ./$dir/common/a8core`;
 	`cp ../common/components/* ./$dir/common/components`;
+	mkdir "./$dir/common/components/usbhostslave";
+	`cp ../common/components/usbhostslave/trunk/RTL/*/*.v ./$dir/common/components/usbhostslave`;
 	`cp ../common/zpu/* ./$dir/common/zpu`;
 	`cp ./svideo/* ./$dir/svideo`;
 
 	chdir $dir;
-	`../makeqsf ../atari800core.qsf ./svideo ./common/a8core ./common/components ./common/zpu`;
+	`../makeqsf ../atari800core.qsf ./svideo ./common/a8core ./common/components ./common/zpu ./common/components/usbhostslave`;
 
 	foreach my $key (sort keys %{$variants{$variant}})
 	{

@@ -65,11 +65,36 @@ ENTITY atari800core_mcc IS
 		SD_DAT0 :  IN  STD_LOGIC;
 		SD_CLK :  OUT  STD_LOGIC;
 		SD_CMD :  OUT  STD_LOGIC;
-		SD_DAT3 :  OUT  STD_LOGIC
+		SD_DAT3 :  OUT  STD_LOGIC;
+
+		USB2_P :  INOUT  STD_LOGIC;
+		USB2_N :  INOUT  STD_LOGIC
 	);
 END atari800core_mcc;
 
 ARCHITECTURE vhdl OF atari800core_mcc IS 
+
+component usbHostCyc2Wrap_usb1t11
+port (
+  clk_i :in std_logic;
+  rst_i :in std_logic;
+  address_i : in std_logic_vector(7 downto 0);
+  data_i : in std_logic_vector(7 downto 0);
+  data_o : out std_logic_vector(7 downto 0);
+  we_i :in std_logic;
+  strobe_i :in std_logic;
+  ack_o :out std_logic;
+  irq :out std_logic;
+  usbClk :in std_logic;
+
+  USBWireVPin :in std_logic;
+  USBWireVMin :in std_logic;
+  USBWireVPout :out std_logic;
+  USBWireVMout :out std_logic;
+  USBWireOE_n :out std_logic;
+  USBFullSpeed :out std_logic
+);
+end component;
 
 component hq_dac
 port (
@@ -340,7 +365,43 @@ END COMPONENT;
 	signal freezer_enable : std_logic;
 	signal freezer_activate: std_logic;
 
+	-- usb
+	signal CLK_USB : std_logic;
+
+	signal USBWireVPin : std_logic;
+	signal USBWireVMin : std_logic;
+	signal USBWireVPout : std_logic;
+	signal USBWireVMout : std_logic;
+	signal USBWireOE_n : std_logic;
+
 BEGIN 
+
+usbcon : usbHostCyc2Wrap_usb1t11
+port map 
+(
+  clk_i => clk,
+  rst_i => not(reset_n),
+  address_i => others=>('0'),
+  data_i => others=>('0'),
+  data_o =>open,
+  we_i => '0',
+  strobe_i => open,
+  ack_o => open,
+  irq => open,
+  usbClk => CLK_USB,
+
+  USBWireVPin => USBWireVPin,
+  USBWireVMin => USBWireVMin,
+  USBWireVPout => USBWireVPout,
+  USBWireVMout => USBWireVMout,
+  USBWireOE_n => USBWireOE_n,
+  USBFullSpeed => open
+);
+
+USB2_P <= USBWireVPout when USBWireOE_n='0' else 'Z';
+USB2_N <= USBWireVMout when USBWireOE_n='0' else 'Z';
+USBWireVPin <= USB2_P;
+USBWireVMin <= USB2_N;
 
 dac_left : hq_dac
 port map
@@ -370,6 +431,11 @@ gen_fake_pll : if ext_clock=1 generate
 	SCANDOUBLE_CLK <= EXT_SCANDOUBLE_CLK(1);
 	PLL_LOCKED <= EXT_PLL_LOCKED(1);
 end generate;
+
+usb_pll : entity work.usbpll
+PORT MAP(inclk0 => FPGA_CLK,
+	 c0 => CLK_USB,
+	 locked => open);
 
 gen_real_pll : if ext_clock=0 generate
 	gen_tv_pal : if tv=1 generate

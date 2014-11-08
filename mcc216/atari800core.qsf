@@ -290,6 +290,7 @@ set_instance_assignment -name CLOCK_TO_OUTPUT_DELAY 1 -to SDRAM_WE_n
 set_instance_assignment -name IO_MAXIMUM_TOGGLE_RATE "0 MHz" -to VGA_B[3]
 
 
+set_global_assignment -name QIP_FILE usbpll.qip
 set_global_assignment -name QIP_FILE pal_pll.qip
 set_global_assignment -name QIP_FILE pll_downstream_pal.qip
 set_global_assignment -name QIP_FILE ntsc_pll.qip
