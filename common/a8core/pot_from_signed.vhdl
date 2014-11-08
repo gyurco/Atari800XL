@@ -18,7 +18,8 @@ GENERIC
 	cycle_length : integer := 32;
 	line_length : integer := 114;
 	min_lines : integer := 0;
-	max_lines : integer := 227
+	max_lines : integer := 227;
+	reverse : integer := 0
 );
 PORT 
 ( 
@@ -71,7 +72,11 @@ pot_clock_div : entity work.enable_divider
 		count_next <= count_reg;
 
 		if (pot_reset ='1' or enabled = '0') then
-			count_next <= std_logic_vector(to_unsigned(to_integer(pos)+128+(line_length*min_lines/count_cycles),10));
+			if (reverse = 1) then
+				count_next <= std_logic_vector(to_unsigned(-to_integer(pos)+127+(line_length*min_lines/count_cycles),10));
+			else
+				count_next <= std_logic_vector(to_unsigned(to_integer(pos)+128+(line_length*min_lines/count_cycles),10));
+			end if;
 		end if;
 
 		if (count_enable = '1') then
