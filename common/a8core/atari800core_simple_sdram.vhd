@@ -224,7 +224,8 @@ SDRAM_DI <= PBI_WRITE_DATA;
 pot0 : entity work.pot_from_signed
 	GENERIC MAP
 	(
-		cycle_length=>cycle_length
+		cycle_length=>cycle_length,
+		reverse => 1
 	)
 	PORT MAP
 	(
@@ -238,7 +239,8 @@ pot0 : entity work.pot_from_signed
 pot1 : entity work.pot_from_signed
 	GENERIC MAP
 	(
-		cycle_length=>cycle_length
+		cycle_length=>cycle_length,
+		reverse => 1
 	)
 	PORT MAP
 	(
@@ -252,7 +254,8 @@ pot1 : entity work.pot_from_signed
 pot2 : entity work.pot_from_signed
 	GENERIC MAP
 	(
-		cycle_length=>cycle_length
+		cycle_length=>cycle_length,
+		reverse => 1
 	)
 	PORT MAP
 	(
@@ -266,7 +269,8 @@ pot2 : entity work.pot_from_signed
 pot3 : entity work.pot_from_signed
 	GENERIC MAP
 	(
-		cycle_length=>cycle_length
+		cycle_length=>cycle_length,
+		reverse => 1
 	)
 	PORT MAP
 	(
