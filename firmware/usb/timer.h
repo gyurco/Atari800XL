@@ -3,7 +3,8 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#include <inttypes.h>
+//#include <inttypes.h>
+#include <common/integer.h>
 typedef uint32_t msec_t;
 
 void timer_init();

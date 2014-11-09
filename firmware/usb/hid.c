@@ -1,4 +1,4 @@
-#include <stdio.h>
+//#include <stdio.h>
 
 #include "usb.h"
 #include "timer.h"
@@ -316,7 +316,7 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
       hid_set_protocol(dev, info->iface[i].iface_idx, HID_BOOT_PROTOCOL);
   }
   
-  puts("HID configured");
+  iprintf("HID configured\n");
 
   // update leds
   for(i=0;i<MAX_IFACES;i++)
@@ -330,7 +330,7 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
 static uint8_t usb_hid_release(usb_device_t *dev) {
   usb_hid_info_t *info = &(dev->hid_info);
 
-  puts(__FUNCTION__);
+  iprintf("%s\n",__FUNCTION__);
 
   uint8_t i;
   // check if a joystick is released

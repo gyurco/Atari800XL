@@ -1,4 +1,4 @@
-#include <stdio.h>
+//#include <stdio.h>
 
 #include "usb.h"
 #include "timer.h"
@@ -59,20 +59,20 @@ static uint8_t usb_hub_init(usb_device_t *dev) {
 
   rcode = usb_get_dev_descr( dev, 8, &buf.dev_desc );
   if( rcode ) {
-    puts("failed to get device descriptor 1");
+    iprintf("failed to get device descriptor 1\n");
     return rcode;
   }
   
   // Extract device class from device descriptor
   // If device class is not a hub return
   if (buf.dev_desc.bDeviceClass != USB_CLASS_HUB) {
-    puts("not a hub!");    
+    iprintf("not a hub!\n");    
     return USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED;
   }
 
   // try to re-read full device descriptor from newly assigned address
   if(rcode = usb_get_dev_descr( dev, sizeof(usb_device_descriptor_t), &buf.dev_desc )) {
-    puts("failed to get device descriptor 2");
+    iprintf("failed to get device descriptor 2\n");
     return rcode;
   }
  
@@ -80,7 +80,7 @@ static uint8_t usb_hub_init(usb_device_t *dev) {
   rcode = usb_hub_get_hub_descriptor(dev, 0, 8, &buf.hub_desc);
     
   if (rcode) {
-    puts("failed to get hub descriptor");
+    iprintf("failed to get hub descriptor\n");
     return rcode;
   }
   
@@ -90,7 +90,7 @@ static uint8_t usb_hub_init(usb_device_t *dev) {
   // Read configuration Descriptor in Order To Obtain Proper Configuration Value
   rcode = usb_get_conf_descr(dev, sizeof(usb_configuration_descriptor_t), 0, &buf.conf_desc);
   if (rcode) {
-    puts("failed to read configuration descriptor");
+    iprintf("failed to read configuration descriptor\n");
     return rcode;
   }
 
@@ -114,7 +114,7 @@ static uint8_t usb_hub_init(usb_device_t *dev) {
 }
 
 static uint8_t usb_hub_release(usb_device_t *dev) {
-  puts(__FUNCTION__);
+  iprintf("%s\n",__FUNCTION__);
 
   // root hub unplugged
   if(!dev->parent)
@@ -126,23 +126,23 @@ static uint8_t usb_hub_release(usb_device_t *dev) {
 static void usb_hub_show_port_status(uint8_t port, uint16_t status, uint16_t changed) {
   iprintf("Status of port %d:\n", port);
 
-  if(status & USB_HUB_PORT_STATUS_PORT_CONNECTION)    puts(" connected");
-  if(status & USB_HUB_PORT_STATUS_PORT_ENABLE)        puts(" enabled");
-  if(status & USB_HUB_PORT_STATUS_PORT_SUSPEND)       puts(" suspended");
-  if(status & USB_HUB_PORT_STATUS_PORT_OVER_CURRENT)  puts(" over current");
-  if(status & USB_HUB_PORT_STATUS_PORT_RESET)         puts(" reset");
-  if(status & USB_HUB_PORT_STATUS_PORT_POWER)         puts(" powered");
-  if(status & USB_HUB_PORT_STATUS_PORT_LOW_SPEED)     puts(" low speed");
-  if(status & USB_HUB_PORT_STATUS_PORT_HIGH_SPEED)    puts(" high speed");
-  if(status & USB_HUB_PORT_STATUS_PORT_TEST)          puts(" test");
-  if(status & USB_HUB_PORT_STATUS_PORT_INDICATOR)     puts(" indicator");
+  if(status & USB_HUB_PORT_STATUS_PORT_CONNECTION)    iprintf(" connected\n");
+  if(status & USB_HUB_PORT_STATUS_PORT_ENABLE)        iprintf(" enabled\n");
+  if(status & USB_HUB_PORT_STATUS_PORT_SUSPEND)       iprintf(" suspended\n");
+  if(status & USB_HUB_PORT_STATUS_PORT_OVER_CURRENT)  iprintf(" over current\n");
+  if(status & USB_HUB_PORT_STATUS_PORT_RESET)         iprintf(" reset\n");
+  if(status & USB_HUB_PORT_STATUS_PORT_POWER)         iprintf(" powered\n");
+  if(status & USB_HUB_PORT_STATUS_PORT_LOW_SPEED)     iprintf(" low speed\n");
+  if(status & USB_HUB_PORT_STATUS_PORT_HIGH_SPEED)    iprintf(" high speed\n");
+  if(status & USB_HUB_PORT_STATUS_PORT_TEST)          iprintf(" test\n");
+  if(status & USB_HUB_PORT_STATUS_PORT_INDICATOR)     iprintf(" indicator\n");
 
   iprintf("Changes on port %d:\n", port);
-  if(changed & USB_HUB_PORT_STATUS_PORT_CONNECTION)   puts(" connected");
-  if(changed & USB_HUB_PORT_STATUS_PORT_ENABLE)       puts(" enabled");
-  if(changed & USB_HUB_PORT_STATUS_PORT_SUSPEND)      puts(" suspended");
-  if(changed & USB_HUB_PORT_STATUS_PORT_OVER_CURRENT) puts(" over current");
-  if(changed & USB_HUB_PORT_STATUS_PORT_RESET)        puts(" reset");
+  if(changed & USB_HUB_PORT_STATUS_PORT_CONNECTION)   iprintf(" connected\n");
+  if(changed & USB_HUB_PORT_STATUS_PORT_ENABLE)       iprintf(" enabled\n");
+  if(changed & USB_HUB_PORT_STATUS_PORT_SUSPEND)      iprintf(" suspended\n");
+  if(changed & USB_HUB_PORT_STATUS_PORT_OVER_CURRENT) iprintf(" over current\n");
+  if(changed & USB_HUB_PORT_STATUS_PORT_RESET)        iprintf(" reset\n");
 }
 
 static uint8_t usb_hub_port_status_change(usb_device_t *dev, uint8_t port, hub_event_t evt) {

@@ -1,4 +1,4 @@
-#include <stdio.h>
+//#include <stdio.h>
 
 #include "timer.h"
 #include "usb.h"
@@ -22,7 +22,7 @@ static uint8_t controlAdj;
 static usb_device_t dev[USB_NUMDEVICES];
 
 void usb_reset_state() {
-  puts(__FUNCTION__);
+  iprintf("%s\n",__FUNCTION__);
   bmHubPre	 = 0;
 }
 
@@ -31,7 +31,7 @@ usb_device_t *usb_get_devices() {
 }
 
 void usb_init() {
-  puts(__FUNCTION__);
+  iprintf("%s\n",__FUNCTION__);
 
   // MWW max3421e_init();   // init underlaying hardware layer
   usbhostslave[OHS900_HOSTSLAVECTLREG] = OHS900_HSCTLREG_RESET_CORE;
@@ -489,7 +489,7 @@ uint8_t usb_configure(uint8_t parent, uint8_t port, bool lowspeed) {
     iprintf("Setting addr %x\n", i+1);
     rcode = usb_set_addr(d, i+1);
     if(rcode) {
-      puts("failed to assign address");
+      iprintf("failed to assign address\n");
       return rcode;
     }
 
@@ -502,13 +502,13 @@ uint8_t usb_configure(uint8_t parent, uint8_t port, bool lowspeed) {
       if (!rcode) {
 	d->class = class_list[c];
 
-	puts(" -> accepted :-)");
+	iprintf(" -> accepted :-)\n");
 	// ok, device accepted by class
 
 	return 0;
       }
   
-      puts(" -> not accepted :-(");
+      iprintf(" -> not accepted :-(\n");
     }
   } else
     iprintf("no more free entries\n");

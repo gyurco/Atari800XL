@@ -1,8 +1,10 @@
 #ifndef USB_H
 #define USB_H
 
-#include <inttypes.h>
-#include <stdbool.h>
+//#include <inttypes.h>
+//#include <stdbool.h>
+
+#include "common/integer.h"
 
 /* NAK powers. To save space in endpoint data structure, amount of retries */
 /* before giving up and returning 0x4 is stored in bmNakPower as a power of 2.*/

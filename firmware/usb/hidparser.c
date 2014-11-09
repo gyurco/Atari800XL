@@ -1,8 +1,8 @@
 // http://www.frank-zhao.com/cache/hid_tutorial_1.php
 
-#include <inttypes.h>
-#include <stdbool.h>
-#include <stdio.h>
+//#include <inttypes.h>
+//#include <stdbool.h>
+//#include <stdio.h>
 
 #include "hidparser.h"
 #include "debug.h"
@@ -71,7 +71,9 @@ bool parse_report_descriptor(uint8_t *rep, uint16_t rep_size, hid_config_t *conf
   uint8_t setup_complete = 0;
 
   // joystick/mouse components
-  int8_t axis[2] = { -1, -1};
+  int8_t axis[2]; // MWW = { -1, -1}; (this instantiates memcpy!)
+  axis[0] = -1;
+  axis[1] = -1;
   uint8_t btns = 0;
 
   conf->type = CONFIG_TYPE_NONE;

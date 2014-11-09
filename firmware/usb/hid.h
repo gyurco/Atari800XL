@@ -1,8 +1,9 @@
 #ifndef HID_H
 #define HID_H
 
-#include <stdbool.h>
-#include <inttypes.h>
+//#include <stdbool.h>
+//#include <inttypes.h>
+#include <common/integer.h>
 #include "hidparser.h"
 
 #define HID_LED_NUM_LOCK    0x01

@@ -1,8 +1,9 @@
 #ifndef HUB_H
 #define HUB_H
 
-#include <stdbool.h>
-#include <inttypes.h>
+//#include <stdbool.h>
+//#include <inttypes.h>
+#include <common/integer.h>
 
 typedef struct {
   uint8_t  bNbrPorts;	    // number of ports

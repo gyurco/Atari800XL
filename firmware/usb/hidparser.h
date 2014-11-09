@@ -1,6 +1,8 @@
 #ifndef HIDPARSER_H
 #define HIDPARSER_H
 
+#include <common/integer.h>
+
 #define CONFIG_TYPE_NONE     0
 #define CONFIG_TYPE_MOUSE    1
 #define CONFIG_TYPE_KEYBOARD 2

@@ -1,3 +1,5 @@
+#include "printf.h"
+
 void event_keyboard(uint8_t i, uint8_t buf[])
 {
 	int j;
