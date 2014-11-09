@@ -381,8 +381,8 @@ port map
 (
   clk_i => clk,
   rst_i => not(reset_n),
-  address_i => others=>('0'),
-  data_i => others=>('0'),
+  address_i => (others=>'0'),
+  data_i => (others=>'0'),
   data_o =>open,
   we_i => '0',
   strobe_i => open,
