@@ -385,7 +385,7 @@ port map
   data_i => (others=>'0'),
   data_o =>open,
   we_i => '0',
-  strobe_i => open,
+  strobe_i => '0',
   ack_o => open,
   irq => open,
   usbClk => CLK_USB,
