@@ -24,7 +24,7 @@ END gtia_palette;
 ARCHITECTURE vhdl OF gtia_palette IS
 begin
 		--altirra_pal_default.pal
-		process(atari_colour)
+		process(atari_colour,pal)
 		begin
 			case atari_colour is
 				when X"00" =>
