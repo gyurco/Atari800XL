@@ -97,7 +97,7 @@ begin
 		end if;
 	end process;
 
-	process (enable, keyboard_response, scan_enable, key_held_reg, my_key, state_reg,bincnt_reg, compare_latch_reg, break_pressed_reg, shift_pressed_reg, break_irq_reg, control_pressed_reg, keycode_latch_reg, debounce_disable)
+	process (enable, keyboard_response, scan_enable, key_held_reg, my_key, state_reg,bincnt_reg, compare_latch_reg, break_pressed_next, break_pressed_reg, shift_pressed_reg, break_irq_reg, control_pressed_reg, keycode_latch_reg, debounce_disable)
 	begin
 		bincnt_next <= bincnt_reg;
 		state_next <= state_reg;
