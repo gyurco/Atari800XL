@@ -127,6 +127,27 @@ gen_internal_os : if internal_rom=1 generate
 	rom_request_complete <= rom_request_reg;
 	
 end generate;
+
+gen_internal_os_nobasic : if internal_rom=5 generate
+	rom16a : entity work.os16
+	PORT MAP(clock => clock,
+			 address => rom_addr(13 downto 0),
+			 q => ROM16_data
+			 );			 
+
+	process(rom16_data,basic_data, rom_addr(15 downto 0))
+	begin
+		ROM_DATA <= ROM16_DATA;
+		if (rom_addr(15)='1') then
+			ROM_DATA <= x"FF";
+		end if;
+	end process;
+
+	rom_request_complete <= rom_request_reg;
+	
+end generate;
+
+
 gen_no_internal_os : if internal_rom=0 generate
 	ROM16_data <= (others=>'0');
 
