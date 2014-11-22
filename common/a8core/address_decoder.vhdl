@@ -565,6 +565,8 @@ end generate;
 		emu_cart_address, emu_cart_address_enable,
 		emu_cart_cctl_dout, emu_cart_cctl_dout_enable,
 		
+		pbi_enable,
+		
 		-- input data from n sources
 		GTIA_DATA,POKEY_DATA,POKEY2_DATA,PIA_DATA,ANTIC_DATA,CART_ROM_DATA,ROM_DATA,RAM_DATA,SDRAM_DATA,
 		CACHE_GTIA_DATA,CACHE_POKEY_DATA,CACHE_POKEY2_DATA,CACHE_ANTIC_DATA,
