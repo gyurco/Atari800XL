@@ -4,42 +4,45 @@
 
 static const int screen_address = 11328;
 
-#define zpu_in1 ((int volatile *)(0*4+config_regbase))
-#define zpu_in2 ((int volatile *)(1*4+config_regbase))
-#define zpu_in3 ((int volatile *)(2*4+config_regbase))
-#define zpu_in4 ((int volatile *)(3*4+config_regbase))
+#define zpu_in1 ((int volatile *)(0*4+zpu_regbase))
+#define zpu_in2 ((int volatile *)(1*4+zpu_regbase))
+#define zpu_in3 ((int volatile *)(2*4+zpu_regbase))
+#define zpu_in4 ((int volatile *)(3*4+zpu_regbase))
 
-#define zpu_out1 ((int volatile *)(4*4+config_regbase))
-#define zpu_out2 ((int volatile *)(5*4+config_regbase))
-#define zpu_out3 ((int volatile *)(6*4+config_regbase))
-#define zpu_out4 ((int volatile *)(7*4+config_regbase))
+#define zpu_out1 ((int volatile *)(4*4+zpu_regbase))
+#define zpu_out2 ((int volatile *)(5*4+zpu_regbase))
+#define zpu_out3 ((int volatile *)(6*4+zpu_regbase))
+#define zpu_out4 ((int volatile *)(7*4+zpu_regbase))
+#define zpu_out5 ((int volatile *)(14*4+zpu_regbase))
+#define zpu_out6 ((int volatile *)(15*4+zpu_regbase))
 
-#define zpu_pause ((int volatile *)(8*4+config_regbase))
+#define zpu_pause ((int volatile *)(8*4+zpu_regbase))
+#define zpu_timer ((int volatile *)(8*4+zpu_regbase))
 
-#define zpu_spi_data ((int volatile *)(9*4+config_regbase))
-#define zpu_spi_state ((int volatile *)(10*4+config_regbase))
+#define zpu_spi_data ((int volatile *)(9*4+zpu_regbase))
+#define zpu_spi_state ((int volatile *)(10*4+zpu_regbase))
 
-#define zpu_sio ((int volatile *)(11*4+config_regbase))
+#define zpu_sio ((int volatile *)(11*4+zpu_regbase))
 
-#define zpu_board ((int volatile *)(12*4+config_regbase))
+#define zpu_board ((int volatile *)(12*4+zpu_regbase))
 
-#define zpu_spi_dma ((int volatile *)(13*4+config_regbase))
+#define zpu_spi_dma ((int volatile *)(13*4+zpu_regbase))
 
-#define zpu_pokey_audf0 ((unsigned char volatile *)(0x10*4+config_regbase))
-#define zpu_pokey_audc0 ((unsigned char volatile *)(0x11*4+config_regbase))
-#define zpu_pokey_audf1 ((unsigned char volatile *)(0x12*4+config_regbase))
-#define zpu_pokey_audc1 ((unsigned char volatile *)(0x13*4+config_regbase))
-#define zpu_pokey_audf2 ((unsigned char volatile *)(0x14*4+config_regbase))
-#define zpu_pokey_audc2 ((unsigned char volatile *)(0x15*4+config_regbase))
-#define zpu_pokey_audf3 ((unsigned char volatile *)(0x16*4+config_regbase))
-#define zpu_pokey_audc3 ((unsigned char volatile *)(0x17*4+config_regbase))
+#define zpu_pokey_audf0 ((unsigned char volatile *)(0x0*4+pokey_regbase))
+#define zpu_pokey_audc0 ((unsigned char volatile *)(0x1*4+pokey_regbase))
+#define zpu_pokey_audf1 ((unsigned char volatile *)(0x2*4+pokey_regbase))
+#define zpu_pokey_audc1 ((unsigned char volatile *)(0x3*4+pokey_regbase))
+#define zpu_pokey_audf2 ((unsigned char volatile *)(0x4*4+pokey_regbase))
+#define zpu_pokey_audc2 ((unsigned char volatile *)(0x5*4+pokey_regbase))
+#define zpu_pokey_audf3 ((unsigned char volatile *)(0x6*4+pokey_regbase))
+#define zpu_pokey_audc3 ((unsigned char volatile *)(0x7*4+pokey_regbase))
 
-#define zpu_pokey_audctl ((unsigned char volatile *)(0x18*4+config_regbase))
+#define zpu_pokey_audctl ((unsigned char volatile *)(0x8*4+pokey_regbase))
 
-#define zpu_pokey_skrest ((unsigned char volatile *)(0x1a*4+config_regbase))
-#define zpu_pokey_serout ((unsigned char volatile *)(0x1d*4+config_regbase))
-#define zpu_pokey_irqen ((unsigned char volatile *)(0x1e*4+config_regbase))
-#define zpu_pokey_skctl ((unsigned char volatile *)(0x1f*4+config_regbase))
+#define zpu_pokey_skrest ((unsigned char volatile *)(0xa*4+pokey_regbase))
+#define zpu_pokey_serout ((unsigned char volatile *)(0xd*4+pokey_regbase))
+#define zpu_pokey_irqen ((unsigned char volatile *)(0xe*4+pokey_regbase))
+#define zpu_pokey_skctl ((unsigned char volatile *)(0xf*4+pokey_regbase))
 
 #define atari_nmien ((unsigned char volatile *)(0xd40e + atari_regbase))
 #define atari_dlistl ((unsigned char volatile *)(0xd402 + atari_regbase))

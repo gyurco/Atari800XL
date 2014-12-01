@@ -129,8 +129,8 @@ void check_keys(void)
 		switch (ch) {
 		case KEY_F(12):
 			*zpu_in1 = 1<<11; return;
-		case 27: // ESCAPE:
-			longjmp(exit_jmp_buf, 1);
+		case KEY_F(11):
+			*zpu_in1 = 1<<10; return;
 		}
 	}
 }
@@ -143,6 +143,7 @@ void joystick_poll(struct joystick_status * status)
 	status->x_ = 0;
 	status->y_ = 0;
 	status->fire_ = 0;
+	status->escape_ = 0;
 
 
 	switch (ch) {
@@ -154,7 +155,7 @@ void joystick_poll(struct joystick_status * status)
 	case 13:
 		status->fire_ = 1; break;
 	case 27: // ESCAPE:
-		longjmp(exit_jmp_buf, 1);
+		status->escape_ = 1; break;
 	default: break;
 	}
 }

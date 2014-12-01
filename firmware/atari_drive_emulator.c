@@ -114,16 +114,13 @@ void getCommand(struct command * cmd)
 
 	//printf("Waiting for command\n");
 	//USART_Data_Ready();
-	while (0 == USART_Command_Line());
+	while (0 == USART_Command_Line()) actions();
 	//printf("Init:");
 	//printf("%d",*zpu_sio);
 	USART_Init(speed+6);
 	//printf("%d",speed);
 	//printf("\n");
-	while (1 == USART_Command_Line())
-	{
-		actions();
-	}
+	while (1 == USART_Command_Line()) actions();
 	for (i=0;i!=5;++i)
 		((char *)cmd)[i] = USART_Receive_Byte();
 	/*cmd->deviceId = USART_Receive_Byte();
@@ -131,10 +128,7 @@ void getCommand(struct command * cmd)
 	cmd->aux1 = USART_Receive_Byte();
 	cmd->aux2 = USART_Receive_Byte();
 	cmd->chksum = USART_Receive_Byte();*/
-	while (0 == USART_Command_Line())
-	{
-		actions();
-	}
+	while (0 == USART_Command_Line());
 	//printf("cmd:");
 	//printf("Gone high\n");
 	atari_sector_buffer[0] = cmd->deviceId;

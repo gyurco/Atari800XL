@@ -20,6 +20,10 @@ typedef struct {
 	uint8_t byte_offset;
 	uint8_t size;          // 8 or 16 bits supported
 	struct {
+/*	  uint8_t minl;
+	  uint8_t minh;
+	  uint8_t maxl;
+	  uint8_t maxh;*/
 	  uint16_t min;
 	  uint16_t max;
 	} logical;
@@ -28,7 +32,7 @@ typedef struct {
       struct {
 	uint8_t byte_offset;
 	uint8_t bitmask;
-      } button[4];             // 4 buttons
+      } button[24];             // 24 buttons
     } joystick;
   };
 } hid_config_t;

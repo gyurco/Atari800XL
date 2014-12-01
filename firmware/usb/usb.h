@@ -5,6 +5,7 @@
 //#include <stdbool.h>
 
 #include "common/integer.h"
+#include "timer.h"
 
 /* NAK powers. To save space in endpoint data structure, amount of retries */
 /* before giving up and returning 0x4 is stored in bmNakPower as a power of 2.*/
@@ -70,15 +71,12 @@ typedef struct {
     } __attribute__((packed));
   } __attribute__((packed)) ReqType_u;
   uint8_t    bRequest;		   //   1      Request
-  union {
-    uint16_t    wValue;            //   2/3    Depends on bRequest
-    struct {
-      uint8_t    wValueLo;
-      uint8_t    wValueHi;
-    } __attribute__((packed));
-  }  __attribute__((packed)) wVal_u;
-  uint16_t    wIndex;              //   4      Depends on bRequest
-  uint16_t    wLength;             //   6      Depends on bRequest
+  uint8_t    wValueL;
+  uint8_t    wValueH;
+  uint8_t    wIndexL;              //   4      Depends on bRequest
+  uint8_t    wIndexH;              //   5      Depends on bRequest
+  uint8_t    wLengthL;             //   6      Depends on bRequest
+  uint8_t    wLengthH;             //   7      Depends on bRequest
 } __attribute__((packed)) setup_pkt_t;
 
 // Additional Error Codes
@@ -106,12 +104,21 @@ typedef struct usb_device_entry {
   uint8_t parent;                          // parent device address
   uint8_t port;
   bool lowspeed;
+  char volatile * host_addr;
 
   union {
     usb_hub_info_t hub_info;
     usb_hid_info_t hid_info;
   };
 } usb_device_t;
+
+struct usb_host
+{
+	uint8_t usb_task_state;
+        unsigned char * addr;
+        msec_t poll;
+        msec_t delay;
+};
 
 #define USB_CLASS_USE_CLASS_INFO          0x00    // Use Class Info in the Interface Descriptors
 #define USB_CLASS_AUDIO                   0x01    // Audio
@@ -143,14 +150,18 @@ typedef struct usb_device_entry {
 typedef struct {
   uint8_t  bLength;            // Length of this descriptor.
   uint8_t  bDescriptorType;    // DEVICE descriptor type (USB_DESCRIPTOR_DEVICE).
-  uint16_t bcdUSB;	       // USB Spec Release Number (BCD).
+  uint8_t bcdUSBL;	       // USB Spec Release Number (BCD).
+  uint8_t bcdUSBH;	       // USB Spec Release Number (BCD).
   uint8_t  bDeviceClass;       // Class code (assigned by the USB-IF). 0xFF-Vendor specific.
   uint8_t  bDeviceSubClass;    // Subclass code (assigned by the USB-IF).
   uint8_t  bDeviceProtocol;    // Protocol code (assigned by the USB-IF). 0xFF-Vendor specific.
   uint8_t  bMaxPacketSize0;    // Maximum packet size for endpoint 0.
-  uint16_t idVendor;	       // Vendor ID (assigned by the USB-IF).
-  uint16_t idProduct;	       // Product ID (assigned by the manufacturer).
-  uint16_t bcdDevice;	       // Device release number (BCD).
+  uint8_t idVendorL;	       // Vendor ID (assigned by the USB-IF).
+  uint8_t idVendorH;	       // Vendor ID (assigned by the USB-IF).
+  uint8_t idProductL;	       // Product ID (assigned by the manufacturer).
+  uint8_t idProductH;	       // Product ID (assigned by the manufacturer).
+  uint8_t bcdDeviceL;	       // Device release number (BCD).
+  uint8_t bcdDeviceH;	       // Device release number (BCD).
   uint8_t  iManufacturer;      // Index of String Descriptor describing the manufacturer.
   uint8_t  iProduct;           // Index of String Descriptor describing the product.
   uint8_t  iSerialNumber;      // Index of String Descriptor with the device's serial number.
@@ -161,7 +172,8 @@ typedef struct {
 typedef struct {
   uint8_t bLength;             // Length of this descriptor.
   uint8_t bDescriptorType;     // CONFIGURATION descriptor type (USB_DESCRIPTOR_CONFIGURATION).
-  uint16_t wTotalLength;       // Total length of all descriptors for this configuration.
+  uint8_t wTotalLengthL;       // Total length of all descriptors for this configuration.
+  uint8_t wTotalLengthH;       // Total length of all descriptors for this configuration.
   uint8_t bNumInterfaces;      // Number of interfaces in this configuration.
   uint8_t bConfigurationValue; // Value of this configuration (1 based).
   uint8_t iConfiguration;      // Index of String Descriptor describing the configuration.
@@ -230,10 +242,8 @@ typedef struct {
 #define USB_DESCRIPTOR_OTHER_SPEED      0x07    // bDescriptorType for a Other Speed Configuration.
 #define USB_DESCRIPTOR_INTERFACE_POWER  0x08    // bDescriptorType for Interface Power.
 
-void usb_init();
-void usb_poll();
-void usb_SetHubPreMask(void);
-void usb_ResetHubPreMask(void);
+void usb_init(struct usb_host * host, int portnumber);
+void usb_poll(struct usb_host * host);
 
 uint8_t usb_set_addr( usb_device_t *, uint8_t );
 uint8_t usb_ctrl_req( usb_device_t *, uint8_t bmReqType, 

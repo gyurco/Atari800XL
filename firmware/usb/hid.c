@@ -6,9 +6,24 @@
 #include "events.h"
 #include "debug.h"
 #include "usbhostslave.h"
+#include "log.h"
 
-static unsigned char kbd_led_state = 0;  // default: all leds off
-static unsigned char joysticks = 0;      // number of detected usb joysticks
+/*#include "printf.h"
+extern unsigned char volatile * baseaddr;
+extern int debug_pos;*/
+
+unsigned char kbd_led_state;  // default: all leds off
+unsigned char joysticks;      // number of detected usb joysticks
+
+//#define hid_debugf printf
+
+uint16_t bs16(uint8_t * in)
+{
+	uint16_t low = *in;
+	uint16_t high = *(in+1);
+	uint16_t res = (high<<8) | low;
+	return res;
+}
 
 uint8_t hid_get_joysticks(void) {
   return joysticks;
@@ -30,10 +45,17 @@ static uint8_t hid_get_report_descr(usb_device_t *dev, uint8_t i, uint16_t size)
     // we got a report descriptor. Try to parse it
     if(parse_report_descriptor(buf, size, &(info->iface[i].conf))) {
       if(info->iface[i].conf.type == CONFIG_TYPE_JOYSTICK) {
+	//unsigned char * temp = baseaddr;
+	//baseaddr = (unsigned char volatile *)(40000 + atari_regbase);
+	//debug_pos=160;
+	//printf("Detected USB joystick #%d", joysticks);
 	hid_debugf("Detected USB joystick #%d", joysticks);
 
 	info->iface[i].device_type = HID_DEVICE_JOYSTICK;
 	info->iface[i].jindex = joysticks++;
+	//debug_pos=240;
+	//printf("assigned index #%d", info->iface[i].jindex);
+	//baseaddr = temp;
       }
     }
   }
@@ -84,7 +106,10 @@ static uint8_t usb_hid_parse_conf(usb_device_t *dev, uint8_t conf, uint16_t len)
 
   /* scan through all descriptors */
   p = &buf;
+  //LOG("LenX:%d\n", p->conf_desc.bLength);
   while(len > 0) {
+    //printf("L%02d %02d %02d ",len, p->conf_desc.bLength, p->conf_desc.bDescriptorType);
+
     switch(p->conf_desc.bDescriptorType) {
     case USB_DESCRIPTOR_CONFIGURATION:
       // hid_debugf("conf descriptor size %d", p->conf_desc.bLength);
@@ -182,6 +207,8 @@ static uint8_t usb_hid_parse_conf(usb_device_t *dev, uint8_t conf, uint16_t len)
     }
 
     // advance to next descriptor
+   //LOG("Len:%d\n", p->conf_desc.bLength);
+   //timer_delay_msec(1000);
     len -= p->conf_desc.bLength;
     p = (union buf_u*)(p->raw + p->conf_desc.bLength);
   }
@@ -200,6 +227,8 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
   uint8_t rcode;
   uint8_t i;
   uint16_t vid, pid;
+
+  kbd_led_state = 0;  // default: all leds off
 
   usb_hid_info_t *info = &(dev->hid_info);
   
@@ -225,8 +254,8 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
     return rcode;
 
   // save vid/pid for automatic hack later
-  vid = buf.dev_desc.idVendor;
-  pid = buf.dev_desc.idProduct;
+  vid = bs16(&buf.dev_desc.idVendorL);
+  pid = bs16(&buf.dev_desc.idProductL);
 
   uint8_t num_of_conf = buf.dev_desc.bNumConfigurations;
   //  hid_debugf("number of configurations: %d", num_of_conf);
@@ -236,9 +265,11 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
       return rcode;
     
     //    hid_debugf("conf descriptor %d has total size %d", i, buf.conf_desc.wTotalLength);
+    uint16_t wTotalLength = bs16(&buf.conf_desc.wTotalLengthL);
+    LOG("conf descriptor %d has total size %d", i, wTotalLength);
 
     // parse directly if it already fitted completely into the buffer
-    usb_hid_parse_conf(dev, i, buf.conf_desc.wTotalLength);
+    usb_hid_parse_conf(dev, i, wTotalLength);
   }
 
   // check if we found valid hid interfaces
@@ -254,9 +285,12 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
   for(i=0; i<info->bNumIfaces; i++) {
     // no boot mode, try to parse HID report descriptor
     if(!info->iface[i].has_boot_mode) {
+ 
+      //printf("DESC ");
       rcode = hid_get_report_descr(dev, i, info->iface[i].report_desc_size);
       if(rcode) return rcode;
 
+      //printf("TYPE%02x ", info->iface[i].device_type);
       if(info->iface[i].device_type == CONFIG_TYPE_JOYSTICK) {
 	char k;
         
@@ -272,7 +306,7 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
 		  info->iface[i].conf.joystick.axis[k].logical.min,
 		  info->iface[i].conf.joystick.axis[k].logical.max);
 	
-	for(k=0;k<4;k++)
+	for(k=0;k<24;k++)
 	  iprintf("Button%d: @%d/%d\n", k,
 		  info->iface[i].conf.joystick.button[k].byte_offset,
 		  info->iface[i].conf.joystick.button[k].bitmask);
@@ -308,12 +342,17 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
 
     rcode = hid_set_idle(dev, info->iface[i].iface_idx, 0, 0);
     // MWW if (rcode && rcode != hrSTALL)
+    //printf("RCODE:%02x ",rcode);
     if (rcode && rcode != OHS900_STATMASK_STALL_RXED)
       return rcode;
 
+    //printf("BM ");
     // enable boot mode
     if(info->iface[i].has_boot_mode)
+    {
+      //printf("BM ");
       hid_set_protocol(dev, info->iface[i].iface_idx, HID_BOOT_PROTOCOL);
+    }
   }
   
   iprintf("HID configured\n");
@@ -321,7 +360,11 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
   // update leds
   for(i=0;i<MAX_IFACES;i++)
     if(dev->hid_info.iface[i].device_type == HID_DEVICE_KEYBOARD)
-      hid_set_report(dev, dev->hid_info.iface[i].iface_idx, 2, 0, 1, &kbd_led_state);
+    {
+//      printf("LEDS ");
+      uint8_t res = hid_set_report(dev, dev->hid_info.iface[i].iface_idx, 2, 0, 1, &kbd_led_state);
+//      printf("LEDS res:%02x ", res);
+    }
 
   info->bPollEnable = true;
   return 0;
@@ -472,7 +515,7 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
 	  if(iface->device_type == HID_DEVICE_JOYSTICK) {
 	    hid_config_t *conf = &iface->conf;
 	    if(read >= conf->report_size) {
-	      uint8_t jmap = 0;
+	      uint32_t jmap = 0;
 	      uint16_t a[2];
 	      uint8_t idx, i;
 	      
@@ -500,21 +543,23 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
 	      
 	      //	      iprintf("JOY X:%d Y:%d\n", a[0], a[1]);
 	      
-	      // ... and four buttons
-	      for(i=0;i<4;i++)
+	      // ... and twenty-four buttons
+	      for(i=0;i<24;i++)
 		if(buf[conf->joystick.button[i].byte_offset] & 
 		   conf->joystick.button[i].bitmask) jmap |= (JOY_BTN1<<i);
 	      
 	      //	      iprintf("JOY D:%d\n", jmap);
 
-	      // swap joystick 0 and 1 since 1 is the one 
-	      // used primarily on most systems
 	      idx = iface->jindex;
-	      if(idx == 0)      idx = 1;
-	      else if(idx == 1) idx = 0;
 	      
 	      // check if joystick state has changed
 	      if(jmap != iface->jmap) {
+
+		//unsigned char * temp = baseaddr;
+		//baseaddr = (unsigned char volatile *)(40000 + atari_regbase);
+		//debug_pos=80;
+		//printf("jmap %d(%d) changed to %x\n", idx, iface->jindex,jmap);
+		//baseaddr = temp;
 		//	      iprintf("jmap %d changed to %x\n", idx, jmap);
 		
 		// and feed into joystick input system

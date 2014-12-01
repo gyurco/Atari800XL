@@ -20,10 +20,8 @@ int main(int argc, char** argv)
 
 	init_memory();
 
-	if (setjmp(exit_jmp_buf) == 0) {
-		print_log("starting zpu_main\n");
-		zpu_main();
-	}
+	print_log("starting zpu_main\n");
+	zpu_main();
 
 	deinit_curses_screen();
 	return 0;

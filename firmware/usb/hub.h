@@ -80,14 +80,16 @@ typedef struct {
   uint8_t bDescriptorType;	// descriptor type
   uint8_t bNbrPorts;		// number of ports a hub equiped with
   
-  struct {
+ /* struct {
     uint16_t LogPwrSwitchMode	     : 2;
     uint16_t CompoundDevice	     : 1;
     uint16_t OverCurrentProtectMode  : 2;
     uint16_t TTThinkTime	     : 2;
     uint16_t PortIndicatorsSupported : 1;
     uint16_t Reserved		     : 8;
-  } __attribute__((packed));
+  } __attribute__((packed));*/
+  uint8_t bCharacteristicsL;
+  uint8_t bCharacteristicsH;
   
   uint8_t bPwrOn2PwrGood;
   uint8_t bHubContrCurrent;
@@ -96,10 +98,15 @@ typedef struct {
 typedef struct {
   union {
     struct {
-      uint16_t bmStatus;	// port status bits
-      uint16_t bmChange;	// port status change bits
+      uint8_t bmStatusL;	// port status bits
+      uint8_t bmStatusH;	// port status bits
+      uint8_t bmChangeL;	// port status change bits
+      uint8_t bmChangeH;	// port status change bits
     } __attribute__((packed));
-    uint32_t bmEvent;
+    uint8_t bmEventLL;
+    uint8_t bmEventLL2;
+    uint8_t bmEventLL3;
+    uint8_t bmEventLL4;
     uint8_t  evtBuff[4];
   } __attribute__((packed));
 }__attribute__((packed)) hub_event_t;

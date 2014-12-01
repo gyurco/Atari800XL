@@ -66,6 +66,7 @@ void joystick_poll(struct joystick_status * status)
 	status->x_ = 0;
 	status->y_ = 0;
 	status->fire_ = 0;
+	status->escape_ = 0;
 
 	unsigned char porta = *atari_porta;
 	if (0==(porta&0x2)) // down

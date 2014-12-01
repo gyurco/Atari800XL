@@ -5,6 +5,10 @@ static const int main_ram_size=65536;
 
 unsigned char freezer_rom_present;
 
+#ifdef USB
+#include "usb.h"
+#endif
+
 void loadosrom()
 {
 	if (file_size(files[5]) == 0x4000)
@@ -17,9 +21,21 @@ void loadosrom()
 	}
 }
 
+#ifdef USB
+struct usb_host usb_porta;
+#endif
+#ifdef USB2
+struct usb_host usb_portb;
+#endif
 
 void mainmenu()
 {
+#ifdef USB
+	usb_init(&usb_porta,0);
+#endif
+#ifdef USB2
+	usb_init(&usb_portb,1);
+#endif
 	freezer_rom_present = 0;
 	if (SimpleFile_OK == dir_init((void *)DIR_INIT_MEM, DIR_INIT_MEMSIZE))
 	{
@@ -79,7 +95,7 @@ void mainmenu()
 		//printf("DIR init failed\n");
 	}
 	reboot(1);
-	for (;;) actions();
+	for (;;) actions(1);
 }
 
 char const * get_ram()
@@ -120,7 +136,7 @@ char const * get_ram()
 int settings()
 {
 	struct joystick_status joy;
-	joy.x_ = joy.y_ = joy.fire_ = 0;
+	joy.x_ = joy.y_ = joy.fire_ = joy.escape_ = 0;
 
 	int row = 0;
 
@@ -274,13 +290,18 @@ int settings()
 	return 0;
 }
 
-
-
 void actions()
 {
 #ifdef LINUX_BUILD
 	check_keys();
 #endif
+#ifdef USB
+	usb_poll(&usb_porta);
+#endif
+#ifdef USB2
+	usb_poll(&usb_portb);
+#endif
+
 	// Show some activity!
 	//*atari_colbk = *atari_random;
 	
@@ -311,6 +332,29 @@ void actions()
 	}
 	else if (get_hotkey_fileselect())
 	{
+/*#ifdef USB
+		set_pause_6502(1);
+		set_freezer_enable(0);
+		freeze();
+
+		debug_pos = 0;	
+		printf("Hello USB");
+		debug_pos = 80;
+		usb_init();
+		while (1)
+		{
+			usb_poll();
+			if (debug_pos>1000)
+			{
+				debug_pos = 80;
+			}
+		}
+
+		debug_pos = -1;
+		restore();
+		set_freezer_enable(freezer_rom_present);
+		set_pause_6502(0);
+#else*/
 		set_pause_6502(1);
 		set_freezer_enable(0);
 		freeze();

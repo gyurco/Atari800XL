@@ -6,12 +6,16 @@
 
 #include "hidparser.h"
 #include "debug.h"
+//#include "printf.h"
+//#include <stdio.h>
 
-#if 1
+#if 0
 #define hidp_extreme_debugf(...) hidp_debugf(__VA_ARGS__)
 #else
 #define hidp_extreme_debugf(...)
 #endif
+
+//#define hidp_debugf printf
 
 typedef struct {
   uint8_t bSize: 2;
@@ -70,6 +74,14 @@ bool parse_report_descriptor(uint8_t *rep, uint16_t rep_size, hid_config_t *conf
   // that e.g. both axes and the button of a joystick are ready to be used
   uint8_t setup_complete = 0;
 
+  /*printf("PARSE:");
+  int j = 0;
+  for (j=0; j!=rep_size; ++j)
+  {
+    printf("%02x",rep[j]);
+  }
+  printf(" ");*/
+
   // joystick/mouse components
   int8_t axis[2]; // MWW = { -1, -1}; (this instantiates memcpy!)
   axis[0] = -1;
@@ -80,9 +92,19 @@ bool parse_report_descriptor(uint8_t *rep, uint16_t rep_size, hid_config_t *conf
 
   while(rep_size) {
     // extract short item
-    uint8_t tag = ((item_t*)rep)->bTag;
+/*    uint8_t tag = ((item_t*)rep)->bTag;
     uint8_t type = ((item_t*)rep)->bType;
-    uint8_t size = ((item_t*)rep)->bSize;
+    uint8_t size = ((item_t*)rep)->bSize;*/
+/*typedef struct {
+  uint8_t bSize: 2;
+  uint8_t bType: 2;
+  uint8_t bTag: 4;
+} __attribute__((packed)) item_t;*/
+    // MWW - bitfields are not working
+    uint8_t tag = (rep[0]&0xf0)>>4;
+    uint8_t type = (rep[0]&0x0c)>>2;
+    uint8_t size = rep[0]&0x03;
+//    printf("WTF:%02x %02x %02x %02x\n",rep[0],tag,type,size);
 
     rep++;
     rep_size--;   // one byte consumed
@@ -140,9 +162,9 @@ bool parse_report_descriptor(uint8_t *rep, uint16_t rep_size, hid_config_t *conf
 	  // 
 	  if(btns) {
 	    if(conf->type == CONFIG_TYPE_JOYSTICK) {
-	      // scan for up to four buttons
+	      // scan for up to 24 buttons
 	      char b;
-	      for(b=0;b<4;b++) {
+	      for(b=0;b<24;b++) {
 		if(report_count > b) {
 		  uint16_t this_bit = bit_count+b;
 

@@ -22,6 +22,7 @@
 
 #define atari_regbase  ((void*) 0x10000)
 #define atari_regmirror  ((void*) 0x20000)
-#define config_regbase ((void*) 0x40000)
+#define zpu_regbase ((void*) 0x40000)
+#define pokey_regbase ((void*) 0x40400)
 
 #endif

@@ -8,7 +8,8 @@ void* SRAM_BASE;
 void* SDRAM_BASE;
 void* atari_regbase;
 void* atari_regmirror;
-void* config_regbase;
+void* zpu_regbase;
+void* pokey_regbase;
 void* CARTRIDGE_MEM;
 
 void* FREEZER_RAM_MEM;
@@ -47,7 +48,8 @@ void init_memory(void)
 	SDRAM_BASE = sdram_memory;
 	atari_regbase = atari_memory;
 	atari_regmirror = atari_mirror_memory;
-	config_regbase = config_memory;
+	zpu_regbase = config_memory;
+	pokey_regbase = config_memory+0x100*4;
 	CARTRIDGE_MEM = cartridge_memory;
 	FREEZER_RAM_MEM = freezer_ram_memory;
 	FREEZER_ROM_MEM = freezer_rom_memory;

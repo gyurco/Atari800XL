@@ -32,6 +32,7 @@ DE1_DIR = de1
 DE1_5200_DIR = de1_5200
 CHAMELEON_DIR = chameleon
 MCC_DIR = mcc
+MCCTV_DIR = mcctv
 MIST_DIR = mist
 MIST_5200_DIR = mist_5200
 LINUXSIM_DIR = linux
@@ -42,6 +43,7 @@ DE1_BUILD_DIR = $(BUILD_DIR)/$(DE1_DIR)
 DE1_5200_BUILD_DIR = $(BUILD_DIR)/$(DE1_5200_DIR)
 CHAMELEON_BUILD_DIR = $(BUILD_DIR)/$(CHAMELEON_DIR)
 MCC_BUILD_DIR = $(BUILD_DIR)/$(MCC_DIR)
+MCCTV_BUILD_DIR = $(BUILD_DIR)/$(MCCTV_DIR)
 MIST_BUILD_DIR = $(BUILD_DIR)/$(MIST_DIR)
 MIST_5200_BUILD_DIR = $(BUILD_DIR)/$(MIST_5200_DIR)
 LINUXSIM_BUILD_DIR = $(BUILD_DIR)/$(LINUXSIM_DIR)
@@ -57,6 +59,7 @@ A800_SRC_LIGHT = a800/freeze.c  a800/mainmenu.c atari_drive_emulator.c
 A800_SRC = ${A800_SRC_LIGHT} a800/joystick.c libgcc_divmod.c
 5200_SRC_LIGHT = 5200/freeze.c  5200/mainmenu.c
 5200_SRC = ${5200_SRC_LIGHT} 5200/joystick.c
+USB_SRC = usb/hid.c  usb/hidparser.c  usb/hub.c usb/timer.c  usb/usb.c
 
 AEON_LITE_PRJ = AEON_LITE
 AEON_LITE_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) de1/dirs.c
@@ -75,8 +78,14 @@ CHAMELEON_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) chameleon/dirs.c
 CHAMELEON_OBJ = $(patsubst %.c,$(CHAMELEON_BUILD_DIR)/%.o,$(CHAMELEON_SRC))
 
 MCC_PRJ = MCC216
-MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mcc/dirs.c
+MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) mcc/dirs.c
+#MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mcc/dirs.c
 MCC_OBJ = $(patsubst %.c,$(MCC_BUILD_DIR)/%.o,$(MCC_SRC))
+
+MCCTV_PRJ = MCCTV
+MCCTV_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) mcc/dirs.c
+#MCCTV_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mcc/dirs.c
+MCCTV_OBJ = $(patsubst %.c,$(MCCTV_BUILD_DIR)/%.o,$(MCCTV_SRC))
 
 MIST_PRJ = MIST
 MIST_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mist/dirs.c
@@ -87,11 +96,12 @@ MIST_5200_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(5200_SRC) mist_5200/dirs.c
 MIST_5200_OBJ = $(patsubst %.c,$(MIST_5200_BUILD_DIR)/%.o,$(MIST_5200_SRC))
 
 LINKMAP  = ./standalone_simple.ld
+LINKMAP_LARGE  = ./standalone_simple_large.ld
 
 LINUXSIM_EXE	= linuxsim
-LINUXSIM_SRC	= $(COMMON_SRC) $(A800_SRC_LIGHT) linux/main.c linux/mmc.c \
+LINUXSIM_SRC	= $(COMMON_SRC) $(A800_SRC_LIGHT) $(USB_SRC) linux/main.c linux/mmc.c \
 	sd_direct/diskio_mmc.c linux/dirs.c linux/linux_memory.c linux/curses_screen.c \
-	linux/linux_helper.c
+	linux/linux_helper.c linux/emulate_usb.c
 
 LINUXSIM_5200_EXE	= linuxsim_5200
 LINUXSIM_5200_SRC	= $(COMMON_SRC) $(5200_SRC_LIGHT) linux/main.c linux/mmc.c \
@@ -108,17 +118,19 @@ LINUXSIM_5200_OBJ	= $(patsubst %.c,$(LINUXSIM_5200_BUILD_DIR)/%.o,$(LINUXSIM_520
 ZPUOPTS =
 CFLAGS  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX
 
-HOST_CFLAGS += -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -DDISABLE_UART_RX
+HOST_CFLAGS += -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -DDISABLE_UART_RX -DUSB -Iusb
 
 LFLAGS  = -nostartfiles -nostdlib -Wl,--relax -g -Os -Wl,-Map=out.map
 LFLAGS_5200  = -nostartfiles -Wl,--relax -g -Os -Wl,-Map=out.map
 #LFLAGS  = -nostartfiles -Os
 
+CFLAGS_USB = $(CFLAGS) -DUSB -Iusb
+CFLAGS_USB2 = $(CFLAGS) -DUSB -DUSB2 -Iusb
 CFLAGS_5200 = $(CFLAGS) -DFIRMWARE_5200
 HOST_CFLAGS_5200 = $(HOST_CFLAGS) -DFIRMWARE_5200
 
 # Our target.
-all: mcc mist de1 aeon_lite chameleon  de1_5200 mist_5200
+all: mcc mcctv mist de1 aeon_lite chameleon  de1_5200 mist_5200
 
 install:
 	cd ../common/romgen && ./createall && cd ../../firmware
@@ -132,6 +144,8 @@ de1_5200: $(BUILD_DIR) $(DE1_5200_PRJ).bin $(DE1_5200_PRJ).rpt
 chameleon: $(BUILD_DIR) $(CHAMELEON_PRJ).bin $(CHAMELEON_PRJ).rpt
 
 mcc: $(BUILD_DIR) $(MCC_PRJ).bin $(MCC_PRJ).rpt
+
+mcctv: $(BUILD_DIR) $(MCCTV_PRJ).bin $(MCCTV_PRJ).rpt
 
 mist: $(BUILD_DIR) $(MIST_PRJ).bin $(MIST_PRJ).rpt
 
@@ -175,7 +189,11 @@ $(CHAMELEON_PRJ).elf: $(MINSTARTUP_OBJ) $(CHAMELEON_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
 $(MCC_PRJ).elf: $(MINSTARTUP_OBJ) $(MCC_OBJ)
-	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
+	$(LD) $(LFLAGS) -T $(LINKMAP_LARGE) -o $@ $+ $(LIBS)
+#	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
+
+$(MCCTV_PRJ).elf: $(MINSTARTUP_OBJ) $(MCCTV_OBJ)
+	$(LD) $(LFLAGS) -T $(LINKMAP_LARGE) -o $@ $+ $(LIBS)
 
 $(MIST_PRJ).elf: $(MINSTARTUP_OBJ) $(MIST_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
@@ -207,7 +225,11 @@ $(DE1_5200_BUILD_DIR)/%.o: %.c Makefile
 
 $(MCC_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(MCC_DIR) $(CFLAGS)  -o $@ -c $<
+	$(CC) -I$(MCC_DIR) $(CFLAGS_USB)  -o $@ -c $<
+
+$(MCCTV_BUILD_DIR)/%.o: %.c Makefile
+	mkdir -p `dirname $@`
+	$(CC) -I$(MCCTV_DIR) $(CFLAGS_USB2)  -o $@ -c $<
 
 $(MIST_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`

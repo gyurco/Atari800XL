@@ -23,7 +23,8 @@ extern void* FREEZER_ROM_MEM;
 
 extern void* atari_regbase;
 extern void* atari_regmirror;
-extern void* config_regbase;
+extern void* zpu_regbase;
+extern void* pokey_regbase;
 
 void init_memory(void);
 

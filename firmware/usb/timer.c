@@ -1,4 +1,5 @@
 #include "timer.h"
+#include "regs.h"
 
 // this is a 32 bit counter which overflows after 2^32 milliseconds
 // -> after 46 days
@@ -6,12 +7,21 @@
 void wait_us(int unsigned num);
 
 void timer_init() {
-	// TODO - set zpu to 0...
 }
 
+#ifdef LINUX_BUILD
+#include <sys/time.h>
 msec_t timer_get_msec() {
-	return 0; // TODO - read from ZPU
+	struct timeval x;
+	gettimeofday(&x,0);
+	return (x.tv_sec*1000+(x.tv_usec/1000));
 }
+#else
+msec_t timer_get_msec() {
+	int res = *zpu_timer;
+	return res;
+}
+#endif
 
 void timer_delay_msec(msec_t t) {
 	int y = t;

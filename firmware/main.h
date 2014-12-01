@@ -94,6 +94,9 @@ wait_us(int unsigned num)
 	// pause counter runs at pokey frequency - should be 1.79MHz
 	int unsigned cycles = (num*230)>>7;
 	*zpu_pause = cycles;
+#ifdef LINUX_BUILD
+	usleep(num);
+#endif
 }
 
 void memset8(void * address, int value, int length)

@@ -51,13 +51,13 @@ typedef struct {
   uint16_t report_desc_size;
 
   uint8_t device_type;
-  bool has_boot_mode: 1;     // device supports boot mode
-  bool is_5200daptor: 1;     // device is a 5200daptor with special key handling
+  uint8_t has_boot_mode;     // device supports boot mode
+  uint8_t is_5200daptor;     // device is a 5200daptor with special key handling
   uint16_t key_state;        // needed to detect key state changes in 5200daptor
   
   // additional info extracted from the report descriptor
   // (currently only used for joysticks) 
-  uint8_t jmap;           // last reported joystick state
+  uint32_t jmap;           // last reported joystick state
   uint8_t jindex;         // joystick index
   hid_config_t conf;
 
@@ -77,7 +77,8 @@ typedef struct {
 typedef struct  {
   uint8_t         bLength;
   uint8_t         bDescriptorType;
-  uint16_t        bcdHID;                         // HID class specification release
+  uint8_t        bcdHIDL;                         // HID class specification release
+  uint8_t        bcdHIDH;                         // HID class specification release
   uint8_t         bCountryCode;
   uint8_t         bNumDescriptors;                // Number of additional class specific descriptors
   uint8_t         bDescrType;                     // Type of class descriptor
