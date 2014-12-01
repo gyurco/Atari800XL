@@ -40,6 +40,7 @@ PORT
 	
 	-- config
 	ZPU_CONFIG_WRITE : out std_logic;
+	ZPU_CONFIG_READ : out std_logic;
 	
 	-- stack request
 	ZPU_STACK_WRITE : out std_logic_vector(3 downto 0);
@@ -137,7 +138,7 @@ component ZPUMediumCore is
 	
 	signal zpu_di_use : std_logic_vector(31 downto 0);
 	
-	signal memORY_ACCESS : std_logic;
+	signal memory_access : std_logic;
 
 	-- 1 cycle delay on memory read - needed to allow running at higher clock
 	signal zpu_di_next : std_logic_vector(31 downto 0);
@@ -174,7 +175,7 @@ begin
 			result_reg <= result_next;
 			zpu_di_reg <= zpu_di_next;
 			zpu_do_reg <= zpu_do_next;
-			memory_ready_reg <= memORY_READY_next;
+			memory_ready_reg <= memory_ready_next;
 			zpu_addr_reg <=zpu_addr_next;
 			ZPU_32BIT_WRITE_ENABLE_reg <= ZPU_32BIT_WRITE_ENABLE_next;
 			ZPU_16BIT_WRITE_ENABLE_reg <= ZPU_16BIT_WRITE_ENABLE_next;
@@ -202,7 +203,7 @@ begin
 
 	ZPU_READ_TEMP <= zpu_32bit_read_enable_temp or zpu_8BIT_read_enable_temp;
 	ZPU_WRITE_TEMP<= zpu_32BIT_WRITE_ENABLE_temp or zpu_16BIT_WRITE_ENABLE_temp or zpu_8BIT_WRITE_ENABLE_temp;
-	process(zpu_addr_reg,pause,memory_ready,zpu_memory_fetch_pending_next,request_type, zpu_memory_fetch_pending_reg, memory_ready_reg, zpu_ADDR_unsigned, zpu_8bit_read_enable_temp, zpu_write_temp, result_reg, block_mem, config_mem, special_mem, memORY_ACCESS,
+	process(zpu_addr_reg,pause,memory_ready,zpu_memory_fetch_pending_next,request_type, zpu_memory_fetch_pending_reg, memory_ready_reg, zpu_ADDR_unsigned, zpu_8bit_read_enable_temp, zpu_write_temp, result_reg, block_mem, config_mem, special_mem, memory_access,
 	        zpu_read_reg,zpu_8BIT_WRITE_ENABLE_reg, zpu_16BIT_WRITE_ENABLE_reg, zpu_32BIT_WRITE_ENABLE_reg,
 			  zpu_read_temp,zpu_8BIT_WRITE_ENABLE_temp, zpu_16BIT_WRITE_ENABLE_temp, zpu_32BIT_WRITE_ENABLE_temp,
 	zpu_do_unsigned, zpu_do_reg
@@ -214,6 +215,7 @@ begin
 		zpu_stACK_WRITE <= (others=>'0');
 		ZPU_ROM_WREN <= '0';
 		ZPU_config_write <= '0';
+		ZPU_config_read <= '0';
 		zpu_addr_next <= zpu_addr_reg;
 		zpu_do_next <= zpu_do_reg;
 	
@@ -232,7 +234,7 @@ begin
 		zpu_16bit_write_enable_next <= zpu_16bit_write_enable_reg;
 		zpu_32bit_write_enable_next <= zpu_32bit_write_enable_reg;	
 		
-		request_type <= config_mem&block_mem&zpu_addr_unsigned(15)&memORY_ACCESS&zpu_memory_fetch_pending_reg;
+		request_type <= config_mem&block_mem&zpu_addr_unsigned(15)&memory_access&zpu_memory_fetch_pending_reg;
 		case request_type is
 			when "00010"|"00110" =>
 				zpu_memory_fetch_pending_next <= '1';
@@ -296,11 +298,12 @@ begin
 				result_next <= result_config;
 				ZPU_MEM_BUSY <= '1';
 				ZPU_config_write <= ZPU_WRITE_temp; 
+				ZPU_config_read <= ZPU_READ_temp; 
 				zpu_addr_next <= std_logic_vector(zpu_addr_unsigned);				
 			when "00001"|"00011"|"00101"|"00111"|"01001"|"01011"|"01101"|"01111"|
 				  "10001"|"10011"|"10101"|"10111"|"11001"|"11011"|"11101"|"11111"|"00X01" =>
-				ZPU_MEM_BUSY <= not(memORY_READY_reg) or pause;
-				zpu_memory_fetch_pending_next <= not(memORY_READY);
+				ZPU_MEM_BUSY <= not(memory_ready_reg) or pause;
+				zpu_memory_fetch_pending_next <= not(memory_ready);
 			when others =>
 				-- nop
 		end case;

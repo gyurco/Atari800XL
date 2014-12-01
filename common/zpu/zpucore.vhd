@@ -9,6 +9,8 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
 use ieee.numeric_std.all;
+USE ieee.math_real.log2;
+USE ieee.math_real.ceil;
 
 LIBRARY work;
 
@@ -16,7 +18,9 @@ ENTITY zpucore IS
 	GENERIC
 	(
 		platform : integer := 1; -- So ROM can detect which type of system...
-		spi_clock_div : integer := 4  -- see notes on zpu_config_regs
+		spi_clock_div : integer := 4;  -- see notes on zpu_config_regs
+		memory : integer := 4096; -- up to 32K allowed
+		usb : integer := 0
 	);
 	PORT
 	(
@@ -66,7 +70,18 @@ ENTITY zpucore IS
 		ZPU_OUT1 : out std_logic_vector(31 downto 0);
 		ZPU_OUT2 : out std_logic_vector(31 downto 0);
 		ZPU_OUT3 : out std_logic_vector(31 downto 0);
-		ZPU_OUT4 : out std_logic_vector(31 downto 0)
+		ZPU_OUT4 : out std_logic_vector(31 downto 0);
+		ZPU_OUT5 : out std_logic_vector(31 downto 0);
+		ZPU_OUT6 : out std_logic_vector(31 downto 0);
+
+		-- USB host
+		CLK_USB : in std_logic := '0';
+	
+		USBWireVPin :in std_logic_vector(usb-1 downto 0) := (others=>'0');
+		USBWireVMin :in std_logic_vector(usb-1 downto 0) := (others=>'0');
+		USBWireVPout :out std_logic_vector(usb-1 downto 0);
+		USBWireVMout :out std_logic_vector(usb-1 downto 0);
+		USBWireOE_n :out std_logic_vector(usb-1 downto 0)
 	);
 END zpucore;
 
@@ -83,6 +98,7 @@ ARCHITECTURE vhdl OF zpucore IS
 
 	signal ZPU_CONFIG_DO : std_logic_vector(31 downto 0);
 	signal ZPU_CONFIG_WRITE_ENABLE : std_logic;
+	signal ZPU_CONFIG_READ_ENABLE : std_logic;
 
 	signal ZPU_SD_DMA_ADDR : std_logic_vector(15 downto 0);
 	signal ZPU_SD_DMA_DATA : std_logic_vector(7 downto 0);
@@ -92,6 +108,8 @@ ARCHITECTURE vhdl OF zpucore IS
 	signal ZPU_ADDR_ROM_RAM_DMA : std_logic_vector(15 downto 0);
 	signal ZPU_DO_DMA : std_logic_vector(31 downto 0);
 	signal ZPU_STACK_WRITE_DMA : std_logic_vector(3 downto 0);
+
+	constant memory_bits: integer := integer(ceil(log2(real(memory))));
 BEGIN 
 
 ZPU_RESET <= not(reset_n);
@@ -110,6 +128,7 @@ PORT MAP(CLK => CLK,
 		 ZPU_16BIT_WRITE_ENABLE => ZPU_16BIT_WRITE_ENABLE,
 		 ZPU_8BIT_WRITE_ENABLE => ZPU_8BIT_WRITE_ENABLE,
 		 ZPU_CONFIG_WRITE => ZPU_CONFIG_WRITE_ENABLE,
+		 ZPU_CONFIG_READ => ZPU_CONFIG_READ_ENABLE,
 		 ZPU_ADDR_FETCH => ZPU_ADDR_FETCH,
 		 ZPU_ADDR_ROM_RAM => ZPU_ADDR_ROM_RAM,
 		 ZPU_DO => ZPU_DO,
@@ -119,7 +138,8 @@ PORT MAP(CLK => CLK,
 config_regs : entity work.zpu_config_regs
 GENERIC MAP (
 	platform => platform,
-	spi_clock_div => spi_clock_div
+	spi_clock_div => spi_clock_div,
+	usb => usb
 )
 PORT MAP (
 	CLK => CLK,
@@ -127,9 +147,10 @@ PORT MAP (
 	
 	POKEY_ENABLE => ZPU_POKEY_ENABLE,
 	
-	ADDR => ZPU_ADDR_ROM_RAM(6 DOWNTO 2),
+	ADDR => ZPU_ADDR_ROM_RAM(12 DOWNTO 2),
 	CPU_DATA_IN => ZPU_DO,
 	WR_EN => ZPU_CONFIG_WRITE_ENABLE,
+	RD_EN => ZPU_CONFIG_READ_ENABLE,
 	
 	IN1 => ZPU_IN1,
 	IN2 => ZPU_IN2,
@@ -140,6 +161,8 @@ PORT MAP (
 	OUT2 => ZPU_OUT2,
 	OUT3 => ZPU_OUT3,
 	OUT4 => ZPU_OUT4,
+	OUT5 => ZPU_OUT5,
+	OUT6 => ZPU_OUT6,
 	
 	SDCARD_DAT => ZPU_SD_DAT0,
 	SDCARD_CLK => ZPU_SD_CLK,
@@ -155,7 +178,15 @@ PORT MAP (
 	sd_write => ZPU_SD_DMA_WRITE,
 	
 	DATA_OUT => ZPU_CONFIG_DO,
-	PAUSE_ZPU => ZPU_PAUSE
+	PAUSE_ZPU => ZPU_PAUSE,
+
+	CLK_USB => CLK_USB,
+	
+	USBWireVPin => USBWireVPin,
+	USBWireVMin => USBWireVMin,
+	USBWireVPout => USBWireVPout,
+	USBWireVMout => USBWireVMout,
+	USBWireOE_n => USBWireOE_n
 	);
 
 decode_addr1 : entity work.complete_address_decoder
@@ -179,15 +210,15 @@ end process;
 ram_31_24 : entity work.generic_ram_infer
 	GENERIC MAP
 	(
-		ADDRESS_WIDTH => 10,
-		SPACE => 1024,
+		ADDRESS_WIDTH => memory_bits-2,
+		SPACE => memory/4,
 		DATA_WIDTH => 8
 	)
 	PORT MAP
 	(
 		we => ZPU_STACK_WRITE_DMA(3),
 		clock => CLK,
-		address => ZPU_ADDR_ROM_RAM_DMA(11 DOWNTO 2),
+		address => ZPU_ADDR_ROM_RAM_DMA(memory_bits-1 DOWNTO 2),
 		data => ZPU_DO_DMA(31 DOWNTO 24),
 		q => ZPU_RAM_DATA(31 DOWNTO 24)
 	);
@@ -195,15 +226,15 @@ ram_31_24 : entity work.generic_ram_infer
 ram23_16 : entity work.generic_ram_infer
 	GENERIC MAP
 	(
-		ADDRESS_WIDTH => 10,
-		SPACE => 1024,
+		ADDRESS_WIDTH => memory_bits-2,
+		SPACE => memory/4,
 		DATA_WIDTH => 8
 	)
 	PORT MAP
 	(
 		we => ZPU_STACK_WRITE_DMA(2),
 		clock => CLK,
-		address => ZPU_ADDR_ROM_RAM_DMA(11 DOWNTO 2),
+		address => ZPU_ADDR_ROM_RAM_DMA(memory_bits-1 DOWNTO 2),
 		data => ZPU_DO_DMA(23 DOWNTO 16),
 		q => ZPU_RAM_DATA(23 DOWNTO 16)
 	);
@@ -211,15 +242,15 @@ ram23_16 : entity work.generic_ram_infer
 ram_15_8 : entity work.generic_ram_infer
 	GENERIC MAP
 	(
-		ADDRESS_WIDTH => 10,
-		SPACE => 1024,
+		ADDRESS_WIDTH => memory_bits-2,
+		SPACE => memory/4,
 		DATA_WIDTH => 8
 	)
 	PORT MAP
 	(
 		we => ZPU_STACK_WRITE_DMA(1),
 		clock => CLK,
-		address => ZPU_ADDR_ROM_RAM_DMA(11 DOWNTO 2),
+		address => ZPU_ADDR_ROM_RAM_DMA(memory_bits-1 DOWNTO 2),
 		data => ZPU_DO_DMA(15 DOWNTO 8),
 		q => ZPU_RAM_DATA(15 DOWNTO 8)
 	);
@@ -227,15 +258,15 @@ ram_15_8 : entity work.generic_ram_infer
 ram_7_0 : entity work.generic_ram_infer
 	GENERIC MAP
 	(
-		ADDRESS_WIDTH => 10,
-		SPACE => 1024,
+		ADDRESS_WIDTH => memory_bits-2,
+		SPACE => memory/4,
 		DATA_WIDTH => 8
 	)
 	PORT MAP
 	(
 		we => ZPU_STACK_WRITE_DMA(0),
 		clock => CLK,
-		address => ZPU_ADDR_ROM_RAM_DMA(11 DOWNTO 2),
+		address => ZPU_ADDR_ROM_RAM_DMA(memory_bits-1 DOWNTO 2),
 		data => ZPU_DO_DMA(7 DOWNTO 0),
 		q => ZPU_RAM_DATA(7 DOWNTO 0)
 	);
