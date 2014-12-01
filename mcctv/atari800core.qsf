@@ -189,7 +189,7 @@ set_location_assignment PLL_4 -to "clk_reset:clk_rst_inst|pll_5M_pal_ntsc:pll_5m
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 
-set_global_assignment -name QIP_FILE pll_usb.qip
+set_global_assignment -name QIP_FILE usbpll.qip
 set_global_assignment -name QIP_FILE pal_pll.qip
 set_global_assignment -name QIP_FILE pll_downstream_pal.qip
 set_global_assignment -name QIP_FILE ntsc_pll.qip
@@ -197,6 +197,7 @@ set_global_assignment -name QIP_FILE pll_downstream_ntsc.qip
 set_global_assignment -name SDC_FILE atari800core.sdc
 set_global_assignment -name VERILOG_FILE sdram_ctrl_3_ports.v
 set_global_assignment -name VHDL_FILE zpu_rom.vhdl
+set_global_assignment -name VHDL_FILE ps2_over_usb_to_atari800.vhdl
 set_global_assignment -name VHDL_FILE atari800core_mcc.vhd
 
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top

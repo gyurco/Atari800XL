@@ -9,9 +9,8 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
 use ieee.numeric_std.all;
-USE IEEE.STD_LOGIC_ARITH.ALL;
+--USE IEEE.STD_LOGIC_ARITH.ALL;
 USE IEEE.STD_LOGIC_UNSIGNED.ALL;
-use WORK.USBF_Declares.all;
 
 LIBRARY work;
 
@@ -223,8 +222,10 @@ END COMPONENT;
 
 	signal PAL : std_logic;
 	
-	signal JOY1_IN_n : std_logic_vector(4 downto 0);
-	signal JOY2_IN_n : std_logic_vector(4 downto 0);
+	signal JOY1 : std_logic_vector(5 downto 0);
+	signal JOY2 : std_logic_vector(5 downto 0);
+	signal JOY1_n : std_logic_vector(4 downto 0);
+	signal JOY2_n : std_logic_vector(4 downto 0);
 
 	signal PLL1_LOCKED : std_logic;
 	signal CLK_PLL1 : std_logic;
@@ -235,8 +236,15 @@ END COMPONENT;
 	signal CLK_SDRAM : std_logic;
 
 	-- SDRAM
+	signal PREREG_SDRAM_REQUEST : std_logic;
+	signal PREREG_SDRAM_READ_ENABLE :  STD_LOGIC;
+	signal PREREG_SDRAM_WRITE_ENABLE : std_logic;
+	signal PREREG_SDRAM_ADDR : STD_LOGIC_VECTOR(22 DOWNTO 0);
+	SIGNAL PREREG_SDRAM_DI : std_logic_vector(31 downto 0);
+	SIGNAL PREREG_SDRAM_WIDTH_32BIT_ACCESS : std_logic;
+	SIGNAL PREREG_SDRAM_WIDTH_16BIT_ACCESS : std_logic;
+	SIGNAL PREREG_SDRAM_WIDTH_8BIT_ACCESS : std_logic;
 	signal SDRAM_REQUEST : std_logic;
-	signal SDRAM_REQUEST_COMPLETE : std_logic;
 	signal SDRAM_READ_ENABLE :  STD_LOGIC;
 	signal SDRAM_WRITE_ENABLE : std_logic;
 	signal SDRAM_ADDR : STD_LOGIC_VECTOR(22 DOWNTO 0);
@@ -244,6 +252,8 @@ END COMPONENT;
 	SIGNAL SDRAM_WIDTH_32BIT_ACCESS : std_logic;
 	SIGNAL SDRAM_WIDTH_16BIT_ACCESS : std_logic;
 	SIGNAL SDRAM_WIDTH_8BIT_ACCESS : std_logic;
+
+	signal SDRAM_REQUEST_COMPLETE : std_logic;
 	
 	signal SDRAM_REFRESH : std_logic;
 
@@ -335,6 +345,7 @@ END COMPONENT;
 	signal ZPU_OUT2 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT3 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT4 : std_logic_vector(31 downto 0);
+	signal ZPU_OUT5 : std_logic_vector(31 downto 0);
 
 	signal zpu_pokey_enable : std_logic;
 	signal zpu_sio_txd : std_logic;
@@ -387,15 +398,29 @@ END COMPONENT;
 	signal joyleft2_dummy : std_logic;
 	signal joyright2_dummy : std_logic;
 	
-  SIGNAL reset_usbdrv  	: STD_LOGIC := '0';  
-  SIGNAL cntr_reset  : STD_LOGIC_VECTOR(7 DOWNTO 0) := "11111111";
-
-  signal usb_clk : std_logic;
-  signal usb_reset_n : std_logic;
-
 	-- turbo freezer!
 	signal freezer_enable : std_logic;
 	signal freezer_activate: std_logic;
+
+	-- usb
+	signal CLK_USB : std_logic;
+
+	signal USBWireVPin : std_logic_vector(1 downto 0);
+	signal USBWireVMin : std_logic_vector(1 downto 0);
+	signal USBWireVPout : std_logic_vector(1 downto 0);
+	signal USBWireVMout : std_logic_vector(1 downto 0);
+	signal USBWireOE_n : std_logic_vector(1 downto 0);
+
+	signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
+	signal PS2_KEYS_NEXT : STD_LOGIC_VECTOR(511 downto 0);
+
+	-- paddles
+	signal paddle_mode_next : std_logic;
+	signal paddle_mode_reg : std_logic;
+	signal		JOY1X : std_logic_vector(7 downto 0);
+	signal		JOY1Y : std_logic_vector(7 downto 0);
+	signal		JOY2X : std_logic_vector(7 downto 0);
+	signal		JOY2Y : std_logic_vector(7 downto 0);
 
 BEGIN 
 
@@ -404,11 +429,32 @@ CFG_CLK <= 'Z';
 CFG_CS_n <= '1';
 CFG_DOUT <= 'Z';
 
--- disable usb
---dplus1 <= 'Z';
---dminus1 <= 'Z';
---dplus2 <= 'Z';
---dminus2 <= 'Z';
+-- usb
+--dplus1 <= USBWireVPout(0) when USBWireOE_n(0)='0' else 'Z';
+--dminus1 <= USBWireVMout(0) when USBWireOE_n(0)='0' else 'Z';
+--USBWireVPin(0) <= dplus1;
+--USBWireVMin(0) <= dminus1;
+--
+--dplus2 <= USBWireVPout(1) when USBWireOE_n(1)='0' else 'Z';
+--dminus2 <= USBWireVMout(1) when USBWireOE_n(1)='0' else 'Z';
+--USBWireVPin(1) <= dplus2;
+--USBWireVMin(1) <= dminus2;
+
+
+dplus2 <= USBWireVMout(0) when USBWireOE_n(0)='0' else 'Z';
+dminus2 <= USBWireVPout(0) when USBWireOE_n(0)='0' else 'Z';
+USBWireVMin(0) <= dplus2;
+USBWireVPin(0) <= dminus2;
+
+dplus1 <= USBWireVMout(1) when USBWireOE_n(1)='0' else 'Z';
+dminus1 <= USBWireVPout(1) when USBWireOE_n(1)='0' else 'Z';
+USBWireVMin(1) <= dplus1;
+USBWireVPin(1) <= dminus1;
+
+usb_pll : entity work.usbpll
+PORT MAP(inclk0 => FPGA_CLK,
+	 c0 => CLK_USB,
+	 locked => open);
 
 dac_left : hq_dac
 port map
@@ -480,9 +526,66 @@ reset_n <= PLL_LOCKED;
 --CONSOL_SELECT <= '0';
 --CONSOL_OPTION <= '0';
 --FKEYS <= (others=>'0');
-KEYBOARD_RESPONSE <= (others=>'1');
+--KEYBOARD_RESPONSE <= (others=>'1');
 
 PAL <= '1' when TV=1 else '0';
+
+-- PS2 to pokey
+keyboard_map1 : entity work.ps2_over_usb_to_atari800
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,
+		
+		INPUT => zpu_out4,
+		
+		KEYBOARD_SCAN => KEYBOARD_SCAN,
+		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
+
+		CONSOL_START => CONSOL_START,
+		CONSOL_SELECT => CONSOL_SELECT,
+		CONSOL_OPTION => CONSOL_OPTION,
+		
+		FKEYS => FKEYS,
+		FREEZER_ACTIVATE => freezer_activate,
+		
+		PS2_KEYS_NEXT_OUT => ps2_keys_next,
+		PS2_KEYS => ps2_keys
+	);
+
+-- hack for paddles
+	process(clk,RESET_N)
+	begin
+		if (RESET_N = '0') then
+			paddle_mode_reg <= '0';
+		elsif (clk'event and clk='1') then
+			paddle_mode_reg <= paddle_mode_next;
+		end if;
+	end process;
+
+JOY1 <= zpu_out2(5 downto 4)&zpu_out2(0)&zpu_out2(1)&zpu_out2(2)&zpu_out2(3);
+JOY2 <= zpu_out3(5 downto 4)&zpu_out3(0)&zpu_out3(1)&zpu_out3(2)&zpu_out3(3);
+
+JOY1X <= zpu_out5(7 downto 0);
+JOY1Y <= zpu_out5(15 downto 8);
+JOY2X <= zpu_out5(23 downto 16);
+JOY2Y <= zpu_out5(31 downto 24);
+
+	process(paddle_mode_reg, joy1, joy2)
+	begin
+		joy1_n <= (others=>'1');
+		joy2_n <= (others=>'1');
+
+		if (paddle_mode_reg = '1') then
+			joy1_n <= "111"&not(joy1(4)&joy1(5)); --FLRDU
+			joy2_n <= "111"&not(joy2(4)&joy2(5));
+		else
+			joy1_n <= not(joy1(4 downto 0));
+			joy2_n <= not(joy2(4 downto 0));
+		end if;
+	end process;
+
+	paddle_mode_next <= paddle_mode_reg xor (not(ps2_keys(16#11F#)) and ps2_keys_next(16#11F#)); -- left windows key
 
 atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
@@ -512,8 +615,13 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		AUDIO_L => AUDIO_L_PCM,
 		AUDIO_R => AUDIO_R_PCM,
 
-		JOY1_n => JOY1_IN_n,
-		JOY2_n => JOY2_IN_n,
+		JOY1_n => JOY1_n,
+		JOY2_n => JOY2_n,
+
+		PADDLE0 => signed(joy1x),
+		PADDLE1 => signed(joy1y),
+		PADDLE2 => signed(joy2x),
+		PADDLE3 => signed(joy2y),
 
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
@@ -526,16 +634,16 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		CONSOL_SELECT => CONSOL_SELECT,
 		CONSOL_START => CONSOL_START,
 
-		SDRAM_REQUEST => SDRAM_REQUEST,
+		SDRAM_REQUEST => PREREG_SDRAM_REQUEST,
 		SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
-		SDRAM_READ_ENABLE => SDRAM_READ_ENABLE,
-		SDRAM_WRITE_ENABLE => SDRAM_WRITE_ENABLE,
-		SDRAM_ADDR => SDRAM_ADDR,
+		SDRAM_READ_ENABLE => PREREG_SDRAM_READ_ENABLE,
+		SDRAM_WRITE_ENABLE => PREREG_SDRAM_WRITE_ENABLE,
+		SDRAM_ADDR => PREREG_SDRAM_ADDR,
 		SDRAM_DO => ram_do_reg,
-		SDRAM_DI => SDRAM_DI,
-		SDRAM_32BIT_WRITE_ENABLE => SDRAM_WIDTH_32bit_ACCESS,
-		SDRAM_16BIT_WRITE_ENABLE => SDRAM_WIDTH_16bit_ACCESS,
-		SDRAM_8BIT_WRITE_ENABLE => SDRAM_WIDTH_8bit_ACCESS,
+		SDRAM_DI => PREREG_SDRAM_DI,
+		SDRAM_32BIT_WRITE_ENABLE => PREREG_SDRAM_WIDTH_32bit_ACCESS,
+		SDRAM_16BIT_WRITE_ENABLE => PREREG_SDRAM_WIDTH_16bit_ACCESS,
+		SDRAM_8BIT_WRITE_ENABLE => PREREG_SDRAM_WIDTH_8bit_ACCESS,
 		SDRAM_REFRESH => SDRAM_REFRESH,
 
 		DMA_FETCH => dma_fetch,
@@ -561,7 +669,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	process(clk_sdram,sdram_reset_ctrl_n_reg)
 	begin
 		if (sdram_reset_ctrl_n_reg='0') then
-			seq_reg <= "100000000000";
+			seq_reg <= "010000000000";
 			seq_ph_reg <= '1';
 			ref_reg <= '0';
 
@@ -609,7 +717,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	process(seq_reg, seq_next, sdram_rdy, sdram_reset_n_reg, reset_atari)
 	begin
 		sdram_reset_n_next <= sdram_reset_n_reg;
-		if (sdram_rdy = '1' and seq_next(8)='1' and seq_reg(8)='0') then
+		if (sdram_rdy = '1' and seq_next(7)='1' and seq_reg(7)='0') then
 			sdram_reset_n_next <= '1';
 		end if;
 		if (reset_atari = '1') then
@@ -617,10 +725,34 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		end if;
 	end process;
 
+	-- register sdram request on the falling edge, 1/3 timing not enough, but 1/2 timing should be... This pushes back request 1 clock cycle. Result can also be clocking on the falling edge!
+	process(clk,reset_n)
+	begin
+		if (reset_n='0') then
+			SDRAM_REQUEST <= '0';
+			SDRAM_READ_ENABLE <= '0';
+			SDRAM_WRITE_ENABLE <= '0';
+			SDRAM_ADDR <= (others=>'0');
+			SDRAM_DI <= (others=>'0');
+			SDRAM_WIDTH_32BIT_ACCESS <= '0';
+			SDRAM_WIDTH_16BIT_ACCESS <= '0';
+			SDRAM_WIDTH_8BIT_ACCESS <= '0';
+		elsif(clk'event and clk='0') then -- FALLING EDGE
+			SDRAM_REQUEST <= PREREG_SDRAM_REQUEST;
+			SDRAM_READ_ENABLE <= PREREG_SDRAM_READ_ENABLE;
+			SDRAM_WRITE_ENABLE <= PREREG_SDRAM_WRITE_ENABLE;
+			SDRAM_ADDR <= PREREG_SDRAM_ADDR;
+			SDRAM_DI <= PREREG_SDRAM_DI;
+			SDRAM_WIDTH_32BIT_ACCESS <= PREREG_SDRAM_WIDTH_32BIT_ACCESS;
+			SDRAM_WIDTH_16BIT_ACCESS <= PREREG_SDRAM_WIDTH_16BIT_ACCESS;
+			SDRAM_WIDTH_8BIT_ACCESS <= PREREG_SDRAM_WIDTH_8BIT_ACCESS;
+		end if;
+	end process;
+
 	-- Adapt SDRAM
 	process(sdram_request_reg, sdram_request, sdram_request_complete_reg, ram_do_reg, seq_reg, ram_do, ram_rd_active, ram_wr_active, SDRAM_WIDTH_8BIT_ACCESS, SDRAM_WRITE_ENABLE, SDRAM_READ_ENABLE, SDRAM_DI, SDRAM_ADDR)
 	begin
-		sdram_request_next <= sdram_request_reg or sdram_request;
+		sdram_request_next <= (sdram_request_reg or sdram_request) and not(sdram_request_complete_reg);
 		sdram_request_complete_next <= sdram_request_complete_reg;
 		ram_bena_next <= "00";
 		ram_di_next <= (others=>'0');
@@ -655,9 +787,9 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		when "000000001000" =>
 			-- nop
 		when "000000010000" =>
-			sdram_request_complete_next <= '0';
 			-- nop
 		when "000000100000" =>
+			sdram_request_complete_next <= '0';
 			-- nop
 		when "000001000000" =>
 			if (SDRAM_READ_ENABLE = '1') then
@@ -688,9 +820,9 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		when "001000000000" =>
 			-- nop
 		when "010000000000" =>
-			sdram_request_complete_next <= '0';
 			-- nop
 		when "100000000000" =>
+			sdram_request_complete_next <= '0';
 			-- nop
 		when others =>
 			-- never
@@ -792,7 +924,9 @@ zpu: entity work.zpucore
 	GENERIC MAP
 	(
 		platform => 1,
-		spi_clock_div => 1 -- 28MHz/2. Max for SD cards is 25MHz...
+		spi_clock_div => 1, -- 28MHz/2. Max for SD cards is 25MHz...
+		memory => 8192,
+		usb => 2
 	)
 	PORT MAP
 	(
@@ -832,16 +966,28 @@ zpu: entity work.zpucore
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
-		ZPU_IN1 => X"00000"&FKEYS,
+		ZPU_IN1 => X"000"&
+			"00"&ps2_keys(16#76#)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
+			FKEYS,
 		ZPU_IN2 => X"00000000",
 		ZPU_IN3 => X"00000000",
 		ZPU_IN4 => X"00000000",
 
 		-- ouputs - e.g. Atari system control, halt, throttle, rom select
-		ZPU_OUT1 => zpu_out1,
-		ZPU_OUT2 => zpu_out2,
-		ZPU_OUT3 => zpu_out3,
-		ZPU_OUT4 => zpu_out4
+		ZPU_OUT1 => zpu_out1, --misc
+		ZPU_OUT2 => zpu_out2, --joy0
+		ZPU_OUT3 => zpu_out3, --joy1
+		ZPU_OUT4 => zpu_out4, --keyboard
+		ZPU_OUT5 => zpu_out5, --analog stick
+
+		-- USB host
+		CLK_USB => CLK_USB,
+	
+		USBWireVPin => USBWireVPin,
+		USBWireVMin => USBWireVMin,
+		USBWireVPout => USBWireVPout,
+		USBWireVMout => USBWireVMout,
+		USBWireOE_n => USBWireOE_n
 	);
 
 	pause_atari <= zpu_out1(0);
@@ -855,134 +1001,13 @@ zpu: entity work.zpucore
 zpu_rom1: entity work.zpu_rom
 	port map(
 	        clock => clk,
-	        address => zpu_addr_rom(13 downto 2),
+	        address => zpu_addr_rom(14 downto 2),
 	        q => zpu_rom_data
 	);
 
 enable_179_clock_div_zpu_pokey : entity work.enable_divider
 	generic map (COUNT=>16) -- cycle_length
 	port map(clk=>clk,reset_n=>reset_n,enable_in=>'1',enable_out=>zpu_pokey_enable);
-
-mcc_pll3 : entity work.pll_usb
-	PORT MAP(inclk0 => FPGA_CLK,
-		 c0 => USB_CLK,
-		 locked => USB_RESET_N);
-
-  -----------------------------------------------------------------------------------------------
-  --------------------------------  reset process for USB component -----------------------------
-  -----------------------------------------------------------------------------------------------
-  PROCESS(usb_reset_n,usb_clk)
-  BEGIN
-    -- 
-   IF (usb_reset_n = '0') THEN
-		cntr_reset 			<= "01100111";
-		reset_usbdrv 		<= '0';
-   ELSIF (rising_edge(usb_clk)) THEN
-		IF (cntr_reset = "00000000") THEN
-			reset_usbdrv 		<= '1';				-- reset released
-		ELSE
-			cntr_reset 			<= cntr_reset - 1; -- 
-      END IF;
-   END IF;			
-  END PROCESS;
-
-  -----------------------------------------------------------------------------------------------
-  ------------------------------- Main USB interface Component ----------------------------------
-  -----------------------------------------------------------------------------------------------
-		
--- USB 1 interface Component.
-  UUSB_1 : USBF_IFC1 -- 
-    port map(
-      clk_usb     			=> usb_clk,        	-- 12MHz master clock input
-		pll_lock					=> usb_reset_n,
-      reset       			=> reset_usbdrv,            		-- XST reset push button
-      ----USB CONNECTIONS               	---------
-      dplus       			=> dplus1,             	--differential data
-      dminus      			=> dminus1,
-      ----------------------------
-		joyright_out(0) 		=> joyright1_2,
-		joyright_out(1) 		=> joyright1_4,
-		joyright_out(2) 		=> joyright1_3,
-		joyright_out(3) 		=> joyright1_1,
-		joyright_out(4) 		=> joy1_start_fire,
-		joyright_out(5)       => joyright1_dummy,
-		joyright_out(6) 		=> joyright1_r2,
-		joyright_out(7) 		=> joyright1_r1,
-		-- joystick 1 left side
-		joyleft_out(0) 		=> joyleft1_arrow_right,
-		joyleft_out(1) 		=> joyleft1_arrow_left,
-		joyleft_out(2) 		=> joyleft1_arrow_down,
-		joyleft_out(3) 		=> joyleft1_arrow_up,
-		joyleft_out(4) 		=> joy1_select_fire,
-		joyleft_out(5)       => joyleft1_dummy,
-		joyleft_out(6) 		=> joyleft1_l2,
-		joyleft_out(7) 		=> joyleft1_l1,
-		mousex_out				=> open,
-		mousey_out				=> open
-      );
-		
--- USB 2 interface Component.
-  UUSB_2 : USBF_IFC2 -- 
-    port map(
-      clk_usb     			=> usb_clk,        	-- 12MHz master clock input
-		pll_lock					=> usb_reset_n,
-      reset       			=> reset_usbdrv,            		-- XST reset push button
-      --USB CONNECTIONS               	---------
-      dplus       			=> dplus2,             	--differential data
-      dminus      			=> dminus2,
-      -- joystick 2 right side
-		joyright_out(0) 		=> joyright2_2,
-		joyright_out(1) 		=> joyright2_4,
-		joyright_out(2) 		=> joyright2_3,
-		joyright_out(3) 		=> joyright2_1,
-		joyright_out(4) 		=> joy2_start_fire,
-		joyright_out(5)       => joyright2_dummy,
-		joyright_out(6) 		=> joyright2_r2,
-		joyright_out(7) 		=> joyright2_r1,
-		-- joystick 2 left side
-		joyleft_out(0) 		=> joyleft2_arrow_right,
-		joyleft_out(1) 		=> joyleft2_arrow_left,
-		joyleft_out(2) 		=> joyleft2_arrow_down,
-		joyleft_out(3) 		=> joyleft2_arrow_up,
-		joyleft_out(4) 		=> joy2_select_fire,
-		joyleft_out(5)       => joyleft2_dummy,
-		joyleft_out(6) 		=> joyleft2_l2,
-		joyleft_out(7) 		=> joyleft2_l1,
-		mousex_out				=> open,
-		mousey_out				=> open
-      );
-		
--- Joystick (will be USB)
---JOY1_IN_N <= (others=>'1');
---JOY2_IN_N <= (others=>'1');
-
-	-- joystick player 1
-	joy1_in_n 				<= --(joy1_start_fire AND joyright1_r2 AND joyleft1_l2) &
-										--(joy1_start_fire AND joyright1_r1 AND joyleft1_l1) &
-										joyright1_1 &
-										joyleft1_arrow_right 	&
-										joyleft1_arrow_left 	&
-										joyleft1_arrow_down 	&
-										joyleft1_arrow_up;
-										
-	-- joystick player 2
-	joy2_in_n 				<= --(joy2_start_fire AND joyright2_r2 AND joyleft2_l2) &
-										--(joy2_start_fire AND joyright2_r1 AND joyleft2_l1) &
-										joyright2_1 &
-										joyleft2_arrow_right 	&
-										joyleft2_arrow_left 	&
-										joyleft2_arrow_down 	&
-										joyleft2_arrow_up;
-
-CONSOL_START <= not(joy1_start_fire and joyright1_4);
-CONSOL_SELECT <= not(joy1_select_fire and joyright1_3);
-CONSOL_OPTION <= not(joyright1_2);
-FKEYS(7 downto 0) <= (others=>'0');
-FKEYS(8) <= not(joyleft1_l1);
-FKEYS(9) <= not(joyleft1_l2);
-FKEYS(10) <= not(joyright1_r1);
-FKEYS(11) <= not(joyright1_r2);
-FREEZER_ACTIVATE <= not(joy1_select_fire) and not(joyright1_3);
 
   ---------------------------------
   -- process for CVBS output (TODO - merge this into the svideo.vhd component, as an option...)
