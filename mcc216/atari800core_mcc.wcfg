@@ -20,7 +20,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="50" />
+   <WVObjectSize size="54" />
    <wvobject fp_name="/atari800core_mcc_tb/reset_n" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">reset_n</obj_property>
       <obj_property name="ObjectShortName">reset_n</obj_property>
@@ -59,6 +59,10 @@
       <obj_property name="ElementShortName">sdram_clk</obj_property>
       <obj_property name="ObjectShortName">sdram_clk</obj_property>
    </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
    <wvobject fp_name="/atari800core_mcc_tb/sdram_a" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">sdram_a[12:0]</obj_property>
       <obj_property name="ObjectShortName">sdram_a[12:0]</obj_property>
@@ -87,6 +91,10 @@
       <obj_property name="ElementShortName">a[15:0]</obj_property>
       <obj_property name="ObjectShortName">a[15:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/pause_atari" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">pause_atari</obj_property>
+      <obj_property name="ObjectShortName">pause_atari</obj_property>
    </wvobject>
    <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/atari800xl/cpu6502/throttle" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">throttle</obj_property>
@@ -119,6 +127,14 @@
    <wvobject fp_name="/atari800core_mcc_tb/atari/sdram_request_complete" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">sdram_request_complete</obj_property>
       <obj_property name="ObjectShortName">sdram_request_complete</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/sdram_reset_n_next" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_reset_n_next</obj_property>
+      <obj_property name="ObjectShortName">sdram_reset_n_next</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/reset_atari" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">reset_atari</obj_property>
+      <obj_property name="ObjectShortName">reset_atari</obj_property>
    </wvobject>
    <wvobject fp_name="/atari800core_mcc_tb/atari/sdram_rdy" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">sdram_rdy</obj_property>
@@ -160,6 +176,7 @@
    <wvobject fp_name="/atari800core_mcc_tb/atari/seq_reg" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">seq_reg[11:0]</obj_property>
       <obj_property name="ObjectShortName">seq_reg[11:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/atari800core_mcc_tb/atari/sd_dat0" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">sd_dat0</obj_property>

@@ -74,28 +74,6 @@ END atari800core_mcc;
 
 ARCHITECTURE vhdl OF atari800core_mcc IS 
 
-component usbHostCyc2Wrap_usb1t11
-port (
-  clk_i :in std_logic;
-  rst_i :in std_logic;
-  address_i : in std_logic_vector(7 downto 0);
-  data_i : in std_logic_vector(7 downto 0);
-  data_o : out std_logic_vector(7 downto 0);
-  we_i :in std_logic;
-  strobe_i :in std_logic;
-  ack_o :out std_logic;
-  irq :out std_logic;
-  usbClk :in std_logic;
-
-  USBWireVPin :in std_logic;
-  USBWireVMin :in std_logic;
-  USBWireVPout :out std_logic;
-  USBWireVMout :out std_logic;
-  USBWireOE_n :out std_logic;
-  USBFullSpeed :out std_logic
-);
-end component;
-
 component hq_dac
 port (
   reset :in std_logic;
@@ -245,8 +223,15 @@ END COMPONENT;
 	signal CLK_SDRAM : std_logic;
 
 	-- SDRAM
+	signal PREREG_SDRAM_REQUEST : std_logic;
+	signal PREREG_SDRAM_READ_ENABLE :  STD_LOGIC;
+	signal PREREG_SDRAM_WRITE_ENABLE : std_logic;
+	signal PREREG_SDRAM_ADDR : STD_LOGIC_VECTOR(22 DOWNTO 0);
+	SIGNAL PREREG_SDRAM_DI : std_logic_vector(31 downto 0);
+	SIGNAL PREREG_SDRAM_WIDTH_32BIT_ACCESS : std_logic;
+	SIGNAL PREREG_SDRAM_WIDTH_16BIT_ACCESS : std_logic;
+	SIGNAL PREREG_SDRAM_WIDTH_8BIT_ACCESS : std_logic;
 	signal SDRAM_REQUEST : std_logic;
-	signal SDRAM_REQUEST_COMPLETE : std_logic;
 	signal SDRAM_READ_ENABLE :  STD_LOGIC;
 	signal SDRAM_WRITE_ENABLE : std_logic;
 	signal SDRAM_ADDR : STD_LOGIC_VECTOR(22 DOWNTO 0);
@@ -254,6 +239,8 @@ END COMPONENT;
 	SIGNAL SDRAM_WIDTH_32BIT_ACCESS : std_logic;
 	SIGNAL SDRAM_WIDTH_16BIT_ACCESS : std_logic;
 	SIGNAL SDRAM_WIDTH_8BIT_ACCESS : std_logic;
+
+	signal SDRAM_REQUEST_COMPLETE : std_logic;
 	
 	signal SDRAM_REFRESH : std_logic;
 
@@ -376,32 +363,10 @@ END COMPONENT;
 
 BEGIN 
 
-usbcon : usbHostCyc2Wrap_usb1t11
-port map 
-(
-  clk_i => clk,
-  rst_i => not(reset_n),
-  address_i => (others=>'0'),
-  data_i => (others=>'0'),
-  data_o =>open,
-  we_i => '0',
-  strobe_i => '0',
-  ack_o => open,
-  irq => open,
-  usbClk => CLK_USB,
-
-  USBWireVPin => USBWireVPin,
-  USBWireVMin => USBWireVMin,
-  USBWireVPout => USBWireVPout,
-  USBWireVMout => USBWireVMout,
-  USBWireOE_n => USBWireOE_n,
-  USBFullSpeed => open
-);
-
-USB2_P <= USBWireVPout when USBWireOE_n='0' else 'Z';
-USB2_N <= USBWireVMout when USBWireOE_n='0' else 'Z';
-USBWireVPin <= USB2_P;
-USBWireVMin <= USB2_N;
+USB2_N <= USBWireVPout when USBWireOE_n='0' else 'Z';
+USB2_P <= USBWireVMout when USBWireOE_n='0' else 'Z';
+USBWireVPin <= USB2_N;
+USBWireVMin <= USB2_P;
 
 dac_left : hq_dac
 port map
@@ -570,16 +535,16 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		CONSOL_SELECT => CONSOL_SELECT,
 		CONSOL_START => CONSOL_START,
 
-		SDRAM_REQUEST => SDRAM_REQUEST,
+		SDRAM_REQUEST => PREREG_SDRAM_REQUEST,
 		SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
-		SDRAM_READ_ENABLE => SDRAM_READ_ENABLE,
-		SDRAM_WRITE_ENABLE => SDRAM_WRITE_ENABLE,
-		SDRAM_ADDR => SDRAM_ADDR,
+		SDRAM_READ_ENABLE => PREREG_SDRAM_READ_ENABLE,
+		SDRAM_WRITE_ENABLE => PREREG_SDRAM_WRITE_ENABLE,
+		SDRAM_ADDR => PREREG_SDRAM_ADDR,
 		SDRAM_DO => ram_do_reg,
-		SDRAM_DI => SDRAM_DI,
-		SDRAM_32BIT_WRITE_ENABLE => SDRAM_WIDTH_32bit_ACCESS,
-		SDRAM_16BIT_WRITE_ENABLE => SDRAM_WIDTH_16bit_ACCESS,
-		SDRAM_8BIT_WRITE_ENABLE => SDRAM_WIDTH_8bit_ACCESS,
+		SDRAM_DI => PREREG_SDRAM_DI,
+		SDRAM_32BIT_WRITE_ENABLE => PREREG_SDRAM_WIDTH_32bit_ACCESS,
+		SDRAM_16BIT_WRITE_ENABLE => PREREG_SDRAM_WIDTH_16bit_ACCESS,
+		SDRAM_8BIT_WRITE_ENABLE => PREREG_SDRAM_WIDTH_8bit_ACCESS,
 		SDRAM_REFRESH => SDRAM_REFRESH,
 
 		DMA_FETCH => dma_fetch,
@@ -605,7 +570,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	process(clk_sdram,sdram_reset_ctrl_n_reg)
 	begin
 		if (sdram_reset_ctrl_n_reg='0') then
-			seq_reg <= "100000000000";
+			seq_reg <= "010000000000";
 			seq_ph_reg <= '1';
 			ref_reg <= '0';
 
@@ -653,7 +618,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	process(seq_reg, seq_next, sdram_rdy, sdram_reset_n_reg, reset_atari)
 	begin
 		sdram_reset_n_next <= sdram_reset_n_reg;
-		if (sdram_rdy = '1' and seq_next(8)='1' and seq_reg(8)='0') then
+		if (sdram_rdy = '1' and seq_next(7)='1' and seq_reg(7)='0') then
 			sdram_reset_n_next <= '1';
 		end if;
 		if (reset_atari = '1') then
@@ -661,10 +626,34 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		end if;
 	end process;
 
+	-- register sdram request on the falling edge, 1/3 timing not enough, but 1/2 timing should be... This pushes back request 1 clock cycle. Result can also be clocking on the falling edge!
+	process(clk,reset_n)
+	begin
+		if (reset_n='0') then
+			SDRAM_REQUEST <= '0';
+			SDRAM_READ_ENABLE <= '0';
+			SDRAM_WRITE_ENABLE <= '0';
+			SDRAM_ADDR <= (others=>'0');
+			SDRAM_DI <= (others=>'0');
+			SDRAM_WIDTH_32BIT_ACCESS <= '0';
+			SDRAM_WIDTH_16BIT_ACCESS <= '0';
+			SDRAM_WIDTH_8BIT_ACCESS <= '0';
+		elsif(clk'event and clk='0') then -- FALLING EDGE
+			SDRAM_REQUEST <= PREREG_SDRAM_REQUEST;
+			SDRAM_READ_ENABLE <= PREREG_SDRAM_READ_ENABLE;
+			SDRAM_WRITE_ENABLE <= PREREG_SDRAM_WRITE_ENABLE;
+			SDRAM_ADDR <= PREREG_SDRAM_ADDR;
+			SDRAM_DI <= PREREG_SDRAM_DI;
+			SDRAM_WIDTH_32BIT_ACCESS <= PREREG_SDRAM_WIDTH_32BIT_ACCESS;
+			SDRAM_WIDTH_16BIT_ACCESS <= PREREG_SDRAM_WIDTH_16BIT_ACCESS;
+			SDRAM_WIDTH_8BIT_ACCESS <= PREREG_SDRAM_WIDTH_8BIT_ACCESS;
+		end if;
+	end process;
+
 	-- Adapt SDRAM
 	process(sdram_request_reg, sdram_request, sdram_request_complete_reg, ram_do_reg, seq_reg, ram_do, ram_rd_active, ram_wr_active, SDRAM_WIDTH_8BIT_ACCESS, SDRAM_WRITE_ENABLE, SDRAM_READ_ENABLE, SDRAM_DI, SDRAM_ADDR)
 	begin
-		sdram_request_next <= sdram_request_reg or sdram_request;
+		sdram_request_next <= (sdram_request_reg or sdram_request) and not(sdram_request_complete_reg);
 		sdram_request_complete_next <= sdram_request_complete_reg;
 		ram_bena_next <= "00";
 		ram_di_next <= (others=>'0');
@@ -699,9 +688,9 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		when "000000001000" =>
 			-- nop
 		when "000000010000" =>
-			sdram_request_complete_next <= '0';
 			-- nop
 		when "000000100000" =>
+			sdram_request_complete_next <= '0';
 			-- nop
 		when "000001000000" =>
 			if (SDRAM_READ_ENABLE = '1') then
@@ -732,9 +721,9 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		when "001000000000" =>
 			-- nop
 		when "010000000000" =>
-			sdram_request_complete_next <= '0';
 			-- nop
 		when "100000000000" =>
+			sdram_request_complete_next <= '0';
 			-- nop
 		when others =>
 			-- never
@@ -889,7 +878,9 @@ zpu: entity work.zpucore
 	GENERIC MAP
 	(
 		platform => 1,
-		spi_clock_div => 1 -- 28MHz/2. Max for SD cards is 25MHz...
+		spi_clock_div => 1, -- 28MHz/2. Max for SD cards is 25MHz...
+		memory => 8192,
+		usb => 1
 	)
 	PORT MAP
 	(
@@ -938,7 +929,16 @@ zpu: entity work.zpucore
 		ZPU_OUT1 => zpu_out1,
 		ZPU_OUT2 => zpu_out2,
 		ZPU_OUT3 => zpu_out3,
-		ZPU_OUT4 => zpu_out4
+		ZPU_OUT4 => zpu_out4,
+
+		-- USB host
+		CLK_USB => CLK_USB,
+	
+		USBWireVPin(0) => USBWireVPin,
+		USBWireVMin(0) => USBWireVMin,
+		USBWireVPout(0) => USBWireVPout,
+		USBWireVMout(0) => USBWireVMout,
+		USBWireOE_n(0) => USBWireOE_n
 	);
 
 	pause_atari <= zpu_out1(0);
@@ -952,7 +952,7 @@ zpu: entity work.zpucore
 zpu_rom1: entity work.zpu_rom
 	port map(
 	        clock => clk,
-	        address => zpu_addr_rom(13 downto 2),
+	        address => zpu_addr_rom(14 downto 2),
 	        q => zpu_rom_data
 	);
 

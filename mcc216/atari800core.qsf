@@ -41,7 +41,7 @@ set_global_assignment -name DEVICE EP3C16E144C8
 set_global_assignment -name TOP_LEVEL_ENTITY atari800core_mcc
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "12.1 SP1"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:58:39  APRIL 11, 2013"
-set_global_assignment -name LAST_QUARTUS_VERSION "12.1 SP1.33"
+set_global_assignment -name LAST_QUARTUS_VERSION "13.0 SP1"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
@@ -299,5 +299,6 @@ set_global_assignment -name SDC_FILE atari800core.sdc
 set_global_assignment -name VERILOG_FILE sdram_ctrl_3_ports.v
 set_global_assignment -name VHDL_FILE zpu_rom.vhdl
 set_global_assignment -name VHDL_FILE atari800core_mcc.vhd
+
 
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
