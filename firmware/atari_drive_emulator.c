@@ -2,6 +2,7 @@
 #include "fileutils.h"
 
 #include "uart.h"
+#include "regs.h"
 #include "pause.h"
 #include "simplefile.h"
 #include "hexdump.h"
@@ -10,6 +11,7 @@
 #include "integer.h"
 
 extern int debug_pos; // ARG!
+extern unsigned char volatile * baseaddr;
 
 #define send_ACK()	USART_Transmit_Byte('A');
 #define send_NACK()	USART_Transmit_Byte('N');
@@ -112,23 +114,26 @@ void getCommand(struct command * cmd)
 	int expchk;
 	int i;
 
-	//printf("Waiting for command\n");
-	//USART_Data_Ready();
-	while (0 == USART_Command_Line()) actions();
-	//printf("Init:");
-	//printf("%d",*zpu_sio);
+	while (0 == USART_Command_Line());
 	USART_Init(speed+6);
-	//printf("%d",speed);
-	//printf("\n");
-	while (1 == USART_Command_Line()) actions();
+	*zpu_siocommand_ready = 1; // clear
+
+	while (1)
+	{
+		unsigned char x = *zpu_siocommand_ready;
+		if (x != 0) break;
+		actions();
+	} // usb poll can take some ms, but we have 16 ms to reply. We have hardware now to capture the command frame.
 	for (i=0;i!=5;++i)
-		((char *)cmd)[i] = USART_Receive_Byte();
+		((unsigned char *)cmd)[i] = zpu_siocommand_data[i<<2];
+	*zpu_siocommand_ready = 1; // clear
+
 	/*cmd->deviceId = USART_Receive_Byte();
 	cmd->command = USART_Receive_Byte();
 	cmd->aux1 = USART_Receive_Byte();
 	cmd->aux2 = USART_Receive_Byte();
 	cmd->chksum = USART_Receive_Byte();*/
-	while (0 == USART_Command_Line());
+	//while (0 == USART_Command_Line());
 	//printf("cmd:");
 	//printf("Gone high\n");
 	atari_sector_buffer[0] = cmd->deviceId;
@@ -136,6 +141,12 @@ void getCommand(struct command * cmd)
 	atari_sector_buffer[2] = cmd->aux1;
 	atari_sector_buffer[3] = cmd->aux2;
 	expchk = get_checksum(&atari_sector_buffer[0],4);
+
+/*unsigned char * temp = baseaddr;
+baseaddr = (unsigned char volatile *)(40000 + atari_regbase);
+debug_pos=160;
+	printf("CMD:%02x %02x %02x %02x %02x/%02x ",cmd->deviceId,cmd->command,cmd->aux1,cmd->aux2,cmd->chksum,expchk);
+baseaddr = temp;*/
 
 	//printf("Device id:");
 	//printf("%d",cmd->deviceId);
@@ -309,7 +320,6 @@ void run_drive_emulator()
 	while (1)
 	{
 		processCommand();
-		actions();
 	}
 }
 

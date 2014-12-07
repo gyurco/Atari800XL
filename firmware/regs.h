@@ -44,6 +44,9 @@ static const int screen_address = 11328;
 #define zpu_pokey_irqen ((unsigned char volatile *)(0xe*4+pokey_regbase))
 #define zpu_pokey_skctl ((unsigned char volatile *)(0xf*4+pokey_regbase))
 
+#define zpu_siocommand_ready ((unsigned char volatile *)(0x15*4+pokey_regbase))
+#define zpu_siocommand_data ((unsigned char volatile *)(0x10*4+pokey_regbase))
+
 #define atari_nmien ((unsigned char volatile *)(0xd40e + atari_regbase))
 #define atari_dlistl ((unsigned char volatile *)(0xd402 + atari_regbase))
 #define atari_dlisth ((unsigned char volatile *)(0xd403 + atari_regbase))

@@ -256,12 +256,35 @@ begin
 	device_rd_en <= device_decoded and (rd_en&rd_en&rd_en&rd_en&rd_en&rd_en&rd_en&rd_en);
 	
 	-- uart - another Pokey! Running at atari frequency.
-	pokey1 : entity work.pokey
-		port map (clk=>clk,ENABLE_179=>pokey_enable,addr=>addr(3 downto 0),data_in=>cpu_data_in(7 downto 0),wr_en=>device_wr_en(1), 
-		reset_n=>reset_n,keyboard_response=>"11",pot_in=>X"00",
-		sio_in1=>sio_data_out,sio_in2=>'1',sio_in3=>'1', -- TODO, pokey dir...
-		data_out=>pokey_data_out, 
-		sio_out1=>sio_data_in);
+	-- with a state machine to capture command packets
+	-- can not easily poll frequently enough with zpu when also polling usb
+--	pokey1 : entity work.pokey
+--		port map (clk=>clk,ENABLE_179=>pokey_enable,addr=>addr(3 downto 0),data_in=>cpu_data_in(7 downto 0),wr_en=>device_wr_en(1), 
+--		reset_n=>reset_n,keyboard_response=>"11",pot_in=>X"00",
+--		sio_in1=>sio_data_out,sio_in2=>'1',sio_in3=>'1', -- TODO, pokey dir...
+--		data_out=>pokey_data_out, 
+--		sio_out1=>sio_data_in);
+
+pokey1 : entity work.sio_device
+PORT  MAP
+( 
+	CLK => CLK,
+	ADDR => addr(4 downto 0),
+	CPU_DATA_IN => cpu_data_in(7 downto 0),
+	EN => device_rd_en(1),
+	WR_EN => device_wr_en(1),
+	
+	RESET_N => reset_n,
+
+	POKEY_ENABLE => pokey_enable,
+
+	SIO_DATA_IN  => sio_data_in,
+	SIO_COMMAND => sio_command,
+	SIO_DATA_OUT => sio_data_out,
+	
+	-- CPU interface
+	DATA_OUT => pokey_data_out
+);
 
 	-- timer for approx ms
 	process(timer_reg,subtimer_reg, pokey_enable)
