@@ -295,7 +295,7 @@ composite_on_hsync <= '1' when composite_sync=1 else '0';
 		end if;
 	end process;
 
-	process(paddle_mode_reg, joy1)
+	process(paddle_mode_reg, joy1, joy2)
 	begin
 		joy1_n <= (others=>'1');
 		joy2_n <= (others=>'1');
