@@ -214,6 +214,11 @@ END COMPONENT;
 	signal JOY1_IN_n : std_logic_vector(4 downto 0);
 	signal JOY2_IN_n : std_logic_vector(4 downto 0);
 
+	signal JOY1_USB : std_logic_vector(5 downto 0);
+	signal JOY2_USB : std_logic_vector(5 downto 0);
+	signal JOY1_USB_n : std_logic_vector(4 downto 0);
+	signal JOY2_USB_n : std_logic_vector(4 downto 0);
+
 	signal PLL1_LOCKED : std_logic;
 	signal CLK_PLL1 : std_logic;
 	
@@ -334,6 +339,7 @@ END COMPONENT;
 	signal ZPU_OUT2 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT3 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT4 : std_logic_vector(31 downto 0);
+	signal ZPU_OUT5 : std_logic_vector(31 downto 0);
 
 	signal zpu_pokey_enable : std_logic;
 	signal zpu_sio_txd : std_logic;
@@ -360,6 +366,17 @@ END COMPONENT;
 	signal USBWireVPout : std_logic;
 	signal USBWireVMout : std_logic;
 	signal USBWireOE_n : std_logic;
+
+	signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
+	signal PS2_KEYS_NEXT : STD_LOGIC_VECTOR(511 downto 0);
+
+	-- paddles
+	signal paddle_mode_next : std_logic;
+	signal paddle_mode_reg : std_logic;
+	signal		JOY1X : std_logic_vector(7 downto 0);
+	signal		JOY1Y : std_logic_vector(7 downto 0);
+	signal		JOY2X : std_logic_vector(7 downto 0);
+	signal		JOY2Y : std_logic_vector(7 downto 0);
 
 BEGIN 
 
@@ -473,12 +490,19 @@ JOY2_IN_N <= JOY2_n(4)&JOY2_n(0)&JOY2_n(1)&JOY2_n(2)&JOY2_n(3);
 
 -- PS2 to pokey
 keyboard_map1 : entity work.ps2_to_atari800
+	GENERIC MAP
+	(
+		ps2_enable => 1,
+		direct_enable => 1
+	)
 	PORT MAP
 	( 
 		CLK => clk,
 		RESET_N => reset_n,
 		PS2_CLK => ps2k_clk,
 		PS2_DAT => ps2k_dat,
+
+		INPUT => zpu_out4,
 		
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
@@ -488,10 +512,47 @@ keyboard_map1 : entity work.ps2_to_atari800
 		CONSOL_OPTION => CONSOL_OPTION,
 		
 		FKEYS => FKEYS,
-		FREEZER_ACTIVATE => freezer_activate
+		FREEZER_ACTIVATE => freezer_activate,
+
+		PS2_KEYS_NEXT_OUT => ps2_keys_next,
+		PS2_KEYS => ps2_keys
 	);
 
 PAL <= '1' when TV=1 else '0';
+
+-- hack for paddles
+	process(clk,RESET_N)
+	begin
+		if (RESET_N = '0') then
+			paddle_mode_reg <= '0';
+		elsif (clk'event and clk='1') then
+			paddle_mode_reg <= paddle_mode_next;
+		end if;
+	end process;
+
+JOY1_USB <= zpu_out2(5 downto 4)&zpu_out2(0)&zpu_out2(1)&zpu_out2(2)&zpu_out2(3);
+JOY2_USB <= zpu_out3(5 downto 4)&zpu_out3(0)&zpu_out3(1)&zpu_out3(2)&zpu_out3(3);
+
+JOY1X <= zpu_out5(7 downto 0);
+JOY1Y <= zpu_out5(15 downto 8);
+JOY2X <= zpu_out5(23 downto 16);
+JOY2Y <= zpu_out5(31 downto 24);
+
+	process(paddle_mode_reg, joy1_usb, joy2_usb)
+	begin
+		joy1_usb_n <= (others=>'1');
+		joy2_usb_n <= (others=>'1');
+
+		if (paddle_mode_reg = '1') then
+			joy1_usb_n <= "111"&not(joy1_usb(4)&joy1_usb(5)); --FLRDU
+			joy2_usb_n <= "111"&not(joy2_usb(4)&joy2_usb(5));
+		else
+			joy1_usb_n <= not(joy1_usb(4 downto 0));
+			joy2_usb_n <= not(joy2_usb(4 downto 0));
+		end if;
+	end process;
+
+	paddle_mode_next <= paddle_mode_reg xor (not(ps2_keys(16#11F#)) and ps2_keys_next(16#11F#)); -- left windows key
 
 atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
@@ -521,8 +582,14 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		AUDIO_L => AUDIO_L_PCM,
 		AUDIO_R => AUDIO_R_PCM,
 
-		JOY1_n => JOY1_IN_n,
-		JOY2_n => JOY2_IN_n,
+		JOY1_n => JOY1_IN_n and JOY1_USB_n,
+		JOY2_n => JOY2_IN_n and JOY2_USB_n,
+
+		PADDLE0 => signed(joy1x),
+		PADDLE1 => signed(joy1y),
+		PADDLE2 => signed(joy2x),
+		PADDLE3 => signed(joy2y),
+
 
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
@@ -920,16 +987,19 @@ zpu: entity work.zpucore
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
-		ZPU_IN1 => X"00000"&FKEYS,
+		ZPU_IN1 => X"000"&
+			"00"&ps2_keys(16#76#)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
+			FKEYS,
 		ZPU_IN2 => X"00000000",
 		ZPU_IN3 => X"00000000",
 		ZPU_IN4 => X"00000000",
 
 		-- ouputs - e.g. Atari system control, halt, throttle, rom select
 		ZPU_OUT1 => zpu_out1,
-		ZPU_OUT2 => zpu_out2,
-		ZPU_OUT3 => zpu_out3,
-		ZPU_OUT4 => zpu_out4,
+		ZPU_OUT2 => zpu_out2, --joy0
+		ZPU_OUT3 => zpu_out3, --joy1
+		ZPU_OUT4 => zpu_out4, --keyboard
+		ZPU_OUT5 => zpu_out5, --analog stick
 
 		-- USB host
 		CLK_USB => CLK_USB,

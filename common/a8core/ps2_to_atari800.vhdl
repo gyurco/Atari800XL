@@ -16,12 +16,18 @@ use ieee.numeric_std.all;
 
 
 ENTITY ps2_to_atari800 IS
+GENERIC
+(
+	ps2_enable : integer := 1;
+	direct_enable : integer := 0
+);
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
 	RESET_N : IN STD_LOGIC;
-	PS2_CLK : IN STD_LOGIC;
-	PS2_DAT : IN STD_LOGIC;
+	PS2_CLK : IN STD_LOGIC := '1';
+	PS2_DAT : IN STD_LOGIC := '1';
+	INPUT : IN STD_LOGIC_VECTOR(31 downto 0) := (others=>'0');
 	
 	KEYBOARD_SCAN : IN STD_LOGIC_VECTOR(5 downto 0);
 	KEYBOARD_RESPONSE : OUT STD_LOGIC_VECTOR(1 downto 0);
@@ -43,6 +49,16 @@ ARCHITECTURE vhdl OF ps2_to_atari800 IS
 	signal ps2_keys_next : std_logic_vector(511 downto 0);
 	signal ps2_keys_reg : std_logic_vector(511 downto 0);
 
+	signal ps2_key_event : std_logic;
+	signal ps2_key_value : std_logic_vector(7 downto 0);
+	signal ps2_key_extended : std_logic;
+	signal ps2_key_up : std_logic;
+
+	signal direct_key_event : std_logic;
+	signal direct_key_value : std_logic_vector(7 downto 0);
+	signal direct_key_extended : std_logic;
+	signal direct_key_up : std_logic;
+
 	signal key_event : std_logic;
 	signal key_value : std_logic_vector(7 downto 0);
 	signal key_extended : std_logic;
@@ -61,24 +77,6 @@ ARCHITECTURE vhdl OF ps2_to_atari800 IS
 	SIGNAL	BREAK_PRESSED :  STD_LOGIC;
 	SIGNAL	CONTROL_PRESSED :  STD_LOGIC;
 BEGIN
-	keyboard1: entity work.ps2_keyboard
-	PORT MAP
-	( 
-		CLK => CLK,
-		RESET_N => RESET_N,
-		PS2_CLK => PS2_CLK,
-		PS2_DAT => PS2_DAT,
-		
-		KEY_EVENT => KEY_EVENT,
-		KEY_VALUE => KEY_VALUE,
-		KEY_EXTENDED => KEY_EXTENDED,
-		KEY_UP => KEY_UP
---		KEY_EVENT : OUT STD_LOGIC; -- high for 1 cycle on new key pressed(or repeated)/released
---		KEY_VALUE : OUT STD_LOGIC_VECTOR(7 downto 0); -- valid on event, raw scan code
---		KEY_EXTENDED : OUT STD_LOGIC;           -- valid on event, if scan code extended
---		KEY_UP : OUT STD_LOGIC                 -- value on event, if key released
-	);
-
 	process(clk,reset_n)
 	begin
 		if (reset_n='0') then
@@ -88,7 +86,52 @@ BEGIN
 		end if;
 	end process;
 
-	-- 1 bit per PS2 key
+gen_ps2_on : if ps2_enable=1 generate
+	keyboard1: entity work.ps2_keyboard
+	PORT MAP
+	( 
+		CLK => CLK,
+		RESET_N => RESET_N,
+		PS2_CLK => PS2_CLK,
+		PS2_DAT => PS2_DAT,
+		
+		KEY_EVENT => PS2_KEY_EVENT,
+		KEY_VALUE => PS2_KEY_VALUE,
+		KEY_EXTENDED => PS2_KEY_EXTENDED,
+		KEY_UP => PS2_KEY_UP
+--		KEY_EVENT : OUT STD_LOGIC; -- high for 1 cycle on new key pressed(or repeated)/released
+--		KEY_VALUE : OUT STD_LOGIC_VECTOR(7 downto 0); -- valid on event, raw scan code
+--		KEY_EXTENDED : OUT STD_LOGIC;           -- valid on event, if scan code extended
+--		KEY_UP : OUT STD_LOGIC                 -- value on event, if key released
+	);
+end generate;
+
+gen_ps2_off : if ps2_enable=0 generate
+	PS2_KEY_EVENT <= '0';
+	PS2_KEY_VALUE <= (others=>'0');
+	PS2_KEY_EXTENDED <= '0';
+	PS2_KEY_UP <= '0';
+end generate;
+
+gen_direct_on : if direct_enable=1 generate
+	direct_key_value <= input(7 downto 0);
+	direct_key_extended <= input(12);
+	direct_key_up <= not(input(16));
+	direct_key_event <= '1';
+end generate;
+
+gen_direct_off : if direct_enable=0 generate
+	DIRECT_KEY_EVENT <= '0';
+	DIRECT_KEY_VALUE <= (others=>'0');
+	DIRECT_KEY_EXTENDED <= '0';
+	DIRECT_KEY_UP <= '0';
+end generate;
+
+	KEY_EVENT <= DIRECT_KEY_EVENT or PS2_KEY_EVENT;
+	KEY_VALUE <= PS2_KEY_VALUE when PS2_KEY_EVENT='1' else DIRECT_KEY_VALUE;
+	KEY_EXTENDED <= PS2_KEY_EXTENDED when PS2_KEY_EVENT='1' else DIRECT_KEY_EXTENDED;
+	KEY_UP <= PS2_KEY_UP when PS2_KEY_EVENT='1' else DIRECT_KEY_UP;
+
 	process(KEY_EVENT, KEY_VALUE, KEY_EXTENDED, KEY_UP, ps2_keys_reg)
 	begin
 		ps2_keys_next <= ps2_keys_reg;

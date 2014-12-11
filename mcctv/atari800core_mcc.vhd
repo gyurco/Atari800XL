@@ -531,7 +531,12 @@ reset_n <= PLL_LOCKED;
 PAL <= '1' when TV=1 else '0';
 
 -- PS2 to pokey
-keyboard_map1 : entity work.ps2_over_usb_to_atari800
+keyboard_map1 : entity work.ps2_to_atari800
+	GENERIC MAP
+	(
+		ps2_enable => 0,
+		direct_enable => 1
+	)
 	PORT MAP
 	( 
 		CLK => clk,
