@@ -53,6 +53,7 @@ typedef struct {
   uint8_t device_type;
   uint8_t has_boot_mode;     // device supports boot mode
   uint8_t is_5200daptor;     // device is a 5200daptor with special key handling
+  uint8_t is_MCC;            // device is an MCC controller with special key handling
   uint16_t key_state;        // needed to detect key state changes in 5200daptor
   
   // additional info extracted from the report descriptor

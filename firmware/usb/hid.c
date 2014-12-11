@@ -133,6 +133,7 @@ static uint8_t usb_hid_parse_conf(usb_device_t *dev, uint8_t conf, uint16_t len)
 	  info->iface[info->bNumIfaces].iface_idx = p->iface_desc.bInterfaceNumber;
 	  info->iface[info->bNumIfaces].has_boot_mode = false;
 	  info->iface[info->bNumIfaces].is_5200daptor = false;
+	  info->iface[info->bNumIfaces].is_MCC = false;
 	  info->iface[info->bNumIfaces].key_state = 0;
 	  info->iface[info->bNumIfaces].device_type = HID_DEVICE_UNKNOWN;
 	  info->iface[info->bNumIfaces].conf.type = CONFIG_TYPE_NONE;
@@ -338,6 +339,12 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
 
 	info->iface[0].is_5200daptor = true;
       }
+
+      if((vid == 0x0079) && (pid == 0x0006) && (i==0)) {
+	iprintf("hacking MCC controller\n");
+
+	info->iface[0].is_MCC = true;
+      }
     }
 
     rcode = hid_set_idle(dev, info->iface[i].iface_idx, 0, 0);
@@ -468,6 +475,96 @@ static void handle_5200daptor(usb_hid_iface_info_t *iface, uint8_t *buf) {
   }
 }
 
+// special MCC button processing
+static void handle_MCC(usb_hid_iface_info_t *iface, uint32_t * jmap_ptr) {
+
+/*
+[start or left&right shoulder2] - start
+[select or left&right shoulder1] - select
+[select] - option
+[3] - reset
+[2] - cold start
+[1] - quick select
+[4] - settings
+
+MY MAPPING
+[select] - select
+[start] - start
+[L1|R1|3] - fire!
+[L2|R2|4] - option
+[L2&R2] - reboot
+[L1&R2] - reset
+[1] - settings
+[2] - disk menu
+*/
+/*
+    { 4, 0x41, }, * START -> f8 [1]*
+    { 5, 0x41, }, * START -> f8 [2]*
+    { 6, 0x42, }, * PAUSE -> f9 [3]*
+    { 7, 0x43, }, * RESET -> f10 [4]*
+    { 8, 0x1e, }, *     1 ->  1/4  SH L1*
+    { 9, 0x1f, }, *     2 ->  2/5  SH R1*
+    { 10, 0x20 }, *     3 ->  3/6 SH L2 *
+    { 11, 0x14 }, *     4 ->  q/r  SH R2*
+    { 12, 0x1a }, *     5 ->  w/t  SELECT*
+    { 13, 0x08 }, *     6 ->  e/y  START*
+    { 14, 0x04 }, *     7 ->  a/f  STICK CLICK LEFT*
+    { 15, 0x16 }, *     8 ->  s/g  STICK CLICK RIGHT*
+*/
+
+uint32_t jmap = *jmap_ptr;
+*jmap_ptr&=0xf;
+
+  static const struct {
+    uint8_t bit1;           // bit of the button bit (1<<bit)
+    uint8_t bit2;           // bit of the button bit (1<<bit)
+    uint8_t key_code;      // usb keycodes to be sent for all joysticks
+    uint8_t button_bit;  
+  } button_map[] = {
+    { 13, 13, 0x3f, 0 }, /* start -> f6 */
+    { 12, 12, 0x40, 0 }, /* select -> f7 */
+    { 10, 10, 0x41, 0 }, /* l2 -> f8 */
+    { 11, 11, 0x41, 0 }, /* r2 -> f8 */
+    { 7, 7, 0x41, 0 }, /* 4 -> f8 */
+    { 10, 11, 0x43, 0 }, /* l2&r2 -> f10 */
+    { 8, 11, 0x42, 0 }, /* l1&r2 -> f9 */
+    { 4, 4, 0x45, 0 }, /* 1 -> f12 */
+    { 5, 5, 0x44, 0 }, /* 2 -> f11 */
+    { 6, 6, 0x00, 4 }, /* 3 -> fire */
+    { 8, 8, 0x00, 4 }, /* l1 -> fire */
+    { 9, 9, 0x00, 4 }, /* r1 -> fire */
+    { 0, 0, 0x00, 0 }  /* ----  end ---- */
+  };
+
+  uint8_t buf[6] = { 0,0,0,0,0,0 };
+  uint8_t p = 0;
+
+  // report up to 6 pressed keys
+  // modify jmap buttons
+  int i;
+  for(i=0;button_map[i].bit1;i++) 
+  {
+    uint32_t mask = 0;
+    mask |= 1<<button_map[i].bit1;
+    mask |= 1<<button_map[i].bit2;
+
+    if((jmap & mask) == mask)
+    {
+      if (p<6 && button_map[i].key_code)
+      {
+          buf[p++] = button_map[i].key_code;
+      }
+
+      if (button_map[i].button_bit)
+      {
+          *jmap_ptr |= 1<<button_map[i].button_bit;
+      }
+    }
+  }
+  // generate key events
+  event_keyboard(0x00, buf);
+}
+
 static uint8_t usb_hid_poll(usb_device_t *dev) {
   usb_hid_info_t *info = &(dev->hid_info);
   int8_t i;
@@ -561,10 +658,14 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
 		//printf("jmap %d(%d) changed to %x\n", idx, iface->jindex,jmap);
 		//baseaddr = temp;
 		//	      iprintf("jmap %d changed to %x\n", idx, jmap);
+		iface->jmap = jmap;
+
+                // do special MCC treatment
+                if(iface->is_MCC)
+                    handle_MCC(iface, &jmap);
 		
 		// and feed into joystick input system
 		event_digital_joystick(idx, jmap);
-		iface->jmap = jmap;
 	      }
 	      
 	      // also send analog values
