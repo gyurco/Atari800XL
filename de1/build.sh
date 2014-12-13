@@ -23,7 +23,7 @@ my %variants =
 #	{
 #		"TV" => $NTSC
 #	},
-	"OLD" =>
+	"BOTH" =>
 	{
 		"TV" => 2
 	}

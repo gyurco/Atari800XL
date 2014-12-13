@@ -290,7 +290,7 @@ begin
 	lightpen <= trig_in_sync(0) and trig_in_sync(1); -- either joystick button				
 	
 	-- keyboard
-	keyboard_response_async <= GPIO_1_IN(7)& GPIO_1_IN(6);
+	keyboard_response_async <= not(gpio_enable&gpio_enable) or (GPIO_1_IN(7)& GPIO_1_IN(6));
 	keyboard_response1_synchronizer : synchronizer
 		port map (clk=>clk, raw=>keyboard_response_async(0), sync=>keyboard_response_gpio(0));						
 	keyboard_response2_synchronizer : synchronizer

@@ -250,6 +250,9 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 	signal pbi_enable: std_logic;
 
 	signal pal : std_logic;
+
+	signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
+	signal PS2_KEYS_NEXT : STD_LOGIC_VECTOR(511 downto 0);
 BEGIN 
 
 	pbi_enable <= SW(4);
@@ -551,7 +554,10 @@ keyboard_map1 : entity work.ps2_to_atari800
 		CONSOL_OPTION => CONSOL_OPTION,
 		
 		FKEYS => FKEYS,
-		FREEZER_ACTIVATE => freezer_activate
+		FREEZER_ACTIVATE => freezer_activate,
+
+		PS2_KEYS_NEXT_OUT => ps2_keys_next,
+		PS2_KEYS => ps2_keys
 	);
 
 KEYBOARD_RESPONSE <= PS2_KEYBOARD_RESPONSE and GPIO_KEYBOARD_RESPONSE;
@@ -599,7 +605,7 @@ atari800 : entity work.atari800core
 		CB2_IN => CB2_IN,
 		CB2_OUT => CB2_OUT,
 		CB2_DIR_OUT => CB2_DIR_OUT,
-		PORTA_IN => PORTA_IN,
+		PORTA_IN => PORTA_IN and not("0000"&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)),
 		PORTA_DIR_OUT => PORTA_DIR_OUT,
 		PORTA_OUT => PORTA_OUT,
 		PORTB_IN => PORTB_IN,
@@ -637,7 +643,7 @@ atari800 : entity work.atari800core
 		CONSOL_OPTION => CONSOL_OPTION,
 		CONSOL_SELECT => CONSOL_SELECT,
 		CONSOL_START=> CONSOL_START,
-		GTIA_TRIG => GTIA_TRIG,
+		GTIA_TRIG => GTIA_TRIG and not("000"&ps2_keys(16#5A#)),
 		
 		ANTIC_LIGHTPEN => ANTIC_LIGHTPEN,
 
@@ -733,7 +739,9 @@ zpu: entity work.zpucore
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
-		ZPU_IN1 => X"00000"&FKEYS,
+		ZPU_IN1 => X"000"&
+			"00"&ps2_keys(16#76#)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
+			FKEYS,
 		ZPU_IN2 => X"00000000",
 		ZPU_IN3 => X"00000000",
 		ZPU_IN4 => X"00000000",
