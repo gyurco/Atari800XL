@@ -521,11 +521,20 @@ uint32_t jmap = *jmap_ptr;
     uint8_t key_code;      // usb keycodes to be sent for all joysticks
     uint8_t button_bit;  
   } button_map[] = {
+#ifndef FIRMWARE_5200
     { 13, 13, 0x3f, 0 }, /* start -> f6 */
     { 12, 12, 0x40, 0 }, /* select -> f7 */
     { 10, 10, 0x41, 0 }, /* l2 -> f8 */
     { 11, 11, 0x41, 0 }, /* r2 -> f8 */
     { 7, 7, 0x41, 0 }, /* 4 -> f8 */
+#endif
+#ifdef FIRMWARE_5200
+    { 13, 13, 0x3a, 0 }, /* start -> f1 (start) */
+    { 12, 12, 0x3b, 0 }, /* select -> f2 (pause) */
+    { 10, 10, 0x00, 8 }, /* l2 -> fire2 */
+    { 11, 11, 0x00, 8 }, /* r2 -> fire2 */
+    { 7, 7, 0x00, 8 }, /* 4 -> fire2 */
+#endif
     { 10, 11, 0x43, 0 }, /* l2&r2 -> f10 */
     { 8, 11, 0x42, 0 }, /* l1&r2 -> f9 */
     { 4, 4, 0x45, 0 }, /* 1 -> f12 */

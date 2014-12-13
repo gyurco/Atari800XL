@@ -32,7 +32,9 @@ DE1_DIR = de1
 DE1_5200_DIR = de1_5200
 CHAMELEON_DIR = chameleon
 MCC_DIR = mcc
+MCC_5200_DIR = mcc_5200
 MCCTV_DIR = mcctv
+MCCTV_5200_DIR = mcctv_5200
 MIST_DIR = mist
 MIST_5200_DIR = mist_5200
 LINUXSIM_DIR = linux
@@ -43,7 +45,9 @@ DE1_BUILD_DIR = $(BUILD_DIR)/$(DE1_DIR)
 DE1_5200_BUILD_DIR = $(BUILD_DIR)/$(DE1_5200_DIR)
 CHAMELEON_BUILD_DIR = $(BUILD_DIR)/$(CHAMELEON_DIR)
 MCC_BUILD_DIR = $(BUILD_DIR)/$(MCC_DIR)
+MCC_5200_BUILD_DIR = $(BUILD_DIR)/$(MCC_5200_DIR)
 MCCTV_BUILD_DIR = $(BUILD_DIR)/$(MCCTV_DIR)
+MCCTV_5200_BUILD_DIR = $(BUILD_DIR)/$(MCCTV_5200_DIR)
 MIST_BUILD_DIR = $(BUILD_DIR)/$(MIST_DIR)
 MIST_5200_BUILD_DIR = $(BUILD_DIR)/$(MIST_5200_DIR)
 LINUXSIM_BUILD_DIR = $(BUILD_DIR)/$(LINUXSIM_DIR)
@@ -82,10 +86,18 @@ MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) mcc/dirs.c
 #MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mcc/dirs.c
 MCC_OBJ = $(patsubst %.c,$(MCC_BUILD_DIR)/%.o,$(MCC_SRC))
 
+MCC_5200_PRJ = MCC216_5200
+MCC_5200_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(5200_SRC) $(USB_SRC) mcc_5200/dirs.c
+MCC_5200_OBJ = $(patsubst %.c,$(MCC_5200_BUILD_DIR)/%.o,$(MCC_5200_SRC))
+
 MCCTV_PRJ = MCCTV
 MCCTV_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) mcc/dirs.c
 #MCCTV_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mcc/dirs.c
 MCCTV_OBJ = $(patsubst %.c,$(MCCTV_BUILD_DIR)/%.o,$(MCCTV_SRC))
+
+MCCTV_5200_PRJ = MCCTV_5200
+MCCTV_5200_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(5200_SRC) $(USB_SRC) mcc_5200/dirs.c
+MCCTV_5200_OBJ = $(patsubst %.c,$(MCCTV_5200_BUILD_DIR)/%.o,$(MCCTV_5200_SRC))
 
 MIST_PRJ = MIST
 MIST_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mist/dirs.c
@@ -127,10 +139,12 @@ LFLAGS_5200  = -nostartfiles -Wl,--relax -g -Os -Wl,-Map=out.map
 CFLAGS_USB = $(CFLAGS) -DUSB -Iusb
 CFLAGS_USB2 = $(CFLAGS) -DUSB -DUSB2 -Iusb
 CFLAGS_5200 = $(CFLAGS) -DFIRMWARE_5200
+CFLAGS_5200_USB = $(CFLAGS) -DFIRMWARE_5200 -DUSB -Iusb
+CFLAGS_5200_USB2 = $(CFLAGS) -DFIRMWARE_5200  -DUSB -DUSB2 -Iusb
 HOST_CFLAGS_5200 = $(HOST_CFLAGS) -DFIRMWARE_5200
 
 # Our target.
-all: mcc mcctv mist de1 aeon_lite chameleon  de1_5200 mist_5200
+all: mcc mcctv mist de1 aeon_lite chameleon  de1_5200 mist_5200 mcc_5200 mcctv_5200
 
 install:
 	cd ../common/romgen && ./createall && cd ../../firmware
@@ -145,7 +159,11 @@ chameleon: $(BUILD_DIR) $(CHAMELEON_PRJ).bin $(CHAMELEON_PRJ).rpt
 
 mcc: $(BUILD_DIR) $(MCC_PRJ).bin $(MCC_PRJ).rpt
 
+mcc_5200: $(BUILD_DIR) $(MCC_5200_PRJ).bin $(MCC_5200_PRJ).rpt
+
 mcctv: $(BUILD_DIR) $(MCCTV_PRJ).bin $(MCCTV_PRJ).rpt
+
+mcctv_5200: $(BUILD_DIR) $(MCCTV_5200_PRJ).bin $(MCCTV_5200_PRJ).rpt
 
 mist: $(BUILD_DIR) $(MIST_PRJ).bin $(MIST_PRJ).rpt
 
@@ -192,8 +210,14 @@ $(MCC_PRJ).elf: $(MINSTARTUP_OBJ) $(MCC_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP_LARGE) -o $@ $+ $(LIBS)
 #	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
+$(MCC_5200_PRJ).elf: $(MINSTARTUP_OBJ) $(MCC_5200_OBJ)
+	$(LD) $(LFLAGS_5200) -T $(LINKMAP_LARGE) -o $@ $+ $(LIBS)
+
 $(MCCTV_PRJ).elf: $(MINSTARTUP_OBJ) $(MCCTV_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP_LARGE) -o $@ $+ $(LIBS)
+
+$(MCCTV_5200_PRJ).elf: $(MINSTARTUP_OBJ) $(MCCTV_5200_OBJ)
+	$(LD) $(LFLAGS_5200) -T $(LINKMAP_LARGE) -o $@ $+ $(LIBS)
 
 $(MIST_PRJ).elf: $(MINSTARTUP_OBJ) $(MIST_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
@@ -227,9 +251,17 @@ $(MCC_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
 	$(CC) -I$(MCC_DIR) $(CFLAGS_USB)  -o $@ -c $<
 
+$(MCC_5200_BUILD_DIR)/%.o: %.c Makefile
+	mkdir -p `dirname $@`
+	$(CC) -I$(MCC_5200_DIR) $(CFLAGS_5200_USB)  -o $@ -c $<
+
 $(MCCTV_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
 	$(CC) -I$(MCCTV_DIR) $(CFLAGS_USB2)  -o $@ -c $<
+
+$(MCCTV_5200_BUILD_DIR)/%.o: %.c Makefile
+	mkdir -p `dirname $@`
+	$(CC) -I$(MCCTV_5200_DIR) $(CFLAGS_5200_USB2)  -o $@ -c $<
 
 $(MIST_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
