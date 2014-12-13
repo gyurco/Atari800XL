@@ -22,6 +22,13 @@ my %variants =
 		"VIDEO" => $RGB,
 		"COMPOSITE_SYNC" => 1
 	},
+	"PAL_RGBHV" => 
+	{
+		"TV" => $PAL,
+		"SCANDOUBLE" => 0,
+		"VIDEO" => $RGB,
+		"COMPOSITE_SYNC" => 0
+	},
 	"PAL_VGA" =>
 	{
 		"TV" => $PAL,
@@ -42,6 +49,13 @@ my %variants =
 		"SCANDOUBLE" => 0,
 		"VIDEO" => $RGB, 
 		"COMPOSITE_SYNC" => 1
+	},
+	"NTSC_RGBHV" =>
+	{
+		"TV" => $NTSC,
+		"SCANDOUBLE" => 0,
+		"VIDEO" => $RGB, 
+		"COMPOSITE_SYNC" => 0
 	},
 	"NTSC_VGA" => 
 	{
