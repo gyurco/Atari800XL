@@ -15,7 +15,7 @@ my $VGA = 2;
 
 my %variants = 
 (
-	"PAL_SVIDEO" => 
+	"PAL_COMPOSITE" => 
 	{
 		"TV" => $PAL,
 		"SCANDOUBLE" => 0,
@@ -24,7 +24,7 @@ my %variants =
 		"internal_rom" => 0,
 		"ext_clock" => 0
 	},
-	"NTSC_SVIDEO" =>
+	"NTSC_COMPOSITE" =>
 	{
 		"TV" => $NTSC,
 		"SCANDOUBLE" => 0,
@@ -52,7 +52,6 @@ foreach my $variant (sort keys %variants)
 	`cp *pll*.* $dir`;
 	`cp sdram_ctrl_3_ports.v $dir`;
 	`cp zpu_rom.vhdl $dir`;
-	`cp ps2_over_usb_to_atari800.vhdl $dir`;
 	`cp atari800core.sdc $dir`;
 	`mkdir $dir/common`;
 	`mkdir $dir/common/a8core`;
