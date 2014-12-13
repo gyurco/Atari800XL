@@ -9,11 +9,23 @@ push @files, glob("mcc216/build*/output_files/*.rbf");
 push @files, glob("mcc216/build*/output_files/*.summary");
 push @files, glob("mcc216/build*/output_files/*.rpt");
 
+push @files, glob("mcc216_5200/build*/output_files/*.arg");
+push @files, glob("mcc216_5200/build*/output_files/*.sof");
+push @files, glob("mcc216_5200/build*/output_files/*.rbf");
+push @files, glob("mcc216_5200/build*/output_files/*.summary");
+push @files, glob("mcc216_5200/build*/output_files/*.rpt");
+
 push @files, glob("mcctv/build*/output_files/*.arg");
 push @files, glob("mcctv/build*/output_files/*.sof");
 push @files, glob("mcctv/build*/output_files/*.rbf");
 push @files, glob("mcctv/build*/output_files/*.summary");
 push @files, glob("mcctv/build*/output_files/*.rpt");
+
+push @files, glob("mcctv_5200/build*/output_files/*.arg");
+push @files, glob("mcctv_5200/build*/output_files/*.sof");
+push @files, glob("mcctv_5200/build*/output_files/*.rbf");
+push @files, glob("mcctv_5200/build*/output_files/*.summary");
+push @files, glob("mcctv_5200/build*/output_files/*.rpt");
 
 push @files, glob("mist/build*/out/*.sof");
 push @files, glob("mist/build*/out/*.rbf");
@@ -31,10 +43,12 @@ push @files, glob("chameleon/build*/output_files/*.summary");
 push @files, glob("chameleon/build*/output_files/*.rpt");
 
 push @files, glob("de1/build*/output_files/*.sof");
+push @files, glob("de1/build*/output_files/*.pof");
 push @files, glob("de1/build*/output_files/*.summary");
 push @files, glob("de1/build*/output_files/*.rpt");
 
 push @files, glob("de1_5200/build*/output_files/*.sof");
+push @files, glob("de1_5200/build*/output_files/*.pof");
 push @files, glob("de1_5200/build*/output_files/*.summary");
 push @files, glob("de1_5200/build*/output_files/*.rpt");
 
