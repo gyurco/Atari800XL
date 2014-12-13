@@ -643,7 +643,7 @@ atari800 : entity work.atari800core
 		CONSOL_OPTION => CONSOL_OPTION,
 		CONSOL_SELECT => CONSOL_SELECT,
 		CONSOL_START=> CONSOL_START,
-		GTIA_TRIG => GTIA_TRIG and not("000"&ps2_keys(16#5A#)),
+		GTIA_TRIG => GTIA_TRIG and not("000"&ps2_keys(16#127#)),
 		
 		ANTIC_LIGHTPEN => ANTIC_LIGHTPEN,
 
