@@ -5,6 +5,10 @@ unsigned char freezer_rom_present = 0;
 
 void actions();
 
+#ifdef USB
+#include "usb.h"
+#endif
+
 void loadosrom()
 {
 	int j=0;
@@ -22,8 +26,21 @@ void loadosrom()
 	}
 }
 
+#ifdef USB
+struct usb_host usb_porta;
+#endif
+#ifdef USB2
+struct usb_host usb_portb;
+#endif
+
 void mainmenu()
 {
+#ifdef USB
+	usb_init(&usb_porta,0);
+#endif
+#ifdef USB2
+	usb_init(&usb_portb,1);
+#endif
 	memset8(SRAM_BASE+0x4000, 0, 32768);
 	memset32(SDRAM_BASE+0x4000, 0, 32768/4);
 
@@ -325,6 +342,12 @@ void actions()
 {
 #ifdef LINUX_BUILD
 	check_keys();
+#endif
+#ifdef USB
+	usb_poll(&usb_porta);
+#endif
+#ifdef USB2
+	usb_poll(&usb_portb);
 #endif
 	// Show some activity!
 	//*atari_colbk = *atari_random;
