@@ -272,6 +272,9 @@ end component;
 	signal keyboard_response_ps2 : std_logic_vector(1 downto 0);
 	signal atari_keyboard : std_logic_vector(63 downto 0);
 
+	signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
+	signal PS2_KEYS_NEXT : STD_LOGIC_VECTOR(511 downto 0);
+
 begin
 pal <= '1' when tv=1 else '0';
 vga <= '1' when video=2 else '0';
@@ -863,7 +866,10 @@ keyboard_map1 : entity work.ps2_to_atari800
 		CONSOL_OPTION => CONSOL_OPTION_ps2,
 		
 		FKEYS => FKEYS_ps2,
-		FREEZER_ACTIVATE => freezer_activate
+		FREEZER_ACTIVATE => freezer_activate,
+
+		PS2_KEYS_NEXT_OUT => ps2_keys_next,
+		PS2_KEYS => ps2_keys
 	);
 
 	-- map to atari key code
@@ -1102,7 +1108,9 @@ zpu: entity work.zpucore
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
-		ZPU_IN1 => X"00000"&(FKEYS or ir_fkeys_reg),
+		ZPU_IN1 => X"000"&
+			"00"&ps2_keys(16#76#)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
+			FKEYS,
 		ZPU_IN2 => X"00000000",
 		ZPU_IN3 => X"00000000",
 		ZPU_IN4 => X"00000000",
