@@ -4,11 +4,29 @@
 
 //#include <stdio.h>
 
+#ifdef USB
+#include "usb.h"
+#endif
+
+#ifdef USB
+extern struct usb_host usb_porta;
+#endif
+#ifdef USB2
+extern struct usb_host usb_portb;
+#endif
+
 void joystick_poll(struct joystick_status * status)
 {
 	status->x_ = 0;
 	status->y_ = 0;
 	status->fire_ = 0;
+
+#ifdef USB
+	usb_poll(&usb_porta);
+#endif
+#ifdef USB2
+	usb_poll(&usb_portb);
+#endif
 
 	unsigned char kbcode = *atari_kbcode;
 	kbcode &= 0x1e;
