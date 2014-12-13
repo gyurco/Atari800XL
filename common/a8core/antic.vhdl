@@ -1509,7 +1509,7 @@ BEGIN
 	-- shift reg clock
 	playfield_reset <= hblank_reg;
 	
-	process(colour_clock_selected, shift_rate_reg, shiftclock_reg, playfield_reset, playfield_load)
+	process(colour_clock_selected, shift_rate_reg, shiftclock_reg, playfield_reset, playfield_load, hscrol_reg, hscrol_enabled_reg)
 	begin
 		shiftclock_next <= shiftclock_reg;
 		enable_shift <= '0';
@@ -1532,7 +1532,7 @@ BEGIN
 			--shiftclock_next(3) <= shiftclock_reg(0) nor playfield_reset;						
 			case shift_rate_reg is
 				when slow_shift =>
-					enable_shift <= shiftclock_reg(0);
+					enable_shift <= (shiftclock_reg(0) and not(hscrol_reg(1) and hscrol_enabled_reg)) or (shiftclock_reg(2) and hscrol_reg(1) and hscrol_enabled_reg);
 				when medium_shift =>
 					enable_shift <= shiftclock_reg(2) or shiftclock_reg(0);
 				when fast_shift =>			
