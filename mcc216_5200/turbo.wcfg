@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="atari800core_mcc.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="atari800core_mcc_tb" />
+            <top_module name="attributes" />
+            <top_module name="math_real" />
+            <top_module name="numeric_std" />
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_misc" />
+            <top_module name="std_logic_textio" />
+            <top_module name="std_logic_unsigned" />
+            <top_module name="textio" />
+            <top_module name="vl_types" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="9" />
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/atari800xl/enables/speed_shift_next" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">speed_shift_next[15:0]</obj_property>
+      <obj_property name="ObjectShortName">speed_shift_next[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/atari800xl/enables/speed_shift_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">speed_shift_reg[15:0]</obj_property>
+      <obj_property name="ObjectShortName">speed_shift_reg[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/atari800xl/enables/throttle_count_6502" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">throttle_count_6502[5:0]</obj_property>
+      <obj_property name="ObjectShortName">throttle_count_6502[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/atari800xl/enables/enable_179" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">enable_179</obj_property>
+      <obj_property name="ObjectShortName">enable_179</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/atari800xl/enables/cpu_enable_out" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cpu_enable_out</obj_property>
+      <obj_property name="ObjectShortName">cpu_enable_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/sdram_request" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_request</obj_property>
+      <obj_property name="ObjectShortName">sdram_request</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/sdram_request_complete" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_request_complete</obj_property>
+      <obj_property name="ObjectShortName">sdram_request_complete</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/sdram_read_enable" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_read_enable</obj_property>
+      <obj_property name="ObjectShortName">sdram_read_enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/atari800core_mcc_tb/atari/atarixl_simple_sdram1/sdram_write_enable" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sdram_write_enable</obj_property>
+      <obj_property name="ObjectShortName">sdram_write_enable</obj_property>
+   </wvobject>
+</wave_config>

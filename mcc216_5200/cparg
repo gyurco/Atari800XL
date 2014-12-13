@@ -1,0 +1,5 @@
+ln -s build_NTSC_SVIDEO/output_files/atari800core.arg atari800core.arg_NTSC_SVIDEO
+ln -s build_PAL_SVIDEO/output_files/atari800core.arg atari800core.arg_PAL_SVIDEO
+ln -s build_NTSC_VGA/output_files/atari800core.arg atari800core.arg_NTSC_VGA
+ln -s build_PAL_VGA/output_files/atari800core.arg atari800core.arg_PAL_VGA
+ln -s build_SIMPLE/output_files/atari800core.arg atari800core.arg_SIMPLE

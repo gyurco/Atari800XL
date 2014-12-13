@@ -1,0 +1,2 @@
+CPU->CTL : 0
+GPU->CPU->CTL : 1
