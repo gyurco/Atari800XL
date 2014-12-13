@@ -16,6 +16,10 @@ cd ../mist_5200
 ./build.sh ALL > build.log 2> build.err&
 cd ../de1_5200
 ./build.sh ALL > build.log 2> build.err&
+cd ../mcc216_5200
+./build.sh ALL &
+cd ../mcctv_5200
+./build.sh ALL &
 
 # TODO variations?
 # TODO SOCkit
