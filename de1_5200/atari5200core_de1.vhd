@@ -198,6 +198,11 @@ ARCHITECTURE vhdl OF atari5200core_de1 IS
 	signal POT_RESET : std_logic;
 	signal POT_IN : std_logic_vector(7 downto 0);
 
+	-- scandoubler
+	signal half_scandouble_enable_reg : std_logic;
+	signal half_scandouble_enable_next : std_logic;
+	signal VIDEO_B : std_logic_vector(7 downto 0);
+
 BEGIN 
 
 -- ANYTHING NOT CONNECTED...
@@ -374,22 +379,38 @@ PORT MAP(clk => CLK,
 		CONSOL => CONSOL_OUT
 		 );
 
---b2v_inst22 : entity work.scandoubler
---PORT MAP(CLK => CLK,
---		 RESET_N => RESET_N,
---		 VGA => VGA,
---		 COMPOSITE_ON_HSYNC => COMPOSITE_ON_HSYNC,
---		 colour_enable => SCANDOUBLER_SHARED_ENABLE_LOW,
---		 doubled_enable => SCANDOUBLER_SHARED_ENABLE_HIGH,
---		 vsync_in => SYNTHESIZED_WIRE_12,
---		 hsync_in => SYNTHESIZED_WIRE_13,
---		 colour_in => SYNTHESIZED_WIRE_14,
---		 VSYNC => VGA_VS,
---		 HSYNC => VGA_HS,
---		 B => VGA_B,
---		 G => VGA_G,
---		 R => VGA_R);
+	process(clk,RESET_N,SDRAM_RESET_N,reset_atari)
+	begin
+		if ((RESET_N and SDRAM_RESET_N and not(reset_atari))='0') then
+			half_scandouble_enable_reg <= '0';
+		elsif (clk'event and clk='1') then
+			half_scandouble_enable_reg <= half_scandouble_enable_next;
+		end if;
+	end process;
 
+	half_scandouble_enable_next <= not(half_scandouble_enable_reg);
+
+scandoubler : entity work.scandoubler
+GENERIC MAP
+(
+	video_bits=>4
+)
+PORT MAP(CLK => CLK,
+		 RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
+		 VGA => SW(7),
+		 COMPOSITE_ON_HSYNC => SW(6),
+		 colour_enable => half_scandouble_enable_reg,
+		 doubled_enable => '1',
+	 	 scanlines_on => SW(5),
+		 vsync_in => VGA_VS_RAW,
+		 hsync_in => VGA_HS_RAW,
+		 pal => '0',
+		 colour_in => VIDEO_B,
+		 VSYNC => VGA_VS,
+		 HSYNC => VGA_HS,
+		 B => VGA_B,
+		 G => VGA_G,
+		 R => VGA_R);
 
 audio_codec_config_over_i2c : entity work.i2c_loader
 GENERIC MAP(device_address => 26,
@@ -468,16 +489,14 @@ zpu_sio_rxd <= SIO_TXD;
 SIO_RXD <= zpu_sio_txd and UART_RXD;
 
 -- VIDEO
-VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
-VGA_VS <= not(VGA_VS_RAW);
-
 CONSOL_IN <= "1000";
 
 atari5200 : entity work.atari5200core
 	GENERIC MAP
 	(
 		cycle_length => 32,
-		video_bits => 4
+		video_bits => 8,
+		palette => 0
 	)
 	PORT MAP
 	(
@@ -486,9 +505,9 @@ atari5200 : entity work.atari5200core
 
 		VIDEO_VS => VGA_VS_RAW,
 		VIDEO_HS => VGA_HS_RAW,
-		VIDEO_B => VGA_B,
-		VIDEO_G => VGA_G,
-		VIDEO_R => VGA_R,
+		VIDEO_B => VIDEO_B,
+		VIDEO_G => open,
+		VIDEO_R => open,
 
 		AUDIO_L => AUDIO_LEFT,
 		AUDIO_R => AUDIO_RIGHT,
