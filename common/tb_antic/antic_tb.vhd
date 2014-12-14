@@ -85,7 +85,7 @@ begin
 	wait until cpu_shared_enable = '1';
 	cpu_wr_en <= '1';
 	cpu_addr <= x"d400";
-	cpu_data_in <= x"22";
+	cpu_data_in <= x"62";
 	wait until cpu_shared_enable = '0';
 	cpu_wr_en <= '0';
 
@@ -147,7 +147,7 @@ begin
 --		fetch_data(15):= x"a5"; -- char6 data
 --		fetch_data(16):= x"12"; -- char8
 
-		fetch_data(0) := x"48";
+		fetch_data(0) := x"42";
 		fetch_data(1) := x"00";
 		fetch_data(2) := x"07";
 		fetch_data(3) := x"ff"; -- char1

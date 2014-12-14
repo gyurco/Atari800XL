@@ -43,6 +43,7 @@ internalromram.vhd
 covox.vhd
 ps2_keyboard.vhdl
 ps2_to_atari800.vhdl
+pot_from_signed.vhdl
 atari800core.vhd
 atari800core_simple_sdram.vhd
 dac.vhd
@@ -53,6 +54,7 @@ pll.vhd
 scandouble_ram_infer.vhdl
 scandoubler.vhdl
 spi_master.vhd
+sio_device.vhdl
 zpupkg.vhd
 zpu_config_regs.vhdl
 zpu_glue.vhdl

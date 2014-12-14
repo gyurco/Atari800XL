@@ -3,7 +3,7 @@ run
 -ifmt VHDL
 -ofn Aeon.ngc
 -ofmt NGC
--p xc6slx9
+-p xc6slx9-tqg144
 -opt_mode Area
 -opt_level 1
 -keep_hierarchy yes

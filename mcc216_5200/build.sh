@@ -64,27 +64,27 @@ foreach my $variant (sort keys %variants)
 	print "Building $variant\n";
 
 	my $dir = "build_$variant";
-	`rm -rf $dir`;
-	mkdir $dir;
-	`cp atari5200core_mcc.vhd $dir`;
-	`cp *pll*.* $dir`;
-	`cp sdram_ctrl_3_ports.v $dir`;
-	`cp zpu_rom.vhdl $dir`;
-	`cp atari5200core.sdc $dir`;
-	`mkdir $dir/common`;
-	`mkdir $dir/common/a8core`;
-	`mkdir $dir/common/components`;
-	`mkdir $dir/common/zpu`;
-	`mkdir $dir/svideo`;
-	`cp ../common/a8core/* ./$dir/common/a8core`;
-	`cp ../common/components/* ./$dir/common/components`;
-	mkdir "./$dir/common/components/usbhostslave";
-	`cp ../common/components/usbhostslave/trunk/RTL/*/*.v ./$dir/common/components/usbhostslave`;
-	`cp ../common/zpu/* ./$dir/common/zpu`;
-	`cp ./svideo/* ./$dir/svideo`;
+#	`rm -rf $dir`;
+#	mkdir $dir;
+#	`cp atari5200core_mcc.vhd $dir`;
+#	`cp *pll*.* $dir`;
+#	`cp sdram_ctrl_3_ports.v $dir`;
+#	`cp zpu_rom.vhdl $dir`;
+#	`cp atari5200core.sdc $dir`;
+#	`mkdir $dir/common`;
+#	`mkdir $dir/common/a8core`;
+#	`mkdir $dir/common/components`;
+#	`mkdir $dir/common/zpu`;
+#	`mkdir $dir/svideo`;
+#	`cp ../common/a8core/* ./$dir/common/a8core`;
+#	`cp ../common/components/* ./$dir/common/components`;
+#	mkdir "./$dir/common/components/usbhostslave";
+#	`cp ../common/components/usbhostslave/trunk/RTL/*/*.v ./$dir/common/components/usbhostslave`;
+#	`cp ../common/zpu/* ./$dir/common/zpu`;
+#	`cp ./svideo/* ./$dir/svideo`;
 
 	chdir $dir;
-	`../makeqsf ../atari5200core.qsf ./svideo ./common/a8core ./common/components ./common/zpu ./common/components/usbhostslave`;
+#	`../makeqsf ../atari5200core.qsf ./svideo ./common/a8core ./common/components ./common/zpu ./common/components/usbhostslave`;
 
 	foreach my $key (sort keys %{$variants{$variant}})
 	{
@@ -92,7 +92,7 @@ foreach my $variant (sort keys %variants)
 		`echo set_parameter -name $key $val >> atari5200core.qsf`;
 	}
 
-	`quartus_sh --flow compile atari5200core > build.log 2> build.err`;
+#	`quartus_sh --flow compile atari5200core > build.log 2> build.err`;
 
 	`quartus_cpf --convert ../output_file.cof`;
 	my $vga = 1;

@@ -1,0 +1,1088 @@
+cp: omitting directory ‘../common/components/usbhostslave’
+cp: omitting directory ‘../common/zpu/sim’
+cp: omitting directory ‘../common/zpu/tb’
+Info: *******************************************************************
+Info: Running Quartus II 64-Bit Shell
+    Info: Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
+    Info: Copyright (C) 1991-2014 Altera Corporation. All rights reserved.
+    Info: Your use of Altera Corporation's design tools, logic functions 
+    Info: and other software and tools, and its AMPP partner logic 
+    Info: functions, and any output files from any of the foregoing 
+    Info: (including device programming or simulation files), and any 
+    Info: associated documentation or information are expressly subject 
+    Info: to the terms and conditions of the Altera Program License 
+    Info: Subscription Agreement, the Altera Quartus II License Agreement,
+    Info: the Altera MegaCore Function License Agreement, or other 
+    Info: applicable license agreement, including, without limitation, 
+    Info: that your use is for the sole purpose of programming logic 
+    Info: devices manufactured by Altera and sold by Altera or its 
+    Info: authorized distributors.  Please refer to the applicable 
+    Info: agreement for further details.
+    Info: Processing started: Sun Dec 14 20:17:06 2014
+Info: Command: quartus_sh --flow compile atari800core
+Info: Quartus(args): compile atari800core
+Info: Project Name = /home/markw/fpga/svn/repo/trunk/atari_800xl/sockit/build/atari800core
+Info: Revision Name = atari800core
+Info (125068): Revision "atari800core" was previously opened in Quartus II software version 13.1. Created Quartus II Default Settings File /home/markw/fpga/svn/repo/trunk/atari_800xl/sockit/build/atari800core_assignment_defaults.qdf, which contains the default assignment setting information from Quartus II software version 13.1.
+Info (125069): Default assignment values were changed in the current version of the Quartus II software -- changes to default assignments values are contained in file /home/markw/fpga/altera/14.0/quartus/linux64/assignment_defaults.qdf
+Info: *******************************************************************
+Info: Running Quartus II 64-Bit Analysis & Synthesis
+    Info: Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
+    Info: Processing started: Sun Dec 14 20:17:11 2014
+Info: Command: quartus_map --read_settings_files=on --write_settings_files=off atari800core -c atari800core
+Info (11104): Parallel Compilation has detected 4 hyper-threaded processors. However, the extra hyper-threaded processors will not be used by default. Parallel Compilation will use 2 of the 2 physical processors detected instead.
+Info (12021): Found 2 design units, including 1 entities, in source file pll_pal.vhd
+    Info (12022): Found design unit 1: pll_pal-rtl
+    Info (12023): Found entity 1: pll_pal
+Info (12021): Found 1 design units, including 1 entities, in source file pll_pal/pll_pal_0002.v
+    Info (12023): Found entity 1: pll_pal_0002
+Info (12021): Found 4 design units, including 2 entities, in source file altiobuf.vhd
+    Info (12022): Found design unit 1: altiobuf_iobuf_bidir_lup-RTL
+    Info (12022): Found design unit 2: altiobuf-RTL
+    Info (12023): Found entity 1: altiobuf_iobuf_bidir_lup
+    Info (12023): Found entity 2: altiobuf
+Info (12021): Found 4 design units, including 2 entities, in source file altiobufo.vhd
+    Info (12022): Found design unit 1: altiobufo_iobuf_out_h5u-RTL
+    Info (12022): Found design unit 2: altiobufo-RTL
+    Info (12023): Found entity 1: altiobufo_iobuf_out_h5u
+    Info (12023): Found entity 2: altiobufo
+Info (12021): Found 2 design units, including 1 entities, in source file atari800core_sockit.vhdl
+    Info (12022): Found design unit 1: atari800core_sockit-vhdl
+    Info (12023): Found entity 1: atari800core_sockit
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/atari5200core.vhd
+    Info (12022): Found design unit 1: atari5200core-bdf_type
+    Info (12023): Found entity 1: atari5200core
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/atari5200core_simplesdram.vhd
+    Info (12022): Found design unit 1: atari5200core_simplesdram-vhdl
+    Info (12023): Found entity 1: atari5200core_simplesdram
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/atari800core.vhd
+    Info (12022): Found design unit 1: atari800core-bdf_type
+    Info (12023): Found entity 1: atari800core
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/atari800core_helloworld.vhd
+    Info (12022): Found design unit 1: atari800core_helloworld-vhdl
+    Info (12023): Found entity 1: atari800core_helloworld
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/atari800core_simple_sdram.vhd
+    Info (12022): Found design unit 1: atari800core_simple_sdram-vhdl
+    Info (12023): Found entity 1: atari800core_simple_sdram
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/cart_logic.vhd
+    Info (12022): Found design unit 1: CartLogic-vhdl
+    Info (12023): Found entity 1: CartLogic
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/covox.vhd
+    Info (12022): Found design unit 1: covox-vhdl
+    Info (12023): Found entity 1: covox
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/cpu.vhd
+    Info (12022): Found design unit 1: cpu-vhdl
+    Info (12023): Found entity 1: cpu
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/cpu_6510.vhd
+    Info (12022): Found design unit 1: cpu_6510-rtl
+    Info (12023): Found entity 1: cpu_6510
+Info (12021): Found 1 design units, including 0 entities, in source file common/a8core/cpu_65xx_a.vhd
+    Info (12022): Found design unit 1: cpu_65xx-rtl
+Info (12021): Found 1 design units, including 1 entities, in source file common/a8core/cpu_65xx_e.vhd
+    Info (12023): Found entity 1: cpu_65xx
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/freezer_logic.vhd
+    Info (12022): Found design unit 1: FreezerLogic-RTL
+    Info (12023): Found entity 1: FreezerLogic
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/internalromram.vhd
+    Info (12022): Found design unit 1: internalromram-vhdl
+    Info (12023): Found entity 1: internalromram
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/timing6502.vhd
+    Info (12022): Found design unit 1: timing6502-vhdl
+    Info (12023): Found entity 1: timing6502
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/address_decoder.vhdl
+    Info (12022): Found design unit 1: address_decoder-vhdl
+    Info (12023): Found entity 1: address_decoder
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/antic.vhdl
+    Info (12022): Found design unit 1: antic-vhdl
+    Info (12023): Found entity 1: antic
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/antic_counter.vhdl
+    Info (12022): Found design unit 1: antic_counter-vhdl
+    Info (12023): Found entity 1: antic_counter
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/antic_dma_clock.vhdl
+    Info (12022): Found design unit 1: antic_dma_clock-vhdl
+    Info (12023): Found entity 1: antic_dma_clock
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/basic.vhdl
+    Info (12022): Found design unit 1: basic-syn
+    Info (12023): Found entity 1: basic
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/enable_divider.vhdl
+    Info (12022): Found design unit 1: enable_divider-vhdl
+    Info (12023): Found entity 1: enable_divider
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/gtia.vhdl
+    Info (12022): Found design unit 1: gtia-vhdl
+    Info (12023): Found entity 1: gtia
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/gtia_palette.vhdl
+    Info (12022): Found design unit 1: gtia_palette-vhdl
+    Info (12023): Found entity 1: gtia_palette
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/gtia_player.vhdl
+    Info (12022): Found design unit 1: gtia_player-vhdl
+    Info (12023): Found entity 1: gtia_player
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/gtia_priority.vhdl
+    Info (12022): Found design unit 1: gtia_priority-vhdl
+    Info (12023): Found entity 1: gtia_priority
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/irq_glue.vhdl
+    Info (12022): Found design unit 1: irq_glue-vhdl
+    Info (12023): Found entity 1: irq_glue
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/os16.vhdl
+    Info (12022): Found design unit 1: os16-syn
+    Info (12023): Found entity 1: os16
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/os16_loop.vhdl
+    Info (12022): Found design unit 1: os16_loop-syn
+    Info (12023): Found entity 1: os16_loop
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/os2.vhdl
+    Info (12022): Found design unit 1: os2-syn
+    Info (12023): Found entity 1: os2
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/os8.vhdl
+    Info (12022): Found design unit 1: os8-syn
+    Info (12023): Found entity 1: os8
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/os_5200.vhdl
+    Info (12022): Found design unit 1: os_5200-syn
+    Info (12023): Found entity 1: os_5200
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/pia.vhdl
+    Info (12022): Found design unit 1: pia-vhdl
+    Info (12023): Found entity 1: pia
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/pokey.vhdl
+    Info (12022): Found design unit 1: pokey-vhdl
+    Info (12023): Found entity 1: pokey
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/pokey_countdown_timer.vhdl
+    Info (12022): Found design unit 1: pokey_countdown_timer-vhdl
+    Info (12023): Found entity 1: pokey_countdown_timer
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/pokey_keyboard_scanner.vhdl
+    Info (12022): Found design unit 1: pokey_keyboard_scanner-vhdl
+    Info (12023): Found entity 1: pokey_keyboard_scanner
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/pokey_mixer.vhdl
+    Info (12022): Found design unit 1: pokey_mixer-vhdl
+    Info (12023): Found entity 1: pokey_mixer
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/pokey_mixer_mux.vhdl
+    Info (12022): Found design unit 1: pokey_mixer_mux-vhdl
+    Info (12023): Found entity 1: pokey_mixer_mux
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/pokey_noise_filter.vhdl
+    Info (12022): Found design unit 1: pokey_noise_filter-vhdl
+    Info (12023): Found entity 1: pokey_noise_filter
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/pokey_poly_17_9.vhdl
+    Info (12022): Found design unit 1: pokey_poly_17_9-vhdl
+    Info (12023): Found entity 1: pokey_poly_17_9
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/pokey_poly_4.vhdl
+    Info (12022): Found design unit 1: pokey_poly_4-vhdl
+    Info (12023): Found entity 1: pokey_poly_4
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/pokey_poly_5.vhdl
+    Info (12022): Found design unit 1: pokey_poly_5-vhdl
+    Info (12023): Found entity 1: pokey_poly_5
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/pot_from_signed.vhdl
+    Info (12022): Found design unit 1: pot_from_signed-vhdl
+    Info (12023): Found entity 1: pot_from_signed
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/ps2_to_atari5200.vhdl
+    Info (12022): Found design unit 1: ps2_to_atari5200-vhdl
+    Info (12023): Found entity 1: ps2_to_atari5200
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/ps2_to_atari800.vhdl
+    Info (12022): Found design unit 1: ps2_to_atari800-vhdl
+    Info (12023): Found entity 1: ps2_to_atari800
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/reg_file.vhdl
+    Info (12022): Found design unit 1: reg_file-vhdl
+    Info (12023): Found entity 1: reg_file
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/shared_enable.vhdl
+    Info (12022): Found design unit 1: shared_enable-vhdl
+    Info (12023): Found entity 1: shared_enable
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/simple_counter.vhdl
+    Info (12022): Found design unit 1: simple_counter-vhdl
+    Info (12023): Found entity 1: simple_counter
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/sio_device.vhdl
+    Info (12022): Found design unit 1: sio_device-vhdl
+    Info (12023): Found entity 1: sio_device
+Info (12021): Found 2 design units, including 1 entities, in source file common/a8core/wide_delay_line.vhdl
+    Info (12022): Found design unit 1: wide_delay_line-vhdl
+    Info (12023): Found entity 1: wide_delay_line
+Info (12021): Found 1 design units, including 1 entities, in source file common/components/hq_dac.v
+    Info (12023): Found entity 1: hq_dac
+Info (12021): Found 2 design units, including 1 entities, in source file common/components/spi_master.vhd
+    Info (12022): Found design unit 1: spi_master-logic
+    Info (12023): Found entity 1: spi_master
+Info (12021): Found 2 design units, including 1 entities, in source file common/components/syncreset_enable_divider.vhd
+    Info (12022): Found design unit 1: syncreset_enable_divider-vhdl
+    Info (12023): Found entity 1: syncreset_enable_divider
+Info (12021): Found 2 design units, including 1 entities, in source file common/components/complete_address_decoder.vhdl
+    Info (12022): Found design unit 1: complete_address_decoder-tree
+    Info (12023): Found entity 1: complete_address_decoder
+Info (12021): Found 2 design units, including 1 entities, in source file common/components/delay_line.vhdl
+    Info (12022): Found design unit 1: delay_line-vhdl
+    Info (12023): Found entity 1: delay_line
+Info (12021): Found 2 design units, including 1 entities, in source file common/components/generic_ram_infer.vhdl
+    Info (12022): Found design unit 1: generic_ram_infer-rtl
+    Info (12023): Found entity 1: generic_ram_infer
+Info (12021): Found 2 design units, including 1 entities, in source file common/components/ps2_keyboard.vhdl
+    Info (12022): Found design unit 1: ps2_keyboard-vhdl
+    Info (12023): Found entity 1: ps2_keyboard
+Info (12021): Found 2 design units, including 1 entities, in source file common/components/scandouble_ram_infer.vhdl
+    Info (12022): Found design unit 1: scandouble_ram_infer-rtl
+    Info (12023): Found entity 1: scandouble_ram_infer
+Info (12021): Found 2 design units, including 1 entities, in source file common/components/scandoubler.vhdl
+    Info (12022): Found design unit 1: scandoubler-vhdl
+    Info (12023): Found entity 1: scandoubler
+Info (12021): Found 2 design units, including 1 entities, in source file common/components/sdram_statemachine.vhdl
+    Info (12022): Found design unit 1: sdram_statemachine-vhdl
+    Info (12023): Found entity 1: sdram_statemachine
+Info (12021): Found 2 design units, including 1 entities, in source file common/components/synchronizer.vhdl
+    Info (12022): Found design unit 1: synchronizer-vhdl
+    Info (12023): Found entity 1: synchronizer
+Info (12021): Found 2 design units, including 1 entities, in source file common/zpu/zpu_core.vhd
+    Info (12022): Found design unit 1: ZPUMediumCore-Behave
+    Info (12023): Found entity 1: ZPUMediumCore
+Info (12021): Found 2 design units, including 1 entities, in source file common/zpu/zpucore.vhd
+    Info (12022): Found design unit 1: zpucore-vhdl
+    Info (12023): Found entity 1: zpucore
+Info (12021): Found 2 design units, including 0 entities, in source file common/zpu/zpupkg.vhd
+    Info (12022): Found design unit 1: zpupkg
+    Info (12022): Found design unit 2: UART
+Info (12021): Found 2 design units, including 1 entities, in source file common/zpu/zpu_config_regs.vhdl
+    Info (12022): Found design unit 1: zpu_config_regs-vhdl
+    Info (12023): Found entity 1: zpu_config_regs
+Info (12021): Found 2 design units, including 1 entities, in source file common/zpu/zpu_glue.vhdl
+    Info (12022): Found design unit 1: zpu_glue-sticky
+    Info (12023): Found entity 1: zpu_glue
+Info (12127): Elaborating entity "atari800core_sockit" for the top level hierarchy
+Info (12128): Elaborating entity "altiobuf_iobuf_bidir_lup" for hierarchy "altiobuf_iobuf_bidir_lup:iobuf1"
+Info (12128): Elaborating entity "altiobufo_iobuf_out_h5u" for hierarchy "altiobufo_iobuf_out_h5u:iobuf2"
+Info (12128): Elaborating entity "pll_pal" for hierarchy "pll_pal:pll"
+Info (12128): Elaborating entity "pll_pal_0002" for hierarchy "pll_pal:pll|pll_pal_0002:pll_pal_inst"
+Info (12128): Elaborating entity "altera_pll" for hierarchy "pll_pal:pll|pll_pal_0002:pll_pal_inst|altera_pll:altera_pll_i"
+Info (10008): Verilog HDL or VHDL information: EDA Netlist Writer cannot regroup multidimensional array "wire_to_nowhere_64" into its bus
+Info (12130): Elaborated megafunction instantiation "pll_pal:pll|pll_pal_0002:pll_pal_inst|altera_pll:altera_pll_i"
+Info (12133): Instantiated megafunction "pll_pal:pll|pll_pal_0002:pll_pal_inst|altera_pll:altera_pll_i" with the following parameter:
+    Info (12134): Parameter "fractional_vco_multiplier" = "false"
+    Info (12134): Parameter "reference_clock_frequency" = "50.0 MHz"
+    Info (12134): Parameter "operation_mode" = "normal"
+    Info (12134): Parameter "number_of_clocks" = "1"
+    Info (12134): Parameter "output_clock_frequency0" = "56.750000 MHz"
+    Info (12134): Parameter "phase_shift0" = "0 ps"
+    Info (12134): Parameter "duty_cycle0" = "50"
+    Info (12134): Parameter "output_clock_frequency1" = "0 MHz"
+    Info (12134): Parameter "phase_shift1" = "0 ps"
+    Info (12134): Parameter "duty_cycle1" = "50"
+    Info (12134): Parameter "output_clock_frequency2" = "0 MHz"
+    Info (12134): Parameter "phase_shift2" = "0 ps"
+    Info (12134): Parameter "duty_cycle2" = "50"
+    Info (12134): Parameter "output_clock_frequency3" = "0 MHz"
+    Info (12134): Parameter "phase_shift3" = "0 ps"
+    Info (12134): Parameter "duty_cycle3" = "50"
+    Info (12134): Parameter "output_clock_frequency4" = "0 MHz"
+    Info (12134): Parameter "phase_shift4" = "0 ps"
+    Info (12134): Parameter "duty_cycle4" = "50"
+    Info (12134): Parameter "output_clock_frequency5" = "0 MHz"
+    Info (12134): Parameter "phase_shift5" = "0 ps"
+    Info (12134): Parameter "duty_cycle5" = "50"
+    Info (12134): Parameter "output_clock_frequency6" = "0 MHz"
+    Info (12134): Parameter "phase_shift6" = "0 ps"
+    Info (12134): Parameter "duty_cycle6" = "50"
+    Info (12134): Parameter "output_clock_frequency7" = "0 MHz"
+    Info (12134): Parameter "phase_shift7" = "0 ps"
+    Info (12134): Parameter "duty_cycle7" = "50"
+    Info (12134): Parameter "output_clock_frequency8" = "0 MHz"
+    Info (12134): Parameter "phase_shift8" = "0 ps"
+    Info (12134): Parameter "duty_cycle8" = "50"
+    Info (12134): Parameter "output_clock_frequency9" = "0 MHz"
+    Info (12134): Parameter "phase_shift9" = "0 ps"
+    Info (12134): Parameter "duty_cycle9" = "50"
+    Info (12134): Parameter "output_clock_frequency10" = "0 MHz"
+    Info (12134): Parameter "phase_shift10" = "0 ps"
+    Info (12134): Parameter "duty_cycle10" = "50"
+    Info (12134): Parameter "output_clock_frequency11" = "0 MHz"
+    Info (12134): Parameter "phase_shift11" = "0 ps"
+    Info (12134): Parameter "duty_cycle11" = "50"
+    Info (12134): Parameter "output_clock_frequency12" = "0 MHz"
+    Info (12134): Parameter "phase_shift12" = "0 ps"
+    Info (12134): Parameter "duty_cycle12" = "50"
+    Info (12134): Parameter "output_clock_frequency13" = "0 MHz"
+    Info (12134): Parameter "phase_shift13" = "0 ps"
+    Info (12134): Parameter "duty_cycle13" = "50"
+    Info (12134): Parameter "output_clock_frequency14" = "0 MHz"
+    Info (12134): Parameter "phase_shift14" = "0 ps"
+    Info (12134): Parameter "duty_cycle14" = "50"
+    Info (12134): Parameter "output_clock_frequency15" = "0 MHz"
+    Info (12134): Parameter "phase_shift15" = "0 ps"
+    Info (12134): Parameter "duty_cycle15" = "50"
+    Info (12134): Parameter "output_clock_frequency16" = "0 MHz"
+    Info (12134): Parameter "phase_shift16" = "0 ps"
+    Info (12134): Parameter "duty_cycle16" = "50"
+    Info (12134): Parameter "output_clock_frequency17" = "0 MHz"
+    Info (12134): Parameter "phase_shift17" = "0 ps"
+    Info (12134): Parameter "duty_cycle17" = "50"
+    Info (12134): Parameter "pll_type" = "General"
+    Info (12134): Parameter "pll_subtype" = "General"
+Info (12128): Elaborating entity "atari800core_simple_sdram" for hierarchy "atari800core_simple_sdram:atari800core1"
+Warning (10873): Using initial value X (don't care) for net "RAM_DO[15..8]" at atari800core_simple_sdram.vhd(181)
+Info (12128): Elaborating entity "pot_from_signed" for hierarchy "atari800core_simple_sdram:atari800core1|pot_from_signed:pot0"
+Info (12128): Elaborating entity "enable_divider" for hierarchy "atari800core_simple_sdram:atari800core1|pot_from_signed:pot0|enable_divider:enable_179_clock_div"
+Info (12128): Elaborating entity "enable_divider" for hierarchy "atari800core_simple_sdram:atari800core1|pot_from_signed:pot0|enable_divider:pot_clock_div"
+Info (12128): Elaborating entity "internalromram" for hierarchy "atari800core_simple_sdram:atari800core1|internalromram:internalromram1"
+Info (12128): Elaborating entity "os16" for hierarchy "atari800core_simple_sdram:atari800core1|internalromram:internalromram1|os16:\gen_internal_os:rom16a"
+Info (12128): Elaborating entity "basic" for hierarchy "atari800core_simple_sdram:atari800core1|internalromram:internalromram1|basic:\gen_internal_os:basic1"
+Info (12128): Elaborating entity "generic_ram_infer" for hierarchy "atari800core_simple_sdram:atari800core1|internalromram:internalromram1|generic_ram_infer:\gen_internal_ram:ramint1"
+Info (12128): Elaborating entity "atari800core" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl"
+Warning (10036): Verilog HDL or VHDL warning at atari800core.vhd(204): object "hcount_temp" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at atari800core.vhd(205): object "vcount_temp" assigned a value but never read
+Info (12128): Elaborating entity "shared_enable" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|shared_enable:enables"
+Info (12128): Elaborating entity "delay_line" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|shared_enable:enables|delay_line:delay_line_phase"
+Info (12128): Elaborating entity "cpu" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|cpu:cpu6502"
+Warning (10036): Verilog HDL or VHDL warning at cpu.vhd(64): object "debugOpcode" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at cpu.vhd(65): object "debugPc" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at cpu.vhd(66): object "debugA" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at cpu.vhd(67): object "debugX" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at cpu.vhd(68): object "debugY" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at cpu.vhd(69): object "debugS" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at cpu.vhd(81): object "CPU_ENABLE_RESET" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at cpu.vhd(82): object "not_rdy" assigned a value but never read
+Info (12128): Elaborating entity "cpu_65xx" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|cpu:cpu6502|cpu_65xx:cpu_6502_peter"
+Info (12128): Elaborating entity "antic" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1"
+Warning (10036): Verilog HDL or VHDL warning at antic.vhdl(222): object "playfield_dma_start" assigned a value but never read
+Info (12128): Elaborating entity "antic_counter" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|antic_counter:antic_counter_memory_scan"
+Info (12128): Elaborating entity "antic_counter" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|antic_counter:antic_counter_display_list"
+Info (12128): Elaborating entity "simple_counter" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|simple_counter:antic_counter_line_buffer"
+Info (12128): Elaborating entity "simple_counter" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|simple_counter:antic_counter_row_count"
+Info (12128): Elaborating entity "wide_delay_line" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|wide_delay_line:nmien_delay"
+Info (12128): Elaborating entity "antic_dma_clock" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|antic_dma_clock:antic_dma_clock1"
+Info (12128): Elaborating entity "reg_file" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|reg_file:reg_file1"
+Info (12128): Elaborating entity "complete_address_decoder" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|reg_file:reg_file1|complete_address_decoder:complete_address_decoder1"
+Info (12128): Elaborating entity "wide_delay_line" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|wide_delay_line:vscrol_delay"
+Info (12128): Elaborating entity "wide_delay_line" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|wide_delay_line:chbase_delay"
+Info (12128): Elaborating entity "complete_address_decoder" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|complete_address_decoder:decode_addr1"
+Info (12128): Elaborating entity "delay_line" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|delay_line:wsync_delay"
+Info (12128): Elaborating entity "pokey_mixer_mux" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey_mixer_mux:pokey_mixer_both"
+Info (12128): Elaborating entity "pokey_mixer" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey_mixer_mux:pokey_mixer_both|pokey_mixer:shared_pokey_mixer"
+Info (12128): Elaborating entity "pokey" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey:pokey2"
+Info (12128): Elaborating entity "pokey_countdown_timer" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey:pokey2|pokey_countdown_timer:timer0"
+Info (12128): Elaborating entity "delay_line" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey:pokey2|pokey_countdown_timer:timer0|delay_line:underflow0_delay"
+Info (12128): Elaborating entity "pokey_noise_filter" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey:pokey2|pokey_noise_filter:pokey_noise_filter0"
+Info (12128): Elaborating entity "syncreset_enable_divider" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey:pokey2|syncreset_enable_divider:enable_64_div"
+Info (12128): Elaborating entity "syncreset_enable_divider" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey:pokey2|syncreset_enable_divider:enable_15_div"
+Info (12128): Elaborating entity "pokey_poly_17_9" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey:pokey2|pokey_poly_17_9:poly_17_19_lfsr"
+Info (12128): Elaborating entity "pokey_poly_5" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey:pokey2|pokey_poly_5:poly_5_lfsr"
+Info (12128): Elaborating entity "pokey_poly_4" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey:pokey2|pokey_poly_4:poly_4_lfsr"
+Info (12128): Elaborating entity "delay_line" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey:pokey2|delay_line:serout_clock_delay"
+Info (12128): Elaborating entity "synchronizer" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey:pokey2|synchronizer:sio_in1_synchronizer"
+Info (12128): Elaborating entity "pokey_keyboard_scanner" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey:pokey2|pokey_keyboard_scanner:pokey_keyboard_scanner1"
+Info (12128): Elaborating entity "pia" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pia:pia1"
+Warning (10036): Verilog HDL or VHDL warning at pia.vhdl(103): object "write_ora" assigned a value but never read
+Info (12128): Elaborating entity "complete_address_decoder" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pia:pia1|complete_address_decoder:decode_addr1"
+Info (12128): Elaborating entity "address_decoder" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|address_decoder:mmu1"
+Warning (10036): Verilog HDL or VHDL warning at address_decoder.vhdl(214): object "emu_cart_s4_n_out" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at address_decoder.vhdl(215): object "emu_cart_s5_n_out" assigned a value but never read
+Info (12128): Elaborating entity "CartLogic" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|address_decoder:mmu1|CartLogic:emu_cart"
+Info (12128): Elaborating entity "FreezerLogic" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|address_decoder:mmu1|FreezerLogic:freezer"
+Info (12128): Elaborating entity "generic_ram_infer" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|address_decoder:mmu1|FreezerLogic:freezer|generic_ram_infer:freezer_bram"
+Info (12128): Elaborating entity "gtia" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1"
+Info (12128): Elaborating entity "complete_address_decoder" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|complete_address_decoder:decode_addr1"
+Info (12128): Elaborating entity "delay_line" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|delay_line:hsync_delay"
+Info (12128): Elaborating entity "delay_line" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|delay_line:burst_delay"
+Info (12128): Elaborating entity "gtia_player" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|gtia_player:player0"
+Info (12128): Elaborating entity "gtia_priority" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|gtia_priority:priority_rules"
+Info (12128): Elaborating entity "wide_delay_line" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|wide_delay_line:prior_short_delay"
+Info (12128): Elaborating entity "wide_delay_line" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|wide_delay_line:prior_long_delay"
+Info (12128): Elaborating entity "wide_delay_line" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|wide_delay_line:prior_longer_delay"
+Info (12128): Elaborating entity "wide_delay_line" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|wide_delay_line:colbk_delay"
+Info (12128): Elaborating entity "wide_delay_line" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|wide_delay_line:hposp0_delay"
+Info (12128): Elaborating entity "wide_delay_line" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|wide_delay_line:sizem_delay"
+Info (12128): Elaborating entity "gtia_palette" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia_palette:\gen_palette_on:palette4"
+Info (12128): Elaborating entity "irq_glue" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|irq_glue:irq_glue1"
+Info (12128): Elaborating entity "reg_file" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|reg_file:pokey1_mirror"
+Info (12128): Elaborating entity "reg_file" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|reg_file:gtia_mirror"
+Info (12128): Elaborating entity "covox" for hierarchy "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|covox:covox1"
+Info (286030): Timing-Driven Synthesis is running
+Warning (13046): Tri-state node(s) do not directly drive top-level pin(s)
+    Warning (13049): Converted tri-state buffer "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey:pokey1|SIO_CLOCK~synth" feeding internal logic into a wire
+    Warning (13049): Converted tri-state buffer "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|pokey:pokey2|SIO_CLOCK~synth" feeding internal logic into a wire
+Info (19000): Inferred 8 megafunctions from design logic
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "atari800core_simple_sdram:atari800core1|internalromram:internalromram1|generic_ram_infer:\gen_internal_ram:ramint1|ram_block_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to SINGLE_PORT
+        Info (286033): Parameter WIDTH_A set to 8
+        Info (286033): Parameter WIDTHAD_A set to 16
+        Info (286033): Parameter NUMWORDS_A set to 65536
+        Info (286033): Parameter OUTDATA_REG_A set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_A set to NONE
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "atari800core_simple_sdram:atari800core1|internalromram:internalromram1|basic:\gen_internal_os:basic1|ROM_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to ROM
+        Info (286033): Parameter WIDTH_A set to 8
+        Info (286033): Parameter WIDTHAD_A set to 13
+        Info (286033): Parameter NUMWORDS_A set to 8192
+        Info (286033): Parameter OUTDATA_REG_A set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_A set to NONE
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter INIT_FILE set to db/atari800core.ram0_basic_6451119.hdl.mif
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "atari800core_simple_sdram:atari800core1|internalromram:internalromram1|os16:\gen_internal_os:rom16a|ROM_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to ROM
+        Info (286033): Parameter WIDTH_A set to 8
+        Info (286033): Parameter WIDTHAD_A set to 14
+        Info (286033): Parameter NUMWORDS_A set to 16384
+        Info (286033): Parameter OUTDATA_REG_A set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_A set to NONE
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter INIT_FILE set to db/atari800core.ram0_os16_3be07a.hdl.mif
+    Info (276031): Inferred altsyncram megafunction from the following design logic: "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|cpu:cpu6502|cpu_65xx:cpu_6502_peter|Mux54_rtl_0"
+        Info (286033): Parameter OPERATION_MODE set to ROM
+        Info (286033): Parameter WIDTH_A set to 1
+        Info (286033): Parameter WIDTHAD_A set to 8
+        Info (286033): Parameter NUMWORDS_A set to 256
+        Info (286033): Parameter OUTDATA_REG_A set to UNREGISTERED
+        Info (286033): Parameter RAM_BLOCK_TYPE set to AUTO
+        Info (286033): Parameter INIT_FILE set to atari800core.atari800core_sockit0.rtl.mif
+    Info (276034): Inferred altshift_taps megafunction from the following design logic: "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|wide_delay_line:chbase_delay|shift_reg_rtl_0"
+        Info (286033): Parameter NUMBER_OF_TAPS set to 1
+        Info (286033): Parameter TAP_DISTANCE set to 64
+        Info (286033): Parameter WIDTH set to 7
+        Info (286033): Parameter POWER_UP_STATE set to DONT_CARE
+    Info (276034): Inferred altshift_taps megafunction from the following design logic: "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|wide_delay_line:vscrol_delay|shift_reg_rtl_0"
+        Info (286033): Parameter NUMBER_OF_TAPS set to 1
+        Info (286033): Parameter TAP_DISTANCE set to 32
+        Info (286033): Parameter WIDTH set to 6
+        Info (286033): Parameter POWER_UP_STATE set to DONT_CARE
+    Info (276034): Inferred altshift_taps megafunction from the following design logic: "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|wide_delay_line:hposm3_delay|shift_reg_rtl_0"
+        Info (286033): Parameter NUMBER_OF_TAPS set to 1
+        Info (286033): Parameter TAP_DISTANCE set to 5
+        Info (286033): Parameter WIDTH set to 64
+        Info (286033): Parameter POWER_UP_STATE set to DONT_CARE
+    Info (276034): Inferred altshift_taps megafunction from the following design logic: "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|wide_delay_line:sizem_delay|shift_reg_rtl_0"
+        Info (286033): Parameter NUMBER_OF_TAPS set to 1
+        Info (286033): Parameter TAP_DISTANCE set to 4
+        Info (286033): Parameter WIDTH set to 16
+        Info (286033): Parameter POWER_UP_STATE set to DONT_CARE
+Info (12130): Elaborated megafunction instantiation "atari800core_simple_sdram:atari800core1|internalromram:internalromram1|generic_ram_infer:\gen_internal_ram:ramint1|altsyncram:ram_block_rtl_0"
+Info (12133): Instantiated megafunction "atari800core_simple_sdram:atari800core1|internalromram:internalromram1|generic_ram_infer:\gen_internal_ram:ramint1|altsyncram:ram_block_rtl_0" with the following parameter:
+    Info (12134): Parameter "OPERATION_MODE" = "SINGLE_PORT"
+    Info (12134): Parameter "WIDTH_A" = "8"
+    Info (12134): Parameter "WIDTHAD_A" = "16"
+    Info (12134): Parameter "NUMWORDS_A" = "65536"
+    Info (12134): Parameter "OUTDATA_REG_A" = "UNREGISTERED"
+    Info (12134): Parameter "ADDRESS_ACLR_A" = "NONE"
+    Info (12134): Parameter "OUTDATA_ACLR_A" = "NONE"
+    Info (12134): Parameter "INDATA_ACLR_A" = "NONE"
+    Info (12134): Parameter "WRCONTROL_ACLR_A" = "NONE"
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_apa1.tdf
+    Info (12023): Found entity 1: altsyncram_apa1
+Info (12021): Found 1 design units, including 1 entities, in source file db/decode_dla.tdf
+    Info (12023): Found entity 1: decode_dla
+Info (12021): Found 1 design units, including 1 entities, in source file db/decode_61a.tdf
+    Info (12023): Found entity 1: decode_61a
+Info (12021): Found 1 design units, including 1 entities, in source file db/mux_tfb.tdf
+    Info (12023): Found entity 1: mux_tfb
+Info (12130): Elaborated megafunction instantiation "atari800core_simple_sdram:atari800core1|internalromram:internalromram1|basic:\gen_internal_os:basic1|altsyncram:ROM_rtl_0"
+Info (12133): Instantiated megafunction "atari800core_simple_sdram:atari800core1|internalromram:internalromram1|basic:\gen_internal_os:basic1|altsyncram:ROM_rtl_0" with the following parameter:
+    Info (12134): Parameter "OPERATION_MODE" = "ROM"
+    Info (12134): Parameter "WIDTH_A" = "8"
+    Info (12134): Parameter "WIDTHAD_A" = "13"
+    Info (12134): Parameter "NUMWORDS_A" = "8192"
+    Info (12134): Parameter "OUTDATA_REG_A" = "UNREGISTERED"
+    Info (12134): Parameter "ADDRESS_ACLR_A" = "NONE"
+    Info (12134): Parameter "OUTDATA_ACLR_A" = "NONE"
+    Info (12134): Parameter "INDATA_ACLR_A" = "NONE"
+    Info (12134): Parameter "WRCONTROL_ACLR_A" = "NONE"
+    Info (12134): Parameter "INIT_FILE" = "db/atari800core.ram0_basic_6451119.hdl.mif"
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_o5d1.tdf
+    Info (12023): Found entity 1: altsyncram_o5d1
+Info (12130): Elaborated megafunction instantiation "atari800core_simple_sdram:atari800core1|internalromram:internalromram1|os16:\gen_internal_os:rom16a|altsyncram:ROM_rtl_0"
+Info (12133): Instantiated megafunction "atari800core_simple_sdram:atari800core1|internalromram:internalromram1|os16:\gen_internal_os:rom16a|altsyncram:ROM_rtl_0" with the following parameter:
+    Info (12134): Parameter "OPERATION_MODE" = "ROM"
+    Info (12134): Parameter "WIDTH_A" = "8"
+    Info (12134): Parameter "WIDTHAD_A" = "14"
+    Info (12134): Parameter "NUMWORDS_A" = "16384"
+    Info (12134): Parameter "OUTDATA_REG_A" = "UNREGISTERED"
+    Info (12134): Parameter "ADDRESS_ACLR_A" = "NONE"
+    Info (12134): Parameter "OUTDATA_ACLR_A" = "NONE"
+    Info (12134): Parameter "INDATA_ACLR_A" = "NONE"
+    Info (12134): Parameter "WRCONTROL_ACLR_A" = "NONE"
+    Info (12134): Parameter "INIT_FILE" = "db/atari800core.ram0_os16_3be07a.hdl.mif"
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_94d1.tdf
+    Info (12023): Found entity 1: altsyncram_94d1
+Info (12021): Found 1 design units, including 1 entities, in source file db/decode_u0a.tdf
+    Info (12023): Found entity 1: decode_u0a
+Info (12021): Found 1 design units, including 1 entities, in source file db/mux_lfb.tdf
+    Info (12023): Found entity 1: mux_lfb
+Info (12130): Elaborated megafunction instantiation "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|cpu:cpu6502|cpu_65xx:cpu_6502_peter|altsyncram:Mux54_rtl_0"
+Info (12133): Instantiated megafunction "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|cpu:cpu6502|cpu_65xx:cpu_6502_peter|altsyncram:Mux54_rtl_0" with the following parameter:
+    Info (12134): Parameter "OPERATION_MODE" = "ROM"
+    Info (12134): Parameter "WIDTH_A" = "1"
+    Info (12134): Parameter "WIDTHAD_A" = "8"
+    Info (12134): Parameter "NUMWORDS_A" = "256"
+    Info (12134): Parameter "OUTDATA_REG_A" = "UNREGISTERED"
+    Info (12134): Parameter "RAM_BLOCK_TYPE" = "AUTO"
+    Info (12134): Parameter "INIT_FILE" = "atari800core.atari800core_sockit0.rtl.mif"
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_v081.tdf
+    Info (12023): Found entity 1: altsyncram_v081
+Info (12130): Elaborated megafunction instantiation "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|wide_delay_line:chbase_delay|altshift_taps:shift_reg_rtl_0"
+Info (12133): Instantiated megafunction "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|wide_delay_line:chbase_delay|altshift_taps:shift_reg_rtl_0" with the following parameter:
+    Info (12134): Parameter "NUMBER_OF_TAPS" = "1"
+    Info (12134): Parameter "TAP_DISTANCE" = "64"
+    Info (12134): Parameter "WIDTH" = "7"
+    Info (12134): Parameter "POWER_UP_STATE" = "DONT_CARE"
+Info (12021): Found 1 design units, including 1 entities, in source file db/shift_taps_6dv.tdf
+    Info (12023): Found entity 1: shift_taps_6dv
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_7gc1.tdf
+    Info (12023): Found entity 1: altsyncram_7gc1
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_jjf.tdf
+    Info (12023): Found entity 1: cntr_jjf
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_73h.tdf
+    Info (12023): Found entity 1: cntr_73h
+Info (12130): Elaborated megafunction instantiation "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|wide_delay_line:vscrol_delay|altshift_taps:shift_reg_rtl_0"
+Info (12133): Instantiated megafunction "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|antic:antic1|wide_delay_line:vscrol_delay|altshift_taps:shift_reg_rtl_0" with the following parameter:
+    Info (12134): Parameter "NUMBER_OF_TAPS" = "1"
+    Info (12134): Parameter "TAP_DISTANCE" = "32"
+    Info (12134): Parameter "WIDTH" = "6"
+    Info (12134): Parameter "POWER_UP_STATE" = "DONT_CARE"
+Info (12021): Found 1 design units, including 1 entities, in source file db/shift_taps_0dv.tdf
+    Info (12023): Found entity 1: shift_taps_0dv
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_pfc1.tdf
+    Info (12023): Found entity 1: altsyncram_pfc1
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_djf.tdf
+    Info (12023): Found entity 1: cntr_djf
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_13h.tdf
+    Info (12023): Found entity 1: cntr_13h
+Info (12130): Elaborated megafunction instantiation "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|wide_delay_line:hposm3_delay|altshift_taps:shift_reg_rtl_0"
+Info (12133): Instantiated megafunction "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|wide_delay_line:hposm3_delay|altshift_taps:shift_reg_rtl_0" with the following parameter:
+    Info (12134): Parameter "NUMBER_OF_TAPS" = "1"
+    Info (12134): Parameter "TAP_DISTANCE" = "5"
+    Info (12134): Parameter "WIDTH" = "64"
+    Info (12134): Parameter "POWER_UP_STATE" = "DONT_CARE"
+Info (12021): Found 1 design units, including 1 entities, in source file db/shift_taps_huv.tdf
+    Info (12023): Found entity 1: shift_taps_huv
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_tfc1.tdf
+    Info (12023): Found entity 1: altsyncram_tfc1
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_rhf.tdf
+    Info (12023): Found entity 1: cntr_rhf
+Info (12021): Found 1 design units, including 1 entities, in source file db/cmpr_b9c.tdf
+    Info (12023): Found entity 1: cmpr_b9c
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_e1h.tdf
+    Info (12023): Found entity 1: cntr_e1h
+Info (12130): Elaborated megafunction instantiation "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|wide_delay_line:sizem_delay|altshift_taps:shift_reg_rtl_0"
+Info (12133): Instantiated megafunction "atari800core_simple_sdram:atari800core1|atari800core:atari800xl|gtia:gtia1|wide_delay_line:sizem_delay|altshift_taps:shift_reg_rtl_0" with the following parameter:
+    Info (12134): Parameter "NUMBER_OF_TAPS" = "1"
+    Info (12134): Parameter "TAP_DISTANCE" = "4"
+    Info (12134): Parameter "WIDTH" = "16"
+    Info (12134): Parameter "POWER_UP_STATE" = "DONT_CARE"
+Info (12021): Found 1 design units, including 1 entities, in source file db/shift_taps_duv.tdf
+    Info (12023): Found entity 1: shift_taps_duv
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_jfc1.tdf
+    Info (12023): Found entity 1: altsyncram_jfc1
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_phf.tdf
+    Info (12023): Found entity 1: cntr_phf
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_d1h.tdf
+    Info (12023): Found entity 1: cntr_d1h
+Warning (12241): 3 hierarchies have connectivity warnings - see the Connectivity Checks report folder
+Warning (13024): Output pins are stuck at VCC or GND
+    Warning (13410): Pin "LED[0]" is stuck at GND
+    Warning (13410): Pin "LED[1]" is stuck at VCC
+    Warning (13410): Pin "LED[2]" is stuck at GND
+    Warning (13410): Pin "LED[3]" is stuck at VCC
+    Warning (13410): Pin "TEMP_CS_n" is stuck at VCC
+    Warning (13410): Pin "AUD_DACDAT" is stuck at GND
+    Warning (13410): Pin "AUD_MUTE" is stuck at GND
+    Warning (13410): Pin "AUD_XCK" is stuck at GND
+    Warning (13410): Pin "AUD_I2C_SCLK" is stuck at GND
+    Warning (13410): Pin "DDR3_A[0]" is stuck at GND
+    Warning (13410): Pin "DDR3_A[1]" is stuck at GND
+    Warning (13410): Pin "DDR3_A[2]" is stuck at GND
+    Warning (13410): Pin "DDR3_A[3]" is stuck at GND
+    Warning (13410): Pin "DDR3_A[4]" is stuck at GND
+    Warning (13410): Pin "DDR3_A[5]" is stuck at GND
+    Warning (13410): Pin "DDR3_A[6]" is stuck at GND
+    Warning (13410): Pin "DDR3_A[7]" is stuck at GND
+    Warning (13410): Pin "DDR3_A[8]" is stuck at GND
+    Warning (13410): Pin "DDR3_A[9]" is stuck at GND
+    Warning (13410): Pin "DDR3_A[10]" is stuck at GND
+    Warning (13410): Pin "DDR3_A[11]" is stuck at GND
+    Warning (13410): Pin "DDR3_A[12]" is stuck at GND
+    Warning (13410): Pin "DDR3_A[13]" is stuck at GND
+    Warning (13410): Pin "DDR3_A[14]" is stuck at GND
+    Warning (13410): Pin "DDR3_BA[0]" is stuck at GND
+    Warning (13410): Pin "DDR3_BA[1]" is stuck at GND
+    Warning (13410): Pin "DDR3_BA[2]" is stuck at GND
+    Warning (13410): Pin "DDR3_CAS_n" is stuck at VCC
+    Warning (13410): Pin "DDR3_CKE" is stuck at GND
+    Warning (13410): Pin "DDR3_CS_n" is stuck at VCC
+    Warning (13410): Pin "DDR3_RAS_n" is stuck at VCC
+    Warning (13410): Pin "DDR3_RESET_n" is stuck at VCC
+    Warning (13410): Pin "DDR3_WE_n" is stuck at VCC
+Info (17049): 54 registers lost all their fanouts during netlist optimizations.
+Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
+    Info (16011): Adding 7 node(s), including 0 DDIO, 1 PLL, 0 transceiver and 0 LCELL
+Warning (21074): Design contains 13 input pin(s) that do not drive logic
+    Warning (15610): No output dependent on input pin "OSC_50_B4A"
+    Warning (15610): No output dependent on input pin "OSC_50_B5B"
+    Warning (15610): No output dependent on input pin "OSC_50_B8A"
+    Warning (15610): No output dependent on input pin "KEY[0]"
+    Warning (15610): No output dependent on input pin "KEY[1]"
+    Warning (15610): No output dependent on input pin "KEY[2]"
+    Warning (15610): No output dependent on input pin "KEY[3]"
+    Warning (15610): No output dependent on input pin "SW[0]"
+    Warning (15610): No output dependent on input pin "SW[1]"
+    Warning (15610): No output dependent on input pin "SW[2]"
+    Warning (15610): No output dependent on input pin "SW[3]"
+    Warning (15610): No output dependent on input pin "TEMP_DOUT"
+    Warning (15610): No output dependent on input pin "DDR3_RZQ"
+Info (21057): Implemented 4437 device resources after synthesis - the final resource count might be different
+    Info (21058): Implemented 15 input pins
+    Info (21059): Implemented 72 output pins
+    Info (21060): Implemented 118 bidirectional pins
+    Info (21061): Implemented 4044 logic cells
+    Info (21064): Implemented 182 RAM segments
+    Info (21065): Implemented 1 PLLs
+Info: Quartus II 64-Bit Analysis & Synthesis was successful. 0 errors, 67 warnings
+    Info: Peak virtual memory: 1045 megabytes
+    Info: Processing ended: Sun Dec 14 20:18:17 2014
+    Info: Elapsed time: 00:01:06
+    Info: Total CPU time (on all processors): 00:01:06
+Info: *******************************************************************
+Info: Running Quartus II 64-Bit Fitter
+    Info: Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
+    Info: Processing started: Sun Dec 14 20:18:24 2014
+Info: Command: quartus_fit --read_settings_files=off --write_settings_files=off atari800core -c atari800core
+Info: qfit2_default_script.tcl version: #1
+Info: Project  = atari800core
+Info: Revision = atari800core
+Info (11104): Parallel Compilation has detected 4 hyper-threaded processors. However, the extra hyper-threaded processors will not be used by default. Parallel Compilation will use 2 of the 2 physical processors detected instead.
+Info (119006): Selected device 5CSXFC6D6F31C8ES for design "atari800core"
+Info (21076): High junction temperature operating condition is not set. Assuming a default value of '85'.
+Info (21076): Low junction temperature operating condition is not set. Assuming a default value of '0'.
+Info (171003): Fitter is performing an Auto Fit compilation, which may decrease Fitter effort to reduce compilation time
+Warning (292013): Feature LogicLock is only available with a valid subscription license. You can purchase a software subscription to gain full access to this feature.
+Warning (15714): Some pins have incomplete I/O assignments. Refer to the I/O Assignment Warnings report for details
+Info (176045): Design uses memory blocks. Violating setup or hold times of memory block address registers for either read or write operations could cause memory contents to be corrupted. Make sure that all memory block address registers meet the setup and hold time requirements.
+Critical Warning (169085): No exact pin location assignment(s) for 72 pins of 205 total pins. For the list of the pins please refer to the Input Pins, Output Pins, and Bidir Pins tables in the Fitter report and look for the user pins whose location is assigned by Fitter.
+Info (184020): Starting Fitter periphery placement operations
+Warning (177007): PLL(s) placed in location FRACTIONALPLL_X0_Y15_N0 do not have a PLL clock to compensate specified - the Fitter will attempt to compensate all PLL clocks
+    Info (177008): PLL pll_pal:pll|pll_pal_0002:pll_pal_inst|altera_pll:altera_pll_i|general[0].gpll~FRACTIONAL_PLL
+Info (11178): Promoted 1 clock (1 global)
+    Info (11162): pll_pal:pll|pll_pal_0002:pll_pal_inst|altera_pll:altera_pll_i|outclk_wire[0]~CLKENA0 with 2383 fanout uses global clock CLKCTRL_G7
+Info (184021): Fitter periphery placement operations ending: elapsed time is 00:00:26
+Critical Warning (332012): Synopsys Design Constraints File file not found: 'atari800core.SDC'. A Synopsys Design Constraints File is required by the TimeQuest Timing Analyzer to get proper timing constraints. Without it, the Compiler will not properly optimize the design.
+Info (332144): No user constrained generated clocks found in the design
+Info (332144): No user constrained base clocks found in the design
+Info (332096): The command derive_clocks did not find any clocks to derive.  No clocks were created or changed.
+Info (332097): The following timing edges are non-unate.  TimeQuest will assume pos-unate behavior for these edges in the clock network.
+    Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL  from: refclkin  to: fbclk
+    Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER  from: vco0ph[0]  to: divclk
+    Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_REFCLK_SELECT  from: clkin[0]  to: clkout
+Info (332143): No user constrained clock uncertainty found in the design. Calling "derive_clock_uncertainty"
+Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in TimeQuest to see clock uncertainties.
+Info (332130): Timing requirements not specified -- quality metrics such as performance may be sacrificed to reduce compilation time.
+Info (176233): Starting register packing
+Info (176235): Finished register packing
+    Extra Info (176219): No registers were packed into other blocks
+Warning (15705): Ignored locations or region assignments to the following nodes
+    Warning (15706): Node "GPIO0_0" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_1" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_10" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_11" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_12" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_13" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_14" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_15" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_16" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_17" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_18" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_19" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_2" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_20" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_21" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_22" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_23" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_24" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_25" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_26" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_27" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_28" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_29" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_3" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_30" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_31" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_32" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_33" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_34" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_35" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_4" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_5" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_6" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_7" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_8" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO0_9" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_0" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_1" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_10" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_11" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_12" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_13" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_14" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_15" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_16" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_17" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_18" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_19" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_2" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_20" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_21" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_22" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_23" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_24" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_25" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_26" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_27" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_28" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_29" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_3" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_30" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_31" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_32" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_33" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_34" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_35" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_4" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_5" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_6" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_7" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_8" is assigned to location or region, but does not exist in design
+    Warning (15706): Node "GPIO1_9" is assigned to location or region, but does not exist in design
+Info (11798): Fitter preparation operations ending: elapsed time is 00:00:49
+Info (170189): Fitter placement preparation operations beginning
+Info (170190): Fitter placement preparation operations ending: elapsed time is 00:00:03
+Info (170191): Fitter placement operations beginning
+Info (170137): Fitter placement was successful
+Info (170192): Fitter placement operations ending: elapsed time is 00:00:11
+Info (170193): Fitter routing operations beginning
+Info (170195): Router estimated average interconnect usage is 2% of the available device resources
+    Info (170196): Router estimated peak interconnect usage is 27% of the available device resources in the region that extends from location X33_Y23 to location X44_Y34
+Info (170194): Fitter routing operations ending: elapsed time is 00:00:10
+Info (170199): The Fitter performed an Auto Fit compilation.  Optimizations were skipped to reduce compilation time.
+    Info (170201): Optimizations that may affect the design's routability were skipped
+    Info (170200): Optimizations that may affect the design's timing were skipped
+Info (11888): Total time spent on timing analysis during the Fitter is 6.29 seconds.
+Info (334003): Started post-fitting delay annotation
+Warning (334000): Timing characteristics of device 5CSXFC6D6F31C8ES are preliminary
+Info (334004): Delay annotation completed successfully
+Info (334003): Started post-fitting delay annotation
+Warning (334000): Timing characteristics of device 5CSXFC6D6F31C8ES are preliminary
+Info (334004): Delay annotation completed successfully
+Info (11801): Fitter post-fit operations ending: elapsed time is 00:00:33
+Warning (171167): Found invalid Fitter assignments. See the Ignored Assignments panel in the Fitter Compilation Report for more information.
+Warning (169064): Following 110 pins have no output enable or a GND or VCC output enable - later changes to this connectivity may change fitting results
+    Info (169065): Pin SI5338_SDA has a permanently disabled output enable
+    Info (169065): Pin AUD_ADCDAT has a permanently disabled output enable
+    Info (169065): Pin AUD_ADCLRCK has a permanently disabled output enable
+    Info (169065): Pin AUD_BCLK has a permanently disabled output enable
+    Info (169065): Pin AUD_DACLRCK has a permanently disabled output enable
+    Info (169065): Pin AUD_I2C_SDAT has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[0] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[1] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[2] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[3] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[4] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[5] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[6] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[7] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[8] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[9] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[10] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[11] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[12] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[13] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[14] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[15] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[16] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[17] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[18] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[19] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[20] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[21] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[22] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[23] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[24] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[25] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[26] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[27] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[28] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[29] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[30] has a permanently disabled output enable
+    Info (169065): Pin DDR3_DQ[31] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[0] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[1] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[2] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[3] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[4] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[5] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[6] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[7] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[8] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[9] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[10] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[11] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[12] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[13] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[14] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[15] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[16] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[17] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[18] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[19] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[20] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[21] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[22] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[23] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[24] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[25] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[26] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[27] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[28] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[29] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[30] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[31] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[32] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[33] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[34] has a permanently disabled output enable
+    Info (169065): Pin GPIO0[35] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[0] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[1] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[2] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[3] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[4] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[5] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[6] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[7] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[8] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[9] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[10] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[11] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[12] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[13] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[14] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[15] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[16] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[17] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[18] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[19] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[20] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[21] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[22] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[23] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[24] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[25] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[26] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[27] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[28] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[29] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[30] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[31] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[32] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[33] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[34] has a permanently disabled output enable
+    Info (169065): Pin GPIO1[35] has a permanently disabled output enable
+Warning (169069): Following 39 pins have nothing, GND, or VCC driving datain port -- changes to this connectivity may change fitting results
+    Info (169070): Pin DDR3_CKE has GND driving its datain port
+    Info (169070): Pin DDR3_DM[0] has VCC driving its datain port
+    Info (169070): Pin DDR3_DM[1] has VCC driving its datain port
+    Info (169070): Pin DDR3_DM[2] has VCC driving its datain port
+    Info (169070): Pin DDR3_DM[3] has VCC driving its datain port
+    Info (169070): Pin DDR3_ODT has VCC driving its datain port
+    Info (169070): Pin DDR3_RESET_n has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[0] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[1] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[2] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[3] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[4] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[5] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[6] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[7] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[8] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[9] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[10] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[11] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[12] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[13] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[14] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[15] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[16] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[17] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[18] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[19] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[20] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[21] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[22] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[23] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[24] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[25] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[26] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[27] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[28] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[29] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[30] has VCC driving its datain port
+    Info (169070): Pin DDR3_DQ[31] has VCC driving its datain port
+Info (144001): Generated suppressed messages file /home/markw/fpga/svn/repo/trunk/atari_800xl/sockit/build/atari800core.fit.smsg
+Info: Quartus II 64-Bit Fitter was successful. 0 errors, 83 warnings
+    Info: Peak virtual memory: 1999 megabytes
+    Info: Processing ended: Sun Dec 14 20:20:48 2014
+    Info: Elapsed time: 00:02:24
+    Info: Total CPU time (on all processors): 00:03:03
+Info: *******************************************************************
+Info: Running Quartus II 64-Bit Assembler
+    Info: Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
+    Info: Processing started: Sun Dec 14 20:20:56 2014
+Info: Command: quartus_asm --read_settings_files=off --write_settings_files=off atari800core -c atari800core
+Info (115030): Assembler is generating device programming files
+Info: Quartus II 64-Bit Assembler was successful. 0 errors, 0 warnings
+    Info: Peak virtual memory: 919 megabytes
+    Info: Processing ended: Sun Dec 14 20:21:11 2014
+    Info: Elapsed time: 00:00:15
+    Info: Total CPU time (on all processors): 00:00:14
+Info (293026): Skipped module PowerPlay Power Analyzer due to the assignment FLOW_ENABLE_POWER_ANALYZER
+Info: *******************************************************************
+Info: Running Quartus II 64-Bit TimeQuest Timing Analyzer
+    Info: Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
+    Info: Processing started: Sun Dec 14 20:21:18 2014
+Info: Command: quartus_sta atari800core -c atari800core
+Info: qsta_default_script.tcl version: #1
+Info (11104): Parallel Compilation has detected 4 hyper-threaded processors. However, the extra hyper-threaded processors will not be used by default. Parallel Compilation will use 2 of the 2 physical processors detected instead.
+Info (21076): High junction temperature operating condition is not set. Assuming a default value of '85'.
+Info (21076): Low junction temperature operating condition is not set. Assuming a default value of '0'.
+Critical Warning (332012): Synopsys Design Constraints File file not found: 'atari800core.SDC'. A Synopsys Design Constraints File is required by the TimeQuest Timing Analyzer to get proper timing constraints. Without it, the Compiler will not properly optimize the design.
+Info (332142): No user constrained generated clocks found in the design. Calling "derive_pll_clocks -create_base_clocks"
+Info (332110): Deriving PLL clocks
+    Info (332110): create_clock -period 20.000 -waveform {0.000 10.000} -name OSC_50_B3B OSC_50_B3B
+    Info (332110): create_generated_clock -source {pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|refclkin} -divide_by 10 -multiply_by 227 -duty_cycle 50.00 -name {pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]} {pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]}
+    Info (332110): create_generated_clock -source {pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|vco0ph[0]} -divide_by 20 -duty_cycle 50.00 -name {pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk} {pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk}
+Info (332142): No user constrained base clocks found in the design. Calling "derive_clocks -period 1.0"
+Info (332096): The command derive_clocks did not find any clocks to derive.  No clocks were created or changed.
+Info (332097): The following timing edges are non-unate.  TimeQuest will assume pos-unate behavior for these edges in the clock network.
+    Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL  from: refclkin  to: fbclk
+    Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER  from: vco0ph[0]  to: divclk
+    Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_REFCLK_SELECT  from: clkin[0]  to: clkout
+Info (332143): No user constrained clock uncertainty found in the design. Calling "derive_clock_uncertainty"
+Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in TimeQuest to see clock uncertainties.
+Info: Found TIMEQUEST_REPORT_SCRIPT_INCLUDE_DEFAULT_ANALYSIS = ON
+Info: Analyzing Slow 1100mV 85C Model
+Info (332146): Worst-case setup slack is 2.614
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     2.614               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case hold slack is 0.528
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.528               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case recovery slack is 14.562
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    14.562               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case removal slack is 0.922
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.922               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case minimum pulse width slack is 0.440
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.440               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0] 
+    Info (332119):     7.180               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     9.802               0.000 OSC_50_B3B 
+Info: Analyzing Slow 1100mV 0C Model
+Info (334003): Started post-fitting delay annotation
+Warning (334000): Timing characteristics of device 5CSXFC6D6F31C8ES are preliminary
+Info (334004): Delay annotation completed successfully
+Info (332097): The following timing edges are non-unate.  TimeQuest will assume pos-unate behavior for these edges in the clock network.
+    Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL  from: refclkin  to: fbclk
+    Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER  from: vco0ph[0]  to: divclk
+    Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_REFCLK_SELECT  from: clkin[0]  to: clkout
+Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in TimeQuest to see clock uncertainties.
+Info (332146): Worst-case setup slack is 2.704
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     2.704               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case hold slack is 0.555
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.555               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case recovery slack is 14.710
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    14.710               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case removal slack is 0.791
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.791               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case minimum pulse width slack is 0.440
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.440               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0] 
+    Info (332119):     7.131               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     9.797               0.000 OSC_50_B3B 
+Info: Analyzing Fast 1100mV 85C Model
+Info (334003): Started post-fitting delay annotation
+Warning (334000): Timing characteristics of device 5CSXFC6D6F31C8ES are preliminary
+Info (334004): Delay annotation completed successfully
+Info (332097): The following timing edges are non-unate.  TimeQuest will assume pos-unate behavior for these edges in the clock network.
+    Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL  from: refclkin  to: fbclk
+    Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER  from: vco0ph[0]  to: divclk
+    Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_REFCLK_SELECT  from: clkin[0]  to: clkout
+Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in TimeQuest to see clock uncertainties.
+Info (332146): Worst-case setup slack is 10.143
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    10.143               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case hold slack is 0.179
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.179               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case recovery slack is 15.826
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    15.826               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case removal slack is 0.358
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.358               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case minimum pulse width slack is 0.440
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.440               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0] 
+    Info (332119):     7.695               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     9.903               0.000 OSC_50_B3B 
+Info: Analyzing Fast 1100mV 0C Model
+Info (332097): The following timing edges are non-unate.  TimeQuest will assume pos-unate behavior for these edges in the clock network.
+    Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL  from: refclkin  to: fbclk
+    Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER  from: vco0ph[0]  to: divclk
+    Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_REFCLK_SELECT  from: clkin[0]  to: clkout
+Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in TimeQuest to see clock uncertainties.
+Info (332146): Worst-case setup slack is 10.899
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    10.899               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case hold slack is 0.171
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.171               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case recovery slack is 16.012
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    16.012               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case removal slack is 0.287
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.287               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case minimum pulse width slack is 0.440
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.440               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0] 
+    Info (332119):     7.694               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     9.908               0.000 OSC_50_B3B 
+Info (332102): Design is not fully constrained for setup requirements
+Info (332102): Design is not fully constrained for hold requirements
+Info: Quartus II 64-Bit TimeQuest Timing Analyzer was successful. 0 errors, 3 warnings
+    Info: Peak virtual memory: 1292 megabytes
+    Info: Processing ended: Sun Dec 14 20:21:54 2014
+    Info: Elapsed time: 00:00:36
+    Info: Total CPU time (on all processors): 00:00:51
+Info (293000): Quartus II Full Compilation was successful. 0 errors, 153 warnings
+Info (23030): Evaluation of Tcl script /home/markw/fpga/altera/14.0/quartus/common/tcl/internal/qsh_flow.tcl was successful
+Info: Quartus II 64-Bit Shell was successful. 0 errors, 153 warnings
+    Info: Peak virtual memory: 294 megabytes
+    Info: Processing ended: Sun Dec 14 20:21:59 2014
+    Info: Elapsed time: 00:04:53
+    Info: Total CPU time (on all processors): 00:05:31

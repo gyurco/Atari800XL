@@ -48,7 +48,6 @@ port (
    JOY_DATA0      : in    std_logic;
    JOY_DATA1      : in    std_logic;
    
-   SD_MOSI        : out   std_logic;
    SD_MISO        : in    std_logic;
    SD_SCK         : out   std_logic;
    SD_CS          : out   std_logic; 
@@ -322,7 +321,7 @@ port map (
 
    ZPU_SD_DAT0                => SD_MISO,
    ZPU_SD_CLK                 => SD_SCK,
-   ZPU_SD_CMD                 => SD_MOSI,
+   ZPU_SD_CMD                 => open,
    ZPU_SD_DAT3                => SD_CS,
 
    ZPU_POKEY_ENABLE           => ZPU_POKEY_ENABLE,

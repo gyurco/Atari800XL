@@ -1,0 +1,1460 @@
+<html>
+<body>
+<h1 align="center">Cylone V SoC FPGA Board Configuration</h1>
+<br />
+<br />
+<h2 align="left">Pin Assignments:</h2>
+<ul>
+<a href="#CLOCK"><li>CLOCK</li></a>
+<br />
+<a href="#LED"><li>LED</li></a>
+<br />
+<a href="#KEY"><li>KEY</li></a>
+<br />
+<a href="#SW"><li>SW</li></a>
+<br />
+<a href="#Si5338"><li>Si5338</li></a>
+<br />
+<a href="#Temperature"><li>Temperature</li></a>
+<br />
+<a href="#VGA"><li>VGA</li></a>
+<br />
+<a href="#Audio"><li>Audio</li></a>
+<br />
+<a href="#I2C for Audio "><li>I2C for Audio </li></a>
+<br />
+<a href="#SDRAM"><li>SDRAM</li></a>
+<br />
+<a href="#HSMC"><li>HSMC</li></a>
+<br />
+</ul>
+<br />
+<br />
+<br />
+<h2 align="left">Pin Assignment Table:</h2>
+<h2><a name="CLOCK"></a></h2><table border="3">
+<caption  align="left">CLOCK</caption>
+<br />
+<br />
+<tr>
+   <th align="left" bgcolor="Khaki">Name</th>
+   <th align="left" bgcolor="Khaki">Location</th>
+   <th align="left" bgcolor="Khaki">Direction</th>
+   <th align="left" bgcolor="Khaki">Standard</th>
+</tr>
+<tr>
+   <td align="left">OSC_50_B3B</td>
+   <td align="left">AF14</td>
+   <td align="left">input </td>
+   <td align="left">1.5 V</td>
+</tr>
+<tr>
+   <td align="left">OSC_50_B4A</td>
+   <td align="left">AA16</td>
+   <td align="left">input </td>
+   <td align="left">1.5 V</td>
+</tr>
+<tr>
+   <td align="left">OSC_50_B5B</td>
+   <td align="left">Y26</td>
+   <td align="left">input </td>
+   <td align="left">2.5 V</td>
+</tr>
+<tr>
+   <td align="left">OSC_50_B8A</td>
+   <td align="left">K14</td>
+   <td align="left">input </td>
+   <td align="left">2.5 V</td>
+</tr>
+</table>
+<h2><a name="LED"></a></h2><table border="3">
+<caption  align="left">LED</caption>
+<br />
+<br />
+<tr>
+   <th align="left" bgcolor="Khaki">Name</th>
+   <th align="left" bgcolor="Khaki">Location</th>
+   <th align="left" bgcolor="Khaki">Direction</th>
+   <th align="left" bgcolor="Khaki">Standard</th>
+</tr>
+<tr>
+   <td align="left">LED[0]</td>
+   <td align="left">AF10</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">LED[1]</td>
+   <td align="left">AD10</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">LED[2]</td>
+   <td align="left">AE11</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">LED[3]</td>
+   <td align="left">AD7</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+</table>
+<h2><a name="KEY"></a></h2><table border="3">
+<caption  align="left">KEY</caption>
+<br />
+<br />
+<tr>
+   <th align="left" bgcolor="Khaki">Name</th>
+   <th align="left" bgcolor="Khaki">Location</th>
+   <th align="left" bgcolor="Khaki">Direction</th>
+   <th align="left" bgcolor="Khaki">Standard</th>
+</tr>
+<tr>
+   <td align="left">KEY[0]</td>
+   <td align="left">AE9</td>
+   <td align="left">input </td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">KEY[1]</td>
+   <td align="left">AE12</td>
+   <td align="left">input </td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">KEY[2]</td>
+   <td align="left">AD9</td>
+   <td align="left">input </td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">KEY[3]</td>
+   <td align="left">AD11</td>
+   <td align="left">input </td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">RESET_n</td>
+   <td align="left">AD27</td>
+   <td align="left">input </td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+</table>
+<h2><a name="SW"></a></h2><table border="3">
+<caption  align="left">SW</caption>
+<br />
+<br />
+<tr>
+   <th align="left" bgcolor="Khaki">Name</th>
+   <th align="left" bgcolor="Khaki">Location</th>
+   <th align="left" bgcolor="Khaki">Direction</th>
+   <th align="left" bgcolor="Khaki">Standard</th>
+</tr>
+<tr>
+   <td align="left">SW[0]</td>
+   <td align="left">W25</td>
+   <td align="left">input </td>
+   <td align="left">2.5 V</td>
+</tr>
+<tr>
+   <td align="left">SW[1]</td>
+   <td align="left">V25</td>
+   <td align="left">input </td>
+   <td align="left">2.5 V</td>
+</tr>
+<tr>
+   <td align="left">SW[2]</td>
+   <td align="left">AC28</td>
+   <td align="left">input </td>
+   <td align="left">2.5 V</td>
+</tr>
+<tr>
+   <td align="left">SW[3]</td>
+   <td align="left">AC29</td>
+   <td align="left">input </td>
+   <td align="left">2.5 V</td>
+</tr>
+</table>
+<h2><a name="Si5338"></a></h2><table border="3">
+<caption  align="left">Si5338</caption>
+<br />
+<br />
+<tr>
+   <th align="left" bgcolor="Khaki">Name</th>
+   <th align="left" bgcolor="Khaki">Location</th>
+   <th align="left" bgcolor="Khaki">Direction</th>
+   <th align="left" bgcolor="Khaki">Standard</th>
+</tr>
+<tr>
+   <td align="left">SI5338_SCL</td>
+   <td align="left">AE26</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">SI5338_SDA</td>
+   <td align="left">AJ29</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+</table>
+<h2><a name="Temperature"></a></h2><table border="3">
+<caption  align="left">Temperature</caption>
+<br />
+<br />
+<tr>
+   <th align="left" bgcolor="Khaki">Name</th>
+   <th align="left" bgcolor="Khaki">Location</th>
+   <th align="left" bgcolor="Khaki">Direction</th>
+   <th align="left" bgcolor="Khaki">Standard</th>
+</tr>
+<tr>
+   <td align="left">TEMP_CS_n</td>
+   <td align="left">AF8</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">TEMP_DIN</td>
+   <td align="left">AG7</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">TEMP_DOUT</td>
+   <td align="left">AG1</td>
+   <td align="left">input </td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">TEMP_SCLK</td>
+   <td align="left">AF9</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+</table>
+<h2><a name="VGA"></a></h2><table border="3">
+<caption  align="left">VGA</caption>
+<br />
+<br />
+<tr>
+   <th align="left" bgcolor="Khaki">Name</th>
+   <th align="left" bgcolor="Khaki">Location</th>
+   <th align="left" bgcolor="Khaki">Direction</th>
+   <th align="left" bgcolor="Khaki">Standard</th>
+</tr>
+<tr>
+   <td align="left">VGA_HS</td>
+   <td align="left">AD12</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_VS</td>
+   <td align="left">AC12</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_SYNC_n</td>
+   <td align="left">AG2</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_CLK</td>
+   <td align="left">W20</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_BLANK_n</td>
+   <td align="left">AH3</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_R[0]</td>
+   <td align="left">AG5</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_R[1]</td>
+   <td align="left">AA12</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_R[2]</td>
+   <td align="left">AB12</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_R[3]</td>
+   <td align="left">AF6</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_R[4]</td>
+   <td align="left">AG6</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_R[5]</td>
+   <td align="left">AJ2</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_R[6]</td>
+   <td align="left">AH5</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_R[7]</td>
+   <td align="left">AJ1</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_G[0]</td>
+   <td align="left">Y21</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_G[1]</td>
+   <td align="left">AA25</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_G[2]</td>
+   <td align="left">AB26</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_G[3]</td>
+   <td align="left">AB22</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_G[4]</td>
+   <td align="left">AB23</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_G[5]</td>
+   <td align="left">AA24</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_G[6]</td>
+   <td align="left">AB25</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_G[7]</td>
+   <td align="left">AE27</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_B[0]</td>
+   <td align="left">AE28</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_B[1]</td>
+   <td align="left">Y23</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_B[2]</td>
+   <td align="left">Y24</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_B[3]</td>
+   <td align="left">AG28</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_B[4]</td>
+   <td align="left">AF28</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_B[5]</td>
+   <td align="left">V23</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_B[6]</td>
+   <td align="left">W24</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">VGA_B[7]</td>
+   <td align="left">AF29</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+</table>
+<h2><a name="Audio"></a></h2><table border="3">
+<caption  align="left">Audio</caption>
+<br />
+<br />
+<tr>
+   <th align="left" bgcolor="Khaki">Name</th>
+   <th align="left" bgcolor="Khaki">Location</th>
+   <th align="left" bgcolor="Khaki">Direction</th>
+   <th align="left" bgcolor="Khaki">Standard</th>
+</tr>
+<tr>
+   <td align="left">AUD_ADCLRCK</td>
+   <td align="left">AG30</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">AUD_ADCDAT</td>
+   <td align="left">AC27</td>
+   <td align="left">input </td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">AUD_DACLRCK</td>
+   <td align="left">AH4</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">AUD_DACDAT</td>
+   <td align="left">AG3</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">AUD_XCK</td>
+   <td align="left">AC9</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">AUD_BCLK</td>
+   <td align="left">AE7</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">AUD_MUTE</td>
+   <td align="left">AD26</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+</table>
+<h2><a name="I2C for Audio "></a></h2><table border="3">
+<caption  align="left">I2C for Audio </caption>
+<br />
+<br />
+<tr>
+   <th align="left" bgcolor="Khaki">Name</th>
+   <th align="left" bgcolor="Khaki">Location</th>
+   <th align="left" bgcolor="Khaki">Direction</th>
+   <th align="left" bgcolor="Khaki">Standard</th>
+</tr>
+<tr>
+   <td align="left">AUD_I2C_SCLK</td>
+   <td align="left">AH30</td>
+   <td align="left">output</td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+<tr>
+   <td align="left">AUD_I2C_SDAT</td>
+   <td align="left">AF30</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+</tr>
+</table>
+<h2><a name="SDRAM"></a></h2><table border="3">
+<caption  align="left">SDRAM</caption>
+<br />
+<br />
+<tr>
+   <th align="left" bgcolor="Khaki">Name</th>
+   <th align="left" bgcolor="Khaki">Location</th>
+   <th align="left" bgcolor="Khaki">Direction</th>
+   <th align="left" bgcolor="Khaki">Standard</th>
+</tr>
+<tr>
+   <td align="left">DDR3_CK_p</td>
+   <td align="left">AA14</td>
+   <td align="left">output</td>
+   <td align="left">Differential 1.5-V SSTL Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_CK_n</td>
+   <td align="left">AA15</td>
+   <td align="left">output</td>
+   <td align="left">Differential 1.5-V SSTL Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQS_p[0]</td>
+   <td align="left">V16</td>
+   <td align="left">inout </td>
+   <td align="left">Differential 1.5-V SSTL Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQS_n[0]</td>
+   <td align="left">W16</td>
+   <td align="left">inout </td>
+   <td align="left">Differential 1.5-V SSTL Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQS_p[1]</td>
+   <td align="left">V17</td>
+   <td align="left">inout </td>
+   <td align="left">Differential 1.5-V SSTL Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQS_n[1]</td>
+   <td align="left">W17</td>
+   <td align="left">inout </td>
+   <td align="left">Differential 1.5-V SSTL Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQS_p[2]</td>
+   <td align="left">Y17</td>
+   <td align="left">inout </td>
+   <td align="left">Differential 1.5-V SSTL Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQS_n[2]</td>
+   <td align="left">AA18</td>
+   <td align="left">inout </td>
+   <td align="left">Differential 1.5-V SSTL Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQS_p[3]</td>
+   <td align="left">AC20</td>
+   <td align="left">inout </td>
+   <td align="left">Differential 1.5-V SSTL Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQS_n[3]</td>
+   <td align="left">AD19</td>
+   <td align="left">inout </td>
+   <td align="left">Differential 1.5-V SSTL Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_CKE</td>
+   <td align="left">AJ21</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_CS_n</td>
+   <td align="left">AB15</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_RESET_n</td>
+   <td align="left">AK21</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_WE_n</td>
+   <td align="left">AJ6</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_RAS_n</td>
+   <td align="left">AH8</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_CAS_n</td>
+   <td align="left">AH7</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_BA[0]</td>
+   <td align="left">AH10</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_BA[1]</td>
+   <td align="left">AJ11</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_BA[2]</td>
+   <td align="left">AK11</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DM[0]</td>
+   <td align="left">AH17</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DM[1]</td>
+   <td align="left">AG23</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DM[2]</td>
+   <td align="left">AK23</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DM[3]</td>
+   <td align="left">AJ27</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_ODT</td>
+   <td align="left">AE16</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_RZQ</td>
+   <td align="left">AG17</td>
+   <td align="left">input </td>
+   <td align="left">1.5 V</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[0]</td>
+   <td align="left">AF18</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[1]</td>
+   <td align="left">AE17</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[2]</td>
+   <td align="left">AG16</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[3]</td>
+   <td align="left">AF16</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[4]</td>
+   <td align="left">AH20</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[5]</td>
+   <td align="left">AG21</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[6]</td>
+   <td align="left">AJ16</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[7]</td>
+   <td align="left">AH18</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[8]</td>
+   <td align="left">AK18</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[9]</td>
+   <td align="left">AJ17</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[10]</td>
+   <td align="left">AG18</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[11]</td>
+   <td align="left">AK19</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[12]</td>
+   <td align="left">AG20</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[13]</td>
+   <td align="left">AF19</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[14]</td>
+   <td align="left">AJ20</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[15]</td>
+   <td align="left">AH24</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[16]</td>
+   <td align="left">AE19</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[17]</td>
+   <td align="left">AE18</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[18]</td>
+   <td align="left">AG22</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[19]</td>
+   <td align="left">AK22</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[20]</td>
+   <td align="left">AF21</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[21]</td>
+   <td align="left">AF20</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[22]</td>
+   <td align="left">AH23</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[23]</td>
+   <td align="left">AK24</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[24]</td>
+   <td align="left">AF24</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[25]</td>
+   <td align="left">AF23</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[26]</td>
+   <td align="left">AJ24</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[27]</td>
+   <td align="left">AK26</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[28]</td>
+   <td align="left">AE23</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[29]</td>
+   <td align="left">AE22</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[30]</td>
+   <td align="left">AG25</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_DQ[31]</td>
+   <td align="left">AK27</td>
+   <td align="left">inout </td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_A[0]</td>
+   <td align="left">AJ14</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_A[1]</td>
+   <td align="left">AK14</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_A[2]</td>
+   <td align="left">AH12</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_A[3]</td>
+   <td align="left">AJ12</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_A[4]</td>
+   <td align="left">AG15</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_A[5]</td>
+   <td align="left">AH15</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_A[6]</td>
+   <td align="left">AK12</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_A[7]</td>
+   <td align="left">AK13</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_A[8]</td>
+   <td align="left">AH13</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_A[9]</td>
+   <td align="left">AH14</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_A[10]</td>
+   <td align="left">AJ9</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_A[11]</td>
+   <td align="left">AK9</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_A[12]</td>
+   <td align="left">AK7</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_A[13]</td>
+   <td align="left">AK8</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+<tr>
+   <td align="left">DDR3_A[14]</td>
+   <td align="left">AG12</td>
+   <td align="left">output</td>
+   <td align="left">SSTL-15 Class I</td>
+</tr>
+</table>
+<h2><a name="HSMC"></a></h2><table border="3">
+<caption  align="left">HSMC connect to HTG - HSMC to PIO Adaptor</caption>
+<br />
+<br />
+<tr>
+   <th align="left" bgcolor="Khaki">Name</th>
+   <th align="left" bgcolor="Khaki">Location</th>
+   <th align="left" bgcolor="Khaki">Direction</th>
+   <th align="left" bgcolor="Khaki">Standard</th>
+   <th align="left" bgcolor="Khaki">HSMC Pin Index</th>
+</tr>
+<tr>
+   <td align="left">GPIO1_35</td>
+   <td align="left">A9</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">47</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_31</td>
+   <td align="left">G12</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">48</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_33</td>
+   <td align="left">A8</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">49</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_29</td>
+   <td align="left">G11</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">50</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_34</td>
+   <td align="left">E8</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">53</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_27</td>
+   <td align="left">K12</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">54</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_32</td>
+   <td align="left">D7</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">55</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_25</td>
+   <td align="left">J12</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">56</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_30</td>
+   <td align="left">G7</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">59</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_23</td>
+   <td align="left">G10</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">60</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_28</td>
+   <td align="left">F6</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">61</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_21</td>
+   <td align="left">F10</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">62</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_26</td>
+   <td align="left">D6</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">65</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_19</td>
+   <td align="left">J10</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">66</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_24</td>
+   <td align="left">C5</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">67</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_17</td>
+   <td align="left">J9</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">68</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_22</td>
+   <td align="left">D5</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">71</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_15</td>
+   <td align="left">K7</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">72</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_20</td>
+   <td align="left">C4</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">73</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_13</td>
+   <td align="left">K8</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">74</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_14</td>
+   <td align="left">E3</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">77</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_11</td>
+   <td align="left">J7</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">78</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_12</td>
+   <td align="left">E2</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">79</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_9</td>
+   <td align="left">H7</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">80</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_10</td>
+   <td align="left">E4</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">83</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_7</td>
+   <td align="left">H8</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">84</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_8</td>
+   <td align="left">D4</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">85</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_5</td>
+   <td align="left">G8</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">86</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_6</td>
+   <td align="left">C3</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">89</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_3</td>
+   <td align="left">F9</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">90</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_4</td>
+   <td align="left">B3</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">91</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_1</td>
+   <td align="left">F8</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">92</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_18</td>
+   <td align="left">E7</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">95</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_2</td>
+   <td align="left">AA26</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">96</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_16</td>
+   <td align="left">E6</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">97</td>
+</tr>
+<tr>
+   <td align="left">GPIO1_0</td>
+   <td align="left">AB27</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">98</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_35</td>
+   <td align="left">D2</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">107</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_31</td>
+   <td align="left">B6</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">108</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_33</td>
+   <td align="left">C2</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">109</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_29</td>
+   <td align="left">B5</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">110</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_34</td>
+   <td align="left">B2</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">113</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_27</td>
+   <td align="left">E9</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">114</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_32</td>
+   <td align="left">B1</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">115</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_25</td>
+   <td align="left">D9</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">116</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_30</td>
+   <td align="left">A4</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">119</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_23</td>
+   <td align="left">E12</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">120</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_28</td>
+   <td align="left">A3</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">121</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_21</td>
+   <td align="left">D12</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">122</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_26</td>
+   <td align="left">A6</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">125</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_19</td>
+   <td align="left">D11</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">126</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_24</td>
+   <td align="left">A5</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">127</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_17</td>
+   <td align="left">D10</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">128</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_22</td>
+   <td align="left">C7</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">131</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_15</td>
+   <td align="left">C13</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">132</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_20</td>
+   <td align="left">B7</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">133</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_13</td>
+   <td align="left">B12</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">134</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_14</td>
+   <td align="left">C8</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">137</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_11</td>
+   <td align="left">F13</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">138</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_12</td>
+   <td align="left">B8</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">139</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_9</td>
+   <td align="left">E13</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">140</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_10</td>
+   <td align="left">C12</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">143</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_7</td>
+   <td align="left">H14</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">144</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_8</td>
+   <td align="left">B11</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">145</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_5</td>
+   <td align="left">G13</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">146</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_6</td>
+   <td align="left">B13</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">149</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_3</td>
+   <td align="left">F15</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">150</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_4</td>
+   <td align="left">A13</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">151</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_1</td>
+   <td align="left">F14</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">152</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_18</td>
+   <td align="left">A11</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">155</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_2</td>
+   <td align="left">H15</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">156</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_16</td>
+   <td align="left">A10</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">157</td>
+</tr>
+<tr>
+   <td align="left">GPIO0_0</td>
+   <td align="left">G15</td>
+   <td align="left">inout </td>
+   <td align="left">3.3-V LVTTL</td>
+   <td align="left">158</td>
+</tr>
+</table>
+</html>
+</body>

@@ -18,7 +18,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="36" />
+   <WVObjectSize size="48" />
    <wave_markers>
       <marker time="517213670600" label="" />
    </wave_markers>
@@ -179,5 +179,55 @@
    <wvobject fp_name="/antic_tb/antic1/wsync_delay/data_in" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">data_in</obj_property>
       <obj_property name="ObjectShortName">data_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/antic_tb/antic1/dma_fetch_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">dma_fetch_reg</obj_property>
+      <obj_property name="ObjectShortName">dma_fetch_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/antic_tb/antic1/dma_cache_ready_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">dma_cache_ready_reg</obj_property>
+      <obj_property name="ObjectShortName">dma_cache_ready_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/antic_tb/antic1/load_display_shift_from_memory" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">load_display_shift_from_memory</obj_property>
+      <obj_property name="ObjectShortName">load_display_shift_from_memory</obj_property>
+   </wvobject>
+   <wvobject fp_name="/antic_tb/antic1/dma_cache_next" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dma_cache_next[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dma_cache_next[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/antic_tb/antic1/dma_cache_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dma_cache_reg[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dma_cache_reg[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/antic_tb/antic1/dma_fetch_destination_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dma_fetch_destination_reg[2:0]</obj_property>
+      <obj_property name="ObjectShortName">dma_fetch_destination_reg[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/antic_tb/antic1/dma_fetch_destination_next" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dma_fetch_destination_next[2:0]</obj_property>
+      <obj_property name="ObjectShortName">dma_fetch_destination_next[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/antic_tb/antic1/antic_dma_clock1/playfield_start" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">playfield_start</obj_property>
+      <obj_property name="ObjectShortName">playfield_start</obj_property>
+   </wvobject>
+   <wvobject fp_name="/antic_tb/antic1/antic_dma_clock1/dma_shiftreg_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dma_shiftreg_reg[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dma_shiftreg_reg[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/antic_tb/antic1/antic_dma_clock1/enable_dma" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">enable_dma</obj_property>
+      <obj_property name="ObjectShortName">enable_dma</obj_property>
+   </wvobject>
+   <wvobject fp_name="/antic_tb/antic1/playfield_dma_start_shiftreg_next" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">playfield_dma_start_shiftreg_next[4:0]</obj_property>
+      <obj_property name="ObjectShortName">playfield_dma_start_shiftreg_next[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/antic_tb/antic1/playfield_dma_start_shiftreg_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">playfield_dma_start_shiftreg_reg[4:0]</obj_property>
+      <obj_property name="ObjectShortName">playfield_dma_start_shiftreg_reg[4:0]</obj_property>
    </wvobject>
 </wave_config>
