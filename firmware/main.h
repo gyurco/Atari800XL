@@ -236,6 +236,8 @@ int zpu_main(void)
 int main(void)
 #endif
 {
+	INIT_MEM
+
 	fil_type_rom = "ROM";
 	fil_type_bin = "BIN";
 	fil_type_car = "CAR";

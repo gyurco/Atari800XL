@@ -9,6 +9,8 @@
 // 0xA0000-0xBFFFF (0x8a0000 in zpu space) = freeze backup
 // 0xC0000-0xDFFFF (0x8c0000 in zpu space) = os rom/basic rom
 
+#define INIT_MEM
+
 #define DIR_INIT_MEM (SDRAM_BASE + 0x90000)
 #define DIR_INIT_MEMSIZE 65536
 #define FREEZE_MEM (SDRAM_BASE + 0xa0000)
