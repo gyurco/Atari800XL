@@ -7,7 +7,7 @@
 #include "simplefile.h"
 #include "hexdump.h"
 
-#include "printf.h"
+//#include "printf.h"
 #include "integer.h"
 
 extern int debug_pos; // ARG!
@@ -608,7 +608,7 @@ void processCommand()
 				else
 				if(sector==0x169)
 				{
-					printf("name ");
+					//printf("name ");
 					//fatGetDirEntry(FileInfo.vDisk.file_index,5,0);
 					//fatGetDirEntry(FileInfo.vDisk.file_index,0); //ale musi to posunout o 5 bajtu doprava
 		
