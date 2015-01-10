@@ -53,7 +53,7 @@ push @files, glob("de1_5200/build*/output_files/*.summary");
 push @files, glob("de1_5200/build*/output_files/*.rpt");
 
 push @files, glob("sockit/build*/output_files/*.sof");
-push @files, glob("sockit/build*/output_files/*.pof");
+push @files, glob("sockit/build*/output_files/*.rbf");
 push @files, glob("sockit/build*/output_files/*.summary");
 push @files, glob("sockit/build*/output_files/*.rpt");
 push @files, glob("sockit/SOCKIT.elf");

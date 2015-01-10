@@ -25,3 +25,4 @@ cd build
 
 ip-generate atari_hps.qsys --file-set=QUARTUS_SYNTH --standard-reports > qsys.log 2> qsys.err
 quartus_sh --flow compile atari800core > build.log 2> build.err
+quartus_cpf --convert ../output_file.cof
