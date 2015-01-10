@@ -1,0 +1,3 @@
+./clearbridge
+dd if=./atari6.rbf of=/dev/fpga0
+./enablebridge
