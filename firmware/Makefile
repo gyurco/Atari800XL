@@ -5,6 +5,13 @@ AS      = $(BASE)-as
 CP      = $(BASE)-objcopy
 DUMP    = $(BASE)-objdump
 
+SOCKIT_CC = arm-linux-gnueabihf-gcc
+SOCKIT_LD = arm-linux-gnueabihf-gcc
+
+SOCKIT_CFLAGS = -g -DLITTLE_ENDIAN -O2
+SOCKIT_CFLAGS+= -W -Wall
+SOCKIT_LDFLAGS = -g
+
 HOST_CC	= gcc
 HOST_LD	= gcc
 
@@ -39,9 +46,11 @@ MIST_DIR = mist
 MIST_5200_DIR = mist_5200
 LINUXSIM_DIR = linux
 LINUXSIM_5200_DIR = linux_5200
+SOCKIT_DIR = sockit
 
 AEON_LITE_BUILD_DIR = $(BUILD_DIR)/$(AEON_LITE_DIR)
 DE1_BUILD_DIR = $(BUILD_DIR)/$(DE1_DIR)
+SOCKIT_BUILD_DIR = $(BUILD_DIR)/$(SOCKIT_DIR)
 DE1_5200_BUILD_DIR = $(BUILD_DIR)/$(DE1_5200_DIR)
 CHAMELEON_BUILD_DIR = $(BUILD_DIR)/$(CHAMELEON_DIR)
 MCC_BUILD_DIR = $(BUILD_DIR)/$(MCC_DIR)
@@ -57,10 +66,12 @@ LINUXSIM_5200_BUILD_DIR = $(BUILD_DIR)/$(LINUXSIM_5200_DIR)
 MINSTARTUP_SRC = mycrt0.s
 MINSTARTUP_OBJ = $(patsubst $(STARTUP_DIR)/%.s,$(BUILD_DIR)/%.o,$(MINSTARTUP_SRC))
 
-COMMON_SRC = cartridge.c fileutils.c fileselector.c pokey/uart.c hexdump.c printf/printf.c fat/pff_file.c fat/pff.c common/utils.c
+CORE_SRC = cartridge.c fileutils.c fileselector.c pokey/uart.c hexdump.c common/utils.c printf/printf.c 
+FAT_SRC = fat/pff_file.c fat/pff.c 
+COMMON_SRC = ${FAT_SRC} ${CORE_SRC}
 SDCARD_SRC = sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc2.c
-A800_SRC_LIGHT = a800/freeze.c  a800/mainmenu.c atari_drive_emulator.c
-A800_SRC = ${A800_SRC_LIGHT} a800/joystick.c libgcc_divmod.c
+A800_SRC_LIGHT = a800/freeze.c  a800/mainmenu.c atari_drive_emulator.c libgcc_divmod.c
+A800_SRC = ${A800_SRC_LIGHT} a800/joystick.c 
 5200_SRC_LIGHT = 5200/freeze.c  5200/mainmenu.c
 5200_SRC = ${5200_SRC_LIGHT} 5200/joystick.c
 USB_SRC = usb/hid.c  usb/hidparser.c  usb/hub.c usb/timer.c  usb/usb.c
@@ -107,6 +118,10 @@ MIST_5200_PRJ = MIST_5200
 MIST_5200_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(5200_SRC) mist_5200/dirs.c
 MIST_5200_OBJ = $(patsubst %.c,$(MIST_5200_BUILD_DIR)/%.o,$(MIST_5200_SRC))
 
+SOCKIT_PRJ = SOCKIT
+SOCKIT_SRC = $(CORE_SRC) a800/freeze.c  a800/mainmenu.c atari_drive_emulator.c a800/joystick.c sockit/dirs.c sockit/linuxfile.c sockit/linuxdir.c sockit/memory.c
+SOCKIT_OBJ = $(patsubst %.c,$(SOCKIT_BUILD_DIR)/%.o,$(SOCKIT_SRC))
+
 LINKMAP  = ./standalone_simple.ld
 LINKMAP_LARGE  = ./standalone_simple_large.ld
 
@@ -130,6 +145,8 @@ LINUXSIM_5200_OBJ	= $(patsubst %.c,$(LINUXSIM_5200_BUILD_DIR)/%.o,$(LINUXSIM_520
 ZPUOPTS =
 CFLAGS  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX
 
+SOCKIT_CFLAGS += -I. -Icommon -Isockit -Iprintf 
+
 HOST_CFLAGS += -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -DDISABLE_UART_RX -DUSB -Iusb
 
 LFLAGS  = -nostartfiles -nostdlib -Wl,--relax -g -Os -Wl,-Map=out.map
@@ -144,7 +161,7 @@ CFLAGS_5200_USB2 = $(CFLAGS) -DFIRMWARE_5200  -DUSB -DUSB2 -Iusb
 HOST_CFLAGS_5200 = $(HOST_CFLAGS) -DFIRMWARE_5200
 
 # Our target.
-all: mcc mcctv mist de1 aeon_lite chameleon  de1_5200 mist_5200 mcc_5200 mcctv_5200
+all: mcc mcctv mist de1 aeon_lite chameleon  de1_5200 mist_5200 mcc_5200 mcctv_5200 sockit
 
 install:
 	cd ../common/romgen && ./createall && cd ../../firmware
@@ -168,6 +185,8 @@ mcctv_5200: $(BUILD_DIR) $(MCCTV_5200_PRJ).bin $(MCCTV_5200_PRJ).rpt
 mist: $(BUILD_DIR) $(MIST_PRJ).bin $(MIST_PRJ).rpt
 
 mist_5200: $(BUILD_DIR) $(MIST_5200_PRJ).bin $(MIST_5200_PRJ).rpt
+
+sockit: $(BUILD_DIR) $(SOCKIT_PRJ).elf
 
 .PHONY: linux
 linux: $(BUILD_DIR) $(LINUXSIM_EXE)
@@ -225,6 +244,9 @@ $(MIST_PRJ).elf: $(MINSTARTUP_OBJ) $(MIST_OBJ)
 $(MIST_5200_PRJ).elf: $(MINSTARTUP_OBJ) $(MIST_5200_OBJ)
 	$(LD) $(LFLAGS_5200) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
+$(SOCKIT_PRJ).elf: $(SOCKIT_OBJ)
+	$(SOCKIT_LD) $(SOCKIT_LDFLAGS) -o $@ $+
+
 $(LINUXSIM_EXE): $(LINUXSIM_OBJ)
 	$(HOST_LD) $(HOST_LDFLAGS) -o $@ $+
 
@@ -270,6 +292,10 @@ $(MIST_BUILD_DIR)/%.o: %.c Makefile
 $(MIST_5200_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
 	$(CC) -I$(MIST_5200_DIR) $(CFLAGS_5200)  -o $@ -c $<
+
+$(SOCKIT_BUILD_DIR)/%.o: %.c Makefile
+	mkdir -p `dirname $@`
+	$(SOCKIT_CC) -I$(SOCKIT_DIR) $(SOCKIT_CFLAGS)  -o $@ -c $<
 
 $(LINUXSIM_BUILD_DIR)/%.o: %.c Makefile
 	@mkdir -p `dirname $@`
