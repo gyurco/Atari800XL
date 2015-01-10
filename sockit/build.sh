@@ -4,9 +4,13 @@ cp atari800core_sockit.vhdl build
 cp altiobuf.* build
 cp altiobufo.* build
 cp pll_pal.* build
+cp avalon_a* build
 cp -r pll_pal build
 cp -r pll_pal_sim build
 cp atari800core.sdc build
+cp atari800core.qpf build
+cp atari_hps.qsys build
+cp i2* build
 
 mkdir build/common
 mkdir build/common/a8core
@@ -19,4 +23,5 @@ cp ../common/zpu/* ./build/common/zpu
 cd build
 ../makeqsf ../atari800core.qsf ./common/a8core ./common/components ./common/zpu
 
-quartus_sh --flow compile atari800core
+ip-generate atari_hps.qsys --file-set=QUARTUS_SYNTH --standard-reports > qsys.log 2> qsys.err
+quartus_sh --flow compile atari800core > build.log 2> build.err

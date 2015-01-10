@@ -18,7 +18,7 @@ Info: Running Quartus II 64-Bit Shell
     Info: devices manufactured by Altera and sold by Altera or its 
     Info: authorized distributors.  Please refer to the applicable 
     Info: agreement for further details.
-    Info: Processing started: Sun Dec 14 20:17:06 2014
+    Info: Processing started: Sun Dec 14 21:00:49 2014
 Info: Command: quartus_sh --flow compile atari800core
 Info: Quartus(args): compile atari800core
 Info: Project Name = /home/markw/fpga/svn/repo/trunk/atari_800xl/sockit/build/atari800core
@@ -28,7 +28,7 @@ Info (125069): Default assignment values were changed in the current version of 
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit Analysis & Synthesis
     Info: Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
-    Info: Processing started: Sun Dec 14 20:17:11 2014
+    Info: Processing started: Sun Dec 14 21:00:54 2014
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off atari800core -c atari800core
 Info (11104): Parallel Compilation has detected 4 hyper-threaded processors. However, the extra hyper-threaded processors will not be used by default. Parallel Compilation will use 2 of the 2 physical processors detected instead.
 Info (12021): Found 2 design units, including 1 entities, in source file pll_pal.vhd
@@ -631,13 +631,13 @@ Info (21057): Implemented 4437 device resources after synthesis - the final reso
     Info (21065): Implemented 1 PLLs
 Info: Quartus II 64-Bit Analysis & Synthesis was successful. 0 errors, 67 warnings
     Info: Peak virtual memory: 1045 megabytes
-    Info: Processing ended: Sun Dec 14 20:18:17 2014
-    Info: Elapsed time: 00:01:06
-    Info: Total CPU time (on all processors): 00:01:06
+    Info: Processing ended: Sun Dec 14 21:02:07 2014
+    Info: Elapsed time: 00:01:13
+    Info: Total CPU time (on all processors): 00:01:13
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit Fitter
     Info: Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
-    Info: Processing started: Sun Dec 14 20:18:24 2014
+    Info: Processing started: Sun Dec 14 21:02:15 2014
 Info: Command: quartus_fit --read_settings_files=off --write_settings_files=off atari800core -c atari800core
 Info: qfit2_default_script.tcl version: #1
 Info: Project  = atari800core
@@ -650,13 +650,12 @@ Info (171003): Fitter is performing an Auto Fit compilation, which may decrease 
 Warning (292013): Feature LogicLock is only available with a valid subscription license. You can purchase a software subscription to gain full access to this feature.
 Warning (15714): Some pins have incomplete I/O assignments. Refer to the I/O Assignment Warnings report for details
 Info (176045): Design uses memory blocks. Violating setup or hold times of memory block address registers for either read or write operations could cause memory contents to be corrupted. Make sure that all memory block address registers meet the setup and hold time requirements.
-Critical Warning (169085): No exact pin location assignment(s) for 72 pins of 205 total pins. For the list of the pins please refer to the Input Pins, Output Pins, and Bidir Pins tables in the Fitter report and look for the user pins whose location is assigned by Fitter.
 Info (184020): Starting Fitter periphery placement operations
 Warning (177007): PLL(s) placed in location FRACTIONALPLL_X0_Y15_N0 do not have a PLL clock to compensate specified - the Fitter will attempt to compensate all PLL clocks
     Info (177008): PLL pll_pal:pll|pll_pal_0002:pll_pal_inst|altera_pll:altera_pll_i|general[0].gpll~FRACTIONAL_PLL
 Info (11178): Promoted 1 clock (1 global)
     Info (11162): pll_pal:pll|pll_pal_0002:pll_pal_inst|altera_pll:altera_pll_i|outclk_wire[0]~CLKENA0 with 2383 fanout uses global clock CLKCTRL_G7
-Info (184021): Fitter periphery placement operations ending: elapsed time is 00:00:26
+Info (184021): Fitter periphery placement operations ending: elapsed time is 00:00:02
 Critical Warning (332012): Synopsys Design Constraints File file not found: 'atari800core.SDC'. A Synopsys Design Constraints File is required by the TimeQuest Timing Analyzer to get proper timing constraints. Without it, the Compiler will not properly optimize the design.
 Info (332144): No user constrained generated clocks found in the design
 Info (332144): No user constrained base clocks found in the design
@@ -671,93 +670,20 @@ Info (332130): Timing requirements not specified -- quality metrics such as perf
 Info (176233): Starting register packing
 Info (176235): Finished register packing
     Extra Info (176219): No registers were packed into other blocks
-Warning (15705): Ignored locations or region assignments to the following nodes
-    Warning (15706): Node "GPIO0_0" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_1" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_10" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_11" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_12" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_13" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_14" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_15" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_16" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_17" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_18" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_19" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_2" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_20" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_21" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_22" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_23" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_24" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_25" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_26" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_27" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_28" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_29" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_3" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_30" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_31" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_32" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_33" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_34" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_35" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_4" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_5" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_6" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_7" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_8" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO0_9" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_0" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_1" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_10" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_11" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_12" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_13" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_14" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_15" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_16" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_17" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_18" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_19" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_2" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_20" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_21" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_22" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_23" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_24" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_25" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_26" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_27" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_28" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_29" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_3" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_30" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_31" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_32" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_33" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_34" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_35" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_4" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_5" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_6" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_7" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_8" is assigned to location or region, but does not exist in design
-    Warning (15706): Node "GPIO1_9" is assigned to location or region, but does not exist in design
-Info (11798): Fitter preparation operations ending: elapsed time is 00:00:49
+Info (11798): Fitter preparation operations ending: elapsed time is 00:00:19
 Info (170189): Fitter placement preparation operations beginning
-Info (170190): Fitter placement preparation operations ending: elapsed time is 00:00:03
+Info (170190): Fitter placement preparation operations ending: elapsed time is 00:00:04
 Info (170191): Fitter placement operations beginning
 Info (170137): Fitter placement was successful
-Info (170192): Fitter placement operations ending: elapsed time is 00:00:11
+Info (170192): Fitter placement operations ending: elapsed time is 00:00:09
 Info (170193): Fitter routing operations beginning
-Info (170195): Router estimated average interconnect usage is 2% of the available device resources
-    Info (170196): Router estimated peak interconnect usage is 27% of the available device resources in the region that extends from location X33_Y23 to location X44_Y34
-Info (170194): Fitter routing operations ending: elapsed time is 00:00:10
+Info (170195): Router estimated average interconnect usage is 1% of the available device resources
+    Info (170196): Router estimated peak interconnect usage is 31% of the available device resources in the region that extends from location X33_Y23 to location X44_Y34
+Info (170194): Fitter routing operations ending: elapsed time is 00:00:11
 Info (170199): The Fitter performed an Auto Fit compilation.  Optimizations were skipped to reduce compilation time.
     Info (170201): Optimizations that may affect the design's routability were skipped
     Info (170200): Optimizations that may affect the design's timing were skipped
-Info (11888): Total time spent on timing analysis during the Fitter is 6.29 seconds.
+Info (11888): Total time spent on timing analysis during the Fitter is 7.62 seconds.
 Info (334003): Started post-fitting delay annotation
 Warning (334000): Timing characteristics of device 5CSXFC6D6F31C8ES are preliminary
 Info (334004): Delay annotation completed successfully
@@ -765,7 +691,6 @@ Info (334003): Started post-fitting delay annotation
 Warning (334000): Timing characteristics of device 5CSXFC6D6F31C8ES are preliminary
 Info (334004): Delay annotation completed successfully
 Info (11801): Fitter post-fit operations ending: elapsed time is 00:00:33
-Warning (171167): Found invalid Fitter assignments. See the Ignored Assignments panel in the Fitter Compilation Report for more information.
 Warning (169064): Following 110 pins have no output enable or a GND or VCC output enable - later changes to this connectivity may change fitting results
     Info (169065): Pin SI5338_SDA has a permanently disabled output enable
     Info (169065): Pin AUD_ADCDAT has a permanently disabled output enable
@@ -917,28 +842,28 @@ Warning (169069): Following 39 pins have nothing, GND, or VCC driving datain por
     Info (169070): Pin DDR3_DQ[29] has VCC driving its datain port
     Info (169070): Pin DDR3_DQ[30] has VCC driving its datain port
     Info (169070): Pin DDR3_DQ[31] has VCC driving its datain port
-Info (144001): Generated suppressed messages file /home/markw/fpga/svn/repo/trunk/atari_800xl/sockit/build/atari800core.fit.smsg
-Info: Quartus II 64-Bit Fitter was successful. 0 errors, 83 warnings
-    Info: Peak virtual memory: 1999 megabytes
-    Info: Processing ended: Sun Dec 14 20:20:48 2014
-    Info: Elapsed time: 00:02:24
-    Info: Total CPU time (on all processors): 00:03:03
+Info (144001): Generated suppressed messages file /home/markw/fpga/svn/repo/trunk/atari_800xl/sockit/build/output_files/atari800core.fit.smsg
+Info: Quartus II 64-Bit Fitter was successful. 0 errors, 8 warnings
+    Info: Peak virtual memory: 1973 megabytes
+    Info: Processing ended: Sun Dec 14 21:04:14 2014
+    Info: Elapsed time: 00:01:59
+    Info: Total CPU time (on all processors): 00:02:41
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit Assembler
     Info: Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
-    Info: Processing started: Sun Dec 14 20:20:56 2014
+    Info: Processing started: Sun Dec 14 21:04:23 2014
 Info: Command: quartus_asm --read_settings_files=off --write_settings_files=off atari800core -c atari800core
 Info (115030): Assembler is generating device programming files
 Info: Quartus II 64-Bit Assembler was successful. 0 errors, 0 warnings
-    Info: Peak virtual memory: 919 megabytes
-    Info: Processing ended: Sun Dec 14 20:21:11 2014
-    Info: Elapsed time: 00:00:15
-    Info: Total CPU time (on all processors): 00:00:14
+    Info: Peak virtual memory: 916 megabytes
+    Info: Processing ended: Sun Dec 14 21:04:43 2014
+    Info: Elapsed time: 00:00:20
+    Info: Total CPU time (on all processors): 00:00:19
 Info (293026): Skipped module PowerPlay Power Analyzer due to the assignment FLOW_ENABLE_POWER_ANALYZER
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit TimeQuest Timing Analyzer
     Info: Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
-    Info: Processing started: Sun Dec 14 20:21:18 2014
+    Info: Processing started: Sun Dec 14 21:04:51 2014
 Info: Command: quartus_sta atari800core -c atari800core
 Info: qsta_default_script.tcl version: #1
 Info (11104): Parallel Compilation has detected 4 hyper-threaded processors. However, the extra hyper-threaded processors will not be used by default. Parallel Compilation will use 2 of the 2 physical processors detected instead.
@@ -960,27 +885,27 @@ Info (332143): No user constrained clock uncertainty found in the design. Callin
 Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in TimeQuest to see clock uncertainties.
 Info: Found TIMEQUEST_REPORT_SCRIPT_INCLUDE_DEFAULT_ANALYSIS = ON
 Info: Analyzing Slow 1100mV 85C Model
-Info (332146): Worst-case setup slack is 2.614
+Info (332146): Worst-case setup slack is 2.314
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):     2.614               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case hold slack is 0.528
+    Info (332119):     2.314               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case hold slack is 0.524
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):     0.528               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case recovery slack is 14.562
+    Info (332119):     0.524               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case recovery slack is 14.694
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    14.562               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case removal slack is 0.922
+    Info (332119):    14.694               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case removal slack is 0.903
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):     0.922               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.903               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
 Info (332146): Worst-case minimum pulse width slack is 0.440
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
     Info (332119):     0.440               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0] 
-    Info (332119):     7.180               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     7.189               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):     9.802               0.000 OSC_50_B3B 
 Info: Analyzing Slow 1100mV 0C Model
 Info (334003): Started post-fitting delay annotation
@@ -991,27 +916,27 @@ Info (332097): The following timing edges are non-unate.  TimeQuest will assume 
     Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER  from: vco0ph[0]  to: divclk
     Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_REFCLK_SELECT  from: clkin[0]  to: clkout
 Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in TimeQuest to see clock uncertainties.
-Info (332146): Worst-case setup slack is 2.704
+Info (332146): Worst-case setup slack is 2.339
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):     2.704               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case hold slack is 0.555
+    Info (332119):     2.339               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case hold slack is 0.537
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):     0.555               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case recovery slack is 14.710
+    Info (332119):     0.537               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case recovery slack is 14.836
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    14.710               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case removal slack is 0.791
+    Info (332119):    14.836               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case removal slack is 0.775
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):     0.791               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.775               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
 Info (332146): Worst-case minimum pulse width slack is 0.440
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
     Info (332119):     0.440               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0] 
-    Info (332119):     7.131               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     7.151               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):     9.797               0.000 OSC_50_B3B 
 Info: Analyzing Fast 1100mV 85C Model
 Info (334003): Started post-fitting delay annotation
@@ -1022,27 +947,27 @@ Info (332097): The following timing edges are non-unate.  TimeQuest will assume 
     Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER  from: vco0ph[0]  to: divclk
     Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_REFCLK_SELECT  from: clkin[0]  to: clkout
 Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in TimeQuest to see clock uncertainties.
-Info (332146): Worst-case setup slack is 10.143
+Info (332146): Worst-case setup slack is 9.885
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    10.143               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case hold slack is 0.179
+    Info (332119):     9.885               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case hold slack is 0.178
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):     0.179               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case recovery slack is 15.826
+    Info (332119):     0.178               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case recovery slack is 15.932
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    15.826               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case removal slack is 0.358
+    Info (332119):    15.932               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case removal slack is 0.359
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):     0.358               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.359               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
 Info (332146): Worst-case minimum pulse width slack is 0.440
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
     Info (332119):     0.440               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0] 
-    Info (332119):     7.695               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     7.699               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):     9.903               0.000 OSC_50_B3B 
 Info: Analyzing Fast 1100mV 0C Model
 Info (332097): The following timing edges are non-unate.  TimeQuest will assume pos-unate behavior for these edges in the clock network.
@@ -1050,39 +975,39 @@ Info (332097): The following timing edges are non-unate.  TimeQuest will assume 
     Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER  from: vco0ph[0]  to: divclk
     Info (332098): Cell: pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_REFCLK_SELECT  from: clkin[0]  to: clkout
 Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in TimeQuest to see clock uncertainties.
-Info (332146): Worst-case setup slack is 10.899
+Info (332146): Worst-case setup slack is 10.691
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    10.899               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case hold slack is 0.171
+    Info (332119):    10.691               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case hold slack is 0.168
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):     0.171               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case recovery slack is 16.012
+    Info (332119):     0.168               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case recovery slack is 16.097
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):    16.012               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
-Info (332146): Worst-case removal slack is 0.287
+    Info (332119):    16.097               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+Info (332146): Worst-case removal slack is 0.291
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
-    Info (332119):     0.287               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     0.291               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
 Info (332146): Worst-case minimum pulse width slack is 0.440
     Info (332119):     Slack       End Point TNS Clock 
     Info (332119): ========= =================== =====================
     Info (332119):     0.440               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0] 
-    Info (332119):     7.694               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
+    Info (332119):     7.696               0.000 pll|pll_pal_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk 
     Info (332119):     9.908               0.000 OSC_50_B3B 
 Info (332102): Design is not fully constrained for setup requirements
 Info (332102): Design is not fully constrained for hold requirements
 Info: Quartus II 64-Bit TimeQuest Timing Analyzer was successful. 0 errors, 3 warnings
-    Info: Peak virtual memory: 1292 megabytes
-    Info: Processing ended: Sun Dec 14 20:21:54 2014
-    Info: Elapsed time: 00:00:36
-    Info: Total CPU time (on all processors): 00:00:51
-Info (293000): Quartus II Full Compilation was successful. 0 errors, 153 warnings
+    Info: Peak virtual memory: 1288 megabytes
+    Info: Processing ended: Sun Dec 14 21:05:35 2014
+    Info: Elapsed time: 00:00:44
+    Info: Total CPU time (on all processors): 00:01:04
+Info (293000): Quartus II Full Compilation was successful. 0 errors, 78 warnings
 Info (23030): Evaluation of Tcl script /home/markw/fpga/altera/14.0/quartus/common/tcl/internal/qsh_flow.tcl was successful
-Info: Quartus II 64-Bit Shell was successful. 0 errors, 153 warnings
+Info: Quartus II 64-Bit Shell was successful. 0 errors, 78 warnings
     Info: Peak virtual memory: 294 megabytes
-    Info: Processing ended: Sun Dec 14 20:21:59 2014
-    Info: Elapsed time: 00:04:53
-    Info: Total CPU time (on all processors): 00:05:31
+    Info: Processing ended: Sun Dec 14 21:05:40 2014
+    Info: Elapsed time: 00:04:51
+    Info: Total CPU time (on all processors): 00:05:36

@@ -1,5 +1,6 @@
-export PATH=${PATH}:/home/markw/fpga/altera/13.0sp1/quartus/bin
-#export PATH=${PATH}:/home/markw/fpga/altera/14.0/quartus/bin
+export ORIGPATH=${PATH}
+
+export PATH=${ORIGPATH}:/home/markw/fpga/altera/13.0sp1/quartus/bin
 cd de1
 ./build.sh ALL > build.log 2> build.err&
 cd ../chameleon
@@ -21,6 +22,11 @@ cd ../mcc216_5200
 cd ../mcctv_5200
 ./build.sh ALL &
 
-# TODO variations?
-# TODO SOCkit
+
+export PATH=${ORIGPATH}:/home/markw/fpga/altera/14.0/quartus/bin:/home/markw/fpga/altera/14.0/quartus/sopc_builder/bin/
+cd sockit
+./build.sh
+
+export PATH=${ORIGPATH}
+unset ORIGPATH
 
