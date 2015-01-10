@@ -516,6 +516,7 @@ void processCommand()
 				{
 					unsigned char buffer[256];
 					int read;
+					file_seek(file,location);
 					file_read(file,buffer,sectorSize,&read);
 
 					ok = 1;
