@@ -8,7 +8,7 @@ DUMP    = $(BASE)-objdump
 SOCKIT_CC = arm-linux-gnueabihf-gcc
 SOCKIT_LD = arm-linux-gnueabihf-gcc
 
-SOCKIT_CFLAGS = -g -DLITTLE_ENDIAN -O2
+SOCKIT_CFLAGS = -g -DLITTLE_ENDIAN -DSOCKIT -O2
 SOCKIT_CFLAGS+= -W -Wall
 SOCKIT_LDFLAGS = -g
 

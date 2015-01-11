@@ -97,6 +97,9 @@ wait_us(int unsigned num)
 #ifdef LINUX_BUILD
 	usleep(num);
 #endif
+#ifdef SOCKIT
+	usleep(num);
+#endif
 }
 
 void memset8(void * address, int value, int length)
