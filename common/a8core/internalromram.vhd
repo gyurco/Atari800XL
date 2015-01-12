@@ -165,7 +165,7 @@ gen_internal_ram: if internal_ram>0 generate
 	PORT MAP(clock => clock,
 			 address => ram_addr,
 			 data => ram_data_in(7 downto 0),
-			 we => RAM_WR_ENABLE,
+			 we => RAM_WR_ENABLE and ram_request,
 			 q => ram_data
 			 );	
 	ram_request_complete <= ram_request_reg;
