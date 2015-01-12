@@ -39,13 +39,34 @@ END avalon_atari_dma;
 
 ARCHITECTURE vhdl OF avalon_atari_dma IS
 	SIGNAL BYTE_ADDRESS : STD_LOGIC_VECTOR(1 downto 0);
+	SIGNAL SPECIAL_MEM : STD_LOGIC;
+	SIGNAL DMA_MEMORY_DATA_LOW : STD_LOGIC_VECTOR(7 downto 0);
 BEGIN
 	DMA_FETCH <= (READ or WRITE) and CHIPSELECT;
 	DMA_READ_ENABLE <= READ;
 	DMA_ADDR <= ADDRESS&BYTE_ADDRESS;
 	WAITREQUEST <= NOT(MEMORY_READY_DMA) or not(RESET_N);
 
-	process(BYTEENABLE, DMA_MEMORY_DATA, WRITEDATA)
+        process(ADDRESS)
+        begin
+                special_mem <= '0';
+                -- $00000-$0FFFF = Own ROM/RAM
+                -- $10000-$1FFFF = Atari
+                -- $20000-$2FFFF = Atari - savestate (gtia/antic/pokey have memory behind them)
+                if (or_reduce(std_logic_vector(ADDRESS(21 downto 19))) = '0') then -- special area
+                        special_mem <= ADDRESS(15);
+                end if;
+        end process;
+
+	process(SPECIAL_MEM, DMA_MEMORY_DATA)
+	begin
+		DMA_MEMORY_DATA_LOW <= DMA_MEMORY_DATA(7 downto 0);
+		if (SPECIAL_MEM = '1') then
+			DMA_MEMORY_DATA_LOW <= DMA_MEMORY_DATA(15 downto 8);
+		end if;
+	end process;
+
+	process(BYTEENABLE, DMA_MEMORY_DATA_LOW, WRITEDATA, SPECIAL_MEM)
 	begin
 		BYTE_ADDRESS <= "00";
 		DMA_8BIT_WRITE_ENABLE <= '0';
@@ -56,22 +77,22 @@ BEGIN
 		case BYTEENABLE is
 		when "0001" =>
 			DMA_8BIT_WRITE_ENABLE <= '1';
-			READDATA <= DMA_MEMORY_DATA(7 downto 0)&DMA_MEMORY_DATA(7 downto 0)&DMA_MEMORY_DATA(7 downto 0)&DMA_MEMORY_DATA(7 downto 0);
+			READDATA <= DMA_MEMORY_DATA_LOW&DMA_MEMORY_DATA_LOW&DMA_MEMORY_DATA_LOW&DMA_MEMORY_DATA_LOW;
 			DMA_WRITE_DATA <= x"000000"&WRITEDATA(7 downto 0);
 		when "0010" =>
 			BYTE_ADDRESS <= "01";
 			DMA_8BIT_WRITE_ENABLE <= '1';
-			READDATA <= DMA_MEMORY_DATA(7 downto 0)&DMA_MEMORY_DATA(7 downto 0)&DMA_MEMORY_DATA(7 downto 0)&DMA_MEMORY_DATA(7 downto 0);
+			READDATA <= DMA_MEMORY_DATA_LOW&DMA_MEMORY_DATA_LOW&DMA_MEMORY_DATA_LOW&DMA_MEMORY_DATA_LOW;
 			DMA_WRITE_DATA <= x"000000"&WRITEDATA(15 downto 8);
 		when "0100" =>
 			BYTE_ADDRESS <= "10";
 			DMA_8BIT_WRITE_ENABLE <= '1';
-			READDATA <= DMA_MEMORY_DATA(7 downto 0)&DMA_MEMORY_DATA(7 downto 0)&DMA_MEMORY_DATA(7 downto 0)&DMA_MEMORY_DATA(7 downto 0);
+			READDATA <= DMA_MEMORY_DATA_LOW&DMA_MEMORY_DATA_LOW&DMA_MEMORY_DATA_LOW&DMA_MEMORY_DATA_LOW;
 			DMA_WRITE_DATA <= x"000000"&WRITEDATA(23 downto 16);
 		when "1000" =>
 			BYTE_ADDRESS <= "11";
 			DMA_8BIT_WRITE_ENABLE <= '1';
-			READDATA <= DMA_MEMORY_DATA(7 downto 0)&DMA_MEMORY_DATA(7 downto 0)&DMA_MEMORY_DATA(7 downto 0)&DMA_MEMORY_DATA(7 downto 0);
+			READDATA <= DMA_MEMORY_DATA_LOW&DMA_MEMORY_DATA_LOW&DMA_MEMORY_DATA_LOW&DMA_MEMORY_DATA_LOW;
 			DMA_WRITE_DATA <= x"000000"&WRITEDATA(31 downto 24);
 		when "1111" =>
 			DMA_32BIT_WRITE_ENABLE <= '1';
