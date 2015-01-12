@@ -8,6 +8,7 @@
 #include "hexdump.h"
 
 //#include "printf.h"
+//#include <stdio.h>
 #include "integer.h"
 
 extern int debug_pos; // ARG!
@@ -36,6 +37,17 @@ extern unsigned char volatile * baseaddr;
 struct SimpleFile * drives[MAX_DRIVES];
 unsigned char drive_info[MAX_DRIVES];
 enum DriveInfo {DI_XD=0,DI_SD=1,DI_MD=2,DI_DD=3,DI_BITS=3,DI_RO=4};
+
+//#ifdef SOCKIT
+//double when()
+//{
+//	struct timeval tv;
+//	gettimeofday(&tv,0);
+//	double now = tv.tv_sec;
+//	now += tv.tv_usec/1e6;
+//	return now;
+//}
+//#endif
 
 struct ATRHeader
 {
@@ -114,8 +126,11 @@ void getCommand(struct command * cmd)
 	int expchk;
 	int i;
 
+	//printf("\n%f:WaitCMD\n",when());
 	while (0 == USART_Command_Line());
+	//printf("%f:CMDHigh\n",when());
 	USART_Init(speed+6);
+	//printf("%f:Clear:%d\n",when(),*zpu_siocommand_ready);
 	*zpu_siocommand_ready = 1; // clear
 
 	while (1)
@@ -123,6 +138,12 @@ void getCommand(struct command * cmd)
 		unsigned char x = *zpu_siocommand_ready;
 		if (x != 0) break;
 		actions();
+
+//#ifdef SOCKIT
+//		double a = when();
+//		while ((when()-a)<3e-6);
+//#endif
+		wait_us(3);
 	} // usb poll can take some ms, but we have 16 ms to reply. We have hardware now to capture the command frame.
 	for (i=0;i!=5;++i)
 		((unsigned char *)cmd)[i] = zpu_siocommand_data[i<<2];
@@ -145,7 +166,9 @@ void getCommand(struct command * cmd)
 /*unsigned char * temp = baseaddr;
 baseaddr = (unsigned char volatile *)(40000 + atari_regbase);
 debug_pos=160;
-	printf("CMD:%02x %02x %02x %02x %02x/%02x ",cmd->deviceId,cmd->command,cmd->aux1,cmd->aux2,cmd->chksum,expchk);
+*/
+	//printf("%f:CMD: %02x %02x %02x %02x %02x/%02x %s\n",when(),cmd->deviceId,cmd->command,cmd->aux1,cmd->aux2,cmd->chksum,expchk, cmd->chksum!=expchk ? "BAD":"");
+/*
 baseaddr = temp;*/
 
 	//printf("Device id:");
@@ -455,7 +478,6 @@ void processCommand()
 			int sectorSize = 0;
 			int location =0;
 
-			//printf("WACK:");
 			USART_Transmit_Mode();
 			if (file_readonly(file))
 			{
@@ -464,6 +486,7 @@ void processCommand()
 				USART_Receive_Mode();
 				return;
 			}
+			//printf("%f:WACK\n",when());
 			send_ACK();
 			USART_Wait_Transmit_Complete();
 			USART_Receive_Mode();
@@ -483,6 +506,7 @@ void processCommand()
 			}
 
 			// Receive the data
+			//printf("%f:Getting data\n",when());
 			int i;
 			for (i=0;i!=sectorSize;++i)
 			{
@@ -494,13 +518,15 @@ void processCommand()
 			//hexdump_pure(atari_sector_buffer,sectorSize); // Somehow with this...
 			unsigned char expchk = get_checksum(&atari_sector_buffer[0],sectorSize);
 			//printf("DATA:%d:",sectorSize);
-			//printf("CHK:%02x EXP:%02x", checksum, expchk);
+			//printf("%f:CHK:%02x EXP:%02x %s\n", when(), checksum, expchk, checksum!=expchk ? "BAD" : "");
 			//printf(" %d",atari_sector_buffer[0]); // and this... The wrong checksum is sent!!
 			//printf(":done\n");
 			if (checksum==expchk)
 			{
+				//DELAY_T2_MIN
+				wait_us(20);
 				USART_Transmit_Mode();
-				//printf(":WACK2:");
+				//printf("%f:WACK data\n",when());
 				send_ACK();
 				USART_Wait_Transmit_Complete();
 
@@ -531,12 +557,12 @@ void processCommand()
 				DELAY_T5_MIN;
 				if (ok)
 				{
-					//printf(":CMPL:");
+					//printf("%f:CMPL\n",when());
 					send_CMPL();
 				}
 				else
 				{
-					//printf(":NACK:");
+					//printf("%f:NACK(verify failed)\n",when());
 					send_NACK();
 				}
 
@@ -545,7 +571,7 @@ void processCommand()
 			}
 			else
 			{
-				//printf(":NACK:");
+				//printf("%f:NACK(bad checksum)\n",when());
 				send_NACK();
 
 				USART_Wait_Transmit_Complete();
@@ -563,7 +589,9 @@ void processCommand()
 			int read = 0;
 			int location =0;
 
+			DELAY_T2_MIN
 			USART_Transmit_Mode();
+			//printf("%f:ACK\n",when());
 			send_ACK();
 			//printf("Sector:");
 			//printf("%d",sector);
@@ -683,8 +711,10 @@ set_number_of_sectors_to_buffer_1_2:
 				}
 				//printf("%d",location);
 				//printf("\n");
+				//printf("%f:Read\n",when());
 				file_seek(file,location);
 				file_read(file,&atari_sector_buffer[0], sectorSize, &read);
+				//printf("%f:Read done\n",when());
 			}
 
 			//topofscreen();
@@ -746,6 +776,7 @@ void USART_Send_cmpl_and_atari_sector_buffer_and_check_sum(unsigned short len)
 	//printf("%d",len);
 
 	DELAY_T5_MIN;
+	//printf("%f:CMPL\n",when());
 	send_CMPL();
 
 	// Hias: changed to 100us so that Qmeg3 works again with the
@@ -753,11 +784,13 @@ void USART_Send_cmpl_and_atari_sector_buffer_and_check_sum(unsigned short len)
 	DELAY_T3_PERIPH;
 
 	check_sum = 0;
+	//printf("%f:SendBuffer\n",when());
 	USART_Send_Buffer(atari_sector_buffer,len);
 	// tx_checksum is updated by bit-banging USART_Transmit_Byte,
 	// so we can skip separate calculation
 	check_sum = get_checksum(atari_sector_buffer,len);
 	USART_Transmit_Byte(check_sum);
+	//printf("%f:Done\n",when());
 	//hexdump_pure(atari_sector_buffer,len);
 	/*printf(":chk:");
 	printf("%d",check_sum);
