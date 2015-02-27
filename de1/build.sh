@@ -25,7 +25,13 @@ my %variants =
 #	},
 	"BOTH" =>
 	{
-		"TV" => 2
+		"TV" => 2,
+		"GPIO" => 1
+	},
+	"PRIVATE" =>
+	{
+		"TV" => 2,
+		"GPIO" => 2
 	}
 );
 

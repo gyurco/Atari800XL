@@ -15,7 +15,8 @@ LIBRARY work;
 ENTITY atari800core_de1 IS 
 	GENERIC
 	(
-		TV : integer  -- 1 = PAL, 0=NTSC
+		TV : integer; -- 1 = PAL, 0=NTSC
+		GPIO : integer  -- 1 = OLD GPIO LAYOUT, 2=NEW GPIO LAYOUT (WIP)
 	);
 	PORT
 	(
@@ -412,6 +413,7 @@ gpio1_gen:
 		gpio_1(I) <= gpio_1_out(I) when gpio_1_dir_out(I)='1' else 'Z';
    end generate gpio1_gen;
 
+gen_old_gpio : if gpio=1 generate
 gpio1 : entity work.gpio
 GENERIC MAP(
 		cartridge_cycle_length => 26
@@ -455,6 +457,53 @@ PORT MAP(clk => CLK,
 		 SIO_IN => GPIO_SIO_RXD,
 		 SIO_OUT => SIO_TXD
 		 );
+end generate gen_old_gpio;
+
+gen_new_gpio : if gpio=2 generate
+gpio2 : entity work.gpiov2
+GENERIC MAP(
+		cartridge_cycle_length => 26
+)
+PORT MAP(clk => CLK,
+	reset_n => reset_n,
+		 gpio_enable => pbi_enable,
+		 pot_reset => pot_reset,
+		 pbi_write_enable => pbi_write_enable,
+		 enable_179_early => enable_179_early,
+		 cart_request => cart_request,
+		 cart_complete => cart_request_complete,
+		 cart_data_read => cart_data,
+		 s4_n => cart_s4_n,
+		 s5_n => cart_s5_n,
+		 cctl_n => cart_cctl_n,
+		 cart_data_write => pbi_write_data(7 downto 0),
+		 GPIO_0_IN => GPIO_0,
+		 GPIO_0_OUT => GPIO_0_OUT,
+		 GPIO_0_DIR_OUT => GPIO_0_DIR_OUT,
+		 GPIO_1_IN => GPIO_1,
+		 GPIO_1_OUT => GPIO_1_OUT,
+		 GPIO_1_DIR_OUT => GPIO_1_DIR_OUT,		 
+		 keyboard_scan => KEYBOARD_SCAN,
+		 pbi_addr_out => pbi_addr,
+		 porta_out => PORTA_OUT,
+		 porta_output => PORTA_DIR_OUT,
+		 lightpen => ANTIC_LIGHTPEN,
+		 rd4 => CART_RD4,
+		 rd5 => CART_RD5,
+		 keyboard_response => GPIO_KEYBOARD_RESPONSE,
+		 porta_in => PORTA_IN,
+		 pot_in => pot_in,
+		 trig_in => TRIGGERS,
+		 CA2_DIR_OUT => CA2_DIR_OUT,
+		 CA2_OUT => CA2_OUT,
+		 CA2_IN => open,
+		 CB2_DIR_OUT => CB2_DIR_OUT,
+		 CB2_OUT => CB2_OUT,
+		 CB2_IN => open,
+		 SIO_IN => GPIO_SIO_RXD,
+		 SIO_OUT => SIO_TXD
+		 );
+end generate gen_new_gpio;
 
 	process(clk,RESET_N,SDRAM_RESET_N,reset_atari)
 	begin
