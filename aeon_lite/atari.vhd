@@ -30,6 +30,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity ATARI is
 port (
    CLK_50         : in    std_logic;
+   MCU_READY      : in    std_logic;
 
    SRAM_A         : out   std_logic_vector(17 downto 0);
    SRAM_D         : inout std_logic_vector(15 downto 0);
@@ -210,7 +211,9 @@ generic map(
    INTERNAL_RAM               => 0,
    PALETTE                    => 0,
    VIDEO_BITS                 => 8,
-   LOW_MEMORY                 => 1 )
+   LOW_MEMORY                 => 1,
+   STEREO                     => 0,
+   COVOX                      => 0 )
 port map(
    CLK                        => CLK,
    RESET_N                    => reset_n_inc_zpu,
@@ -391,7 +394,7 @@ port map (
    VSYNC                      => VGA_VSYNC,
    HSYNC                      => VGA_HSYNC );
 
-RESET_N <= LOCKED;
+RESET_N <= LOCKED and MCU_READY;
 
 -- NES Gamepad 1 & Cursor keys on keyboard
 JOY1_n <= (not GAMEPAD0(7) and not GAMEPAD0(6) and not PS2_KEYS(16#014#)) & 

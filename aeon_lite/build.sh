@@ -10,8 +10,6 @@ mkdir -p build
 pushd build
 
 # copy source files
-cp -p ../*.vhd .
-cp -p ../*.vhdl .
 cp -p ../pll/* .
 cp -p ../../common/a8core/*.vhd .
 cp -p ../../common/a8core/*.vhdl .
@@ -19,33 +17,35 @@ cp -p ../../common/components/*.vhd .
 cp -p ../../common/components/*.vhdl .
 cp -p ../../common/zpu/*.vhd .
 cp -p ../../common/zpu/*.vhdl .
+#rm -f delay_line.vhdl
+cp -p ../*.vhd .
+cp -p ../*.vhdl .
+cp -p ../*.xst .
 
 cp -p ../$name.ucf .
 cp -p ../$name.ut .
 cp -p ../$name.scr .
 cp -p ../$name.prj .
 
-if [ "${args[0]}" != "-xil" ]; then
+mkdir -p xst/projnav.tmp/
 
-    echo "Starting Synthesis..."
-    xst -ifn $name.scr -ofn $name.srp || exit 1
+echo "Starting Synthesis"
+xst -intstyle ise -ifn $name.xst -ofn $name.syr
 
-fi
-
-echo "Starting Translate..."
-ngdbuild -nt on -uc $name.ucf $name.ngc $name.ngd || exit 1
+echo "Starting NGD"
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc6slx9-tqg144-3 $name.ngc $name.ngd
 
 echo "Starting Map..."
-map -pr b $name.ngd -o $name.ncd $name.pcf || exit 1
+map -intstyle ise -p xc6slx9-tqg144-3 -w -logic_opt off -ol high -t 1 -xt 0 -register_duplication off -r 4 -global_opt off -mt off -detail -ir off -pr off -lc off -power off -o $name_map.ncd $name.ngd $name.pcf
 
 echo "Starting Place & Route..."
-par -w -ol std $name.ncd $name.ncd $name.pcf || exit 1
+par -w -intstyle ise -ol high -mt off $name_map.ncd $name.ncd $name.pcf
 
 echo "Starting Timing Analysis..."
-trce -v 10 -o $name.twr $name.ncd $name.pcf || exit 1
+trce -intstyle ise -v 3 -s 3 -n 3 -fastpaths -xml $name.twx $name.ncd -o $name.twr $name.pcf
 
 echo "Starting Bitgen..."
-bitgen $name.ncd $name.bit -w -f $name.ut || exit 1
+bitgen -intstyle ise -f $name.ut $name.ncd
 
 popd
 cp build/$name.bin core/atari800.bin
