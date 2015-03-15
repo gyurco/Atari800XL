@@ -44,6 +44,7 @@ cpu.vhd
 delay_line.vhdl
 enable_divider.vhdl
 generic_ram_infer.vhdl
+mult_infer.vhdl
 gtia_palette.vhdl
 gtia_player.vhdl
 gtia_priority.vhdl
