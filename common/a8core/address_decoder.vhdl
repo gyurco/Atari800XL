@@ -15,6 +15,7 @@ ENTITY address_decoder IS
 GENERIC
 (
 	low_memory : integer := 0; -- if 0, we assume 8MB SDRAM, if 1, we assume 1MB 'SDRAM'.
+	stereo : integer := 1; 
 	system : integer := 0 -- 0=Atari XL, 10=Atari5200 (space left for more systems)
 );
 PORT 
@@ -667,7 +668,7 @@ end generate;
 			
 				-- POKEY
 				when X"D2" =>				
-					if (addr_next(4) = '0') then
+					if (stereo=0 or addr_next(4) = '0') then
 						POKEY_WR_ENABLE <= write_enable_next;
 						MEMORY_DATA(7 downto 0) <= POKEY_DATA;
 						MEMORY_DATA(15 downto 8) <= CACHE_POKEY_DATA;

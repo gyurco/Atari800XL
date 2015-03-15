@@ -36,6 +36,7 @@ architecture vhdl of internalromram is
 	signal ROM2_DATA : std_logic_vector(7 downto 0);
 	signal BASIC_DATA : std_logic_vector(7 downto 0);	
 	
+	signal ramwe_temp : std_logic;
 begin
 	process(clock,reset_n)
 	begin
@@ -155,6 +156,7 @@ gen_no_internal_os : if internal_rom=0 generate
 end generate;
 	
 gen_internal_ram: if internal_ram>0 generate
+	ramwe_temp <= RAM_WR_ENABLE and ram_request;
 	ramint1 : entity work.generic_ram_infer
         generic map
         (
@@ -165,7 +167,7 @@ gen_internal_ram: if internal_ram>0 generate
 	PORT MAP(clock => clock,
 			 address => ram_addr,
 			 data => ram_data_in(7 downto 0),
-			 we => RAM_WR_ENABLE and ram_request,
+			 we => ramwe_temp,
 			 q => ram_data
 			 );	
 	ram_request_complete <= ram_request_reg;

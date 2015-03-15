@@ -35,7 +35,13 @@ ENTITY atari800core_simple_sdram is
 		internal_ram : integer := 16384;  -- at start of memory map
 	
 		-- Use 1MB memory map if low memory set (for Aeon lite)
-		low_memory : integer := 0
+		low_memory : integer := 0;
+
+		-- one or two pokey chips
+		stereo : integer := 1;
+
+		-- resistor ladder style 8-bit sample thing
+		covox : integer := 1
 	);
 	PORT
 	(
@@ -316,7 +322,9 @@ atari800xl : entity work.atari800core
 		cycle_length => cycle_length,
 		video_bits => video_bits,
 		palette => palette,
-		low_memory => low_memory
+		low_memory => low_memory,
+		stereo => stereo,
+		covox => covox
 	)
 	PORT MAP
 	(

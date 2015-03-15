@@ -21,7 +21,9 @@ ENTITY atari800core IS
 		cycle_length : integer := 16; -- or 32...
 		video_bits : integer := 8;
 		palette : integer :=0; -- 0:gtia colour on VIDEO_B, 1:on
-		low_memory : integer := 0 -- 0:8MB memory map, 1:1MB memory map
+		low_memory : integer := 0; -- 0:8MB memory map, 1:1MB memory map
+		stereo : integer := 1;
+		covox : integer := 1
 	);
 	PORT
 	(
@@ -369,6 +371,8 @@ PORT MAP(CLK => CLK,
 		 VOLUME_OUT_L => AUDIO_L,
 		 VOLUME_OUT_R => AUDIO_R);
 		 
+
+gen_stereo : if stereo=1 generate
 pokey2 : entity work.pokey
 PORT MAP(CLK => CLK,
 		 ENABLE_179 => ENABLE_179_MEMWAIT,
@@ -386,6 +390,14 @@ PORT MAP(CLK => CLK,
 		 SIO_IN3 => '1',
 		 keyboard_response => "00",
 		 pot_in=>"00000000");
+end generate;
+
+gen_mono : if stereo=0 generate
+	POKEY2_CHANNEL0 <= POKEY1_CHANNEL0;
+	POKEY2_CHANNEL1 <= POKEY1_CHANNEL1;
+	POKEY2_CHANNEL2 <= POKEY1_CHANNEL2;
+	POKEY2_CHANNEL3 <= POKEY1_CHANNEL3;
+end generate;
 
 pia1 : entity work.pia
 PORT MAP(CLK => CLK,
@@ -413,7 +425,7 @@ PORT MAP(CLK => CLK,
 		 PORTB_OUT => PORTB_OUT_INT);
 
 mmu1 : entity work.address_decoder
-GENERIC MAP(low_memory => low_memory)
+GENERIC MAP(low_memory => low_memory, stereo => stereo)
 PORT MAP(CLK => CLK,
 		 CPU_FETCH => CPU_FETCH,
 		 CPU_WRITE_N => R_W_N,
@@ -609,6 +621,14 @@ port map(
 	DATA_OUT => CACHE_ANTIC_DO
 );	
 
+gen_covox_off : if covox=0 generate
+	COVOX_CHANNEL0 <= (others=>'0');
+	COVOX_CHANNEL1 <= (others=>'0');
+	COVOX_CHANNEL2 <= (others=>'0');
+	COVOX_CHANNEL3 <= (others=>'0');
+end generate;
+
+gen_covox_on : if covox=1 generate
 covox1 : entity work.covox
 	PORT map
 	( 
@@ -621,6 +641,7 @@ covox1 : entity work.covox
 		covox_channel2 => covox_channel2,
 		covox_channel3 => covox_channel3
 	);
+end generate;
 
 -- outputs
 PBI_ADDR <= PBI_ADDR_INT;

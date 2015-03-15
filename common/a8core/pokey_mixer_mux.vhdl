@@ -104,6 +104,8 @@ END PROCESS;
 shared_pokey_mixer : entity work.pokey_mixer
 	port map
 	(
+		CLK => CLK, -- takes 2 cycles...
+
 		CHANNEL_0 => CHANNEL_0_SEL,
 		CHANNEL_1 => CHANNEL_1_SEL,
 		CHANNEL_2 => CHANNEL_2_SEL,
