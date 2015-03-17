@@ -25,8 +25,9 @@ void init_bridge()
 	zpu_base = (unsigned char *)virtual_base + 0x1000000; 
 	//pokey_regbase = (unsigned char *)virtual_base + 0x1000400;
 
-	struct sched_param param;
-	param.sched_priority = 50;
-	sched_setscheduler(0,SCHED_RR,&param);
+	//struct sched_param param;
+	//param.sched_priority = 50;
+	//sched_setscheduler(0,SCHED_RR,&param);
+	nice(-20);
 }
 

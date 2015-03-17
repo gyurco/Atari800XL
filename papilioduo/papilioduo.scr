@@ -1,0 +1,10 @@
+run
+-ifn papilioduo.prj
+-ifmt VHDL
+-ofn papilioduo.ngc
+-ofmt NGC
+-p xc6slx9-tqg144
+-opt_mode Area
+-opt_level 1
+-keep_hierarchy yes
+-top atari800core_papilioduo

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-name=Aeon
+name=papilioduo
 args=$@
 shift
 
@@ -24,7 +24,6 @@ cp -p ../*.xst .
 
 cp -p ../$name.ucf .
 cp -p ../$name.ut .
-cp -p ../$name.scr .
 cp -p ../$name.prj .
 
 mkdir -p xst/projnav.tmp/
