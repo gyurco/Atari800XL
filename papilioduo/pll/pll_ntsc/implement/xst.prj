@@ -1,0 +1,2 @@
+vhdl work ../../pll_ntsc.vhd
+vhdl work ../example_design/pll_ntsc_exdes.vhd

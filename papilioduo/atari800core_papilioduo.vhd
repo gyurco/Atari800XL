@@ -27,7 +27,6 @@ ENTITY atari800core_papilioduo IS
 
 		-- For test bench
 		EXT_CLK : in std_logic_vector(ext_clock downto 1);
-                EXT_SCANDOUBLE_CLK : in std_logic_vector(ext_clock downto 1);
                 EXT_PLL_LOCKED : in std_logic_vector(ext_clock downto 1);
 
 		PS2_CLK1 :  IN  STD_LOGIC;
@@ -209,8 +208,6 @@ ARCHITECTURE vhdl OF atari800core_papilioduo IS
 	SIGNAL FKEYS : std_logic_vector(11 downto 0);
 
 	-- scandoubler
-	signal scandouble_clk : std_logic;
-
 	signal half_scandouble_enable_reg : std_logic;
 	signal half_scandouble_enable_next : std_logic;
 
@@ -288,7 +285,6 @@ port map (
 
 gen_fake_pll : if ext_clock=1 generate
 	CLK <= EXT_CLK(1);
-	SCANDOUBLE_CLK <= EXT_SCANDOUBLE_CLK(1);
 	PLL_LOCKED <= EXT_PLL_LOCKED(1);
 end generate;
 
@@ -326,12 +322,25 @@ gen_real_pll : if ext_clock=0 generate
 --				 locked => PLL_LOCKED);
 --	end generate;
 
-	u_PLL : entity work.PLL
-	port map (
-	   CLKIN                      => CLK_32,
-	   CLKOUT                     => CLK,
-	   CLKOUT2                    => SCANDOUBLE_CLK,
-	   LOCKED                     => PLL_LOCKED );
+	gen_tv_pal : if tv=1 generate
+		pll : entity work.pll_pal
+		port map (
+		   CLK_IN1                      => CLK_32,
+		   CLK_OUT1                     => CLK,
+		   RESET                      => '0',
+		   LOCKED                     => PLL_LOCKED );
+
+	end generate;
+
+	gen_tv_ntsc : if tv=0 generate
+		pll : entity work.pll_ntsc
+		port map (
+		   CLK_IN1                      => CLK_32,
+		   CLK_OUT1                     => CLK,
+		   RESET                      => '0',
+		   LOCKED                     => PLL_LOCKED );
+
+	end generate;
 end generate;
 
 reset_n <= PLL_LOCKED;
@@ -467,11 +476,11 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	end generate;
 
 	gen_scandouble_on: if scandouble=1 generate
-		process(scandouble_clk,reset_n)
+		process(clk,reset_n)
 		begin
 			if (reset_n='0') then
 				half_scandouble_enable_reg <= '0';
-			elsif (scandouble_clk'event and scandouble_clk='1') then
+			elsif (clk'event and clk='1') then
 				half_scandouble_enable_reg <= half_scandouble_enable_next;
 			end if;
 		end process;
@@ -481,7 +490,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		scandoubler1: entity work.scandoubler
 		PORT MAP
 		( 
-			CLK => SCANDOUBLE_CLK,
+			CLK => CLK,
 		        RESET_N => reset_n,
 			
 			VGA => '1',
