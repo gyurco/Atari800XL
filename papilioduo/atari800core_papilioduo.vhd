@@ -18,7 +18,8 @@ ENTITY atari800core_papilioduo IS
 		TV : integer := 1;  -- 1 = PAL, 0=NTSC
 		SCANDOUBLE : integer := 0; -- 1 = YES, 0=NO, (+ later scanlines etc)
 		internal_rom : integer := 1 ;
-		internal_ram : integer := 8192;
+		--internal_ram : integer := 16384;
+		internal_ram : integer := 0;
 		ext_clock : integer := 0
 	);
 	PORT
@@ -259,14 +260,23 @@ ARCHITECTURE vhdl OF atari800core_papilioduo IS
 
 	signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
 	signal PS2_KEYS_NEXT : STD_LOGIC_VECTOR(511 downto 0);
+
+	-- sram
+	signal ram_request : std_logic;
+	signal ram_request_complete : std_logic;
+	signal ram_read_enable : std_logic;
+	signal ram_write_enable : std_logic;
+	signal ram_addr : std_logic_vector(22 downto 0);
+	signal ram_do : std_logic_vector(31 downto 0);
+	signal ram_di : std_logic_vector(31 downto 0);
 BEGIN 
 
 ARDUINO_RESET <= '0'; -- hold arduino in reset for now
-SRAM_DATA <= (others => 'Z');
-SRAM_ADDR <= (others => '0');
-SRAM_CE <= '1';
-SRAM_WE <= '1';
-SRAM_OE <= '1';
+
+LED1 <= '1';
+LED2 <= '0';
+LED3 <= '1';
+LED4 <= '0';
 
 u_DAC_L : entity work.dac
 port map (
@@ -385,7 +395,7 @@ PAL <= '1' when TV=1 else '0';
 atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
 	(
-		cycle_length => 16,
+		cycle_length => 32,
 		internal_rom => internal_rom,
 		internal_ram => internal_ram,
 		video_bits => 8,
@@ -425,13 +435,13 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		CONSOL_START => CONSOL_START,
 
 -- TODO, connect to SRAM! Handle 32-bit in multiple cycles. How fast is the sram.
-		SDRAM_REQUEST => open,
-		SDRAM_REQUEST_COMPLETE => '1',
-		SDRAM_READ_ENABLE => open,
-		SDRAM_WRITE_ENABLE => open,
-		SDRAM_ADDR => open,
-		SDRAM_DO => (others=>'0'),
-		SDRAM_DI => open,
+		SDRAM_REQUEST => ram_request,
+		SDRAM_REQUEST_COMPLETE => ram_request_complete,
+		SDRAM_READ_ENABLE => ram_read_enable,
+		SDRAM_WRITE_ENABLE => ram_write_enable,
+		SDRAM_ADDR => ram_addr,
+		SDRAM_DO => ram_do,
+		SDRAM_DI => ram_di,
 		SDRAM_32BIT_WRITE_ENABLE => open,
 		SDRAM_16BIT_WRITE_ENABLE => open,
 		SDRAM_8BIT_WRITE_ENABLE => open,
@@ -594,5 +604,32 @@ zpu_rom1: entity work.zpu_rom
 enable_179_clock_div_zpu_pokey : entity work.enable_divider
 	generic map (COUNT=>32) -- cycle_length
 	port map(clk=>clk,reset_n=>reset_n,enable_in=>'1',enable_out=>zpu_pokey_enable);
+
+
+ram : entity work.sram
+	PORT MAP
+	( 
+		ADDRESS => ram_addr(20 downto 0),
+		DIN => ram_di(7 downto 0),
+		WREN => ram_write_enable,
+		
+		clk => clk,
+		reset_n => reset_n,
+		
+		request => ram_request,
+		
+		-- SRAM interface
+		SRAM_ADDR => sram_addr,
+		SRAM_CE_N => sram_ce,
+		SRAM_OE_N => sram_oe,
+		SRAM_WE_N => sram_we,
+	
+		SRAM_DQ => sram_data,
+		
+		-- Provide data to system
+		DOUT => ram_do(7 downto 0),
+		complete => ram_request_complete
+	);
+	ram_do(31 downto 8) <= (others=>'0');
 
 END vhdl;

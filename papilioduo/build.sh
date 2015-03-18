@@ -32,7 +32,7 @@ echo "Starting Synthesis"
 xst -intstyle ise -ifn $name.xst -ofn $name.syr
 
 echo "Starting NGD"
-ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc6slx9-tqg144-3 $name.ngc $name.ngd
+ngdbuild -intstyle ise -uc $name.ucf -dd _ngo -nt timestamp  -p xc6slx9-tqg144-3 $name.ngc $name.ngd
 
 echo "Starting Map..."
 map -intstyle ise -p xc6slx9-tqg144-3 -w -logic_opt off -ol high -t 1 -xt 0 -register_duplication off -r 4 -global_opt off -mt off -detail -ir off -pr off -lc off -power off -o $name_map.ncd $name.ngd $name.pcf

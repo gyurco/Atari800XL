@@ -11,7 +11,7 @@ USE ieee.std_logic_1164.all;
 ENTITY sram IS
 PORT 
 ( 
-	ADDRESS : IN STD_LOGIC_VECTOR(18 DOWNTO 0);
+	ADDRESS : IN STD_LOGIC_VECTOR(20 DOWNTO 0);
 	DIN : IN STD_LOGIC_vector(7 downto 0);
 	WREN : IN STD_LOGIC;
 	
@@ -21,18 +21,15 @@ PORT
 	request : in std_logic;
 	
 	-- SRAM interface
-	SRAM_ADDR: OUT STD_LOGIC_VECTOR(17 downto 0);
+	SRAM_ADDR: OUT STD_LOGIC_VECTOR(20 downto 0);
 	SRAM_CE_N: OUT STD_LOGIC;
 	SRAM_OE_N: OUT STD_LOGIC;
 	SRAM_WE_N: OUT STD_LOGIC;
 
-	SRAM_LB_N: OUT STD_LOGIC;
-	SRAM_UB_N: OUT STD_LOGIC;
-	
 	SRAM_DQ: INOUT STD_LOGIC_VECTOR(7 downto 0);
 	
 	-- Provide data to system
-	DOUT : OUT STD_LOGIC_VECTOR(15 downto 0);
+	DOUT : OUT STD_LOGIC_VECTOR(7 downto 0);
 	complete : out std_logic
 );
 
