@@ -549,12 +549,12 @@ gen_low_memory1 : if low_memory=1 generate
 end generate;
 
 gen_low_memory2 : if low_memory=2 generate
-	-- TODO, check we can use 320k extended RAM ok (NO)
+	-- TODO, check we can use 320k extended RAM ok (THINK SO)
 
 	-- SRAM memory map (512k) for Papilio duo 
-	SDRAM_CART_ADDR      <= "0000" & "1011" & emu_cart_address(14 downto 0); 
-	SDRAM_BASIC_ROM_ADDR <= "0000" & "101" &                       "0000000000000000";
-	SDRAM_OS_ROM_ADDR    <= "0000" & "101" & rom_select(1 downto 0) &"00000000000000";
+	SDRAM_CART_ADDR      <= "0000" & "0"&emu_cart_address(15)&"11" & emu_cart_address(14 downto 0); 
+	SDRAM_BASIC_ROM_ADDR <= "0000" & "001" &                       "0000000000000000";
+	SDRAM_OS_ROM_ADDR    <= "0000" & "001" & rom_select(1 downto 0) &"00000000000000";
 
 end generate;
 	
