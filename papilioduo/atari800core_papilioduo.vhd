@@ -196,8 +196,6 @@ ARCHITECTURE vhdl OF atari800core_papilioduo IS
 	signal CLK : std_logic;
 	signal CLK_SDRAM : std_logic;
 
-	signal SYSTEM_RESET_REQUEST: std_logic;
-
 	-- pokey keyboard
 	SIGNAL KEYBOARD_SCAN : std_logic_vector(5 downto 0);
 	SIGNAL KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
@@ -269,6 +267,7 @@ ARCHITECTURE vhdl OF atari800core_papilioduo IS
 	signal ram_addr : std_logic_vector(22 downto 0);
 	signal ram_do : std_logic_vector(31 downto 0);
 	signal ram_di : std_logic_vector(31 downto 0);
+	signal ram_width32bit : std_logic;
 BEGIN 
 
 ARDUINO_RESET <= '0'; -- hold arduino in reset for now
@@ -399,13 +398,16 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		internal_rom => internal_rom,
 		internal_ram => internal_ram,
 		video_bits => 8,
-		palette => palette_from_scandouble(scandouble)
+		palette => palette_from_scandouble(scandouble),
+		low_memory => 2,
+                STEREO                     => 0,
+                COVOX                      => 0
 	)
 	PORT MAP
 	(
 		CLK => CLK,
 		--RESET_N => RESET_N and SDRAM_RESET_N and not(SYSTEM_RESET_REQUEST),
-		RESET_N => RESET_N,
+		RESET_N => RESET_N and not(RESET_ATARI),
 
 		VIDEO_VS => VIDEO_VS,
 		VIDEO_HS => VIDEO_HS,
@@ -442,7 +444,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		SDRAM_ADDR => ram_addr,
 		SDRAM_DO => ram_do,
 		SDRAM_DI => ram_di,
-		SDRAM_32BIT_WRITE_ENABLE => open,
+		SDRAM_32BIT_WRITE_ENABLE => ram_width32bit,
 		SDRAM_16BIT_WRITE_ENABLE => open,
 		SDRAM_8BIT_WRITE_ENABLE => open,
 		SDRAM_REFRESH => open,
@@ -457,21 +459,21 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		MEMORY_READY_DMA => dma_memory_ready,
 		DMA_MEMORY_DATA => dma_memory_data, 
 
---   		RAM_SELECT => ram_select,
---    		ROM_SELECT => rom_select,
---		PAL => PAL,
---		HALT => pause_atari,
---		THROTTLE_COUNT_6502 => speed_6502,
---		emulated_cartridge_select => emulated_cartridge_select,
+   		RAM_SELECT => ram_select,
+    		ROM_SELECT => rom_select,
+		PAL => PAL,
+		HALT => pause_atari,
+		THROTTLE_COUNT_6502 => speed_6502,
+		emulated_cartridge_select => emulated_cartridge_select,
 --		freezer_enable => freezer_enable,
 --		freezer_activate => freezer_activate
 
-   		RAM_SELECT => (others=>'0'),
-    		ROM_SELECT => "000001",
-		PAL => PAL,
-		HALT => '0',
-		THROTTLE_COUNT_6502 => "000001",
-		emulated_cartridge_select => (others=>'0'),
+--   		RAM_SELECT => (others=>'0'),
+--    		ROM_SELECT => "000001",
+--		PAL => PAL,
+--		HALT => '0',
+--		THROTTLE_COUNT_6502 => "000001",
+--		emulated_cartridge_select => (others=>'0'),
 		freezer_enable => '0',
 		freezer_activate => '0'
 	);
@@ -504,7 +506,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		        RESET_N => reset_n,
 			
 			VGA => '1',
-			COMPOSITE_ON_HSYNC => '0', -- TODO
+			COMPOSITE_ON_HSYNC => '1', -- TODO
 
 			colour_enable => half_scandouble_enable_reg,
 			doubled_enable => '1',
@@ -530,14 +532,13 @@ zpu: entity work.zpucore
 	(
 		platform => 1,
 		spi_clock_div => 1, -- 28MHz/2. Max for SD cards is 25MHz...
-		memory => 8192,
 		usb => 0
 	)
 	PORT MAP
 	(
 		-- standard...
 		CLK => CLK,
-		RESET_N => '0', -- RESET_N and sdram_rdy, TODO, allow ZPU to run!
+		RESET_N => RESET_N,
 
 		-- dma bus master (with many waitstates...)
 		ZPU_ADDR_FETCH => dma_addr_fetch,
@@ -610,13 +611,15 @@ ram : entity work.sram
 	PORT MAP
 	( 
 		ADDRESS => ram_addr(20 downto 0),
-		DIN => ram_di(7 downto 0),
+		DIN => ram_di,
 		WREN => ram_write_enable,
 		
 		clk => clk,
 		reset_n => reset_n,
 		
 		request => ram_request,
+
+		width32bit => ram_width32bit,
 		
 		-- SRAM interface
 		SRAM_ADDR => sram_addr,
@@ -627,9 +630,8 @@ ram : entity work.sram
 		SRAM_DQ => sram_data,
 		
 		-- Provide data to system
-		DOUT => ram_do(7 downto 0),
+		DOUT => ram_do,
 		complete => ram_request_complete
 	);
-	ram_do(31 downto 8) <= (others=>'0');
 
 END vhdl;
