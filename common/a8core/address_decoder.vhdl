@@ -14,7 +14,7 @@ use IEEE.STD_LOGIC_MISC.all;
 ENTITY address_decoder IS
 GENERIC
 (
-	low_memory : integer := 0; -- if 0, we assume 8MB SDRAM, if 1, we assume 1MB 'SDRAM'.
+	low_memory : integer := 0; -- if 0, we assume 8MB SDRAM, if 1, we assume 1MB 'SDRAM', if 2 we assume 512KB 'SDRAM'.
 	stereo : integer := 1; 
 	system : integer := 0 -- 0=Atari XL, 10=Atari5200 (space left for more systems)
 );
@@ -538,12 +538,23 @@ gen_normal_memory : if low_memory=0 generate
 
 end generate;
 
-gen_low_memory : if low_memory=1 generate
+gen_low_memory1 : if low_memory=1 generate
+	-- TODO, check we can use 576k extended RAM ok (PROB NOT)
 
 	-- SRAM memory map (1024k) for Aeon Lite
 	SDRAM_CART_ADDR      <= "000" & "111" & emu_cart_address(16 downto 0);
 	SDRAM_BASIC_ROM_ADDR <= "000" & "110" &                       "00000000000000000";
 	SDRAM_OS_ROM_ADDR    <= "000" & "110" & rom_select(2 downto 0) & "00000000000000";
+
+end generate;
+
+gen_low_memory2 : if low_memory=2 generate
+	-- TODO, check we can use 320k extended RAM ok (NO)
+
+	-- SRAM memory map (512k) for Papilio duo 
+	SDRAM_CART_ADDR      <= "0000" & "1011" & emu_cart_address(14 downto 0); 
+	SDRAM_BASIC_ROM_ADDR <= "0000" & "101" &                       "0000000000000000";
+	SDRAM_OS_ROM_ADDR    <= "0000" & "101" & rom_select(1 downto 0) &"00000000000000";
 
 end generate;
 	
