@@ -15,8 +15,10 @@ LIBRARY work;
 ENTITY atari800core_papilioduo IS 
 	GENERIC
 	(
-		TV : integer := 1;  -- 1 = PAL, 0=NTSC
-		SCANDOUBLE : integer := 0; -- 1 = YES, 0=NO, (+ later scanlines etc)
+		TV : integer;  -- 1 = PAL, 0=NTSC
+		VIDEO : integer; -- 1 = RGB, 2 = VGA
+		COMPOSITE_SYNC : integer; --0 = no, 1 = yes!
+		SCANDOUBLE : integer; -- 1 = YES, 0=NO, (+ later scanlines etc)
 		internal_rom : integer := 1 ;
 		--internal_ram : integer := 16384;
 		internal_ram : integer := 0;
@@ -209,16 +211,11 @@ ARCHITECTURE vhdl OF atari800core_papilioduo IS
 	-- scandoubler
 	signal half_scandouble_enable_reg : std_logic;
 	signal half_scandouble_enable_next : std_logic;
+	signal scanlines_reg : std_logic;
+	signal scanlines_next : std_logic;
+ 	SIGNAL COMPOSITE_ON_HSYNC : std_logic;
+ 	SIGNAL VGA : std_logic;
 
-	function palette_from_scandouble( scandouble : integer ) return integer is
-	begin
-		if (scandouble = 1) then
-			return 0;
-		else
-			return 1;
-		end if;
-	end palette_from_scandouble;
-	
 	-- dma/virtual drive
 	signal DMA_ADDR_FETCH : std_logic_vector(23 downto 0);
 	signal DMA_WRITE_DATA : std_logic_vector(31 downto 0);
@@ -398,7 +395,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		internal_rom => internal_rom,
 		internal_ram => internal_ram,
 		video_bits => 8,
-		palette => palette_from_scandouble(scandouble),
+		palette => 0,
 		low_memory => 2,
                 STEREO                     => 0,
                 COVOX                      => 0
@@ -479,59 +476,57 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	);
 
 -- Video options
-	gen_scandouble_off: if scandouble=0 generate
-		VGA_HSYNC <= not(VIDEO_HS xor VIDEO_VS);
-		VGA_VSYNC <= not(VIDEO_VS);
-		VGA_BLUE <= VIDEO_B(7 downto 4);
-		VGA_GREEN <= VIDEO_G(7 downto 4);
-		VGA_RED <= VIDEO_R(7 downto 4);
-	end generate;
+	pal <= '1' when tv=1 else '0';
+	vga <= '1' when video=2 else '0';
+	composite_on_hsync <= '1' when composite_sync=1 else '0';
 
-	gen_scandouble_on: if scandouble=1 generate
-		process(clk,reset_n)
-		begin
-			if (reset_n='0') then
-				half_scandouble_enable_reg <= '0';
-			elsif (clk'event and clk='1') then
-				half_scandouble_enable_reg <= half_scandouble_enable_next;
-			end if;
-		end process;
+	process(clk,RESET_N,reset_atari)
+	begin
+		if ((RESET_N and not(reset_atari))='0') then
+			half_scandouble_enable_reg <= '0';
+			scanlines_reg <= '0';
+		elsif (clk'event and clk='1') then
+			half_scandouble_enable_reg <= half_scandouble_enable_next;
+			scanlines_reg <= scanlines_next;
+		end if;
+	end process;
 
-		half_scandouble_enable_next <= not(half_scandouble_enable_reg);
+	half_scandouble_enable_next <= not(half_scandouble_enable_reg);
+	scanlines_next <= scanlines_reg xor (not(ps2_keys(16#11#)) and ps2_keys_next(16#11#)); -- left alt
 
-		scandoubler1: entity work.scandoubler
-		PORT MAP
-		( 
-			CLK => CLK,
-		        RESET_N => reset_n,
-			
-			VGA => '1',
-			COMPOSITE_ON_HSYNC => '1', -- TODO
+	scandoubler1: entity work.scandoubler
+	PORT MAP
+	( 
+		CLK => CLK,
+	        RESET_N => reset_n,
+		
+		VGA => vga,
+		COMPOSITE_ON_HSYNC => composite_on_hsync,
 
-			colour_enable => half_scandouble_enable_reg,
-			doubled_enable => '1',
-			
-			-- GTIA interface
-			pal => PAL,
-			colour_in => VIDEO_B,
-			vsync_in => VIDEO_VS,
-			hsync_in => VIDEO_HS,
-			
-			-- TO TV...
-			R => VGA_RED,
-			G => VGA_GREEN,
-			B => VGA_BLUE,
-			
-			VSYNC => VGA_VSYNC,
-			HSYNC => VGA_HSYNC
-		);
-	end generate;
+		colour_enable => half_scandouble_enable_reg,
+		doubled_enable => '1',
+		scanlines_on => scanlines_reg,
+		
+		-- GTIA interface
+		pal => PAL,
+		colour_in => VIDEO_B,
+		vsync_in => VIDEO_VS,
+		hsync_in => VIDEO_HS,
+		
+		-- TO TV...
+		R => VGA_RED,
+		G => VGA_GREEN,
+		B => VGA_BLUE,
+		
+		VSYNC => VGA_VSYNC,
+		HSYNC => VGA_HSYNC
+	);
 
 zpu: entity work.zpucore
 	GENERIC MAP
 	(
 		platform => 1,
-		spi_clock_div => 1, -- 28MHz/2. Max for SD cards is 25MHz...
+		spi_clock_div => 2, -- 28MHz/2. Max for SD cards is 25MHz...
 		usb => 0
 	)
 	PORT MAP
