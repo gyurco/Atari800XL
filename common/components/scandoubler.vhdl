@@ -114,6 +114,8 @@ ARCHITECTURE vhdl OF scandoubler IS
 
 	signal vga_odd_reg : std_logic;
 	signal vga_odd_next : std_logic;
+
+	signal reset_output_address : std_logic;
 	
 begin
 	-- register
@@ -181,6 +183,7 @@ begin
 		
 		linea_write_enable <= '0';
 		lineb_write_enable <= '0';
+		reset_output_address <= '0';
 		
 		if (colour_enable = '1') then
 			input_address_next <= std_logic_vector(unsigned(input_address_reg)+1);
@@ -189,13 +192,14 @@ begin
 		end if;		
 		
 		if (hsync_in = '1' and hsync_in_reg = '0') then
-				input_address_next <= (others=>'0');
-				buffer_select_next <= not(buffer_select_reg);
+			input_address_next <= (others=>'0');
+			buffer_select_next <= not(buffer_select_reg);
+			reset_output_address <= '1';
 		end if;		
 	end process;
 	
 	-- output
-	process(vga_hsync_reg,vga_hsync_end,output_address_reg,doubled_enable,vga_odd_reg)
+	process(vga_hsync_reg,vga_hsync_end,output_address_reg,doubled_enable,vga_odd_reg,reset_output_address)
 	begin
 		output_address_next <= output_address_reg;
 		vga_hsync_start<='0';
@@ -215,6 +219,10 @@ begin
 		if (vga_hsync_end = '1') then
 			vga_hsync_next <= '0';
 			vga_odd_next <= not(vga_odd_reg);
+		end if;
+
+		if (reset_output_address = '1') then
+			output_address_next <= (others=>'0');
 		end if;
 	end process;
 	
