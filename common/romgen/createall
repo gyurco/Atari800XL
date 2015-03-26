@@ -12,4 +12,5 @@
 ./create_rom.pl 4 ../../firmware/DE1.bin zpu_rom 12 > ../../de1/zpu_rom.vhdl
 ./create_rom.pl 4 ../../firmware/DE1_5200.bin zpu_rom 12 > ../../de1_5200/zpu_rom.vhdl
 ./create_rom.pl 4 ../../firmware/AEON_LITE.bin zpu_rom 12 > ../../aeon_lite/zpu_rom.vhdl
+./create_rom.pl 4 ../../firmware/PAPILIODUO.bin zpu_rom 12 > ../../papilioduo/zpu_rom.vhdl
 ./create_rom.pl 4 ../../firmware/CHAMELEON.bin zpu_rom 12 > ../../chameleon/zpu_rom.vhdl
