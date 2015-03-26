@@ -171,8 +171,20 @@ END atari800core_papilioduo;
 
 ARCHITECTURE vhdl OF atari800core_papilioduo IS 
 
+component hq_dac
+port (
+  reset :in std_logic;
+  clk :in std_logic;
+  clk_ena : in std_logic;
+  pcm_in : in std_logic_vector(19 downto 0);
+  dac_out : out std_logic
+);
+end component;
+
 	signal AUDIO_L_PCM : std_logic_vector(15 downto 0);
 	signal AUDIO_R_PCM : std_logic_vector(15 downto 0);
+
+	signal AUDIO_OUT : std_logic;
 	
 	signal VIDEO_VS : std_logic;
 	signal VIDEO_HS : std_logic;
@@ -274,19 +286,32 @@ LED2 <= '0';
 LED3 <= '1';
 LED4 <= '0';
 
-u_DAC_L : entity work.dac
-port map (
-   CLK_I                      => CLK,
-   RES_N_I                    => RESET_N,
-   DAC_I                      => AUDIO_L_PCM,
-   DAC_O                      => AUDIO1_LEFT );
+dac : hq_dac
+port map
+(
+  reset => not(reset_n),
+  clk => clk,
+  clk_ena => '1',
+  pcm_in => AUDIO_L_PCM&"0000",
+  dac_out => audio_out
+);
 
-u_DAC_R : entity work.dac
-port map (
-   CLK_I                      => CLK,
-   RES_N_I                    => RESET_N,
-   DAC_I                      => AUDIO_R_PCM,
-   DAC_O                      => AUDIO1_RIGHT );
+audio1_left <= audio_out;
+audio1_right <= audio_out;
+
+--u_DAC_L : entity work.dac
+--port map (
+--   CLK_I                      => CLK,
+--   RES_N_I                    => RESET_N,
+--   DAC_I                      => AUDIO_L_PCM,
+--   DAC_O                      => AUDIO1_LEFT );
+--
+--u_DAC_R : entity work.dac
+--port map (
+--   CLK_I                      => CLK,
+--   RES_N_I                    => RESET_N,
+--   DAC_I                      => AUDIO_R_PCM,
+--   DAC_O                      => AUDIO1_RIGHT );
 
 
 gen_fake_pll : if ext_clock=1 generate

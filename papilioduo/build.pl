@@ -95,6 +95,7 @@ foreach my $variant (sort keys %variants)
 	`cp -p ../../common/a8core/*.vhdl .`;
 	`cp -p ../../common/components/*.vhd .`;
 	`cp -p ../../common/components/*.vhdl .`;
+	`cp -p ../../common/components/*.v .`;
 	`cp -p ../../common/zpu/*.vhd .`;
 	`cp -p ../../common/zpu/*.vhdl .`;
 	`cp -p ../*.vhd .`;
