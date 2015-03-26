@@ -35,6 +35,7 @@ RTL_DIR = $(ZPUFLEXDIR)/RTL/
 BUILD_DIR=zpu_obj
 
 AEON_LITE_DIR = aeon_lite
+PAPILIODUO_DIR = papilioduo
 DE1_DIR = de1
 DE1_5200_DIR = de1_5200
 CHAMELEON_DIR = chameleon
@@ -49,6 +50,7 @@ LINUXSIM_5200_DIR = linux_5200
 SOCKIT_DIR = sockit
 
 AEON_LITE_BUILD_DIR = $(BUILD_DIR)/$(AEON_LITE_DIR)
+PAPILIODUO_BUILD_DIR = $(BUILD_DIR)/$(PAPILIODUO_DIR)
 DE1_BUILD_DIR = $(BUILD_DIR)/$(DE1_DIR)
 SOCKIT_BUILD_DIR = $(BUILD_DIR)/$(SOCKIT_DIR)
 DE1_5200_BUILD_DIR = $(BUILD_DIR)/$(DE1_5200_DIR)
@@ -79,6 +81,10 @@ USB_SRC = usb/hid.c  usb/hidparser.c  usb/hub.c usb/timer.c  usb/usb.c
 AEON_LITE_PRJ = AEON_LITE
 AEON_LITE_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) de1/dirs.c
 AEON_LITE_OBJ = $(patsubst %.c,$(AEON_LITE_BUILD_DIR)/%.o,$(AEON_LITE_SRC))
+
+PAPILIODUO_PRJ = PAPILIODUO
+PAPILIODUO_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) de1/dirs.c
+PAPILIODUO_OBJ = $(patsubst %.c,$(PAPILIODUO_BUILD_DIR)/%.o,$(PAPILIODUO_SRC))
 
 DE1_PRJ = DE1
 DE1_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) de1/dirs.c
@@ -143,9 +149,11 @@ LINUXSIM_5200_OBJ	= $(patsubst %.c,$(LINUXSIM_5200_BUILD_DIR)/%.o,$(LINUXSIM_520
 #ZPUOPTS= -mno-poppcrel -mno-pushspadd -mno-callpcrel -mno-shortop -mno-neg # No-neg requires bugfixed toolchain
 #Include everything -> need to include emulation rom...
 ZPUOPTS =
-CFLAGS  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX
+CFLAGS  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX -DMAX_RAM_SELECT=6
+CFLAGS_AEON  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Iaeon_lite -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX -DMAX_RAM_SELECT=5
+CFLAGS_PAPILIODUO  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Ipapilioduo -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX -DMAX_RAM_SELECT=3
 
-SOCKIT_CFLAGS += -I. -Icommon -Isockit -Iprintf 
+SOCKIT_CFLAGS += -I. -Icommon -Isockit -Iprintf -DMAX_RAM_SELECT=6
 
 HOST_CFLAGS += -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -DDISABLE_UART_RX -DUSB -Iusb
 
@@ -161,12 +169,14 @@ CFLAGS_5200_USB2 = $(CFLAGS) -DFIRMWARE_5200  -DUSB -DUSB2 -Iusb
 HOST_CFLAGS_5200 = $(HOST_CFLAGS) -DFIRMWARE_5200
 
 # Our target.
-all: mcc mcctv mist de1 aeon_lite chameleon  de1_5200 mist_5200 mcc_5200 mcctv_5200 sockit
+all: mcc mcctv mist de1 aeon_lite chameleon  de1_5200 mist_5200 mcc_5200 mcctv_5200 sockit papilioduo
 
 install:
 	cd ../common/romgen && ./createall && cd ../../firmware
 
 aeon_lite: $(BUILD_DIR) $(AEON_LITE_PRJ).bin $(AEON_LITE_PRJ).rpt
+
+papilioduo: $(BUILD_DIR) $(PAPILIODUO_PRJ).bin $(PAPILIODUO_PRJ).rpt
 
 de1: $(BUILD_DIR) $(DE1_PRJ).bin $(DE1_PRJ).rpt
 
@@ -216,6 +226,9 @@ clean:
 $(AEON_LITE_PRJ).elf: $(MINSTARTUP_OBJ) $(AEON_LITE_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
+$(PAPILIODUO_PRJ).elf: $(MINSTARTUP_OBJ) $(PAPILIODUO_OBJ)
+	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
+
 $(DE1_PRJ).elf: $(MINSTARTUP_OBJ) $(DE1_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
@@ -255,7 +268,11 @@ $(LINUXSIM_5200_EXE): $(LINUXSIM_5200_OBJ)
 
 $(AEON_LITE_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(AEON_LITE_DIR) $(CFLAGS)  -o $@ -c $<
+	$(CC) -I$(AEON_LITE_DIR) $(CFLAGS_AEON)  -o $@ -c $<
+
+$(PAPILIODUO_BUILD_DIR)/%.o: %.c Makefile
+	mkdir -p `dirname $@`
+	$(CC) -I$(PAPILIODUO_DIR) $(CFLAGS_PAPILIODUO)  -o $@ -c $<
 
 $(CHAMELEON_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`

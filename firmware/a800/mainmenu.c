@@ -209,7 +209,7 @@ int settings()
 				int ram_select = get_ram_select();
 				ram_select+=joy.x_;
 				if (ram_select<0) ram_select = 0;
-				if (ram_select>7) ram_select = 7;
+				if (ram_select>MAX_RAM_SELECT) ram_select = MAX_RAM_SELECT;
 				set_ram_select(ram_select);
 			}
 			break;
