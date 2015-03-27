@@ -60,6 +60,8 @@ push @files, glob("sockit/SOCKIT.elf");
 push @files, glob("sockit/type");
 push @files, glob("sockit/reboot");
 
+push @files, glob("papilioduo/build*/*.bit");
+
 push @files, glob("replay/sdcard/*.bin");
 push @files, glob("replay/sdcard/*.ini");
 
