@@ -63,6 +63,7 @@ foreach my $variant (sort keys %variants)
 
 	chdir $dir;
 	`../makeqsf ../atari800core.qsf ./common/a8core ./common/components ./common/zpu`;
+	`cat ../atari800core.qsf_$variant >> atari800core.qsf`;
 
 	foreach my $key (sort keys %{$variants{$variant}})
 	{
