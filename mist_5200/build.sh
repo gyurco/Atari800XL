@@ -21,6 +21,13 @@ my %variants =
 		"VIDEO" => $RGB, 
 		"COMPOSITE_SYNC" => 1
 	},
+	"NTSC_RGBHV" =>
+	{
+		"TV" => $NTSC,
+		"SCANDOUBLE" => 0,
+		"VIDEO" => $RGB, 
+		"COMPOSITE_SYNC" => 0
+	},
 	"NTSC_VGA" => 
 	{
 		"TV" => $NTSC,
