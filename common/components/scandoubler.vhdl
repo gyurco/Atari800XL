@@ -223,6 +223,7 @@ begin
 
 		if (reset_output_address = '1') then
 			output_address_next <= (others=>'0');
+			vga_odd_next <= '1';
 		end if;
 	end process;
 	
