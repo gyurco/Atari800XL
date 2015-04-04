@@ -1,33 +1,40 @@
 export ORIGPATH=${PATH}
 
+function max2 {
+   while [ `jobs | wc -l` -ge 2 ]
+   do
+      sleep 5
+   done
+}
+
 export PATH=${ORIGPATH}:/home/markw/fpga/altera/13.0sp1/quartus/bin
 cd de1
-./build.sh ALL
+max2; ./build.sh ALL &
 cd ../chameleon
-./build.sh ALL
+max2; ./build.sh ALL &
 cd ../replay
-./build.sh > build.log 2> build.err
+max2; ./build.sh > build.log 2> build.err &
 cd ../mist
-./build.sh ALL
+max2; ./build.sh ALL &
 cd ../mcc216
-./build.sh ALL
+max2; ./build.sh ALL &
 cd ../mcctv
-./build.sh ALL
+max2; ./build.sh ALL &
 cd ../papilioduo
-./build.sh ALL
+max2; ./build.sh ALL &
 cd ../mist_5200
-./build.sh ALL
+max2; ./build.sh ALL &
 cd ../de1_5200
-./build.sh ALL
+max2; ./build.sh ALL &
 cd ../mcc216_5200
-./build.sh ALL
+max2; ./build.sh ALL &
 cd ../mcctv_5200
-./build.sh ALL
+max2; ./build.sh ALL &
 
 
 export PATH=${ORIGPATH}:/home/markw/fpga/altera/14.0/quartus/bin:/home/markw/fpga/altera/14.0/quartus/sopc_builder/bin/
 cd ../sockit
-./build.sh
+max2; ./build.sh &
 
 export PATH=${ORIGPATH}
 unset ORIGPATH
