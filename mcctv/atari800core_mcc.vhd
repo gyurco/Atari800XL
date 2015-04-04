@@ -210,6 +210,7 @@ END COMPONENT;
 	signal AUDIO_R_PCM : std_logic_vector(15 downto 0);
 	
 	signal VIDEO_CS : std_logic;
+	signal VIDEO_VS : std_logic;
 	signal VIDEO_R : std_logic_vector(7 downto 0);
 	signal VIDEO_G : std_logic_vector(7 downto 0);
 	signal VIDEO_B : std_logic_vector(7 downto 0);
@@ -605,7 +606,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		--RESET_N => RESET_N and SDRAM_RESET_N and not(SYSTEM_RESET_REQUEST),
 		RESET_N => RESET_N and SDRAM_RESET_N_REG,
 
-		VIDEO_VS => open,
+		VIDEO_VS => VIDEO_VS,
 		VIDEO_HS => open,
 		VIDEO_CS => VIDEO_CS,
 		VIDEO_B => VIDEO_B,

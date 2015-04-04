@@ -29,6 +29,8 @@ cp -p ../$name.prj .
 
 mkdir -p xst/projnav.tmp/
 
+echo $name
+
 echo "Starting Synthesis"
 xst -intstyle ise -ifn $name.xst -ofn $name.syr
 

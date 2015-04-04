@@ -152,33 +152,36 @@ int settings()
 		printf("ttings");
 		debug_pos = 80;
 		debug_adjust = row==0 ? 128 : 0;
-		printf("Turbo:%dx", get_turbo_6502());
+		printf("CPU Turbo:%dx", get_turbo_6502());
 		debug_pos = 120;
 		debug_adjust = row==1 ? 128 : 0;
-		printf("Ram:%s", get_ram());
+		printf("Drive Turbo:%s", get_turbo_drive_str());
 		debug_pos = 160;
 		debug_adjust = row==2 ? 128 : 0;
+		printf("Ram:%s", get_ram());
+		debug_pos = 200;
+		debug_adjust = row==3 ? 128 : 0;
 		{
 			printf("Rom:%s", file_name(files[5]));
 		}
-		debug_pos = 240;
+		debug_pos = 280;
 		int i;
 		for (i=1;i!=5;++i)
 		{
 			int temp = debug_pos;
-			debug_adjust = row==i+2 ? 128 : 0;
+			debug_adjust = row==i+3 ? 128 : 0;
 			char buffer[20];
 			describe_disk(i-1,&buffer[0]);
 			printf("Drive %d:%s %s", i, file_name(files[i-1]), &buffer[0]);
 			debug_pos = temp+40;
 		}
 
-		debug_pos = 400;
-		debug_adjust = row==7 ? 128 : 0;
+		debug_pos = 440;
+		debug_adjust = row==8 ? 128 : 0;
 		printf("Cart: %s", get_cart_select() ? file_name(files[4]) : "NONE");
 
-		debug_pos = 480;
-		debug_adjust = row==8 ? 128 : 0;
+		debug_pos = 520;
+		debug_adjust = row==9 ? 128 : 0;
 		printf("Exit");
 
 		// Slow it down a bit
@@ -191,7 +194,7 @@ int settings()
 
 		row+=joy.y_;
 		if (row<0) row = 0;
-		if (row>8) row = 8;
+		if (row>9) row = 8;
 		switch (row)
 		{
 		case 0:
@@ -206,6 +209,15 @@ int settings()
 			break;
 		case 1:
 			{
+				int turbo = get_turbo_drive();
+				turbo+=joy.x_;
+				if (turbo<0) turbo = 0;
+				if (turbo>7) turbo = 7;
+				set_turbo_drive(turbo);
+			}
+			break;
+		case 2:
+			{
 				int ram_select = get_ram_select();
 				ram_select+=joy.x_;
 				if (ram_select<0) ram_select = 0;
@@ -213,7 +225,7 @@ int settings()
 				set_ram_select(ram_select);
 			}
 			break;
-		case 2:
+		case 3:
 			{
 				if (joy.x_ || joy.fire_)
 				{
@@ -224,43 +236,43 @@ int settings()
 				}
 			}
 			break;
-		case 3:
 		case 4:
 		case 5:
 		case 6:
+		case 7:
 			{
 				if (joy.x_>0)
 				{
 					// Choose new disk
 					filter = filter_disks;
-					file_selector(files[row-3]);
-					set_drive_status(row-3,files[row-3]);
+					file_selector(files[row-4]);
+					set_drive_status(row-4,files[row-4]);
 				}
 				else if(joy.x_<0)
 				{
 					// Remove disk
-					file_init(files[row-3]);
-					set_drive_status(row-3,0);
+					file_init(files[row-4]);
+					set_drive_status(row-4,0);
 				}
 				else if (joy.fire_)
 				{
 					{
 						// Swap files
-						struct SimpleFile * temp = files[row-3];
-						files[row-3] = files[0];
+						struct SimpleFile * temp = files[row-4];
+						files[row-4] = files[0];
 						files[0] = temp;
 					}
 
 					{
 						// Swap disks
-						struct SimpleFile * temp = get_drive_status(row-3);
-						set_drive_status(row-3, get_drive_status(0));
+						struct SimpleFile * temp = get_drive_status(row-4);
+						set_drive_status(row-4, get_drive_status(0));
 						set_drive_status(0,temp);
 					}
 				}
 			}
 			break;
-		case 7:
+		case 8:
 			{
 				if (joy.x_>0) {
 					fil_type = fil_type_car;
@@ -278,7 +290,7 @@ int settings()
 				}
 			}
 			break;
-		case 8:
+		case 9:
 			if (joy.fire_)
 			{
 				done = 1;

@@ -24,3 +24,8 @@ void set_drive_status(int driveNumber, struct SimpleFile * file);
 struct SimpleFile * get_drive_status(int driveNumber);
 void describe_disk(int driveNumber, char * buffer);
 
+// Pokey divisor
+void set_turbo_drive(int pos);
+int get_turbo_drive();
+char const * get_turbo_drive_str();
+

@@ -146,7 +146,6 @@ entity Core_Top is
     CONF_DI               : in    word(7 downto 0);
 
     ram_select            : in word(2 downto 0);
-    rom_select            : in word(5 downto 0);
     speed_select          : in word(4 downto 0)
     );
 end;
@@ -650,7 +649,6 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		MEMORY_READY_DMA => open,
 
    		RAM_SELECT => ram_select,
-    		ROM_SELECT => rom_select,
 		PAL => '1',
 		HALT => i_Halt_Core,
 		THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502
@@ -695,7 +693,6 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 --		SIO_COMMAND_TX => o_RS232_RTS,
 --
 --		ram_select => ram_select,
---		rom_select => rom_select,
 --
 --		halt => i_Halt_Core
 --	);

@@ -20,6 +20,8 @@ cp ../common/a8core/* ./build/common/a8core
 cp ../common/components/* ./build/common/components
 cp ../common/zpu/* ./build/common/zpu
 
+echo sockit
+
 cd build
 ../makeqsf ../atari800core.qsf ./common/a8core ./common/components ./common/zpu
 

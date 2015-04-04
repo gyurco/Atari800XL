@@ -3,6 +3,8 @@ use strict;
 
 my $wanted_variant = shift @ARGV;
 
+my $name="mcctv 5200";
+
 #variants...
 my $NTSC = 0;
 
@@ -33,7 +35,7 @@ if (not defined $wanted_variant or (not exists $variants{$wanted_variant} and $w
 foreach my $variant (sort keys %variants)
 {
 	next if ($wanted_variant ne $variant and $wanted_variant ne "ALL");
-	print "Building $variant\n";
+	print "Building $variant of $name\n";
 
 	my $dir = "build_$variant";
 	`rm -rf $dir`;

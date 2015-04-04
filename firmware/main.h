@@ -159,6 +159,10 @@ unsigned char toatarichar(int val)
 	{
 		val+=-32;
 	}
+	else if (val == ':')
+	{
+		val = 26;
+	}
 	else
 	{
 		val = 0;

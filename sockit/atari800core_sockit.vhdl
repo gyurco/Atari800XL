@@ -317,7 +317,6 @@ signal AUDIO_RIGHT : std_logic_vector(15 downto 0);
 
 	-- system control from zpu
 	signal ram_select : std_logic_vector(2 downto 0);
-	signal rom_select : std_logic_vector(5 downto 0);
 	signal reset_atari : std_logic;
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
@@ -477,7 +476,6 @@ atari800core1 : ENTITY work.atari800core_simple_sdram
 
 		-- Special config params
    	RAM_SELECT => ram_select,
-    	ROM_SELECT => rom_select,
 		PAL => '1',
 		HALT => pause_atari,
 		THROTTLE_COUNT_6502 => speed_6502,
@@ -587,7 +585,6 @@ atari800core1 : ENTITY work.atari800core_simple_sdram
 	reset_atari <= out1(1);
 	speed_6502 <= out1(7 downto 2);
 	ram_select <= out1(10 downto 8);
-	rom_select <= out1(16 downto 11);
 	emulated_cartridge_select <= out1(22 downto 17);
 	freezer_enable <= out1(25);
 

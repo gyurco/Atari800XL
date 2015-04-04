@@ -42,6 +42,8 @@ if [ $embed_roms = 1 ]; then
     cp -p ../roms.bmm .
 fi
 
+echo $name
+
 
 if [ "${args[0]}" != "-xil" ]; then
 

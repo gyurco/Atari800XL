@@ -29,7 +29,10 @@ extern unsigned char volatile * baseaddr;
 #define DELAY_T3_PERIPH wait_us(150);
 
 #define speedslow 0x28
-#define speedfast 0x6
+#define speedfast turbo_div
+int turbo_drive;
+int turbo_div;
+
 #define XEX_SECTOR_SIZE 128
 
 #define MAX_DRIVES 4
@@ -326,6 +329,8 @@ struct SimpleFile * get_drive_status(int driveNumber)
 void init_drive_emulator()
 {
 	int i;
+
+	set_turbo_drive(1);
 
 	commandcount = 0;
 	badcommandcount = 0;
@@ -833,3 +838,42 @@ void describe_disk(int driveNumber, char * buffer)
 	buffer[4] = 'D';
 	buffer[5] = '\0';
 }
+
+void set_turbo_drive(int pos)
+{
+	turbo_drive = pos;
+	static int turbodivs[] = 
+	{
+		0x28,
+		0x6,
+		0x5,
+		0x4,
+		0x3,
+		0x2,
+		0x1,
+		0x0
+	};
+	turbo_div = turbodivs[turbo_drive];
+}
+
+int get_turbo_drive()
+{
+	return turbo_drive;
+}
+
+char const * get_turbo_drive_str()
+{
+	static char const * turbostr[] = 
+	{
+		"Standard",
+		"Fast(6)",
+		"Fast(5)",
+		"Fast(4)",
+		"Fast(3)",
+		"Fast(2)",
+		"Fast(1)",
+		"Fast(0)"
+	};
+	return turbostr[turbo_drive];
+}
+

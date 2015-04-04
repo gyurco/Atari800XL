@@ -3,6 +3,8 @@ use strict;
 
 my $wanted_variant = shift @ARGV;
 
+my $name="mcc216";
+
 #variants...
 my $PAL = 1;
 my $NTSC = 0;
@@ -15,15 +17,15 @@ my $VGA = 2;
 
 my %variants = 
 (
-	"SIMPLE" =>
-	{
-		"TV" => $PAL,
-		"SCANDOUBLE" => 0,
-		"VIDEO" => $VGA,
-		"internal_ram" => 16384,
-		"internal_rom" => 1,
-		"ext_clock" => 0
-	},
+#	"SIMPLE" =>
+#	{
+#		"TV" => $PAL,
+#		"SCANDOUBLE" => 0,
+#		"VIDEO" => $VGA,
+#		"internal_ram" => 16384,
+#		"internal_rom" => 1,
+#		"ext_clock" => 0
+#	},
 	"PAL_SVIDEO" => 
 	{
 		"TV" => $PAL,
@@ -88,7 +90,7 @@ if (not defined $wanted_variant or (not exists $variants{$wanted_variant} and $w
 foreach my $variant (sort keys %variants)
 {
 	next if ($wanted_variant ne $variant and $wanted_variant ne "ALL");
-	print "Building $variant\n";
+	print "Building $variant of $name\n";
 
 	my $dir = "build_$variant";
 	`rm -rf $dir`;

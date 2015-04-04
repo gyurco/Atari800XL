@@ -530,7 +530,6 @@ begin
     CONF_DI               => mch_data,
     -- 
     ram_select            => cfg_dynamic(2 downto 0),
-    rom_select            => cfg_dynamic(8 downto 3),
     speed_select          => cfg_dynamic(13 downto 9)
     );
 
