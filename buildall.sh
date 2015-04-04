@@ -26,7 +26,7 @@ cd ../mcctv_5200
 
 
 export PATH=${ORIGPATH}:/home/markw/fpga/altera/14.0/quartus/bin:/home/markw/fpga/altera/14.0/quartus/sopc_builder/bin/
-cd sockit
+cd ../sockit
 ./build.sh
 
 export PATH=${ORIGPATH}
