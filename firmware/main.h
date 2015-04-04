@@ -44,8 +44,6 @@ void mainmenu();
 // turbo: bit 2-4: meaning... 0=1.79Mhz,1=3.58MHz,2=7.16MHz,3=14.32MHz,4=28.64MHz,5=57.28MHz,etc.
 // ram_select: bit 5-7: 
 //   		RAM_SELECT : in std_logic_vector(2 downto 0); -- 64K,128K,320KB Compy, 320KB Rambo, 576K Compy, 576K Rambo, 1088K, 4MB
-// rom_select: bit 8-13:
-//    		ROM_SELECT : in std_logic_vector(5 downto 0); -- 16KB ROM Bank
 
 #define BIT_REG(op,mask,shift,name,reg) \
 int get_ ## name() \
@@ -75,7 +73,7 @@ BIT_REG(,0x1,0,pause_6502,zpu_out1)
 BIT_REG(,0x1,1,reset_6502,zpu_out1)
 BIT_REG(,0x3f,2,turbo_6502,zpu_out1)
 BIT_REG(,0x7,8,ram_select,zpu_out1)
-BIT_REG(,0x3f,11,rom_select,zpu_out1)
+//BIT_REG(,0x3f,11,rom_select,zpu_out1)
 BIT_REG(,0x3f,17,cart_select,zpu_out1)
 // reserve 2 bits for extending cart_select
 BIT_REG(,0x01,25,freezer_enable,zpu_out1)
@@ -261,7 +259,6 @@ int main(void)
 	set_reset_6502(1);
 	set_reset_6502(0);
 	set_turbo_6502(1);
-	set_rom_select(1);
 	set_ram_select(2);
 	set_cart_select(0);
 	set_freezer_enable(0);

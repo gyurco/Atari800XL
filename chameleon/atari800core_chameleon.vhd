@@ -95,6 +95,7 @@ end component;
 
   signal VGA_VS_RAW : std_logic;
   signal VGA_HS_RAW : std_logic;
+  signal VGA_CS_RAW : std_logic;
 
   --signal RESET_n : std_logic;
   signal reset_counter : unsigned(15 downto 0):=X"0000";
@@ -223,7 +224,6 @@ end component;
 
 	-- system control from zpu
 	signal ram_select : std_logic_vector(2 downto 0);
-	signal rom_select : std_logic_vector(5 downto 0);
 	signal reset_atari : std_logic;
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
@@ -393,6 +393,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
 		VIDEO_VS => VGA_VS_RAW,
 		VIDEO_HS => VGA_HS_RAW,
+		VIDEO_CS => VGA_CS_RAW,
 		VIDEO_B => VIDEO_B,
 		VIDEO_G => open,
 		VIDEO_R => open,
@@ -439,7 +440,6 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		DMA_MEMORY_DATA => dma_memory_data, 
 
    		RAM_SELECT => ram_select,
-    		ROM_SELECT => rom_select,
 		PAL => PAL,
 		HALT => pause_atari,
 		THROTTLE_COUNT_6502 => speed_6502,
@@ -1126,7 +1126,6 @@ zpu: entity work.zpucore
 	reset_atari <= zpu_out1(1) or reset_short_reg;
 	speed_6502 <= zpu_out1(7 downto 2);
 	ram_select <= zpu_out1(10 downto 8);
-	rom_select <= zpu_out1(16 downto 11);
 	emulated_cartridge_select <= zpu_out1(22 downto 17);
 	freezer_enable <= zpu_out1(25);
 
@@ -1177,6 +1176,7 @@ enable_179_clock_div_zpu_pokey : entity work.enable_divider
 		colour_in => VIDEO_B,
 		vsync_in => VGA_VS_RAW,
 		hsync_in => VGA_HS_RAW,
+		csync_in => VGA_CS_RAW,
 		
 		-- TO TV...
 		R => red,

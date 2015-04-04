@@ -175,6 +175,7 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 	-- VIDEO
 	signal VGA_VS_RAW : std_logic;
 	signal VGA_HS_RAW : std_logic;
+	signal VGA_CS_RAW : std_logic;
 
 	-- AUDIO
 	signal AUDIO_LEFT : std_logic_vector(15 downto 0);
@@ -208,7 +209,6 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 
 	-- system control from zpu
 	signal ram_select : std_logic_vector(2 downto 0);
-	signal rom_select : std_logic_vector(5 downto 0);
 	signal reset_atari : std_logic;
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
@@ -530,6 +530,7 @@ PORT MAP(CLK => CLK,
 	 	 scanlines_on => SW(5),
 		 vsync_in => VGA_VS_RAW,
 		 hsync_in => VGA_HS_RAW,
+		 csync_in => VGA_CS_RAW,
 		 pal => PAL,
 		 colour_in => VIDEO_B,
 		 VSYNC => VGA_VS,
@@ -639,6 +640,7 @@ atari800 : entity work.atari800core
 
 		VIDEO_VS => VGA_VS_RAW,
 		VIDEO_HS => VGA_HS_RAW,
+		VIDEO_CS => VGA_CS_RAW,
 		VIDEO_B => VIDEO_B,
 		VIDEO_G => open,
 		VIDEO_R => open,
@@ -728,7 +730,6 @@ atari800 : entity work.atari800core
 		PBI_SNOOP_DATA => DMA_MEMORY_DATA,
 
 		RAM_SELECT => ram_select,
-		ROM_SELECT => rom_select,
 		CART_EMULATION_SELECT => emulated_cartridge_select,
 		PAL => PAL,
 		USE_SDRAM => SW(9),
@@ -806,7 +807,6 @@ zpu: entity work.zpucore
 	reset_atari <= zpu_out1(1);
 	speed_6502 <= zpu_out1(7 downto 2);
 	ram_select <= zpu_out1(10 downto 8);
-	rom_select <= zpu_out1(16 downto 11);
 	emulated_cartridge_select <= zpu_out1(22 downto 17);
 
 	freezer_enable <= zpu_out1(25);

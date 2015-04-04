@@ -47,6 +47,7 @@ PORT
 	
 	VSYNC : out std_logic;
 	HSYNC : out std_logic;
+	CSYNC : out std_logic;
 	BLANK : out std_logic;
 	BURST : out std_logic;
 	START_OF_FIELD : out std_logic;
@@ -325,9 +326,15 @@ ARCHITECTURE vhdl OF gtia IS
 	signal hsync_next : std_logic;
 	signal hsync_reg : std_logic;
 	
+	signal csync_next : std_logic;
+	signal csync_reg : std_logic;	
+	
 	signal hsync_start : std_logic;
 	signal hsync_end : std_logic;
 
+	signal csync_start : std_logic;
+	signal csync_end : std_logic;	
+	
 	signal burst_next : std_logic;
 	signal burst_reg : std_logic;
 	
@@ -462,6 +469,7 @@ begin
 			COLOUR_REG <= (OTHERS=>'0');
 			HRCOLOUR_REG <= (OTHERS=>'0');
 			
+			csync_reg <= '0';
 			vsync_reg <= '0';
 			hsync_reg <= '0';
 			burst_reg <= '0';
@@ -549,6 +557,7 @@ begin
 			COLOUR_REG <= colour_next;
 			HRCOLOUR_REG <= hrcolour_next;
 			
+			csync_reg <= csync_next;
 			vsync_reg <= vsync_next;
 			hsync_reg <= hsync_next;
 			burst_reg <= burst_next;
@@ -886,21 +895,27 @@ begin
 ----		end if;		
 --	end process;
 	
-	-- generate hsync
-	process(hpos_reg, hsync_reg, hsync_end, burst_reg, burst_end, vsync_reg, vsync_next)
+	-- generate hsync and csync
+	process(hpos_reg, hsync_reg, hsync_end, csync_reg, csync_end, burst_reg, burst_end, vsync_reg, vsync_next)
 	begin
 		hsync_start <= '0';
 		hsync_next <= hsync_reg;
+
+		csync_start <= '0';
+		csync_next <= csync_reg;	
 	
 		burst_start <= '0';
 		burst_next <= burst_reg;
 
-		if (unsigned(hpos_reg) = X"D4" and vsync_reg = '1') then
-			hsync_start <= '1';
-			hsync_next <= '1';
+		if (unsigned(hpos_reg) = X"D4") then
+			csync_start <= vsync_reg;
+			csync_next <= vsync_reg;
 		end if;
 	
-		if (unsigned(hpos_reg) = X"0" and vsync_reg = '0' ) then
+		if (unsigned(hpos_reg) = X"0") then
+			csync_start <= not(vsync_reg);
+			csync_next <= not(vsync_reg);
+						
 			hsync_start <= '1';
 			hsync_next <= '1';
 		end if;
@@ -909,9 +924,13 @@ begin
 			burst_start <= '1';
 			burst_next <= '1';
 		end if;
-			
+		
 		if (hsync_end = '1') then
 			hsync_next <= '0';
+		end if;		
+			
+		if (csync_end = '1') then
+			csync_next <= '0';
 		end if;
 
 		if (burst_end = '1') then
@@ -919,13 +938,17 @@ begin
 		end if;
 		
 		if (vsync_next = '0' and vsync_reg = '1') then
-			hsync_next <= '0';
+			csync_next <= '0';
 		end if;
 	end process;
 
 	hsync_delay : delay_line
 		generic map (COUNT=>15)
 		port map(clk=>clk,sync_reset=>'0',data_in=>hsync_start,enable=>COLOUR_CLOCK_ORIGINAL,reset_n=>reset_n,data_out=>hsync_end);	
+		
+	csync_delay : delay_line
+		generic map (COUNT=>15)
+		port map(clk=>clk,sync_reset=>'0',data_in=>csync_start,enable=>COLOUR_CLOCK_ORIGINAL,reset_n=>reset_n,data_out=>csync_end);			
 
 	burst_delay : delay_line
 		generic map (COUNT=>8)
@@ -1561,6 +1584,7 @@ begin
 	
 	vsync<=vsync_reg;
 	hsync<=hsync_reg;
+	csync<=csync_reg xor vsync_reg;
 	blank<=hblank_reg or vsync_reg;
 	burst<=burst_reg;
 	odd_line<=odd_scanline_reg;

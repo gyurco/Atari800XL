@@ -190,6 +190,7 @@ end component;
 	
 	signal VIDEO_VS : std_logic;
 	signal VIDEO_HS : std_logic;
+	signal VIDEO_CS : std_logic;
 	signal VIDEO_R : std_logic_vector(7 downto 0);
 	signal VIDEO_G : std_logic_vector(7 downto 0);
 	signal VIDEO_B : std_logic_vector(7 downto 0);
@@ -257,7 +258,6 @@ end component;
 
 	-- system control from zpu
 	signal ram_select : std_logic_vector(2 downto 0);
-	signal rom_select : std_logic_vector(5 downto 0);
 	signal reset_atari : std_logic;
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
@@ -437,6 +437,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 
 		VIDEO_VS => VIDEO_VS,
 		VIDEO_HS => VIDEO_HS,
+		VIDEO_CS => VIDEO_CS,
 		VIDEO_B => VIDEO_B,
 		VIDEO_G => VIDEO_G,
 		VIDEO_R => VIDEO_R,
@@ -486,7 +487,6 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		DMA_MEMORY_DATA => dma_memory_data, 
 
    		RAM_SELECT => ram_select,
-    		ROM_SELECT => rom_select,
 		PAL => PAL,
 		HALT => pause_atari,
 		THROTTLE_COUNT_6502 => speed_6502,
@@ -495,7 +495,6 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 --		freezer_activate => freezer_activate
 
 --   		RAM_SELECT => (others=>'0'),
---    		ROM_SELECT => "000001",
 --		PAL => PAL,
 --		HALT => '0',
 --		THROTTLE_COUNT_6502 => "000001",
@@ -541,6 +540,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		colour_in => VIDEO_B,
 		vsync_in => VIDEO_VS,
 		hsync_in => VIDEO_HS,
+		csync_in => VIDEO_CS,
 		
 		-- TO TV...
 		R => VGA_RED,
@@ -615,7 +615,6 @@ zpu: entity work.zpucore
 	reset_atari <= zpu_out1(1);
 	speed_6502 <= zpu_out1(7 downto 2);
 	ram_select <= zpu_out1(10 downto 8);
-	rom_select <= zpu_out1(16 downto 11);
 	emulated_cartridge_select <= zpu_out1(22 downto 17);
 	freezer_enable <= zpu_out1(25);
 

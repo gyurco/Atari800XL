@@ -92,6 +92,7 @@ architecture rtl of ATARI is
    signal VIDEO_B             : std_logic_vector(7 downto 0);
    signal VIDEO_VS            : std_logic;
    signal VIDEO_HS            : std_logic;
+   signal VIDEO_CS            : std_logic;
 
    signal PAL                 : std_logic := '0';
    signal VGA                 : std_logic := '1';
@@ -220,6 +221,7 @@ port map(
 
    VIDEO_VS                   => VIDEO_VS,
    VIDEO_HS                   => VIDEO_HS,
+   VIDEO_CS                   => VIDEO_CS,
    VIDEO_B                    => VIDEO_B,
    VIDEO_G                    => VIDEO_G,
    VIDEO_R                    => VIDEO_R,
@@ -386,6 +388,7 @@ port map (
    COLOUR_IN                  => VIDEO_B,
    VSYNC_IN                   => VIDEO_VS,
    HSYNC_IN                   => VIDEO_HS,
+   CSYNC_IN                   => VIDEO_CS,
 			
    R                          => VGA_R,
    G                          => VGA_G,

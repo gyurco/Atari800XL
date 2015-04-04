@@ -149,6 +149,7 @@ component user_io
 
   signal VGA_VS_RAW : std_logic;
   signal VGA_HS_RAW : std_logic;
+  signal VGA_CS_RAW : std_logic;
 
   signal RESET_n : std_logic;
   signal PLL_LOCKED : std_logic;
@@ -230,7 +231,6 @@ component user_io
 
 	-- system control from zpu
 	signal ram_select : std_logic_vector(2 downto 0);
-	signal rom_select : std_logic_vector(5 downto 0);
 	signal reset_atari : std_logic;
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
@@ -421,6 +421,7 @@ atari5200_test : entity work.atari5200core_simplesdram
 
 		VIDEO_VS => VGA_VS_RAW,
 		VIDEO_HS => VGA_HS_RAW,
+		VIDEO_CS => VGA_CS_RAW,
 		VIDEO_B => VIDEO_B,
 		VIDEO_G => open,
 		VIDEO_R => open,
@@ -552,6 +553,7 @@ LED <= zpu_sio_rxd;
 		colour_in => VIDEO_B,
 		vsync_in => VGA_VS_RAW,
 		hsync_in => VGA_HS_RAW,
+		csync_in => VGA_CS_RAW,
 		
 		-- TO TV...
 		R => VGA_R,
@@ -625,7 +627,6 @@ zpu: entity work.zpucore
 	reset_atari <= zpu_out1(1);
 	speed_6502 <= zpu_out1(7 downto 2);
 	ram_select <= zpu_out1(10 downto 8);
-	rom_select <= zpu_out1(16 downto 11);
 
 zpu_rom1: entity work.zpu_rom
 	port map(

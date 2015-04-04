@@ -33,6 +33,7 @@ ENTITY atari800core IS
 		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
 		VIDEO_VS :  OUT  STD_LOGIC;
 		VIDEO_HS :  OUT  STD_LOGIC;
+		VIDEO_CS :  OUT  STD_LOGIC;
 		VIDEO_B :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
 		VIDEO_G :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
 		VIDEO_R :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
@@ -175,7 +176,6 @@ ENTITY atari800core IS
 
 		-- Special config params
    		RAM_SELECT : in std_logic_vector(2 downto 0); -- 64K,128K,320KB Compy, 320KB Rambo, 576K Compy, 576K Rambo, 1088K, 4MB
-    		ROM_SELECT : in std_logic_vector(5 downto 0); -- 16KB ROM Bank - 0 is illegal (slot used for BASIC!) TODO FIXME, change stupid slot 0 thing...
 		CART_EMULATION_SELECT : in std_logic_vector(5 downto 0);
 		PAL :  in STD_LOGIC;
 		USE_SDRAM :  in STD_LOGIC;
@@ -460,7 +460,6 @@ PORT MAP(CLK => CLK,
 		 RAM_DATA => RAM_DO,
 		 ram_select => RAM_SELECT(2 downto 0),
 		 ROM_DATA => ROM_DO,
-		 rom_select => ROM_SELECT, 
 		 SDRAM_DATA => SDRAM_DO,
 		 DMA_ADDR => DMA_ADDR,
 		 DMA_WRITE_DATA => DMA_WRITE_DATA,
@@ -548,6 +547,7 @@ PORT MAP(CLK => CLK,
 		 MEMORY_DATA_IN => MEMORY_DATA(7 DOWNTO 0),
 		 VSYNC => VIDEO_VS,
 		 HSYNC => VIDEO_HS,
+		 CSYNC => VIDEO_CS,
 		 BLANK => VIDEO_BLANK,
 		 BURST => VIDEO_BURST,
 		 START_OF_FIELD => VIDEO_START_OF_FIELD,

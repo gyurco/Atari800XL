@@ -41,6 +41,7 @@ ENTITY atari5200core_simplesdram is
 		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
 		VIDEO_VS :  OUT  STD_LOGIC;
 		VIDEO_HS :  OUT  STD_LOGIC;
+		VIDEO_CS :  OUT  STD_LOGIC;
 		VIDEO_B :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
 		VIDEO_G :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
 		VIDEO_R :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
@@ -217,6 +218,7 @@ atari5200_simple_sdram1 : entity work.atari5200core
 
 		VIDEO_VS => VIDEO_VS,
 		VIDEO_HS => VIDEO_HS,
+		VIDEO_CS => VIDEO_CS,
 		VIDEO_B => VIDEO_B,
 		VIDEO_G => VIDEO_G,
 		VIDEO_R => VIDEO_R,

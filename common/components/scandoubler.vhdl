@@ -32,6 +32,7 @@ PORT
 	colour_in : in std_logic_vector(7 downto 0);
 	vsync_in : in std_logic;
 	hsync_in : in std_logic;
+	csync_in : in std_logic;
 	
 	-- TO TV...
 	R : OUT STD_LOGIC_vector(video_bits-1 downto 0);
@@ -235,7 +236,7 @@ begin
 		port map(clk=>clk,sync_reset=>'0',data_in=>vga_hsync_start,enable=>doubled_enable,reset_n=>reset_n,data_out=>vga_hsync_end);			
 	
 	-- display
-	process(colour_reg,vsync_reg,vga_hsync_reg,hsync_reg,colour_in,vsync_in,hsync_in,colour_enable,doubled_enable,vga,composite_on_hsync,buffer_select_reg,linea_out,lineb_out, scanlines_on, vga_odd_reg)
+	process(colour_reg,vsync_reg,vga_hsync_reg,hsync_reg,colour_in,csync_in,vsync_in,hsync_in,colour_enable,doubled_enable,vga,composite_on_hsync,buffer_select_reg,linea_out,lineb_out, scanlines_on, vga_odd_reg)
 	begin	
 		colour_next <= colour_reg;
 		vsync_next <= vsync_reg;
@@ -244,12 +245,14 @@ begin
 		if (vga = '0') then
 			-- non-vga mode - pass through
 			colour_next <= colour_in;
-			vsync_next <= not(vsync_in);
 			--hsync_next <= not(hsync_in or vsync_in);
 			if (composite_on_hsync = '1') then
-				hsync_next <= not(hsync_in xor vsync_in);
+				--hsync_next <= not(hsync_in xor vsync_in);
+				hsync_next <= not(csync_in);
+				vsync_next <='1';
 			else
 				hsync_next <= not(hsync_in);			
+				vsync_next <= not(vsync_in);
 			end if;
 		else
 			-- vga mode, store all inputs - then play back!			
@@ -271,12 +274,13 @@ begin
 				end if;
 			end if;
 			
-			vsync_next <= not(vsync_in);
 			--hsync_next <= not(vga_hsync_reg);
 			if (composite_on_hsync = '1') then
 				hsync_next <= not(vga_hsync_reg xor vsync_in);
+				vsync_next <='1';
 			else
 				hsync_next <= not(vga_hsync_reg);			
+				vsync_next <= not(vsync_in);				
 			end if;
 		end if;
 	end process;

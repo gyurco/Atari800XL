@@ -200,6 +200,7 @@ END COMPONENT;
 	
 	signal VIDEO_VS : std_logic;
 	signal VIDEO_HS : std_logic;
+	signal VIDEO_CS : std_logic;
 	signal VIDEO_R : std_logic_vector(7 downto 0);
 	signal VIDEO_G : std_logic_vector(7 downto 0);
 	signal VIDEO_B : std_logic_vector(7 downto 0);
@@ -348,7 +349,6 @@ END COMPONENT;
 
 	-- system control from zpu
 	signal ram_select : std_logic_vector(2 downto 0);
-	signal rom_select : std_logic_vector(5 downto 0);
 	signal reset_atari : std_logic;
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
@@ -571,6 +571,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 
 		VIDEO_VS => VIDEO_VS,
 		VIDEO_HS => VIDEO_HS,
+		VIDEO_CS => VIDEO_CS,
 		VIDEO_B => VIDEO_B,
 		VIDEO_G => VIDEO_G,
 		VIDEO_R => VIDEO_R,
@@ -625,7 +626,6 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		DMA_MEMORY_DATA => dma_memory_data, 
 
    		RAM_SELECT => ram_select,
-    		ROM_SELECT => rom_select,
 		PAL => PAL,
 		HALT => pause_atari,
 		THROTTLE_COUNT_6502 => speed_6502,
@@ -861,8 +861,8 @@ sdram_a(12) <= '1';
 -- Video options
 gen_video_vga : if video=2 generate
 	gen_scandouble_off: if scandouble=0 generate
-		VGA_HS <= not(VIDEO_HS xor VIDEO_VS);
-		VGA_VS <= not(VIDEO_VS);
+		VGA_HS <= not(VIDEO_CS);
+		VGA_VS <= '1';
 		VGA_B <= VIDEO_B(7 downto 4);
 		VGA_G <= VIDEO_G(7 downto 4);
 		VGA_R <= VIDEO_R(7 downto 4);
@@ -897,6 +897,7 @@ gen_video_vga : if video=2 generate
 			colour_in => VIDEO_B,
 			vsync_in => VIDEO_VS,
 			hsync_in => VIDEO_HS,
+			csync_in => VIDEO_CS,
 			
 			-- TO TV...
 			R => VGA_R,
@@ -926,7 +927,7 @@ gen_video_svideo: if video=1 generate
 		vpos_lsb => VIDEO_ODD_LINE,
 		blank => VIDEO_BLANK,
 		burst => VIDEO_BURST,
-		csync_n => not(VIDEO_HS xor VIDEO_VS),
+		csync_n => not(VIDEO_CS),
 		
 		y_out => svideo_y,
 		c_out => svideo_c,
@@ -1015,7 +1016,6 @@ zpu: entity work.zpucore
 	reset_atari <= zpu_out1(1);
 	speed_6502 <= zpu_out1(7 downto 2);
 	ram_select <= zpu_out1(10 downto 8);
-	rom_select <= zpu_out1(16 downto 11);
 	emulated_cartridge_select <= zpu_out1(22 downto 17);
 	freezer_enable <= zpu_out1(25);
 

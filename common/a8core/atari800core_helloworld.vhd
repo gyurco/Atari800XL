@@ -156,7 +156,6 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		MEMORY_READY_DMA => open,
 
    		RAM_SELECT => (others=>'0'),
-    		ROM_SELECT => "000001",
 		PAL => PAL,
 		HALT => '0',
 		THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,

@@ -209,8 +209,7 @@ END COMPONENT;
 	signal AUDIO_L_PCM : std_logic_vector(15 downto 0);
 	signal AUDIO_R_PCM : std_logic_vector(15 downto 0);
 	
-	signal VIDEO_VS : std_logic;
-	signal VIDEO_HS : std_logic;
+	signal VIDEO_CS : std_logic;
 	signal VIDEO_R : std_logic_vector(7 downto 0);
 	signal VIDEO_G : std_logic_vector(7 downto 0);
 	signal VIDEO_B : std_logic_vector(7 downto 0);
@@ -354,7 +353,6 @@ END COMPONENT;
 
 	-- system control from zpu
 	signal ram_select : std_logic_vector(2 downto 0);
-	signal rom_select : std_logic_vector(5 downto 0);
 	signal reset_atari : std_logic;
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
@@ -607,8 +605,9 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		--RESET_N => RESET_N and SDRAM_RESET_N and not(SYSTEM_RESET_REQUEST),
 		RESET_N => RESET_N and SDRAM_RESET_N_REG,
 
-		VIDEO_VS => VIDEO_VS,
-		VIDEO_HS => VIDEO_HS,
+		VIDEO_VS => open,
+		VIDEO_HS => open,
+		VIDEO_CS => VIDEO_CS,
 		VIDEO_B => VIDEO_B,
 		VIDEO_G => VIDEO_G,
 		VIDEO_R => VIDEO_R,
@@ -662,7 +661,6 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		DMA_MEMORY_DATA => dma_memory_data, 
 
    		RAM_SELECT => ram_select,
-    		ROM_SELECT => rom_select,
 		PAL => PAL,
 		HALT => pause_atari,
 		THROTTLE_COUNT_6502 => speed_6502,
@@ -914,7 +912,7 @@ sdram_cke <= '1';
 		vpos_lsb => VIDEO_ODD_LINE,
 		blank => VIDEO_BLANK,
 		burst => VIDEO_BURST,
-		csync_n => not(VIDEO_HS xor VIDEO_VS),
+		csync_n => not(VIDEO_CS),
 		
 		y_out => svideo_yout,
 		c_out => open,
@@ -999,7 +997,6 @@ zpu: entity work.zpucore
 	reset_atari <= zpu_out1(1);
 	speed_6502 <= zpu_out1(7 downto 2);
 	ram_select <= zpu_out1(10 downto 8);
-	rom_select <= zpu_out1(16 downto 11);
 	emulated_cartridge_select <= zpu_out1(22 downto 17);
 	freezer_enable <= zpu_out1(25);
 

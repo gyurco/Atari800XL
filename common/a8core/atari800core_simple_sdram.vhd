@@ -51,6 +51,7 @@ ENTITY atari800core_simple_sdram is
 		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
 		VIDEO_VS :  OUT  STD_LOGIC;
 		VIDEO_HS :  OUT  STD_LOGIC;
+		VIDEO_CS :  OUT  STD_LOGIC;
 		VIDEO_B :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
 		VIDEO_G :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
 		VIDEO_R :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
@@ -142,7 +143,6 @@ ENTITY atari800core_simple_sdram is
 
 		-- Special config params
    		RAM_SELECT : in std_logic_vector(2 downto 0); -- 64K,128K,320KB Compy, 320KB Rambo, 576K Compy, 576K Rambo, 1088K, 4MB
-    		ROM_SELECT : in std_logic_vector(5 downto 0); -- 16KB ROM Bank - 0 is illegal (slot used for BASIC!)
 		PAL :  in STD_LOGIC;
 		HALT : in std_logic;
 		THROTTLE_COUNT_6502 : in std_logic_vector(5 downto 0); -- standard speed is cycle_length-1
@@ -333,6 +333,7 @@ atari800xl : entity work.atari800core
 
 		VIDEO_VS => VIDEO_VS,
 		VIDEO_HS => VIDEO_HS,
+		VIDEO_CS => VIDEO_CS,
 		VIDEO_B => VIDEO_B,
 		VIDEO_G => VIDEO_G,
 		VIDEO_R => VIDEO_R,
@@ -423,7 +424,6 @@ atari800xl : entity work.atari800core
 		MEMORY_READY_DMA => MEMORY_READY_DMA,
 
 		RAM_SELECT => RAM_SELECT,
-		ROM_SELECT => ROM_SELECT,
 		CART_EMULATION_SELECT => emulated_cartridge_select,
 		PAL => PAL,
 		USE_SDRAM => USE_SDRAM,

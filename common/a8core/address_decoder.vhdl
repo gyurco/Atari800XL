@@ -66,7 +66,6 @@ PORT
 
 	rom_in_ram : in std_logic;
 	
-	rom_select : in std_logic_vector(5 downto 0);
 	cart_select : in std_logic_vector(5 downto 0);
 	
 	ram_select : in std_logic_vector(2 downto 0);
@@ -533,7 +532,7 @@ gen_normal_memory : if low_memory=0 generate
 	SDRAM_CART_ADDR	<= "1" & emu_cart_address(20) & (not emu_cart_address(20)) & emu_cart_address(19 downto 0);
 	-- BASIC/OS ROM  -              "111 XXXX XX00 0000 0000 0000" (BOT) (BASIC IN SLOT 0!), 2nd to last 512K				
 	SDRAM_BASIC_ROM_ADDR <= "111"&"000000"   &"00000000000000";
-	SDRAM_OS_ROM_ADDR    <= "111"&rom_select &"00000000000000";
+	SDRAM_OS_ROM_ADDR    <= "111"&"000001" &"00000000000000";
 	-- SYSTEM        -              "111 1000 0000 0000 0000 0000" (BOT) - LAST 512K
 
 end generate;
@@ -543,8 +542,8 @@ gen_low_memory1 : if low_memory=1 generate
 
 	-- SRAM memory map (1024k) for Aeon Lite
 	SDRAM_CART_ADDR      <= "000" & "111" & emu_cart_address(16 downto 0);
-	SDRAM_BASIC_ROM_ADDR <= "000" & "110" &                       "00000000000000000";
-	SDRAM_OS_ROM_ADDR    <= "000" & "110" & rom_select(2 downto 0) & "00000000000000";
+	SDRAM_BASIC_ROM_ADDR <= "000" & "110" & "00000000000000000";
+	SDRAM_OS_ROM_ADDR    <= "000" & "110" & "00100000000000000";
 
 end generate;
 
@@ -565,7 +564,6 @@ end generate;
 		-- except for these additional special address bits	
 		portb, 
 		antic_fetch,
-		rom_select,
 		ram_select,
 		use_sdram,
 

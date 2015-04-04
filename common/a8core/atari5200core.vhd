@@ -31,6 +31,7 @@ ENTITY atari5200core IS
 		-- VIDEO OUT - NTSC, original Atari timings approx (may be higher res)
 		VIDEO_VS :  OUT  STD_LOGIC;
 		VIDEO_HS :  OUT  STD_LOGIC;
+		VIDEO_CS :  OUT  STD_LOGIC;
 		VIDEO_B :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
 		VIDEO_G :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
 		VIDEO_R :  OUT  STD_LOGIC_VECTOR(video_bits-1 DOWNTO 0);
@@ -348,7 +349,6 @@ PORT MAP(CLK => CLK,
 		 RAM_DATA => RAM_DO,
 		 ram_select => "000",
 		 ROM_DATA => ROM_DO,
-		 rom_select => "000001", 
 		 SDRAM_DATA => SDRAM_DO,
 		 DMA_ADDR => DMA_ADDR,
 		 DMA_WRITE_DATA => DMA_WRITE_DATA,
@@ -431,6 +431,7 @@ PORT MAP(CLK => CLK,
 		 MEMORY_DATA_IN => MEMORY_DATA(7 DOWNTO 0),
 		 VSYNC => VIDEO_VS,
 		 HSYNC => VIDEO_HS,
+		 CSYNC => VIDEO_CS,
 		 BLANK => VIDEO_BLANK,
 		 BURST => VIDEO_BURST,
 		 START_OF_FIELD => VIDEO_START_OF_FIELD,

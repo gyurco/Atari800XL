@@ -151,6 +151,7 @@ ARCHITECTURE vhdl OF atari5200core_de1 IS
 	-- VIDEO
 	signal VGA_VS_RAW : std_logic;
 	signal VGA_HS_RAW : std_logic;
+	signal VGA_CS_RAW : std_logic;
 
 	-- AUDIO
 	signal AUDIO_LEFT : std_logic_vector(15 downto 0);
@@ -404,6 +405,7 @@ PORT MAP(CLK => CLK,
 	 	 scanlines_on => SW(5),
 		 vsync_in => VGA_VS_RAW,
 		 hsync_in => VGA_HS_RAW,
+		 csync_in => VGA_CS_RAW,
 		 pal => '0',
 		 colour_in => VIDEO_B,
 		 VSYNC => VGA_VS,
@@ -505,6 +507,7 @@ atari5200 : entity work.atari5200core
 
 		VIDEO_VS => VGA_VS_RAW,
 		VIDEO_HS => VGA_HS_RAW,
+		VIDEO_CS => VGA_CS_RAW,
 		VIDEO_B => VIDEO_B,
 		VIDEO_G => open,
 		VIDEO_R => open,

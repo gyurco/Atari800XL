@@ -134,7 +134,7 @@ BEGIN
 	end process;
 
 	-- next state
-	process(enable_179_early, state_reg, odd_reg, phi1_reg, phi2_reg, request, addr_in, data_in, addr_reg, addr_oe_reg, data_reg, data_oe_reg, data_read_reg, bus_data_in, write_n_reg, write_in,  request_pending_reg, request_handling_reg, control_n_reg, control_oe_reg)
+	process(enable_179_early, state_reg, odd_reg, phi1_reg, phi2_reg, request, addr_in, data_in, addr_reg, addr_oe_reg, data_reg, data_oe_reg, data_read_reg, bus_data_in, write_n_reg, write_in,  request_pending_reg, request_handling_reg, control_n_reg, control_oe_reg, control_n_in)
 	begin
 		state_next <= state_reg;
 		odd_next <= not(odd_reg);

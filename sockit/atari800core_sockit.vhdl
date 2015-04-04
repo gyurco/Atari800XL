@@ -258,8 +258,7 @@ signal CLK_HALF : std_logic;
 signal PLL_LOCKED : std_logic;
 
 -- VGA
-signal VGA_HS_RAW : std_logic;
-signal VGA_VS_RAW : std_logic;
+signal VGA_CS_RAW : std_logic;
 signal VGA_BLANK : std_logic;
 
 -- AUDIO
@@ -389,9 +388,9 @@ pll : pll_pal
 	locked => PLL_LOCKED);
 
 	-- vga
-	VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
-	VGA_VS <= not(VGA_VS_RAW);
-	VGA_SYNC_N <= not(VGA_HS_RAW xor VGA_VS_RAW);
+	VGA_HS <= not(VGA_CS_RAW);
+	VGA_VS <= '1';
+	VGA_SYNC_N <= not(VGA_CS_RAW);
 	VGA_BLANK_N <= NOT(VGA_BLANK);
 	VGA_CLK <= CLK;
 
@@ -413,8 +412,9 @@ atari800core1 : ENTITY work.atari800core_simple_sdram
 		RESET_N => PLL_LOCKED and not(reset_atari),
 
 		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
-		VIDEO_VS => VGA_VS_RAW,
-		VIDEO_HS => VGA_HS_RAW,
+		VIDEO_VS => open,
+		VIDEO_HS => open,
+		VIDEO_CS => VGA_CS_RAW,
 		VIDEO_B => VGA_B,
 		VIDEO_G => VGA_G,
 		VIDEO_R => VGA_R,
