@@ -802,16 +802,16 @@ BEGIN
 				--when '1'&X"05" => (changed for testing galaxian!)
 				--	vblank_next <= '1';					
 -- PAL
-				when '1'&X"16" =>
+				when '1'&X"13" =>
 					vsync_next <= pal;
-				when '1'&X"19" =>
+				when '1'&X"16" =>
 					vsync_next <= '0';
 				when '1'&X"38" =>
 					vcount_reset <= '1'; -- Blip at 9c..., then wrap
 -- NTSC
-				when '0'&X"FA" =>
+				when '0'&X"FF" =>
 					vsync_next <= not(pal);
-				when '0'&X"FD" =>
+				when '1'&X"02" =>
 					vsync_next <= '0';
 				when '1'&X"06" =>
 					vcount_reset <= not(pal); -- Blip at 9c..., then wrap
@@ -1687,7 +1687,7 @@ BEGIN
 		end if;
 	end process;
 	
-	process(colour_clock_selected, an_current, an_reg, an_prev_reg, hscrol_reg, hscrol_enabled_reg, vsync_reg, vblank_reg, hblank_reg, playfield_display_active_reg, instruction_blank_reg, twopixel_reg)
+	process(colour_clock_selected, an_current, an_reg, an_prev_reg, hscrol_reg, hscrol_enabled_reg, vsync_reg, vblank_reg, hblank_reg, playfield_display_active_reg, instruction_blank_reg, twopixel_reg, dmactl_delayed_reg)
 	begin
 		an_next <= an_reg;
 	
@@ -1705,13 +1705,25 @@ BEGIN
 			if (vblank_reg = '1' or hblank_reg = '1') then				
 				an_next(0) <= vsync_reg or twopixel_reg;
 				an_next(1) <= not(vsync_reg);
-				an_next(2) <= not(hblank_reg) and twopixel_reg;
-				
-				--an_next <= 
-						--(twopixel_reg and not(vsync_reg or hblank_reg))
-						--&((hblank_reg or vblank_reg) and not(vsync_reg))
-						--&(vsync_reg or twopixel_reg);
+				an_next(2) <= not(hblank_reg) and twopixel_reg and (dmactl_delayed_reg(1) or dmactl_delayed_reg(0));
 			end if;			
+
+--			if (hblank_reg = '1') then
+--				an_next(0)<=twopixel_reg;
+--				an_next(1)<='1';
+--				an_next(2)<='0';
+--			end if;
+--
+--			if(vblank_reg = '1' and hblank_reg = '0') then
+--				an_next(0)<=twopixel_reg;
+--				an_next(1)<='1';
+--				an_next(2)<=twopixel_reg and (dmactl_delayed_reg(1) or dmactl_delayed_reg(0)); --playfield_display_active_reg?
+--			end if;
+--
+--			if(vsync_reg='1') then
+--				an_next(0)<='1';
+--				an_next(1)<='0';
+--			end if;
 			
 			-- TODO this is too simplistic:
 			-- Antic should provide GTIA with the 'visible region using code 002 for vblank and hblank
