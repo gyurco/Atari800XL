@@ -182,6 +182,14 @@ int settings()
 
 		debug_pos = 520;
 		debug_adjust = row==9 ? 128 : 0;
+		printf("Load memory");
+
+		debug_pos = 560;
+		debug_adjust = row==10 ? 128 : 0;
+		printf("Save memory (for debugging)");
+
+		debug_pos = 640;
+		debug_adjust = row==11 ? 128 : 0;
 		printf("Exit");
 
 		// Slow it down a bit
@@ -194,7 +202,7 @@ int settings()
 
 		row+=joy.y_;
 		if (row<0) row = 0;
-		if (row>9) row = 8;
+		if (row>11) row = 11;
 		switch (row)
 		{
 		case 0:
@@ -291,6 +299,25 @@ int settings()
 			}
 			break;
 		case 9:
+		case 10:
+			{
+				if (joy.fire_)
+				{
+					fil_type = fil_type_mem;
+					filter = filter_specified;
+					file_selector(files[6]);
+					if (row == 9)
+					{
+						freeze_load(files[6]);
+					}
+					else if (row == 10)
+					{
+						freeze_save(files[6]);
+					}
+				}
+			}
+			break;
+		case 11:
 			if (joy.fire_)
 			{
 				done = 1;

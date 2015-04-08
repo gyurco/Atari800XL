@@ -246,6 +246,7 @@ int main(void)
 	fil_type_rom = "ROM";
 	fil_type_bin = "BIN";
 	fil_type_car = "CAR";
+	fil_type_mem = "MEM";
 
 	int i;
 	for (i=0; i!=NUM_FILES; ++i)

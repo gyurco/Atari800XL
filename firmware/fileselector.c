@@ -27,6 +27,7 @@ char const * fil_type;
 char const * fil_type_rom;
 char const * fil_type_bin;
 char const * fil_type_car;
+char const * fil_type_mem;
 int filter_specified(struct SimpleDirEntry * entry)
 {
 	if (dir_is_subdir(entry)) return 1;

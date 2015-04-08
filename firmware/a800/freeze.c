@@ -3,7 +3,6 @@
 #include "regs.h"
 #include "memory.h"
 
-unsigned char store_portb;
 unsigned volatile char * store_mem;
 unsigned volatile char * custom_mirror;
 unsigned volatile char * atari_base;
@@ -48,7 +47,7 @@ void freeze()
 {
 	int i;
 	// store custom chips
-	store_portb = *atari_portb;
+	store_mem[0xd300] = *atari_portb;
 	{
 		//backup last value written to custom chip regs
 		//gtia
@@ -110,6 +109,32 @@ void restore()
 		memcp8(store_mem,atari_base,0xd400,0x10);
 	}
 
-	*atari_portb = store_portb;
+	*atari_portb = store_mem[0xd300];
 }
+
+void freeze_save(struct SimpleFile * file)
+{
+	if (file_size(file)>=65536 && file_readonly(file)==0)
+	{
+		int byteswritten = 0;
+		file_write(file,(void *)store_mem,65536,&byteswritten);
+		file_write_flush();
+	}
+}
+void freeze_load(struct SimpleFile * file)
+{
+	if (file_size(file)>=65536)
+	{
+		int bytesread = 0;
+		file_read(file,(void *)store_mem,65536,&bytesread);
+	}
+}
+
+
+/*
+enum SimpleFileStatus file_read(struct SimpleFile * file, void * buffer, int bytes, int * bytesread);
+
+enum SimpleFileStatus file_write(struct SimpleFile * file, void * buffer, int bytes, int * byteswritten);
+enum SimpleFileStatus file_write_flush();
+*/
 
