@@ -223,10 +223,6 @@ ARCHITECTURE vhdl OF antic IS
 	signal playfield_dma_end : std_logic;
 	signal playfield_display_active_next : std_logic;
 	signal playfield_display_active_reg : std_logic;
-
-	signal playfield_dma_start_delayed : std_logic;
-	signal playfield_dma_start_shiftreg_next : std_logic_vector(4 downto 0);
-	signal playfield_dma_start_shiftreg_reg : std_logic_vector(4 downto 0); -- TODO length
 	
 	signal dmactl_raw_next : std_logic_vector(6 downto 0);
 	signal dmactl_raw_reg : std_logic_vector(6 downto 0);
@@ -568,8 +564,6 @@ BEGIN
 			penv_reg <= (others=>'0');
 			
 			colour_clock_count_reg <= (others=>'0');
-
-			playfield_dma_start_shiftreg_reg <= (others=>'0');
 			
 		elsif (clk'event and clk='1') then			
 			nmi_reg <= nmi_next;
@@ -646,8 +640,6 @@ BEGIN
 			penv_reg <= penv_next;
 			
 			colour_clock_count_reg <= colour_clock_count_next;
-
-			playfield_dma_start_shiftreg_reg <= playfield_dma_start_shiftreg_next;
 		end if;
 	end process;
 	
@@ -703,30 +695,26 @@ BEGIN
 		end if;
 	end process;
 	
-	process(colour_clock_half_x,colour_clock_1x,colour_clock_2x, colour_clock_4x, colour_clock_8x, dmactl_delayed_reg, playfield_dma_start_shiftreg_reg, playfield_dma_start_shiftreg_next)
+	process(colour_clock_half_x,colour_clock_1x,colour_clock_2x, colour_clock_4x, colour_clock_8x, dmactl_delayed_reg)
 	begin
 		enable_dma <= colour_clock_half_x;
 		colour_clock_selected <= colour_clock_1x;
 		colour_clock_selected_highres <= colour_clock_2x;		
 		dmactl_delayed_enabled <= '0';
-		playfield_dma_start_delayed <= '0';
 		
 		case dmactl_delayed_reg(6 downto 5) is
 		when "01" =>
 			dmactl_delayed_enabled <= '1';
-			playfield_dma_start_delayed <= playfield_dma_start_shiftreg_next(0);
 		when "10" =>
 			enable_dma <= colour_clock_1x;
 			colour_clock_selected <= colour_clock_2x;		
 			colour_clock_selected_highres <= colour_clock_4x;
 			dmactl_delayed_enabled <= '1';
-			playfield_dma_start_delayed <= playfield_dma_start_shiftreg_next(1); -- TODO
 		when "11" =>
 			enable_dma <= colour_clock_2x;
 			colour_clock_selected <= colour_clock_4x;
 			colour_clock_selected_highres <= colour_clock_8x;
 			dmactl_delayed_enabled <= '1';
-			playfield_dma_start_delayed <= playfield_dma_start_shiftreg_reg(4); -- TODO
 		when others =>
 			--nop
 		end case;		
@@ -893,12 +881,11 @@ BEGIN
 	end process;
 	
 	-- Actions done based on horizontal position - notably dma!
-	process (dmactl_delayed_enabled, hcount_reg, vcount_reg, vblank_reg, hblank_reg, dmactl_delayed_reg, playfield_dma_start_shiftreg_reg, playfield_dma_start_cycle, playfield_dma_end_cycle, playfield_display_start_cycle, playfield_display_end_cycle, instruction_final_row_reg, display_list_address_reg, pmbase_reg, first_line_of_instruction_reg, last_line_of_instruction_live, last_line_of_instruction_reg, instruction_type_reg, dma_clock_character_name, dma_clock_character_data, dma_clock_bitmap_data, allow_real_dma_reg, row_count_reg, dma_address_reg, memory_scan_address_reg, chbase_delayed_reg, line_buffer_data_out, enable_dma, colour_clock_1x, two_part_instruction_reg, dma_fetch_destination_reg, playfield_display_active_reg, character_reg, dma_clock_character_inc, single_colour_character_reg, twoline_character_reg, instruction_reg, dli_enabled_reg, refresh_fetch_next, chactl_reg, vscrol_enabled_reg, vscrol_last_enabled_reg,twopixel_reg,dli_nmi_reg,vbi_nmi_reg,displayed_character_reg)
+	process (dmactl_delayed_enabled, hcount_reg, vcount_reg, vblank_reg, hblank_reg, dmactl_delayed_reg, playfield_dma_start_cycle, playfield_dma_end_cycle, playfield_display_start_cycle, playfield_display_end_cycle, instruction_final_row_reg, display_list_address_reg, pmbase_reg, first_line_of_instruction_reg, last_line_of_instruction_live, last_line_of_instruction_reg, instruction_type_reg, dma_clock_character_name, dma_clock_character_data, dma_clock_bitmap_data, allow_real_dma_reg, row_count_reg, dma_address_reg, memory_scan_address_reg, chbase_delayed_reg, line_buffer_data_out, enable_dma, colour_clock_1x, two_part_instruction_reg, dma_fetch_destination_reg, playfield_display_active_reg, character_reg, dma_clock_character_inc, single_colour_character_reg, twoline_character_reg, instruction_reg, dli_enabled_reg, refresh_fetch_next, chactl_reg, vscrol_enabled_reg, vscrol_last_enabled_reg,twopixel_reg,dli_nmi_reg,vbi_nmi_reg,displayed_character_reg)
 	begin
 		allow_real_dma_next <= allow_real_dma_reg;
 
 		playfield_dma_start <= '0';
-		playfield_dma_start_shiftreg_next <= playfield_dma_start_shiftreg_reg;
 		playfield_dma_end <= '0';
 		playfield_display_active_next <= playfield_display_active_reg;
 		
@@ -936,42 +923,11 @@ BEGIN
 		
 		update_row_count <= '0'; 
 		vscrol_last_enabled_next <= vscrol_last_enabled_reg;
-
-		if (dma_clock_character_data = '1') then -- Final cycle of this is cycle 114 (0 based) - aka cycle 0... Which clashes with pmg dma.
-			if (dmactl_delayed_enabled='1' and instruction_type_reg = mode_character) then -- Sooo only enable, never disable
-				dma_fetch_request <= '1';
-			end if;				
-
-			if (twoline_character_reg='1') then
-				if (single_colour_character_reg='1') then
-					dma_address_next <= chbase_delayed_reg(7 downto 1)&character_reg(5 downto 0)&(row_count_reg(3 downto 1)xor chactl_reg(2)&chactl_reg(2)&chactl_reg(2));
-				else
-					dma_address_next <= chbase_delayed_reg(7 downto 2)&character_reg(6 downto 0)&(row_count_reg(3 downto 1)xor chactl_reg(2)&chactl_reg(2)&chactl_reg(2));
-				end if;
-			else
-				if (single_colour_character_reg='1') then
-					dma_address_next <= chbase_delayed_reg(7 downto 1)&character_reg(5 downto 0)&(row_count_reg(2 downto 0)xor chactl_reg(2)&chactl_reg(2)&chactl_reg(2));
-				else
-					dma_address_next <= chbase_delayed_reg(7 downto 2)&character_reg(6 downto 0)&(row_count_reg(2 downto 0)xor chactl_reg(2)&chactl_reg(2)&chactl_reg(2));
-				end if;
-			end if;
-
-			displayed_character_next <= character_reg;
-			
-			-- TODO
-			-- Logic depends on mode - e.g. some 128 char, some 64 char etc. Line count is complex, depends on vscrol etc.				
-			dma_fetch_destination_next <= dma_fetch_shiftreg;
-			
-			load_display_shift_from_line_buffer <= to_std_logic(instruction_type_reg = mode_bitmap);								
-			increment_line_buffer_address <= '1';
-		end if;						
 	
 		if (colour_clock_1x = '1') then	
-			playfield_dma_start_shiftreg_next <= playfield_dma_start_shiftreg_reg(3 downto 0)&'0';
-
 			-- Playfield start/end
 			if (unsigned(hcount_reg) = (unsigned(playfield_dma_start_cycle))) then
-				playfield_dma_start_shiftreg_next(0) <= '1';
+				playfield_dma_start <= '1';				
 				load_line_buffer_address <= '1';
 			end if;
 			
@@ -986,6 +942,35 @@ BEGIN
 			if (hcount_reg = playfield_display_end_cycle) then
 				playfield_display_active_next <= '0';
 			end if;	
+
+			if (dma_clock_character_data = '1') then -- Final cycle of this is cycle 114 (0 based) - aka cycle 0... Which clashes with pmg dma.
+				if (dmactl_delayed_enabled='1' and instruction_type_reg = mode_character) then -- Sooo only enable, never disable
+					dma_fetch_request <= '1';
+				end if;				
+
+				if (twoline_character_reg='1') then
+					if (single_colour_character_reg='1') then
+						dma_address_next <= chbase_delayed_reg(7 downto 1)&character_reg(5 downto 0)&(row_count_reg(3 downto 1)xor chactl_reg(2)&chactl_reg(2)&chactl_reg(2));
+					else
+						dma_address_next <= chbase_delayed_reg(7 downto 2)&character_reg(6 downto 0)&(row_count_reg(3 downto 1)xor chactl_reg(2)&chactl_reg(2)&chactl_reg(2));
+					end if;
+				else
+					if (single_colour_character_reg='1') then
+						dma_address_next <= chbase_delayed_reg(7 downto 1)&character_reg(5 downto 0)&(row_count_reg(2 downto 0)xor chactl_reg(2)&chactl_reg(2)&chactl_reg(2));
+					else
+						dma_address_next <= chbase_delayed_reg(7 downto 2)&character_reg(6 downto 0)&(row_count_reg(2 downto 0)xor chactl_reg(2)&chactl_reg(2)&chactl_reg(2));
+					end if;
+				end if;
+
+				displayed_character_next <= character_reg;
+				
+				-- TODO
+				-- Logic depends on mode - e.g. some 128 char, some 64 char etc. Line count is complex, depends on vscrol etc.				
+				dma_fetch_destination_next <= dma_fetch_shiftreg;
+				
+				load_display_shift_from_line_buffer <= to_std_logic(instruction_type_reg = mode_bitmap);								
+				increment_line_buffer_address <= '1';
+			end if;						
 		
 			case hcount_reg is 		
 				when X"00" => -- missile DMA, if missile or player DMA enabled					
@@ -1084,34 +1069,35 @@ BEGIN
 				when others =>
 					-- nothing
 			end case;	
-		end if;
 			
-		-- Playfield DMA
-		if (instruction_type_reg = mode_character and dma_clock_character_name = '1') then -- for character name
-			dma_fetch_request <= dmactl_delayed_enabled and first_line_of_instruction_reg;
-			dma_address_next <= memory_scan_address_reg;
-			dma_fetch_destination_next <= dma_fetch_line_buffer;
-			increment_memory_scan_address <= first_line_of_instruction_reg;
-		end if;					
+			-- Playfield DMA
+			if (instruction_type_reg = mode_character and dma_clock_character_name = '1') then -- for character name
+				dma_fetch_request <= dmactl_delayed_enabled and first_line_of_instruction_reg;
+				dma_address_next <= memory_scan_address_reg;
+				dma_fetch_destination_next <= dma_fetch_line_buffer;
+				increment_memory_scan_address <= first_line_of_instruction_reg;
+			end if;					
+			
+			if (instruction_type_reg = mode_character and dma_clock_character_inc = '1') then -- next character
+				character_next <= line_buffer_data_out;
+				increment_line_buffer_address <= '1';
+			end if;
+			
+			if (instruction_type_reg = mode_bitmap and dma_clock_bitmap_data = '1' and first_line_of_instruction_reg='1') then -- bitmap data			
+				dma_fetch_request <= dmactl_delayed_enabled;
+				dma_address_next <= memory_scan_address_reg;
+				dma_fetch_destination_next <= dma_fetch_line_buffer;
+				increment_memory_scan_address <= '1';		
+			end if;
+			
+			if (vblank_reg = '1') then
+				dma_fetch_request <= '0';
+			end if;
+			
+			if (refresh_fetch_next = '1') then
+				dma_address_next <= (others=>'0');
+			end if;
 		
-		if (instruction_type_reg = mode_character and dma_clock_character_inc = '1') then -- next character
-			character_next <= line_buffer_data_out;
-			increment_line_buffer_address <= '1';
-		end if;
-		
-		if (instruction_type_reg = mode_bitmap and dma_clock_bitmap_data = '1' and first_line_of_instruction_reg='1') then -- bitmap data			
-			dma_fetch_request <= dmactl_delayed_enabled;
-			dma_address_next <= memory_scan_address_reg;
-			dma_fetch_destination_next <= dma_fetch_line_buffer;
-			increment_memory_scan_address <= '1';		
-		end if;
-		
-		if (vblank_reg = '1') then
-			dma_fetch_request <= '0';
-		end if;
-		
-		if (refresh_fetch_next = '1') then
-			dma_address_next <= (others=>'0');
 		end if;
 	end process;
 	
@@ -1183,7 +1169,7 @@ BEGIN
 	end process;
 	
 	antic_dma_clock1 : antic_dma_clock
-		port map (clk=>clk, reset_n=>reset_n,enable_dma=>enable_dma, playfield_start=>playfield_dma_start_delayed,playfield_end=>playfield_dma_end,vblank=>vblank_reg,slow_dma=>slow_dma_s,medium_dma=>medium_dma_s,fast_dma=>fast_dma_s,dma_clock_out_0=>dma_clock_character_name,dma_clock_out_1=>dma_clock_character_inc,dma_clock_out_2=>dma_clock_bitmap_data,dma_clock_out_3=>dma_clock_character_data);
+		port map (clk=>clk, reset_n=>reset_n,enable_dma=>enable_dma, playfield_start=>playfield_dma_start,playfield_end=>playfield_dma_end,vblank=>vblank_reg,slow_dma=>slow_dma_s,medium_dma=>medium_dma_s,fast_dma=>fast_dma_s,dma_clock_out_0=>dma_clock_character_name,dma_clock_out_1=>dma_clock_character_inc,dma_clock_out_2=>dma_clock_bitmap_data,dma_clock_out_3=>dma_clock_character_data);
 
 	-- line buffer
 	reg_file1 : reg_file
