@@ -90,7 +90,7 @@ ARCHITECTURE vhdl OF ps2_keyboard IS
 	
 	signal last_ps2_clk_next : std_logic;
 	signal last_ps2_clk_reg : std_logic;
-	
+
 	signal ps2_clk_reg : std_logic;
 	signal ps2_dat_reg : std_logic;
 	
@@ -122,13 +122,27 @@ ARCHITECTURE vhdl OF ps2_keyboard IS
 	signal key_value_last_reg : std_logic_vector(9 downto 0);
 	
 BEGIN
+
+sync_clk: ENTITY work.synchronizer 
+	PORT MAP
+	( 
+		CLK => CLK,
+		RAW => PS2_CLK,
+		SYNC => PS2_CLK_REG
+	);
+
+sync_dat: ENTITY work.synchronizer 
+	PORT MAP
+	( 
+		CLK => CLK,
+		RAW => PS2_DAT,
+		SYNC => PS2_DAT_REG
+	);
+
 	-- register
 	process(clk,reset_n)
 	begin
 		if (reset_n = '0') then
-			ps2_clk_reg <= '0';
-			ps2_dat_reg <= '0';
-			
 			-- Convert to bytes/verify
 			last_ps2_clk_reg <= '0';
 			
@@ -149,11 +163,6 @@ BEGIN
 			
 			key_value_last_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then
-			-- Raw interface
-			-- async - do we need some form of synchronizer?
-			ps2_clk_reg <= ps2_clk;
-			ps2_dat_reg <= ps2_dat;
-			
 			-- Convert to bytes/verify
 			last_ps2_clk_reg <= last_ps2_clk_next;
 			
