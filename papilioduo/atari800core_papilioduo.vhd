@@ -32,10 +32,10 @@ ENTITY atari800core_papilioduo IS
 		EXT_CLK : in std_logic_vector(ext_clock downto 1);
                 EXT_PLL_LOCKED : in std_logic_vector(ext_clock downto 1);
 
-		PS2_CLK2 :  IN  STD_LOGIC;
-		PS2_DAT2 :  IN  STD_LOGIC;
-		--PS2_CLK1 :  IN  STD_LOGIC;
-		--PS2_DAT1 :  IN  STD_LOGIC;
+		--PS2_CLK2 :  IN  STD_LOGIC;
+		--PS2_DAT2 :  IN  STD_LOGIC;
+		PS2_CLK1 :  IN  STD_LOGIC;
+		PS2_DAT1 :  IN  STD_LOGIC;
 --NET PS2_DAT1      LOC="P120" | IOSTANDARD=LVTTL;                                # A4
 --NET PS2_CLK1      LOC="P121" | IOSTANDARD=LVTTL;                                # A5
 
@@ -281,12 +281,12 @@ end component;
 	signal ram_width32bit : std_logic;
 BEGIN 
 
-ARDUINO_RESET <= '0'; -- hold arduino in reset for now
+ARDUINO_RESET <= '1'; -- force arduino out of reset, when its reset some of our input pins are screwed up
 
 LED1 <= '1';
-LED2 <= '0';
-LED3 <= '1';
-LED4 <= '0';
+LED2 <= not(zpu_sio_command);
+LED3 <= not(zpu_sio_txd);
+LED4 <= not(zpu_sio_rxd);
 
 dac : hq_dac
 port map
@@ -394,10 +394,8 @@ keyboard_map1 : entity work.ps2_to_atari800
 	( 
 		CLK => clk,
 		RESET_N => reset_n,
-		--PS2_CLK => PS2_CLK1,
-		--PS2_DAT => PS2_DAT1,
-		PS2_CLK => PS2_CLK2, -- First port seems to have issues, use 2nd for now
-		PS2_DAT => PS2_DAT2,
+		PS2_CLK => PS2_CLK1,
+		PS2_DAT => PS2_DAT1,
 
 		INPUT => zpu_out4,
 		

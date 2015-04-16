@@ -15,8 +15,8 @@ NET ARDUINO_RESET LOC="P139" | IOSTANDARD=LVTTL;                                
 #NET RS232_TX      LOC="P117" | IOSTANDARD=LVTTL;                                # A1
 NET SD_MISO       LOC="P118" | IOSTANDARD=LVTTL;                                # A2
 NET SD_CD         LOC="P119" | IOSTANDARD=LVTTL;                                # A3
-#NET PS2_DAT1      LOC="P120" | IOSTANDARD=LVTTL;                                # A4
-#NET PS2_CLK1      LOC="P121" | IOSTANDARD=LVTTL;                                # A5
+NET PS2_DAT1      LOC="P120" | IOSTANDARD=LVTTL;                                # A4
+NET PS2_CLK1      LOC="P121" | IOSTANDARD=LVTTL;                                # A5
 NET JOYSTICK1_5   LOC="P123" | IOSTANDARD=LVTTL;                                # A6
 NET JOYSTICK1_9   LOC="P124" | IOSTANDARD=LVTTL;                                # A7
 NET JOYSTICK1_4   LOC="P126" | IOSTANDARD=LVTTL;                                # A8
@@ -57,8 +57,8 @@ NET JOYSTICK2_1   LOC="P84"  | IOSTANDARD=LVTTL | DRIVE=8 | SLEW=FAST;          
 NET JOYSTICK2_6   LOC="P82"  | IOSTANDARD=LVTTL | DRIVE=8 | SLEW=FAST;          # D5
 NET JOYSTICK2_7   LOC="P80"  | IOSTANDARD=LVTTL | DRIVE=8 | SLEW=FAST;          # D6
 NET JOYSTICK2_9   LOC="P78"  | IOSTANDARD=LVTTL | DRIVE=8 | SLEW=FAST;          # D7
-NET PS2_CLK2      LOC="P74"  | IOSTANDARD=LVTTL | DRIVE=8 | SLEW=FAST;          # D8
-NET PS2_DAT2      LOC="P66"  | IOSTANDARD=LVTTL | DRIVE=8 | SLEW=FAST;          # D9
+#NET PS2_CLK2      LOC="P74"  | IOSTANDARD=LVTTL | DRIVE=8 | SLEW=FAST;          # D8
+#NET PS2_DAT2      LOC="P66"  | IOSTANDARD=LVTTL | DRIVE=8 | SLEW=FAST;          # D9
 #NET AUDIO2_RIGHT  LOC="P61"  | IOSTANDARD=LVTTL | DRIVE=8 | SLEW=FAST;          # D10
 #NET AUDIO2_LEFT   LOC="P58"  | IOSTANDARD=LVTTL | DRIVE=8 | SLEW=FAST;          # D11
 NET LED1          LOC="P56"  | IOSTANDARD=LVTTL | DRIVE=8 | SLEW=FAST;          # D12
