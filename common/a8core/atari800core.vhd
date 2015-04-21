@@ -101,6 +101,8 @@ ENTITY atari800core IS
 		-- SIO
 		SIO_RXD : in std_logic;
 		SIO_TXD : out std_logic;
+		SIO_CLOCKIN : in std_logic :='1';
+		SIO_CLOCKOUT : out std_logic;
 		-- SIO_COMMAND_TX - see PIA PB2
 		-- TODO CLOCK IN/CLOCK OUT (unused almost everywhere...)
 
@@ -509,6 +511,7 @@ PORT MAP(CLK => CLK,
 		 SIO_IN1 => SIO_RXD,
 		 SIO_IN2 => '1',
 		 SIO_IN3 => '1',
+		 SIO_CLOCKIN => SIO_CLOCKIN,
 		 ADDR => PBI_ADDR_INT(3 DOWNTO 0),
 		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		 keyboard_response => KEYBOARD_RESPONSE,
@@ -517,6 +520,7 @@ PORT MAP(CLK => CLK,
 		 SIO_OUT1 => SIO_TXD,
 		 SIO_OUT2 => open,
 		 SIO_OUT3 => open,
+		 SIO_CLOCKOUT => SIO_CLOCKOUT,
 		 POT_RESET => POT_RESET,
 		 CHANNEL_0_OUT => POKEY1_CHANNEL0,
 		 CHANNEL_1_OUT => POKEY1_CHANNEL1,

@@ -172,6 +172,9 @@ ARCHITECTURE vhdl OF atari800core_de1 IS
 
 	SIGNAL GPIO_SIO_RXD : std_logic;
 
+	SIGNAL SIO_CLOCKOUT : std_logic;
+	SIGNAL SIO_CLOCKIN : std_logic;
+
 	-- VIDEO
 	signal VGA_VS_RAW : std_logic;
 	signal VGA_HS_RAW : std_logic;
@@ -355,10 +358,6 @@ PORT MAP(CLK_SYSTEM => CLK,
 		 );
 
 -- PIA mapping
-CA1_IN <= '1';
-CB1_IN <= '1';
-CA2_IN <= CA2_OUT when CA2_DIR_OUT='1' else '1';
-CB2_IN <= CB2_OUT when CB2_DIR_OUT='1' else '1';
 SIO_COMMAND <= CB2_OUT;
 --PORTA_IN <= ((JOY2_n(3)&JOY2_n(2)&JOY2_n(1)&JOY2_n(0)&JOY1_n(3)&JOY1_n(2)&JOY1_n(1)&JOY1_n(0)) and not (porta_dir_out)) or (porta_dir_out and porta_out);
 --PORTA_IN <= (not (porta_dir_out)) or (porta_dir_out and porta_out);
@@ -457,6 +456,11 @@ PORT MAP(clk => CLK,
 		 SIO_IN => GPIO_SIO_RXD,
 		 SIO_OUT => SIO_TXD
 		 );
+
+	CA1_IN <= '1';
+	CB1_IN <= '1';
+	CA2_IN <= CA2_OUT when CA2_DIR_OUT='1' else '1';
+	CB2_IN <= CB2_OUT when CB2_DIR_OUT='1' else '1';
 end generate gen_old_gpio;
 
 gen_new_gpio : if gpio=2 generate
@@ -496,12 +500,14 @@ PORT MAP(clk => CLK,
 		 trig_in => TRIGGERS,
 		 CA2_DIR_OUT => CA2_DIR_OUT,
 		 CA2_OUT => CA2_OUT,
-		 CA2_IN => open,
+		 CA2_IN => CA2_IN,
 		 CB2_DIR_OUT => CB2_DIR_OUT,
 		 CB2_OUT => CB2_OUT,
-		 CB2_IN => open,
+		 CB2_IN => CB2_IN,
 		 SIO_IN => GPIO_SIO_RXD,
-		 SIO_OUT => SIO_TXD
+		 SIO_OUT => SIO_TXD,
+		 SIO_CLOCKIN => SIO_CLOCKIN,
+		 SIO_CLOCKOUT => SIO_CLOCKOUT
 		 );
 end generate gen_new_gpio;
 
@@ -620,7 +626,7 @@ UART_TXD <= SIO_TXD;
 
 zpu_sio_command <= SIO_COMMAND;
 zpu_sio_rxd <= SIO_TXD;
-SIO_RXD <= zpu_sio_txd and UART_RXD;
+SIO_RXD <= zpu_sio_txd and UART_RXD and GPIO_SIO_RXD;
 
 -- VIDEO
 --VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
@@ -690,6 +696,9 @@ atari800 : entity work.atari800core
 
 		SIO_RXD => SIO_RXD,
 		SIO_TXD => SIO_TXD,
+
+		SIO_CLOCKIN => SIO_CLOCKIN,
+		SIO_CLOCKOUT => SIO_CLOCKOUT,
 
 		CONSOL_OPTION => CONSOL_OPTION,
 		CONSOL_SELECT => CONSOL_SELECT,

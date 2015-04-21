@@ -25,9 +25,11 @@ port
 	porta_in : out std_logic_vector(7 downto 0);
 	porta_out : in std_logic_vector(7 downto 0);
 	porta_output : in std_logic_vector(7 downto 0);
+	CA1_IN : OUT STD_LOGIC;
 	CA2_DIR_OUT : IN std_logic;
 	CA2_OUT : IN std_logic;
 	CA2_IN : OUT STD_LOGIC;
+	CB1_IN : OUT STD_LOGIC;
 	CB2_DIR_OUT : IN std_logic;
 	CB2_OUT : IN std_logic;
 	CB2_IN : OUT STD_LOGIC;
@@ -45,6 +47,8 @@ port
 	keyboard_response : out std_logic_vector(1 downto 0);
 	SIO_IN : OUT STD_LOGIC;
 	SIO_OUT : IN STD_LOGIC;
+	SIO_CLOCKIN : OUT STD_LOGIC;
+	SIO_CLOCKOUT : IN STD_LOGIC;
 	
 	-- cartridge
 	enable_179_early : in std_logic;
@@ -107,56 +111,67 @@ architecture vhdl of gpiov2 is
 begin	
 -- OUTPUTS TO GPIO
 	-- unused
-	GPIO_0_DIR_OUT(35 downto 4) <= (others=>'0');
-	GPIO_0_OUT(35 downto 4) <= (others=>'0');
+	--GPIO_0_DIR_OUT(35 downto 4) <= (others=>'0');
+	GPIO_0_OUT(35 downto 0) <= (others=>'0');
 	
 	-- sio
-	GPIO_0_DIR_OUT(0) <= CA2_dir_out;
-	GPIO_0_OUT(0) <= CA2_out;
-	GPIO_0_DIR_OUT(1) <= CB2_dir_out;
-	GPIO_0_OUT(1) <= CB2_out;
-	GPIO_0_DIR_OUT(2) <= '1';
-	GPIO_0_OUT(2) <= SIO_OUT;
-	GPIO_0_DIR_OUT(3) <= '0';
-	GPIO_0_OUT(3) <= '0';
+	--CB1=SIO_IRQ
+	--CB2=SIO_COMMAND
+	--CA1=SIO_PROCEED
+	--CA2=SIO_MOTOR_RAW
+
+	GPIO_0_DIR_OUT(0) <= '0';
+	GPIO_0_DIR_OUT(1) <= CB2_dir_out and not(CB2_OUT) and gpio_enable;
+	GPIO_0_DIR_OUT(2) <= '0';
+	GPIO_0_DIR_OUT(3) <= CA2_dir_out and not(CA2_OUT) and gpio_enable;
+	GPIO_0_DIR_OUT(4) <= not(SIO_OUT) and gpio_enable;
+	GPIO_0_DIR_OUT(5) <= '0';
+	GPIO_0_DIR_OUT(6) <= not(SIO_CLOCKOUT) and gpio_enable;
+	GPIO_0_DIR_OUT(7) <= '0';
 	
-	GPIO_0_DIR_OUT(4) <= 'Z';
-	GPIO_0_OUT(4) <= '0'; -- zpu output for logic analyzer
-	
-	CA2_in <= GPIO_0_IN(0);
+	CB1_in <= GPIO_0_IN(0);
 	CB2_in <= GPIO_0_IN(1);
-	SIO_IN <= GPIO_0_IN(3);
+	CA1_in <= GPIO_0_IN(2);
+	CA2_in <= GPIO_0_IN(3);
+	SIO_IN <= GPIO_0_IN(5);
+	SIO_CLOCKIN <= GPIO_0_IN(7);
 	
 	-- sticks
-	--GPIO_0_OUT(35 downto 19) <= (others=>'0');
-	--GPIO_0_DIR_OUT(35) <= '0'; -- trig 0
-	--GPIO_0_DIR_OUT(34) <= gpio_enable and porta_output(0) and not(porta_out(0)); -- stick 0
-	--GPIO_0_DIR_OUT(33) <= '0';
-	--GPIO_0_DIR_OUT(32) <= gpio_enable and porta_output(1) and not(porta_out(1)); -- stick 0
-	--GPIO_0_DIR_OUT(31) <= '0';
-	--GPIO_0_DIR_OUT(30) <= gpio_enable and porta_output(2) and not(porta_out(2)); -- stick 0
-	--GPIO_0_DIR_OUT(29) <= gpio_enable and pot_reset;
-	--GPIO_0_DIR_OUT(28) <= gpio_enable and porta_output(3) and not(porta_out(3)); -- stick 0
-	--GPIO_0_DIR_OUT(27) <= gpio_enable and pot_reset;
-	--GPIO_0_DIR_OUT(26) <= gpio_enable and pot_reset;
-	--GPIO_0_DIR_OUT(25) <= '0'; -- trig 1
-	--GPIO_0_DIR_OUT(24) <= gpio_enable and porta_output(4) and not(porta_out(4)); -- stick 1
-	--GPIO_0_DIR_OUT(23) <= gpio_enable and porta_output(7) and not(porta_out(7)); -- stick 1
-	--GPIO_0_DIR_OUT(22) <= gpio_enable and porta_output(5) and not(porta_out(5)); -- stick 1
-	--GPIO_0_DIR_OUT(21) <= gpio_enable and pot_reset;
-	--GPIO_0_DIR_OUT(20) <= gpio_enable and porta_output(6) and not(porta_out(6)); -- stick 1
-	--GPIO_0_DIR_OUT(19 downto 8) <= (others=>'0');
+	-- PORTA7,6,5,4,TRIG1,POT3,2,1,0,PORTA3,2,1,0,TRIG0
+	GPIO_0_DIR_OUT(8) <= gpio_enable and porta_output(7) and not(porta_out(7)); -- stick
+	GPIO_0_DIR_OUT(9) <= gpio_enable and porta_output(6) and not(porta_out(6)); -- stick
+	GPIO_0_DIR_OUT(10) <= gpio_enable and porta_output(5) and not(porta_out(5)); -- stick
+	GPIO_0_DIR_OUT(11) <= gpio_enable and porta_output(4) and not(porta_out(4)); -- stick
+	GPIO_0_DIR_OUT(17) <= gpio_enable and porta_output(3) and not(porta_out(3)); -- stick
+	GPIO_0_DIR_OUT(18) <= gpio_enable and porta_output(2) and not(porta_out(2)); -- stick
+	GPIO_0_DIR_OUT(19) <= gpio_enable and porta_output(1) and not(porta_out(1)); -- stick
+	GPIO_0_DIR_OUT(20) <= gpio_enable and porta_output(0) and not(porta_out(0)); -- stick
+
+	GPIO_0_DIR_OUT(12) <= '0'; -- trig
+	GPIO_0_DIR_OUT(21) <= '0'; -- trig
+
+	GPIO_0_DIR_OUT(13) <= gpio_enable and pot_reset;
+	GPIO_0_DIR_OUT(14) <= gpio_enable and pot_reset;
+	GPIO_0_DIR_OUT(15) <= gpio_enable and pot_reset;
+	GPIO_0_DIR_OUT(16) <= gpio_enable and pot_reset;
+
+	-- ext
+	GPIO_0_DIR_OUT(22) <= '0';
+	GPIO_0_DIR_OUT(23) <= '0';
+	GPIO_0_DIR_OUT(24) <= '0';
+	GPIO_0_DIR_OUT(25) <= '0';
+	GPIO_0_DIR_OUT(26) <= '0';
+	GPIO_0_DIR_OUT(27) <= '0';
 	
 	-- keyboard
-	--GPIO_0_OUT(7 downto 0) <= (others=>'0');
-	--GPIO_0_DIR_OUT(7) <= '0'; -- keyboard response 2
-	--GPIO_0_DIR_OUT(6) <= '0'; -- keyboard response 1
-	--GPIO_0_DIR_OUT(5) <= gpio_enable and not(keyboard_scan(5)); -- keyboard scan 5
-	--GPIO_0_DIR_OUT(4) <= gpio_enable and not(keyboard_scan(4)); -- keyboard scan 4
-	--GPIO_0_DIR_OUT(3) <= gpio_enable and not(keyboard_scan(3)); -- keyboard scan 3
-	--GPIO_0_DIR_OUT(2) <= gpio_enable and not(keyboard_scan(2)); -- keyboard scan 2
-	--GPIO_0_DIR_OUT(1) <= gpio_enable and not(keyboard_scan(1)); -- keyboard scan 1
-	--GPIO_0_DIR_OUT(0) <= gpio_enable and not(keyboard_scan(0)); -- keyboard scan 0
+	GPIO_0_DIR_OUT(28) <= gpio_enable and not(keyboard_scan(2)); -- keyboard scan 2
+	GPIO_0_DIR_OUT(29) <= gpio_enable and not(keyboard_scan(1)); -- keyboard scan 1
+	GPIO_0_DIR_OUT(30) <= gpio_enable and not(keyboard_scan(0)); -- keyboard scan 0
+	GPIO_0_DIR_OUT(31) <= '0'; -- keyboard response 1
+	GPIO_0_DIR_OUT(32) <= gpio_enable and not(keyboard_scan(5)); -- keyboard scan 5
+	GPIO_0_DIR_OUT(33) <= gpio_enable and not(keyboard_scan(4)); -- keyboard scan 4
+	GPIO_0_DIR_OUT(34) <= gpio_enable and not(keyboard_scan(3)); -- keyboard scan 3
+	GPIO_0_DIR_OUT(35) <= '0'; -- keyboard response 2
 	
 	-- cart
 	GPIO_1_DIR_OUT(0) <= gpio_enable and bus_control_oe; -- cart control
@@ -236,55 +251,50 @@ begin
 	
 -- INPUTS FROM GPIO	
 	-- sticks
---	pot_in_async <= 
---					gpio_enable&gpio_enable&gpio_enable&gpio_enable&gpio_enable&gpio_enable&gpio_enable&gpio_enable and 
---					("0000"&
---					GPIO_1_IN(27)&GPIO_1_IN(21)& -- 32/24
---					GPIO_1_IN(26)&GPIO_1_IN(29)); -- 31/34
---	pot_in0_synchronizer : synchronizer
---		port map (clk=>clk, raw=>pot_in_async(0), sync=>pot_in(0));						
---	pot_in1_synchronizer : synchronizer
---		port map (clk=>clk, raw=>pot_in_async(1), sync=>pot_in(1));						
---	pot_in2_synchronizer : synchronizer
---		port map (clk=>clk, raw=>pot_in_async(2), sync=>pot_in(2));						
---	pot_in3_synchronizer : synchronizer
---		port map (clk=>clk, raw=>pot_in_async(3), sync=>pot_in(3));							
---	pot_in4_synchronizer : synchronizer
---		port map (clk=>clk, raw=>pot_in_async(4), sync=>pot_in(4));						
---	pot_in5_synchronizer : synchronizer
---		port map (clk=>clk, raw=>pot_in_async(5), sync=>pot_in(5));						
---	pot_in6_synchronizer : synchronizer
---		port map (clk=>clk, raw=>pot_in_async(6), sync=>pot_in(6));						
---	pot_in7_synchronizer : synchronizer
---		port map (clk=>clk, raw=>pot_in_async(7), sync=>pot_in(7));								
-	pot_in(7 downto 0) <= (others=>'0');
+	pot_in_async <= 
+					gpio_enable&gpio_enable&gpio_enable&gpio_enable&gpio_enable&gpio_enable&gpio_enable&gpio_enable and 
+					("0000"&
+					GPIO_0_IN(13)&GPIO_0_IN(14)&
+					GPIO_0_IN(15)&GPIO_0_IN(16));
+	pot_in0_synchronizer : synchronizer
+		port map (clk=>clk, raw=>pot_in_async(0), sync=>pot_in(0));						
+	pot_in1_synchronizer : synchronizer
+		port map (clk=>clk, raw=>pot_in_async(1), sync=>pot_in(1));						
+	pot_in2_synchronizer : synchronizer
+		port map (clk=>clk, raw=>pot_in_async(2), sync=>pot_in(2));						
+	pot_in3_synchronizer : synchronizer
+		port map (clk=>clk, raw=>pot_in_async(3), sync=>pot_in(3));							
+	pot_in4_synchronizer : synchronizer
+		port map (clk=>clk, raw=>pot_in_async(4), sync=>pot_in(4));						
+	pot_in5_synchronizer : synchronizer
+		port map (clk=>clk, raw=>pot_in_async(5), sync=>pot_in(5));						
+	pot_in6_synchronizer : synchronizer
+		port map (clk=>clk, raw=>pot_in_async(6), sync=>pot_in(6));						
+	pot_in7_synchronizer : synchronizer
+		port map (clk=>clk, raw=>pot_in_async(7), sync=>pot_in(7));								
+	porta_in_async <= 
+					GPIO_0_IN(8)&GPIO_0_IN(9)&GPIO_0_IN(10)&GPIO_0_IN(11)& 
+					GPIO_0_IN(17)&GPIO_0_IN(18)&GPIO_0_IN(19)&GPIO_0_IN(20); 
+	porta_in0_synchronizer : synchronizer
+		port map (clk=>clk, raw=>porta_in_async(0), sync=>porta_in_gpio(0));						
+	porta_in1_synchronizer : synchronizer
+		port map (clk=>clk, raw=>porta_in_async(1), sync=>porta_in_gpio(1));						
+	porta_in2_synchronizer : synchronizer
+		port map (clk=>clk, raw=>porta_in_async(2), sync=>porta_in_gpio(2));						
+	porta_in3_synchronizer : synchronizer
+		port map (clk=>clk, raw=>porta_in_async(3), sync=>porta_in_gpio(3));						
+	porta_in4_synchronizer : synchronizer
+		port map (clk=>clk, raw=>porta_in_async(4), sync=>porta_in_gpio(4));						
+	porta_in5_synchronizer : synchronizer
+		port map (clk=>clk, raw=>porta_in_async(5), sync=>porta_in_gpio(5));						
+	porta_in6_synchronizer : synchronizer
+		port map (clk=>clk, raw=>porta_in_async(6), sync=>porta_in_gpio(6));						
+	porta_in7_synchronizer : synchronizer
+		port map (clk=>clk, raw=>porta_in_async(7), sync=>porta_in_gpio(7));
 		
---	porta_in_async <= 
---					GPIO_1_IN(23)&GPIO_1_IN(20)&GPIO_1_IN(22)&GPIO_1_IN(24)& -- 27/25/23/26
---					GPIO_1_IN(28)&GPIO_1_IN(30)&GPIO_1_IN(32)&GPIO_1_IN(34); -- 39/37/35/33					
---	porta_in0_synchronizer : synchronizer
---		port map (clk=>clk, raw=>porta_in_async(0), sync=>porta_in_gpio(0));						
---	porta_in1_synchronizer : synchronizer
---		port map (clk=>clk, raw=>porta_in_async(1), sync=>porta_in_gpio(1));						
---	porta_in2_synchronizer : synchronizer
---		port map (clk=>clk, raw=>porta_in_async(2), sync=>porta_in_gpio(2));						
---	porta_in3_synchronizer : synchronizer
---		port map (clk=>clk, raw=>porta_in_async(3), sync=>porta_in_gpio(3));						
---	porta_in4_synchronizer : synchronizer
---		port map (clk=>clk, raw=>porta_in_async(4), sync=>porta_in_gpio(4));						
---	porta_in5_synchronizer : synchronizer
---		port map (clk=>clk, raw=>porta_in_async(5), sync=>porta_in_gpio(5));						
---	porta_in6_synchronizer : synchronizer
---		port map (clk=>clk, raw=>porta_in_async(6), sync=>porta_in_gpio(6));						
---	porta_in7_synchronizer : synchronizer
---		port map (clk=>clk, raw=>porta_in_async(7), sync=>porta_in_gpio(7));
---		
---	porta_in(7 downto 4) <= porta_in_gpio(7 downto 4);
---	porta_in(3 downto 0) <= porta_in_gpio(3 downto 0);
-	porta_in(7 downto 0) <= (others=>'1');
+	porta_in(7 downto 0) <= porta_in_gpio(7 downto 0);
 		
---	trig_in_async <= (not(gpio_enable&gpio_enable&"11") or (rd5_async&"1"&GPIO_1_IN(25)&GPIO_1_IN(35)));	-- 28/40
-	trig_in_async <= (not(gpio_enable&gpio_enable&"11") or (rd5_async&"111"));
+	trig_in_async <= (not(gpio_enable&gpio_enable&"11") or (rd5_async&"1"&GPIO_0_IN(12)&GPIO_0_IN(21)));
 	trig_in0_synchronizer : synchronizer
 		port map (clk=>clk, raw=>trig_in_async(0), sync=>trig_in_sync(0));							
 	trig_in1_synchronizer : synchronizer
@@ -299,8 +309,7 @@ begin
 	lightpen <= trig_in_sync(0) and trig_in_sync(1); -- either joystick button				
 	
 	-- keyboard
-	--keyboard_response_async <= not(gpio_enable&gpio_enable) or (GPIO_1_IN(7)& GPIO_1_IN(6));
-	keyboard_response_async <= "11";
+	keyboard_response_async <= not(gpio_enable&gpio_enable) or (GPIO_0_IN(35)& GPIO_0_IN(31));
 	keyboard_response1_synchronizer : synchronizer
 		port map (clk=>clk, raw=>keyboard_response_async(0), sync=>keyboard_response_gpio(0));						
 	keyboard_response2_synchronizer : synchronizer

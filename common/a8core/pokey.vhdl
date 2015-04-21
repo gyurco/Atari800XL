@@ -47,7 +47,8 @@ PORT
 	SIO_OUT2 : OUT std_logic;
 	SIO_OUT3 : OUT std_logic;
 	
-	SIO_CLOCK : INOUT std_logic; -- TODO, should not use internally
+	SIO_CLOCKIN : IN std_logic := '1';
+	SIO_CLOCKOUT : OUT std_logic;
 	
 	POT_RESET : out std_logic
 );
@@ -1097,9 +1098,9 @@ BEGIN
 	end process;
 	
 	-- serial clocks
-	process(sio_clock,skctl_reg,clock_reg,clock_sync_reg,audf1_pulse,audf2_pulse,audf3_pulse)
+	process(sio_clockin,skctl_reg,clock_reg,clock_sync_reg,audf1_pulse,audf2_pulse,audf3_pulse)
 	begin
-		clock_next <= sio_clock;
+		clock_next <= sio_clockin;
 		clock_sync_next <= clock_reg;
 	
 		serout_enable <= '0';
@@ -1224,7 +1225,7 @@ BEGIN
 	sio_out2 <= sio_out_reg;	
 	sio_out3 <= sio_out_reg;	
 	
-	sio_clock <= audf3_pulse when clock_input='0' else 'Z';
+	sio_clockout <= audf3_pulse when clock_input='0' else 'Z';
 	
 	pot_reset <= pot_reset_reg;
 		
