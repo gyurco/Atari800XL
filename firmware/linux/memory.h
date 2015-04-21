@@ -9,6 +9,8 @@ extern void* FREEZER_ROM_MEM;
 
 #define HAVE_FREEZER_ROM_MEM 1
 
+#define INIT_MEM
+
 // Memory usage...
 // 0x410000-0x44FFFF (0xc10000 in zpu space) = directory cache - 256k
 // 0x450000-0x46FFFF (0xc50000 in zpu space) = freeze backup

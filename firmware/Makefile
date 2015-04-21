@@ -155,7 +155,7 @@ CFLAGS_PAPILIODUO  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Ipapilioduo -c -g 
 
 SOCKIT_CFLAGS += -I. -Icommon -Isockit -Iprintf -DMAX_RAM_SELECT=6
 
-HOST_CFLAGS += -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -DDISABLE_UART_RX -DUSB -Iusb
+HOST_CFLAGS += -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -DDISABLE_UART_RX -DUSB -Iusb -DMAX_RAM_SELECT=6
 
 LFLAGS  = -nostartfiles -nostdlib -Wl,--relax -g -Os -Wl,-Map=out.map
 LFLAGS_5200  = -nostartfiles -Wl,--relax -g -Os -Wl,-Map=out.map
