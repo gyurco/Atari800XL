@@ -187,7 +187,6 @@ begin
 	end process;
 
 	-- state machine
-	command_next <= sio_command;
 	process(state_reg, command_next, command_reg, bus_free, pokey_data_out, target_reg, clear_request)
 	begin
 		state_next <= state_reg;
@@ -198,11 +197,14 @@ begin
 		target_wr_en<='0';
 		target_next<=target_reg;
 
+		command_next <= command_reg;
+
 		if (bus_free = '1') then
+			command_next <= sio_command;
 			case (state_reg) is
 			when state_wait_high_low =>
 				target_next<=(others=>'0');
-				if (command_next = '0' and command_reg='1') then
+				if (sio_command = '0' and command_reg='1') then
 					state_next <= state_command_clear_irq;
 				end if;
 			when state_command_clear_irq =>
@@ -251,6 +253,7 @@ begin
 
 		if (clear_request = '1') then
 			state_next <= state_wait_high_low;
+			command_next <= sio_command;
 		end if;
 	end process;
 
