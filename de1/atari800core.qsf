@@ -560,10 +560,6 @@ set_location_assignment PIN_Y7 -to SRAM_LB_N
 set_location_assignment PIN_T8 -to SRAM_OE_N
 set_location_assignment PIN_W7 -to SRAM_UB_N
 set_location_assignment PIN_AA10 -to SRAM_WE_N
-set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to SRAM_CE_N
-set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to SRAM_LB_N
-set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to SRAM_OE_N
-set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to SRAM_UB_N
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to SRAM_WE_N
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to SRAM_ADDR[0]
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to SRAM_ADDR[1]
