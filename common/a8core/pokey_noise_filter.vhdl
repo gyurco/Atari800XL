@@ -22,6 +22,8 @@ PORT
 	NOISE_4 : IN STD_LOGIC;
 	NOISE_5 : IN STD_LOGIC;
 	NOISE_LARGE : IN STD_LOGIC;
+
+	SYNC_RESET : IN STD_LOGIC;
 	
 	PULSE_OUT : OUT STD_LOGIC
 );
@@ -46,7 +48,7 @@ BEGIN
 
 	pulse_out <= out_reg;
 
-	process(pulse_in, noise_4, noise_5, noise_large, noise_select, audclk, out_reg)
+	process(pulse_in, noise_4, noise_5, noise_large, noise_select, audclk, out_reg, sync_reset)
 	begin
 		audclk <= pulse_in;
 		out_next <= out_reg;
@@ -68,5 +70,10 @@ BEGIN
 				end if;
 			end if;
 		end if;
+
+		if (sync_reset = '1') then
+			out_next <= '0';
+		end if;
+
 	end process;
 end vhdl;

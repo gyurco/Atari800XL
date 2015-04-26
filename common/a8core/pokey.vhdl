@@ -145,6 +145,8 @@ ARCHITECTURE vhdl OF pokey IS
 		NOISE_4 : IN STD_LOGIC;
 		NOISE_5 : IN STD_LOGIC;
 		NOISE_LARGE : IN STD_LOGIC;
+
+		SYNC_RESET : IN STD_LOGIC;
 		
 		PULSE_OUT : OUT STD_LOGIC
 	);
@@ -829,13 +831,13 @@ BEGIN
 	
 	-- Instantiate audio noise filters
 	pokey_noise_filter0 : pokey_noise_filter
-		port map(clk=>clk,reset_n=>reset_n,noise_select=>audc0_reg(7 downto 5),pulse_in=>audf0_pulse,pulse_out=>audf0_pulse_noise,noise_4=>noise_4,noise_5=>noise_5,noise_large=>noise_large);
+		port map(clk=>clk,reset_n=>reset_n,noise_select=>audc0_reg(7 downto 5),pulse_in=>audf0_pulse,pulse_out=>audf0_pulse_noise,noise_4=>noise_4,noise_5=>noise_5,noise_large=>noise_large, sync_reset=>stimer_write_delayed);
 	pokey_noise_filter1 : pokey_noise_filter
-		port map(clk=>clk,reset_n=>reset_n,noise_select=>audc1_reg(7 downto 5),pulse_in=>audf1_pulse,pulse_out=>audf1_pulse_noise,noise_4=>noise_4_reg(0),noise_5=>noise_5_reg(0),noise_large=>noise_large_reg(0));
+		port map(clk=>clk,reset_n=>reset_n,noise_select=>audc1_reg(7 downto 5),pulse_in=>audf1_pulse,pulse_out=>audf1_pulse_noise,noise_4=>noise_4_reg(0),noise_5=>noise_5_reg(0),noise_large=>noise_large_reg(0), sync_reset=>stimer_write_delayed);
 	pokey_noise_filter2 : pokey_noise_filter
-		port map(clk=>clk,reset_n=>reset_n,noise_select=>audc2_reg(7 downto 5),pulse_in=>audf2_pulse,pulse_out=>audf2_pulse_noise,noise_4=>noise_4_reg(1),noise_5=>noise_5_reg(1),noise_large=>noise_large_reg(1));
+		port map(clk=>clk,reset_n=>reset_n,noise_select=>audc2_reg(7 downto 5),pulse_in=>audf2_pulse,pulse_out=>audf2_pulse_noise,noise_4=>noise_4_reg(1),noise_5=>noise_5_reg(1),noise_large=>noise_large_reg(1), sync_reset=>stimer_write_delayed);
 	pokey_noise_filter3 : pokey_noise_filter
-		port map(clk=>clk,reset_n=>reset_n,noise_select=>audc3_reg(7 downto 5),pulse_in=>audf3_pulse,pulse_out=>audf3_pulse_noise,noise_4=>noise_4_reg(2),noise_5=>noise_5_reg(2),noise_large=>noise_large_reg(2));
+		port map(clk=>clk,reset_n=>reset_n,noise_select=>audc3_reg(7 downto 5),pulse_in=>audf3_pulse,pulse_out=>audf3_pulse_noise,noise_4=>noise_4_reg(2),noise_5=>noise_5_reg(2),noise_large=>noise_large_reg(2), sync_reset=>stimer_write_delayed);
 	
 	-- Audio output stage
 	-- (toggling now handled in the noise filter - the subtlety on when to toggle and when to sample is important)
@@ -937,8 +939,7 @@ BEGIN
 	end process;
 	
 	-- serial port output	
-	-- urghhh
-        serout_sync_reset <= serial_reset or stimer_write_delayed;
+        serout_sync_reset <= serial_reset;
 	serout_clock_delay : delay_line
 		generic map (count=>2)
 		port map (clk=>clk, sync_reset=>serout_sync_reset,data_in=>serout_enable, enable=>enable_179, reset_n=>reset_n, data_out=>serout_enable_delayed);
