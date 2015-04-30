@@ -939,7 +939,8 @@ BEGIN
 	end process;
 	
 	-- serial port output	
-        serout_sync_reset <= serial_reset;
+	-- urghhh (TODO: If timers are cleared with stimer_write, some clocks are still triggering. This workaround fixes the acid test. Investigate the proper fix)
+        serout_sync_reset <= serial_reset or stimer_write_delayed;
 	serout_clock_delay : delay_line
 		generic map (count=>2)
 		port map (clk=>clk, sync_reset=>serout_sync_reset,data_in=>serout_enable, enable=>enable_179, reset_n=>reset_n, data_out=>serout_enable_delayed);
