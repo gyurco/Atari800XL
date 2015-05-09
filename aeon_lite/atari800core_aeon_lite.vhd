@@ -26,7 +26,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity ATARI is
+entity atari800core_aeon_lite is
 	GENERIC
 	(
 		TV : integer;  -- 1 = PAL, 0=NTSC
@@ -72,9 +72,9 @@ port (
    VGA_B          : out   std_logic_vector(3 downto 0);
    VGA_HSYNC      : out   std_logic;
    VGA_VSYNC      : out   std_logic );
-end ATARI;
+end atari800core_aeon_lite;
 
-architecture rtl of ATARI is
+architecture rtl of atari800core_aeon_lite is
 
 component hq_dac
 port (
@@ -100,6 +100,7 @@ end component;
    signal CONSOL_OPTION       : std_logic;
    signal FKEYS               : std_logic_vector(11 downto 0); 
    signal PS2_KEYS            : std_logic_vector(511 downto 0);
+   signal PS2_KEYS_NEXT            : std_logic_vector(511 downto 0);
    
    -- Gamepads
    signal GAMEPAD0            : std_logic_vector(7 downto 0);
@@ -117,7 +118,9 @@ end component;
 
    signal PAL                 : std_logic := '0';
    signal VGA                 : std_logic := '1';
-   signal SCANLINES           : std_logic := '0';
+   signal COMPOSITE_ON_HSYNC                 : std_logic := '1';
+   signal SCANLINES_NEXT         : std_logic;
+   signal SCANLINES_REG         : std_logic;
 
    -- Scandoubler
    signal SCANDOUBLE_CLK      : std_logic;
@@ -184,6 +187,10 @@ end component;
 
 begin 
 
+PAL <= '1' when TV=1 else '0';
+vga <= '1' when video=2 else '0';
+composite_on_hsync <= '1' when composite_sync=1 else '0';
+
 u_PLL : entity work.PLL
 port map (
    CLKIN                      => CLK_50,
@@ -217,7 +224,8 @@ port map(
    CONSOL_OPTION              => CONSOL_OPTION,
    FKEYS                      => FKEYS,
    FREEZER_ACTIVATE           => FREEZER_ACTIVATE,
-   PS2_KEYS                   => PS2_KEYS );
+   PS2_KEYS                   => PS2_KEYS,
+   PS2_KEYS_NEXT_OUT          => PS2_KEYS_NEXT );
 
 u_JOYSTICKS : entity work.nes_gamepad
 port map( 
@@ -236,8 +244,8 @@ reset_n_inc_zpu <= RESET_N and not (RESET_ATARI);
 u_ATARI800_CORE : entity work.atari800core_simple_sdram
 generic map(
    CYCLE_LENGTH               => 16,
-   INTERNAL_ROM               => 0,
-   INTERNAL_RAM               => 0,
+   INTERNAL_ROM               => internal_rom,
+   INTERNAL_RAM               => internal_ram,
    PALETTE                    => 0,
    VIDEO_BITS                 => 8,
    LOW_MEMORY                 => 2,
@@ -394,8 +402,10 @@ process(SCANDOUBLE_CLK, RESET_N, RESET_ATARI)
 begin
    if ((RESET_N and not (RESET_ATARI)) = '0') then
       HALF_SCANDOUBLE_ENABLE_REG <= '0';
+      scanlines_reg <= '0';
    elsif (SCANDOUBLE_CLK'event and SCANDOUBLE_CLK = '1') then
       HALF_SCANDOUBLE_ENABLE_REG <= HALF_SCANDOUBLE_ENABLE_NEXT;
+      scanlines_reg <= scanlines_next;
    end if;
 end process;
 
@@ -406,12 +416,12 @@ port map (
    CLK                        => SCANDOUBLE_CLK,
    RESET_N                    => reset_n_inc_zpu,
    VGA                        => VGA,
-   COMPOSITE_ON_HSYNC         => not VGA,
+   COMPOSITE_ON_HSYNC => composite_on_hsync,
 
    COLOUR_ENABLE              => HALF_SCANDOUBLE_ENABLE_REG,
    DOUBLED_ENABLE             => VGA,
    
-   SCANLINES_ON               => SCANLINES,
+   SCANLINES_ON               => SCANLINES_REG,
 			
    PAL                        => PAL,
    COLOUR_IN                  => VIDEO_B,
@@ -438,29 +448,7 @@ JOY1_n <= (not GAMEPAD0(7) and not GAMEPAD0(6) and not PS2_KEYS(16#127#)) &
 -- NES Gamepad 2
 JOY2_n <= (not GAMEPAD1(7) and not GAMEPAD1(6)) & not GAMEPAD1(0) & not GAMEPAD1(1) & not GAMEPAD1(2) & not GAMEPAD1(3);
 
--- Switch video mode
--- VGA/TV (Ins)
-process(PS2_KEYS)
-begin
-   if rising_edge(PS2_KEYS(16#170#)) then
-      VGA <= not VGA;
-   end if;
-end process;
-
--- PAL/NTSC (Home)
-process(PS2_KEYS)
-begin
-   if rising_edge(PS2_KEYS(16#16C#)) then
-      PAL <= not PAL;
-   end if;
-end process;
-
--- Scanlines on/off (Page Up)
-process(PS2_KEYS)
-begin
-   if rising_edge(PS2_KEYS(16#17D#)) then
-      SCANLINES <= not SCANLINES;
-   end if;
-end process;
+-- SCANLINES
+scanlines_next <= scanlines_reg xor (not(ps2_keys(16#11#)) and ps2_keys_next(16#11#)); -- left alt
 
 end rtl;
