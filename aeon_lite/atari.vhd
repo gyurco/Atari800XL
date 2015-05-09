@@ -16,7 +16,6 @@
 ---------------------------------------------------------------------------
 
 -- New Files:
--- DAC.VHD                 - Delta-Sigma-DAC from Xilinx Appnotes
 -- NES-GAMEPAD.VHD         - NES-Gamepad controller
 -- SRAM-STATEMACHINE.VHD   - SRAM (2 x 256KB x 16bit) Controller
 
@@ -28,6 +27,17 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity ATARI is
+	GENERIC
+	(
+		TV : integer;  -- 1 = PAL, 0=NTSC
+		VIDEO : integer; -- 1 = RGB, 2 = VGA
+		COMPOSITE_SYNC : integer; --0 = no, 1 = yes!
+		SCANDOUBLE : integer; -- 1 = YES, 0=NO, (+ later scanlines etc)
+		internal_rom : integer := 1 ;
+		--internal_ram : integer := 16384;
+		internal_ram : integer := 0;
+		ext_clock : integer := 0
+	);
 port (
    CLK_50         : in    std_logic;
    MCU_READY      : in    std_logic;
@@ -49,6 +59,7 @@ port (
    JOY_DATA0      : in    std_logic;
    JOY_DATA1      : in    std_logic;
    
+   SD_MOSI        : out   std_logic;
    SD_MISO        : in    std_logic;
    SD_SCK         : out   std_logic;
    SD_CS          : out   std_logic; 
@@ -64,6 +75,16 @@ port (
 end ATARI;
 
 architecture rtl of ATARI is
+
+component hq_dac
+port (
+  reset :in std_logic;
+  clk :in std_logic;
+  clk_ena : in std_logic;
+  pcm_in : in std_logic_vector(19 downto 0);
+  dac_out : out std_logic
+);
+end component;
 
    signal CLK                 : std_logic;
    signal LOCKED              : std_logic;
@@ -146,12 +167,20 @@ architecture rtl of ATARI is
    alias  EMULATED_CARTRIDGE_SELECT : std_logic_vector(5 downto 0) is ZPU_OUT1(22 downto 17);
    alias  FREEZER_ENABLE      : std_logic                    is ZPU_OUT1(25);
    alias  RAM_SELECT          : std_logic_vector(2 downto 0) is ZPU_OUT1(10 downto 8);
-   alias  ROM_SELECT          : std_logic_vector(5 downto 0) is ZPU_OUT1(16 downto 11);
+
+--   signal  PAUSE_ATARI         : std_logic;
+--   signal  RESET_ATARI         : std_logic;
+--   signal  SPEED_6502          : std_logic_vector(5 downto 0);
+--   signal  EMULATED_CARTRIDGE_SELECT : std_logic_vector(5 downto 0);
+--   signal  FREEZER_ENABLE      : std_logic;
+--   signal  RAM_SELECT          : std_logic_vector(2 downto 0);
 
    signal FREEZER_ACTIVATE    : std_logic;
 
    signal reset_n_inc_zpu : std_logic;
    signal zpu_in1 : std_logic_vector(31 downto 0);
+
+   signal audio_out : std_logic;
 
 begin 
 
@@ -162,19 +191,18 @@ port map (
    CLKOUT2                    => SCANDOUBLE_CLK,
    LOCKED                     => LOCKED );
    
-u_DAC_L : entity work.dac
-port map (
-   CLK_I                      => CLK,
-   RES_N_I                    => RESET_N,
-   DAC_I                      => AUDIO_L_PCM,
-   DAC_O                      => SOUND_L );
+dac : hq_dac
+port map
+(
+  reset => not(reset_n),
+  clk => clk,
+  clk_ena => '1',
+  pcm_in => AUDIO_L_PCM&"0000",
+  dac_out => audio_out
+);
 
-u_DAC_R : entity work.dac
-port map (
-   CLK_I                      => CLK,
-   RES_N_I                    => RESET_N,
-   DAC_I                      => AUDIO_R_PCM,
-   DAC_O                      => SOUND_R );
+SOUND_L <= audio_out;
+SOUND_R <= audio_out;
 
 u_KEYBOARD : entity work.ps2_to_atari800
 port map(
@@ -212,7 +240,7 @@ generic map(
    INTERNAL_RAM               => 0,
    PALETTE                    => 0,
    VIDEO_BITS                 => 8,
-   LOW_MEMORY                 => 1,
+   LOW_MEMORY                 => 2,
    STEREO                     => 0,
    COVOX                      => 0 )
 port map(
@@ -270,13 +298,12 @@ port map(
    DMA_MEMORY_DATA            => DMA_MEMORY_DATA, 
 
    RAM_SELECT                 => RAM_SELECT,
-   ROM_SELECT                 => ROM_SELECT,
    PAL                        => PAL,
    HALT                       => PAUSE_ATARI,
    THROTTLE_COUNT_6502        => SPEED_6502,
    EMULATED_CARTRIDGE_SELECT  => EMULATED_CARTRIDGE_SELECT,
-   FREEZER_ENABLE             => FREEZER_ENABLE,
-   FREEZER_ACTIVATE           => FREEZER_ACTIVATE);
+   FREEZER_ENABLE             => '0',
+   FREEZER_ACTIVATE           => '0');
 
 u_SRAM : entity work.sram_statemachine
 
@@ -284,6 +311,8 @@ port map (
    CLK                        => CLK,
    RESET_N                    => reset_n_inc_zpu,
 
+   --ADDRESS_IN                 => "000"&NOT(SDRAM_ADDR(19))&SDRAM_ADDR(18 downto 0),
+   --ADDRESS_IN                 => "000"&NOT(SDRAM_ADDR(15))&SDRAM_ADDR(19 downto 16)&SDRAM_ADDR(14 downto 0),
    ADDRESS_IN                 => SDRAM_ADDR,
    DATA_IN                    => SDRAM_DI,
    DATA_OUT                   => SDRAM_DO,
@@ -326,7 +355,7 @@ port map (
 
    ZPU_SD_DAT0                => SD_MISO,
    ZPU_SD_CLK                 => SD_SCK,
-   ZPU_SD_CMD                 => open,
+   ZPU_SD_CMD                 => SD_MOSI,
    ZPU_SD_DAT3                => SD_CS,
 
    ZPU_POKEY_ENABLE           => ZPU_POKEY_ENABLE,
@@ -343,7 +372,7 @@ port map (
    ZPU_OUT2                   => OPEN,
    ZPU_OUT3                   => OPEN,
    ZPU_OUT4                   => OPEN );
-zpu_in1 <= X"00000" & FKEYS;
+ZPU_IN1 <= X"000"& "00"&ps2_keys(16#76#)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)&FKEYS;
 
 u_ZPUROM : entity work.zpu_rom
 port map (
@@ -397,10 +426,10 @@ port map (
    VSYNC                      => VGA_VSYNC,
    HSYNC                      => VGA_HSYNC );
 
-RESET_N <= LOCKED and MCU_READY;
+RESET_N <= LOCKED; -- and MCU_READY;
 
 -- NES Gamepad 1 & Cursor keys on keyboard
-JOY1_n <= (not GAMEPAD0(7) and not GAMEPAD0(6) and not PS2_KEYS(16#014#)) & 
+JOY1_n <= (not GAMEPAD0(7) and not GAMEPAD0(6) and not PS2_KEYS(16#127#)) & 
                               (not GAMEPAD0(0) and not PS2_KEYS(16#174#)) & 
                               (not GAMEPAD0(1) and not PS2_KEYS(16#16B#)) & 
                               (not GAMEPAD0(2) and not PS2_KEYS(16#172#)) & 
