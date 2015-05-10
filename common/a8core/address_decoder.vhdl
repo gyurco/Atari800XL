@@ -486,14 +486,12 @@ BEGIN
 				end if;
 			when "100" => -- 576k compy shop
 				if (extended_access_cpu_or_antic='1') then
-					extended_bank(4 downto 0) <= portb(7 downto 6)&portb(3 downto 1);
-					extended_bank(5) <= not(or_reduce(portb(7 downto 6)&portb(3)));
+					extended_bank(5 downto 0) <= '1'&portb(7 downto 6)&portb(3 downto 1);
 					extended_self_test <= '0';
 				end if;
 			when "101" => -- 576k rambo
 				if (extended_access_either='1') then
-					extended_bank(4 downto 0) <= portb(6 downto 5)&portb(3 downto 1);
-					extended_bank(5) <= not(or_reduce(portb(6 downto 5)&portb(3)));
+					extended_bank(5 downto 0) <= '1'&portb(6 downto 5)&portb(3 downto 1);
 				end if;
 			when "110" => -- 1088k rambo
 				if (extended_access_either='1') then
@@ -538,17 +536,24 @@ gen_normal_memory : if low_memory=0 generate
 end generate;
 
 gen_low_memory1 : if low_memory=1 generate
-	-- TODO, check we can use 576k extended RAM ok (PROB NOT)
 
-	-- SRAM memory map (1024k) for Aeon Lite
-	SDRAM_CART_ADDR      <= "000" & "111" & emu_cart_address(16 downto 0);
-	SDRAM_BASIC_ROM_ADDR <= "000" & "110" & "00000000000000000";
-	SDRAM_OS_ROM_ADDR    <= "000" & "110" & "00100000000000000";
+	-- SRAM memory map (1024k) for Aeon lite 
+	SDRAM_CART_ADDR      <= "0000" & "1"&emu_cart_address(17 downto 0); 
+	SDRAM_BASIC_ROM_ADDR <= "000" & x"68000";
+	SDRAM_OS_ROM_ADDR    <= "000" & x"6c000";
+	SDRAM_FREEZER_RAM_ADDR <= "000" & "001" & freezer_access_address;
+	SDRAM_FREEZER_ROM_ADDR <= "000" & x"7" & freezer_access_address(15 downto 0);
+
+-- 0x10000-0x1FFFF (0x810000 in zpu space) = freeze backup - 64k
+-- 0x20000-0x3FFFF (0x820000 in zpu space) = freezer ram (128k)
+-- 0x40000-0x67FFF (0x840000 in zpu space) = carts - 160k
+-- 0x48000-0x67FFF (0x848000 in zpu space) = directory cache - 128k
+-- 0x68000-0x6FFFF (0x868000 in zpu space) = os rom/basic rom - 32k
+-- 0x70000-0x7FFFF (0x870000 in zpu space) = freezer rom (64k)
 
 end generate;
 
 gen_low_memory2 : if low_memory=2 generate
-	-- TODO, check we can use 320k extended RAM ok (THINK SO)
 
 	-- SRAM memory map (512k) for Papilio duo 
 	SDRAM_CART_ADDR      <= "0000" & "01"&emu_cart_address(16 downto 0); 
