@@ -187,7 +187,7 @@ begin
 	end process;
 
 	-- state machine
-	process(state_reg, command_next, command_reg, bus_free, pokey_data_out, target_reg, clear_request)
+	process(state_reg, command_next, command_reg, bus_free, pokey_data_out, target_reg, clear_request, sio_command)
 	begin
 		state_next <= state_reg;
 		state_wr_en <= '0';
