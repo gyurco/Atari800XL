@@ -1,6 +1,16 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
+//512k memory map
+//(up to 320k atari mem)
+//----
+//64k (base)
+//64-127  (64k)= freeze backup
+//128-223 (96k)= carts 
+//160-223 (64k)= dir cache
+//224-255 (32k)= os rom/ram
+//256 (ext)
+
 #define SRAM_BASE ((void*) 0x200000)
 #define SDRAM_BASE ((void*) 0x800000)
 
