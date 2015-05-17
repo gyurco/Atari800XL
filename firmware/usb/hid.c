@@ -8,9 +8,11 @@
 #include "usbhostslave.h"
 #include "log.h"
 
-/*#include "printf.h"
+/*
+#include "printf.h"
 extern unsigned char volatile * baseaddr;
-extern int debug_pos;*/
+extern int debug_pos;
+*/
 
 unsigned char kbd_led_state;  // default: all leds off
 unsigned char joysticks;      // number of detected usb joysticks
@@ -133,7 +135,7 @@ static uint8_t usb_hid_parse_conf(usb_device_t *dev, uint8_t conf, uint16_t len)
 	  info->iface[info->bNumIfaces].iface_idx = p->iface_desc.bInterfaceNumber;
 	  info->iface[info->bNumIfaces].has_boot_mode = false;
 	  info->iface[info->bNumIfaces].is_5200daptor = false;
-	  info->iface[info->bNumIfaces].is_MCC = false;
+	  info->iface[info->bNumIfaces].is_MCC = 0;
 	  info->iface[info->bNumIfaces].key_state = 0;
 	  info->iface[info->bNumIfaces].device_type = HID_DEVICE_UNKNOWN;
 	  info->iface[info->bNumIfaces].conf.type = CONFIG_TYPE_NONE;
@@ -343,7 +345,12 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
       if((vid == 0x0079) && (pid == 0x0006) && (i==0)) {
 	iprintf("hacking MCC controller\n");
 
-	info->iface[0].is_MCC = true;
+	info->iface[0].is_MCC = 1;
+      }
+      if((vid == 0x1a34) && (pid == 0x0809) && (i==0)) {
+	iprintf("hacking MCC controller wireless\n");
+
+	info->iface[0].is_MCC = 2;
       }
     }
 
@@ -476,7 +483,7 @@ static void handle_5200daptor(usb_hid_iface_info_t *iface, uint8_t *buf) {
 }
 
 // special MCC button processing
-static void handle_MCC(usb_hid_iface_info_t *iface, uint32_t * jmap_ptr) {
+static void handle_MCC(usb_hid_iface_info_t *iface, uint32_t * jmap_ptr, uint8_t type) {
 
 /*
 [start or left&right shoulder2] - start
@@ -514,6 +521,18 @@ MY MAPPING
 
 uint32_t jmap = *jmap_ptr;
 *jmap_ptr&=0xf;
+
+  if (type == 2)
+  {
+    uint32_t mask = 0;
+    if (jmap&0x40) mask ^= 0xc0;
+    if (jmap&0x80) mask ^= 0x90;
+    if (jmap&0x10) mask ^= 0x50;
+    jmap ^= mask;
+//x(left)=40 (old 80)
+//y(up)=80 (old 10)
+//a(down)=10 (old 40)
+  }
 
   static const struct {
     uint8_t bit1;           // bit of the button bit (1<<bit)
@@ -662,7 +681,7 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
 	      if(jmap != iface->jmap) {
 
 		//unsigned char * temp = baseaddr;
-		//baseaddr = (unsigned char volatile *)(40000 + atari_regbase);
+		//baseaddr = (unsigned char volatile *)(screen_address + atari_regbase);
 		//debug_pos=80;
 		//printf("jmap %d(%d) changed to %x\n", idx, iface->jindex,jmap);
 		//baseaddr = temp;
@@ -671,7 +690,7 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
 
                 // do special MCC treatment
                 if(iface->is_MCC)
-                    handle_MCC(iface, &jmap);
+                    handle_MCC(iface, &jmap, iface->is_MCC);
 		
 		// and feed into joystick input system
 		event_digital_joystick(idx, jmap);
