@@ -1,0 +1,1 @@
+dd if=Aeon.bit of=Aeon.bin bs=1 skip=88
