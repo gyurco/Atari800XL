@@ -24,6 +24,8 @@ cd ../mcctv
 max3; ./build.sh ALL &
 cd ../papilioduo
 max3; ./build.sh ALL &
+cd ../aeon_lite
+max3; ./build.sh ALL &
 cd ../mist_5200
 max3; ./build.sh ALL &
 cd ../de1_5200
