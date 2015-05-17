@@ -248,7 +248,7 @@ generic map(
    INTERNAL_RAM               => internal_ram,
    PALETTE                    => 0,
    VIDEO_BITS                 => 8,
-   LOW_MEMORY                 => 2,
+   LOW_MEMORY                 => 1,
    STEREO                     => 0,
    COVOX                      => 0 )
 port map(
@@ -311,7 +311,7 @@ port map(
    THROTTLE_COUNT_6502        => SPEED_6502,
    EMULATED_CARTRIDGE_SELECT  => EMULATED_CARTRIDGE_SELECT,
    FREEZER_ENABLE             => '0',
-   FREEZER_ACTIVATE           => '0');
+   FREEZER_ACTIVATE           => '0'); -- Does not fit:-(
 
 u_SRAM : entity work.sram_statemachine
 
