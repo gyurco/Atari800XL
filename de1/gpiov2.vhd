@@ -112,8 +112,10 @@ begin
 -- OUTPUTS TO GPIO
 	-- unused
 	--GPIO_0_DIR_OUT(35 downto 4) <= (others=>'0');
-	GPIO_0_OUT(35 downto 0) <= (others=>'0');
-	
+	GPIO_0_OUT(35 downto 2) <= (others=>'0');
+	GPIO_0_OUT(1) <= '0' when gpio_enable='1' else CB2_OUT;
+	GPIO_0_OUT(0) <= '0';
+
 	-- sio
 	--CB1=SIO_IRQ
 	--CB2=SIO_COMMAND
@@ -121,7 +123,7 @@ begin
 	--CA2=SIO_MOTOR_RAW
 
 	GPIO_0_DIR_OUT(0) <= '0';
-	GPIO_0_DIR_OUT(1) <= CB2_dir_out and not(CB2_OUT) and gpio_enable;
+	GPIO_0_DIR_OUT(1) <= CB2_dir_out and not(CB2_OUT) when gpio_enable='1' else '1';
 	GPIO_0_DIR_OUT(2) <= '0';
 	GPIO_0_DIR_OUT(3) <= CA2_dir_out and not(CA2_OUT) and gpio_enable;
 	GPIO_0_DIR_OUT(4) <= not(SIO_OUT) and gpio_enable;
@@ -129,12 +131,12 @@ begin
 	GPIO_0_DIR_OUT(6) <= not(SIO_CLOCKOUT) and gpio_enable;
 	GPIO_0_DIR_OUT(7) <= '0';
 	
-	CB1_in <= GPIO_0_IN(0);
-	CB2_in <= GPIO_0_IN(1);
-	CA1_in <= GPIO_0_IN(2);
-	CA2_in <= GPIO_0_IN(3);
-	SIO_IN <= GPIO_0_IN(5);
-	SIO_CLOCKIN <= GPIO_0_IN(7);
+	CB1_in <= GPIO_0_IN(0) when gpio_enable='1' else '1';
+	CB2_in <= GPIO_0_IN(1) when gpio_enable='1' else '1';
+	CA1_in <= GPIO_0_IN(2) when gpio_enable='1' else '1';
+	CA2_in <= GPIO_0_IN(3) when gpio_enable='1' else '1';
+	SIO_IN <= GPIO_0_IN(5) when gpio_enable='1' else '1';
+	SIO_CLOCKIN <= GPIO_0_IN(7) when gpio_enable='1' else '1';
 	
 	-- sticks
 	-- PORTA7,6,5,4,TRIG1,POT3,2,1,0,PORTA3,2,1,0,TRIG0

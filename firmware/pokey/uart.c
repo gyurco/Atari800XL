@@ -77,7 +77,7 @@ void USART_Receive_Mode()
 
 int USART_Framing_Error()
 {
-	if (0xc0&(*zpu_pokey_skctl))
+	if (0x80&(*zpu_pokey_skctl))
 	{
 		return 0;
 	}

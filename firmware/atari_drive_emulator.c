@@ -124,90 +124,68 @@ struct command
 	u08 aux2;
 	u08 chksum;
 } __attribute__((packed));
+
+static void switch_speed()
+{
+	if (speed == speedslow)
+	{
+		speed = speedfast;
+	}
+	else
+	{
+		speed = speedslow;
+	}
+	USART_Init(speed+6);
+}
+
 void getCommand(struct command * cmd)
 {
 	int expchk;
 	int i;
-
-	//printf("\n%f:WaitCMD\n",when());
-	while (0 == USART_Command_Line());
-	//printf("%f:CMDHigh\n",when());
-	USART_Init(speed+6);
-	//printf("%f:Clear:%d\n",when(),*zpu_siocommand_ready);
-	*zpu_siocommand_ready = 1; // clear
-
+	unsigned char cmdstat;
 	while (1)
 	{
-		unsigned char x = *zpu_siocommand_ready;
-		if (x != 0) break;
-		actions();
-
-//#ifdef SOCKIT
-//		double a = when();
-//		while ((when()-a)<3e-6);
-//#endif
-		wait_us(3);
-	} // usb poll can take some ms, but we have 16 ms to reply. We have hardware now to capture the command frame.
-	for (i=0;i!=5;++i)
-		((unsigned char *)cmd)[i] = zpu_siocommand_data[i<<2];
-	*zpu_siocommand_ready = 1; // clear
-
-	/*cmd->deviceId = USART_Receive_Byte();
-	cmd->command = USART_Receive_Byte();
-	cmd->aux1 = USART_Receive_Byte();
-	cmd->aux2 = USART_Receive_Byte();
-	cmd->chksum = USART_Receive_Byte();*/
-	//while (0 == USART_Command_Line());
-	//printf("cmd:");
-	//printf("Gone high\n");
-	atari_sector_buffer[0] = cmd->deviceId;
-	atari_sector_buffer[1] = cmd->command;
-	atari_sector_buffer[2] = cmd->aux1;
-	atari_sector_buffer[3] = cmd->aux2;
-	expchk = get_checksum(&atari_sector_buffer[0],4);
-
-/*unsigned char * temp = baseaddr;
-baseaddr = (unsigned char volatile *)(40000 + atari_regbase);
-debug_pos=160;
-*/
-	//printf("%f:CMD: %02x %02x %02x %02x %02x/%02x %s\n",when(),cmd->deviceId,cmd->command,cmd->aux1,cmd->aux2,cmd->chksum,expchk, cmd->chksum!=expchk ? "BAD":"");
-/*
-baseaddr = temp;*/
-
-	//printf("Device id:");
-	//printf("%d",cmd->deviceId);
-	//printf("\n");
-	//printf("command:");
-	//printf("%d",cmd->command);
-	//printf("\n");
-	//printf("aux1:");
-	//printf("%d",cmd->aux1);
-	//printf("\n");
-	//printf("aux2:");
-	//printf("%d",cmd->aux2);
-	//printf("\n");
-	//printf("chksum:");
-	//printf("%x ",cmd->chksum);
-	//printf("%x ",expchk);
-
-	if (expchk!=cmd->chksum || USART_Framing_Error())
-	{
-		//printf("ERR ");
-		//wait_us(1000000);
-		if (speed == speedslow)
+		while (0 == USART_Command_Line())
 		{
-			speed = speedfast;
-			//printf("SPDF");
-			//printf("%d",speed);
+			actions();
+			wait_us(3);
 		}
-		else
-		{
-			speed = speedslow;
-			//printf("SPDS");
-			//printf("%d",speed);
+		USART_Init(speed+6);
+		*zpu_siocommand_ready = 1; // clear
+
+		do {
+			actions();
+			wait_us(3);
+			cmdstat = *zpu_siocommand_ready;
+		} while (0 == cmdstat);
+
+		if (cmdstat & 0x40) {
+			// state machine is stopped, just (re-)start it
+			continue;
+		}
+		if ((cmdstat & 0x80) || USART_Framing_Error()) {
+			// state machine reported error or we got a framing error:
+			// switch speed and retry
+			switch_speed();
+			continue;
+		}
+		for (i=0;i!=5;++i)
+			((unsigned char *)cmd)[i] = zpu_siocommand_data[i<<2];
+
+		atari_sector_buffer[0] = cmd->deviceId;
+		atari_sector_buffer[1] = cmd->command;
+		atari_sector_buffer[2] = cmd->aux1;
+		atari_sector_buffer[3] = cmd->aux2;
+		expchk = get_checksum(&atari_sector_buffer[0],4);
+
+		if (expchk==cmd->chksum) {
+			// got a command frame
+			break;
+		} else {
+			// just an invalid checksum, switch speed anyways
+			switch_speed();
 		}
 	}
-	//printf("\n");
 
 	DELAY_T2_MIN;
 }

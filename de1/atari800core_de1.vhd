@@ -358,7 +358,9 @@ PORT MAP(CLK_SYSTEM => CLK,
 		 );
 
 -- PIA mapping
-SIO_COMMAND <= CB2_OUT;
+-- emulate pull-up on command line
+SIO_COMMAND <= CB2_OUT when CB2_DIR_OUT='1' else '1';
+-- SIO_COMMAND <= CB2_OUT;
 --PORTA_IN <= ((JOY2_n(3)&JOY2_n(2)&JOY2_n(1)&JOY2_n(0)&JOY1_n(3)&JOY1_n(2)&JOY1_n(1)&JOY1_n(0)) and not (porta_dir_out)) or (porta_dir_out and porta_out);
 --PORTA_IN <= (not (porta_dir_out)) or (porta_dir_out and porta_out);
 PORTB_IN <= PORTB_OUT;

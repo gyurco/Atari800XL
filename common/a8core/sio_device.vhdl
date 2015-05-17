@@ -76,12 +76,14 @@ ARCHITECTURE vhdl OF sio_device IS
 	constant state_wait_high_low : std_logic_vector(3 downto 0) := "0000";
 	constant state_command_clear_irq : std_logic_vector(3 downto 0) := "0001";
 	constant state_command_enable_irq : std_logic_vector(3 downto 0) := "0010";
-	constant state_command_wait_for_byte : std_logic_vector(3 downto 0) := "0011";
-	constant state_command_clear_irq2 : std_logic_vector(3 downto 0) := "0100";
-	constant state_command_enable_irq2 : std_logic_vector(3 downto 0) := "0101";
-	constant state_command_read_data : std_logic_vector(3 downto 0) := "0110";
-	constant state_command_ready_on_command_high : std_logic_vector(3 downto 0) := "0111";
+	constant state_command_reset_skstat : std_logic_vector(3 downto 0) := "1011";
+	constant state_command_wait_for_byte : std_logic_vector(3 downto 0) := "0100";
+	constant state_command_clear_irq2 : std_logic_vector(3 downto 0) := "0101";
+	constant state_command_enable_irq2 : std_logic_vector(3 downto 0) := "0110";
+	constant state_command_read_data : std_logic_vector(3 downto 0) := "0111";
 	constant state_command_ready : std_logic_vector(3 downto 0) := "1000";
+	constant state_command_error : std_logic_vector(3 downto 0) := "1001";
+	constant state_command_stop : std_logic_vector(3 downto 0) := "1111";
 	signal clear_request : std_logic;
 
 	signal state_wr_en : std_logic;
@@ -95,6 +97,7 @@ ARCHITECTURE vhdl OF sio_device IS
 
 	signal pokey_data_out : std_logic_vector(7 downto 0);
 
+	constant pokey_skrest : std_logic_vector(3 downto 0) := x"a";
 	constant pokey_serout : std_logic_vector(3 downto 0) := x"d";
 	constant pokey_irqen : std_logic_vector(3 downto 0) := x"e";
 
@@ -113,7 +116,8 @@ begin
 	process(clk,reset_n)
 	begin
 		if (reset_n = '0') then
-			state_reg <= state_wait_high_low;	
+			-- wait for explicit initialisation via clear
+			state_reg <= state_command_stop;
 			target_reg <= (others=>'0');
 			command_reg <= '1';	
 			en_delay_reg <= (others=>'0');
@@ -169,6 +173,12 @@ begin
 				if (state_reg = state_command_ready) then
 					data_out(0) <= '1';
 				end if;
+				if (state_reg = state_command_stop) then
+					data_out(6) <= '1';
+				end if;
+				if (state_reg = state_command_error) then
+					data_out(7) <= '1';
+				end if;
 			end if;
 		else
 			data_out <= pokey_data_out;
@@ -187,7 +197,7 @@ begin
 	end process;
 
 	-- state machine
-	process(state_reg, command_next, command_reg, bus_free, pokey_data_out, target_reg, clear_request, sio_command)
+	process(state_reg, command_reg, bus_free, pokey_data_out, target_reg, clear_request, sio_command)
 	begin
 		state_next <= state_reg;
 		state_wr_en <= '0';
@@ -216,11 +226,24 @@ begin
 				state_addr<=pokey_irqen;
 				state_wr_en<='1';
 				state_data<=x"38";
-				state_next <= state_command_wait_for_byte;				
+				state_next <= state_command_reset_skstat;
+			when state_command_reset_skstat =>
+				state_addr<=pokey_skrest;
+				state_wr_en<='1';
+				state_data<=x"00";
+				state_next <= state_command_wait_for_byte;
 			when state_command_wait_for_byte =>
 				state_addr<=pokey_irqen;
 				if (pokey_data_out(5)='0') then
 					state_next <= state_command_clear_irq2;
+				else
+					if (sio_command = '1') then
+						if (target_reg="101") then
+							state_next <= state_command_ready;
+						else
+							state_next <= state_command_error;
+						end if;
+					end if;
 				end if;
 			when state_command_clear_irq2 =>
 				state_addr<=pokey_irqen;
@@ -231,23 +254,27 @@ begin
 				state_addr<=pokey_irqen;
 				state_wr_en<='1';
 				state_data<=x"38";
-				state_next <= state_command_read_data;								
+				state_next <= state_command_read_data;
 			when state_command_read_data =>
 				state_addr<=pokey_serout;
-				target_wr_en<='1';
-				if (target_reg="100") then
-					state_next <= state_command_ready_on_command_high;
-				else
-					state_next <= state_command_wait_for_byte;
+				state_next <= state_command_wait_for_byte;
+				case target_reg is
+				when "000"|"001"|"010"|"011"|"100" =>
 					target_next <= std_logic_vector(unsigned(target_reg)+1);
-				end if;
-			when state_command_ready_on_command_high =>
-				if (command_reg='1') then
-					state_next <= state_command_ready;
-				end if;
+					target_wr_en<='1';
+				when others =>
+					-- indicate error, too many command bytes
+					target_next <= "111";
+				end case;
 			when state_command_ready =>
+				if (sio_command = '0') then
+					-- invalidate command frame when command goes low
+					state_next <= state_command_error;
+				end if;
+			when state_command_error => null;
+			when state_command_stop => null;
 			when others =>
-				state_next <= state_wait_high_low;
+				state_next <= state_command_stop;
 			end case;
 		end if;
 
