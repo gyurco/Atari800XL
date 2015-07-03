@@ -31,12 +31,13 @@ void joystick_poll(struct joystick_status * status)
 #endif
 
 	unsigned char porta = *atari_porta;
+	porta = (porta>>4) & (porta);
 
 	int controls = get_controls();
 
 	status->y_ = !(porta&0x2) -((unsigned int)!(porta&0x1));
 	status->x_ = !(porta&0x8) -((unsigned int)!(porta&0x4));
-	status->fire_ = !(1&*atari_trig0);
+	status->fire_ = !(1&*atari_trig0&*atari_trig1);
 
 	if (controls!=0)
 	{

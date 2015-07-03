@@ -54,6 +54,7 @@ static const int screen_address = 11328;
 #define atari_porta ((unsigned char volatile *)(0xd300 + atari_regbase))
 #define atari_portb ((unsigned char volatile *)(0xd301 + atari_regbase))
 #define atari_trig0 ((unsigned char volatile *)(0xd010 + atari_regbase))
+#define atari_trig1 ((unsigned char volatile *)(0xd011 + atari_regbase))
 #define atari_chbase ((unsigned char volatile *)(0xd409 + atari_regbase))
 #define atari_chactl ((unsigned char volatile *)(0xd401 + atari_regbase))
 #define atari_dmactl ((unsigned char volatile *)(0xd400 + atari_regbase))

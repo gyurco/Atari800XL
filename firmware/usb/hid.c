@@ -396,6 +396,9 @@ static uint8_t usb_hid_release(usb_device_t *dev) {
       uint8_t c_jindex = info->iface[i].jindex;
       hid_debugf("releasing joystick #%d, renumbering", c_jindex);
 
+      event_digital_joystick(c_jindex, 0);
+      event_analog_joystick(c_jindex, 0,0);
+
       // walk through all devices and search for sticks with a higher id
 
       // search for all joystick interfaces on all hid devices
@@ -410,6 +413,7 @@ static uint8_t usb_hid_release(usb_device_t *dev) {
 	      if(dev[j].hid_info.iface[k].jindex > c_jindex) {
 		hid_debugf("decreasing jindex of dev #%d from %d to %d", j, 
 			dev[j].hid_info.iface[k].jindex, dev[j].hid_info.iface[k].jindex-1);
+
 		dev[j].hid_info.iface[k].jindex--;
 	      }
 	    }
