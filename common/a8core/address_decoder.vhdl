@@ -379,6 +379,7 @@ BEGIN
 						state_next <= state_waiting_antic;
 					end if;
 					antic_fetch_real_next <= '1';
+					cpu_fetch_real_next <= '0';
 				when "010"|"011" => -- DMA wins (DMA usually accesses own ROM memory - this is NOT a DMA_fetch)
 					-- TODO, lower priority than 6502, except on first request in block...
 					start_request <= '1';
@@ -408,6 +409,7 @@ BEGIN
 						state_next <= state_waiting_cpu;
 					end if;
 					cpu_fetch_real_next <= '1';
+					antic_fetch_real_next <= '0';
 				when "000" =>
 					-- no requests
 				when others =>
