@@ -85,6 +85,18 @@ port (
 );
 end component;
 
+component pll
+	port (
+		refclk   : in  std_logic := '0'; --  refclk.clk
+		rst      : in  std_logic := '0'; --   reset.reset
+		outclk_0 : out std_logic;        -- outclk0.clk
+		outclk_1 : out std_logic;        -- outclk1.clk
+		outclk_2 : out std_logic;        -- outclk2.clk
+		locked   : out std_logic         --  locked.export
+	);
+end component;
+
+
 	-- SYSTEM
 	SIGNAL CLK : STD_LOGIC;
 	SIGNAL CLK_SDRAM : STD_LOGIC;
@@ -501,13 +513,22 @@ VGA_BLANK_N <= NOT(VGA_BLANK);
 --end generate;
 --
 --gen_old_pll : if tv=2 generate
-pll : entity work.pll
-PORT MAP(inclk0 => CLOCK_5, -- new PLL!
-		 c0 => CLK_SDRAM,
-		 c1 => CLK,
-		 c2 => DRAM_CLK,
+pllinstance : pll
+PORT MAP(refclk => CLOCK_5, -- new PLL!
+		 outclk_0 => CLK_SDRAM,
+		 outclk_1 => CLK,
+		 outclk_2 => DRAM_CLK,
 		 locked => PLL_LOCKED);
 --end generate;
+
+--	port (
+--		refclk   : in  std_logic := '0'; --  refclk.clk
+--		rst      : in  std_logic := '0'; --   reset.reset
+--		outclk_0 : out std_logic;        -- outclk0.clk
+--		outclk_1 : out std_logic;        -- outclk1.clk
+--		outclk_2 : out std_logic;        -- outclk2.clk
+--		locked   : out std_logic         --  locked.export
+--	);
 
 RESET_N <= PLL_LOCKED;
 

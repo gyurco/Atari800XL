@@ -1,12 +1,15 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE pinplan>
-<pinplan intended_family="Cyclone II" variation_name="pll" megafunction_name="ALTPLL" specifies="all_ports">
-<global>
-<pin name="inclk0" direction="input" scope="external" source="clock"  />
-<pin name="c0" direction="output" scope="external" source="clock"  />
-<pin name="c1" direction="output" scope="external" source="clock"  />
-<pin name="c2" direction="output" scope="external" source="clock"  />
-<pin name="locked" direction="output" scope="external"  />
-
-</global>
+<?xml version="1.0" encoding="UTF-8"?>
+<pinplan
+ variation_name="pll"
+ megafunction_name="ALTERA_PLL"
+ intended_family="Cyclone V"
+ specifies="all_ports">
+ <global>
+  <pin name="refclk" direction="input" scope="external" />
+  <pin name="rst" direction="input" scope="external" />
+  <pin name="outclk_0" direction="output" scope="external" />
+  <pin name="outclk_1" direction="output" scope="external" />
+  <pin name="outclk_2" direction="output" scope="external" />
+  <pin name="locked" direction="output" scope="external" />
+ </global>
 </pinplan>
