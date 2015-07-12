@@ -12,7 +12,7 @@
 # or its authorized distributors. Please refer to the applicable 
 # agreement for further details.
 
-# ACDS 14.0 200 linux 2015.07.12.07:17:48
+# ACDS 14.0 200 linux 2015.07.12.07:16:21
 
 # ----------------------------------------
 # Auto-generated simulation script
@@ -26,7 +26,7 @@ if ![info exists SYSTEM_INSTANCE_NAME] {
 }
 
 if ![info exists TOP_LEVEL_NAME] { 
-  set TOP_LEVEL_NAME "pll"
+  set TOP_LEVEL_NAME "pll_usb"
 }
 
 if ![info exists QSYS_SIMDIR] { 
@@ -103,7 +103,7 @@ alias dev_com {
 # Compile the design files in correct order
 alias com {
   echo "\[exec\] com"
-  vcom "$QSYS_SIMDIR/pll.vho"
+  vcom "$QSYS_SIMDIR/pll_usb.vho"
 }
 
 # ----------------------------------------

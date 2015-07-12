@@ -25,12 +25,12 @@ my %variants =
 #	{
 #		"TV" => $NTSC
 #	},
-	"BOTH" =>
+	"A2EBA" =>
 	{
 		"TV" => 2,
-		"GPIO" => 1
+		"GPIO" => 2
 	},
-	"PRIVATE" =>
+	"A9EFA" =>
 	{
 		"TV" => 2,
 		"GPIO" => 2
@@ -59,12 +59,14 @@ foreach my $variant (sort keys %variants)
 	`mkdir $dir/common/a8core`;
 	`mkdir $dir/common/components`;
 	`mkdir $dir/common/zpu`;
+	mkdir "./$dir/common/components/usbhostslave";
+	`cp ../common/components/usbhostslave/trunk/RTL/*/*.v ./$dir/common/components/usbhostslave`;
 	`cp ../common/a8core/* ./$dir/common/a8core`;
 	`cp ../common/components/* ./$dir/common/components`;
 	`cp ../common/zpu/* ./$dir/common/zpu`;
 
 	chdir $dir;
-	`../makeqsf ../atari800core_eclaireXL.qsf ./common/a8core ./common/components ./common/zpu`;
+	`../makeqsf ../atari800core_eclaireXL.qsf ./common/a8core ./common/components ./common/zpu ./common/components/usbhostslave`;
 	`cat ../atari800core_eclaireXL.qsf_$variant >> atari800core_eclaireXL.qsf`;
 
 	foreach my $key (sort keys %{$variants{$variant}})

@@ -12,7 +12,7 @@
 # or its authorized distributors. Please refer to the applicable 
 # agreement for further details.
 
-# ACDS 14.0 200 linux 2015.07.12.07:17:48
+# ACDS 14.0 200 linux 2015.07.12.07:16:21
 
 # ----------------------------------------
 # Auto-generated simulation script
@@ -26,7 +26,7 @@ if ![info exists SYSTEM_INSTANCE_NAME] {
 }
 
 if ![info exists TOP_LEVEL_NAME] { 
-  set TOP_LEVEL_NAME "pll"
+  set TOP_LEVEL_NAME "pll_usb"
 }
 
 if ![info exists QSYS_SIMDIR] { 
@@ -45,6 +45,17 @@ if ![ string match "*-64 vsim*" [ vsim -version ] ] {
 } else {
 }
 
+set Aldec "Riviera"
+if { [ string match "*Active-HDL*" [ vsim -version ] ] } {
+  set Aldec "Active"
+}
+
+if { [ string match "Active" $Aldec ] } {
+  scripterconf -tcl
+  createdesign "$TOP_LEVEL_NAME"  "."
+  opendesign "$TOP_LEVEL_NAME"
+}
+
 # ----------------------------------------
 # Copy ROM/RAM files to simulation directory
 alias file_copy {
@@ -54,70 +65,65 @@ alias file_copy {
 # ----------------------------------------
 # Create compilation libraries
 proc ensure_lib { lib } { if ![file isdirectory $lib] { vlib $lib } }
-ensure_lib          ./libraries/     
-ensure_lib          ./libraries/work/
-vmap       work     ./libraries/work/
-vmap       work_lib ./libraries/work/
-if ![ string match "*ModelSim ALTERA*" [ vsim -version ] ] {
-  ensure_lib              ./libraries/altera/      
-  vmap       altera       ./libraries/altera/      
-  ensure_lib              ./libraries/lpm/         
-  vmap       lpm          ./libraries/lpm/         
-  ensure_lib              ./libraries/sgate/       
-  vmap       sgate        ./libraries/sgate/       
-  ensure_lib              ./libraries/altera_mf/   
-  vmap       altera_mf    ./libraries/altera_mf/   
-  ensure_lib              ./libraries/altera_lnsim/
-  vmap       altera_lnsim ./libraries/altera_lnsim/
-  ensure_lib              ./libraries/cyclonev/    
-  vmap       cyclonev     ./libraries/cyclonev/    
-}
+ensure_lib      ./libraries     
+ensure_lib      ./libraries/work
+vmap       work ./libraries/work
+ensure_lib              ./libraries/altera      
+vmap       altera       ./libraries/altera      
+ensure_lib              ./libraries/lpm         
+vmap       lpm          ./libraries/lpm         
+ensure_lib              ./libraries/sgate       
+vmap       sgate        ./libraries/sgate       
+ensure_lib              ./libraries/altera_mf   
+vmap       altera_mf    ./libraries/altera_mf   
+ensure_lib              ./libraries/altera_lnsim
+vmap       altera_lnsim ./libraries/altera_lnsim
+ensure_lib              ./libraries/cyclonev    
+vmap       cyclonev     ./libraries/cyclonev    
 
 
 # ----------------------------------------
 # Compile device library files
 alias dev_com {
   echo "\[exec\] dev_com"
-  if ![ string match "*ModelSim ALTERA*" [ vsim -version ] ] {
-    vcom     "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_syn_attributes.vhd"        -work altera      
-    vcom     "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_standard_functions.vhd"    -work altera      
-    vcom     "$QUARTUS_INSTALL_DIR/eda/sim_lib/alt_dspbuilder_package.vhd"       -work altera      
-    vcom     "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_europa_support_lib.vhd"    -work altera      
-    vcom     "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_primitives_components.vhd" -work altera      
-    vcom     "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_primitives.vhd"            -work altera      
-    vcom     "$QUARTUS_INSTALL_DIR/eda/sim_lib/220pack.vhd"                      -work lpm         
-    vcom     "$QUARTUS_INSTALL_DIR/eda/sim_lib/220model.vhd"                     -work lpm         
-    vcom     "$QUARTUS_INSTALL_DIR/eda/sim_lib/sgate_pack.vhd"                   -work sgate       
-    vcom     "$QUARTUS_INSTALL_DIR/eda/sim_lib/sgate.vhd"                        -work sgate       
-    vcom     "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_mf_components.vhd"         -work altera_mf   
-    vcom     "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_mf.vhd"                    -work altera_mf   
-    vlog -sv "$QUARTUS_INSTALL_DIR/eda/sim_lib/mentor/altera_lnsim_for_vhdl.sv"  -work altera_lnsim
-    vcom     "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_lnsim_components.vhd"      -work altera_lnsim
-    vlog     "$QUARTUS_INSTALL_DIR/eda/sim_lib/mentor/cyclonev_atoms_ncrypt.v"   -work cyclonev    
-    vcom     "$QUARTUS_INSTALL_DIR/eda/sim_lib/cyclonev_atoms.vhd"               -work cyclonev    
-    vcom     "$QUARTUS_INSTALL_DIR/eda/sim_lib/cyclonev_components.vhd"          -work cyclonev    
-  }
+  vcom  "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_syn_attributes.vhd"        -work altera      
+  vcom  "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_standard_functions.vhd"    -work altera      
+  vcom  "$QUARTUS_INSTALL_DIR/eda/sim_lib/alt_dspbuilder_package.vhd"       -work altera      
+  vcom  "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_europa_support_lib.vhd"    -work altera      
+  vcom  "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_primitives_components.vhd" -work altera      
+  vcom  "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_primitives.vhd"            -work altera      
+  vcom  "$QUARTUS_INSTALL_DIR/eda/sim_lib/220pack.vhd"                      -work lpm         
+  vcom  "$QUARTUS_INSTALL_DIR/eda/sim_lib/220model.vhd"                     -work lpm         
+  vcom  "$QUARTUS_INSTALL_DIR/eda/sim_lib/sgate_pack.vhd"                   -work sgate       
+  vcom  "$QUARTUS_INSTALL_DIR/eda/sim_lib/sgate.vhd"                        -work sgate       
+  vcom  "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_mf_components.vhd"         -work altera_mf   
+  vcom  "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_mf.vhd"                    -work altera_mf   
+  vlog  "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_lnsim.sv"                  -work altera_lnsim
+  vcom  "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_lnsim_components.vhd"      -work altera_lnsim
+  vlog  "$QUARTUS_INSTALL_DIR/eda/sim_lib/aldec/cyclonev_atoms_ncrypt.v"    -work cyclonev    
+  vcom  "$QUARTUS_INSTALL_DIR/eda/sim_lib/cyclonev_atoms.vhd"               -work cyclonev    
+  vcom  "$QUARTUS_INSTALL_DIR/eda/sim_lib/cyclonev_components.vhd"          -work cyclonev    
 }
 
 # ----------------------------------------
 # Compile the design files in correct order
 alias com {
   echo "\[exec\] com"
-  vcom "$QSYS_SIMDIR/pll.vho"
+  vcom "$QSYS_SIMDIR/pll_usb.vho"
 }
 
 # ----------------------------------------
 # Elaborate top level design
 alias elab {
   echo "\[exec\] elab"
-  eval vsim -t ps $ELAB_OPTIONS -L work -L work_lib -L altera -L lpm -L sgate -L altera_mf -L altera_lnsim -L cyclonev $TOP_LEVEL_NAME
+  eval vsim +access +r -t ps $ELAB_OPTIONS -L work -L altera -L lpm -L sgate -L altera_mf -L altera_lnsim -L cyclonev $TOP_LEVEL_NAME
 }
 
 # ----------------------------------------
-# Elaborate the top level design with novopt option
+# Elaborate the top level design with -dbg -O2 option
 alias elab_debug {
   echo "\[exec\] elab_debug"
-  eval vsim -novopt -t ps $ELAB_OPTIONS -L work -L work_lib -L altera -L lpm -L sgate -L altera_mf -L altera_lnsim -L cyclonev $TOP_LEVEL_NAME
+  eval vsim -dbg -O2 +access +r -t ps $ELAB_OPTIONS -L work -L altera -L lpm -L sgate -L altera_mf -L altera_lnsim -L cyclonev $TOP_LEVEL_NAME
 }
 
 # ----------------------------------------
@@ -129,7 +135,7 @@ alias ld "
 "
 
 # ----------------------------------------
-# Compile all the design files and elaborate the top level design with -novopt
+# Compile all the design files and elaborate the top level design with -dbg -O2
 alias ld_debug "
   dev_com
   com
@@ -149,11 +155,11 @@ alias h {
   echo
   echo "elab                          -- Elaborate top level design"
   echo
-  echo "elab_debug                    -- Elaborate the top level design with novopt option"
+  echo "elab_debug                    -- Elaborate the top level design with -dbg -O2 option"
   echo
   echo "ld                            -- Compile all the design files and elaborate the top level design"
   echo
-  echo "ld_debug                      -- Compile all the design files and elaborate the top level design with -novopt"
+  echo "ld_debug                      -- Compile all the design files and elaborate the top level design with -dbg -O2"
   echo
   echo 
   echo

@@ -12,14 +12,14 @@
 # or its authorized distributors. Please refer to the applicable 
 # agreement for further details.
 
-# ACDS 14.0 200 linux 2015.07.12.07:17:48
+# ACDS 14.0 200 linux 2015.07.12.07:16:21
 
 # ----------------------------------------
 # vcsmx - auto-generated simulation script
 
 # ----------------------------------------
 # initialize variables
-TOP_LEVEL_NAME="pll"
+TOP_LEVEL_NAME="pll_usb"
 QSYS_SIMDIR="./../../"
 QUARTUS_INSTALL_DIR="/home/markw/fpga/altera/14.0/quartus/"
 SKIP_FILE_COPY=0
@@ -91,7 +91,7 @@ fi
 # ----------------------------------------
 # compile design files in correct order
 if [ $SKIP_COM -eq 0 ]; then
-  vhdlan -xlrm "$QSYS_SIMDIR/pll.vho"
+  vhdlan -xlrm "$QSYS_SIMDIR/pll_usb.vho"
 fi
 
 # ----------------------------------------

@@ -38,7 +38,6 @@
 
 
 set_global_assignment -name FAMILY "Cyclone V"
-set_global_assignment -name DEVICE 5CEBA2F23C8
 set_global_assignment -name TOP_LEVEL_ENTITY atari800core_eclaireXL
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 14.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "20:32:21  JULY 11, 2015"
@@ -54,6 +53,7 @@ set_global_assignment -name EDA_OUTPUT_DATA_FORMAT VHDL -section_id eda_simulati
 set_global_assignment -name VHDL_FILE atari800core_eclaireXL.vhd
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
 
 set_global_assignment -name VHDL_FILE gpio.vhd
 set_global_assignment -name VHDL_FILE gpiov2.vhd
@@ -61,6 +61,7 @@ set_global_assignment -name VHDL_FILE atari800core_de1.vhd
 set_global_assignment -name QIP_FILE pll_pal.qip
 set_global_assignment -name QIP_FILE pll_ntsc.qip
 set_global_assignment -name QIP_FILE pll.qip
+set_global_assignment -name QIP_FILE pll_usb.qip
 set_global_assignment -name VHDL_FILE zpu_rom.vhdl
 set_location_assignment PIN_H16 -to CLOCK_5
 

@@ -12,7 +12,7 @@
 # or its authorized distributors. Please refer to the applicable 
 # agreement for further details.
 
-# ACDS 14.0 200 linux 2015.07.11.22:43:40
+# ACDS 14.0 200 linux 2015.07.12.07:17:48
 
 # ----------------------------------------
 # Auto-generated simulation script

@@ -39,17 +39,17 @@ ENTITY atari800core_eclaireXL IS
 		DRAM_UDQM :  OUT  STD_LOGIC;
 		DRAM_CLK :  OUT  STD_LOGIC;
 		DRAM_CKE :  OUT  STD_LOGIC;
-		DRAM_ADDR :  OUT  STD_LOGIC_VECTOR(11 DOWNTO 0);
+		DRAM_ADDR :  OUT  STD_LOGIC_VECTOR(12 DOWNTO 0);
 		DRAM_DQ :  INOUT  STD_LOGIC_VECTOR(15 DOWNTO 0);
 
 		SD_WRITEPROTECT : IN STD_LOGIC;
 		SD_DETECT : IN STD_LOGIC;
-		--SD_DAT1 : IN STD_LOGIC;
+		SD_DAT1 : OUT STD_LOGIC;
 		SD_DAT0 :  IN  STD_LOGIC;
 		SD_CLK :  OUT  STD_LOGIC;
 		SD_CMD :  OUT  STD_LOGIC;
 		SD_DAT3 :  OUT  STD_LOGIC;
-		--SD_DAT2 : IN STD_LOGIC;
+		SD_DAT2 : OUT STD_LOGIC;
 
 		VGA_VS :  OUT  STD_LOGIC;
 		VGA_HS :  OUT  STD_LOGIC;
@@ -92,6 +92,15 @@ component pll
 		outclk_0 : out std_logic;        -- outclk0.clk
 		outclk_1 : out std_logic;        -- outclk1.clk
 		outclk_2 : out std_logic;        -- outclk2.clk
+		locked   : out std_logic         --  locked.export
+	);
+end component;
+
+component pll_usb is
+	port (
+		refclk   : in  std_logic := '0'; --  refclk.clk
+		rst      : in  std_logic := '0'; --   reset.reset
+		outclk_0 : out std_logic;        -- outclk0.clk
 		locked   : out std_logic         --  locked.export
 	);
 end component;
@@ -263,11 +272,23 @@ end component;
 
 	signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
 	signal PS2_KEYS_NEXT : STD_LOGIC_VECTOR(511 downto 0);
+
+	-- usb
+	signal CLK_USB : std_logic;
+
+	signal USBWireVPin : std_logic_vector(1 downto 0);
+	signal USBWireVMin : std_logic_vector(1 downto 0);
+	signal USBWireVPout : std_logic_vector(1 downto 0);
+	signal USBWireVMout : std_logic_vector(1 downto 0);
+	signal USBWireOE_n : std_logic_vector(1 downto 0);
 BEGIN 
 
 	-- TODO
 	pbi_enable <= '1'; --SW(4);
 	PAL <= '1';-- SW(8);
+
+	SD_DAT2<='0';
+	SD_DAT1<='0';
 
 -- ANYTHING NOT CONNECTED...
 --GPIOA(0) <= 'Z';
@@ -307,6 +328,8 @@ PORT MAP(CLK_SYSTEM => CLK,
 		 SDRAM_ADDR => DRAM_ADDR(11 downto 0),
 		 reset_client_n => SDRAM_RESET_N
 		 );
+
+DRAM_ADDR(12) <= '0';
 
 -- PIA mapping
 -- emulate pull-up on command line
@@ -514,12 +537,18 @@ VGA_BLANK_N <= NOT(VGA_BLANK);
 --
 --gen_old_pll : if tv=2 generate
 pllinstance : pll
-PORT MAP(refclk => CLOCK_5, -- new PLL!
+PORT MAP(refclk => CLOCK_5,
 		 outclk_0 => CLK_SDRAM,
 		 outclk_1 => CLK,
 		 outclk_2 => DRAM_CLK,
 		 locked => PLL_LOCKED);
 --end generate;
+
+
+pllusbinstance : pll_usb
+PORT MAP(refclk => CLOCK_5, 
+		 outclk_0 => CLK_USB,
+		 locked => open);
 
 --	port (
 --		refclk   : in  std_logic := '0'; --  refclk.clk
@@ -701,7 +730,9 @@ zpu: entity work.zpucore
 	GENERIC MAP
 	(
 		platform => 1,
-		spi_clock_div => 1 -- 28MHz/2. Max for SD cards is 25MHz...
+		spi_clock_div => 1, -- 28MHz/2. Max for SD cards is 25MHz...
+		memory => 8192,
+		usb => 2
 	)
 	PORT MAP
 	(
@@ -752,7 +783,16 @@ zpu: entity work.zpucore
 		ZPU_OUT1 => zpu_out1,
 		ZPU_OUT2 => zpu_out2,
 		ZPU_OUT3 => zpu_out3,
-		ZPU_OUT4 => zpu_out4
+		ZPU_OUT4 => zpu_out4,
+
+		-- USB host
+		CLK_USB => CLK_USB,
+	
+		USBWireVPin => USBWireVPin,
+		USBWireVMin => USBWireVMin,
+		USBWireVPout => USBWireVPout,
+		USBWireVMout => USBWireVMout,
+		USBWireOE_n => USBWireOE_n
 	);
 
 	pause_atari <= zpu_out1(0);
