@@ -393,6 +393,9 @@ ARCHITECTURE vhdl OF pokey IS
 	signal pot6_reg : std_logic_vector(7 downto 0);
 	signal pot7_next : std_logic_vector(7 downto 0);
 	signal pot7_reg : std_logic_vector(7 downto 0);	
+
+	signal allpot_next : std_logic_vector(7 downto 0);
+	signal allpot_reg : std_logic_vector(7 downto 0);	
 	
 	signal pot_counter_next : std_logic_vector(7 downto 0);
 	signal pot_counter_reg : std_logic_vector(7 downto 0);
@@ -471,6 +474,8 @@ BEGIN
 			pot5_reg <= (others=>'0');
 			pot6_reg <= (others=>'0');
 			pot7_reg <= (others=>'0');
+
+			allpot_reg <= (others=>'1');
 			
 			pot_counter_reg <= (others=>'0');
 			
@@ -548,6 +553,8 @@ BEGIN
 			pot5_reg <= pot5_next;
 			pot6_reg <= pot6_next;
 			pot7_reg <= pot7_next;
+
+			allpot_reg <= allpot_next;
 			
 			pot_counter_reg <= pot_counter_next;
 			
@@ -714,7 +721,7 @@ BEGIN
 	end process;
 	
 	-- Read from registers
-	process(addr_decoded,kbcode,RAND_OUT,IRQST_REG,key_held,shift_held,sio_in_reg,serin_reg,keyboard_overrun_reg, serial_ip_framing_reg, serial_ip_overrun_reg, waiting_for_start_bit, pot_in, pot0_reg, pot1_reg, pot2_reg, pot3_reg, pot4_reg, pot5_reg, pot6_reg, pot7_reg)
+	process(addr_decoded,kbcode,RAND_OUT,IRQST_REG,key_held,shift_held,sio_in_reg,serin_reg,keyboard_overrun_reg, serial_ip_framing_reg, serial_ip_overrun_reg, waiting_for_start_bit, pot_in, pot0_reg, pot1_reg, pot2_reg, pot3_reg, pot4_reg, pot5_reg, pot6_reg, pot7_reg, allpot_reg)
 	begin
 		data_out <= X"FF";
 
@@ -751,7 +758,7 @@ BEGIN
 		end if;
 
 		if(addr_decoded(8) = '1') then --ALLPOT
-			data_out <= not(pot_in);
+			data_out <= allpot_reg;
 		end if;
 		
 		if(addr_decoded(9) = '1') then --KBCODE
@@ -1160,7 +1167,7 @@ BEGIN
 		port map (clk=>clk, reset_n=>reset_n, enable=>enable_15, keyboard_response=>keyboard_response, debounce_disable=>not(skctl_reg(0)), scan_enable=>skctl_reg(1), keyboard_scan=>keyboard_scan, key_held=>key_held, shift_held=>shift_held, keycode=>kbcode, other_key_irq=>other_key_irq, break_irq=>break_irq);
 
 	-- POT scan
-	process(potgo_write, pot_reset_reg, pot_counter_reg, pot_in, enable_15, enable_179, skctl_reg, pot0_reg, pot1_reg, pot2_reg, pot3_reg, pot4_reg, pot5_reg, pot6_reg, pot7_reg)
+	process(potgo_write, pot_reset_reg, pot_counter_reg, pot_in, enable_15, enable_179, skctl_reg, pot0_reg, pot1_reg, pot2_reg, pot3_reg, pot4_reg, pot5_reg, pot6_reg, pot7_reg, allpot_reg)
 	begin	
 		pot0_next <= pot0_reg;
 		pot1_next <= pot1_reg;
@@ -1170,6 +1177,8 @@ BEGIN
 		pot5_next <= pot5_reg;
 		pot6_next <= pot6_reg;
 		pot7_next <= pot7_reg;
+
+		allpot_next <= allpot_reg;
 		
 		pot_reset_next <= pot_reset_reg;
 		
@@ -1179,6 +1188,7 @@ BEGIN
 			pot_counter_next <= std_logic_vector(unsigned(pot_counter_reg) + 1);
 			if (pot_counter_reg = X"E4") then
 				pot_reset_next <= '1'; -- turn on pot dump transistors
+				allpot_next <= (others=>'0');
 			end if;
 			
 			if (pot_reset_reg = '0') then
@@ -1206,12 +1216,15 @@ BEGIN
 				if (pot_in(7) = '0') then -- pot now high, latch
 					pot7_next <= pot_counter_reg;
 				end if;
+
+				allpot_next <= allpot_reg and not(pot_in);
 			end if;			
 		end if;
 			
 		if (potgo_write = '1') then
 			pot_counter_next <= (others=>'0');
 			pot_reset_next <= '0'; -- turn off pot dump transistors, so they start to get charged
+			allpot_next <= (others=>'1');
 		end if;		
 	end process;
 	

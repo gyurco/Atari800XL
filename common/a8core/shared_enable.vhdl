@@ -129,12 +129,12 @@ begin
 	end process;
 	
 	-- next state
-	memory_ready <= memORY_READY_CPU or memORY_READY_ANTIC;
+	memory_ready <= memory_ready_cpu or memory_ready_antic;
 	cpu_enable <= (speed_shift_reg(0) or cpu_extra_enable_reg or enable_179) and not(pause_6502 or antic_refresh);
 	cpu_extra_enable_next <= cpu_enable and not(memory_ready);
 	
-	oldcpu_pending_next <= (oldcpu_pending_reg or enable_179) and not(memory_ready or antic_refresh);
-	oldcpu_go <= (oldcpu_pending_reg or enable_179) and (memory_ready or antic_refresh);
+	oldcpu_pending_next <= (oldcpu_pending_reg or enable_179) and not(memory_ready or antic_refresh or pause_6502);
+	oldcpu_go <= (oldcpu_pending_reg or enable_179) and (memory_ready or antic_refresh or pause_6502);
 	
 	-- output
 	oldcpu_enable <= oldcpu_go;
