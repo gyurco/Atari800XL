@@ -193,7 +193,7 @@ void select_cartridge()
 		if (size == 16384) // uff!
 		{
 			struct joystick_status joy;
-			joy.x_ = joy.y_ = joy.fire_ = 0;
+			joy.x_ = joy.y_ = joy.fire_ = joy.escape_ = 0;
 
 			clearscreen();
 			debug_pos = 0;
@@ -224,7 +224,7 @@ void select_cartridge()
 int settings()
 {
 	struct joystick_status joy;
-	joy.x_ = joy.y_ = joy.fire_ = 0;
+	joy.x_ = joy.y_ = joy.fire_ = joy.escape_ = 0;
 
 	int row = 0;
 
@@ -281,6 +281,7 @@ while (1)
 		// move
 		joystick_wait(&joy,WAIT_QUIET);
 		joystick_wait(&joy,WAIT_EITHER);
+		if (joy.escape_) break;
 
 		row+=joy.y_;
 		if (row<0) row = 0;

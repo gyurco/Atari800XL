@@ -89,6 +89,8 @@ void freeze()
 	*atari_dmactl = 0x22;
 	*atari_skctl = 0x2;
 	*atari_chactl = 0x2;
+	*atari_consol = 4;
+	*atari_potgo = 0xff;
 }
 
 void restore()

@@ -53,8 +53,6 @@ static const int screen_address = 11328;
 
 #define atari_porta ((unsigned char volatile *)(0xd300 + atari_regbase))
 #define atari_portb ((unsigned char volatile *)(0xd301 + atari_regbase))
-#define atari_trig0 ((unsigned char volatile *)(0xd010 + atari_regbase))
-#define atari_trig1 ((unsigned char volatile *)(0xd011 + atari_regbase))
 #define atari_chbase ((unsigned char volatile *)(0xd409 + atari_regbase))
 #define atari_chactl ((unsigned char volatile *)(0xd401 + atari_regbase))
 #define atari_dmactl ((unsigned char volatile *)(0xd400 + atari_regbase))
@@ -68,13 +66,20 @@ static const int screen_address = 11328;
 #define atari_colpf0 ((unsigned char volatile *)(0xc016 + atari_regbase))
 #define atari_prior ((unsigned char volatile *)(0xc01b + atari_regbase))
 #define atari_consol ((unsigned char volatile *)(0xc01f + atari_regbase))
+#define atari_trig0 ((unsigned char volatile *)(0xc010 + atari_regbase))
+#define atari_trig1 ((unsigned char volatile *)(0xc011 + atari_regbase))
+#define atari_trig2 ((unsigned char volatile *)(0xc012 + atari_regbase))
+#define atari_trig3 ((unsigned char volatile *)(0xc013 + atari_regbase))
 
 #define atari_skctl ((unsigned char volatile *)(0xe80f + atari_regbase))
 #define atari_kbcode ((unsigned char volatile *)(0xe809 + atari_regbase))
 #define atari_random ((unsigned char volatile *)(0xe80a + atari_regbase))
 #define atari_pot0 ((unsigned char volatile *)(0xe800 + atari_regbase))
 #define atari_pot1 ((unsigned char volatile *)(0xe801 + atari_regbase))
+#define atari_pot2 ((unsigned char volatile *)(0xe802 + atari_regbase))
+#define atari_pot3 ((unsigned char volatile *)(0xe803 + atari_regbase))
 #define atari_potgo ((unsigned char volatile *)(0xe80b + atari_regbase))
+#define atari_allpot ((unsigned char volatile *)(0xe808 + atari_regbase))
 
 #else
 
@@ -88,6 +93,9 @@ static const int screen_address = 11328;
 #define atari_skctl ((unsigned char volatile *)(0xd20f + atari_regbase))
 #define atari_kbcode ((unsigned char volatile *)(0xd209 + atari_regbase))
 #define atari_random ((unsigned char volatile *)(0xd20a + atari_regbase))
+
+#define atari_trig0 ((unsigned char volatile *)(0xd010 + atari_regbase))
+#define atari_trig1 ((unsigned char volatile *)(0xd011 + atari_regbase))
 
 #endif
 
