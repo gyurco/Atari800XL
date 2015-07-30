@@ -566,7 +566,7 @@ uint32_t jmap = *jmap_ptr;
     { 6, 6, 0x00, 4 }, /* 3 -> fire */
     { 8, 8, 0x00, 4 }, /* l1 -> fire */
     { 9, 9, 0x00, 4 }, /* r1 -> fire */
-    { 8, 15, 0x43, 0 }, /* l2& rstick click -> f10 */
+    { 10, 15, 0x43, 0 }, /* l2& rstick click -> f10 */
     { 9, 15, 0x42, 0 }, /* l1& rstick click -> f9 */
     { 0, 0, 0x00, 0 }  /* ----  end ---- */
   };
