@@ -495,7 +495,7 @@ return_to_boot_menu : entity work.delayed_reconfig
 	(
 		CLK_5MHZ => FPGA_CLK,
 		RESET_N => RESET_N,
-		RECONFIG_BUTTON => ps2_keys(16#06#)
+		RECONFIG_BUTTON => (FKEYS(1) or FKEYS(4))
 	);
 
 atari5200_simple_sdram1 : entity work.atari5200core_simplesdram
