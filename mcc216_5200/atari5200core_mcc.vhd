@@ -466,6 +466,14 @@ JOY1Y <= zpu_out5(15 downto 8);
 JOY2X <= zpu_out5(23 downto 16);
 JOY2Y <= zpu_out5(31 downto 24);
 
+return_to_boot_menu : entity work.delayed_reconfig
+	PORT MAP
+	(
+		CLK_5MHZ => FPGA_CLK,
+		RESET_N => RESET_N,
+		RECONFIG_BUTTON => ps2_keys(16#06#)
+	);
+
 atari5200_simple_sdram1 : entity work.atari5200core_simplesdram
 	GENERIC MAP
 	(
