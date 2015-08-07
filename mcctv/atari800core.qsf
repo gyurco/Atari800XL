@@ -194,6 +194,8 @@ set_global_assignment -name QIP_FILE pal_pll.qip
 set_global_assignment -name QIP_FILE pll_downstream_pal.qip
 set_global_assignment -name QIP_FILE ntsc_pll.qip
 set_global_assignment -name QIP_FILE pll_downstream_ntsc.qip
+set_global_assignment -name QIP_FILE remote_update.qip
+set_global_assignment -name VHDL_FILE delayed_reconfig.vhd
 set_global_assignment -name SDC_FILE atari800core.sdc
 set_global_assignment -name VERILOG_FILE sdram_ctrl_3_ports.v
 set_global_assignment -name VHDL_FILE zpu_rom.vhdl
