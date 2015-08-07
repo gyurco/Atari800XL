@@ -554,6 +554,14 @@ JOY2Y <= zpu_out5(31 downto 24);
 
 	paddle_mode_next <= paddle_mode_reg xor (not(ps2_keys(16#11F#)) and ps2_keys_next(16#11F#)); -- left windows key
 
+return_to_boot_menu : entity work.delayed_reconfig
+	PORT MAP
+	(
+		CLK_5MHZ => FPGA_CLK,
+		RESET_N => RESET_N,
+		RECONFIG_BUTTON => FKEYS(6)
+	);
+
 atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
 	(
