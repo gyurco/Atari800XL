@@ -228,6 +228,8 @@ ARCHITECTURE vhdl OF antic IS
 	signal dmactl_raw_reg : std_logic_vector(6 downto 0);
 	signal dmactl_delayed_reg : std_logic_vector(6 downto 0);
 	signal dmactl_delayed_enabled : std_logic;
+
+	signal playfield_dma_enabled : std_logic;
 	
 	signal chactl_next : std_logic_vector(2 downto 0);
 	signal chactl_reg : std_logic_vector(2 downto 0);
@@ -816,6 +818,8 @@ BEGIN
 		playfield_dma_end_cycle <= (others=>'1');
 		playfield_display_start_cycle <= (others=>'1');
 		playfield_display_end_cycle <= (others=>'1');
+
+		playfield_dma_enabled <= dmactl_delayed_reg(1) or dmactl_delayed_reg(0); -- TODO, more work needed here
 		
 		-- DMA clock start/end
 		-- wide=3, normal=2, narrow=1
@@ -881,7 +885,7 @@ BEGIN
 	end process;
 	
 	-- Actions done based on horizontal position - notably dma!
-	process (dmactl_delayed_enabled, hcount_reg, vcount_reg, vblank_reg, hblank_reg, dmactl_delayed_reg, playfield_dma_start_cycle, playfield_dma_end_cycle, playfield_display_start_cycle, playfield_display_end_cycle, instruction_final_row_reg, display_list_address_reg, pmbase_reg, first_line_of_instruction_reg, last_line_of_instruction_live, last_line_of_instruction_reg, instruction_type_reg, dma_clock_character_name, dma_clock_character_data, dma_clock_bitmap_data, allow_real_dma_reg, row_count_reg, dma_address_reg, memory_scan_address_reg, chbase_delayed_reg, line_buffer_data_out, enable_dma, colour_clock_1x, two_part_instruction_reg, dma_fetch_destination_reg, playfield_display_active_reg, character_reg, dma_clock_character_inc, single_colour_character_reg, twoline_character_reg, instruction_reg, dli_enabled_reg, refresh_fetch_next, chactl_reg, vscrol_enabled_reg, vscrol_last_enabled_reg,twopixel_reg,dli_nmi_reg,vbi_nmi_reg,displayed_character_reg)
+	process (dmactl_delayed_enabled, hcount_reg, vcount_reg, vblank_reg, hblank_reg, dmactl_delayed_reg, playfield_dma_start_cycle, playfield_dma_end_cycle, playfield_display_start_cycle, playfield_display_end_cycle, instruction_final_row_reg, display_list_address_reg, pmbase_reg, first_line_of_instruction_reg, last_line_of_instruction_live, last_line_of_instruction_reg, instruction_type_reg, dma_clock_character_name, dma_clock_character_data, dma_clock_bitmap_data, allow_real_dma_reg, row_count_reg, dma_address_reg, memory_scan_address_reg, chbase_delayed_reg, line_buffer_data_out, enable_dma, colour_clock_1x, two_part_instruction_reg, dma_fetch_destination_reg, playfield_display_active_reg, character_reg, dma_clock_character_inc, single_colour_character_reg, twoline_character_reg, instruction_reg, dli_enabled_reg, refresh_fetch_next, chactl_reg, vscrol_enabled_reg, vscrol_last_enabled_reg,twopixel_reg,dli_nmi_reg,vbi_nmi_reg,displayed_character_reg, playfield_dma_enabled)
 	begin
 		allow_real_dma_next <= allow_real_dma_reg;
 
@@ -1072,7 +1076,7 @@ BEGIN
 			
 			-- Playfield DMA
 			if (instruction_type_reg = mode_character and dma_clock_character_name = '1') then -- for character name
-				dma_fetch_request <= dmactl_delayed_enabled and first_line_of_instruction_reg;
+				dma_fetch_request <= dmactl_delayed_enabled and first_line_of_instruction_reg and playfield_dma_enabled;
 				dma_address_next <= memory_scan_address_reg;
 				dma_fetch_destination_next <= dma_fetch_line_buffer;
 				increment_memory_scan_address <= first_line_of_instruction_reg;
@@ -1084,7 +1088,7 @@ BEGIN
 			end if;
 			
 			if (instruction_type_reg = mode_bitmap and dma_clock_bitmap_data = '1' and first_line_of_instruction_reg='1') then -- bitmap data			
-				dma_fetch_request <= dmactl_delayed_enabled;
+				dma_fetch_request <= dmactl_delayed_enabled and playfield_dma_enabled;
 				dma_address_next <= memory_scan_address_reg;
 				dma_fetch_destination_next <= dma_fetch_line_buffer;
 				increment_memory_scan_address <= '1';		
@@ -1673,7 +1677,7 @@ BEGIN
 		end if;
 	end process;
 	
-	process(colour_clock_selected, an_current, an_reg, an_prev_reg, hscrol_reg, hscrol_enabled_reg, vsync_reg, vblank_reg, hblank_reg, playfield_display_active_reg, instruction_blank_reg, twopixel_reg, dmactl_delayed_reg)
+	process(colour_clock_selected, an_current, an_reg, an_prev_reg, hscrol_reg, hscrol_enabled_reg, vsync_reg, vblank_reg, hblank_reg, playfield_display_active_reg, instruction_blank_reg, twopixel_reg, playfield_dma_enabled)
 	begin
 		an_next <= an_reg;
 	
@@ -1684,14 +1688,14 @@ BEGIN
 				an_next <= an_prev_reg;
 			end if;
 			
-			if ((not(playfield_display_active_reg) or instruction_blank_reg or vblank_reg) = '1') then
+			if ((not(playfield_display_active_reg) or instruction_blank_reg or vblank_reg or not(playfield_dma_enabled)) = '1') then
 				an_next <= "000";
 			end if;
 			
 			if (vblank_reg = '1' or hblank_reg = '1') then				
 				an_next(0) <= vsync_reg or twopixel_reg;
 				an_next(1) <= not(vsync_reg);
-				an_next(2) <= not(hblank_reg) and twopixel_reg and (dmactl_delayed_reg(1) or dmactl_delayed_reg(0));
+				an_next(2) <= not(hblank_reg) and twopixel_reg and playfield_dma_enabled;
 			end if;			
 
 --			if (hblank_reg = '1') then
