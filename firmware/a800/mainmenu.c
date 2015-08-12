@@ -33,6 +33,7 @@ struct usb_host usb_portb;
 void mainmenu()
 {
 #ifdef USB
+	usb_log_init(files[7]);
 	usb_init(&usb_porta,0);
 #endif
 #ifdef USB2

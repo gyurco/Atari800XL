@@ -209,7 +209,7 @@ void char_out ( void* p, char c)
 }
 #endif
 
-#define NUM_FILES 7
+#define NUM_FILES 8
 struct SimpleFile * files[NUM_FILES];
 
 void loadromfile(struct SimpleFile * file, int size, size_t ram_address)
