@@ -781,7 +781,7 @@ uint8_t usb_release_device(uint8_t parent, uint8_t port) {
   int i;
   for(i=0; i<USB_NUMDEVICES; i++) {
     if(devices[i].bAddress && devices[i].parent == parent && devices[i].port == port && devices[i].host_addr == usbhostslave) {
-      iprintf("  -> device with address %x\n", dev[i].bAddress);
+      iprintf("  -> device with address %x\n", devices[i].bAddress);
 
       // check if this is a hub (parent of some other device)
       // and release its kids first

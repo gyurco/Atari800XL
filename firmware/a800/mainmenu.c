@@ -7,6 +7,7 @@ unsigned char freezer_rom_present;
 
 #ifdef USB
 #include "usb.h"
+#include "usb/debug.h"
 #endif
 
 #undef USBSETTINGS
@@ -33,7 +34,6 @@ struct usb_host usb_portb;
 void mainmenu()
 {
 #ifdef USB
-	usb_log_init(files[7]);
 	usb_init(&usb_porta,0);
 #endif
 #ifdef USB2
@@ -42,6 +42,9 @@ void mainmenu()
 	freezer_rom_present = 0;
 	if (SimpleFile_OK == dir_init((void *)DIR_INIT_MEM, DIR_INIT_MEMSIZE))
 	{
+		#ifdef USB
+			usb_log_init(files[7]);
+		#endif
 		init_drive_emulator();
 		
 		struct SimpleDirEntry * entries = dir_entries(ROM_DIR);

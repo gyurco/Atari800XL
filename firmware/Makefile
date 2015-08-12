@@ -76,7 +76,7 @@ A800_SRC_LIGHT = a800/freeze.c  a800/mainmenu.c atari_drive_emulator.c libgcc_di
 A800_SRC = ${A800_SRC_LIGHT} a800/joystick.c 
 5200_SRC_LIGHT = 5200/freeze.c  5200/mainmenu.c
 5200_SRC = ${5200_SRC_LIGHT} 5200/joystick.c
-USB_SRC = usb/hid.c  usb/hidparser.c  usb/hub.c usb/timer.c  usb/usb.c
+USB_SRC = usb/hid.c  usb/hidparser.c  usb/hub.c usb/timer.c  usb/usb.c usb/debug.c
 
 AEON_LITE_PRJ = AEON_LITE
 AEON_LITE_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) de1/dirs.c

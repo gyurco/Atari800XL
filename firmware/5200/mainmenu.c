@@ -36,7 +36,6 @@ struct usb_host usb_portb;
 void mainmenu()
 {
 #ifdef USB
-	usb_log_init(files[7]);
 	usb_init(&usb_porta,0);
 #endif
 #ifdef USB2
@@ -47,6 +46,9 @@ void mainmenu()
 
 	if (SimpleFile_OK == dir_init((void *)DIR_INIT_MEM, DIR_INIT_MEMSIZE))
 	{
+		#ifdef USB
+			usb_log_init(files[7]);
+		#endif
 		struct SimpleDirEntry * entries = dir_entries(ROM_DIR);
 
 		if (SimpleFile_OK == file_open_name_in_dir(entries, "5200.rom", files[5]))

@@ -1,13 +1,15 @@
-//#define hid_debugf(IN, ...) {};
-//#define hidp_debugf(IN, ...) {};
-//#define iprintf(IN, ...) {};
+#include "debug.h"
+
+#include "stdarg.h"
+
+#include "printf/printf.h"
 
 struct SimpleFile * usb_file;
 
 void usb_log_init(struct SimpleFile * file)
 {
-	file_open_name("usb.log", &file);
-	if (file_size(usb_file)>=65536 && file_readonly(usb_file)==0)
+	file_open_name("/usb.log", file);
+	if (file_size(file)>=65536 && file_readonly(file)==0)
 		usb_file = file;
 	else
 		usb_file = 0;
