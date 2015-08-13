@@ -1,0 +1,28 @@
+[Eagle]
+Version="06 05 00"
+Platform="Windows"
+Serial="7205DED187-LSR-WLM-1SS"
+Globals="Globals"
+Desktop="Desktop"
+
+[Globals]
+AutoSaveProject=1
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.5.0/lbr/pinhead.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.5.0/lbr/rcl.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.5.0/lbr/ref-packages-longpad.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.5.0/lbr/ref-packages.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.5.0/lbr/resistor-dil.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.5.0/lbr/smd-ipc.lbr"
+UsedLibrary="C:/Users/Mark/Desktop/FPGA/pcb/con-headers-jp.lbr"
+UsedLibrary="de1_parts.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.5.0/lbr/OPL/Discrete.lbr"
+
+[Win_1]
+Type="Control Panel"
+Loc="45 0 1273 721"
+State=2
+Number=0
+
+[Desktop]
+Screen="1680 1050"
+Window="Win_1"
