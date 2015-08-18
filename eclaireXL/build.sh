@@ -25,15 +25,33 @@ my %variants =
 #	{
 #		"TV" => $NTSC
 #	},
+	"A2EBArom" =>
+	{
+		"TV" => 2,
+		"GPIO" => 2,
+		"internal_ram" => 65536,
+		"internal_rom" => 1
+	},
+	"A9EFArom" =>
+	{
+		"TV" => 2,
+		"GPIO" => 2,
+		"internal_ram" => 65536,
+		"internal_rom" => 1
+	},
 	"A2EBA" =>
 	{
 		"TV" => 2,
-		"GPIO" => 2
+		"GPIO" => 2,
+		"internal_ram" => 0,
+		"internal_rom" => 0
 	},
 	"A9EFA" =>
 	{
 		"TV" => 2,
-		"GPIO" => 2
+		"GPIO" => 2,
+		"internal_ram" => 0,
+		"internal_rom" => 0
 	}
 );
 

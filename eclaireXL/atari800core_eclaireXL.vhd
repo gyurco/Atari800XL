@@ -16,7 +16,10 @@ ENTITY atari800core_eclaireXL IS
 	GENERIC
 	(
 		TV : integer; -- 1 = PAL, 0=NTSC
-		GPIO : integer  -- 1 = OLD GPIO LAYOUT, 2=NEW GPIO LAYOUT (WIP)
+		GPIO : integer;  -- 1 = OLD GPIO LAYOUT, 2=NEW GPIO LAYOUT (WIP)
+		-- For initial port may help to have no
+		internal_rom : integer := 1;  -- if 0 expects it in sdram,is 1:16k os+basic, is 2:... TODO
+		internal_ram : integer := 16384  -- at start of memory map
 	);
 	PORT
 	(
@@ -281,10 +284,14 @@ end component;
 	signal USBWireVPout : std_logic_vector(1 downto 0);
 	signal USBWireVMout : std_logic_vector(1 downto 0);
 	signal USBWireOE_n : std_logic_vector(1 downto 0);
+
+	-- CONFIG
+	SIGNAL USE_SDRAM : STD_LOGIC;
+	SIGNAL ROM_IN_RAM : STD_LOGIC;
 BEGIN 
 
 	-- TODO
-	pbi_enable <= '1'; --SW(4);
+	pbi_enable <= '0'; --SW(4);
 	PAL <= '1';-- SW(8);
 
 	SD_DAT2<='0';
@@ -351,8 +358,8 @@ GTIA_TRIG <= "11"&TRIGGERS(1 downto 0);
 internalromram1 : entity work.internalromram
 	GENERIC MAP
 	(
-		internal_rom => 0,
-		internal_ram => 0
+		internal_rom => internal_rom,
+		internal_ram => internal_ram 
 	)
 	PORT MAP (
  		clock   => CLK,
@@ -366,9 +373,9 @@ internalromram1 : entity work.internalromram
 		RAM_ADDR => RAM_ADDR,
 		RAM_WR_ENABLE => RAM_WRITE_ENABLE,
 		RAM_DATA_IN => PBI_WRITE_DATA(7 downto 0),
-		RAM_REQUEST_COMPLETE => open,
+		RAM_REQUEST_COMPLETE => RAM_REQUEST_COMPLETE,
 		RAM_REQUEST => RAM_REQUEST,
-		RAM_DATA => open
+		RAM_DATA => RAM_DO(7 downto 0)
 	);
 
 GPIOA_gen:
@@ -713,8 +720,8 @@ atari800 : entity work.atari800core
 		RAM_SELECT => ram_select,
 		CART_EMULATION_SELECT => emulated_cartridge_select,
 		PAL => PAL,
-		USE_SDRAM => '1', --SW(9),
-		ROM_IN_RAM => '1',
+		USE_SDRAM => USE_SDRAM,
+		ROM_IN_RAM => ROM_IN_RAM,
 		THROTTLE_COUNT_6502 => speed_6502,
 		HALT => pause_atari,
 
@@ -725,6 +732,9 @@ atari800 : entity work.atari800core
 		pbi_enable => pbi_enable
 	);
 
+
+USE_SDRAM <= '1' when internal_ram=0 else '0';
+ROM_IN_RAM <= '1' when internal_rom=0 else '0';
 
 zpu: entity work.zpucore
 	GENERIC MAP
