@@ -383,10 +383,16 @@ GPIOA_gen:
 		GPIOA(I) <= GPIOA_out(I) when GPIOA_dir_out(I)='1' else 'Z';
    end generate GPIOA_gen;
 
-GPIO1_gen:
+GPIOB_gen:
    for I in 0 to 35 generate
 		GPIOB(I) <= GPIOB_out(I) when GPIOB_dir_out(I)='1' else 'Z';
-   end generate GPIO1_gen;
+   end generate GPIOB_gen;
+
+-- duplicate GPIOC
+GPIOC_gen:
+   for I in 0 to 35 generate
+		GPIOC(I) <= GPIOB_out(I) when GPIOB_dir_out(I)='1' else 'Z';
+   end generate GPIOC_gen;
 
 gen_old_gpio : if gpio=1 generate
 GPIO1 : entity work.gpio
@@ -487,6 +493,54 @@ PORT MAP(clk => CLK,
 		 );
 end generate gen_new_gpio;
 
+gen_test_gpio : if gpio=3 generate
+gpio2 : entity work.gpiov3
+GENERIC MAP(
+		cartridge_cycle_length => 26
+)
+PORT MAP(clk => CLK,
+	reset_n => reset_n,
+		 gpio_enable => pbi_enable,
+		 pot_reset => pot_reset,
+		 pbi_write_enable => pbi_write_enable,
+		 enable_179_early => enable_179_early,
+		 cart_request => cart_request,
+		 cart_complete => cart_request_complete,
+		 cart_data_read => cart_data,
+		 s4_n => cart_s4_n,
+		 s5_n => cart_s5_n,
+		 cctl_n => cart_cctl_n,
+		 cart_data_write => pbi_write_data(7 downto 0),
+		 GPIO_0_IN => GPIOA,
+		 GPIO_0_OUT => GPIOA_OUT,
+		 GPIO_0_DIR_OUT => GPIOA_DIR_OUT,
+		 GPIO_1_IN => GPIOB,
+		 GPIO_1_OUT => GPIOB_OUT,
+		 GPIO_1_DIR_OUT => GPIOB_DIR_OUT,		 
+		 keyboard_scan => KEYBOARD_SCAN,
+		 pbi_addr_out => pbi_addr,
+		 porta_out => PORTA_OUT,
+		 porta_output => PORTA_DIR_OUT,
+		 lightpen => ANTIC_LIGHTPEN,
+		 rd4 => CART_RD4,
+		 rd5 => CART_RD5,
+		 keyboard_response => GPIO_KEYBOARD_RESPONSE,
+		 porta_in => PORTA_IN,
+		 pot_in => pot_in,
+		 trig_in => TRIGGERS,
+		 CA2_DIR_OUT => CA2_DIR_OUT,
+		 CA2_OUT => CA2_OUT,
+		 CA2_IN => CA2_IN,
+		 CB2_DIR_OUT => CB2_DIR_OUT,
+		 CB2_OUT => CB2_OUT,
+		 CB2_IN => CB2_IN,
+		 SIO_IN => GPIO_SIO_RXD,
+		 SIO_OUT => SIO_TXD,
+		 SIO_CLOCKIN => SIO_CLOCKIN,
+		 SIO_CLOCKOUT => SIO_CLOCKOUT
+		 );
+end generate gen_test_gpio;
+
 	process(clk,RESET_N,SDRAM_RESET_N,reset_atari)
 	begin
 		if ((RESET_N and SDRAM_RESET_N and not(reset_atari))='0') then
@@ -578,7 +632,7 @@ keyboard_map1 : entity work.ps2_to_atari800
 		PS2_DAT => ps2dat,
 		
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
-		KEYBOARD_RESPONSE => PS2_KEYBOARD_RESPONSE,
+		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
 
 		CONSOL_START => CONSOL_START,
 		CONSOL_SELECT => CONSOL_SELECT,

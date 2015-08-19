@@ -42,7 +42,7 @@ my %variants =
 	"A2EBA" =>
 	{
 		"TV" => 2,
-		"GPIO" => 2,
+		"GPIO" => 3,
 		"internal_ram" => 0,
 		"internal_rom" => 0
 	},
