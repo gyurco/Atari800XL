@@ -93,8 +93,8 @@ foreach my $variant (sort keys %variants)
 		`echo set_parameter -name $key $val >> atari800core_eclaireXL.qsf`;
 	}
 
-#	`quartus_sh --flow compile atari800core > build.log 2> build.err`;
-#
+	`quartus_sh --flow compile atari800core_eclaireXL > build.log 2> build.err`;
+
 #	`quartus_cpf --convert ../output_file.cof`;
 	
 	chdir "..";
