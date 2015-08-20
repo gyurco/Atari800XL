@@ -63,6 +63,8 @@ set_global_assignment -name QIP_FILE pll_pal.qip
 set_global_assignment -name QIP_FILE pll_ntsc.qip
 set_global_assignment -name QIP_FILE pll.qip
 set_global_assignment -name QIP_FILE pll_usb.qip
+set_global_assignment -name QIP_FILE gpioram.qip
+#set_global_assignment -name QIP_FILE serial_loader/synthesis/serial_loader.qip
 set_global_assignment -name VHDL_FILE zpu_rom.vhdl
 set_location_assignment PIN_H16 -to CLOCK_5
 

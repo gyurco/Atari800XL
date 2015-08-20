@@ -75,8 +75,25 @@ port
 end gpiov3;
 
 architecture vhdl of gpiov3 is
-	signal shift_next : std_logic_vector(71 downto 0);
-	signal shift_reg : std_logic_vector(71 downto 0);
+	signal gpio0_out_next : std_logic_vector(35 downto 0);
+	signal gpio0_out_reg : std_logic_vector(35 downto 0);
+	signal gpio1_out_next : std_logic_vector(35 downto 0);
+	signal gpio1_out_reg : std_logic_vector(35 downto 0);
+	signal gpio0_dir_next : std_logic_vector(35 downto 0);
+	signal gpio0_dir_reg : std_logic_vector(35 downto 0);
+	signal gpio1_dir_next : std_logic_vector(35 downto 0);
+	signal gpio1_dir_reg : std_logic_vector(35 downto 0);
+
+	signal bit_next : std_logic_vector(5 downto 0);
+	signal bit_reg : std_logic_vector(5 downto 0);
+
+	constant state_clear : std_logic_vector(1 downto 0) := "00";
+	constant state_read : std_logic_vector(1 downto 0) := "01";
+	constant state_drive : std_logic_vector(1 downto 0) := "10";
+	signal state_next : std_logic_vector(1 downto 0);
+	signal state_reg : std_logic_vector(1 downto 0);
+
+	signal mem_write : std_logic;
 begin	
 	CA2_in <= '1';
 	CB2_in <= '1';
@@ -100,28 +117,97 @@ begin
 	process(clk,reset_n)
 	begin
 		if (reset_n='0') then
-			shift_reg(71 downto 1) <= (others=>'0');
-			shift_reg(0) <= '1';
+			bit_reg <= (others=>'0');
+			gpio0_out_reg <= (others=>'0');
+			gpio1_out_reg <= (others=>'0');
+			gpio0_dir_reg <= (others=>'1');
+			gpio1_dir_reg <= (others=>'1');
+			state_reg <= state_clear;
 		elsif (clk'event and clk='1') then
-			shift_reg <= shift_next;
+			bit_reg <= bit_next;
+			gpio0_out_reg <= gpio0_out_next;
+			gpio1_out_reg <= gpio1_out_next;
+			gpio0_dir_reg <= gpio0_dir_next;
+			gpio1_dir_reg <= gpio1_dir_next;
+			state_reg <= state_next;
 		end if;
 	end process;
 
-	process(shift_reg,enable_179_early)
+	-- Process is as follows
+	-- i) drive all to 0, drive on everywhere
+	-- ii) drive a bit to 1, drive on only that bit
+	-- iii) read the value of all gpios and store
+	-- iv) next bit
+	process(enable_179_early,state_reg,bit_reg,gpio0_out_reg,gpio0_dir_reg,gpio1_out_reg,gpio1_dir_reg,gpio_0_in,gpio_1_in)
 	begin
-		shift_next <= shift_reg;
+		bit_next <= bit_reg;
+		gpio0_out_next <= gpio0_out_reg;
+		gpio1_out_next <= gpio1_out_reg;
+		gpio0_dir_next <= gpio0_dir_reg;
+		gpio1_dir_next <= gpio1_dir_reg;
+		state_next <= state_reg;
+		mem_write <= '0';
+
 		if (enable_179_early = '1') then
-			shift_next(71 downto 1) <= shift_reg(70 downto 0);
-			shift_next(0) <= shift_reg(71);
+			case state_reg is
+				when state_clear =>
+					state_next <= state_drive;
+
+					-- prepare to drive
+					gpio0_out_next <= (others=>'0');
+					gpio1_out_next <= (others=>'0');
+					gpio0_dir_next <= (others=>'0');
+					gpio1_dir_next <= (others=>'0');
+					gpio0_out_next(to_integer(unsigned(bit_reg))) <= '1';
+					gpio0_dir_next(to_integer(unsigned(bit_reg))) <= '1';
+
+				when state_drive =>
+					state_next <= state_read;
+
+					--preare to read
+					gpio0_out_next <= (others=>'0');
+					gpio1_out_next <= (others=>'0');
+					gpio0_dir_next <= (others=>'0');
+					gpio1_dir_next <= (others=>'0');
+
+				when state_read =>
+					state_next <= state_clear;
+
+					-- store to ram
+					mem_write <= '1';
+
+					-- prepare to clear
+					gpio0_out_next <= (others=>'0');
+					gpio1_out_next <= (others=>'0');
+					gpio0_dir_next <= (others=>'1');
+					gpio1_dir_next <= (others=>'1');
+
+					-- next bit!
+					bit_next <= std_logic_vector(unsigned(bit_reg)+1);
+					if (bit_reg=std_logic_vector(to_unsigned(35,6))) then
+						bit_next <= (others=>'0');
+					end if;
+
+				when others=>
+					state_next <= state_clear;
+			end case;
 		end if;
 	end process;
 
-	GPIO_0_OUT <= shift_reg(71 downto 36);
-	--GPIO_0_DIR_OUT <= shift_reg(71 downto 36);
-	GPIO_0_DIR_OUT <= (others=>'1');
-	GPIO_1_OUT <= shift_reg(35 downto 0);
-	--GPIO_1_DIR_OUT <= shift_reg(35 downto 0);
-	GPIO_1_DIR_OUT <= (others=>'1');
+gpioram: ENTITY work.gpioram
+	PORT MAP
+	(
+		address => bit_reg,
+		clock => clk,
+		data => gpio_0_in&gpio_1_in,
+		wren => mem_write,
+		q => open
+	);
+
+	GPIO_0_OUT <= gpio0_out_reg;
+	GPIO_0_DIR_OUT <= gpio0_dir_reg;
+	GPIO_1_OUT <= gpio1_out_reg;
+	GPIO_1_DIR_OUT <= gpio1_dir_reg;
 
 end vhdl;
 
