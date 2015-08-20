@@ -70,6 +70,8 @@ foreach my $variant (sort keys %variants)
 	mkdir $dir;
 	`cp atari800core_eclaireXL.vhd $dir`;
 	`cp -a *pll* $dir`;
+	`cp -a *gpioram* $dir`;
+	#`cp -a *serial_loader* $dir`;
 	`cp *.v $dir`;
 	`cp *.vhd* $dir`;
 	`cp atari800core*.sdc $dir`;
