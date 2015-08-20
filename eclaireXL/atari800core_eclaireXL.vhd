@@ -576,7 +576,7 @@ PORT MAP(CLK => CLK,
 		 R => VGA_R);
 
 VGA_BLANK_N <= NOT(VGA_BLANK);
--- TODO VGA_CLK <= '0';
+VGA_CLK <= CLK;
 
 --gen_ntsc_pll : if tv=0 generate
 --pll : entity work.pll_ntsc
@@ -632,7 +632,7 @@ keyboard_map1 : entity work.ps2_to_atari800
 		PS2_DAT => ps2dat,
 		
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
-		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
+		KEYBOARD_RESPONSE => PS2_KEYBOARD_RESPONSE,
 
 		CONSOL_START => CONSOL_START,
 		CONSOL_SELECT => CONSOL_SELECT,
@@ -782,6 +782,18 @@ atari800 : entity work.atari800core
 		freezer_enable => freezer_enable,
 		freezer_activate => freezer_activate,
 		freezer_state_out => freezer_state,
+
+		--RAM_SELECT => "001",
+		--CART_EMULATION_SELECT => (others=>'0'),
+		--PAL => '0',
+		--USE_SDRAM => '0',
+		--ROM_IN_RAM => '0',
+		--THROTTLE_COUNT_6502 => "000001",
+		--HALT => '0',
+
+		--freezer_enable => '0',
+		--freezer_activate => '0',
+		--freezer_state_out => open,
 
 		pbi_enable => pbi_enable
 	);
