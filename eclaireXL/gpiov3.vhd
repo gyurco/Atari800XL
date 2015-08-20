@@ -84,27 +84,27 @@ begin
 	
 	pot_in <= (others=>'0');
 	porta_in <= (others=>'1');
-	trig_in_async <= "0111";
+	trig_in <= "0111";
 		
 	lightpen <= '1';
 	
 	-- keyboard
-	keyboard_response <= '1';
+	keyboard_response <= (others=>'1');
 	
-	cart_data_read <= '1';
-	cart_complete'<= (others=>'0');
+	cart_data_read <= (others=>'1');
+	cart_complete <= '1';
 
 	rd4 <= '0';
 	rd5 <= '0';
 
 	process(clk,reset_n)
 	begin
-		if (reset_n=='0') then
+		if (reset_n='0') then
 			shift_reg(71 downto 1) <= (others=>'0');
 			shift_reg(0) <= '1';
 		elsif (clk'event and clk='1') then
 			shift_reg <= shift_next;
-		end if
+		end if;
 	end process;
 
 	process(shift_reg,enable_179_early)
@@ -117,8 +117,10 @@ begin
 	end process;
 
 	GPIO_0_OUT <= shift_reg(71 downto 36);
+	--GPIO_0_DIR_OUT <= shift_reg(71 downto 36);
 	GPIO_0_DIR_OUT <= (others=>'1');
 	GPIO_1_OUT <= shift_reg(35 downto 0);
+	--GPIO_1_DIR_OUT <= shift_reg(35 downto 0);
 	GPIO_1_DIR_OUT <= (others=>'1');
 
 end vhdl;
