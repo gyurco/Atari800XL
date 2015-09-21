@@ -278,7 +278,33 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
   // check if we found valid hid interfaces
   if(!info->bNumIfaces) {
     hid_debugf("no hid interfaces found");
-    return USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED;
+
+    if((vid == 0x1a34) && (pid == 0x0809) && (i==0)) {
+      iprintf("hacking MCC Torid\n");
+      info->bNumIfaces = 1;
+      info->iface[0].iface_idx = p->iface_desc.bInterfaceNumber;
+      info->iface[0].has_boot_mode = false;
+      info->iface[0].is_5200daptor = false;
+      info->iface[0].is_MCC = 3;
+      info->iface[0].key_state = 0;
+      info->iface[0].device_type = HID_DEVICE_UNKNOWN;
+      info->iface[0].conf.type = CONFIG_TYPE_JOYSTICK;
+
+      /*info->iface[0].conf.joystick.button[0].byte_offset = 2;
+      info->iface[0].conf.joystick.button[0].bitmask;
+      info->iface[0].conf.joystick.axis[0].size;
+      info->iface[0].conf.joystick.axis[0].byte_offset;
+      info->iface[0].conf.joystick.axis[0].logical.min;
+      info->iface[0].conf.joystick.axis[0].logical.max;
+      */
+
+      // joystick pos is expected to be an axis... it isn't...
+      // might be easier to directly create jmap for torid...
+    }
+    else
+    {
+      return USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED;
+    }
   }
 
   // Set Configuration Value
@@ -287,7 +313,7 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
   // process all supported interfaces
   for(i=0; i<info->bNumIfaces; i++) {
     // no boot mode, try to parse HID report descriptor
-    if(!info->iface[i].has_boot_mode) {
+    if(!info->iface[i].has_boot_mode && !info->iface[i].id_MCC) {
  
       //printf("DESC ");
       rcode = hid_get_report_descr(dev, i, info->iface[i].report_desc_size);
@@ -654,31 +680,78 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
 	      // hid_debugf("Joystick data:"); hexdump(buf, read, 0);
 
 	      // two axes ...
-	      for(i=0;i<2;i++) {
-		a[i] = buf[conf->joystick.axis[i].byte_offset];
-		if(conf->joystick.axis[i].size == 16)
-		  a[i] += (buf[conf->joystick.axis[i].byte_offset+1])<<8;
+              if(iface->is_MCC==3)
+	      {
+                /*14 bytes (0-13)
+                Left trigger: Byte 4: 0 (not pressed) to ff (pressed) - analogue
+                Right trigger: Byte 5: 0 (not pressed) to ff (pressed) - analogue
+                Left button: Byte 3: bit 0 (1=pressed)
+                Right button: Byte 3: bit 1 (2=pressed)
+                A button: Byte 3: bit 4 (0x10=pressed)
+                B button: Byte 3: bit 5 (0x20=pressed)
+                X button: Byte 3: bit 6 (0x40=pressed)
+                Y button: Byte 3: bit 7 (0x80=pressed)
+                Joy up: Byte 2: bit 0 (1=pressed)
+                Joy down: Byte 2: bit 1 (2=pressed)
+                Joy left: Byte 2: bit 2 (4=pressed)
+                Joy right: Byte 2: bit 3 (8=pressed)
+                Start: Byte 2: bit 4 (0x10=pressed)
+                Select: Byte 2: bit 5 (0x20=pressed)
+                Left hat LR: Byte 7: 0x80 - 0x7f (analogue - 2s comp left =-ve) 
+                Left hat UD: Byte 9: 0x80 - 0x7f (analogue - 2s comp down=-ve) 
+                Right hat LR: Byte b: 0x80 - 0x7f (analogue - 2s comp left =-ve) 
+                Right hat UD: Byte d: 0x80 - 0x7f (analogue - 2s comp down=-ve) 
+                left hat button: byte 2: bit 6 (0x40=pressed)
+                right hat button: byte 2: bit 7 (0x80=pressed)*/
 
-		// scale to 0 -> 255 range. 99% of the joysticks already deliver that
-		if((conf->joystick.axis[i].logical.min != 0) ||
-		   (conf->joystick.axis[i].logical.max != 255)) {
-		  a[i] = ((a[i] - conf->joystick.axis[i].logical.min) * 255)/
-		    (conf->joystick.axis[i].logical.max - 
-		     conf->joystick.axis[i].logical.min);
-		}
+		if (buf[2]&1) jmap |= JOY_UP;
+		if (buf[2]&2) jmap |= JOY_DOWN;
+		if (buf[2]&4) jmap |= JOY_LEFT;
+		if (buf[2]&8) jmap |= JOY_RIGHT;
+		if (buf[3]&0x80) jmap |= 1<<4; //1
+		if (buf[3]&0x20) jmap |= 1<<5;  //2
+		if (buf[3]&0x10) jmap |= 1<<6;  //3
+		if (buf[3]&0x40) jmap |= 1<<7;  //4
+		if (buf[3]&1) jmap |= 1<<8; //l1
+		if (buf[3]&2) jmap |= 1<<9;  //r1
+		if (buf[4]&0x80) jmap |= 1<<10;  //l2
+		if (buf[5]&0x80) jmap |= 1<<11;  //r2
+		if (buf[2]&0x20) jmap |= 1<<12; //select
+		if (buf[2]&0x10) jmap |= 1<<13;  //start
+		if (buf[2]&0x40) jmap |= 1<<14;  //lstick click
+		if (buf[2]&0x80) jmap |= 1<<15;  //rstick click
+
+		a[0] = 128+(int)buf[7];
+		a[1] = 128+(int)buf[9];
 	      }
+              else
+	      {
+	        for(i=0;i<2;i++) {
+	          a[i] = buf[conf->joystick.axis[i].byte_offset];
+	          if(conf->joystick.axis[i].size == 16)
+	            a[i] += (buf[conf->joystick.axis[i].byte_offset+1])<<8;
 
-	      if(a[0] <  64) jmap |= JOY_LEFT;
-	      if(a[0] > 192) jmap |= JOY_RIGHT;
-	      if(a[1] <  64) jmap |= JOY_UP;
-	      if(a[1] > 192) jmap |= JOY_DOWN;
-	      
-	      //	      iprintf("JOY X:%d Y:%d\n", a[0], a[1]);
-	      
-	      // ... and twenty-four buttons
-	      for(i=0;i<24;i++)
-		if(buf[conf->joystick.button[i].byte_offset] & 
-		   conf->joystick.button[i].bitmask) jmap |= (JOY_BTN1<<i);
+	          // scale to 0 -> 255 range. 99% of the joysticks already deliver that
+	          if((conf->joystick.axis[i].logical.min != 0) ||
+	             (conf->joystick.axis[i].logical.max != 255)) {
+	            a[i] = ((a[i] - conf->joystick.axis[i].logical.min) * 255)/
+	              (conf->joystick.axis[i].logical.max - 
+	               conf->joystick.axis[i].logical.min);
+	          }
+	        }
+
+  	        if(a[0] <  64) jmap |= JOY_LEFT;
+  	        if(a[0] > 192) jmap |= JOY_RIGHT;
+  	        if(a[1] <  64) jmap |= JOY_UP;
+  	        if(a[1] > 192) jmap |= JOY_DOWN;
+  	      
+  	        //	      iprintf("JOY X:%d Y:%d\n", a[0], a[1]);
+  	      
+  	        // ... and twenty-four buttons
+  	        for(i=0;i<24;i++)
+  	 	  if(buf[conf->joystick.button[i].byte_offset] & 
+  	  	     conf->joystick.button[i].bitmask) jmap |= (JOY_BTN1<<i);
+              }
 	      
 	      //	      iprintf("JOY D:%d\n", jmap);
 
