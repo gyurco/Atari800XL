@@ -32,6 +32,7 @@ struct usb_host usb_porta;
 struct usb_host usb_portb;
 #endif
 
+/*
 void test_ram()
 {
 	int i;
@@ -75,6 +76,7 @@ void test_ram()
 		}
 	}
 }
+*/
 
 void mainmenu()
 {
