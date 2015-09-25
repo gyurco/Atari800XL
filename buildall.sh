@@ -36,7 +36,7 @@ cd ../mcctv_5200
 max3; ./build.sh ALL &
 
 
-export PATH=${ORIGPATH}:/home/markw/fpga/altera/14.0/quartus/bin:/home/markw/fpga/altera/14.0/quartus/sopc_builder/bin/
+export PATH=${ORIGPATH}:/home/markw/fpga/altera/15.0/quartus/bin:/home/markw/fpga/altera/15.0/quartus/sopc_builder/bin/
 cd ../sockit
 max3; ./build.sh &
 
