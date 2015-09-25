@@ -39,6 +39,7 @@ PAPILIODUO_DIR = papilioduo
 DE1_DIR = de1
 DE1_5200_DIR = de1_5200
 CHAMELEON_DIR = chameleon
+ECLAIREXL_DIR = eclairexl
 MCC_DIR = mcc
 MCC_5200_DIR = mcc_5200
 MCCTV_DIR = mcctv
@@ -55,6 +56,7 @@ DE1_BUILD_DIR = $(BUILD_DIR)/$(DE1_DIR)
 SOCKIT_BUILD_DIR = $(BUILD_DIR)/$(SOCKIT_DIR)
 DE1_5200_BUILD_DIR = $(BUILD_DIR)/$(DE1_5200_DIR)
 CHAMELEON_BUILD_DIR = $(BUILD_DIR)/$(CHAMELEON_DIR)
+ECLAIREXL_BUILD_DIR = $(BUILD_DIR)/$(ECLAIREXL_DIR)
 MCC_BUILD_DIR = $(BUILD_DIR)/$(MCC_DIR)
 MCC_5200_BUILD_DIR = $(BUILD_DIR)/$(MCC_5200_DIR)
 MCCTV_BUILD_DIR = $(BUILD_DIR)/$(MCCTV_DIR)
@@ -97,6 +99,10 @@ DE1_5200_OBJ = $(patsubst %.c,$(DE1_5200_BUILD_DIR)/%.o,$(DE1_5200_SRC))
 CHAMELEON_PRJ = CHAMELEON
 CHAMELEON_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) chameleon/dirs.c
 CHAMELEON_OBJ = $(patsubst %.c,$(CHAMELEON_BUILD_DIR)/%.o,$(CHAMELEON_SRC))
+
+ECLAIREXL_PRJ = ECLAIREXL
+ECLAIREXL_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) de1/dirs.c
+ECLAIREXL_OBJ = $(patsubst %.c,$(ECLAIREXL_BUILD_DIR)/%.o,$(ECLAIREXL_SRC))
 
 MCC_PRJ = MCC216
 MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) mcc/dirs.c
@@ -169,7 +175,7 @@ CFLAGS_5200_USB2 = $(CFLAGS) -DFIRMWARE_5200  -DUSB -DUSB2 -Iusb
 HOST_CFLAGS_5200 = $(HOST_CFLAGS) -DFIRMWARE_5200
 
 # Our target.
-all: mcc mcctv mist de1 aeon_lite chameleon  de1_5200 mist_5200 mcc_5200 mcctv_5200 sockit papilioduo
+all: eclairexl mcc mcctv mist de1 aeon_lite chameleon  de1_5200 mist_5200 mcc_5200 mcctv_5200 sockit papilioduo
 
 install:
 	cd ../common/romgen && ./createall && cd ../../firmware
@@ -183,6 +189,8 @@ de1: $(BUILD_DIR) $(DE1_PRJ).bin $(DE1_PRJ).rpt
 de1_5200: $(BUILD_DIR) $(DE1_5200_PRJ).bin $(DE1_5200_PRJ).rpt
 
 chameleon: $(BUILD_DIR) $(CHAMELEON_PRJ).bin $(CHAMELEON_PRJ).rpt
+
+eclairexl: $(BUILD_DIR) $(ECLAIREXL_PRJ).bin $(ECLAIREXL_PRJ).rpt
 
 mcc: $(BUILD_DIR) $(MCC_PRJ).bin $(MCC_PRJ).rpt
 
@@ -238,6 +246,9 @@ $(DE1_5200_PRJ).elf: $(MINSTARTUP_OBJ) $(DE1_5200_OBJ)
 $(CHAMELEON_PRJ).elf: $(MINSTARTUP_OBJ) $(CHAMELEON_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
+$(ECLAIREXL_PRJ).elf: $(MINSTARTUP_OBJ) $(ECLAIREXL_OBJ)
+	$(LD) $(LFLAGS) -T $(LINKMAP_LARGE) -o $@ $+ $(LIBS)
+
 $(MCC_PRJ).elf: $(MINSTARTUP_OBJ) $(MCC_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP_LARGE) -o $@ $+ $(LIBS)
 #	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
@@ -285,6 +296,10 @@ $(DE1_BUILD_DIR)/%.o: %.c Makefile
 $(DE1_5200_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
 	$(CC) -I$(DE1_5200_DIR) $(CFLAGS_5200)  -o $@ -c $<
+
+$(ECLAIREXL_BUILD_DIR)/%.o: %.c Makefile
+	mkdir -p `dirname $@`
+	$(CC) -I$(ECLAIREXL_DIR) $(CFLAGS_USB2)  -o $@ -c $<
 
 $(MCC_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
