@@ -568,14 +568,14 @@ static const usb_device_class_config_t *class_list[]= {
 
 uint8_t usb_configure(uint8_t parent, uint8_t port, bool lowspeed) {
   uint8_t rcode = 0;
-  iprintf("%s(parent=%x port=%d lowspeed=%d)\n", __FUNCTION__, parent, port, lowspeed);
+  iprintf("%s(par=%x prt=%d speed=%d)\n", __FUNCTION__, parent, port, lowspeed);
 
   // find an empty device entry
   uint8_t i;
   for(i=0; i<USB_NUMDEVICES && devices[i].bAddress; i++);
 
   if(i < USB_NUMDEVICES) {
-    iprintf("using free entry at %d\n", i);
+    iprintf("using entry %d\n", i);
 
     usb_device_t *d = devices+i;
 
@@ -597,7 +597,7 @@ uint8_t usb_configure(uint8_t parent, uint8_t port, bool lowspeed) {
 
     // Assign new address to the device
     // (address is simply the number of the free slot + 1)
-    iprintf("Setting addr %x\n", i+1);
+    iprintf("Set addr %x\n", i+1);
     rcode = usb_set_addr(d, i+1);
     if(rcode) {
       iprintf("failed to assign address:%x\n", rcode);
@@ -818,7 +818,7 @@ uint8_t usb_get_conf_descr( usb_device_t *dev, uint16_t nbytes,
 }
 
 uint8_t usb_set_addr( usb_device_t *dev, uint8_t newaddr )  {
-  iprintf("%s(new=%x)\n", __FUNCTION__, newaddr);
+  iprintf("%s(%x)\n", __FUNCTION__, newaddr);
   
   uint8_t rcode = usb_ctrl_req( dev, USB_REQ_SET, USB_REQUEST_SET_ADDRESS, newaddr, 
 				0x00, 0x0000, 0x0000, NULL);
