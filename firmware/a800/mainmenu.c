@@ -2,6 +2,7 @@ static const int main_ram_size=65536;
 #include "main.h" //!!!
 #include "atari_drive_emulator.h"
 #include "log.h"
+#include "utils.h"
 
 unsigned char freezer_rom_present;
 
@@ -31,6 +32,50 @@ struct usb_host usb_porta;
 struct usb_host usb_portb;
 #endif
 
+void test_ram()
+{
+	int i;
+	unsigned char volatile * addr = DIR_INIT_MEM;
+	int k;
+	for (k=0;k<DIR_INIT_MEMSIZE;++k)
+	{
+		addr[k] = k&0xff;
+	}
+	int ok = 1;
+	for (k=0;k<DIR_INIT_MEMSIZE;++k)
+	{
+		unsigned char val = addr[k];
+		if (val != (k&0xff))
+		{
+			ok = 0;
+		}
+	}
+
+	int j =0;
+	if (ok)
+	{
+		while(1)
+		{
+			++j;
+			if (j&1)
+				*atari_colbk = 0xc8;
+			else
+				*atari_colbk = 0x00;
+		}
+	}
+	else
+	{
+		while(1)
+		{
+			++j;
+			if (j&1)
+				*atari_colbk = 0x38;
+			else
+				*atari_colbk = 0x00;
+		}
+	}
+}
+
 void mainmenu()
 {
 #ifdef USB
@@ -45,6 +90,9 @@ void mainmenu()
 		#ifdef USB
 			usb_log_init(files[7]);
 		#endif
+
+		//test_ram();
+
 		init_drive_emulator();
 		
 		struct SimpleDirEntry * entries = dir_entries(ROM_DIR);
