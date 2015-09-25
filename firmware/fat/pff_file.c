@@ -108,7 +108,7 @@ enum SimpleFileStatus file_read(struct SimpleFile * file, void * buffer, int byt
 enum SimpleFileStatus file_write(struct SimpleFile * file, void * buffer, int bytes, int * byteswritten)
 {
 	UINT byteswritten_word;
-	FRESULT res;
+	FRESULT res =  FR_OK;
 
 	//printf("went\n");
 	if (file->is_readonly) return SimpleFile_FAIL;
