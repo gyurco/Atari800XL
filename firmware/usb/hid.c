@@ -41,7 +41,7 @@ static uint8_t hid_get_report_descr(usb_device_t *dev, uint8_t i, uint16_t size)
 			      HID_DESCRIPTOR_REPORT, info->iface[i].iface_idx, size, buf);
  
   if(!rcode) {
-    hid_debugf("HID report descriptor:");
+    hid_debugf("HID report desc:");
     //MWW hexdump(buf, size, 0);
 
     // we got a report descriptor. Try to parse it
@@ -51,7 +51,7 @@ static uint8_t hid_get_report_descr(usb_device_t *dev, uint8_t i, uint16_t size)
 	//baseaddr = (unsigned char volatile *)(40000 + atari_regbase);
 	//debug_pos=160;
 	//printf("Detected USB joystick #%d", joysticks);
-	hid_debugf("Detected USB joystick #%d", joysticks);
+	hid_debugf("stick #%d", joysticks);
 
 	info->iface[i].device_type = HID_DEVICE_JOYSTICK;
 	info->iface[i].jindex = joysticks++;
@@ -110,22 +110,23 @@ static uint8_t usb_hid_parse_conf(usb_device_t *dev, uint8_t conf, uint16_t len)
   p = &buf;
   //LOG("LenX:%d\n", p->conf_desc.bLength);
   while(len > 0) {
-    //printf("L%02d %02d %02d ",len, p->conf_desc.bLength, p->conf_desc.bDescriptorType);
+    hid_debugf("L%02d %02d %02d ",len, p->conf_desc.bLength, p->conf_desc.bDescriptorType);
 
     switch(p->conf_desc.bDescriptorType) {
     case USB_DESCRIPTOR_CONFIGURATION:
-      // hid_debugf("conf descriptor size %d", p->conf_desc.bLength);
+      hid_debugf("conf descriptor size %d", p->conf_desc.bLength);
       // we already had this, so we simply ignore it
       break;
 
     case USB_DESCRIPTOR_INTERFACE:
       isGoodInterface = false;
-      // hid_debugf("iface descriptor size %d", p->iface_desc.bLength);
+      hid_debugf("iface descriptor size %d class %d", p->iface_desc.bLength, p->iface_desc.bInterfaceClass);
 
       /* check the interface descriptors for supported class */
 
       // only HID interfaces are supported
       if(p->iface_desc.bInterfaceClass == USB_CLASS_HID) {
+	hid_debugf("iface is HID");
 	//	puts("iface is HID");
 
 	if(info->bNumIfaces < MAX_IFACES) {
@@ -141,27 +142,28 @@ static uint8_t usb_hid_parse_conf(usb_device_t *dev, uint8_t conf, uint16_t len)
 	  info->iface[info->bNumIfaces].conf.type = CONFIG_TYPE_NONE;
 
 	  if(p->iface_desc.bInterfaceSubClass == HID_BOOT_INTF_SUBCLASS) {
-	    // hid_debugf("Iface %d is Boot sub class", info->bNumIfaces);
+	    hid_debugf("Iface %d is Boot sub class", info->bNumIfaces);
 	    info->iface[info->bNumIfaces].has_boot_mode = true;
 	  }
 	  
+	  hid_debugf("HID protocol is ");
 	  switch(p->iface_desc.bInterfaceProtocol) {
 	  case HID_PROTOCOL_NONE:
-	    hid_debugf("HID protocol is NONE");
+	    hid_debugf("NONE");
 	    break;
 	    
 	  case HID_PROTOCOL_KEYBOARD:
-	    hid_debugf("HID protocol is KEYBOARD");
+	    hid_debugf("KEYBOARD");
 	    info->iface[info->bNumIfaces].device_type = HID_DEVICE_KEYBOARD;
 	    break;
 	    
 	  case HID_PROTOCOL_MOUSE:
-	    hid_debugf("HID protocol is MOUSE");
+	    hid_debugf("MOUSE");
 	    info->iface[info->bNumIfaces].device_type = HID_DEVICE_MOUSE;
 	    break;
 	    
 	  default:
-	    hid_debugf("HID protocol is %d", p->iface_desc.bInterfaceProtocol);
+	    hid_debugf("%d", p->iface_desc.bInterfaceProtocol);
 	    break;
 	  }
 	}
@@ -175,7 +177,7 @@ static uint8_t usb_hid_parse_conf(usb_device_t *dev, uint8_t conf, uint16_t len)
 
 	// only interrupt in endpoints are supported
 	if ((p->ep_desc.bmAttributes & 0x03) == 3 && (p->ep_desc.bEndpointAddress & 0x80) == 0x80) {
-	  hid_debugf("endpoint %d, interval = %dms", 
+	  hid_debugf("ep %d, ival = %dms", 
 		  p->ep_desc.bEndpointAddress & 0x0F, p->ep_desc.bInterval);
 
 	  // Fill in the endpoint info structure
@@ -191,14 +193,14 @@ static uint8_t usb_hid_parse_conf(usb_device_t *dev, uint8_t conf, uint16_t len)
       break;
 
     case HID_DESCRIPTOR_HID:
-      hid_debugf("hid descriptor size %d", p->ep_desc.bLength);
+      hid_debugf("hid desc size %d type %x", p->ep_desc.bLength, p->hid_desc.bDescrType);
 
       if(isGoodInterface) {
 	// we need a report descriptor
 	if(p->hid_desc.bDescrType == HID_DESCRIPTOR_REPORT) {
 	  uint16_t len = p->hid_desc.wDescriptorLength[0] + 
 	    256 * p->hid_desc.wDescriptorLength[1];
-	  hid_debugf(" -> report descriptor size = %d", len);
+	  hid_debugf(" -> report desc size = %d", len);
 	  
 	  info->iface[info->bNumIfaces].report_desc_size = len;
 	}
@@ -206,7 +208,7 @@ static uint8_t usb_hid_parse_conf(usb_device_t *dev, uint8_t conf, uint16_t len)
       break;
 
     default:
-      hid_debugf("unsupported descriptor type %d size %d", p->raw[1], p->raw[0]);
+      hid_debugf("unsupd desc type %d size %d", p->raw[1], p->raw[0]);
     }
 
     // advance to next descriptor
@@ -261,34 +263,42 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
   pid = bs16(&buf.dev_desc.idProductL);
 
   uint8_t num_of_conf = buf.dev_desc.bNumConfigurations;
-  //  hid_debugf("number of configurations: %d", num_of_conf);
+  hid_debugf("number of configurations: %d", num_of_conf);
 
   for(i=0; i<num_of_conf; i++) {
     if(rcode = usb_get_conf_descr(dev, sizeof(usb_configuration_descriptor_t), i, &buf.conf_desc)) 
       return rcode;
     
-    //    hid_debugf("conf descriptor %d has total size %d", i, buf.conf_desc.wTotalLength);
     uint16_t wTotalLength = bs16(&buf.conf_desc.wTotalLengthL);
+    hid_debugf("conf desc %d size %d", i, wTotalLength);
     LOG("conf descriptor %d has total size %d", i, wTotalLength);
 
     // parse directly if it already fitted completely into the buffer
     usb_hid_parse_conf(dev, i, wTotalLength);
   }
 
+  hid_debugf("here:%d vid:%x pid:%x",info->bNumIfaces,vid,pid);
+
   // check if we found valid hid interfaces
   if(!info->bNumIfaces) {
-    hid_debugf("no hid interfaces found");
+    hid_debugf("no hid ifaces found");
 
-    if((vid == 0x1a34) && (pid == 0x0809) && (i==0)) {
-      iprintf("hacking MCC Torid\n");
+    if((vid == 0x45e) && (pid == 0x028e)) {
+      hid_debugf("hackn Torid\n");
       info->bNumIfaces = 1;
-      info->iface[0].iface_idx = p->iface_desc.bInterfaceNumber;
+      info->iface[0].iface_idx = 0;
       info->iface[0].has_boot_mode = false;
       info->iface[0].is_5200daptor = false;
       info->iface[0].is_MCC = 3;
       info->iface[0].key_state = 0;
-      info->iface[0].device_type = HID_DEVICE_UNKNOWN;
+      info->iface[0].device_type = HID_DEVICE_JOYSTICK;
       info->iface[0].conf.type = CONFIG_TYPE_JOYSTICK;
+      info->iface[0].jindex = joysticks++;
+      info->iface[0].interval = 1;
+      info->iface[0].ep.epAddr	 = 1;
+      info->iface[0].ep.maxPktSize = 14;
+      info->iface[0].ep.epAttribs	 = 0;
+      info->iface[0].ep.bmNakPower = USB_NAK_NOWAIT;
 
       /*info->iface[0].conf.joystick.button[0].byte_offset = 2;
       info->iface[0].conf.joystick.button[0].bitmask;
@@ -313,13 +323,13 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
   // process all supported interfaces
   for(i=0; i<info->bNumIfaces; i++) {
     // no boot mode, try to parse HID report descriptor
-    if(!info->iface[i].has_boot_mode && !info->iface[i].id_MCC) {
+    if(!info->iface[i].has_boot_mode && !info->iface[i].is_MCC) {
  
-      //printf("DESC ");
+      hid_debugf("DESC %x ", info->iface[i].report_desc_size);
       rcode = hid_get_report_descr(dev, i, info->iface[i].report_desc_size);
       if(rcode) return rcode;
 
-      //printf("TYPE%02x ", info->iface[i].device_type);
+      hid_debugf("TYPE%02x ", info->iface[i].device_type);
       if(info->iface[i].device_type == CONFIG_TYPE_JOYSTICK) {
 	char k;
         
@@ -369,12 +379,12 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
       }
 
       if((vid == 0x0079) && (pid == 0x0006) && (i==0)) {
-	iprintf("hacking MCC controller\n");
+	iprintf("MCC classic\n");
 
 	info->iface[0].is_MCC = 1;
       }
       if((vid == 0x1a34) && (pid == 0x0809) && (i==0)) {
-	iprintf("hacking MCC controller wireless\n");
+	iprintf("MCC Xeox\n");
 
 	info->iface[0].is_MCC = 2;
       }
@@ -420,7 +430,7 @@ static uint8_t usb_hid_release(usb_device_t *dev) {
   for(i=0;i<info->bNumIfaces;i++) {
     if(info->iface[i].device_type == HID_DEVICE_JOYSTICK) {
       uint8_t c_jindex = info->iface[i].jindex;
-      hid_debugf("releasing joystick #%d, renumbering", c_jindex);
+      hid_debugf("rel joystick #%d, renum", c_jindex);
 
       event_digital_joystick(c_jindex, 0);
       event_analog_joystick(c_jindex, 0,0);
@@ -437,7 +447,7 @@ static uint8_t usb_hid_release(usb_device_t *dev) {
 	  for(k=0;k<MAX_IFACES;k++) {
 	    if(dev[j].hid_info.iface[k].device_type == HID_DEVICE_JOYSTICK) {
 	      if(dev[j].hid_info.iface[k].jindex > c_jindex) {
-		hid_debugf("decreasing jindex of dev #%d from %d to %d", j, 
+		hid_debugf("dec jindex of dev #%d from %d to %d", j, 
 			dev[j].hid_info.iface[k].jindex, dev[j].hid_info.iface[k].jindex-1);
 
 		dev[j].hid_info.iface[k].jindex--;
@@ -643,6 +653,7 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
       
 	uint16_t read = iface->ep.maxPktSize;
 	uint8_t buf[iface->ep.maxPktSize];
+        //hid_debugf("bytes:%d ep:%x",read,iface->ep);
 	uint8_t rcode = 
 	  usb_in_transfer(dev, &(iface->ep), &read, buf);
 	
@@ -672,7 +683,8 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
 	  
 	  if(iface->device_type == HID_DEVICE_JOYSTICK) {
 	    hid_config_t *conf = &iface->conf;
-	    if(read >= conf->report_size) {
+            //hid_debugf("JOY");
+	    if(iface->is_MCC==3 || read >= conf->report_size) {
 	      uint32_t jmap = 0;
 	      uint16_t a[2];
 	      uint8_t idx, i;
@@ -704,25 +716,40 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
                 left hat button: byte 2: bit 6 (0x40=pressed)
                 right hat button: byte 2: bit 7 (0x80=pressed)*/
 
-		if (buf[2]&1) jmap |= JOY_UP;
-		if (buf[2]&2) jmap |= JOY_DOWN;
-		if (buf[2]&4) jmap |= JOY_LEFT;
-		if (buf[2]&8) jmap |= JOY_RIGHT;
-		if (buf[3]&0x80) jmap |= 1<<4; //1
-		if (buf[3]&0x20) jmap |= 1<<5;  //2
-		if (buf[3]&0x10) jmap |= 1<<6;  //3
-		if (buf[3]&0x40) jmap |= 1<<7;  //4
-		if (buf[3]&1) jmap |= 1<<8; //l1
-		if (buf[3]&2) jmap |= 1<<9;  //r1
-		if (buf[4]&0x80) jmap |= 1<<10;  //l2
-		if (buf[5]&0x80) jmap |= 1<<11;  //r2
-		if (buf[2]&0x20) jmap |= 1<<12; //select
-		if (buf[2]&0x10) jmap |= 1<<13;  //start
-		if (buf[2]&0x40) jmap |= 1<<14;  //lstick click
-		if (buf[2]&0x80) jmap |= 1<<15;  //rstick click
+		if (buf[0]==00 && buf[1]==0x14)
+		{
+			if (buf[2]&1) jmap |= JOY_UP;
+			if (buf[2]&2) jmap |= JOY_DOWN;
+			if (buf[2]&4) jmap |= JOY_LEFT;
+			if (buf[2]&8) jmap |= JOY_RIGHT;
+			if (buf[3]&0x80) jmap |= 1<<4; //1
+			if (buf[3]&0x20) jmap |= 1<<5;  //2
+			if (buf[3]&0x10) jmap |= 1<<6;  //3
+			if (buf[3]&0x40) jmap |= 1<<7;  //4
+			if (buf[3]&1) jmap |= 1<<8; //l1
+			if (buf[3]&2) jmap |= 1<<9;  //r1
+			if (buf[4]&0x80) jmap |= 1<<10;  //l2
+			if (buf[5]&0x80) jmap |= 1<<11;  //r2
+			if (buf[2]&0x20) jmap |= 1<<12; //select
+			if (buf[2]&0x10) jmap |= 1<<13;  //start
+			if (buf[2]&0x40) jmap |= 1<<14;  //lstick click
+			if (buf[2]&0x80) jmap |= 1<<15;  //rstick click
 
-		a[0] = 128+(int)buf[7];
-		a[1] = 128+(int)buf[9];
+			a[0] = 128+(int)buf[7];
+			a[1] = 128+(int)buf[9];
+		}
+		else
+		{
+			jmap = 0;
+			a[0] = 128;
+			a[1] = 128;
+		}
+
+		//for (i=0;i!=14;++i)
+		//{
+		//	hid_debugf("%02x",buf[i]);
+		//}
+            	//hid_debugf("=jmap:%x",jmap);
 	      }
               else
 	      {
