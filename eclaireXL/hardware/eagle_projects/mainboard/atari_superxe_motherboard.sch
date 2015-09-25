@@ -14712,258 +14712,6 @@ with GPIOB26. Will disable!</text>
 <label x="182.88" y="-17.78" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="GPIOC18" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$138"/>
-<wire x1="205.74" y1="-10.16" x2="177.8" y2="-10.16" width="0.1524" layer="91"/>
-<label x="182.88" y="-10.16" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC19" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$137"/>
-<wire x1="205.74" y1="-7.62" x2="177.8" y2="-7.62" width="0.1524" layer="91"/>
-<label x="182.88" y="-7.62" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC20" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$136"/>
-<wire x1="205.74" y1="-5.08" x2="177.8" y2="-5.08" width="0.1524" layer="91"/>
-<label x="182.88" y="-5.08" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC21" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$135"/>
-<wire x1="205.74" y1="-2.54" x2="177.8" y2="-2.54" width="0.1524" layer="91"/>
-<label x="182.88" y="-2.54" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC22" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$134"/>
-<wire x1="205.74" y1="0" x2="177.8" y2="0" width="0.1524" layer="91"/>
-<label x="182.88" y="0" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC23" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$133"/>
-<wire x1="205.74" y1="2.54" x2="177.8" y2="2.54" width="0.1524" layer="91"/>
-<label x="182.88" y="2.54" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC24" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$132"/>
-<wire x1="205.74" y1="5.08" x2="177.8" y2="5.08" width="0.1524" layer="91"/>
-<label x="182.88" y="5.08" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC25" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$131"/>
-<wire x1="205.74" y1="7.62" x2="177.8" y2="7.62" width="0.1524" layer="91"/>
-<label x="182.88" y="7.62" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC26" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$130"/>
-<wire x1="205.74" y1="10.16" x2="177.8" y2="10.16" width="0.1524" layer="91"/>
-<label x="182.88" y="10.16" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC27" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$129"/>
-<wire x1="205.74" y1="12.7" x2="177.8" y2="12.7" width="0.1524" layer="91"/>
-<label x="182.88" y="12.7" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC28" class="0">
-<segment>
-<wire x1="205.74" y1="15.24" x2="177.8" y2="15.24" width="0.1524" layer="91"/>
-<pinref part="U$1" gate="G$1" pin="P$128"/>
-<label x="182.88" y="15.24" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC29" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$127"/>
-<wire x1="205.74" y1="17.78" x2="177.8" y2="17.78" width="0.1524" layer="91"/>
-<label x="182.88" y="17.78" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC30" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$126"/>
-<wire x1="205.74" y1="20.32" x2="177.8" y2="20.32" width="0.1524" layer="91"/>
-<label x="182.88" y="20.32" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC31" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$125"/>
-<wire x1="205.74" y1="22.86" x2="177.8" y2="22.86" width="0.1524" layer="91"/>
-<label x="182.88" y="22.86" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC32" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$124"/>
-<wire x1="205.74" y1="25.4" x2="177.8" y2="25.4" width="0.1524" layer="91"/>
-<label x="182.88" y="25.4" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC33" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$123"/>
-<wire x1="205.74" y1="27.94" x2="177.8" y2="27.94" width="0.1524" layer="91"/>
-<label x="182.88" y="27.94" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC34" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$122"/>
-<wire x1="205.74" y1="30.48" x2="177.8" y2="30.48" width="0.1524" layer="91"/>
-<label x="182.88" y="30.48" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC35" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$121"/>
-<wire x1="205.74" y1="33.02" x2="177.8" y2="33.02" width="0.1524" layer="91"/>
-<label x="182.88" y="33.02" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="GPIOC17" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$31"/>
-<wire x1="58.42" y1="167.64" x2="58.42" y2="154.94" width="0.1524" layer="91"/>
-<label x="58.42" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC16" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$32"/>
-<wire x1="60.96" y1="167.64" x2="60.96" y2="154.94" width="0.1524" layer="91"/>
-<label x="60.96" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC15" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$33"/>
-<wire x1="63.5" y1="167.64" x2="63.5" y2="154.94" width="0.1524" layer="91"/>
-<label x="63.5" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC14" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$34"/>
-<wire x1="66.04" y1="167.64" x2="66.04" y2="154.94" width="0.1524" layer="91"/>
-<label x="66.04" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC13" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$35"/>
-<wire x1="68.58" y1="167.64" x2="68.58" y2="154.94" width="0.1524" layer="91"/>
-<label x="68.58" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC12" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$36"/>
-<wire x1="71.12" y1="167.64" x2="71.12" y2="154.94" width="0.1524" layer="91"/>
-<label x="71.12" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC11" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$37"/>
-<wire x1="73.66" y1="167.64" x2="73.66" y2="154.94" width="0.1524" layer="91"/>
-<label x="73.66" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC10" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$38"/>
-<wire x1="76.2" y1="167.64" x2="76.2" y2="154.94" width="0.1524" layer="91"/>
-<label x="76.2" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC9" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$39"/>
-<wire x1="78.74" y1="167.64" x2="78.74" y2="154.94" width="0.1524" layer="91"/>
-<label x="78.74" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC8" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$40"/>
-<wire x1="81.28" y1="167.64" x2="81.28" y2="154.94" width="0.1524" layer="91"/>
-<label x="81.28" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC7" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$41"/>
-<wire x1="83.82" y1="167.64" x2="83.82" y2="154.94" width="0.1524" layer="91"/>
-<label x="83.82" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC6" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$42"/>
-<wire x1="86.36" y1="167.64" x2="86.36" y2="154.94" width="0.1524" layer="91"/>
-<label x="86.36" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC5" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$43"/>
-<wire x1="88.9" y1="167.64" x2="88.9" y2="154.94" width="0.1524" layer="91"/>
-<label x="88.9" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC4" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$44"/>
-<wire x1="91.44" y1="167.64" x2="91.44" y2="154.94" width="0.1524" layer="91"/>
-<label x="91.44" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC3" class="0">
-<segment>
-<wire x1="93.98" y1="167.64" x2="93.98" y2="154.94" width="0.1524" layer="91"/>
-<pinref part="U$1" gate="G$1" pin="P$45"/>
-<label x="93.98" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC2" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$46"/>
-<wire x1="96.52" y1="167.64" x2="96.52" y2="154.94" width="0.1524" layer="91"/>
-<label x="96.52" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC1" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$47"/>
-<wire x1="99.06" y1="167.64" x2="99.06" y2="154.94" width="0.1524" layer="91"/>
-<label x="99.06" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
-<net name="GPIOC0" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="P$48"/>
-<wire x1="101.6" y1="167.64" x2="101.6" y2="154.94" width="0.1524" layer="91"/>
-<label x="101.6" y="160.02" size="1.778" layer="95" rot="R90"/>
-</segment>
-</net>
 <net name="GPIOA0" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="P$49"/>
@@ -15635,6 +15383,258 @@ with GPIOB26. Will disable!</text>
 <pinref part="U$1" gate="G$1" pin="P$191"/>
 <wire x1="68.58" y1="-60.96" x2="68.58" y2="-48.26" width="0.1524" layer="91"/>
 <label x="68.58" y="-58.42" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC35" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$138"/>
+<wire x1="205.74" y1="-10.16" x2="177.8" y2="-10.16" width="0.1524" layer="91"/>
+<label x="182.88" y="-10.16" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC34" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$137"/>
+<wire x1="205.74" y1="-7.62" x2="177.8" y2="-7.62" width="0.1524" layer="91"/>
+<label x="182.88" y="-7.62" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC33" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$136"/>
+<wire x1="205.74" y1="-5.08" x2="177.8" y2="-5.08" width="0.1524" layer="91"/>
+<label x="182.88" y="-5.08" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC32" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$135"/>
+<wire x1="205.74" y1="-2.54" x2="177.8" y2="-2.54" width="0.1524" layer="91"/>
+<label x="182.88" y="-2.54" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC31" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$134"/>
+<wire x1="205.74" y1="0" x2="177.8" y2="0" width="0.1524" layer="91"/>
+<label x="182.88" y="0" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC30" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$133"/>
+<wire x1="205.74" y1="2.54" x2="177.8" y2="2.54" width="0.1524" layer="91"/>
+<label x="182.88" y="2.54" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC29" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$132"/>
+<wire x1="205.74" y1="5.08" x2="177.8" y2="5.08" width="0.1524" layer="91"/>
+<label x="182.88" y="5.08" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC28" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$131"/>
+<wire x1="205.74" y1="7.62" x2="177.8" y2="7.62" width="0.1524" layer="91"/>
+<label x="182.88" y="7.62" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC27" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$130"/>
+<wire x1="205.74" y1="10.16" x2="177.8" y2="10.16" width="0.1524" layer="91"/>
+<label x="182.88" y="10.16" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC26" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$129"/>
+<wire x1="205.74" y1="12.7" x2="177.8" y2="12.7" width="0.1524" layer="91"/>
+<label x="182.88" y="12.7" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC25" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$128"/>
+<wire x1="205.74" y1="15.24" x2="177.8" y2="15.24" width="0.1524" layer="91"/>
+<label x="182.88" y="15.24" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC24" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$127"/>
+<wire x1="205.74" y1="17.78" x2="177.8" y2="17.78" width="0.1524" layer="91"/>
+<label x="182.88" y="17.78" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC23" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$126"/>
+<wire x1="205.74" y1="20.32" x2="177.8" y2="20.32" width="0.1524" layer="91"/>
+<label x="182.88" y="20.32" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC22" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$125"/>
+<wire x1="205.74" y1="22.86" x2="177.8" y2="22.86" width="0.1524" layer="91"/>
+<label x="182.88" y="22.86" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC21" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$124"/>
+<wire x1="205.74" y1="25.4" x2="177.8" y2="25.4" width="0.1524" layer="91"/>
+<label x="182.88" y="25.4" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC20" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$123"/>
+<wire x1="205.74" y1="27.94" x2="177.8" y2="27.94" width="0.1524" layer="91"/>
+<label x="182.88" y="27.94" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC19" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$122"/>
+<wire x1="205.74" y1="30.48" x2="177.8" y2="30.48" width="0.1524" layer="91"/>
+<label x="182.88" y="30.48" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC18" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$121"/>
+<wire x1="205.74" y1="33.02" x2="177.8" y2="33.02" width="0.1524" layer="91"/>
+<label x="182.88" y="33.02" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="GPIOC0" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$31"/>
+<wire x1="58.42" y1="167.64" x2="58.42" y2="154.94" width="0.1524" layer="91"/>
+<label x="58.42" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC1" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$32"/>
+<wire x1="60.96" y1="167.64" x2="60.96" y2="154.94" width="0.1524" layer="91"/>
+<label x="60.96" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC2" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$33"/>
+<wire x1="63.5" y1="167.64" x2="63.5" y2="154.94" width="0.1524" layer="91"/>
+<label x="63.5" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC3" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$34"/>
+<wire x1="66.04" y1="167.64" x2="66.04" y2="154.94" width="0.1524" layer="91"/>
+<label x="66.04" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC4" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$35"/>
+<wire x1="68.58" y1="167.64" x2="68.58" y2="154.94" width="0.1524" layer="91"/>
+<label x="68.58" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC5" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$36"/>
+<wire x1="71.12" y1="167.64" x2="71.12" y2="154.94" width="0.1524" layer="91"/>
+<label x="71.12" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC6" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$37"/>
+<wire x1="73.66" y1="167.64" x2="73.66" y2="154.94" width="0.1524" layer="91"/>
+<label x="73.66" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC7" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$38"/>
+<wire x1="76.2" y1="167.64" x2="76.2" y2="154.94" width="0.1524" layer="91"/>
+<label x="76.2" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC8" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$39"/>
+<wire x1="78.74" y1="167.64" x2="78.74" y2="154.94" width="0.1524" layer="91"/>
+<label x="78.74" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC9" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$40"/>
+<wire x1="81.28" y1="167.64" x2="81.28" y2="154.94" width="0.1524" layer="91"/>
+<label x="81.28" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC10" class="0">
+<segment>
+<wire x1="83.82" y1="167.64" x2="83.82" y2="154.94" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="P$41"/>
+<label x="83.82" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC11" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$42"/>
+<wire x1="86.36" y1="167.64" x2="86.36" y2="154.94" width="0.1524" layer="91"/>
+<label x="86.36" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC12" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$43"/>
+<wire x1="88.9" y1="167.64" x2="88.9" y2="154.94" width="0.1524" layer="91"/>
+<label x="88.9" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC13" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$44"/>
+<wire x1="91.44" y1="167.64" x2="91.44" y2="154.94" width="0.1524" layer="91"/>
+<label x="91.44" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC14" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$45"/>
+<wire x1="93.98" y1="167.64" x2="93.98" y2="154.94" width="0.1524" layer="91"/>
+<label x="93.98" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC15" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$46"/>
+<wire x1="96.52" y1="167.64" x2="96.52" y2="154.94" width="0.1524" layer="91"/>
+<label x="96.52" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC16" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$47"/>
+<wire x1="99.06" y1="167.64" x2="99.06" y2="154.94" width="0.1524" layer="91"/>
+<label x="99.06" y="160.02" size="1.778" layer="95" rot="R90"/>
+</segment>
+</net>
+<net name="GPIOC17" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="P$48"/>
+<wire x1="101.6" y1="167.64" x2="101.6" y2="154.94" width="0.1524" layer="91"/>
+<label x="101.6" y="160.02" size="1.778" layer="95" rot="R90"/>
 </segment>
 </net>
 </nets>
@@ -16409,15 +16409,15 @@ with GPIOB26. Will disable!</text>
 <instance part="GPIOB" gate="G$1" x="45.72" y="7.62"/>
 <instance part="GPIOC" gate="G$1" x="121.92" y="7.62"/>
 <instance part="GND13" gate="1" x="106.68" y="68.58"/>
-<instance part="RN15" gate="G$1" x="144.78" y="-30.48"/>
-<instance part="RN9" gate="G$1" x="144.78" y="50.8"/>
-<instance part="RN10" gate="G$1" x="144.78" y="40.64"/>
-<instance part="RN11" gate="G$1" x="162.56" y="30.48"/>
-<instance part="RN12" gate="G$1" x="162.56" y="20.32"/>
-<instance part="RN16" gate="G$1" x="144.78" y="10.16"/>
-<instance part="RN17" gate="G$1" x="144.78" y="0"/>
-<instance part="RN18" gate="G$1" x="162.56" y="-10.16"/>
-<instance part="RN19" gate="G$1" x="162.56" y="-20.32"/>
+<instance part="RN15" gate="G$1" x="144.78" y="-30.48" rot="MR0"/>
+<instance part="RN9" gate="G$1" x="144.78" y="50.8" rot="MR0"/>
+<instance part="RN10" gate="G$1" x="144.78" y="40.64" rot="MR0"/>
+<instance part="RN11" gate="G$1" x="162.56" y="30.48" rot="MR0"/>
+<instance part="RN12" gate="G$1" x="162.56" y="20.32" rot="MR0"/>
+<instance part="RN16" gate="G$1" x="144.78" y="10.16" rot="MR0"/>
+<instance part="RN17" gate="G$1" x="144.78" y="0" rot="MR0"/>
+<instance part="RN18" gate="G$1" x="162.56" y="-10.16" rot="MR0"/>
+<instance part="RN19" gate="G$1" x="162.56" y="-20.32" rot="MR0"/>
 <instance part="U$3" gate="G$1" x="180.34" y="15.24"/>
 <instance part="RN5" gate="G$1" x="71.12" y="50.8" rot="MR0"/>
 <instance part="RN6" gate="G$1" x="71.12" y="40.64" rot="MR0"/>
@@ -16539,281 +16539,29 @@ with GPIOB26. Will disable!</text>
 <junction x="139.7" y="73.66"/>
 </segment>
 </net>
-<net name="N$99" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_0"/>
-<wire x1="132.08" y1="53.34" x2="137.16" y2="53.34" width="0.1524" layer="91"/>
-<pinref part="RN9" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="N$100" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_1"/>
-<wire x1="137.16" y1="50.8" x2="132.08" y2="50.8" width="0.1524" layer="91"/>
-<pinref part="RN9" gate="G$1" pin="2"/>
-</segment>
-</net>
-<net name="N$101" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_2"/>
-<wire x1="132.08" y1="48.26" x2="137.16" y2="48.26" width="0.1524" layer="91"/>
-<pinref part="RN9" gate="G$1" pin="3"/>
-</segment>
-</net>
-<net name="N$102" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_3"/>
-<wire x1="137.16" y1="45.72" x2="132.08" y2="45.72" width="0.1524" layer="91"/>
-<pinref part="RN9" gate="G$1" pin="4"/>
-</segment>
-</net>
-<net name="N$103" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_4"/>
-<wire x1="132.08" y1="43.18" x2="137.16" y2="43.18" width="0.1524" layer="91"/>
-<pinref part="RN10" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="N$104" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_5"/>
-<wire x1="137.16" y1="40.64" x2="132.08" y2="40.64" width="0.1524" layer="91"/>
-<pinref part="RN10" gate="G$1" pin="2"/>
-</segment>
-</net>
-<net name="N$105" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_6"/>
-<wire x1="132.08" y1="38.1" x2="137.16" y2="38.1" width="0.1524" layer="91"/>
-<pinref part="RN10" gate="G$1" pin="3"/>
-</segment>
-</net>
-<net name="N$106" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_7"/>
-<wire x1="132.08" y1="35.56" x2="137.16" y2="35.56" width="0.1524" layer="91"/>
-<pinref part="RN10" gate="G$1" pin="4"/>
-</segment>
-</net>
-<net name="N$107" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_8"/>
-<wire x1="132.08" y1="33.02" x2="154.94" y2="33.02" width="0.1524" layer="91"/>
-<pinref part="RN11" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="N$108" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_9"/>
-<wire x1="154.94" y1="30.48" x2="132.08" y2="30.48" width="0.1524" layer="91"/>
-<pinref part="RN11" gate="G$1" pin="2"/>
-</segment>
-</net>
-<net name="N$109" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_10"/>
-<wire x1="132.08" y1="27.94" x2="154.94" y2="27.94" width="0.1524" layer="91"/>
-<pinref part="RN11" gate="G$1" pin="3"/>
-</segment>
-</net>
-<net name="N$110" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_11"/>
-<wire x1="154.94" y1="25.4" x2="132.08" y2="25.4" width="0.1524" layer="91"/>
-<pinref part="RN11" gate="G$1" pin="4"/>
-</segment>
-</net>
-<net name="N$111" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_12"/>
-<wire x1="132.08" y1="22.86" x2="154.94" y2="22.86" width="0.1524" layer="91"/>
-<pinref part="RN12" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="N$112" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_13"/>
-<wire x1="154.94" y1="20.32" x2="132.08" y2="20.32" width="0.1524" layer="91"/>
-<pinref part="RN12" gate="G$1" pin="2"/>
-</segment>
-</net>
-<net name="N$113" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_14"/>
-<wire x1="132.08" y1="17.78" x2="154.94" y2="17.78" width="0.1524" layer="91"/>
-<pinref part="RN12" gate="G$1" pin="3"/>
-</segment>
-</net>
-<net name="N$114" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_15"/>
-<wire x1="154.94" y1="15.24" x2="132.08" y2="15.24" width="0.1524" layer="91"/>
-<pinref part="RN12" gate="G$1" pin="4"/>
-</segment>
-</net>
-<net name="N$115" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_16"/>
-<wire x1="132.08" y1="12.7" x2="137.16" y2="12.7" width="0.1524" layer="91"/>
-<pinref part="RN16" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="N$116" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_17"/>
-<wire x1="137.16" y1="10.16" x2="132.08" y2="10.16" width="0.1524" layer="91"/>
-<pinref part="RN16" gate="G$1" pin="2"/>
-</segment>
-</net>
-<net name="N$117" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_18"/>
-<wire x1="132.08" y1="7.62" x2="137.16" y2="7.62" width="0.1524" layer="91"/>
-<pinref part="RN16" gate="G$1" pin="3"/>
-</segment>
-</net>
-<net name="N$118" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_19"/>
-<wire x1="137.16" y1="5.08" x2="132.08" y2="5.08" width="0.1524" layer="91"/>
-<pinref part="RN16" gate="G$1" pin="4"/>
-</segment>
-</net>
-<net name="N$119" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_20"/>
-<wire x1="132.08" y1="2.54" x2="137.16" y2="2.54" width="0.1524" layer="91"/>
-<pinref part="RN17" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="N$120" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_21"/>
-<wire x1="137.16" y1="0" x2="132.08" y2="0" width="0.1524" layer="91"/>
-<pinref part="RN17" gate="G$1" pin="2"/>
-</segment>
-</net>
-<net name="N$121" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_22"/>
-<wire x1="132.08" y1="-2.54" x2="137.16" y2="-2.54" width="0.1524" layer="91"/>
-<pinref part="RN17" gate="G$1" pin="3"/>
-</segment>
-</net>
-<net name="N$122" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_23"/>
-<wire x1="137.16" y1="-5.08" x2="132.08" y2="-5.08" width="0.1524" layer="91"/>
-<pinref part="RN17" gate="G$1" pin="4"/>
-</segment>
-</net>
-<net name="N$123" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_24"/>
-<wire x1="132.08" y1="-7.62" x2="154.94" y2="-7.62" width="0.1524" layer="91"/>
-<pinref part="RN18" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="N$124" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_25"/>
-<wire x1="154.94" y1="-10.16" x2="132.08" y2="-10.16" width="0.1524" layer="91"/>
-<pinref part="RN18" gate="G$1" pin="2"/>
-</segment>
-</net>
-<net name="N$125" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_26"/>
-<wire x1="132.08" y1="-12.7" x2="154.94" y2="-12.7" width="0.1524" layer="91"/>
-<pinref part="RN18" gate="G$1" pin="3"/>
-</segment>
-</net>
-<net name="N$126" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_27"/>
-<wire x1="132.08" y1="-15.24" x2="154.94" y2="-15.24" width="0.1524" layer="91"/>
-<pinref part="RN18" gate="G$1" pin="4"/>
-</segment>
-</net>
-<net name="N$127" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_28"/>
-<wire x1="154.94" y1="-17.78" x2="132.08" y2="-17.78" width="0.1524" layer="91"/>
-<pinref part="RN19" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="N$128" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_29"/>
-<wire x1="154.94" y1="-20.32" x2="132.08" y2="-20.32" width="0.1524" layer="91"/>
-<pinref part="RN19" gate="G$1" pin="2"/>
-</segment>
-</net>
-<net name="N$129" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_30"/>
-<wire x1="132.08" y1="-22.86" x2="154.94" y2="-22.86" width="0.1524" layer="91"/>
-<pinref part="RN19" gate="G$1" pin="3"/>
-</segment>
-</net>
-<net name="N$130" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_31"/>
-<wire x1="154.94" y1="-25.4" x2="132.08" y2="-25.4" width="0.1524" layer="91"/>
-<pinref part="RN19" gate="G$1" pin="4"/>
-</segment>
-</net>
-<net name="N$131" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_32"/>
-<pinref part="RN15" gate="G$1" pin="1"/>
-<wire x1="132.08" y1="-27.94" x2="137.16" y2="-27.94" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$132" class="0">
-<segment>
-<pinref part="RN15" gate="G$1" pin="2"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_33"/>
-<wire x1="137.16" y1="-30.48" x2="132.08" y2="-30.48" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$133" class="0">
-<segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_34"/>
-<pinref part="RN15" gate="G$1" pin="3"/>
-<wire x1="132.08" y1="-33.02" x2="137.16" y2="-33.02" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$134" class="0">
-<segment>
-<pinref part="RN15" gate="G$1" pin="4"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_35"/>
-<wire x1="137.16" y1="-35.56" x2="132.08" y2="-35.56" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="GPIOC0" class="0">
 <segment>
 <wire x1="175.26" y1="53.34" x2="172.72" y2="53.34" width="0.1524" layer="91"/>
-<pinref part="RN9" gate="G$1" pin="8"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_0"/>
-<wire x1="172.72" y1="53.34" x2="152.4" y2="53.34" width="0.1524" layer="91"/>
+<pinref part="RN9" gate="G$1" pin="1"/>
+<wire x1="152.4" y1="53.34" x2="172.72" y2="53.34" width="0.1524" layer="91"/>
 <junction x="172.72" y="53.34"/>
 </segment>
 </net>
 <net name="GPIOC1" class="0">
 <segment>
 <wire x1="175.26" y1="50.8" x2="172.72" y2="50.8" width="0.1524" layer="91"/>
-<pinref part="RN9" gate="G$1" pin="7"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_1"/>
-<wire x1="172.72" y1="50.8" x2="152.4" y2="50.8" width="0.1524" layer="91"/>
+<pinref part="RN9" gate="G$1" pin="2"/>
+<wire x1="152.4" y1="50.8" x2="172.72" y2="50.8" width="0.1524" layer="91"/>
 <junction x="172.72" y="50.8"/>
 </segment>
 </net>
 <net name="GPIOC2" class="0">
 <segment>
 <wire x1="175.26" y1="48.26" x2="172.72" y2="48.26" width="0.1524" layer="91"/>
-<pinref part="RN9" gate="G$1" pin="6"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_2"/>
+<pinref part="RN9" gate="G$1" pin="3"/>
 <wire x1="172.72" y1="48.26" x2="152.4" y2="48.26" width="0.1524" layer="91"/>
 <junction x="172.72" y="48.26"/>
 </segment>
@@ -16821,17 +16569,17 @@ with GPIOB26. Will disable!</text>
 <net name="GPIOC3" class="0">
 <segment>
 <wire x1="175.26" y1="45.72" x2="172.72" y2="45.72" width="0.1524" layer="91"/>
-<pinref part="RN9" gate="G$1" pin="5"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_3"/>
-<wire x1="172.72" y1="45.72" x2="152.4" y2="45.72" width="0.1524" layer="91"/>
+<pinref part="RN9" gate="G$1" pin="4"/>
+<wire x1="152.4" y1="45.72" x2="172.72" y2="45.72" width="0.1524" layer="91"/>
 <junction x="172.72" y="45.72"/>
 </segment>
 </net>
 <net name="GPIOC4" class="0">
 <segment>
 <wire x1="175.26" y1="43.18" x2="172.72" y2="43.18" width="0.1524" layer="91"/>
-<pinref part="RN10" gate="G$1" pin="8"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_4"/>
+<pinref part="RN10" gate="G$1" pin="1"/>
 <wire x1="172.72" y1="43.18" x2="152.4" y2="43.18" width="0.1524" layer="91"/>
 <junction x="172.72" y="43.18"/>
 </segment>
@@ -16839,17 +16587,17 @@ with GPIOB26. Will disable!</text>
 <net name="GPIOC5" class="0">
 <segment>
 <wire x1="175.26" y1="40.64" x2="172.72" y2="40.64" width="0.1524" layer="91"/>
-<pinref part="RN10" gate="G$1" pin="7"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_5"/>
-<wire x1="172.72" y1="40.64" x2="152.4" y2="40.64" width="0.1524" layer="91"/>
+<pinref part="RN10" gate="G$1" pin="2"/>
+<wire x1="152.4" y1="40.64" x2="172.72" y2="40.64" width="0.1524" layer="91"/>
 <junction x="172.72" y="40.64"/>
 </segment>
 </net>
 <net name="GPIOC6" class="0">
 <segment>
 <wire x1="175.26" y1="38.1" x2="172.72" y2="38.1" width="0.1524" layer="91"/>
-<pinref part="RN10" gate="G$1" pin="6"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_6"/>
+<pinref part="RN10" gate="G$1" pin="3"/>
 <wire x1="172.72" y1="38.1" x2="152.4" y2="38.1" width="0.1524" layer="91"/>
 <junction x="172.72" y="38.1"/>
 </segment>
@@ -16857,261 +16605,234 @@ with GPIOB26. Will disable!</text>
 <net name="GPIOC7" class="0">
 <segment>
 <wire x1="175.26" y1="35.56" x2="172.72" y2="35.56" width="0.1524" layer="91"/>
-<pinref part="RN10" gate="G$1" pin="5"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_7"/>
-<wire x1="172.72" y1="35.56" x2="152.4" y2="35.56" width="0.1524" layer="91"/>
+<pinref part="RN10" gate="G$1" pin="4"/>
+<wire x1="152.4" y1="35.56" x2="172.72" y2="35.56" width="0.1524" layer="91"/>
 <junction x="172.72" y="35.56"/>
 </segment>
 </net>
 <net name="GPIOC8" class="0">
 <segment>
 <wire x1="175.26" y1="33.02" x2="172.72" y2="33.02" width="0.1524" layer="91"/>
-<pinref part="RN11" gate="G$1" pin="8"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_8"/>
-<wire x1="172.72" y1="33.02" x2="170.18" y2="33.02" width="0.1524" layer="91"/>
+<pinref part="RN11" gate="G$1" pin="1"/>
+<wire x1="170.18" y1="33.02" x2="172.72" y2="33.02" width="0.1524" layer="91"/>
 <junction x="172.72" y="33.02"/>
 </segment>
 </net>
 <net name="GPIOC9" class="0">
 <segment>
 <wire x1="175.26" y1="30.48" x2="172.72" y2="30.48" width="0.1524" layer="91"/>
-<pinref part="RN11" gate="G$1" pin="7"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_9"/>
-<wire x1="172.72" y1="30.48" x2="170.18" y2="30.48" width="0.1524" layer="91"/>
+<pinref part="RN11" gate="G$1" pin="2"/>
+<wire x1="170.18" y1="30.48" x2="172.72" y2="30.48" width="0.1524" layer="91"/>
 <junction x="172.72" y="30.48"/>
 </segment>
 </net>
 <net name="GPIOC10" class="0">
 <segment>
 <wire x1="175.26" y1="27.94" x2="172.72" y2="27.94" width="0.1524" layer="91"/>
-<pinref part="RN11" gate="G$1" pin="6"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_10"/>
-<wire x1="172.72" y1="27.94" x2="170.18" y2="27.94" width="0.1524" layer="91"/>
+<pinref part="RN11" gate="G$1" pin="3"/>
+<wire x1="170.18" y1="27.94" x2="172.72" y2="27.94" width="0.1524" layer="91"/>
 <junction x="172.72" y="27.94"/>
 </segment>
 </net>
 <net name="GPIOC11" class="0">
 <segment>
 <wire x1="175.26" y1="25.4" x2="172.72" y2="25.4" width="0.1524" layer="91"/>
-<pinref part="RN11" gate="G$1" pin="5"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_11"/>
-<wire x1="172.72" y1="25.4" x2="170.18" y2="25.4" width="0.1524" layer="91"/>
+<pinref part="RN11" gate="G$1" pin="4"/>
+<wire x1="170.18" y1="25.4" x2="172.72" y2="25.4" width="0.1524" layer="91"/>
 <junction x="172.72" y="25.4"/>
 </segment>
 </net>
 <net name="GPIOC12" class="0">
 <segment>
 <wire x1="175.26" y1="22.86" x2="172.72" y2="22.86" width="0.1524" layer="91"/>
-<pinref part="RN12" gate="G$1" pin="8"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_12"/>
-<wire x1="172.72" y1="22.86" x2="170.18" y2="22.86" width="0.1524" layer="91"/>
+<pinref part="RN12" gate="G$1" pin="1"/>
+<wire x1="170.18" y1="22.86" x2="172.72" y2="22.86" width="0.1524" layer="91"/>
 <junction x="172.72" y="22.86"/>
 </segment>
 </net>
 <net name="GPIOC13" class="0">
 <segment>
 <wire x1="175.26" y1="20.32" x2="172.72" y2="20.32" width="0.1524" layer="91"/>
-<pinref part="RN12" gate="G$1" pin="7"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_13"/>
-<wire x1="172.72" y1="20.32" x2="170.18" y2="20.32" width="0.1524" layer="91"/>
+<pinref part="RN12" gate="G$1" pin="2"/>
+<wire x1="170.18" y1="20.32" x2="172.72" y2="20.32" width="0.1524" layer="91"/>
 <junction x="172.72" y="20.32"/>
 </segment>
 </net>
 <net name="GPIOC14" class="0">
 <segment>
 <wire x1="175.26" y1="17.78" x2="172.72" y2="17.78" width="0.1524" layer="91"/>
-<pinref part="RN12" gate="G$1" pin="6"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_14"/>
-<wire x1="172.72" y1="17.78" x2="170.18" y2="17.78" width="0.1524" layer="91"/>
+<pinref part="RN12" gate="G$1" pin="3"/>
+<wire x1="170.18" y1="17.78" x2="172.72" y2="17.78" width="0.1524" layer="91"/>
 <junction x="172.72" y="17.78"/>
 </segment>
 </net>
 <net name="GPIOC15" class="0">
 <segment>
 <wire x1="175.26" y1="15.24" x2="172.72" y2="15.24" width="0.1524" layer="91"/>
-<pinref part="RN12" gate="G$1" pin="5"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_15"/>
-<wire x1="172.72" y1="15.24" x2="170.18" y2="15.24" width="0.1524" layer="91"/>
+<pinref part="RN12" gate="G$1" pin="4"/>
+<wire x1="170.18" y1="15.24" x2="172.72" y2="15.24" width="0.1524" layer="91"/>
 <junction x="172.72" y="15.24"/>
 </segment>
 </net>
 <net name="GPIOC16" class="0">
 <segment>
 <wire x1="175.26" y1="12.7" x2="172.72" y2="12.7" width="0.1524" layer="91"/>
-<pinref part="RN16" gate="G$1" pin="8"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_16"/>
-<wire x1="172.72" y1="12.7" x2="152.4" y2="12.7" width="0.1524" layer="91"/>
+<pinref part="RN16" gate="G$1" pin="1"/>
+<wire x1="152.4" y1="12.7" x2="172.72" y2="12.7" width="0.1524" layer="91"/>
 <junction x="172.72" y="12.7"/>
 </segment>
 </net>
 <net name="GPIOC17" class="0">
 <segment>
 <wire x1="175.26" y1="10.16" x2="172.72" y2="10.16" width="0.1524" layer="91"/>
-<pinref part="RN16" gate="G$1" pin="7"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_17"/>
-<wire x1="172.72" y1="10.16" x2="152.4" y2="10.16" width="0.1524" layer="91"/>
+<pinref part="RN16" gate="G$1" pin="2"/>
+<wire x1="152.4" y1="10.16" x2="172.72" y2="10.16" width="0.1524" layer="91"/>
 <junction x="172.72" y="10.16"/>
 </segment>
 </net>
 <net name="GPIOC18" class="0">
 <segment>
 <wire x1="175.26" y1="7.62" x2="172.72" y2="7.62" width="0.1524" layer="91"/>
-<pinref part="RN16" gate="G$1" pin="6"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_18"/>
-<wire x1="172.72" y1="7.62" x2="152.4" y2="7.62" width="0.1524" layer="91"/>
+<pinref part="RN16" gate="G$1" pin="3"/>
+<wire x1="152.4" y1="7.62" x2="172.72" y2="7.62" width="0.1524" layer="91"/>
 <junction x="172.72" y="7.62"/>
 </segment>
 </net>
 <net name="GPIOC19" class="0">
 <segment>
 <wire x1="175.26" y1="5.08" x2="172.72" y2="5.08" width="0.1524" layer="91"/>
-<pinref part="RN16" gate="G$1" pin="5"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_19"/>
-<wire x1="172.72" y1="5.08" x2="152.4" y2="5.08" width="0.1524" layer="91"/>
+<pinref part="RN16" gate="G$1" pin="4"/>
+<wire x1="152.4" y1="5.08" x2="172.72" y2="5.08" width="0.1524" layer="91"/>
 <junction x="172.72" y="5.08"/>
 </segment>
 </net>
 <net name="GPIOC20" class="0">
 <segment>
 <wire x1="175.26" y1="2.54" x2="172.72" y2="2.54" width="0.1524" layer="91"/>
-<pinref part="RN17" gate="G$1" pin="8"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_20"/>
-<wire x1="172.72" y1="2.54" x2="152.4" y2="2.54" width="0.1524" layer="91"/>
+<pinref part="RN17" gate="G$1" pin="1"/>
+<wire x1="152.4" y1="2.54" x2="172.72" y2="2.54" width="0.1524" layer="91"/>
 <junction x="172.72" y="2.54"/>
 </segment>
 </net>
 <net name="GPIOC21" class="0">
 <segment>
 <wire x1="175.26" y1="0" x2="172.72" y2="0" width="0.1524" layer="91"/>
-<pinref part="RN17" gate="G$1" pin="7"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_21"/>
-<wire x1="172.72" y1="0" x2="152.4" y2="0" width="0.1524" layer="91"/>
+<pinref part="RN17" gate="G$1" pin="2"/>
+<wire x1="152.4" y1="0" x2="172.72" y2="0" width="0.1524" layer="91"/>
 <junction x="172.72" y="0"/>
 </segment>
 </net>
 <net name="GPIOC22" class="0">
 <segment>
 <wire x1="175.26" y1="-2.54" x2="172.72" y2="-2.54" width="0.1524" layer="91"/>
-<pinref part="RN17" gate="G$1" pin="6"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_22"/>
-<wire x1="172.72" y1="-2.54" x2="152.4" y2="-2.54" width="0.1524" layer="91"/>
+<pinref part="RN17" gate="G$1" pin="3"/>
+<wire x1="152.4" y1="-2.54" x2="172.72" y2="-2.54" width="0.1524" layer="91"/>
 <junction x="172.72" y="-2.54"/>
 </segment>
 </net>
 <net name="GPIOC23" class="0">
 <segment>
 <wire x1="175.26" y1="-5.08" x2="172.72" y2="-5.08" width="0.1524" layer="91"/>
-<pinref part="RN17" gate="G$1" pin="5"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_23"/>
-<wire x1="172.72" y1="-5.08" x2="152.4" y2="-5.08" width="0.1524" layer="91"/>
+<pinref part="RN17" gate="G$1" pin="4"/>
+<wire x1="152.4" y1="-5.08" x2="172.72" y2="-5.08" width="0.1524" layer="91"/>
 <junction x="172.72" y="-5.08"/>
 </segment>
 </net>
 <net name="GPIOC24" class="0">
 <segment>
 <wire x1="175.26" y1="-7.62" x2="172.72" y2="-7.62" width="0.1524" layer="91"/>
-<pinref part="RN18" gate="G$1" pin="8"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_24"/>
-<wire x1="172.72" y1="-7.62" x2="170.18" y2="-7.62" width="0.1524" layer="91"/>
+<pinref part="RN18" gate="G$1" pin="1"/>
+<wire x1="170.18" y1="-7.62" x2="172.72" y2="-7.62" width="0.1524" layer="91"/>
 <junction x="172.72" y="-7.62"/>
 </segment>
 </net>
 <net name="GPIOC25" class="0">
 <segment>
 <wire x1="175.26" y1="-10.16" x2="172.72" y2="-10.16" width="0.1524" layer="91"/>
-<pinref part="RN18" gate="G$1" pin="7"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_25"/>
-<wire x1="172.72" y1="-10.16" x2="170.18" y2="-10.16" width="0.1524" layer="91"/>
+<pinref part="RN18" gate="G$1" pin="2"/>
+<wire x1="170.18" y1="-10.16" x2="172.72" y2="-10.16" width="0.1524" layer="91"/>
 <junction x="172.72" y="-10.16"/>
 </segment>
 </net>
 <net name="GPIOC26" class="0">
 <segment>
 <wire x1="175.26" y1="-12.7" x2="172.72" y2="-12.7" width="0.1524" layer="91"/>
-<pinref part="RN18" gate="G$1" pin="6"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_26"/>
-<wire x1="172.72" y1="-12.7" x2="170.18" y2="-12.7" width="0.1524" layer="91"/>
+<pinref part="RN18" gate="G$1" pin="3"/>
+<wire x1="170.18" y1="-12.7" x2="172.72" y2="-12.7" width="0.1524" layer="91"/>
 <junction x="172.72" y="-12.7"/>
 </segment>
 </net>
 <net name="GPIOC27" class="0">
 <segment>
 <wire x1="175.26" y1="-15.24" x2="172.72" y2="-15.24" width="0.1524" layer="91"/>
-<pinref part="RN18" gate="G$1" pin="5"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_27"/>
-<wire x1="172.72" y1="-15.24" x2="170.18" y2="-15.24" width="0.1524" layer="91"/>
+<pinref part="RN18" gate="G$1" pin="4"/>
+<wire x1="170.18" y1="-15.24" x2="172.72" y2="-15.24" width="0.1524" layer="91"/>
 <junction x="172.72" y="-15.24"/>
-</segment>
-</net>
-<net name="GPIOC28" class="0">
-<segment>
-<wire x1="175.26" y1="-17.78" x2="172.72" y2="-17.78" width="0.1524" layer="91"/>
-<pinref part="RN19" gate="G$1" pin="8"/>
-<pinref part="U$3" gate="G$1" pin="GPIO_28"/>
-<wire x1="172.72" y1="-17.78" x2="170.18" y2="-17.78" width="0.1524" layer="91"/>
-<junction x="172.72" y="-17.78"/>
-</segment>
-</net>
-<net name="GPIOC29" class="0">
-<segment>
-<wire x1="175.26" y1="-20.32" x2="172.72" y2="-20.32" width="0.1524" layer="91"/>
-<pinref part="RN19" gate="G$1" pin="7"/>
-<pinref part="U$3" gate="G$1" pin="GPIO_29"/>
-<wire x1="172.72" y1="-20.32" x2="170.18" y2="-20.32" width="0.1524" layer="91"/>
-<junction x="172.72" y="-20.32"/>
 </segment>
 </net>
 <net name="GPIOC30" class="0">
 <segment>
 <wire x1="175.26" y1="-22.86" x2="172.72" y2="-22.86" width="0.1524" layer="91"/>
-<pinref part="RN19" gate="G$1" pin="6"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_30"/>
-<wire x1="172.72" y1="-22.86" x2="170.18" y2="-22.86" width="0.1524" layer="91"/>
+<pinref part="RN19" gate="G$1" pin="3"/>
+<wire x1="170.18" y1="-22.86" x2="172.72" y2="-22.86" width="0.1524" layer="91"/>
 <junction x="172.72" y="-22.86"/>
 </segment>
 </net>
 <net name="GPIOC31" class="0">
 <segment>
 <wire x1="175.26" y1="-25.4" x2="172.72" y2="-25.4" width="0.1524" layer="91"/>
-<pinref part="RN19" gate="G$1" pin="5"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_31"/>
+<pinref part="RN19" gate="G$1" pin="4"/>
 <wire x1="172.72" y1="-25.4" x2="170.18" y2="-25.4" width="0.1524" layer="91"/>
 <junction x="172.72" y="-25.4"/>
 </segment>
 </net>
 <net name="GPIOC32" class="0">
 <segment>
-<pinref part="RN15" gate="G$1" pin="8"/>
 <wire x1="175.26" y1="-27.94" x2="172.72" y2="-27.94" width="0.1524" layer="91"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_32"/>
-<wire x1="172.72" y1="-27.94" x2="152.4" y2="-27.94" width="0.1524" layer="91"/>
+<pinref part="RN15" gate="G$1" pin="1"/>
+<wire x1="152.4" y1="-27.94" x2="172.72" y2="-27.94" width="0.1524" layer="91"/>
 <junction x="172.72" y="-27.94"/>
-</segment>
-</net>
-<net name="GPIOC33" class="0">
-<segment>
-<pinref part="RN15" gate="G$1" pin="7"/>
-<wire x1="175.26" y1="-30.48" x2="172.72" y2="-30.48" width="0.1524" layer="91"/>
-<pinref part="U$3" gate="G$1" pin="GPIO_33"/>
-<wire x1="172.72" y1="-30.48" x2="152.4" y2="-30.48" width="0.1524" layer="91"/>
-<junction x="172.72" y="-30.48"/>
 </segment>
 </net>
 <net name="GPIOC34" class="0">
 <segment>
-<pinref part="RN15" gate="G$1" pin="6"/>
 <wire x1="175.26" y1="-33.02" x2="172.72" y2="-33.02" width="0.1524" layer="91"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_34"/>
-<wire x1="172.72" y1="-33.02" x2="152.4" y2="-33.02" width="0.1524" layer="91"/>
+<pinref part="RN15" gate="G$1" pin="3"/>
+<wire x1="152.4" y1="-33.02" x2="172.72" y2="-33.02" width="0.1524" layer="91"/>
 <junction x="172.72" y="-33.02"/>
 </segment>
 </net>
 <net name="GPIOC35" class="0">
 <segment>
-<pinref part="RN15" gate="G$1" pin="5"/>
 <wire x1="175.26" y1="-35.56" x2="172.72" y2="-35.56" width="0.1524" layer="91"/>
 <pinref part="U$3" gate="G$1" pin="GPIO_35"/>
-<wire x1="172.72" y1="-35.56" x2="152.4" y2="-35.56" width="0.1524" layer="91"/>
+<pinref part="RN15" gate="G$1" pin="4"/>
+<wire x1="152.4" y1="-35.56" x2="172.72" y2="-35.56" width="0.1524" layer="91"/>
 <junction x="172.72" y="-35.56"/>
 </segment>
 </net>
@@ -18249,6 +17970,285 @@ with GPIOB26. Will disable!</text>
 <pinref part="GPIOA" gate="G$1" pin="GPIO_12"/>
 <wire x1="-20.32" y1="22.86" x2="5.08" y2="22.86" width="0.1524" layer="91"/>
 <pinref part="RN4" gate="G$1" pin="8"/>
+</segment>
+</net>
+<net name="N$15" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_0"/>
+<pinref part="RN9" gate="G$1" pin="8"/>
+<wire x1="132.08" y1="53.34" x2="137.16" y2="53.34" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$99" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_1"/>
+<pinref part="RN9" gate="G$1" pin="7"/>
+<wire x1="132.08" y1="50.8" x2="137.16" y2="50.8" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$100" class="0">
+<segment>
+<pinref part="RN9" gate="G$1" pin="6"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_2"/>
+<wire x1="137.16" y1="48.26" x2="132.08" y2="48.26" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$101" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_3"/>
+<pinref part="RN9" gate="G$1" pin="5"/>
+<wire x1="132.08" y1="45.72" x2="137.16" y2="45.72" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$102" class="0">
+<segment>
+<pinref part="RN10" gate="G$1" pin="8"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_4"/>
+<wire x1="137.16" y1="43.18" x2="132.08" y2="43.18" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$103" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_5"/>
+<pinref part="RN10" gate="G$1" pin="7"/>
+<wire x1="132.08" y1="40.64" x2="137.16" y2="40.64" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$104" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_6"/>
+<pinref part="RN10" gate="G$1" pin="6"/>
+<wire x1="132.08" y1="38.1" x2="137.16" y2="38.1" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$105" class="0">
+<segment>
+<pinref part="RN10" gate="G$1" pin="5"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_7"/>
+<wire x1="137.16" y1="35.56" x2="132.08" y2="35.56" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$106" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_8"/>
+<pinref part="RN11" gate="G$1" pin="8"/>
+<wire x1="132.08" y1="33.02" x2="154.94" y2="33.02" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$107" class="0">
+<segment>
+<pinref part="RN11" gate="G$1" pin="7"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_9"/>
+<wire x1="154.94" y1="30.48" x2="132.08" y2="30.48" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$108" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_10"/>
+<pinref part="RN11" gate="G$1" pin="6"/>
+<wire x1="132.08" y1="27.94" x2="154.94" y2="27.94" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$109" class="0">
+<segment>
+<pinref part="RN11" gate="G$1" pin="5"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_11"/>
+<wire x1="154.94" y1="25.4" x2="132.08" y2="25.4" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$110" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_12"/>
+<pinref part="RN12" gate="G$1" pin="8"/>
+<wire x1="132.08" y1="22.86" x2="154.94" y2="22.86" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$111" class="0">
+<segment>
+<pinref part="RN12" gate="G$1" pin="7"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_13"/>
+<wire x1="154.94" y1="20.32" x2="132.08" y2="20.32" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$112" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_14"/>
+<pinref part="RN12" gate="G$1" pin="6"/>
+<wire x1="132.08" y1="17.78" x2="154.94" y2="17.78" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$113" class="0">
+<segment>
+<pinref part="RN12" gate="G$1" pin="5"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_15"/>
+<wire x1="154.94" y1="15.24" x2="132.08" y2="15.24" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$114" class="0">
+<segment>
+<pinref part="RN16" gate="G$1" pin="8"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_16"/>
+<wire x1="137.16" y1="12.7" x2="132.08" y2="12.7" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$115" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_17"/>
+<pinref part="RN16" gate="G$1" pin="7"/>
+<wire x1="132.08" y1="10.16" x2="137.16" y2="10.16" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$116" class="0">
+<segment>
+<pinref part="RN16" gate="G$1" pin="6"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_18"/>
+<wire x1="137.16" y1="7.62" x2="132.08" y2="7.62" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$117" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_19"/>
+<pinref part="RN16" gate="G$1" pin="5"/>
+<wire x1="132.08" y1="5.08" x2="137.16" y2="5.08" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$118" class="0">
+<segment>
+<pinref part="RN17" gate="G$1" pin="8"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_20"/>
+<wire x1="137.16" y1="2.54" x2="132.08" y2="2.54" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$119" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_21"/>
+<pinref part="RN17" gate="G$1" pin="7"/>
+<wire x1="132.08" y1="0" x2="137.16" y2="0" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$120" class="0">
+<segment>
+<pinref part="RN17" gate="G$1" pin="6"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_22"/>
+<wire x1="137.16" y1="-2.54" x2="132.08" y2="-2.54" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$121" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_23"/>
+<pinref part="RN17" gate="G$1" pin="5"/>
+<wire x1="132.08" y1="-5.08" x2="137.16" y2="-5.08" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$122" class="0">
+<segment>
+<pinref part="RN18" gate="G$1" pin="8"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_24"/>
+<wire x1="154.94" y1="-7.62" x2="132.08" y2="-7.62" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$123" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_25"/>
+<pinref part="RN18" gate="G$1" pin="7"/>
+<wire x1="132.08" y1="-10.16" x2="154.94" y2="-10.16" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$124" class="0">
+<segment>
+<pinref part="RN18" gate="G$1" pin="6"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_26"/>
+<wire x1="154.94" y1="-12.7" x2="132.08" y2="-12.7" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$125" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_27"/>
+<pinref part="RN18" gate="G$1" pin="5"/>
+<wire x1="132.08" y1="-15.24" x2="154.94" y2="-15.24" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$126" class="0">
+<segment>
+<pinref part="RN19" gate="G$1" pin="8"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_28"/>
+<wire x1="154.94" y1="-17.78" x2="132.08" y2="-17.78" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$127" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_29"/>
+<pinref part="RN19" gate="G$1" pin="7"/>
+<wire x1="132.08" y1="-20.32" x2="154.94" y2="-20.32" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$128" class="0">
+<segment>
+<pinref part="RN19" gate="G$1" pin="6"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_30"/>
+<wire x1="154.94" y1="-22.86" x2="132.08" y2="-22.86" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$129" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_31"/>
+<pinref part="RN19" gate="G$1" pin="5"/>
+<wire x1="132.08" y1="-25.4" x2="154.94" y2="-25.4" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="GPIOC33" class="0">
+<segment>
+<pinref part="U$3" gate="G$1" pin="GPIO_33"/>
+<wire x1="175.26" y1="-30.48" x2="172.72" y2="-30.48" width="0.1524" layer="91"/>
+<pinref part="RN15" gate="G$1" pin="2"/>
+<wire x1="152.4" y1="-30.48" x2="172.72" y2="-30.48" width="0.1524" layer="91"/>
+<junction x="172.72" y="-30.48"/>
+</segment>
+</net>
+<net name="GPIOC29" class="0">
+<segment>
+<pinref part="U$3" gate="G$1" pin="GPIO_29"/>
+<wire x1="175.26" y1="-20.32" x2="172.72" y2="-20.32" width="0.1524" layer="91"/>
+<pinref part="RN19" gate="G$1" pin="2"/>
+<wire x1="170.18" y1="-20.32" x2="172.72" y2="-20.32" width="0.1524" layer="91"/>
+<junction x="172.72" y="-20.32"/>
+</segment>
+</net>
+<net name="GPIOC28" class="0">
+<segment>
+<pinref part="U$3" gate="G$1" pin="GPIO_28"/>
+<wire x1="175.26" y1="-17.78" x2="172.72" y2="-17.78" width="0.1524" layer="91"/>
+<pinref part="RN19" gate="G$1" pin="1"/>
+<wire x1="170.18" y1="-17.78" x2="172.72" y2="-17.78" width="0.1524" layer="91"/>
+<junction x="172.72" y="-17.78"/>
+</segment>
+</net>
+<net name="N$130" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_32"/>
+<pinref part="RN15" gate="G$1" pin="8"/>
+<wire x1="132.08" y1="-27.94" x2="137.16" y2="-27.94" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$131" class="0">
+<segment>
+<pinref part="RN15" gate="G$1" pin="7"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_33"/>
+<wire x1="137.16" y1="-30.48" x2="132.08" y2="-30.48" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$132" class="0">
+<segment>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_34"/>
+<pinref part="RN15" gate="G$1" pin="6"/>
+<wire x1="132.08" y1="-33.02" x2="137.16" y2="-33.02" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$133" class="0">
+<segment>
+<pinref part="RN15" gate="G$1" pin="5"/>
+<pinref part="GPIOC" gate="G$1" pin="GPIO_35"/>
+<wire x1="137.16" y1="-35.56" x2="132.08" y2="-35.56" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
