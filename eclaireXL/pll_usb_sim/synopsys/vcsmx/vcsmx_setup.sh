@@ -12,7 +12,7 @@
 # or its authorized distributors. Please refer to the applicable 
 # agreement for further details.
 
-# ACDS 14.0 200 linux 2015.07.12.07:16:21
+# ACDS 15.0 145 linux 2015.08.23.14:08:13
 
 # ----------------------------------------
 # vcsmx - auto-generated simulation script
@@ -21,7 +21,7 @@
 # initialize variables
 TOP_LEVEL_NAME="pll_usb"
 QSYS_SIMDIR="./../../"
-QUARTUS_INSTALL_DIR="/home/markw/fpga/altera/14.0/quartus/"
+QUARTUS_INSTALL_DIR="/home/markw/fpga/altera/15.0/quartus/"
 SKIP_FILE_COPY=0
 SKIP_DEV_COM=0
 SKIP_COM=0

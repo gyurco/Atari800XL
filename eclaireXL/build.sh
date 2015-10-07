@@ -42,7 +42,7 @@ my %variants =
 	"A2EBA" =>
 	{
 		"TV" => 2,
-		"GPIO" => 3,
+		"GPIO" => 2,
 		"internal_ram" => 0,
 		"internal_rom" => 0
 	},
@@ -71,6 +71,7 @@ foreach my $variant (sort keys %variants)
 	`cp atari800core_eclaireXL.vhd $dir`;
 	`cp -a *pll* $dir`;
 	`cp -a *gpioram* $dir`;
+	`cp -a *zpu_rom* $dir`;
 	#`cp -a *serial_loader* $dir`;
 	`cp *.v $dir`;
 	`cp *.vhd* $dir`;

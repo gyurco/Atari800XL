@@ -12,7 +12,7 @@
 # or its authorized distributors. Please refer to the applicable 
 # agreement for further details.
 
-# ACDS 14.0 200 linux 2015.07.12.07:16:21
+# ACDS 15.0 145 linux 2015.08.23.14:08:13
 
 # ----------------------------------------
 # Auto-generated simulation script
@@ -34,7 +34,7 @@ if ![info exists QSYS_SIMDIR] {
 }
 
 if ![info exists QUARTUS_INSTALL_DIR] { 
-  set QUARTUS_INSTALL_DIR "/home/markw/fpga/altera/14.0/quartus/"
+  set QUARTUS_INSTALL_DIR "/home/markw/fpga/altera/15.0/quartus/"
 }
 
 # ----------------------------------------

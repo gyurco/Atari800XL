@@ -1,8 +1,8 @@
 --IP Functional Simulation Model
---VERSION_BEGIN 14.0 cbx_mgl 2014:06:05:10:17:12:SJ cbx_simgen 2014:06:05:09:45:41:SJ  VERSION_END
+--VERSION_BEGIN 15.0 cbx_mgl 2015:04:15:20:18:26:SJ cbx_simgen 2015:04:15:19:11:39:SJ  VERSION_END
 
 
--- Copyright (C) 1991-2014 Altera Corporation. All rights reserved.
+-- Copyright (C) 1991-2015 Altera Corporation. All rights reserved.
 -- Your use of Altera Corporation's design tools, logic functions 
 -- and other software and tools, and its AMPP partner logic 
 -- functions, and any output files from any of the foregoing 
@@ -231,7 +231,7 @@
 		n_cnt_odd_div_duty_en => "false",
 		number_of_clocks => 1,
 		operation_mode => "direct",
-		output_clock_frequency0 => "12.000000 MHz",
+		output_clock_frequency0 => "48.000000 MHz",
 		output_clock_frequency1 => "0 MHz",
 		output_clock_frequency10 => "0 MHz",
 		output_clock_frequency11 => "0 MHz",
@@ -268,6 +268,7 @@
 		phase_shift8 => "0 ps",
 		phase_shift9 => "0 ps",
 		pll_auto_clk_sw_en => "false",
+		pll_bw_sel => "low",
 		pll_bwctrl => 0,
 		pll_clk_loss_sw_en => "false",
 		pll_clk_sw_dly => 0,

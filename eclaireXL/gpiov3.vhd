@@ -164,9 +164,7 @@ begin
 				when state_drive =>
 					state_next <= state_read;
 
-					--preare to read
-					gpio0_out_next <= (others=>'0');
-					gpio1_out_next <= (others=>'0');
+					--prepare to read
 					gpio0_dir_next <= (others=>'0');
 					gpio1_dir_next <= (others=>'0');
 

@@ -1,0 +1,6 @@
+../firmware/mif_file_stuff/zpuromgen ../firmware/ECLAIREXL.bin  > zpu_rom.mif_insides 
+cat ../firmware/mif_file_stuff/rom_prologue.vhd  zpu_rom.mif_insides ../firmware/mif_file_stuff/rom_epilogue.vhd  > zpu_rom.mif
+cp zpu_rom.mif build_A2EBA/
+quartus_cdb --update_mif build_A2EBA/atari800core_eclaireXL.qpf
+quartus_asm build_A2EBA/atari800core_eclaireXL.qpf
+

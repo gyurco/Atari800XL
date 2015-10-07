@@ -240,6 +240,8 @@ end component;
 	signal GPIOA_OUT : std_logic_vector(35 downto 0);
 	signal GPIOB_DIR_OUT : std_logic_vector(35 downto 0);
 	signal GPIOB_OUT : std_logic_vector(35 downto 0);
+	signal GPIOC_DIR_OUT : std_logic_vector(35 downto 0);
+	signal GPIOC_OUT : std_logic_vector(35 downto 0);
 	signal TRIGGERS : std_logic_vector(3 downto 0);
 
 	signal POT_RESET : std_logic;
@@ -291,11 +293,10 @@ end component;
 BEGIN 
 
 	-- TODO
-	pbi_enable <= '0'; --SW(4);
 	PAL <= '1';-- SW(8);
 
-	SD_DAT2<='0';
-	SD_DAT1<='0';
+	SD_DAT2<='Z';
+	SD_DAT1<='Z';
 
 -- ANYTHING NOT CONNECTED...
 --GPIOA(0) <= 'Z';
@@ -388,10 +389,9 @@ GPIOB_gen:
 		GPIOB(I) <= GPIOB_out(I) when GPIOB_dir_out(I)='1' else 'Z';
    end generate GPIOB_gen;
 
--- duplicate GPIOC
 GPIOC_gen:
    for I in 0 to 35 generate
-		GPIOC(I) <= GPIOB_out(I) when GPIOB_dir_out(I)='1' else 'Z';
+		GPIOC(I) <= GPIOC_out(I) when GPIOC_dir_out(I)='1' else 'Z';
    end generate GPIOC_gen;
 
 gen_old_gpio : if gpio=1 generate
@@ -443,6 +443,7 @@ PORT MAP(clk => CLK,
 	CB1_IN <= '1';
 	CA2_IN <= CA2_OUT when CA2_DIR_OUT='1' else '1';
 	CB2_IN <= CB2_OUT when CB2_DIR_OUT='1' else '1';
+	pbi_enable <= '1';
 end generate gen_old_gpio;
 
 gen_new_gpio : if gpio=2 generate
@@ -466,9 +467,9 @@ PORT MAP(clk => CLK,
 		 GPIO_0_IN => GPIOA,
 		 GPIO_0_OUT => GPIOA_OUT,
 		 GPIO_0_DIR_OUT => GPIOA_DIR_OUT,
-		 GPIO_1_IN => GPIOB,
-		 GPIO_1_OUT => GPIOB_OUT,
-		 GPIO_1_DIR_OUT => GPIOB_DIR_OUT,		 
+		 GPIO_1_IN => GPIOC,
+		 GPIO_1_OUT => GPIOC_OUT,
+		 GPIO_1_DIR_OUT => GPIOC_DIR_OUT,		 
 		 keyboard_scan => KEYBOARD_SCAN,
 		 pbi_addr_out => pbi_addr,
 		 porta_out => PORTA_OUT,
@@ -491,9 +492,65 @@ PORT MAP(clk => CLK,
 		 SIO_CLOCKIN => SIO_CLOCKIN,
 		 SIO_CLOCKOUT => SIO_CLOCKOUT
 		 );
+
+	GPIOB_DIR_OUT <= (others=>'0');
+	GPIOB_OUT <= (others=>'0');
+	pbi_enable <= '1';
 end generate gen_new_gpio;
 
-gen_test_gpio : if gpio=3 generate
+gen_test_gpioc : if gpio=3 generate
+gpio2 : entity work.gpiov3
+GENERIC MAP(
+		cartridge_cycle_length => 26
+)
+PORT MAP(clk => CLK,
+	reset_n => reset_n,
+		 gpio_enable => pbi_enable,
+		 pot_reset => pot_reset,
+		 pbi_write_enable => pbi_write_enable,
+		 enable_179_early => enable_179_early,
+		 cart_request => cart_request,
+		 cart_complete => cart_request_complete,
+		 cart_data_read => cart_data,
+		 s4_n => cart_s4_n,
+		 s5_n => cart_s5_n,
+		 cctl_n => cart_cctl_n,
+		 cart_data_write => pbi_write_data(7 downto 0),
+		 GPIO_0_IN => GPIOA,
+		 GPIO_0_OUT => GPIOA_OUT,
+		 GPIO_0_DIR_OUT => GPIOA_DIR_OUT,
+		 GPIO_1_IN => GPIOC,
+		 GPIO_1_OUT => GPIOC_OUT,
+		 GPIO_1_DIR_OUT => GPIOC_DIR_OUT,		 
+		 keyboard_scan => KEYBOARD_SCAN,
+		 pbi_addr_out => pbi_addr,
+		 porta_out => PORTA_OUT,
+		 porta_output => PORTA_DIR_OUT,
+		 lightpen => ANTIC_LIGHTPEN,
+		 rd4 => CART_RD4,
+		 rd5 => CART_RD5,
+		 keyboard_response => GPIO_KEYBOARD_RESPONSE,
+		 porta_in => PORTA_IN,
+		 pot_in => pot_in,
+		 trig_in => TRIGGERS,
+		 CA2_DIR_OUT => CA2_DIR_OUT,
+		 CA2_OUT => CA2_OUT,
+		 CA2_IN => CA2_IN,
+		 CB2_DIR_OUT => CB2_DIR_OUT,
+		 CB2_OUT => CB2_OUT,
+		 CB2_IN => CB2_IN,
+		 SIO_IN => GPIO_SIO_RXD,
+		 SIO_OUT => SIO_TXD,
+		 SIO_CLOCKIN => SIO_CLOCKIN,
+		 SIO_CLOCKOUT => SIO_CLOCKOUT
+		 );
+
+	GPIOB_DIR_OUT <= (others=>'0');
+	GPIOB_OUT <= (others=>'0');
+	pbi_enable <= '0';
+end generate gen_test_gpioc;
+
+gen_test_gpiob : if gpio=4 generate
 gpio2 : entity work.gpiov3
 GENERIC MAP(
 		cartridge_cycle_length => 26
@@ -539,7 +596,13 @@ PORT MAP(clk => CLK,
 		 SIO_CLOCKIN => SIO_CLOCKIN,
 		 SIO_CLOCKOUT => SIO_CLOCKOUT
 		 );
-end generate gen_test_gpio;
+
+	GPIOC_DIR_OUT <= (others=>'0');
+	GPIOC_OUT <= (others=>'0');
+
+	pbi_enable <= '0';
+end generate gen_test_gpiob;
+
 
 	process(clk,RESET_N,SDRAM_RESET_N,reset_atari)
 	begin
@@ -606,6 +669,21 @@ PORT MAP(refclk => CLOCK_5,
 --end generate;
 
 
+--		USB2DM: INOUT STD_LOGIC;
+--		USB2DP: INOUT STD_LOGIC;
+--		USB1DM: INOUT STD_LOGIC;
+--		USB1DP: INOUT STD_LOGIC;
+USB2DM <= USBWireVMout(0) when USBWireOE_n(0)='0' else 'Z';
+USB2DP <= USBWireVPout(0) when USBWireOE_n(0)='0' else 'Z';
+USBWireVMin(0) <= USB2DM;
+USBWireVPin(0) <= USB2DP;
+
+USB1DM <= USBWireVMout(1) when USBWireOE_n(1)='0' else 'Z';
+USB1DP <= USBWireVPout(1) when USBWireOE_n(1)='0' else 'Z';
+USBWireVMin(1) <= USB1DM;
+USBWireVPin(1) <= USB1DP;
+
+
 pllusbinstance : pll_usb
 PORT MAP(refclk => CLOCK_5, 
 		 outclk_0 => CLK_USB,
@@ -624,12 +702,19 @@ RESET_N <= PLL_LOCKED;
 
 -- PS2 to pokey
 keyboard_map1 : entity work.ps2_to_atari800
+	GENERIC MAP
+	(
+		ps2_enable => 1,
+		direct_enable => 1
+	)
 	PORT MAP
 	( 
 		CLK => clk,
 		RESET_N => reset_n,
 		PS2_CLK => ps2clk,
 		PS2_DAT => ps2dat,
+
+		INPUT => zpu_out4,
 		
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 		KEYBOARD_RESPONSE => PS2_KEYBOARD_RESPONSE,
@@ -695,7 +780,7 @@ atari800 : entity work.atari800core
 		CB2_IN => CB2_IN,
 		CB2_OUT => CB2_OUT,
 		CB2_DIR_OUT => CB2_DIR_OUT,
-		PORTA_IN => PORTA_IN and not("0000"&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)),
+		PORTA_IN => PORTA_IN and not("0000"&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)) and not(zpu_out3(0)&zpu_out3(1)&zpu_out3(2)&zpu_out3(3)&zpu_out2(0)&zpu_out2(1)&zpu_out2(2)&zpu_out2(3)),
 		PORTA_DIR_OUT => PORTA_DIR_OUT,
 		PORTA_OUT => PORTA_OUT,
 		PORTB_IN => PORTB_IN,
@@ -736,8 +821,7 @@ atari800 : entity work.atari800core
 		CONSOL_OPTION => CONSOL_OPTION,
 		CONSOL_SELECT => CONSOL_SELECT,
 		CONSOL_START=> CONSOL_START,
-		GTIA_TRIG => GTIA_TRIG and not("000"&ps2_keys(16#127#)),
-		
+		GTIA_TRIG => GTIA_TRIG and not("000"&ps2_keys(16#127#)) and not("00"&zpu_out3(4)&zpu_out2(4)),
 		ANTIC_LIGHTPEN => ANTIC_LIGHTPEN,
 
 		SDRAM_REQUEST => SDRAM_REQUEST,
@@ -806,7 +890,7 @@ zpu: entity work.zpucore
 	GENERIC MAP
 	(
 		platform => 1,
-		spi_clock_div => 1, -- 28MHz/2. Max for SD cards is 25MHz...
+		spi_clock_div => 2, -- 28MHz/2. Max for SD cards is 25MHz...
 		memory => 8192,
 		usb => 2
 	)
@@ -882,7 +966,7 @@ zpu: entity work.zpucore
 zpu_rom1: entity work.zpu_rom
 	port map(
 	        clock => clk,
-	        address => zpu_addr_rom(13 downto 2),
+	        address => zpu_addr_rom(14 downto 2),
 	        q => zpu_rom_data
 	);
 
@@ -909,5 +993,10 @@ port map
   pcm_in => AUDIO_R_PCM&"0000",
   dac_out => AUDIO_RIGHT
 );
+
+
+-- TODO wire the joysticks via USB up
+--USB_JOY1 <= zpu_out2(5 downto 4)&zpu_out2(0)&zpu_out2(1)&zpu_out2(2)&zpu_out2(3);
+--USB_JOY2 <= zpu_out3(5 downto 4)&zpu_out3(0)&zpu_out3(1)&zpu_out3(2)&zpu_out3(3);
 
 END vhdl;
