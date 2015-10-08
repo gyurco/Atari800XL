@@ -9,6 +9,7 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
 use ieee.numeric_std.all;
+USE IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 LIBRARY work;
 
@@ -19,7 +20,8 @@ ENTITY atari800core_eclaireXL IS
 		GPIO : integer;  -- 1 = OLD GPIO LAYOUT, 2=NEW GPIO LAYOUT (WIP)
 		-- For initial port may help to have no
 		internal_rom : integer := 1;  -- if 0 expects it in sdram,is 1:16k os+basic, is 2:... TODO
-		internal_ram : integer := 16384  -- at start of memory map
+		internal_ram : integer := 16384;  -- at start of memory map
+		svideo_out : integer -- 0=VGA,1=SVIDEO/COMPOSITE
 	);
 	PORT
 	(
@@ -95,6 +97,7 @@ component pll
 		outclk_0 : out std_logic;        -- outclk0.clk
 		outclk_1 : out std_logic;        -- outclk1.clk
 		outclk_2 : out std_logic;        -- outclk2.clk
+		outclk_3 : out std_logic;        -- outclk3.clk
 		locked   : out std_logic         --  locked.export
 	);
 end component;
@@ -111,6 +114,7 @@ end component;
 
 	-- SYSTEM
 	SIGNAL CLK : STD_LOGIC;
+	SIGNAL CLK_114 : STD_LOGIC;
 	SIGNAL CLK_SDRAM : STD_LOGIC;
 	SIGNAL RESET_N : STD_LOGIC;
 	signal SDRAM_RESET_N : std_logic;
@@ -193,10 +197,15 @@ end component;
 	SIGNAL SIO_CLOCKIN : std_logic;
 
 	-- VIDEO
-	signal VGA_VS_RAW : std_logic;
-	signal VGA_HS_RAW : std_logic;
-	signal VGA_CS_RAW : std_logic;
-	signal VGA_BLANK : std_logic;
+	signal VIDEO_VS : std_logic;
+	signal VIDEO_HS : std_logic;
+	signal VIDEO_CS : std_logic;
+	signal VIDEO_BLANK : std_logic;
+	signal VIDEO_BURST : std_logic;
+	signal VIDEO_ODD_LINE : std_logic;
+	signal VIDEO_R : std_logic_vector(7 downto 0);
+	signal VIDEO_G : std_logic_vector(7 downto 0);
+	signal VIDEO_B : std_logic_vector(7 downto 0);
 
 	-- AUDIO
 	signal AUDIO_L_PCM : std_logic_vector(15 downto 0);
@@ -264,7 +273,7 @@ end component;
 	-- scandoubler
 	signal half_scandouble_enable_reg : std_logic;
 	signal half_scandouble_enable_next : std_logic;
-	signal VIDEO_B : std_logic_vector(7 downto 0);
+	signal ATARI_COLOUR : std_logic_vector(7 downto 0);
 
 	signal freezer_enable : std_logic;
 	signal freezer_activate: std_logic;
@@ -290,6 +299,24 @@ end component;
 	-- CONFIG
 	SIGNAL USE_SDRAM : STD_LOGIC;
 	SIGNAL ROM_IN_RAM : STD_LOGIC;
+
+	-- svideo
+	signal svideo_dac_clk : std_logic;
+	signal svideo_ecs_clk : std_logic;
+
+	signal svideo_c : std_logic_vector(5 downto 0);
+
+	-- composite
+	SIGNAL svideo_yout : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	SIGNAL svideo_yout_dly1 : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	SIGNAL svideo_yout_dly2 : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	SIGNAL svideo_yout_dly3 : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	--SIGNAL svideo_cout : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	SIGNAL cvbs1_out : STD_LOGIC_VECTOR(9 DOWNTO 0);
+	SIGNAL cvbs2_out : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	SIGNAL luma : STD_LOGIC_VECTOR(9 DOWNTO 0);
+	SIGNAL chroma : STD_LOGIC_VECTOR(8 DOWNTO 0);
+	SIGNAL luma_saturated : STD_LOGIC_VECTOR(9 DOWNTO 0);
 BEGIN 
 
 	-- TODO
@@ -627,18 +654,17 @@ PORT MAP(CLK => CLK,
 		 colour_enable => half_scandouble_enable_reg,
 		 doubled_enable => '1',
 	 	 scanlines_on => '0', -- SW(5),
-		 vsync_in => VGA_VS_RAW,
-		 hsync_in => VGA_HS_RAW,
-		 csync_in => VGA_CS_RAW,
+		 vsync_in => VIDEO_VS,
+		 hsync_in => VIDEO_HS,
+		 csync_in => VIDEO_CS,
 		 pal => PAL,
-		 colour_in => VIDEO_B,
+		 colour_in => ATARI_COLOUR,
 		 VSYNC => VGA_VS,
 		 HSYNC => VGA_HS,
-		 B => VGA_B,
-		 G => VGA_G,
-		 R => VGA_R);
+		 B => VIDEO_B,
+		 G => VIDEO_G,
+		 R => VIDEO_R);
 
-VGA_BLANK_N <= NOT(VGA_BLANK);
 VGA_CLK <= CLK;
 
 --gen_ntsc_pll : if tv=0 generate
@@ -662,11 +688,15 @@ VGA_CLK <= CLK;
 --gen_old_pll : if tv=2 generate
 pllinstance : pll
 PORT MAP(refclk => CLOCK_5,
-		 outclk_0 => CLK_SDRAM,
+		 outclk_0 => CLK_114,
 		 outclk_1 => CLK,
 		 outclk_2 => DRAM_CLK,
+		 outclk_3 => SVIDEO_ECS_CLK,
 		 locked => PLL_LOCKED);
 --end generate;
+
+CLK_SDRAM <= CLK_114;
+SVIDEO_DAC_CLK <= CLK_114;
 
 
 --		USB2DM: INOUT STD_LOGIC;
@@ -743,8 +773,8 @@ zpu_sio_rxd <= SIO_TXD;
 SIO_RXD <= zpu_sio_txd and GPIO_SIO_RXD;
 
 -- VIDEO
---VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
---VGA_VS <= not(VGA_VS_RAW);
+--VGA_HS <= not(VIDEO_HS xor VIDEO_VS);
+--VGA_VS <= not(VIDEO_VS);
 
 atari800 : entity work.atari800core
 	GENERIC MAP
@@ -758,16 +788,16 @@ atari800 : entity work.atari800core
 		CLK => CLK,
 		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
 
-		VIDEO_VS => VGA_VS_RAW,
-		VIDEO_HS => VGA_HS_RAW,
-		VIDEO_CS => VGA_CS_RAW,
-		VIDEO_B => VIDEO_B,
+		VIDEO_VS => VIDEO_VS,
+		VIDEO_HS => VIDEO_HS,
+		VIDEO_CS => VIDEO_CS,
+		VIDEO_B => ATARI_COLOUR,
 		VIDEO_G => open,
 		VIDEO_R => open,
-		VIDEO_BLANK => VGA_BLANK,
-		VIDEO_BURST => open,
+		VIDEO_BLANK => VIDEO_BLANK,
+		VIDEO_BURST => VIDEO_BURST,
 		VIDEO_START_OF_FIELD => open,
-		VIDEO_ODD_LINE => open,
+		VIDEO_ODD_LINE => VIDEO_ODD_LINE,
 
 		AUDIO_L => AUDIO_L_PCM,
 		AUDIO_R => AUDIO_R_PCM,
@@ -998,5 +1028,71 @@ port map
 -- TODO wire the joysticks via USB up
 --USB_JOY1 <= zpu_out2(5 downto 4)&zpu_out2(0)&zpu_out2(1)&zpu_out2(2)&zpu_out2(3);
 --USB_JOY2 <= zpu_out3(5 downto 4)&zpu_out3(0)&zpu_out3(1)&zpu_out3(2)&zpu_out3(3);
+
+
+gen_vga : if svideo_out=0 generate
+	VGA_R <= VIDEO_R;
+	VGA_G <= VIDEO_G;
+	VGA_B <= VIDEO_B;
+	VGA_BLANK_N <= NOT(VIDEO_BLANK);
+ END GENERATE;
+
+gen_svideo : if svideo_out=1 generate
+	VGA_BLANK_N <= '1';
+
+	-- SVIDEO COMPONENT
+	svideo : entity work.svideo
+	PORT MAP
+	(
+		areset_n => RESET_N,
+		ecs_clk => SVIDEO_ECS_CLK,
+		dac_clk => SVIDEO_DAC_CLK,
+		r_in => VIDEO_R,
+		g_in => VIDEO_G,
+		b_in => VIDEO_B,
+		sof => VIDEO_VS, -- base on vsync?
+		vpos_lsb => VIDEO_ODD_LINE,
+		blank => VIDEO_BLANK,
+		burst => VIDEO_BURST,
+		csync_n => not(VIDEO_CS),
+		
+		y_out => svideo_yout,
+		c_out => svideo_c,
+
+ 		luma_out => luma,
+		chroma_out => chroma,
+		
+		pal_ntsc => not(pal)
+	);
+	VGA_R <= svideo_yout;
+	VGA_G <= svideo_c&"00";
+  ---------------------------------
+  -- process for CVBS output (TODO - merge this into the svideo.vhd component, as an option...)
+  ---------------------------------
+ -- cvbs_block:
+  PROCESS
+  (
+    svideo_dac_clk,
+    svideo_yout_dly1,
+    svideo_yout_dly2,
+	 svideo_yout_dly3
+  )
+  BEGIN
+	IF (rising_edge(svideo_dac_clk)) THEN
+		svideo_yout_dly1			<= 	svideo_yout;
+		svideo_yout_dly2			<= 	svideo_yout_dly1;
+		svideo_yout_dly3			<= 	svideo_yout_dly2;
+		luma_saturated		    	<= 	luma - "0000011111";
+		cvbs1_out  					<= 	luma_saturated + (chroma(8) & chroma(8 DOWNTO 0)) ;
+		IF (svideo_yout_dly2 = "00000000") THEN
+			cvbs2_out  				<=  "00000000";
+		ELSE 
+			cvbs2_out  				<=  cvbs1_out(9 DOWNTO 2);
+		END IF;
+     END IF;
+  END PROCESS;
+
+  VGA_B				<= cvbs2_out(7 DOWNTO 0); -- WHEN JOY1_n(2) = '1' ELSE svideo_yout(7 DOWNTO 4) ;
+ END GENERATE;
 
 END vhdl;

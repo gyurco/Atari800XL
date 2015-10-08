@@ -27,6 +27,7 @@ my %variants =
 #	},
 	"A2EBArom" =>
 	{
+		"SVIDEO_OUT" => 0,
 		"TV" => 2,
 		"GPIO" => 2,
 		"internal_ram" => 65536,
@@ -34,13 +35,23 @@ my %variants =
 	},
 	"A9EFArom" =>
 	{
+		"SVIDEO_OUT" => 0,
 		"TV" => 2,
 		"GPIO" => 2,
 		"internal_ram" => 65536,
 		"internal_rom" => 1
 	},
-	"A2EBA" =>
+	"A2EBA_RGB" =>
 	{
+		"SVIDEO_OUT" => 0,
+		"TV" => 2,
+		"GPIO" => 2,
+		"internal_ram" => 0,
+		"internal_rom" => 0
+	},
+	"A2EBA_COMP" =>
+	{
+		"SVIDEO_OUT" => 1,
 		"TV" => 2,
 		"GPIO" => 2,
 		"internal_ram" => 0,
@@ -48,6 +59,7 @@ my %variants =
 	},
 	"A9EFA" =>
 	{
+		"SVIDEO_OUT" => 0,
 		"TV" => 2,
 		"GPIO" => 2,
 		"internal_ram" => 0,
@@ -80,14 +92,16 @@ foreach my $variant (sort keys %variants)
 	`mkdir $dir/common/a8core`;
 	`mkdir $dir/common/components`;
 	`mkdir $dir/common/zpu`;
+	`mkdir $dir/svideo`;
 	mkdir "./$dir/common/components/usbhostslave";
 	`cp ../common/components/usbhostslave/trunk/RTL/*/*.v ./$dir/common/components/usbhostslave`;
 	`cp ../common/a8core/* ./$dir/common/a8core`;
 	`cp ../common/components/* ./$dir/common/components`;
 	`cp ../common/zpu/* ./$dir/common/zpu`;
+	`cp ./svideo/* ./$dir/svideo`;
 
 	chdir $dir;
-	`../makeqsf ../atari800core_eclaireXL.qsf ./common/a8core ./common/components ./common/zpu ./common/components/usbhostslave`;
+	`../makeqsf ../atari800core_eclaireXL.qsf ./svideo ./common/a8core ./common/components ./common/zpu ./common/components/usbhostslave`;
 	`cat ../atari800core_eclaireXL.qsf_$variant >> atari800core_eclaireXL.qsf`;
 
 	foreach my $key (sort keys %{$variants{$variant}})
