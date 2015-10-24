@@ -116,6 +116,7 @@ void event_digital_joystick(uint8_t idx, uint32_t jmap)
 		debug_pos = 200 + idx*40;
 		printf("JOY:%d:%08x ",idx,jmap);
 	}*/
+	idx = idx&1;
 	if (idx == 0)
 	{
 		*zpu_out2 = jmap;
@@ -128,6 +129,7 @@ void event_digital_joystick(uint8_t idx, uint32_t jmap)
 void event_analog_joystick(uint8_t idx, int8_t x, int8_t y)
 {
 	//printf("Event analog joystick:%d %d %d\n", idx,x,y);
+	idx = idx&1;
 	if (analogx[idx]!=x || analogy[idx]!=y)
 	{
 		analogx[idx] = x;

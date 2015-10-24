@@ -258,9 +258,23 @@ int settings()
 		debug_adjust = row==3 ? 128 : 0;
 		printf("Cart:%s", file_name(files[4]) ? file_name(files[4]) : "NONE");
 
+#ifdef USBSETTINGS
+		debug_pos = 240;
+		debug_adjust = row==4 ? 128 : 0;
+		printf("Rotate USB joysticks");
+
+		debug_pos = 320;
+		debug_adjust = row==5 ? 128 : 0;
+		printf("Exit");
+
+		debug_adjust = 0;
+
+		usb_devices(400);
+#else
 		debug_pos = 240;
 		debug_adjust = row==4 ? 128 : 0;
 		printf("Exit");
+#endif
 
 /*
 while (1)
@@ -288,7 +302,11 @@ while (1)
 
 		row+=joy.y_;
 		if (row<0) row = 0;
+#ifdef USBSETTINGS
+		if (row>5) row = 5;
+#else
 		if (row>4) row = 4;
+#endif
 		switch (row)
 		{
 		case 0:
@@ -330,12 +348,27 @@ while (1)
 				}
 			}
 			break;
+#ifdef USBSETTINGS
+		case 4:
+			if (joy.fire_)
+			{
+				rotate_usb_sticks();
+			}
+			break;
+		case 5:
+			if (joy.fire_)
+			{
+				done = 1;
+			}
+			break;
+#else
 		case 4:
 			if (joy.fire_)
 			{
 				done = 1;
 			}
 			break;
+#endif
 		}
 	}
 

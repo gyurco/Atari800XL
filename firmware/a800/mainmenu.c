@@ -6,13 +6,6 @@ static const int main_ram_size=65536;
 
 unsigned char freezer_rom_present;
 
-#ifdef USB
-#include "usb.h"
-#include "usb/debug.h"
-#endif
-
-#undef USBSETTINGS
-
 void loadosrom()
 {
 	if (file_size(files[5]) == 0x4000)
@@ -189,59 +182,6 @@ char const * get_ram()
 	}*/
 }
 
-#ifdef USBSETTINGS
-void usb_settings()
-{
-	struct joystick_status joy;
-	joy.x_ = joy.y_ = joy.fire_ = joy.escape_ = 0;
-
-	int row = 0;
-
-	int done = 0;
-	for (;!done;)
-	{
-		// Render
-		clearscreen();
-		debug_pos = 0;
-		debug_adjust = 0;
-		printf("USB Se");
-		debug_adjust = 128;
-		printf("ttings");
-		debug_pos = 80;
-		debug_adjust = row==0 ? 128 : 0;
-		printf("Hello world");
-
-		debug_pos = 200;
-		debug_adjust = row==1 ? 128 : 0;
-		printf("Exit");
-
-		// Slow it down a bit
-		wait_us(100000);
-
-		// move
-		joystick_wait(&joy,WAIT_QUIET);
-		joystick_wait(&joy,WAIT_EITHER);
-		if (joy.escape_) break;
-
-		row+=joy.y_;
-		if (row<0) row = 0;
-		if (row>1) row = 1;
-		switch (row)
-		{
-		case 0:
-			{
-			}
-			break;
-		case 1:
-			if (joy.fire_)
-			{
-				done = 1;
-			}
-			break;
-		}
-	}
-}
-#endif
 
 int settings()
 {
@@ -290,26 +230,30 @@ int settings()
 		debug_adjust = row==8 ? 128 : 0;
 		printf("Cart: %s", get_cart_select() ? file_name(files[4]) : "NONE");
 
-		debug_pos = 520;
+/*		debug_pos = 520;
 		debug_adjust = row==9 ? 128 : 0;
 		printf("Load memory");
 
 		debug_pos = 560;
 		debug_adjust = row==10 ? 128 : 0;
-		printf("Save memory (for debugging)");
+		printf("Save memory (for debugging)");*/
 
 
 #ifdef USBSETTINGS
-		debug_pos = 640;
-		debug_adjust = row==11 ? 128 : 0;
-		printf("USB");
+		debug_pos = 480;
+		debug_adjust = row==9 ? 128 : 0;
+		printf("Rotate USB joysticks");
 
-		debug_pos = 720;
-		debug_adjust = row==12 ? 128 : 0;
+		debug_pos = 560;
+		debug_adjust = row==10 ? 128 : 0;
 		printf("Exit");
+
+		debug_adjust = 0;
+
+		usb_devices(640);
 #else
-		debug_pos = 640;
-		debug_adjust = row==11 ? 128 : 0;
+		debug_pos = 520;
+		debug_adjust = row==9 ? 128 : 0;
 		printf("Exit");
 #endif
 
@@ -323,10 +267,10 @@ int settings()
 
 		row+=joy.y_;
 		if (row<0) row = 0;
-#ifdef USB
-		if (row>12) row = 12;
+#ifdef USBSETTINGS
+		if (row>10) row = 10;
 #else
-		if (row>11) row = 11;
+		if (row>9) row = 9;
 #endif
 		switch (row)
 		{
@@ -423,7 +367,7 @@ int settings()
 				}
 			}
 			break;
-		case 9:
+/*		case 9:
 		case 10:
 			{
 				if (joy.fire_)
@@ -441,22 +385,22 @@ int settings()
 					}
 				}
 			}
-			break;
+			break;*/
 #ifdef USBSETTINGS
-		case 11:
+		case 9:
 			if (joy.fire_)
 			{
-				usb_settings();
+				rotate_usb_sticks();
 			}
 			break;
-		case 12:
+		case 10:
 			if (joy.fire_)
 			{
 				done = 1;
 			}
 			break;
 #else
-		case 11:
+		case 9:
 			if (joy.fire_)
 			{
 				done = 1;
@@ -545,5 +489,7 @@ void actions()
 		reboot(1);
 	}
 }
+
+
 
 

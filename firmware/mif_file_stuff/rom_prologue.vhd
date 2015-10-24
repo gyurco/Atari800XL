@@ -1,4 +1,4 @@
-DEPTH = 4096; % Memory depth and width are required % 
+DEPTH = 8192; % Memory depth and width are required % 
  % DEPTH is the number of addresses % 
 WIDTH = 32; % WIDTH is the number of bits of data per word % 
 % DEPTH and WIDTH should be entered as decimal numbers % 

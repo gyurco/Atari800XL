@@ -19,6 +19,12 @@
 #define after_set_reg_hook() do { } while(0)
 #endif
 
+#ifdef USB
+#include "usb.h"
+#include "usb/debug.h"
+#define USBSETTINGS
+#endif
+
 #include "memory.h"
 
 extern char ROM_DIR[];
@@ -274,3 +280,99 @@ int main(void)
 	return 0;
 }
 
+#ifdef USBSETTINGS
+void rotate_usb_sticks()
+{
+	int max_jindex = hid_get_joysticks()-1;
+	if (max_jindex == 0) // If only one stick connected allow it to be 0 or 1
+	{
+		max_jindex = 1;
+	}
+
+	int i;
+
+	usb_device_t * devices = usb_get_devices();
+	for (i=0;i!=USB_NUMDEVICES;++i)	
+	{
+		usb_device_t *dev  = devices + i;
+		if (dev->bAddress)
+		{
+			if (dev->class == &usb_hid_class)
+			{
+				int j=0;
+				for (j=0;j!=dev->hid_info.bNumIfaces;++j)
+				{
+					int type = dev->hid_info.iface[j].device_type;
+					if (type == HID_DEVICE_JOYSTICK)
+					{
+						int jindex = dev->hid_info.iface[j].jindex;
+						event_digital_joystick(jindex, 0);
+						event_analog_joystick(jindex, 0,0);
+
+						jindex++;
+						if (jindex > max_jindex)
+							jindex = 0;
+						
+						dev->hid_info.iface[j].jindex = jindex;
+					}
+				}
+			}
+		}
+	}
+}
+
+void usb_devices(int debugPos)
+{
+	usb_device_t *devices = usb_get_devices();
+	int nextDebugPos = debugPos;
+	int i=0;
+	int j=0;
+	for (i=0;i!=USB_NUMDEVICES;++i)	
+	{
+		debug_pos = nextDebugPos;
+		usb_device_t *dev  = devices + i;
+		if (dev->bAddress)
+		{
+			if (dev->class == &usb_hub_class)
+			{
+				//printf("%x.Hub. %d ports. poll=%d",dev->bAddress,dev->hub_info.bNbrPorts, dev->hub_info.bPollEnable);
+				printf("%x.Hub. %d ports",dev->bAddress,dev->hub_info.bNbrPorts);
+			}
+			else if (dev->class == &usb_hid_class)
+			{
+				//printf("%x.HID. %d ifaces. poll=%d",dev->bAddress,dev->hid_info.bNumIfaces,dev->hid_info.bPollEnable);
+				printf("%x.HID",dev->bAddress);
+				int adjPos = 0;
+				for (j=0;j!=dev->hid_info.bNumIfaces;++j)
+				{
+					//usb_device_descriptor_t desc;
+					int type = dev->hid_info.iface[j].device_type;
+					if (adjPos && (type == HID_DEVICE_MOUSE || type == HID_DEVICE_KEYBOARD || type == HID_DEVICE_JOYSTICK))
+					{
+						nextDebugPos = nextDebugPos+40;
+						debug_pos = nextDebugPos;
+					}
+					if (type == HID_DEVICE_MOUSE)
+						printf(" Mouse");
+					else if (type == HID_DEVICE_KEYBOARD)
+						printf(" Keyboard");
+					else if (type == HID_DEVICE_JOYSTICK)
+					{
+						printf(" Joystick:%d",dev->hid_info.iface[j].jindex+1);
+					}
+					else
+						continue;
+
+					adjPos = 1;
+
+					/*int rcode = usb_get_dev_descr( dev, 12, &desc );
+					if( !rcode ) {
+						printf(" V:%02x%02x P:%02x%02x C:%02x",desc.idVendorH,desc.idVendorL,desc.idProductH,desc.idProductL,desc.bDeviceClass);
+					}*/
+				}
+			}
+		}
+		nextDebugPos = nextDebugPos+40;
+	}
+}
+#endif

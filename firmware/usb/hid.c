@@ -588,18 +588,19 @@ uint32_t jmap = *jmap_ptr;
     { 7, 7, 0x41, 0 }, /* 4 -> f8 */
     { 10, 11, 0x43, 0 }, /* l2&r2 -> f10 */
     { 8, 11, 0x42, 0 }, /* l1&r2 -> f9 */
+    { 6, 6, 0x00, 4 }, /* 3 -> fire */
 #endif
 #ifdef FIRMWARE_5200
     { 13, 13, 0x3a, 0 }, /* start -> f1 (start) */
     { 12, 12, 0x3b, 0 }, /* select -> f2 (pause) */
     { 10, 10, 0x00, 5 }, /* l2 -> fire2 */
     { 11, 11, 0x00, 5 }, /* r2 -> fire2 */
-    { 7, 7, 0x00, 5 }, /* 4 -> fire2 */
+    { 6, 6, 0x00, 5 }, /* 3 -> fire2 */
+    { 7, 7, 0x00, 4 }, /* 4 -> fire */
 #endif
     { 4, 4, 0x45, 0 }, /* 1 -> f12 */
     { 5, 5, 0x44, 0 }, /* 2 -> f11 */
     { 14, 15, 0x29, 0 }, /* both sticks  -> esc */
-    { 6, 6, 0x00, 4 }, /* 3 -> fire */
     { 8, 8, 0x00, 4 }, /* l1 -> fire */
     { 9, 9, 0x00, 4 }, /* r1 -> fire */
     { 10, 15, 0x43, 0 }, /* l2& rstick click -> f10 */
@@ -735,8 +736,11 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
 			if (buf[2]&0x40) jmap |= 1<<14;  //lstick click
 			if (buf[2]&0x80) jmap |= 1<<15;  //rstick click
 
-			a[0] = 128+(int)buf[7];
-			a[1] = 128+(int)buf[9];
+			int8_t x = (char)buf[7];
+			int8_t y = (char)buf[9];
+
+			a[0] = 128+x;
+			a[1] = 127-y;
 		}
 		else
 		{
@@ -766,11 +770,6 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
 	               conf->joystick.axis[i].logical.min);
 	          }
 	        }
-
-  	        if(a[0] <  64) jmap |= JOY_LEFT;
-  	        if(a[0] > 192) jmap |= JOY_RIGHT;
-  	        if(a[1] <  64) jmap |= JOY_UP;
-  	        if(a[1] > 192) jmap |= JOY_DOWN;
   	      
   	        //	      iprintf("JOY X:%d Y:%d\n", a[0], a[1]);
   	      
@@ -779,6 +778,11 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
   	 	  if(buf[conf->joystick.button[i].byte_offset] & 
   	  	     conf->joystick.button[i].bitmask) jmap |= (JOY_BTN1<<i);
               }
+
+  	      if(a[0] <  64) jmap |= JOY_LEFT;
+  	      if(a[0] > 192) jmap |= JOY_RIGHT;
+  	      if(a[1] <  64) jmap |= JOY_UP;
+  	      if(a[1] > 192) jmap |= JOY_DOWN;
 	      
 	      //	      iprintf("JOY D:%d\n", jmap);
 
