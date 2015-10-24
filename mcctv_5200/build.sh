@@ -77,14 +77,15 @@ foreach my $variant (sort keys %variants)
 		$vga = 0;
 	}
 	
-	#TODO - generate automated version number
-	my $version = `svn info  | grep Revision: | cut -d' ' -f 2`;
-	chomp $version;
-	$version = `date +%y%m`;
-	my $version2 = `date +%d`;
-	chomp $version;
-	chomp $version2;
-	my $cmd = "wine ../rbf2arg/rbf2arg.exe 2 A $version.$version2 \"Atari 5200 $variant\" output_files/atari5200core.rbf output_files/atari5200core_$variant.arg";
+	##TODO - generate automated version number
+	#my $version = `svn info  | grep Revision: | cut -d' ' -f 2`;
+	#chomp $version;
+	#$version = `date +%y%m`;
+	#my $version2 = `date +%d`;
+	#chomp $version;
+	#chomp $version2;
+	my $version = `../../mcc_common/version.pl`;
+	my $cmd = "wine ../rbf2arg/rbf2arg.exe 2 A $version \"Atari 5200 $variant\" output_files/atari5200core.rbf output_files/atari5200core_$variant.arg";
 	print "Running $cmd\n";
 	`$cmd`;
 	
