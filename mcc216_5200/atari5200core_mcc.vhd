@@ -212,8 +212,14 @@ END COMPONENT;
 
 	signal JOY1_USB : std_logic_vector(5 downto 0);
 	signal JOY2_USB : std_logic_vector(5 downto 0);
-	signal JOY1_USB_n : std_logic_vector(4 downto 0);
-	signal JOY2_USB_n : std_logic_vector(4 downto 0);
+	signal JOY1_USB_N : std_logic_vector(5 downto 0);
+	signal JOY2_USB_N : std_logic_vector(5 downto 0);
+
+	signal JOY1_IN_N : std_logic_vector(5 downto 0);
+	signal JOY2_IN_N : std_logic_vector(5 downto 0);
+
+	signal JOY1_BOTH_n : std_logic_vector(5 downto 0);
+	signal JOY2_BOTH_n : std_logic_vector(5 downto 0);
 
 	signal PLL1_LOCKED : std_logic;
 	signal CLK_PLL1 : std_logic;
@@ -424,8 +430,6 @@ gen_real_pll : if ext_clock=0 generate
 end generate;
 
 reset_n <= PLL_LOCKED;
---JOY1_IN_N <= JOY1_n(4)&JOY1_n(0)&JOY1_n(1)&JOY1_n(2)&JOY1_n(3);
---JOY2_IN_N <= JOY2_n(4)&JOY2_n(0)&JOY2_n(1)&JOY2_n(2)&JOY2_n(3);
 
 -- PS2 to pokey
 keyboard_map1 : entity work.ps2_to_atari5200
@@ -443,7 +447,7 @@ keyboard_map1 : entity work.ps2_to_atari5200
 
 		INPUT => zpu_out4,
 
-		FIRE2 => '0'&'0'&joy2_usb(4)&joy1_usb(4),
+		FIRE2 => '0'&'0'&not(JOY2_BOTH_N(4)&JOY1_BOTH_N(4)),
 		CONTROLLER_SELECT => CONTROLLER_SELECT, -- selected stick keyboard/shift button
 
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
@@ -455,11 +459,16 @@ keyboard_map1 : entity work.ps2_to_atari5200
 		PS2_KEYS => ps2_keys
 	);
 
+JOY1_IN_N <= JOY1_n(4)&JOY1_n(5)&JOY1_n(0)&JOY1_n(1)&JOY1_n(2)&JOY1_n(3);
+JOY2_IN_N <= JOY2_n(4)&JOY2_n(5)&JOY2_n(0)&JOY2_n(1)&JOY2_n(2)&JOY2_n(3);
 
 JOY1_USB <= zpu_out2(5 downto 4)&zpu_out2(0)&zpu_out2(1)&zpu_out2(2)&zpu_out2(3);
 JOY2_USB <= zpu_out3(5 downto 4)&zpu_out3(0)&zpu_out3(1)&zpu_out3(2)&zpu_out3(3);
-JOY1_USB_N <= not(JOY1_USB(5)&JOY1_USB(3 downto 0));
-JOY2_USB_N <= not(JOY2_USB(5)&JOY2_USB(3 downto 0));
+JOY1_USB_N <= not(JOY1_USB);
+JOY2_USB_N <= not(JOY2_USB);
+
+JOY1_BOTH_N <= JOY1_IN_N and JOY1_USB_N;
+JOY2_BOTH_N <= JOY2_IN_N and JOY2_USB_N;
 
 JOY1X <= zpu_out5(7 downto 0);
 JOY1Y <= zpu_out5(15 downto 8);
@@ -531,10 +540,10 @@ atari5200_simple_sdram1 : entity work.atari5200core_simplesdram
 		-- JOYSTICK
 		JOY1_X => signed(joy1x),
 		JOY1_Y => signed(joy1y),
-		JOY1_BUTTON => joy1_usb_n(4),
+		JOY1_N => JOY1_BOTH_N(5)&JOY1_BOTH_N(3 downto 0),
 		JOY2_X => signed(joy2x),
 		JOY2_Y => signed(joy2y),
-		JOY2_BUTTON => joy2_usb_n(4),
+		JOY2_N => JOY2_BOTH_N(5)&JOY2_BOTH_N(3 downto 0),
 
 		-- Pokey keyboard matrix
 		-- Standard component available to connect this to PS2

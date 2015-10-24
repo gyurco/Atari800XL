@@ -555,10 +555,10 @@ atari5200_simple_sdram1 : entity work.atari5200core_simplesdram
 		-- JOYSTICK
 		JOY1_X => signed(joy1x),
 		JOY1_Y => signed(joy1y),
-		JOY1_BUTTON => not(joy1(5)),
+		JOY1_N => not(joy1(5)&joy1(3 downto 0)),
 		JOY2_X => signed(joy2x),
 		JOY2_Y => signed(joy2y),
-		JOY2_BUTTON => not(joy2(5)),
+		JOY2_N => not(joy2(5)&joy2(3 downto 0)),
 
 		-- Pokey keyboard matrix
 		-- Standard component available to connect this to PS2
