@@ -19,7 +19,8 @@ GENERIC
 	line_length : integer := 114;
 	min_lines : integer := 0;
 	max_lines : integer := 227;
-	reverse : integer := 0
+	reverse : integer := 0;
+	force_to : signed(7 downto 0) := to_signed(100,8)
 );
 PORT 
 ( 
@@ -29,6 +30,8 @@ PORT
 	ENABLED : IN STD_LOGIC;
 	POT_RESET : IN STD_LOGIC;
 	POS : IN SIGNED(7 downto 0);
+	FORCE_LOW : IN STD_LOGIC:='0';
+	FORCE_HIGH : IN STD_LOGIC:='0';
 	POT_HIGH : OUT STD_LOGIC
 );
 END pot_from_signed;
@@ -67,15 +70,24 @@ pot_clock_div : entity work.enable_divider
 		end if;
 	end process;
 
-	process(count_reg,pot_reset,count_enable,pot_out_next,enabled,pos)
+	process(count_reg,pot_reset,count_enable,pot_out_next,enabled,pos,force_low,force_high)
+		variable pos2 : signed(7 downto 0);
 	begin
+		pos2 := pos;
+		if (abs(pos2) < 16 and force_low='1') then
+			pos2 := -force_to;
+		end if;
+		if (abs(pos2) < 16 and force_high='1') then
+			pos2 := force_to;
+		end if;
+
 		count_next <= count_reg;
 
 		if (pot_reset ='1' or enabled = '0') then
 			if (reverse = 1) then
-				count_next <= std_logic_vector(to_unsigned(-to_integer(pos)+127+(line_length*min_lines/count_cycles),10));
+				count_next <= std_logic_vector(to_unsigned(-to_integer(pos2)+127+(line_length*min_lines/count_cycles),10));
 			else
-				count_next <= std_logic_vector(to_unsigned(to_integer(pos)+128+(line_length*min_lines/count_cycles),10));
+				count_next <= std_logic_vector(to_unsigned(to_integer(pos2)+128+(line_length*min_lines/count_cycles),10));
 			end if;
 		end if;
 

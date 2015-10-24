@@ -84,10 +84,11 @@ ENTITY atari5200core_simplesdram is
 		-- JOYSTICK
 		JOY1_X : IN signed(7 downto 0);
 		JOY1_Y : IN signed(7 downto 0);
-		JOY1_BUTTON : IN std_logic;
 		JOY2_X : IN signed(7 downto 0);
 		JOY2_Y : IN signed(7 downto 0);
-		JOY2_BUTTON : IN std_logic;
+
+		JOY1_N : IN std_logic_vector(4 downto 0); -- FRLDU, 0=pressed
+		JOY2_N : IN std_logic_vector(4 downto 0); -- FRLDU, 0=pressed
 
 		-- Pokey keyboard matrix
 		-- Standard component available to connect this to PS2
@@ -134,8 +135,8 @@ constant max_lines : integer := 210;
 BEGIN
 
 -- triggers
-TRIG(0) <= JOY1_BUTTON;
-TRIG(1) <= JOY2_BUTTON;
+TRIG(0) <= JOY1_N(4);
+TRIG(1) <= JOY2_N(4);
 
 -- pots 
 pot0 : entity work.pot_from_signed
@@ -152,6 +153,8 @@ pot0 : entity work.pot_from_signed
 		ENABLED => CONSOL_OUT(2),
 		POT_RESET => POT_RESET,
 		POS => JOY1_X,
+		FORCE_LOW => NOT(JOY1_N(2)),
+		FORCE_HIGH => NOT(JOY1_N(3)),
 		POT_HIGH => POT_IN(0)
 	);
 pot1 : entity work.pot_from_signed
@@ -168,6 +171,8 @@ pot1 : entity work.pot_from_signed
 		ENABLED => CONSOL_OUT(2),
 		POT_RESET => POT_RESET,
 		POS => JOY1_Y,
+		FORCE_LOW => NOT(JOY1_N(0)),
+		FORCE_HIGH => NOT(JOY1_N(1)),
 		POT_HIGH => POT_IN(1)
 	);
 pot2 : entity work.pot_from_signed
@@ -184,6 +189,8 @@ pot2 : entity work.pot_from_signed
 		ENABLED => CONSOL_OUT(2),
 		POT_RESET => POT_RESET,
 		POS => JOY2_X,
+		FORCE_LOW => NOT(JOY2_N(2)),
+		FORCE_HIGH => NOT(JOY2_N(3)),
 		POT_HIGH => POT_IN(2)
 	);
 pot3 : entity work.pot_from_signed
@@ -200,6 +207,8 @@ pot3 : entity work.pot_from_signed
 		ENABLED => CONSOL_OUT(2),
 		POT_RESET => POT_RESET,
 		POS => JOY2_Y,
+		FORCE_LOW => NOT(JOY2_N(0)),
+		FORCE_HIGH => NOT(JOY2_N(1)),
 		POT_HIGH => POT_IN(3)
 	);
 POT_IN(7 downto 4) <= (others=>'0');
