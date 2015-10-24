@@ -5,6 +5,7 @@
 ./create_rom.pl 1 5200.rom os_5200 > ../a8core/os_5200.vhdl
 ./create_rom.pl 4 ../../firmware/MCC216.bin zpu_rom 13 > ../../mcc216/zpu_rom.vhdl
 ./create_rom.pl 4 ../../firmware/MCC216_5200.bin zpu_rom 13 > ../../mcc216_5200/zpu_rom.vhdl
+./create_rom.pl 4 ../../firmware/ECLAIREXL.bin zpu_rom 13 > ../../eclaireXL/zpu_rom.vhdl
 ./create_rom.pl 4 ../../firmware/MCCTV.bin zpu_rom 13 > ../../mcctv/zpu_rom.vhdl
 ./create_rom.pl 4 ../../firmware/MCCTV_5200.bin zpu_rom 13 > ../../mcctv_5200/zpu_rom.vhdl
 ./create_rom.pl 4 ../../firmware/MIST.bin zpu_rom 12 > ../../mist/zpu_rom.vhdl
