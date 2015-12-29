@@ -55,9 +55,9 @@ library ieee;
   use ieee.numeric_std.all;
   use IEEE.STD_LOGIC_MISC.all;
 
-  use work.Replay_Pack.all;
-  use work.Replay_VideoTiming_Pack.all;
-  use work.Replay_TranslatePS2_Pack.all;
+  use work.replay_pack.all;
+  use work.replay_videotiming_pack.all;
+  use work.replay_translate_ps2_pack.all;
 
 library UNISIM;
   use UNISIM.Vcomponents.all;
@@ -701,7 +701,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
   -- KEYBOARD MAPPER
   ----------------------------------------------------------
 
-  u_Kbd : entity work.Replay_TranslatePS2
+  u_kbd : entity work.replay_translate_ps2
   generic map (
     g_kb_map              => c_800xl_kb_map
   )
@@ -798,7 +798,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
   core_hsyncn_s <= not(core_hsync);
   core_vsyncn_s <= not(core_vsync);
 
-  vconv : entity work.Replay_VideoConverter
+  vconv : entity work.replay_videoconverter
     generic map (
       -- output format
       g_Vid_Param_HD  => c_Vidparam_720x576p_50,

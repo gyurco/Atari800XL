@@ -54,8 +54,8 @@ library ieee;
   use ieee.std_logic_unsigned.all;
   use ieee.numeric_std.all;
 
-  use work.Replay_Pack.all;
-  use work.Replay_VideoTiming_Pack.all;
+  use work.replay_pack.all;
+  use work.replay_videotiming_pack.all;
 
 library UNISIM;
   use UNISIM.Vcomponents.all;
@@ -63,88 +63,88 @@ library UNISIM;
 entity Replay_Top is
   port (
     -- RS232 debug port
-    i_RS232_RXD           : in    bit1;
-    o_RS232_TXD           : out   bit1;
-    i_RS232_CTS           : in    bit1;
-    o_RS232_RTS           : out   bit1;
-    -- Joysticks
-    i_Joy_A               : in    word( 5 downto 0);
-    i_Joy_B               : in    word( 5 downto 0);
-    -- IO
-    b_IO                  : inout word(54 downto 0);
-    b_Aux_IO              : inout word(39 downto 0);
+    i_rs232_rxd           : in    bit1;
+    o_rs232_txd           : out   bit1;
+    i_rs232_cts           : in    bit1;
+    o_rs232_rts           : out   bit1;
+    -- joysticks
+    i_joy_a               : in    word( 5 downto 0);
+    i_joy_b               : in    word( 5 downto 0);
+    -- io
+    b_io                  : inout word(54 downto 0);
+    b_aux_io              : inout word(39 downto 0);
 
-    i_Aux_IP              : in    word(22 downto 0);
-    -- DRAM
-    o_Mem_Addr            : out   word(14 downto 0);
-    b_Mem_DQ              : inout word(15 downto 0);
-    b_Mem_UDQS            : inout bit1; -- Ctrl8
-    b_Mem_LDQS            : inout bit1; -- Ctrl7
-    o_Mem_UDM             : out   bit1; -- Ctrl6
-    o_Mem_LDM             : out   bit1; -- Ctrl5
-    o_Mem_CS              : out   bit1; -- Ctrl4
-    o_Mem_RAS             : out   bit1; -- Ctrl3
-    o_Mem_CAS             : out   bit1; -- Ctrl2
-    o_Mem_WE              : out   bit1; -- Ctrl1
-    o_Mem_CKE             : out   bit1; -- Ctrl0
-    o_Mem_Clk_P           : out   bit1;
-    o_Mem_Clk_N           : out   bit1;
+    i_aux_ip              : in    word(22 downto 0);
+    -- dram
+    o_mem_addr            : out   word(14 downto 0);
+    b_mem_dq              : inout word(15 downto 0);
+    b_mem_udqs            : inout bit1; -- Ctrl8
+    b_mem_ldqs            : inout bit1; -- Ctrl7
+    o_mem_udm             : out   bit1; -- Ctrl6
+    o_mem_ldm             : out   bit1; -- Ctrl5
+    o_mem_cs              : out   bit1; -- Ctrl4
+    o_mem_ras             : out   bit1; -- Ctrl3
+    o_mem_cas             : out   bit1; -- Ctrl2
+    o_mem_we              : out   bit1; -- Ctrl1
+    o_mem_cke             : out   bit1; -- Ctrl0
+    o_mem_clk_p           : out   bit1;
+    o_mem_clk_n           : out   bit1;
     --
-    o_Disk_Led            : out   bit1;
-    o_Pwr_Led             : out   bit1;
+    o_disk_led            : out   bit1;
+    o_pwr_led             : out   bit1;
     --
-    i_Ext_Rst_L           : in    bit1; -- pullup
-    b_2V5_IO_1            : inout bit1;
-    b_2V5_IO_0            : inout bit1;
-    -- Video
-    o_Video_Clk_P         : out   bit1;
-    o_Video_Clk_N         : out   bit1;
-    o_Video_Rst_L         : out   bit1; -- Video16
-    i_Video_Int           : in    bit1; -- Video15
-    o_Video_DE            : out   bit1; -- Video14
-    o_Video_V             : out   bit1; -- Video13
-    o_Video_H             : out   bit1; -- Video12
-    o_Video_Data          : out   word(11 downto 0);  --Video11..0
-    b_Video_DDC_Clk       : out   bit1;
-    b_Video_DDC_Data      : out   bit1;
-    o_Video_HSync         : out   bit1;
-    o_Video_VSync         : out   bit1;
-    b_Video_SPC           : inout bit1;
-    b_Video_SPD           : inout bit1;
-    -- Audio
-    o_Audio_LRCIN         : out   bit1; -- Audio3
-    o_Audio_MCLK          : out   bit1; -- Audio2
-    o_Audio_BCKIN         : out   bit1; -- Audio1
-    o_Audio_DIN           : out   bit1; -- Audio0
+    i_ext_rst_l           : in    bit1; -- pullup
+    b_2v5_io_1            : inout bit1;
+    b_2v5_io_0            : inout bit1;
+    -- video
+    o_video_clk_p         : out   bit1;
+    o_video_clk_n         : out   bit1;
+    o_video_rst_l         : out   bit1; -- Video16
+    i_video_int           : in    bit1; -- Video15
+    o_video_de            : out   bit1; -- Video14
+    o_video_v             : out   bit1; -- Video13
+    o_video_h             : out   bit1; -- Video12
+    o_video_data          : out   word(11 downto 0);  --Video11..0
+    b_video_ddc_clk       : out   bit1;
+    b_video_ddc_data      : out   bit1;
+    o_video_hsync         : out   bit1;
+    o_video_vsync         : out   bit1;
+    b_video_spc           : inout bit1;
+    b_video_spd           : inout bit1;
+    -- audio
+    o_audio_lrcin         : out   bit1; -- Audio3
+    o_audio_mclk          : out   bit1; -- Audio2
+    o_audio_bckin         : out   bit1; -- Audio1
+    o_audio_din           : out   bit1; -- Audio0
     --
-    b_PS2A_Clk            : inout bit1;
-    b_PS2A_Data           : inout bit1;
-    b_PS2B_Clk            : inout bit1;
-    b_PS2B_Data           : inout bit1;
+    b_ps2a_clk            : inout bit1;
+    b_ps2a_data           : inout bit1;
+    b_ps2b_clk            : inout bit1;
+    b_ps2b_data           : inout bit1;
 
-    b_SCL                 : inout bit1;
-    b_SDA                 : inout bit1;
+    b_scl                 : inout bit1;
+    b_sda                 : inout bit1;
 
-    -- System control
-    i_FPGA_Ctrl0          : in    bit1;
-    i_FPGA_Ctrl1          : in    bit1;
-    i_FPGA_SPI_Clk        : in    bit1;
-    b_FPGA_SPI_MOSI       : inout bit1;
-    b_FPGA_SPI_MISO       : inout bit1;
+    -- system control
+    i_fpga_ctrl0          : in    bit1;
+    i_fpga_ctrl1          : in    bit1;
+    i_fpga_spi_clk        : in    bit1;
+    b_fpga_spi_mosi       : inout bit1;
+    b_fpga_spi_miso       : inout bit1;
 
-    -- SSC & config pins
-    --i_SSC_TF              : in    bit1; --io_init input during config
-    --i_SSC_TD              : in    bit1; --io_din  input during config
-    --i_SSC_RK              : in    bit1; --io_cclk input during config
-    o_SSC_RD              : out   bit1; --io_dout output during config -- vertical sync for MCU (sync OSD update)
+    -- ssc & config pins
+    --i_ssc_tf              : in    bit1; --io_init input during config
+    --i_ssc_td              : in    bit1; --io_din  input during config
+    --i_ssc_rk              : in    bit1; --io_cclk input during config
+    o_ssc_rd              : out   bit1; --io_dout output during config -- vertical sync for MCU (sync OSD update)
     --
-    -- Clocks
+    -- clocks
     --
-    o_Clk_68K             : out   bit1; -- source terminated to connector
-    b_Clk_Aux             : inout bit1; -- direct to connector
-    ClK_A                 : in    bit1;
-    ClK_B                 : in    bit1;
-    ClK_C                 : in    bit1
+    o_clk_68k             : out   bit1; -- source terminated to connector
+    b_clk_aux             : inout bit1; -- direct to connector
+    i_clk_a                 : in    bit1;
+    i_clk_b                 : in    bit1;
+    i_clk_c                 : in    bit1
 
     );
 end;
@@ -303,14 +303,14 @@ architecture RTL of Replay_Top is
 begin
   u_spi_bufg  : BUFG  port map (I => i_FPGA_SPI_Clk, O => clk_spi);
 
-  u_ClockGen : entity work.Replay_ClockGen
+  u_ClockGen : entity work.replay_clockgen
   generic map (
     G_DIVIDER             => 11
     )
   port map (
-    i_ClK_A               => Clk_A,
-    i_ClK_B               => Clk_B,
-    i_ClK_C               => Clk_C,
+    i_ClK_A               => i_Clk_A,
+    i_ClK_B               => i_Clk_B,
+    i_ClK_C               => i_Clk_C,
     --
     i_Rst_L               => i_Ext_Rst_L, -- hard reset
     i_Rst_Soft            => rst_soft,    -- NOT DRAM!
@@ -538,7 +538,7 @@ begin
 
   -- I/O
 
-  u_JoyPS2 : entity work.Replay_JoyPS2
+  u_joyps2 : entity work.replay_joy_ps2
   port map (
     i_Clk                 => clk_ctl,
     i_Tick_1us            => tick_ctl_1us,
@@ -547,8 +547,8 @@ begin
     --
     -- IO Joysticks
     --
-    i_Joy_A               => i_Joy_A,
-    i_Joy_B               => i_Joy_B,
+    i_Joy_A_l               => i_Joy_A,
+    i_Joy_B_l               => i_Joy_B,
 
     -- IO PS2
     i_PS2A_Clk            => b_PS2A_Clk,
@@ -615,7 +615,7 @@ begin
 
 --  mch_ddr_valid <= mch_valid when (mch_addr(31) = '0') else '0';  -- first addresses from 0x00000000 on are DRAM, from 0x80000000 on is for other memory
 
-  u_DDRCtrl : entity work.Replay_DDRCtrl_top
+  u_ddrctrl : entity work.replay_ddrctrl_top
   port map (
     i_Clk_Ram         => clk_ram,
     i_Clk_Ram_90      => clk_ram_90,
@@ -724,7 +724,7 @@ begin
   --
   -- System control / On Screen Display
   --
-  u_Syscon : entity work.Replay_Syscon
+  u_syscon : entity work.replay_syscon
   generic map (
     -- defaults
     g_cfg_static          => x"00000000",
@@ -790,7 +790,7 @@ begin
   b_FPGA_SPI_MISO <= spi_fileio_miso when (spi_fileio_cs_l = '0') else 'Z';
   b_FPGA_SPI_MISO <= spi_syscon_miso when (spi_syscon_cs_l = '0') else 'Z';
 
-  u_FileIO : entity work.Replay_FileIO
+  u_fileio : entity work.replay_fileio
   port map (
   -- handles all disk/tape/HDD/ROM transfers to the SD card/ARM
     i_Clk_Ctl             => clk_ctl,
@@ -837,7 +837,7 @@ begin
   --
   -- VIDEO
   --
-  u_Video : entity work.Replay_Video
+  u_video : entity work.replay_video
   port map (
     i_Clk_Vid             => clk_vid,
     i_Clk_Vid_90          => clk_vid_90,
@@ -883,7 +883,7 @@ begin
   --
   -- AUDIO PHY
   --
-  u_Audio : entity work.Replay_Audio
+  u_audio : entity work.replay_audio
   port map (
     i_Clk                 => clk_aud, --sys,
     i_Ena                 => '1',     --ena_sys,
