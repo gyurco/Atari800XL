@@ -305,6 +305,8 @@ END COMPONENT;
 
 	signal half_scandouble_enable_reg : std_logic;
 	signal half_scandouble_enable_next : std_logic;
+	signal scanlines_reg : std_logic;
+	signal scanlines_next : std_logic;
 
 	function palette_from_scandouble( scandouble : integer ) return integer is
 	begin
@@ -787,12 +789,15 @@ gen_video_vga : if video=2 generate
 	end generate;
 
 	gen_scandouble_on: if scandouble=1 generate
+		scanlines_next <= scanlines_reg xor (not(ps2_keys(16#11#)) and ps2_keys_next(16#11#)); -- left alt
 		process(scandouble_clk,sdram_reset_n_reg)
 		begin
 			if (sdram_reset_n_reg='0') then
 				half_scandouble_enable_reg <= '0';
+				scanlines_reg <= '0';
 			elsif (scandouble_clk'event and scandouble_clk='1') then
 				half_scandouble_enable_reg <= half_scandouble_enable_next;
+				scanlines_reg <= scanlines_next;
 			end if;
 		end process;
 
@@ -809,6 +814,7 @@ gen_video_vga : if video=2 generate
 
 			colour_enable => half_scandouble_enable_reg,
 			doubled_enable => '1',
+			scanlines_on => scanlines_reg,
 			
 			-- GTIA interface
 			pal => '0',

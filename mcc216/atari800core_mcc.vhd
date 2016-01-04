@@ -306,6 +306,8 @@ END COMPONENT;
 
 	signal half_scandouble_enable_reg : std_logic;
 	signal half_scandouble_enable_next : std_logic;
+	signal scanlines_reg : std_logic;
+	signal scanlines_next : std_logic;
 
 	function palette_from_scandouble( scandouble : integer ) return integer is
 	begin
@@ -553,6 +555,7 @@ JOY2Y <= zpu_out5(31 downto 24);
 	end process;
 
 	paddle_mode_next <= paddle_mode_reg xor (not(ps2_keys(16#11F#)) and ps2_keys_next(16#11F#)); -- left windows key
+	scanlines_next <= scanlines_reg xor (not(ps2_keys(16#11#)) and ps2_keys_next(16#11#)); -- left alt
 
 return_to_boot_menu : entity work.delayed_reconfig
 	PORT MAP
@@ -881,8 +884,10 @@ gen_video_vga : if video=2 generate
 		begin
 			if (sdram_reset_n_reg='0') then
 				half_scandouble_enable_reg <= '0';
+				scanlines_reg <= '0';
 			elsif (scandouble_clk'event and scandouble_clk='1') then
 				half_scandouble_enable_reg <= half_scandouble_enable_next;
+				scanlines_reg <= scanlines_next;
 			end if;
 		end process;
 
@@ -899,6 +904,7 @@ gen_video_vga : if video=2 generate
 
 			colour_enable => half_scandouble_enable_reg,
 			doubled_enable => '1',
+			scanlines_on => scanlines_reg,
 			
 			-- GTIA interface
 			pal => PAL,
