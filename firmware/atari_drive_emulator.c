@@ -568,6 +568,7 @@ void processCommand()
 		case 0x52: // read
 			{
 			int sector = ((int)command.aux1) + (((int)command.aux2)<<8);
+
 			int sectorSize = 0;
 			int read = 0;
 			int location =0;
@@ -575,6 +576,11 @@ void processCommand()
 			DELAY_T2_MIN
 			USART_Transmit_Mode();
 			//printf("%f:ACK\n",when());
+			if (sector == 0)
+			{
+				send_NACK();
+				break;
+			}
 			send_ACK();
 			//printf("Sector:");
 			//printf("%d",sector);
