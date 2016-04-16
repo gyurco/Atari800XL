@@ -98,32 +98,36 @@ begin
 	process_setup_sram : process
 	begin
 	atari_bus_request <= '0';
-	atari_sram_select <= '0';
-	atari_address <= (others=>'0');
+	atari_sram_select <= '1';
+	atari_sram_address <= (others=>'0');
 	atari_w_n <= '1';
 	atari_write_data <= (others=>'0');
 	
-	veronica_address <= (others=>'0');
-	veronica_sram_select <= '0';
+	veronica_sram_address <= (others=>'0');
+	veronica_sram_select <= '1';
 	veronica_w_n <= '1';
 	veronica_write_data <= (others=>'0');
 
 	wait for 1100ns;
 
 	wait until clk'event and clk = '1';
+	atari_bus_request <= '1';
 	atari_w_n <= '0';
-	atari_address<= '0'&x"402";
+	atari_sram_address<= '0'&x"D402";
 	atari_write_data <= x"56";
 
 	wait until clk'event and clk = '1';
 	atari_w_n <= '0';
-	atari_address<= '0'&x"313";
+	atari_sram_address<= '0'&x"C313";
 	atari_write_data <= x"65";
 
 	wait until clk'event and clk = '1';
 	atari_w_n <= '0';
-	atari_address<= '0'&x"402";
+	atari_sram_address<= '0'&x"D402";
 	atari_write_data <= x"56";
+
+	wait until clk'event and clk = '1';
+	atari_bus_request <= '0';
 
 	wait for 100000000us;
 
@@ -152,6 +156,10 @@ begin
 		veronica_w_n => veronica_w_n,
 		veronica_write_data => veronica_write_data
 	);
+
+	EXT_SRAM_DATA <= sram_write_data when sram_drive_data='1' else (others=>'Z');
+	EXT_SRAM_OE <= '0';
+	sram_read_data <= EXT_SRAM_DATA;
 
 end rtl;
 
