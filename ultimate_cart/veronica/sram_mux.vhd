@@ -32,6 +32,9 @@ ARCHITECTURE vhdl OF sram_mux IS
 
 	signal sram_drive_data_next : std_logic;
 	signal sram_drive_data_reg : std_logic;
+
+	signal sram_write_data_next : std_logic_vector(7 downto 0);
+	signal sram_write_data_reg : std_logic_vector(7 downto 0);
 	
 	signal tick_next : std_logic;
 	signal tick_reg : std_logic;
@@ -47,19 +50,20 @@ begin
 
 	-- Back to back writes from 65816?
 	process(veronica_address, veronica_write_data, veronica_w_n, veronica_sram_select,
-			atari_bus_request, atari_address,atari_write_data, atari_w_n, atari_sram_select, tick_fast_reg)
+			atari_bus_request, atari_address,atari_write_data, atari_w_n, atari_sram_select, tick_fast_reg,
+			sram_we_n_next)
 	begin
 		sram_addr <= (others=>'0');
-		sram_data_out <= (others=>'0');
+		sram_write_data_next <= (others=>'0');
 		sram_drive_data_next <= '0';
 	
 		if (atari_bus_request='1') then
 			sram_addr(16 downto 0) <= atari_address;
-			sram_data_out <= atari_write_data;
+			sram_write_data_next <= atari_write_data;
 			sram_we_n_next <= (atari_w_n or not(atari_sram_select) or tick_fast_reg(6));
 		else
 			sram_addr(16 downto 0) <= veronica_address;
-			sram_data_out <= veronica_write_data;
+			sram_write_data_next <= veronica_write_data;
 			sram_we_n_next <= (veronica_w_n or not(veronica_sram_select) or tick_fast_reg(6));
 		end if;
 
@@ -88,11 +92,13 @@ begin
 			tick_last_fast_reg <= '0';
 			sram_we_n_reg <= '1';
 			sram_drive_data_reg <= '0';
+			sram_write_data_reg <= (others=>'0');
 		elsif (clk7x'event and clk7x='1') then
 			tick_fast_reg <= tick_fast_next;
 			tick_last_fast_reg <= tick_last_fast_next;
 			sram_we_n_reg <= sram_we_n_next;
 			sram_drive_data_reg <= sram_drive_data_next;
+			sram_write_data_reg <= sram_write_data_next;
 		end if;
 	end process;
 	tick_last_fast_next <= tick_reg;
@@ -106,5 +112,6 @@ begin
 	
 	sram_we_n <= sram_we_n_reg;
 	sram_drive_data <= sram_drive_data_reg;
+	sram_data_out <= sram_write_data_reg;
 
 end vhdl;
