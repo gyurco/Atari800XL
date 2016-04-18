@@ -5,9 +5,9 @@ use IEEE.STD_LOGIC_MISC.all;
 
 ENTITY atari_address_decoder IS
 	PORT (
-				s4 : in std_logic;
-				s5 : in std_logic;
-				ctl : in std_logic;
+				s4_n : in std_logic;
+				s5_n : in std_logic;
+				ctl_n : in std_logic;
 				addr_in: in std_logic_vector(12 downto 0);
 				bus_request: in std_logic;
 				
@@ -25,10 +25,10 @@ begin
 
 	sram_address(16) <= '1';
 	sram_address(15 downto 14) <= bank_select&bank_half_select;
-	sram_address(13) <= not(s4) and s5;
+	sram_address(13) <= s4_n and not(s5_n);
 	sram_address(12 downto 0) <= addr_in;
 	
-	sram_select <= bus_request and (s4 or s5);
-	config_select <= bus_request and ctl and or_reduce(addr_in(7 downto 6)&not(addr_in(5 downto 0)));
+	sram_select <= bus_request and not(s4_n and s5_n);
+	config_select <= bus_request and not(ctl_n) and or_reduce(addr_in(7 downto 6)&not(addr_in(5 downto 0)));
 	
 end vhdl;

@@ -93,9 +93,9 @@ end component;
 	signal atari_write_data : std_logic_vector(7 downto 0);
 	signal atari_w_n : std_logic;
 	signal atari_config_w_n : std_logic;
-	signal atari_s4 : std_logic;
-	signal atari_s5 : std_logic;
-	signal atari_ctl : std_logic;
+	signal atari_s4_n : std_logic;
+	signal atari_s5_n : std_logic;
+	signal atari_ctl_n : std_logic;
 	
 	-- address decode
 	signal veronica_config_select : std_logic;	
@@ -132,12 +132,12 @@ end component;
 begin
 	
 
-	pll1:work.pll_veronica
+	pll1:entity work.pll_veronica
 	PORT map
 	(
 		inclk0 => clk,
 		c0 => clk_adj,     -- 14MHz (>70ns/cycle)
-		c1 => clk_adj7x,   -- 70MHz
+		c1 => clk_adj7x,   -- 98MHz
 		locked => reset_n 
 	);
 	
@@ -209,17 +209,17 @@ begin
 		phi2 => CART_PHI2,
 		bus_addr => CART_ADDR,
 		bus_data => CART_DATA,
-		bus_ctl => CART_CTL,
-		bus_rw => CART_RW,
-		bus_s4 => CART_S4,
-		bus_s5 => CART_S5,
+		bus_ctl_n => CART_CTL,
+		bus_rw_n => CART_RW,
+		bus_s4_n => CART_S4,
+		bus_s5_n => CART_S5,
 		
 		bus_data_out => cart_bus_data_out,
 		bus_drive => cart_bus_drive,
 		
-		s4 => atari_s4,
-		s5 => atari_s5,
-		ctl => atari_ctl,
+		s4_n => atari_s4_n,
+		s5_n => atari_s5_n,
+		ctl_n => atari_ctl_n,
 		addr_in => atari_address,
 		data_in => atari_write_data,
 		data_out => atari_read_data,
@@ -231,9 +231,9 @@ begin
 	glue4: entity work.atari_address_decoder
 	port map
 	(	
-		s4 => atari_s4,
-		s5 => atari_s5,
-		ctl => atari_ctl,
+		s4_n => atari_s4_n,
+		s5_n => atari_s5_n,
+		ctl_n => atari_ctl_n,
 		addr_in => atari_address,
 		bus_request => atari_bus_request,
 		

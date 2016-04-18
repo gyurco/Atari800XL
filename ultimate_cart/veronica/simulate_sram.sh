@@ -9,8 +9,7 @@ name=sram
 
 
 
-#. /home/markw/fpga/xilinx/14.7/ISE_DS/settings64.sh
-export XILINX=C:\Xilinx\14.7\ISE_DS\ISE
+. /home/markw/fpga/xilinx/14.7/ISE_DS/settings32.sh
 
 mkdir -p sim
 pushd sim
@@ -42,7 +41,7 @@ if [ ! -e $name.wdb -o "$1" != "-view" ]; then
         # verbose & no multthreading - fallback in case of problems
         # fuse -v 1 -mt off -incremental -prj %name%.prj -o %name%.exe -t %name%
 
-        /drives/c/Xilinx/14.7/ISE_DS/ISE/bin/nt64/fuse.exe -timeprecision_vhdl 1fs -incremental -prj $name.prj -o $name.exe -t ${name}_tb || exit 1
+        fuse -timeprecision_vhdl 1fs -incremental -prj $name.prj -o $name.exe -t ${name}_tb || exit 1
         # fuse --mt off -prj %name%.prj -o %name%.exe -t %name%_tb
 
         # Check for the EXE again, independent of the errorlevel of fuse...
