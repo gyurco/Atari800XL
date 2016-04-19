@@ -157,8 +157,10 @@ begin
 			when state_write =>
 				if (delay_reg(2)='1') then -- n+4 cycles
 					bus_data_in_next <= bus_data;
-					state_next <= state_phi;
+				end if;
+				if (delay_reg(3)='1') then -- n+4 cycles
 					bus_request <= '1';
+					state_next <= state_phi;
 				end if;
 			when state_read_start =>
 				if (delay_reg(0)='1') then -- n+4 cycles
