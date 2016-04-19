@@ -21,6 +21,7 @@ ENTITY atari_address_decoder IS
 END atari_address_decoder;
 
 ARCHITECTURE vhdl OF atari_address_decoder IS
+	signal addr_valid : std_logic;
 begin
 
 	sram_address(16) <= '1';
@@ -29,6 +30,7 @@ begin
 	sram_address(12 downto 0) <= addr_in;
 	
 	sram_select <= bus_request and not(s4_n and s5_n);
-	config_select <= bus_request and not(ctl_n) and or_reduce(addr_in(7 downto 6)&not(addr_in(5 downto 0)));
+	addr_valid <= '1' when addr_in(7 downto 0)=x"c0" else '0';
+	config_select <= bus_request and not(ctl_n) and addr_valid;
 	
 end vhdl;
