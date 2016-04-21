@@ -97,6 +97,9 @@ end component;
 	signal atari_s5_n : std_logic;
 	signal atari_ctl_n : std_logic;
 	
+	signal atari_bus_request_fast : std_logic;
+	signal atari_read_data_reg : std_logic_vector(7 downto 0);
+	
 	-- address decode
 	signal veronica_config_select : std_logic;	
 	signal veronica_sram_select : std_logic;
@@ -204,7 +207,7 @@ begin
 	glue3: entity work.slave_timing_6502
 	port map
 	(
-		clk => clk_adj,
+		clk7x => clk_adj7x,
 		reset_n => reset_n,
 		phi2 => CART_PHI2,
 		bus_addr => CART_ADDR,
@@ -222,11 +225,26 @@ begin
 		ctl_n => atari_ctl_n,
 		addr_in => atari_address,
 		data_in => atari_write_data,
-		data_out => atari_read_data,
 		rw_n => atari_w_n,
-		bus_request => atari_bus_request
+
+		internal_memory_request => atari_bus_request_fast,
+		data_out => atari_read_data_reg
 	);
 	CART_DATA <= cart_bus_data_out when cart_bus_drive='1' else (others=>'Z');
+
+	glue3a: entity work.memory_timing_bridge
+	port map
+	(
+		clk => clk_adj,
+		clk7x => clk_adj7x,
+		reset_n => reset_n,
+
+		fast_memory_request => atari_bus_request_fast,
+		registered_read_data => atari_read_data_reg,
+
+		memory_request => atari_bus_request,
+		read_data => atari_read_data
+	);
 
 	glue4: entity work.atari_address_decoder
 	port map
