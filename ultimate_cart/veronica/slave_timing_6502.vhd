@@ -113,9 +113,12 @@ begin
 	s5_n <= bus_s5_n_reg;
 	ctl_n <= bus_ctl_n_reg;
 
-	process(data_out, phi2_sync, phi_edge_prev_reg, delay_reg, bus_data_out_reg, 
+	process(data_out, phi2_sync, phi_edge_prev_reg, delay_reg, 
+		bus_drive_reg,bus_data_out_reg, 
 		bus_rw_n_reg,bus_addr_in_reg,bus_data_in_reg,
 		bus_s4_n_reg,bus_s5_n_reg,bus_ctl_n_reg,
+		bus_rw_n,
+		bus_s4_n,bus_s5_n,bus_ctl_n,
 		bus_data,bus_addr,
 		state_reg)
 	begin

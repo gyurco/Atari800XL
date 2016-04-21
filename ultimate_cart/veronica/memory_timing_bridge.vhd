@@ -30,7 +30,7 @@ ARCHITECTURE vhdl OF memory_timing_bridge IS
 	signal make_request_reg : std_logic;
 begin
 	-- register
-	process(clk)
+	process(clk,reset_n)
 	begin
 		if (reset_n='0') then
 			memory_reg <= (others=>'0');
@@ -43,16 +43,17 @@ begin
 		end if;
 	end process;
 
-	process(clk7x)
+	process(clk7x,reset_n)
 	begin
 		if (reset_n='0') then
 			fast_request_toggle_reg <= '0';
-		elsif (clk'event and clk='1') then						
+		elsif (clk7x'event and clk7x='1') then						
 			fast_request_toggle_reg <= fast_request_toggle_next;
 		end if;
 	end process;
 
 	fast_request_toggle_next <= fast_request_toggle_reg xor fast_memory_request;
+	slow_request_toggle_next <= fast_request_toggle_reg;
 
 	process(memory_reg,read_data,make_request_reg)
 	begin
