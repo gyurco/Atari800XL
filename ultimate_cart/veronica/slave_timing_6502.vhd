@@ -5,9 +5,11 @@ use IEEE.STD_LOGIC_MISC.all;
 
 ENTITY slave_timing_6502 IS
 	PORT (
+				CLK: in std_logic;
 				CLK7x: in std_logic;
 				RESET_N: in std_logic;
 				
+				-- input from the cart port
 				PHI2 : in std_logic; -- async to our clk7x:-(
 				bus_addr : in std_logic_vector(12 downto 0);
 				bus_data : in std_logic_vector(7 downto 0);
@@ -16,17 +18,20 @@ ENTITY slave_timing_6502 IS
 				bus_s4_n : in std_logic;
 				bus_s5_n : in std_logic;
 	
+				-- output to the cart port
 				bus_data_out : out std_logic_vector(7 downto 0);
 				bus_drive : out std_logic;
 
+				-- request for a memory bus cycle (read or write)
+				BUS_REQUEST: out std_logic;
 				ADDR_IN: out std_logic_vector(12 downto 0);
 				DATA_IN: out std_logic_vector(7 downto 0);
-				DATA_OUT: in std_logic_vector(7 downto 0);
 				RW_N: out std_logic;
-				INTERNAL_MEMORY_REQUEST: out std_logic;
 				S4_N : out std_logic;
 				s5_N : out std_logic;
-				ctl_n : out std_logic
+				ctl_n : out std_logic;
+
+				DATA_OUT: in std_logic_vector(7 downto 0) -- read_data
 			);
 END slave_timing_6502;
 
@@ -65,8 +70,22 @@ ARCHITECTURE vhdl OF slave_timing_6502 IS
 	constant state_write_request : std_logic_vector(2 downto 0) := "010";
 	constant state_read_output_start : std_logic_vector(2 downto 0) := "011";
 	constant state_read_output_end : std_logic_vector(2 downto 0) := "100";
+
+	signal internal_memory_request : std_logic;
+	signal registered_read_data : std_logic_vector(7 downto 0);
+
+	-- slow half - for output
+
+	signal slow_bus_data_in_reg : std_logic_vector(7 downto 0);
+	signal slow_bus_addr_in_reg : std_logic_vector(12 downto 0);
+	signal slow_bus_rw_n_reg : std_logic;
+	signal slow_bus_s4_n_reg : std_logic;
+	signal slow_bus_s5_n_reg : std_logic;
+	signal slow_bus_ctl_n_reg : std_logic;
 	
 begin
+	-- Fast half, for accurate sampling of the 6502 bus - which is quirky on Atari - e.g. phi2 is often not in time with the data lines on writes!!
+
 	process(clk7x,reset_n)
 	begin
 		if (reset_n='0') then
@@ -104,15 +123,8 @@ begin
 				 port map (clk=>clk7x, raw=>PHI2, sync=>PHI2_SYNC);
 
 	phi_edge_prev_next <= phi2_sync;
-	
-	addr_in <= bus_addr_in_reg;
-	data_in <= bus_data_in_reg;
-	rw_n <= bus_rw_n_reg;	
-	s4_n <= bus_s4_n_reg;
-	s5_n <= bus_s5_n_reg;
-	ctl_n <= bus_ctl_n_reg;
 
-	process(data_out, phi2_sync, phi_edge_prev_reg, delay_reg, 
+	process(registered_read_data, phi2_sync, phi_edge_prev_reg, delay_reg, 
 		bus_drive_reg,bus_data_out_reg, 
 		bus_rw_n_reg,bus_addr_in_reg,bus_data_in_reg,
 		bus_s4_n_reg,bus_s5_n_reg,bus_ctl_n_reg,
@@ -166,7 +178,7 @@ begin
 				end if;
 			when state_read_output_start =>
 				if (delay_reg(38)='1') then -- n+4 cycles
-					bus_data_out_next <= data_out;
+					bus_data_out_next <= registered_read_data;
 					bus_drive_next <= '1';
 					state_next <= state_read_output_end;
 				end if;
@@ -179,8 +191,52 @@ begin
 		end case;
 		
 	end process;
-	
+
+		-- Fast outputs
 	bus_data_out <= bus_data_out_reg;
 	bus_drive <= bus_drive_reg;
-				 
+
+	-- Slow half
+
+	process(clk,reset_n)
+	begin
+		if (reset_n='0') then
+			slow_bus_addr_in_reg <= (others=>'0');
+			slow_bus_data_in_reg <= (others=>'0');
+			slow_bus_rw_n_reg <= '1';
+			slow_bus_s4_n_reg <= '1';
+			slow_bus_s5_n_reg <= '1';
+			slow_bus_ctl_n_reg <= '1';
+		elsif (clk'event and clk='1')  then
+			slow_bus_addr_in_reg <= bus_addr_in_reg;
+			slow_bus_data_in_reg <= bus_data_in_reg;
+			slow_bus_rw_n_reg <= bus_rw_n_reg;
+			slow_bus_s4_n_reg <= bus_s4_n_reg;
+			slow_bus_s5_n_reg <= bus_s5_n_reg;
+			slow_bus_ctl_n_reg <= bus_ctl_n_reg;
+		end if;
+	end process;
+
+	glue3a: entity work.memory_timing_bridge
+	port map
+	(
+		clk => clk,
+		clk7x => clk7x,
+		reset_n => reset_n,
+
+		fast_memory_request => internal_memory_request,
+		registered_read_data => registered_read_data,
+
+		memory_request => bus_request,
+		read_data => data_out
+	);
+
+	-- slow outputs
+	addr_in <= slow_bus_addr_in_reg;
+	data_in <= slow_bus_data_in_reg;
+	rw_n <= slow_bus_rw_n_reg;	
+	s4_n <= slow_bus_s4_n_reg;
+	s5_n <= slow_bus_s5_n_reg;
+	ctl_n <= slow_bus_ctl_n_reg;
+
 end vhdl;
