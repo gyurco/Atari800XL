@@ -153,7 +153,7 @@ begin
 		state_next <= state_reg;
 		case (state_reg) is
 			when state_wait_addrctl =>
-				if (delay_reg(17)='1') then -- n+4 cycles
+				if ((not(bus_s4_n and bus_s5_n and bus_ctl_n) and delay_reg(17))='1') then -- n+4 cycles
 					-- snap control signals, should be stable by now
 					bus_addr_in_next <= bus_addr;
 					bus_rw_n_next <= bus_rw_n;

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="veronica.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="attributes" />
+            <top_module name="numeric_std" />
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_misc" />
+            <top_module name="std_logic_textio" />
+            <top_module name="std_logic_unsigned" />
+            <top_module name="textio" />
+            <top_module name="veronica_tb" />
+            <top_module name="vl_types" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="40" />
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/rst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider60" type="divider">
+      <obj_property name="label">Input</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/nmi" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">nmi</obj_property>
+      <obj_property name="ObjectShortName">nmi</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/irq" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">irq</obj_property>
+      <obj_property name="ObjectShortName">irq</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/abort" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">abort</obj_property>
+      <obj_property name="ObjectShortName">abort</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/rdy" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rdy</obj_property>
+      <obj_property name="ObjectShortName">rdy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/be" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">be</obj_property>
+      <obj_property name="ObjectShortName">be</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/db" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">db[7:0]</obj_property>
+      <obj_property name="ObjectShortName">db[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/err_i" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">err_i</obj_property>
+      <obj_property name="ObjectShortName">err_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/rty_i" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rty_i</obj_property>
+      <obj_property name="ObjectShortName">rty_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider71" type="divider">
+      <obj_property name="label">Output</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/clko" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clko</obj_property>
+      <obj_property name="ObjectShortName">clko</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/phi11" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">phi11</obj_property>
+      <obj_property name="ObjectShortName">phi11</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/phi12" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">phi12</obj_property>
+      <obj_property name="ObjectShortName">phi12</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/phi81" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">phi81</obj_property>
+      <obj_property name="ObjectShortName">phi81</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/phi82" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">phi82</obj_property>
+      <obj_property name="ObjectShortName">phi82</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/e" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">e</obj_property>
+      <obj_property name="ObjectShortName">e</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/mx" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mx</obj_property>
+      <obj_property name="ObjectShortName">mx</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/rw" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rw</obj_property>
+      <obj_property name="ObjectShortName">rw</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/ad" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ad[23:0]</obj_property>
+      <obj_property name="ObjectShortName">ad[23:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/dw" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dw[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dw[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/cyc" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cyc[4:0]</obj_property>
+      <obj_property name="ObjectShortName">cyc[4:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/vpa" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vpa</obj_property>
+      <obj_property name="ObjectShortName">vpa</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/vda" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vda</obj_property>
+      <obj_property name="ObjectShortName">vda</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/mlb" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mlb</obj_property>
+      <obj_property name="ObjectShortName">mlb</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/vpb" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">vpb</obj_property>
+      <obj_property name="ObjectShortName">vpb</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider95" type="divider">
+      <obj_property name="label">decode</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/glue5/addr_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">addr_in[15:0]</obj_property>
+      <obj_property name="ObjectShortName">addr_in[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/glue5/window_address" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">window_address</obj_property>
+      <obj_property name="ObjectShortName">window_address</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/glue5/bank_half_select" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bank_half_select</obj_property>
+      <obj_property name="ObjectShortName">bank_half_select</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/glue5/bank_select" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bank_select</obj_property>
+      <obj_property name="ObjectShortName">bank_select</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/glue5/config_select" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">config_select</obj_property>
+      <obj_property name="ObjectShortName">config_select</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/glue5/sram_select" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sram_select</obj_property>
+      <obj_property name="ObjectShortName">sram_select</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/glue5/sram_address" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sram_address[16:0]</obj_property>
+      <obj_property name="ObjectShortName">sram_address[16:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider101" type="divider">
+      <obj_property name="label">sram</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/glue6/sram_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sram_addr[19:0]</obj_property>
+      <obj_property name="ObjectShortName">sram_addr[19:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/glue6/sram_data_out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sram_data_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">sram_data_out[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/glue6/sram_drive_data" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sram_drive_data</obj_property>
+      <obj_property name="ObjectShortName">sram_drive_data</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/glue6/sram_we_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sram_we_n</obj_property>
+      <obj_property name="ObjectShortName">sram_we_n</obj_property>
+   </wvobject>
+</wave_config>
