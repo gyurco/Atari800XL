@@ -43,7 +43,7 @@ LOAD_MAC1:
 LOAD_MAC2:
 	if (rdy) begin
 		data_nack();
-		//TODO FIXME TODO load_tsk(db);
+		load_tsk(db);
 	end
 `ifdef SUPPORT_BERR
 	else if (err_i) begin

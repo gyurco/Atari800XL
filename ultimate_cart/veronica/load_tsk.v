@@ -20,8 +20,8 @@
 //                                                                          
 // ============================================================================
 //
-//task load_tsk;
-//input [7:0] db;
+task load_tsk;
+input [7:0] db;
 begin
 	case(load_what)
 	`BYTE_70:
@@ -202,4 +202,4 @@ begin
 			end
 	endcase
 end
-//endtask
+endtask

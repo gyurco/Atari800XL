@@ -852,6 +852,7 @@ if (~rst) begin
 	vpb <= `TRUE;
 	rwo <= `TRUE;
 	ado <= 24'h000000;
+	sp <= 16'h0001ff; // TODO
 	dbo <= 8'h00;
 	nmi_edge <= 1'b0;
 	wai <= 1'b0;
@@ -2188,6 +2189,7 @@ end
 
 `include "bus_task.v"
 `include "misc_task.v"
+`include "load_tsk.v"
 
 task next_state;
 input [5:0] nxt;
