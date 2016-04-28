@@ -18,7 +18,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="40" />
+   <WVObjectSize size="49" />
    <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/rst" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
@@ -26,6 +26,10 @@
    <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/state" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">state[5:0]</obj_property>
+      <obj_property name="ObjectShortName">state[5:0]</obj_property>
    </wvobject>
    <wvobject fp_name="divider60" type="divider">
       <obj_property name="label">Input</obj_property>
@@ -109,6 +113,16 @@
       <obj_property name="ObjectShortName">ad[23:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/ado" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ado[23:0]</obj_property>
+      <obj_property name="ObjectShortName">ado[23:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/sp" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sp[15:0]</obj_property>
+      <obj_property name="ObjectShortName">sp[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
    <wvobject fp_name="/veronica_tb/thebigone/cpu_65816_rob/dw" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">dw[7:0]</obj_property>
       <obj_property name="ObjectShortName">dw[7:0]</obj_property>
@@ -180,10 +194,12 @@
    <wvobject fp_name="/veronica_tb/thebigone/glue6/sram_addr" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">sram_addr[19:0]</obj_property>
       <obj_property name="ObjectShortName">sram_addr[19:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/veronica_tb/thebigone/glue6/sram_data_out" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">sram_data_out[7:0]</obj_property>
       <obj_property name="ObjectShortName">sram_data_out[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/veronica_tb/thebigone/glue6/sram_drive_data" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">sram_drive_data</obj_property>
@@ -192,5 +208,31 @@
    <wvobject fp_name="/veronica_tb/thebigone/glue6/sram_we_n" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">sram_we_n</obj_property>
       <obj_property name="ObjectShortName">sram_we_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/sram_model/nwe" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">nwe</obj_property>
+      <obj_property name="ObjectShortName">nwe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/sram_model/nce" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">nce</obj_property>
+      <obj_property name="ObjectShortName">nce</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/sram_model/noe" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">noe</obj_property>
+      <obj_property name="ObjectShortName">noe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/sram_model/a" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">a[16:0]</obj_property>
+      <obj_property name="ObjectShortName">a[16:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/sram_model/d" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">d[7:0]</obj_property>
+      <obj_property name="ObjectShortName">d[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/veronica_tb/sram_model/read_active" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">read_active</obj_property>
+      <obj_property name="ObjectShortName">read_active</obj_property>
    </wvobject>
 </wave_config>

@@ -274,86 +274,65 @@ begin
 	CART_S5 <= bus_s5_n when bus_control_oe='1' else 'Z';
 	CART_CTL <= bus_cctl_n when bus_control_oe='1' else 'Z';
 
---	sram_model : entity work.sram
---	generic map
---	(
---		clear_on_power_up: boolean := FALSE;    -- if TRUE, RAM is initialized with zeroes at start of simulation
---		                                        -- Clearing of RAM is carried out before download takes place
---		
---		download_on_power_up: boolean := TRUE;  -- if TRUE, RAM is downloaded at start of simulation 
---		  
---		trace_ram_load: boolean := TRUE;        -- Echoes the data downloaded to the RAM on the screen
---		                                        -- (included for debugging purposes)
---		
---		
---		enable_nWE_only_control: boolean := TRUE;  -- Read-/write access controlled by nWE only
---		                                           -- nOE may be kept active all the time
---		
---		
---		
---		-- Configuring RAM size
---		
---		size:      INTEGER :=  8;  -- number of memory words
---		adr_width: INTEGER :=  3;  -- number of address bits
---		width:     INTEGER :=  8;  -- number of bits per memory word
---		
---		
---		-- READ-cycle timing parameters
---		
---		tAA_max:    TIME := 20 NS; -- Address Access Time
---		tOHA_min:   TIME :=  3 NS; -- Output Hold Time
---		tACE_max:   TIME := 20 NS; -- nCE/CE2 Access Time
---		tDOE_max:   TIME :=  8 NS; -- nOE Access Time
---		tLZOE_min:  TIME :=  0 NS; -- nOE to Low-Z Output
---		tHZOE_max:  TIME :=  8 NS; --  OE to High-Z Output
---		tLZCE_min:  TIME :=  3 NS; -- nCE/CE2 to Low-Z Output
---		tHZCE_max:  TIME := 10 NS; --  CE/nCE2 to High Z Output
---		
---		
---		-- WRITE-cycle timing parameters
---		
---		tWC_min:    TIME := 20 NS; -- Write Cycle Time
---		tSCE_min:   TIME := 18 NS; -- nCE/CE2 to Write End
---		tAW_min:    TIME := 15 NS; -- tAW Address Set-up Time to Write End
---		tHA_min:    TIME :=  0 NS; -- tHA Address Hold from Write End
---		tSA_min:    TIME :=  0 NS; -- Address Set-up Time
---		tPWE_min:   TIME := 13 NS; -- nWE Pulse Width
---		tSD_min:    TIME := 10 NS; -- Data Set-up to Write End
---		tHD_min:    TIME :=  0 NS; -- Data Hold from Write End
---		tHZWE_max:  TIME := 10 NS; -- nWE Low to High-Z Output
---		tLZWE_min:  TIME :=  0 NS  -- nWE High to Low-Z Output
---	);
---	port map
---	(
---		nCE: IN std_logic := '1';  -- low-active Chip-Enable of the SRAM device; defaults to '1' (inactive)
---		nOE: IN std_logic := '1';  -- low-active Output-Enable of the SRAM device; defaults to '1' (inactive)
---		nWE: IN std_logic := '1';  -- low-active Write-Enable of the SRAM device; defaults to '1' (inactive)
---		
---		A:   IN std_logic_vector(adr_width-1 downto 0); -- address bus of the SRAM device
---		D:   INOUT std_logic_vector(width-1 downto 0);  -- bidirectional data bus to/from the SRAM device
---		
---		CE2: IN std_logic := '1';  -- high-active Chip-Enable of the SRAM device; defaults to '1'  (active) 
---		
---		
---		download: IN boolean := FALSE;    -- A FALSE-to-TRUE transition on this signal downloads the data
---		                                  -- in file specified by download_filename to the RAM
---		
---		download_filename: IN string := "sram_load.dat";  -- name of the download source file
---		                                                  --            Passing the filename via a port of type
---		                                                  -- ********** string may cause a problem with some
---		                                                  -- WATCH OUT! simulators. The string signal assigned
---		                                                  -- ********** to the port at least should have the
---		                                                  --            same length as the default value.
---		
---		dump: IN boolean := FALSE;       -- A FALSE-to-TRUE transition on this signal dumps
---		                                 -- the current content of the memory to the file
---		                                 -- specified by dump_filename.
---		dump_start: IN natural := 0;     -- Written to the dump-file are the memory words from memory address 
---		dump_end: IN natural := size-1;  -- dump_start to address dump_end (default: all addresses)
---		
---		dump_filename: IN string := "sram_dump.dat"  -- name of the dump destination file
---                                                 -- (See note at port  download_filename)
---	);
+	sram_model : entity work.sram
+	generic map
+	(
+		clear_on_power_up => TRUE,
+		                                        -- Clearing of RAM is carried out before download takes place
+		download_on_power_up => FALSE,  -- if TRUE, RAM is downloaded at start of simulation 
+		  
+		trace_ram_load => TRUE,        -- Echoes the data downloaded to the RAM on the screen
+		                                        -- (included for debugging purposes)
+		
+		enable_nWE_only_control => TRUE,  -- Read-/write access controlled by nWE only
+		                                           -- nOE may be kept active all the time
+		
+		-- Configuring RAM size
+		
+		size => 131072,  -- number of memory words
+		adr_width => 17,  -- number of address bits
+		width => 8,  -- number of bits per memory word
+		
+		
+		-- READ-cycle timing parameters
+		
+		tAA_max  => 55 NS, -- Address Access Time
+		tOHA_min =>  3 NS, -- Output Hold Time
+		tACE_max => 55 NS, -- nCE/CE2 Access Time
+		tDOE_max => 30 NS, -- nOE Access Time
+		tLZOE_min=>  5 NS, -- nOE to Low-Z Output
+		tHZOE_max=> 20 NS, --  OE to High-Z Output
+		tLZCE_min=> 10  NS, -- nCE/CE2 to Low-Z Output
+		tHZCE_max=> 20 NS, --  CE/nCE2 to High Z Output
+		
+		
+		-- WRITE-cycle timing parameters
+		
+		tWC_min => 55 NS, -- Write Cycle Time
+		tSCE_min=> 50 NS, -- nCE/CE2 to Write End
+		tAW_min => 50 NS, -- tAW Address Set-up Time to Write End
+		tHA_min =>  0 NS, -- tHA Address Hold from Write End
+		tSA_min =>  0 NS, -- Address Set-up Time
+		tPWE_min=> 45 NS, -- nWE Pulse Width
+		tSD_min => 25 NS, -- Data Set-up to Write End
+		tHD_min =>  0 NS, -- Data Hold from Write End
+		tHZWE_max=> 20 NS, -- nWE Low to High-Z Output
+		tLZWE_min=>  0 NS  -- nWE High to Low-Z Output
+	)
+	--signal EXT_SRAM_ADDR: std_logic_vector(19 downto 0);
+	--signal EXT_SRAM_DATA: std_logic_vector(7 downto 0);
+	--signal EXT_SRAM_CE: std_logic;
+	--signal EXT_SRAM_OE: std_logic;
+	--signal EXT_SRAM_WE: std_logic;
+	port map
+	(
+		nCE => EXT_SRAM_CE,
+		nOE => EXT_SRAM_OE,
+		nWE => EXT_SRAM_WE,
+		
+		A => EXT_SRAM_ADDR(16 downto 0),
+		D => EXT_SRAM_DATA
+	);
 
 end rtl;
 

@@ -419,7 +419,7 @@ BEGIN
                undef_adr_vec;
 
   read_active <=    (     (nOE = '0') AND (nOE'DELAYED(tLZOE_min) = '0') AND nOE'STABLE(tLZOE_min) 
-                      AND ((nWE = '1') OR (nWE'DELAYED(tHZWE_max) = '0'))
+                      AND ((nWE = '1') OR (nWE'DELAYED(tHZWE_max) = '1'))
                       AND (nCE = '0') AND (CE2 = '1') AND nCE'STABLE(tLZCE_min) AND CE2'STABLE(tLZCE_min))
                  OR (read_active AND (nOE'DELAYED(tHZOE_max) = '0') 
                                  AND (nWE'DELAYED(tHZWE_max) = '1')
