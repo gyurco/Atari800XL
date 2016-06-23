@@ -96,7 +96,6 @@ end component;
 -- VIDEO
 signal VIDEO_VS : std_logic;
 signal VIDEO_HS : std_logic;
-signal VIDEO_BLANK : std_logic;
 
 -- AUDIO
 signal AUDIO_L_CORE : std_logic_vector(15 downto 0);
@@ -115,7 +114,8 @@ BEGIN
 core : entity work.atari800core_helloworld
 	generic map
 	(
-		cycle_length => 32
+		cycle_length => 32,
+		internal_ram => 65536
 	)
 	port map
 	(
@@ -148,7 +148,7 @@ core : entity work.atari800core_helloworld
 
 VGA_HS <= not(VIDEO_HS xor VIDEO_VS);
 VGA_VS <= not(VIDEO_VS);
-VGA_BLANK_N <= NOT(VIDEO_BLANK);
+VGA_BLANK_N <= '1';
 VGA_CLK <= CLK;
 
 dac_left : hq_dac
