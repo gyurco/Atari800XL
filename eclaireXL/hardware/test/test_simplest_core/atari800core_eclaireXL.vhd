@@ -105,7 +105,7 @@ signal AUDIO_R_CORE : std_logic_vector(15 downto 0);
 -- SYSTEM
 SIGNAL CLK : STD_LOGIC;
 SIGNAL CLK_114 : STD_LOGIC;
-SIGNAL CLK_SDRAM : STD_LOGIC;
+SIGNAL SVIDEO_ECS_CLK : STD_LOGIC;
 SIGNAL RESET_N : STD_LOGIC;
 signal SDRAM_RESET_N : std_logic;
 SIGNAL PLL_LOCKED : STD_LOGIC;
@@ -115,11 +115,11 @@ BEGIN
 core : entity work.atari800core_helloworld
 	generic map
 	(
-		cycle_length => 32;
-	);
+		cycle_length => 32
+	)
 	port map
 	(
-		CLK => clk_pll,
+		CLK => clk,
 		RESET_N => pll_locked,
 
 		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
@@ -135,15 +135,15 @@ core : entity work.atari800core_helloworld
 		AUDIO_R => audio_r_core,
 
 		-- JOYSTICK
-		JOY1_n => "11111";
-		JOY2_n => "11111";
+		JOY1_n => "11111",
+		JOY2_n => "11111",
 
 		-- KEYBOARD
 		PS2_CLK => ps2clk,
 		PS2_DAT => ps2dat,
 
 		-- video standard
-		PAL => "1"
+		PAL => '1'
 	);
 
 VGA_HS <= not(VIDEO_HS xor VIDEO_VS);
@@ -178,5 +178,36 @@ PORT MAP(refclk => CLOCK_5,
 		 outclk_2 => DRAM_CLK,
 		 outclk_3 => SVIDEO_ECS_CLK,
 		 locked => PLL_LOCKED);
+
+
+GPIOA <= (others=>'Z');
+GPIOB <= (others=>'Z');
+GPIOC <= (others=>'Z');
+
+DRAM_CS_N <= '1';
+DRAM_BA_0 <= 'Z';
+DRAM_BA_1 <= 'Z';
+DRAM_RAS_N <= 'Z';
+DRAM_CAS_N <= 'Z';
+DRAM_WE_N <= 'Z';
+DRAM_LDQM <= 'Z';
+DRAM_UDQM <= 'Z';
+DRAM_CKE <= 'Z';
+DRAM_ADDR <= (others=>'Z');
+DRAM_DQ <= (others=>'Z');
+
+SD_DAT1 <= 'Z';
+SD_DAT2 <= 'Z';
+SD_DAT3 <= 'Z';
+SD_CMD <= 'Z';
+SD_CLK <= 'Z';
+
+USB2DM <= 'Z';
+USB2DP <= 'Z';
+USB1DM <= 'Z';
+USB1DP <= 'Z';
+		
+ADC_SDA <= 'Z';
+ADC_SCL <= 'Z';
 
 END vhdl;

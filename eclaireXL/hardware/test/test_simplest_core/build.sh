@@ -44,7 +44,7 @@ foreach my $variant (sort keys %variants)
 	`rm -rf $dir`;
 	mkdir $dir;
 	`cp atari800core_eclaireXL.vhd $dir`;
-	`cp -a *pll* $dir`;
+	`cp -a ../test_common/*pll* $dir`;
 	`cp -a *gpioram* $dir`;
 	`cp -a *zpu_rom* $dir`;
 	#`cp -a *serial_loader* $dir`;
@@ -60,7 +60,7 @@ foreach my $variant (sort keys %variants)
 	`cp ../../../../common/zpu/* ./$dir/common/zpu`;
 
 	chdir $dir;
-	`../../../../makeqsf ../../../../atari800core_eclaireXL.qsf ./common/a8core ./common/components`;
+	`../../../../makeqsf ../atari800core_eclaireXL.qsf ./common/a8core ./common/components`;
 
 	foreach my $key (sort keys %{$variants{$variant}})
 	{
