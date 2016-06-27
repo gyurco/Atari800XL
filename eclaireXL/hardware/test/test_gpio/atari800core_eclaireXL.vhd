@@ -104,8 +104,8 @@ SIGNAL PLL_LOCKED : STD_LOGIC;
 -- GPIO test
 signal count_reg : std_logic_vector(18 downto 0);
 signal count_next : std_logic_vector(18 downto 0);
-signal shift_reg : std_logic_vector(107 downto 0);
-signal shift_next : std_logic_vector(107 downto 0);
+signal shift_reg : std_logic_vector(7 downto 0);
+signal shift_next : std_logic_vector(7 downto 0);
 signal shift_trigger : std_logic;
 
 BEGIN 
@@ -160,7 +160,7 @@ AUDIO_RIGHT <= 'Z';
 process(clock_5,pll_locked)
 begin
 	if (pll_locked='0') then
-		shift_reg(107 downto 1) <= (others=>'0');
+		shift_reg(7 downto 1) <= (others=>'0');
 		shift_reg(0) <= '1';
 		count_reg <= (others=>'0');
 	elsif (clock_5'event and clock_5='1') then
@@ -173,7 +173,7 @@ process(shift_reg,shift_trigger)
 begin
 	shift_next <= shift_reg;
 	if (shift_trigger='1') then
-		shift_next(107 downto 0) <= shift_reg(106 downto 0)&shift_reg(107);
+		shift_next(7 downto 0) <= shift_reg(6 downto 0)&shift_reg(7);
 	end if;
 end process;
 
@@ -183,8 +183,8 @@ begin
 	shift_trigger <= and_reduce(count_reg);
 end process;
 
-GPIOA <= shift_reg(107 downto 72);
-GPIOB <= shift_reg(71 downto 36);
-GPIOC <= shift_reg(35 downto 0);
+GPIOA <= shift_reg(7 downto 0)&shift_reg(7 downto 0)&shift_reg(7 downto 0)&shift_reg(7 downto 0)&shift_reg(7 downto 4);
+GPIOB <= shift_reg(6 downto 0)&shift_reg(7 downto 0)&shift_reg(7 downto 0)&shift_reg(7 downto 0)&shift_reg(7 downto 3);
+GPIOC <= shift_reg(5 downto 0)&shift_reg(7 downto 0)&shift_reg(7 downto 0)&shift_reg(7 downto 0)&shift_reg(7 downto 2);
 
 END vhdl;
