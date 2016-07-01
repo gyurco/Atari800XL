@@ -377,7 +377,7 @@ end generate;
 --		PAL => '1'
 --	);
 
-if system=0
+gen_xl : if system=0 generate
 atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
 	(
@@ -449,9 +449,10 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		freezer_enable => freezer_enable,
 		freezer_activate => freezer_activate
 	);
-end if;
-if system=1
-atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
+end generate;
+
+gen_800 : if system=1 generate
+atarixl_simple_sdram1 : entity work.atari800nxcore_simple_sdram
 	GENERIC MAP
 	(
 		cycle_length => 32,
@@ -524,7 +525,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		freezer_enable => freezer_enable,
 		freezer_activate => freezer_activate
 	);
-end if;
+end generate;
 
 -- video glue
 --nHSync <= (VGA_HS_RAW xor VGA_VS_RAW);

@@ -1077,7 +1077,7 @@ end generate;
 					
 				-- OS ROM 0xc00->0xcff				
 				when 
-					X"C0"|X"C1"|X"C2"|X"C3"|X"C4"|X"C5"|X"C6"|X"C7"|X"C8"|X"C9"|X"CA"|X"CB"|X"CC"|X"CD"|X"CE"|X"CF"
+					X"C0"|X"C1"|X"C2"|X"C3"|X"C4"|X"C5"|X"C6"|X"C7"|X"C8"|X"C9"|X"CA"|X"CB"|X"CC"|X"CD"|X"CE"|X"CF" =>
 					-- Allow ram?
 					MEMORY_DATA(7 downto 0) <= x"ff";
 					request_complete <= '1';
@@ -1086,7 +1086,7 @@ end generate;
 
 				-- OS ROM d800->0xfff
 				when 
-					|X"D8"|X"D9"|X"DA"|X"DB"|X"DC"|X"DD"|X"DE"|X"DF"
+					X"D8"|X"D9"|X"DA"|X"DB"|X"DC"|X"DD"|X"DE"|X"DF"
 					|X"E0"|X"E1"|X"E2"|X"E3"|X"E4"|X"E5"|X"E6"|X"E7"|X"E8"|X"E9"|X"EA"|X"EB"|X"EC"|X"ED"|X"EE"|X"EF"
 					|X"F0"|X"F1"|X"F2"|X"F3"|X"F4"|X"F5"|X"F6"|X"F7"|X"F8"|X"F9"|X"FA"|X"FB"|X"FC"|X"FD"|X"FE"|X"FF" =>
 					

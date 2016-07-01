@@ -28,7 +28,7 @@ my %variants =
 		"COMPOSITE_SYNC" => 1,
 		"SYSTEM" => $A800
 	},
-	"PAL_RGB" => 
+	"PAL_RGB_XL" => 
 	{
 		"TV" => $PAL,
 		"SCANDOUBLE" => 0,
