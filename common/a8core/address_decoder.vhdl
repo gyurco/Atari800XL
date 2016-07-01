@@ -16,7 +16,7 @@ GENERIC
 (
 	low_memory : integer := 0; -- if 0, we assume 8MB SDRAM, if 1, we assume 1MB 'SDRAM', if 2 we assume 512KB 'SDRAM'.
 	stereo : integer := 1; 
-	system : integer := 0 -- 0=Atari XL, 10=Atari5200 (space left for more systems)
+	system : integer := 0 -- 0=Atari XL,1=Atari 800, 10=Atari5200 (space left for more systems)
 );
 PORT 
 ( 
@@ -905,6 +905,216 @@ end generate;
 						SDRAM_ADDR <= SDRAM_OS_ROM_ADDR;
 						SDRAM_ADDR(13 downto 0) <= ADDR_next(13 downto 0);
 					end if;
+					
+				when others =>
+			end case;
+
+			-- Freezer overrides bus!
+			if (freezer_enable = '1' and freezer_disable_atari) then
+				sdram_chip_select <= '0';
+				ram_chip_select <= '0';
+				case freezer_access_type is
+				when "01" => -- direct data access
+					memory_data(7 downto 0) <= freezer_dout;
+					freezer_request <= start_request;
+					request_complete <= freezer_request_complete;
+				when "10" => -- ram access
+					SDRAM_ADDR <= SDRAM_FREEZER_RAM_ADDR;
+					MEMORY_DATA(7 downto 0) <= SDRAM_DATA(7 downto 0);
+					request_complete <= sdram_request_COMPLETE;
+					sdram_chip_select <= start_request;
+				when "11" => -- ram access
+					SDRAM_ADDR <= SDRAM_FREEZER_ROM_ADDR;
+					MEMORY_DATA(7 downto 0) <= SDRAM_DATA(7 downto 0);
+					request_complete <= sdram_request_COMPLETE;
+					sdram_chip_select <= start_request;
+				when others => null;
+					MEMORY_DATA(7 downto 0) <= (others => '1');
+					request_complete <= '1';
+				end case;
+			end if;
+		end if;
+
+		if system=1 then
+			case addr_next(15 downto 8) is 
+				-- GTIA
+				when X"D0" =>
+					GTIA_WR_ENABLE <= write_enable_next;
+					MEMORY_DATA(7 downto 0) <= GTIA_DATA;
+					MEMORY_DATA(15 downto 8) <= CACHE_GTIA_DATA;
+					request_complete <= '1';
+					sdram_chip_select <= '0';
+					ram_chip_select <= '0';
+			
+				-- POKEY
+				when X"D2" =>				
+					if (stereo=0 or addr_next(4) = '0') then
+						POKEY_WR_ENABLE <= write_enable_next;
+						MEMORY_DATA(7 downto 0) <= POKEY_DATA;
+						MEMORY_DATA(15 downto 8) <= CACHE_POKEY_DATA;
+					else
+						POKEY2_WR_ENABLE <= write_enable_next;
+						MEMORY_DATA(7 downto 0) <= POKEY2_DATA;
+						MEMORY_DATA(15 downto 8) <= CACHE_POKEY2_DATA;
+					end if;
+					request_complete <= '1';
+					sdram_chip_select <= '0';
+					ram_chip_select <= '0';					
+
+				-- PIA
+				when X"D3" =>
+					PIA_WR_ENABLE <= write_enable_next;
+					PIA_RD_ENABLE <= '1';
+					MEMORY_DATA(7 downto 0) <= PIA_DATA;
+					request_complete <= '1';
+					sdram_chip_select <= '0';
+					ram_chip_select <= '0';					
+					
+				-- ANTIC
+				when X"D4" =>
+					ANTIC_WR_ENABLE <= write_enable_next;
+					MEMORY_DATA(7 downto 0) <= ANTIC_DATA;
+					MEMORY_DATA(15 downto 8) <= CACHE_ANTIC_DATA;
+					request_complete <= '1';
+					sdram_chip_select <= '0';
+					ram_chip_select <= '0';					
+					
+				-- CART_CONFIG -- TODO - wait for n cycles (for now non-turbo mode should work?)
+				when X"D5" =>
+					sdram_chip_select <= '0';
+					ram_chip_select <= '0';	
+
+					if (emu_cart_enable = '1') then
+						emu_cart_cctl_n <= '0';
+						if write_enable_next = '1' then
+							-- TODO: write to both emulated and real cart
+							request_complete <= '1';
+						else
+							-- read only from emulated
+							if emu_cart_cctl_dout_enable then
+								MEMORY_DATA(7 downto 0) <= emu_cart_cctl_dout;
+							else
+								MEMORY_DATA(7 downto 0) <= x"ff";
+							end if;
+							request_complete <= '1';
+						end if;
+					else
+						if (pbi_enable = '1') then
+							PBI_WR_ENABLE <= write_enable_next;
+							MEMORY_DATA(7 downto 0) <= CART_ROM_DATA;
+							cart_request <= start_request;
+							CART_CCTL_n <= '0';
+							request_complete <= CART_REQUEST_COMPLETE;
+						else
+							MEMORY_DATA(7 downto 0) <= X"FF";
+							request_complete <= '1';
+						end if;
+					end if;
+					
+				when X"D6" =>
+					D6_WR_ENABLE <= write_enable_next;
+					-- TODO - should this still have RAM with covox here?
+										
+				-- 0x80 cart
+				when
+					X"80"|X"81"|X"82"|X"83"|X"84"|X"85"|X"86"|X"87"|X"88"|X"89"|X"8A"|X"8B"|X"8C"|X"8D"|X"8E"|X"8F"
+					|X"90"|X"91"|X"92"|X"93"|X"94"|X"95"|X"96"|X"97"|X"98"|X"99"|X"9A"|X"9B"|X"9C"|X"9D"|X"9E"|X"9F" =>
+		
+					if (emu_cart_enable = '1' and emu_cart_rd4 = '1') then
+						emu_cart_s4_n <= '0';
+						-- remap to SDRAM
+						if (emu_cart_address_enable) then
+							SDRAM_ADDR <= SDRAM_CART_ADDR;
+							MEMORY_DATA(7 downto 0) <= SDRAM_DATA(7 downto 0);
+							request_complete <= sdram_request_COMPLETE;
+							sdram_chip_select <= start_request;
+							ram_chip_select <= '0';
+						else
+							MEMORY_DATA(7 downto 0) <= x"ff";
+							request_complete <= '1';
+							sdram_chip_select <= '0';
+							ram_chip_select <= '0';
+						end if;
+					elsif (pbi_enable = '1' and cart_rd4 = '1') then
+						PBI_WR_ENABLE <= write_enable_next;
+						MEMORY_DATA(7 downto 0) <= CART_ROM_DATA;
+						cart_request <= start_request;
+						CART_S4_n <= '0';
+						request_complete <= CART_REQUEST_COMPLETE;
+						sdram_chip_select <= '0';
+						ram_chip_select <= '0';							
+					end if;	
+			
+				-- 0xa0 cart (BASIC ROM 0xa000 - 0xbfff (8k))
+				when 
+					X"A0"|X"A1"|X"A2"|X"A3"|X"A4"|X"A5"|X"A6"|X"A7"|X"A8"|X"A9"|X"AA"|X"AB"|X"AC"|X"AD"|X"AE"|X"AF"
+					|X"B0"|X"B1"|X"B2"|X"B3"|X"B4"|X"B5"|X"B6"|X"B7"|X"B8"|X"B9"|X"BA"|X"BB"|X"BC"|X"BD"|X"BE"|X"BF" =>
+					
+					if (emu_cart_enable = '1' and emu_cart_rd5 = '1') then
+						emu_cart_s5_n <= '0';
+						-- remap to SDRAM
+						if (emu_cart_address_enable) then
+							SDRAM_ADDR <= SDRAM_CART_ADDR;
+							MEMORY_DATA(7 downto 0) <= SDRAM_DATA(7 downto 0);
+							request_complete <= sdram_request_COMPLETE;							
+							sdram_chip_select <= start_request;
+							ram_chip_select <= '0';
+						else
+							MEMORY_DATA(7 downto 0) <= x"ff";
+							request_complete <= '1';
+							sdram_chip_select <= '0';
+							ram_chip_select <= '0';
+						end if;
+					elsif (pbi_enable = '1' and cart_rd5 = '1') then
+						PBI_WR_ENABLE <= write_enable_next;
+						MEMORY_DATA(7 downto 0) <= CART_ROM_DATA;
+						cart_request <= start_request;
+						CART_S5_n <= '0';
+						request_complete <= CART_REQUEST_COMPLETE;
+						sdram_chip_select <= '0';
+						ram_chip_select <= '0';													
+					end if;
+					
+				-- OS ROM 0xc00->0xcff				
+				when 
+					X"C0"|X"C1"|X"C2"|X"C3"|X"C4"|X"C5"|X"C6"|X"C7"|X"C8"|X"C9"|X"CA"|X"CB"|X"CC"|X"CD"|X"CE"|X"CF"
+					-- Allow ram?
+					MEMORY_DATA(7 downto 0) <= x"ff";
+					request_complete <= '1';
+					sdram_chip_select <= '0';
+					ram_chip_select <= '0';													
+
+				-- OS ROM d800->0xfff
+				when 
+					|X"D8"|X"D9"|X"DA"|X"DB"|X"DC"|X"DD"|X"DE"|X"DF"
+					|X"E0"|X"E1"|X"E2"|X"E3"|X"E4"|X"E5"|X"E6"|X"E7"|X"E8"|X"E9"|X"EA"|X"EB"|X"EC"|X"ED"|X"EE"|X"EF"
+					|X"F0"|X"F1"|X"F2"|X"F3"|X"F4"|X"F5"|X"F6"|X"F7"|X"F8"|X"F9"|X"FA"|X"FB"|X"FC"|X"FD"|X"FE"|X"FF" =>
+					
+					sdram_chip_select <= '0';
+					ram_chip_select <= '0';																		
+					--request_complete <= ROM_REQUEST_COMPLETE;
+					--MEMORY_DATA(7 downto 0) <= ROM_DATA;
+					--rom_request <= start_request;					
+					if (rom_in_ram = '1') then
+						MEMORY_DATA(7 downto 0) <= SDRAM_DATA(7 downto 0);
+					else
+						MEMORY_DATA(7 downto 0) <= ROM_DATA;						
+					end if;
+					if (write_enable_next = '1') then
+						request_complete <= '1';
+					else
+							if (rom_in_ram = '1') then
+								request_complete <= sdram_request_COMPLETE;							
+								sdram_chip_select <= start_request;							
+							else
+								request_complete <= rom_request_COMPLETE;							
+								rom_request <= start_request;															
+							end if;						
+					end if;																			
+
+					ROM_ADDR <= "000000"&"00"&ADDR_next(13 downto 0); -- x00000 based 16k
+					SDRAM_ADDR <= SDRAM_OS_ROM_ADDR;
+					SDRAM_ADDR(13 downto 0) <= ADDR_next(13 downto 0);
 					
 				when others =>
 			end case;

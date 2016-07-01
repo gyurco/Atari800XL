@@ -19,7 +19,8 @@ GENERIC
 	TV : integer;  -- 1 = PAL, 0=NTSC
 	VIDEO : integer; -- 1 = RGB, 2 = VGA
 	COMPOSITE_SYNC : integer; --0 = no, 1 = yes!
-	SCANDOUBLE : integer -- 1 = YES, 0=NO, (+ later scanlines etc)
+	SCANDOUBLE : integer; -- 1 = YES, 0=NO, (+ later scanlines etc)
+	SYSTEM : integer -- 1 = YES, 0=NO, (+ later scanlines etc)
 );
 port
 (
@@ -376,6 +377,7 @@ end generate;
 --		PAL => '1'
 --	);
 
+if system=0
 atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
 	(
@@ -447,6 +449,82 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		freezer_enable => freezer_enable,
 		freezer_activate => freezer_activate
 	);
+end if;
+if system=1
+atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
+	GENERIC MAP
+	(
+		cycle_length => 32,
+		internal_rom => 0,
+		internal_ram => 0,
+		video_bits => 8,
+		palette => 0
+	)
+	PORT MAP
+	(
+		CLK => CLK,
+		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
+
+		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
+		VIDEO_VS => VGA_VS_RAW,
+		VIDEO_HS => VGA_HS_RAW,
+		VIDEO_CS => VGA_CS_RAW,
+		VIDEO_B => VIDEO_B,
+		VIDEO_G => open,
+		VIDEO_R => open,
+
+		-- AUDIO OUT - Pokey/GTIA 1-bit and Covox all mixed
+		AUDIO_L => audio_l_raw,
+		AUDIO_R => audio_r_raw,
+
+		-- JOYSTICK
+		JOY1_n => std_logic_vector(docking_joystick1_reg and ir_joya)(4 downto 0),
+		JOY2_n => std_logic_vector(docking_joystick2_reg and ir_joyb)(4 downto 0),
+		JOY3_n => std_logic_vector(docking_joystick3_reg)(4 downto 0),
+		JOY4_n => std_logic_vector(docking_joystick4_reg)(4 downto 0),
+
+		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
+		KEYBOARD_SCAN => KEYBOARD_SCAN,
+
+		SIO_COMMAND => zpu_sio_command,
+		SIO_RXD => zpu_sio_txd,
+		SIO_TXD => zpu_sio_rxd,
+
+		CONSOL_OPTION => CONSOL_OPTION or ir_option,
+		CONSOL_SELECT => CONSOL_SELECT or ir_select,
+		CONSOL_START => CONSOL_START or ir_start,
+
+		SDRAM_REQUEST => SDRAM_REQUEST,
+		SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
+		SDRAM_READ_ENABLE => SDRAM_READ_ENABLE,
+		SDRAM_WRITE_ENABLE => SDRAM_WRITE_ENABLE,
+		SDRAM_ADDR => SDRAM_ADDR,
+		SDRAM_DO => SDRAM_DO,
+		SDRAM_DI => SDRAM_DI,
+		SDRAM_32BIT_WRITE_ENABLE => SDRAM_WIDTH_32bit_ACCESS,
+		SDRAM_16BIT_WRITE_ENABLE => SDRAM_WIDTH_16bit_ACCESS,
+		SDRAM_8BIT_WRITE_ENABLE => SDRAM_WIDTH_8bit_ACCESS,
+		SDRAM_REFRESH => SDRAM_REFRESH,
+
+		DMA_FETCH => dma_fetch,
+		DMA_READ_ENABLE => dma_read_enable,
+		DMA_32BIT_WRITE_ENABLE => dma_32bit_write_enable,
+		DMA_16BIT_WRITE_ENABLE => dma_16bit_write_enable,
+		DMA_8BIT_WRITE_ENABLE => dma_8bit_write_enable,
+		DMA_ADDR => dma_addr_fetch,
+		DMA_WRITE_DATA => dma_write_data,
+		MEMORY_READY_DMA => dma_memory_ready,
+		DMA_MEMORY_DATA => dma_memory_data, 
+
+   		RAM_SELECT => ram_select,
+		PAL => PAL,
+		HALT => pause_atari,
+		THROTTLE_COUNT_6502 => speed_6502,
+		emulated_cartridge_select => emulated_cartridge_select,
+		freezer_enable => freezer_enable,
+		freezer_activate => freezer_activate
+	);
+end if;
 
 -- video glue
 --nHSync <= (VGA_HS_RAW xor VGA_VS_RAW);

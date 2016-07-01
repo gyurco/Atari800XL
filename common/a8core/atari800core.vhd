@@ -23,7 +23,8 @@ ENTITY atari800core IS
 		palette : integer :=0; -- 0:gtia colour on VIDEO_B, 1:on
 		low_memory : integer := 0; -- 0:8MB memory map, 1:1MB memory map
 		stereo : integer := 1;
-		covox : integer := 1
+		covox : integer := 1;
+		system : integer := 0 -- 0:atari800XL, 1:atari800
 	);
 	PORT
 	(
@@ -59,7 +60,7 @@ ENTITY atari800core IS
 		PORTA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- For joystick
 		PORTA_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 		PORTA_DIR_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-		PORTB_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- For bank switching on XL/XE, for joystick on 800XL
+		PORTB_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- For bank switching on XL/XE, for joystick on 800
 		PORTB_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 		PORTB_DIR_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 
@@ -427,7 +428,7 @@ PORT MAP(CLK => CLK,
 		 PORTB_OUT => PORTB_OUT_INT);
 
 mmu1 : entity work.address_decoder
-GENERIC MAP(low_memory => low_memory, stereo => stereo)
+GENERIC MAP(low_memory => low_memory, stereo => stereo, system => system)
 PORT MAP(CLK => CLK,
 		 CPU_FETCH => CPU_FETCH,
 		 CPU_WRITE_N => R_W_N,
