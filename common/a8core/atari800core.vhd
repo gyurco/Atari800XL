@@ -508,9 +508,11 @@ PORT MAP(CLK => CLK,
 
 gen_a800 : if system=1 generate
 	PORTB_OPTIONS <= (others=>'0');
+	GTIA_TRIG_MERGED <= GTIA_TRIG(3 downto 0);
 end generate;
 gen_xl : if system=0 generate
 	PORTB_OPTIONS <= PORTB_OUT_INT;
+	GTIA_TRIG_MERGED <= cart_trig3_out & GTIA_TRIG(2 downto 0); -- NOTE, inputs ignored, careful when adding 4 joystick support
 end generate;
 
 pokey1 : entity work.pokey
@@ -540,7 +542,6 @@ PORT MAP(CLK => CLK,
 		 keyboard_scan => KEYBOARD_SCAN);
 
 CONSOL_IN <= '1'&CONSOL_OPTION&CONSOL_SELECT&CONSOL_START;
-GTIA_TRIG_MERGED <= cart_trig3_out & GTIA_TRIG(2 downto 0); -- NOTE, inputs ignored, careful when adding 4 joystick support
 		 	 
 gtia1 : entity work.gtia
 PORT MAP(CLK => CLK,
