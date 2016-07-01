@@ -220,7 +220,7 @@ CA2_IN <= CA2_OUT when CA2_DIR_OUT='1' else '1';
 CB2_IN <= CB2_OUT when CB2_DIR_OUT='1' else '1';
 SIO_COMMAND <= CB2_OUT;
 PORTA_IN <= ((JOY2_n(3)&JOY2_n(2)&JOY2_n(1)&JOY2_n(0)&JOY1_n(3)&JOY1_n(2)&JOY1_n(1)&JOY1_n(0)) and not (porta_dir_out)) or (porta_dir_out and porta_out);
-PORTB_IN <= ((JOY4_n(3)&JOY4_n(2)&JOY4_n(1)&JOY4_n(0)&JOY3_n(3)&JOY3_n(2)&JOY3_n(1)&JOY1_n(0)) and not (portb_dir_out)) or (portb_dir_out and portb_out);
+PORTB_IN <= ((JOY4_n(3)&JOY4_n(2)&JOY4_n(1)&JOY4_n(0)&JOY3_n(3)&JOY3_n(2)&JOY3_n(1)&JOY3_n(0)) and not (portb_dir_out)) or (portb_dir_out and portb_out);
 
 -- ANTIC lightpen
 ANTIC_LIGHTPEN <= JOY2_n(4) and JOY1_n(4);
