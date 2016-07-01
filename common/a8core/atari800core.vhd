@@ -286,6 +286,7 @@ SIGNAL	PIA_IRQB :  STD_LOGIC;
 SIGNAL	PIA_READ_ENABLE :  STD_LOGIC;
 SIGNAL	PIA_WRITE_ENABLE :  STD_LOGIC;
 SIGNAL PORTB_OUT_INT : STD_LOGIC_VECTOR(7 downto 0);
+SIGNAL PORTB_OPTIONS : STD_LOGIC_VECTOR(7 downto 0);
 
 -- PBI
 SIGNAL PBI_ADDR_INT : std_logic_vector(15 downto 0);
@@ -459,7 +460,7 @@ PORT MAP(CLK => CLK,
 		 CACHE_POKEY2_DATA => CACHE_POKEY2_DO,
 		 POKEY_DATA => POKEY_DO,
 		 CACHE_POKEY_DATA => CACHE_POKEY_DO,
-		 PORTB => PORTB_OUT_INT,
+		 PORTB => PORTB_OPTIONS,
 		 RAM_DATA => RAM_DO,
 		 ram_select => RAM_SELECT(2 downto 0),
 		 ROM_DATA => ROM_DO,
@@ -503,6 +504,14 @@ PORT MAP(CLK => CLK,
 		 freezer_activate => freezer_activate,
 		 freezer_state_out => freezer_state_out,
 		 pbi_enable => pbi_enable);
+
+
+gen_a800 : if system=1 generate
+	PORTB_OPTIONS <= (others=>'0');
+end generate;
+gen_xl : if system=0 generate
+	PORTB_OPTIONS <= PORTB_OUT_INT;
+end generate;
 
 pokey1 : entity work.pokey
 PORT MAP(CLK => CLK,
