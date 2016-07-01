@@ -1562,7 +1562,7 @@ begin
 		end if;
 
 		if (addr_decoded(18) = '1') then
-			data_out <= "0000000"&trig_reg(3);
+			data_out <= "0000000"&trig_reg(2);
 		end if;
 		
 		if (addr_decoded(19) = '1') then
