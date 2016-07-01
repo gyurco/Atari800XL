@@ -539,7 +539,7 @@ port map
   clk => clk,
   clk_ena => '1',
   pcm_in => AUDIO_L_RAW&"0000",
-  dac_out => sigmaL
+  dac_out => sigmaR
 );
 
 dac_right : hq_dac
@@ -549,7 +549,7 @@ port map
   clk => clk,
   clk_ena => '1',
   pcm_in => AUDIO_R_RAW&"0000",
-  dac_out => sigmaR
+  dac_out => sigmaL
 );
 
 -- Some common chameleon parts - e.g. mux - taken from the hardware test
