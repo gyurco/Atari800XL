@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="6.6.0">
+<eagle version="7.2.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -11,6 +11,16 @@
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
 <layer number="3" name="Route3" color="4" fill="3" visible="no" active="no"/>
+<layer number="4" name="Route4" color="1" fill="4" visible="no" active="no"/>
+<layer number="5" name="Route5" color="4" fill="4" visible="no" active="no"/>
+<layer number="6" name="Route6" color="1" fill="8" visible="no" active="no"/>
+<layer number="7" name="Route7" color="4" fill="8" visible="no" active="no"/>
+<layer number="8" name="Route8" color="1" fill="2" visible="no" active="no"/>
+<layer number="9" name="Route9" color="4" fill="2" visible="no" active="no"/>
+<layer number="10" name="Route10" color="1" fill="7" visible="no" active="no"/>
+<layer number="11" name="Route11" color="4" fill="7" visible="no" active="no"/>
+<layer number="12" name="Route12" color="1" fill="5" visible="no" active="no"/>
+<layer number="13" name="Route13" color="4" fill="5" visible="no" active="no"/>
 <layer number="14" name="Route14" color="1" fill="6" visible="no" active="no"/>
 <layer number="15" name="Route15" color="4" fill="6" visible="no" active="no"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="no" active="no"/>
@@ -2502,7 +2512,7 @@ Source: http://www.vishay.com/docs/20008/dcrcw.pdf</description>
 <rectangle x1="-0.15" y1="-0.15" x2="0.15" y2="0.15" layer="21"/>
 </package>
 <package name="VTA52">
-<description>&lt;b&gt;Bulk Metal® Foil Technology&lt;/b&gt;, Tubular Axial Lead Resistors, Meets or Exceeds MIL-R-39005 Requirements&lt;p&gt;
+<description>&lt;b&gt;Bulk MetalÂ® Foil Technology&lt;/b&gt;, Tubular Axial Lead Resistors, Meets or Exceeds MIL-R-39005 Requirements&lt;p&gt;
 MIL SIZE RBR52&lt;br&gt;
 Source: VISHAY .. vta56.pdf</description>
 <wire x1="-15.24" y1="0" x2="-13.97" y2="0" width="0.6096" layer="51"/>
@@ -2521,7 +2531,7 @@ Source: VISHAY .. vta56.pdf</description>
 <rectangle x1="12.5675" y1="-0.3048" x2="13.97" y2="0.3048" layer="21"/>
 </package>
 <package name="VTA53">
-<description>&lt;b&gt;Bulk Metal® Foil Technology&lt;/b&gt;, Tubular Axial Lead Resistors, Meets or Exceeds MIL-R-39005 Requirements&lt;p&gt;
+<description>&lt;b&gt;Bulk MetalÂ® Foil Technology&lt;/b&gt;, Tubular Axial Lead Resistors, Meets or Exceeds MIL-R-39005 Requirements&lt;p&gt;
 MIL SIZE RBR53&lt;br&gt;
 Source: VISHAY .. vta56.pdf</description>
 <wire x1="-12.065" y1="0" x2="-10.795" y2="0" width="0.6096" layer="51"/>
@@ -2540,7 +2550,7 @@ Source: VISHAY .. vta56.pdf</description>
 <rectangle x1="9.8425" y1="-0.3048" x2="10.795" y2="0.3048" layer="21"/>
 </package>
 <package name="VTA54">
-<description>&lt;b&gt;Bulk Metal® Foil Technology&lt;/b&gt;, Tubular Axial Lead Resistors, Meets or Exceeds MIL-R-39005 Requirements&lt;p&gt;
+<description>&lt;b&gt;Bulk MetalÂ® Foil Technology&lt;/b&gt;, Tubular Axial Lead Resistors, Meets or Exceeds MIL-R-39005 Requirements&lt;p&gt;
 MIL SIZE RBR54&lt;br&gt;
 Source: VISHAY .. vta56.pdf</description>
 <wire x1="-12.065" y1="0" x2="-10.795" y2="0" width="0.6096" layer="51"/>
@@ -2559,7 +2569,7 @@ Source: VISHAY .. vta56.pdf</description>
 <rectangle x1="9.8425" y1="-0.3048" x2="10.795" y2="0.3048" layer="21"/>
 </package>
 <package name="VTA55">
-<description>&lt;b&gt;Bulk Metal® Foil Technology&lt;/b&gt;, Tubular Axial Lead Resistors, Meets or Exceeds MIL-R-39005 Requirements&lt;p&gt;
+<description>&lt;b&gt;Bulk MetalÂ® Foil Technology&lt;/b&gt;, Tubular Axial Lead Resistors, Meets or Exceeds MIL-R-39005 Requirements&lt;p&gt;
 MIL SIZE RBR55&lt;br&gt;
 Source: VISHAY .. vta56.pdf</description>
 <wire x1="-8.255" y1="0" x2="-6.985" y2="0" width="0.6096" layer="51"/>
@@ -2578,7 +2588,7 @@ Source: VISHAY .. vta56.pdf</description>
 <rectangle x1="6.35" y1="-0.3048" x2="6.985" y2="0.3048" layer="21"/>
 </package>
 <package name="VTA56">
-<description>&lt;b&gt;Bulk Metal® Foil Technology&lt;/b&gt;, Tubular Axial Lead Resistors, Meets or Exceeds MIL-R-39005 Requirements&lt;p&gt;
+<description>&lt;b&gt;Bulk MetalÂ® Foil Technology&lt;/b&gt;, Tubular Axial Lead Resistors, Meets or Exceeds MIL-R-39005 Requirements&lt;p&gt;
 MIL SIZE RBR56&lt;br&gt;
 Source: VISHAY .. vta56.pdf</description>
 <wire x1="-6.35" y1="0" x2="-5.08" y2="0" width="0.6096" layer="51"/>
@@ -2597,7 +2607,7 @@ Source: VISHAY .. vta56.pdf</description>
 <rectangle x1="4.445" y1="-0.3048" x2="5.08" y2="0.3048" layer="21"/>
 </package>
 <package name="VMTA55">
-<description>&lt;b&gt;Bulk Metal® Foil Technology&lt;/b&gt;, Tubular Axial Lead Resistors, Meets or Exceeds MIL-R-39005 Requirements&lt;p&gt;
+<description>&lt;b&gt;Bulk MetalÂ® Foil Technology&lt;/b&gt;, Tubular Axial Lead Resistors, Meets or Exceeds MIL-R-39005 Requirements&lt;p&gt;
 MIL SIZE RNC55&lt;br&gt;
 Source: VISHAY .. vta56.pdf</description>
 <wire x1="-5.08" y1="0" x2="-4.26" y2="0" width="0.6096" layer="51"/>
@@ -2614,7 +2624,7 @@ Source: VISHAY .. vta56.pdf</description>
 <rectangle x1="3.2825" y1="-0.3048" x2="4.235" y2="0.3048" layer="21"/>
 </package>
 <package name="VMTB60">
-<description>&lt;b&gt;Bulk Metal® Foil Technology&lt;/b&gt;, Tubular Axial Lead Resistors, Meets or Exceeds MIL-R-39005 Requirements&lt;p&gt;
+<description>&lt;b&gt;Bulk MetalÂ® Foil Technology&lt;/b&gt;, Tubular Axial Lead Resistors, Meets or Exceeds MIL-R-39005 Requirements&lt;p&gt;
 MIL SIZE RNC60&lt;br&gt;
 Source: VISHAY .. vta56.pdf</description>
 <wire x1="-6.35" y1="0" x2="-5.585" y2="0" width="0.6096" layer="51"/>
@@ -4736,7 +4746,7 @@ Source: TJ-Serie Vishay.pdf</description>
 </package>
 <package name="POWER-CHOKE_WE-TPC">
 <description>&lt;b&gt;POWER-CHOKE WE-TPC&lt;/b&gt;&lt;p&gt;
-Würth Elektronik, Partnumber: 744053220&lt;br&gt;
+WÃ¼rth Elektronik, Partnumber: 744053220&lt;br&gt;
 Source: WE-TPC 744053220.pdf</description>
 <wire x1="-2.8" y1="2.3" x2="-2.3" y2="2.8" width="0.2" layer="51" curve="-90"/>
 <wire x1="-2.3" y1="2.8" x2="2.3" y2="2.8" width="0.2" layer="51"/>
@@ -12307,7 +12317,7 @@ at 30/07/2012 17:16:13</description>
 &lt;B&gt;&lt;I&gt;&lt;span style='font-size:26pt;
   color:#FF6600;'&gt;WE &lt;/span&gt;&lt;/i&gt;&lt;/b&gt;
 &lt;BR&gt;
-      ---------------------------&lt;BR&gt;&lt;b&gt;Würth Elektronik&lt;/b&gt;&lt;/FONT&gt;
+      ---------------------------&lt;BR&gt;&lt;b&gt;WÃ¼rth Elektronik&lt;/b&gt;&lt;/FONT&gt;
     &lt;/TD&gt;
     &lt;TD BGCOLOR="#cccccc" ALIGN=CENTER&gt;&lt;FONT FACE=ARIAL SIZE=3&gt;&lt;br&gt;
       ---------O---&lt;BR&gt;
@@ -12335,7 +12345,7 @@ at 30/07/2012 17:16:13</description>
 &lt;B&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;More than you expect&lt;BR&gt;&lt;BR&gt;&lt;BR&gt;&lt;/B&gt;
 
 &lt;HR&gt;&lt;BR&gt;
-&lt;b&gt;Würth Elektronik eiSos GmbH &amp; Co. KG&lt;/b&gt;&lt;br&gt;
+&lt;b&gt;WÃ¼rth Elektronik eiSos GmbH &amp; Co. KG&lt;/b&gt;&lt;br&gt;
 EMC &amp; Inductive Solutions&lt;br&gt;
 
 Max-Eyth-Str.1&lt;br&gt;
@@ -12353,7 +12363,7 @@ Please contact us for more information.&lt;br&gt;&lt;BR&gt;&lt;br&gt;
 &lt;hr&gt;
 Eagle Version 6, Library Revision 2015b, 08.04.2015&lt;br&gt;
 &lt;HR&gt;
-Copyright: Würth Elektronik</description>
+Copyright: WÃ¼rth Elektronik</description>
 <packages>
 <package name="450302014072">
 <description>WS-SUT, 10mm*2.5mm, SPDT, ON-ON, 2.54mm, right angle type, THT, Mini Slide Switch, 3 pins</description>
@@ -12854,210 +12864,6 @@ Audio, scart, microphone, headphone&lt;p&gt;
 <connect gate="G$1" pin="A1" pad="2"/>
 <connect gate="G$1" pin="B0" pad="3"/>
 <connect gate="G$1" pin="B1" pad="4"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
-<library name="stereoaudiojack">
-<packages>
-<package name="AUDIO-JACK">
-<wire x1="7.5" y1="6" x2="7.5" y2="-6" width="0.2032" layer="21"/>
-<wire x1="-3.5" y1="6" x2="-3.5" y2="4.5" width="0.2032" layer="51"/>
-<wire x1="-3.5" y1="-4.5" x2="-3.5" y2="-6" width="0.2032" layer="51"/>
-<wire x1="-4.5" y1="4.5" x2="-4.5" y2="3" width="0.2032" layer="51"/>
-<wire x1="-4.5" y1="-3" x2="-4.5" y2="-4.5" width="0.2032" layer="51"/>
-<wire x1="-4.5" y1="-4.5" x2="-3.5" y2="-4.5" width="0.2032" layer="51"/>
-<wire x1="-4.5" y1="4.5" x2="-3.5" y2="4.5" width="0.2032" layer="51"/>
-<wire x1="-6.5" y1="3" x2="-6.5" y2="-3" width="0.2032" layer="51"/>
-<wire x1="-6.5" y1="-3" x2="-4.5" y2="-3" width="0.2032" layer="51"/>
-<wire x1="-6.5" y1="3" x2="-4.5" y2="3" width="0.2032" layer="51"/>
-<wire x1="-3.5" y1="6" x2="3.5" y2="6" width="0.2032" layer="21"/>
-<wire x1="7.5" y1="6" x2="6.5" y2="6" width="0.2032" layer="21"/>
-<wire x1="-3.5" y1="6" x2="-3.5" y2="-6" width="0.2032" layer="21"/>
-<wire x1="-3.5" y1="-6" x2="3.5" y2="-6" width="0.2032" layer="21"/>
-<wire x1="7.5" y1="-6" x2="6.5" y2="-6" width="0.2032" layer="21"/>
-<pad name="SLEEVE" x="0" y="0" drill="1.3" diameter="2.1844"/>
-<pad name="RSH" x="5" y="2.5" drill="1.3" diameter="2.1844"/>
-<pad name="RING" x="5" y="5" drill="1.3" diameter="2.1844"/>
-<pad name="TSH" x="5" y="-2.5" drill="1.3" diameter="2.1844"/>
-<pad name="TIP" x="5" y="-5" drill="1.3" diameter="2.1844"/>
-<text x="-1.27" y="2.54" size="0.4064" layer="25">&gt;NAME</text>
-<text x="-1.27" y="1.27" size="0.4064" layer="27">&gt;VALUE</text>
-<hole x="0" y="5" drill="1.2"/>
-<hole x="-2.5" y="5" drill="1.2"/>
-<hole x="-2.5" y="-5" drill="1.2"/>
-<hole x="0" y="-5" drill="1.2"/>
-<hole x="5" y="0" drill="1.2"/>
-</package>
-<package name="AUDIO-JACK-3.5MM-SMD">
-<wire x1="3.9" y1="-3" x2="10.2" y2="-3" width="0.254" layer="21"/>
-<wire x1="14.5" y1="-0.635" x2="14.5" y2="-3" width="0.254" layer="21"/>
-<wire x1="14.5" y1="-3" x2="13.2" y2="-3" width="0.254" layer="21"/>
-<wire x1="14.5" y1="2.2098" x2="14.5" y2="3" width="0.254" layer="21"/>
-<wire x1="14.5" y1="3" x2="5.7" y2="3" width="0.254" layer="21"/>
-<wire x1="0.5" y1="3" x2="0" y2="3" width="0.254" layer="51"/>
-<wire x1="0" y1="3" x2="0" y2="-2.5" width="0.254" layer="51"/>
-<wire x1="0" y1="-2.5" x2="0" y2="-3" width="0.254" layer="51"/>
-<wire x1="0" y1="-3" x2="1" y2="-3" width="0.254" layer="51"/>
-<wire x1="-0.1524" y1="2.5" x2="-2.5" y2="2.5" width="0.254" layer="51"/>
-<wire x1="-2.5" y1="2.5" x2="-2.5" y2="-2.5" width="0.254" layer="51"/>
-<wire x1="-2.5" y1="-2.5" x2="0" y2="-2.5" width="0.254" layer="51"/>
-<smd name="SLEEVE" x="2.4" y="-3.45" dx="2" dy="2.5" layer="1"/>
-<smd name="TIP" x="11.7" y="-3.45" dx="2" dy="2.5" layer="1"/>
-<smd name="RING" x="4.3" y="3.45" dx="2" dy="2.5" layer="1"/>
-<smd name="TSH" x="15.75" y="0.75" dx="2" dy="2.5" layer="1" rot="R90"/>
-<smd name="RSH" x="1.5" y="3.45" dx="1.2" dy="2.5" layer="1" rot="R180"/>
-<hole x="3.5" y="0" drill="2"/>
-<hole x="10.5" y="0" drill="2"/>
-</package>
-<package name="AUDIO-JACK-KIT">
-<description>Kit footprint for 1/8" audio jack.
-
-Reduced openings in tStop, pins spread a tiny bit out to hold part on PCB during assembly</description>
-<wire x1="7.5" y1="6" x2="7.5" y2="-6" width="0.2032" layer="21"/>
-<wire x1="-3.5" y1="6" x2="-3.5" y2="4.5" width="0.2032" layer="51"/>
-<wire x1="-3.5" y1="-4.5" x2="-3.5" y2="-6" width="0.2032" layer="51"/>
-<wire x1="-4.5" y1="4.5" x2="-4.5" y2="3" width="0.2032" layer="51"/>
-<wire x1="-4.5" y1="-3" x2="-4.5" y2="-4.5" width="0.2032" layer="51"/>
-<wire x1="-4.5" y1="-4.5" x2="-3.5" y2="-4.5" width="0.2032" layer="51"/>
-<wire x1="-4.5" y1="4.5" x2="-3.5" y2="4.5" width="0.2032" layer="51"/>
-<wire x1="-6.5" y1="3" x2="-6.5" y2="-3" width="0.2032" layer="51"/>
-<wire x1="-6.5" y1="-3" x2="-4.5" y2="-3" width="0.2032" layer="51"/>
-<wire x1="-6.5" y1="3" x2="-4.5" y2="3" width="0.2032" layer="51"/>
-<wire x1="-3.5" y1="6" x2="3.5" y2="6" width="0.2032" layer="21"/>
-<wire x1="7.5" y1="6" x2="6.5" y2="6" width="0.2032" layer="21"/>
-<wire x1="-3.5" y1="6" x2="-3.5" y2="-6" width="0.2032" layer="21"/>
-<wire x1="-3.5" y1="-6" x2="3.5" y2="-6" width="0.2032" layer="21"/>
-<wire x1="7.5" y1="-6" x2="6.5" y2="-6" width="0.2032" layer="21"/>
-<pad name="SLEEVE" x="0" y="0" drill="1.3" diameter="2.1844" stop="no"/>
-<pad name="RSH" x="5" y="2.5" drill="1.3" diameter="2.1844" stop="no"/>
-<pad name="RING" x="5" y="5.1" drill="1.3" diameter="2.1844" stop="no"/>
-<pad name="TSH" x="5" y="-2.5" drill="1.3" diameter="2.1844" stop="no"/>
-<pad name="TIP" x="5" y="-5.1" drill="1.3" diameter="2.1844" stop="no"/>
-<text x="-1.27" y="2.54" size="0.4064" layer="25">&gt;NAME</text>
-<text x="-1.27" y="1.27" size="0.4064" layer="27">&gt;VALUE</text>
-<hole x="0" y="5" drill="1.2"/>
-<hole x="-2.5" y="5" drill="1.2"/>
-<hole x="-2.5" y="-5" drill="1.2"/>
-<hole x="0" y="-5" drill="1.2"/>
-<hole x="5" y="0" drill="1.2"/>
-<circle x="0" y="0" radius="0.6604" width="0" layer="29"/>
-<circle x="5" y="5.1" radius="0.6604" width="0" layer="29"/>
-<circle x="5" y="2.5" radius="0.6604" width="0" layer="29"/>
-<circle x="5" y="-2.5" radius="0.6604" width="0" layer="29"/>
-<circle x="5" y="-5.1" radius="0.6604" width="0" layer="29"/>
-<circle x="0" y="0" radius="1.2192" width="0" layer="30"/>
-<circle x="5" y="5.1" radius="1.2192" width="0" layer="30"/>
-<circle x="5" y="-5.1" radius="1.2192" width="0" layer="30"/>
-<circle x="5" y="-2.5" radius="1.2192" width="0" layer="30"/>
-<circle x="5" y="2.5" radius="1.2192" width="0" layer="30"/>
-</package>
-<package name="AUDIO-JACK-CUI-353X">
-<wire x1="-5.9" y1="-8.2" x2="2.3" y2="-8.2" width="0.127" layer="21"/>
-<wire x1="2.3" y1="-8.2" x2="2.3" y2="5.8" width="0.127" layer="21"/>
-<wire x1="2.3" y1="5.8" x2="1.8" y2="5.8" width="0.127" layer="21"/>
-<wire x1="1.8" y1="5.8" x2="-3.9" y2="5.8" width="0.127" layer="21"/>
-<wire x1="-3.9" y1="5.8" x2="-5.9" y2="5.8" width="0.127" layer="21"/>
-<wire x1="-5.9" y1="5.8" x2="-5.9" y2="-8.2" width="0.127" layer="21"/>
-<wire x1="-3.9" y1="5.8" x2="-3.9" y2="9.5" width="0.127" layer="21"/>
-<wire x1="-3.9" y1="9.5" x2="1.8" y2="9.5" width="0.127" layer="21"/>
-<wire x1="1.8" y1="9.5" x2="1.8" y2="5.8" width="0.127" layer="21"/>
-<pad name="P$1" x="-1.9" y="4.6" drill="1.6" diameter="2.3" shape="octagon"/>
-<pad name="P$2" x="0.1" y="2.2" drill="1.6" diameter="2.3" shape="octagon"/>
-<pad name="P$5" x="-1.9" y="-1.5" drill="1.6" diameter="2.4" shape="octagon"/>
-<pad name="P$3" x="0.1" y="-3.3" drill="1.6" diameter="2.3" shape="octagon"/>
-<pad name="P$4" x="-1.9" y="-7" drill="1.6" diameter="2.3" shape="octagon"/>
-<dimension x1="-1.9" y1="4.6" x2="2.8" y2="5.8" x3="2.1" y3="5.2" textsize="0.3048" layer="21" dtype="vertical"/>
-<dimension x1="-1.9" y1="4.6" x2="-1.9" y2="-1.5" x3="-2" y3="1.55" textsize="0.3048" layer="21" dtype="vertical"/>
-<dimension x1="-1.9" y1="4.6" x2="0.1" y2="2.2" x3="0.1" y3="3.4" textsize="0.3048" layer="21" dtype="vertical"/>
-<dimension x1="-1.9" y1="4.6" x2="1.3" y2="-3.3" x3="1.2" y3="0.65" textsize="0.3048" layer="21" dtype="vertical"/>
-<dimension x1="-1.9" y1="-7" x2="-1.9" y2="4.6" x3="-3.6" y3="-1.2" textsize="0.3048" layer="21" dtype="vertical"/>
-<dimension x1="-1.9" y1="4.6" x2="0.1" y2="2.2" x3="-0.9" y3="-5.1" textsize="0.3048" layer="21" dtype="horizontal"/>
-</package>
-</packages>
-<symbols>
-<symbol name="AUDIO-JACK2">
-<wire x1="-1.27" y1="-5.08" x2="0" y2="-3.81" width="0.1524" layer="94"/>
-<wire x1="0" y1="-3.81" x2="1.27" y2="-5.08" width="0.1524" layer="94"/>
-<wire x1="1.27" y1="-5.08" x2="2.54" y2="-5.08" width="0.1524" layer="94"/>
-<wire x1="2.54" y1="2.54" x2="-1.27" y2="2.54" width="0.1524" layer="94"/>
-<wire x1="-1.27" y1="2.54" x2="-2.54" y2="1.27" width="0.1524" layer="94"/>
-<wire x1="-2.54" y1="1.27" x2="-3.81" y2="2.54" width="0.1524" layer="94"/>
-<wire x1="2.54" y1="5.08" x2="-5.08" y2="5.08" width="0.1524" layer="94"/>
-<wire x1="-2.54" y1="0" x2="2.54" y2="0" width="0.1524" layer="94"/>
-<wire x1="0" y1="-2.54" x2="2.54" y2="-2.54" width="0.1524" layer="94"/>
-<text x="-5.08" y="5.588" size="1.778" layer="95">&gt;NAME</text>
-<text x="-5.08" y="-7.62" size="1.778" layer="96">&gt;VALUE</text>
-<rectangle x1="-6.35" y1="-5.08" x2="-5.08" y2="5.08" layer="94"/>
-<pin name="RING" x="5.08" y="2.54" visible="off" length="short" rot="R180"/>
-<pin name="TIP" x="5.08" y="-5.08" visible="off" length="short" rot="R180"/>
-<pin name="SLEEVE" x="5.08" y="5.08" visible="off" length="short" rot="R180"/>
-<pin name="RSH" x="5.08" y="0" visible="off" length="short" rot="R180"/>
-<pin name="TSH" x="5.08" y="-2.54" visible="off" length="short" rot="R180"/>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="AUDIO-JACK2" prefix="J">
-<description>Stereo audio jack with bypass switches.&lt;br&gt;
-SMT version used on LilyPad MP3 board.&lt;br&gt;</description>
-<gates>
-<gate name="G$1" symbol="AUDIO-JACK2" x="0" y="0"/>
-</gates>
-<devices>
-<device name="PTH" package="AUDIO-JACK">
-<connects>
-<connect gate="G$1" pin="RING" pad="RING"/>
-<connect gate="G$1" pin="RSH" pad="RSH"/>
-<connect gate="G$1" pin="SLEEVE" pad="SLEEVE"/>
-<connect gate="G$1" pin="TIP" pad="TIP"/>
-<connect gate="G$1" pin="TSH" pad="TSH"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="PROD_ID" value="CONN-08774" constant="no"/>
-</technology>
-</technologies>
-</device>
-<device name="SMD" package="AUDIO-JACK-3.5MM-SMD">
-<connects>
-<connect gate="G$1" pin="RING" pad="RING"/>
-<connect gate="G$1" pin="RSH" pad="RSH"/>
-<connect gate="G$1" pin="SLEEVE" pad="SLEEVE"/>
-<connect gate="G$1" pin="TIP" pad="TIP"/>
-<connect gate="G$1" pin="TSH" pad="TSH"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="PROD_ID" value="CONN-10353"/>
-</technology>
-</technologies>
-</device>
-<device name="KIT" package="AUDIO-JACK-KIT">
-<connects>
-<connect gate="G$1" pin="RING" pad="RING"/>
-<connect gate="G$1" pin="RSH" pad="RSH"/>
-<connect gate="G$1" pin="SLEEVE" pad="SLEEVE"/>
-<connect gate="G$1" pin="TIP" pad="TIP"/>
-<connect gate="G$1" pin="TSH" pad="TSH"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="PROD_ID" value="CONN-08774" constant="no"/>
-</technology>
-</technologies>
-</device>
-<device name="CUI" package="AUDIO-JACK-CUI-353X">
-<connects>
-<connect gate="G$1" pin="RING" pad="P$3"/>
-<connect gate="G$1" pin="RSH" pad="P$5"/>
-<connect gate="G$1" pin="SLEEVE" pad="P$1"/>
-<connect gate="G$1" pin="TIP" pad="P$2"/>
-<connect gate="G$1" pin="TSH" pad="P$4"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -13896,6 +13702,204 @@ SMT version used on LilyPad MP3 board.&lt;br&gt;</description>
 </deviceset>
 </devicesets>
 </library>
+<library name="LIBstereoaudiojack">
+<packages>
+<package name="AUDIO-JACK-CUI-353X">
+<wire x1="-5.9" y1="-8.2" x2="2.3" y2="-8.2" width="0.127" layer="21"/>
+<wire x1="2.3" y1="-8.2" x2="2.3" y2="5.8" width="0.127" layer="21"/>
+<wire x1="2.3" y1="5.8" x2="1.8" y2="5.8" width="0.127" layer="21"/>
+<wire x1="1.8" y1="5.8" x2="-3.9" y2="5.8" width="0.127" layer="21"/>
+<wire x1="-3.9" y1="5.8" x2="-5.9" y2="5.8" width="0.127" layer="21"/>
+<wire x1="-5.9" y1="5.8" x2="-5.9" y2="-8.2" width="0.127" layer="21"/>
+<wire x1="-3.9" y1="5.8" x2="-3.9" y2="9.5" width="0.127" layer="21"/>
+<wire x1="-3.9" y1="9.5" x2="1.8" y2="9.5" width="0.127" layer="21"/>
+<wire x1="1.8" y1="9.5" x2="1.8" y2="5.8" width="0.127" layer="21"/>
+<pad name="P$1" x="-1.9" y="4.6" drill="1.6" diameter="2.3" shape="octagon"/>
+<pad name="P$2" x="0.1" y="2.2" drill="1.6" diameter="2.3" shape="octagon"/>
+<pad name="P$3" x="0.1" y="-3.3" drill="1.6" diameter="2.3" shape="octagon"/>
+<pad name="P$4" x="-1.9" y="-7" drill="1.6" diameter="2.3" shape="octagon"/>
+<pad name="P$5" x="-1.9" y="-1.5" drill="1.6" diameter="2.4" shape="octagon"/>
+</package>
+<package name="AUDIO-JACK-KIT">
+<description>Kit footprint for 1/8" audio jack.
+
+Reduced openings in tStop, pins spread a tiny bit out to hold part on PCB during assembly</description>
+<circle x="0" y="0" radius="0.6604" width="0" layer="29"/>
+<circle x="5" y="5.1" radius="0.6604" width="0" layer="29"/>
+<circle x="5" y="2.5" radius="0.6604" width="0" layer="29"/>
+<circle x="5" y="-2.5" radius="0.6604" width="0" layer="29"/>
+<circle x="5" y="-5.1" radius="0.6604" width="0" layer="29"/>
+<circle x="0" y="0" radius="1.2192" width="0" layer="30"/>
+<circle x="5" y="5.1" radius="1.2192" width="0" layer="30"/>
+<circle x="5" y="-5.1" radius="1.2192" width="0" layer="30"/>
+<circle x="5" y="-2.5" radius="1.2192" width="0" layer="30"/>
+<circle x="5" y="2.5" radius="1.2192" width="0" layer="30"/>
+<wire x1="7.5" y1="6" x2="7.5" y2="-6" width="0.2032" layer="21"/>
+<wire x1="-3.5" y1="6" x2="-3.5" y2="4.5" width="0.2032" layer="51"/>
+<wire x1="-3.5" y1="-4.5" x2="-3.5" y2="-6" width="0.2032" layer="51"/>
+<wire x1="-4.5" y1="4.5" x2="-4.5" y2="3" width="0.2032" layer="51"/>
+<wire x1="-4.5" y1="-3" x2="-4.5" y2="-4.5" width="0.2032" layer="51"/>
+<wire x1="-4.5" y1="-4.5" x2="-3.5" y2="-4.5" width="0.2032" layer="51"/>
+<wire x1="-4.5" y1="4.5" x2="-3.5" y2="4.5" width="0.2032" layer="51"/>
+<wire x1="-6.5" y1="3" x2="-6.5" y2="-3" width="0.2032" layer="51"/>
+<wire x1="-6.5" y1="-3" x2="-4.5" y2="-3" width="0.2032" layer="51"/>
+<wire x1="-6.5" y1="3" x2="-4.5" y2="3" width="0.2032" layer="51"/>
+<wire x1="-3.5" y1="6" x2="3.5" y2="6" width="0.2032" layer="21"/>
+<wire x1="7.5" y1="6" x2="6.5" y2="6" width="0.2032" layer="21"/>
+<wire x1="-3.5" y1="6" x2="-3.5" y2="-6" width="0.2032" layer="21"/>
+<wire x1="-3.5" y1="-6" x2="3.5" y2="-6" width="0.2032" layer="21"/>
+<wire x1="7.5" y1="-6" x2="6.5" y2="-6" width="0.2032" layer="21"/>
+<pad name="RING" x="5" y="5.1" drill="1.3" diameter="2.1844" stop="no"/>
+<pad name="RSH" x="5" y="2.5" drill="1.3" diameter="2.1844" stop="no"/>
+<pad name="SLEEVE" x="0" y="0" drill="1.3" diameter="2.1844" stop="no"/>
+<pad name="TIP" x="5" y="-5.1" drill="1.3" diameter="2.1844" stop="no"/>
+<pad name="TSH" x="5" y="-2.5" drill="1.3" diameter="2.1844" stop="no"/>
+<text x="-1.27" y="2.54" size="0.4064" layer="25">&gt;NAME</text>
+<text x="-1.27" y="1.27" size="0.4064" layer="27">&gt;VALUE</text>
+<hole x="0" y="5" drill="1.2"/>
+<hole x="-2.5" y="5" drill="1.2"/>
+<hole x="-2.5" y="-5" drill="1.2"/>
+<hole x="0" y="-5" drill="1.2"/>
+<hole x="5" y="0" drill="1.2"/>
+</package>
+<package name="AUDIO-JACK">
+<wire x1="7.5" y1="6" x2="7.5" y2="-6" width="0.2032" layer="21"/>
+<wire x1="-3.5" y1="6" x2="-3.5" y2="4.5" width="0.2032" layer="51"/>
+<wire x1="-3.5" y1="-4.5" x2="-3.5" y2="-6" width="0.2032" layer="51"/>
+<wire x1="-4.5" y1="4.5" x2="-4.5" y2="3" width="0.2032" layer="51"/>
+<wire x1="-4.5" y1="-3" x2="-4.5" y2="-4.5" width="0.2032" layer="51"/>
+<wire x1="-4.5" y1="-4.5" x2="-3.5" y2="-4.5" width="0.2032" layer="51"/>
+<wire x1="-4.5" y1="4.5" x2="-3.5" y2="4.5" width="0.2032" layer="51"/>
+<wire x1="-6.5" y1="3" x2="-6.5" y2="-3" width="0.2032" layer="51"/>
+<wire x1="-6.5" y1="-3" x2="-4.5" y2="-3" width="0.2032" layer="51"/>
+<wire x1="-6.5" y1="3" x2="-4.5" y2="3" width="0.2032" layer="51"/>
+<wire x1="-3.5" y1="6" x2="3.5" y2="6" width="0.2032" layer="21"/>
+<wire x1="7.5" y1="6" x2="6.5" y2="6" width="0.2032" layer="21"/>
+<wire x1="-3.5" y1="6" x2="-3.5" y2="-6" width="0.2032" layer="21"/>
+<wire x1="-3.5" y1="-6" x2="3.5" y2="-6" width="0.2032" layer="21"/>
+<wire x1="7.5" y1="-6" x2="6.5" y2="-6" width="0.2032" layer="21"/>
+<pad name="RING" x="5" y="5" drill="1.3" diameter="2.1844"/>
+<pad name="RSH" x="5" y="2.5" drill="1.3" diameter="2.1844"/>
+<pad name="SLEEVE" x="0" y="0" drill="1.3" diameter="2.1844"/>
+<pad name="TIP" x="5" y="-5" drill="1.3" diameter="2.1844"/>
+<pad name="TSH" x="5" y="-2.5" drill="1.3" diameter="2.1844"/>
+<text x="-1.27" y="2.54" size="0.4064" layer="25">&gt;NAME</text>
+<text x="-1.27" y="1.27" size="0.4064" layer="27">&gt;VALUE</text>
+<hole x="0" y="5" drill="1.2"/>
+<hole x="-2.5" y="5" drill="1.2"/>
+<hole x="-2.5" y="-5" drill="1.2"/>
+<hole x="0" y="-5" drill="1.2"/>
+<hole x="5" y="0" drill="1.2"/>
+</package>
+<package name="AUDIO-JACK-3.5MM-SMD">
+<wire x1="3.9" y1="-3" x2="10.2" y2="-3" width="0.254" layer="21"/>
+<wire x1="14.5" y1="-0.635" x2="14.5" y2="-3" width="0.254" layer="21"/>
+<wire x1="14.5" y1="-3" x2="13.2" y2="-3" width="0.254" layer="21"/>
+<wire x1="14.5" y1="2.2098" x2="14.5" y2="3" width="0.254" layer="21"/>
+<wire x1="14.5" y1="3" x2="5.7" y2="3" width="0.254" layer="21"/>
+<wire x1="0.5" y1="3" x2="0" y2="3" width="0.254" layer="51"/>
+<wire x1="0" y1="3" x2="0" y2="-2.5" width="0.254" layer="51"/>
+<wire x1="0" y1="-2.5" x2="0" y2="-3" width="0.254" layer="51"/>
+<wire x1="0" y1="-3" x2="1" y2="-3" width="0.254" layer="51"/>
+<wire x1="-0.1524" y1="2.5" x2="-2.5" y2="2.5" width="0.254" layer="51"/>
+<wire x1="-2.5" y1="2.5" x2="-2.5" y2="-2.5" width="0.254" layer="51"/>
+<wire x1="-2.5" y1="-2.5" x2="0" y2="-2.5" width="0.254" layer="51"/>
+<smd name="RING" x="4.3" y="3.45" dx="2" dy="2.5" layer="1"/>
+<smd name="RSH" x="1.5" y="3.45" dx="1.2" dy="2.5" layer="1" rot="R180"/>
+<smd name="SLEEVE" x="2.4" y="-3.45" dx="2" dy="2.5" layer="1"/>
+<smd name="TIP" x="11.7" y="-3.45" dx="2" dy="2.5" layer="1"/>
+<smd name="TSH" x="15.75" y="0.75" dx="2" dy="2.5" layer="1" rot="R90"/>
+<hole x="3.5" y="0" drill="2"/>
+<hole x="10.5" y="0" drill="2"/>
+</package>
+</packages>
+<symbols>
+<symbol name="AUDIO-JACK2">
+<rectangle x1="-6.35" y1="-5.08" x2="-5.08" y2="5.08" layer="94"/>
+<wire x1="-1.27" y1="-5.08" x2="0" y2="-3.81" width="0.1524" layer="94"/>
+<wire x1="0" y1="-3.81" x2="1.27" y2="-5.08" width="0.1524" layer="94"/>
+<wire x1="1.27" y1="-5.08" x2="2.54" y2="-5.08" width="0.1524" layer="94"/>
+<wire x1="2.54" y1="2.54" x2="-1.27" y2="2.54" width="0.1524" layer="94"/>
+<wire x1="-1.27" y1="2.54" x2="-2.54" y2="1.27" width="0.1524" layer="94"/>
+<wire x1="-2.54" y1="1.27" x2="-3.81" y2="2.54" width="0.1524" layer="94"/>
+<wire x1="2.54" y1="5.08" x2="-5.08" y2="5.08" width="0.1524" layer="94"/>
+<wire x1="-2.54" y1="0" x2="2.54" y2="0" width="0.1524" layer="94"/>
+<wire x1="0" y1="-2.54" x2="2.54" y2="-2.54" width="0.1524" layer="94"/>
+<pin name="RING" x="5.08" y="2.54" visible="off" length="short" rot="R180"/>
+<pin name="RSH" x="5.08" y="0" visible="off" length="short" rot="R180"/>
+<pin name="SLEEVE" x="5.08" y="5.08" visible="off" length="short" rot="R180"/>
+<pin name="TIP" x="5.08" y="-5.08" visible="off" length="short" rot="R180"/>
+<pin name="TSH" x="5.08" y="-2.54" visible="off" length="short" rot="R180"/>
+<text x="-5.08" y="5.588" size="1.778" layer="95">&gt;NAME</text>
+<text x="-5.08" y="-7.62" size="1.778" layer="96">&gt;VALUE</text>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="AUDIO-JACK2" prefix="J">
+<description>Stereo audio jack with bypass switches.&lt;br&gt;
+SMT version used on LilyPad MP3 board.&lt;br&gt;</description>
+<gates>
+<gate name="G$1" symbol="AUDIO-JACK2" x="0" y="0"/>
+</gates>
+<devices>
+<device name="CUI" package="AUDIO-JACK-CUI-353X">
+<connects>
+<connect gate="G$1" pin="RING" pad="P$3"/>
+<connect gate="G$1" pin="RSH" pad="P$5"/>
+<connect gate="G$1" pin="SLEEVE" pad="P$1"/>
+<connect gate="G$1" pin="TIP" pad="P$2"/>
+<connect gate="G$1" pin="TSH" pad="P$4"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="KIT" package="AUDIO-JACK-KIT">
+<connects>
+<connect gate="G$1" pin="RING" pad="RING"/>
+<connect gate="G$1" pin="RSH" pad="RSH"/>
+<connect gate="G$1" pin="SLEEVE" pad="SLEEVE"/>
+<connect gate="G$1" pin="TIP" pad="TIP"/>
+<connect gate="G$1" pin="TSH" pad="TSH"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="PROD_ID" value="CONN-08774" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="PTH" package="AUDIO-JACK">
+<connects>
+<connect gate="G$1" pin="RING" pad="RING"/>
+<connect gate="G$1" pin="RSH" pad="RSH"/>
+<connect gate="G$1" pin="SLEEVE" pad="SLEEVE"/>
+<connect gate="G$1" pin="TIP" pad="TIP"/>
+<connect gate="G$1" pin="TSH" pad="TSH"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="PROD_ID" value="CONN-08774" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="SMD" package="AUDIO-JACK-3.5MM-SMD">
+<connects>
+<connect gate="G$1" pin="RING" pad="RING"/>
+<connect gate="G$1" pin="RSH" pad="RSH"/>
+<connect gate="G$1" pin="SLEEVE" pad="SLEEVE"/>
+<connect gate="G$1" pin="TIP" pad="TIP"/>
+<connect gate="G$1" pin="TSH" pad="TSH"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="PROD_ID" value="CONN-10353"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
 </libraries>
 <attributes>
 </attributes>
@@ -13928,7 +13932,7 @@ SMT version used on LilyPad MP3 board.&lt;br&gt;</description>
 <part name="C11" library="rcl" deviceset="C-EU" device="C0805" value="0.022uF"/>
 <part name="C12" library="rcl" deviceset="C-EU" device="C0805" value="0.01uF"/>
 <part name="VGA" library="SparkFun-Connectors" deviceset="DB15" device=""/>
-<part name="DAC" library="Analog Devices_By_element14_Batch_1" deviceset="ADV7125BCPZ170" device="TQFP-48" value="CDK3405"/>
+<part name="VIDEODACSA" library="Analog Devices_By_element14_Batch_1" deviceset="ADV7125BCPZ170" device="TQFP-48" value="CDK3405"/>
 <part name="GND1" library="supply1" deviceset="GND" device=""/>
 <part name="GND2" library="supply1" deviceset="GND" device=""/>
 <part name="GND3" library="supply1" deviceset="GND" device=""/>
@@ -13947,8 +13951,8 @@ SMT version used on LilyPad MP3 board.&lt;br&gt;</description>
 <part name="C16" library="rcl" deviceset="C-EU" device="C0805" value="0.1uF"/>
 <part name="C17" library="rcl" deviceset="C-EU" device="C0805" value="0.1uF"/>
 <part name="C18" library="rcl" deviceset="C-EU" device="C0805" value="0.01uF"/>
-<part name="USBA" library="con-usb-3" deviceset="USB" device="-A-H"/>
-<part name="USBB" library="con-usb-3" deviceset="USB" device="-A-H"/>
+<part name="USB.A" library="con-usb-3" deviceset="USB" device="-A-H"/>
+<part name="USB.B" library="con-usb-3" deviceset="USB" device="-A-H"/>
 <part name="GND9" library="supply1" deviceset="GND" device=""/>
 <part name="R15" library="rcl" deviceset="R-EU_" device="R0805" value="22"/>
 <part name="R16" library="rcl" deviceset="R-EU_" device="R0805" value="22"/>
@@ -13964,7 +13968,7 @@ SMT version used on LilyPad MP3 board.&lt;br&gt;</description>
 <part name="R24" library="rcl" deviceset="R-EU_" device="M0805" value="47K"/>
 <part name="R25" library="rcl" deviceset="R-EU_" device="M0805" value="47K"/>
 <part name="GND11" library="supply1" deviceset="GND" device=""/>
-<part name="PS2" library="con-yamaichi" deviceset="MD06SS" device=""/>
+<part name="PS/2" library="con-yamaichi" deviceset="MD06SS" device=""/>
 <part name="ZD1" library="adafruit" deviceset="DIODE" device="SOT23_REFLOW"/>
 <part name="ZD2" library="adafruit" deviceset="DIODE" device="SOT23_REFLOW"/>
 <part name="R26" library="rcl" deviceset="R-EU_" device="R0805" value="1k"/>
@@ -13974,9 +13978,9 @@ SMT version used on LilyPad MP3 board.&lt;br&gt;</description>
 <part name="C20" library="rcl" deviceset="C-EU" device="C0805" value="10nF"/>
 <part name="R28" library="rcl" deviceset="R-EU_" device="M0805" value="560"/>
 <part name="R29" library="rcl" deviceset="R-EU_" device="M0805" value="560"/>
-<part name="GPIOA" library="de1_parts" deviceset="DE1_GPIO" device=""/>
-<part name="GPIOB" library="de1_parts" deviceset="DE1_GPIO" device=""/>
-<part name="GPIOC" library="de1_parts" deviceset="DE1_GPIO" device=""/>
+<part name="GPIO_A" library="de1_parts" deviceset="DE1_GPIO" device=""/>
+<part name="GPIO_B" library="de1_parts" deviceset="DE1_GPIO" device=""/>
+<part name="GPIO_C" library="de1_parts" deviceset="DE1_GPIO" device=""/>
 <part name="GND13" library="supply1" deviceset="GND" device=""/>
 <part name="RN15" library="resistor-array" deviceset="742-8" device="742_3" value="47"/>
 <part name="SDRAM" library="sdram" deviceset="K4S561632E-TC" device=""/>
@@ -13995,7 +13999,7 @@ SMT version used on LilyPad MP3 board.&lt;br&gt;</description>
 <part name="C25" library="rcl" deviceset="C-EU" device="C0805" value="22uF"/>
 <part name="C26" library="rcl" deviceset="C-EU" device="C0805" value="22uF"/>
 <part name="C27" library="rcl" deviceset="C-EU" device="C0805" value="0.1uF"/>
-<part name="5VINB" library="con-usb-3" deviceset="USB" device="-B-H"/>
+<part name="5V_IN_B" library="con-usb-3" deviceset="USB" device="-B-H"/>
 <part name="GND16" library="supply1" deviceset="GND" device=""/>
 <part name="U$1" library="cyclonev_f484" deviceset="CYCLONEVFPGA484" device="SMALLPINS"/>
 <part name="C28" library="rcl" deviceset="C-EU" device="C0805" value="0.01uF"/>
@@ -14004,7 +14008,7 @@ SMT version used on LilyPad MP3 board.&lt;br&gt;</description>
 <part name="C29" library="rcl" deviceset="C-EU" device="C0805" value="SP"/>
 <part name="C30" library="rcl" deviceset="C-EU" device="C0805" value="0.1uF"/>
 <part name="GND17" library="supply1" deviceset="GND" device=""/>
-<part name="POW" library="Eagle_Wuerth_Elektronik_Switch_rev15b" deviceset="450302014072" device="ROCKER2" value="450302014072ROCKER2"/>
+<part name="POWER_SW" library="Eagle_Wuerth_Elektronik_Switch_rev15b" deviceset="450302014072" device="ROCKER2" value="450302014072ROCKER2"/>
 <part name="R7" library="rcl" deviceset="R-EU_" device="R0805" value="4k7"/>
 <part name="C31" library="rcl" deviceset="C-EU" device="C0805" value="10uF"/>
 <part name="C32" library="rcl" deviceset="C-EU" device="C0805" value="10uF"/>
@@ -14020,11 +14024,11 @@ SMT version used on LilyPad MP3 board.&lt;br&gt;</description>
 <part name="R35" library="rcl" deviceset="R-EU_" device="M0805" value="1k"/>
 <part name="C35" library="rcl" deviceset="C-EU" device="C1206" value="100uF"/>
 <part name="C36" library="rcl" deviceset="C-EU" device="C1206" value="100uF"/>
-<part name="SVIDEO" library="con-yamaichi" deviceset="MD04SS" device=""/>
-<part name="5VIN" library="j_usb_hirose_zx62d-b-5p8" deviceset="ZX62D-B-5P8" device=""/>
-<part name="COMPOSITE" library="con-hirschmann" deviceset="TOBU3" device="MINE" value="TOBU3MINE"/>
+<part name="S-VIDEO" library="con-yamaichi" deviceset="MD04SS" device=""/>
+<part name="5V_IN" library="j_usb_hirose_zx62d-b-5p8" deviceset="ZX62D-B-5P8" device=""/>
+<part name="C-VIDEO" library="con-hirschmann" deviceset="TOBU3" device="MINE" value="TOBU3MINE"/>
 <part name="RESET" library="Seeed-OPL-Switch" deviceset="SMD-BUTTON(4P-4.0X4.0X1.7MM)" device="-DHT-1152"/>
-<part name="AUDIO" library="stereoaudiojack" deviceset="AUDIO-JACK2" device="CUI"/>
+<part name="AUDIO" library="LIBstereoaudiojack" deviceset="AUDIO-JACK2" device="CUI"/>
 <part name="C37" library="rcl" deviceset="C-EU" device="C0805" value="15pF"/>
 <part name="R36" library="rcl" deviceset="R-EU_" device="R0805" value="240"/>
 <part name="R37" library="rcl" deviceset="R-EU_" device="R0805" value="200"/>
@@ -14060,7 +14064,7 @@ SMT version used on LilyPad MP3 board.&lt;br&gt;</description>
 <part name="RN27" library="resistor-array" deviceset="742-8" device="742_3" value="47"/>
 <part name="U$5" library="header127" deviceset="HDR_SMALL_36_DEV_L" device="ALIGNED" value="HDR_SMALL_36_DEV_LALIGNED"/>
 <part name="C38" library="rcl" deviceset="C-EU" device="C0805" value="0.1uF"/>
-<part name="U1" library="epcs" deviceset="EPCS" device="BOTH" value="EPCS"/>
+<part name="SPI" library="epcs" deviceset="EPCS" device="BOTH" value="EPCS"/>
 <part name="3.3/2.5/1.1/GND" library="pinhead" deviceset="PINHD-1X4" device=""/>
 <part name="R38" library="rcl" deviceset="R-EU_" device="M0805" value="2k"/>
 <part name="R39" library="rcl" deviceset="R-EU_" device="M0805" value="2k"/>
@@ -14073,7 +14077,7 @@ SMT version used on LilyPad MP3 board.&lt;br&gt;</description>
 <part name="H6" library="holes" deviceset="MOUNT-PAD-ROUND" device="2.5"/>
 <part name="GND19" library="supply1" deviceset="GND" device=""/>
 <part name="H7" library="holes" deviceset="MOUNT-PAD-ROUND" device="2.5"/>
-<part name="X1" library="raspberrypi_cm" deviceset="HDMI" device=""/>
+<part name="HDMI" library="raspberrypi_cm" deviceset="HDMI" device=""/>
 <part name="GND20" library="supply1" deviceset="GND" device=""/>
 <part name="RN28" library="resistor-array" deviceset="742-8" device="742_3" value="270"/>
 <part name="RN29" library="resistor-array" deviceset="742-8" device="742_3" value="270"/>
@@ -14105,7 +14109,7 @@ with GPIOB26. Will disable!</text>
 <instance part="GND17" gate="1" x="-63.5" y="-15.24"/>
 <instance part="RESET" gate="G$1" x="-105.41" y="73.66"/>
 <instance part="C38" gate="G$1" x="-149.86" y="101.6"/>
-<instance part="U1" gate="A" x="-81.28" y="33.02" rot="R180"/>
+<instance part="SPI" gate="A" x="-81.28" y="33.02" rot="R180"/>
 </instances>
 <busses>
 <bus name="SDRAM:A[0..12],DQ[0..15],CS_N,RAS_N,CAS_N,WE_N,SDRAM_CLK,CKE,SDRAM_UDQM,SDRAM_LDQM,BA[0..1]">
@@ -14221,7 +14225,7 @@ with GPIOB26. Will disable!</text>
 <junction x="-50.8" y="15.24"/>
 <pinref part="C30" gate="G$1" pin="1"/>
 <wire x1="-63.5" y1="0" x2="-63.5" y2="25.4" width="0.1524" layer="91"/>
-<pinref part="U1" gate="A" pin="VCC"/>
+<pinref part="SPI" gate="A" pin="VCC"/>
 <junction x="-63.5" y="25.4"/>
 </segment>
 <segment>
@@ -14283,7 +14287,7 @@ with GPIOB26. Will disable!</text>
 <segment>
 <wire x1="-58.42" y1="45.72" x2="-63.5" y2="45.72" width="0.1524" layer="91"/>
 <label x="-63.5" y="45.72" size="1.778" layer="95"/>
-<pinref part="U1" gate="A" pin="GND"/>
+<pinref part="SPI" gate="A" pin="GND"/>
 </segment>
 <segment>
 <pinref part="XTL" gate="A" pin="VSS"/>
@@ -14435,7 +14439,7 @@ with GPIOB26. Will disable!</text>
 <wire x1="-40.64" y1="53.34" x2="-40.64" y2="30.48" width="0.1524" layer="91"/>
 <wire x1="-40.64" y1="30.48" x2="-63.5" y2="30.48" width="0.1524" layer="91"/>
 <pinref part="U$1" gate="G$1" pin="AS_DCLK"/>
-<pinref part="U1" gate="A" pin="SCK"/>
+<pinref part="SPI" gate="A" pin="SCK"/>
 </segment>
 </net>
 <net name="N$7" class="0">
@@ -14444,7 +14448,7 @@ with GPIOB26. Will disable!</text>
 <wire x1="-38.1" y1="50.8" x2="-38.1" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="-38.1" y1="33.02" x2="-63.5" y2="33.02" width="0.1524" layer="91"/>
 <pinref part="U$1" gate="G$1" pin="AS_CSO_N"/>
-<pinref part="U1" gate="A" pin="~CS"/>
+<pinref part="SPI" gate="A" pin="~CS"/>
 </segment>
 </net>
 <net name="N$8" class="0">
@@ -14454,7 +14458,7 @@ with GPIOB26. Will disable!</text>
 <wire x1="-99.06" y1="12.7" x2="-99.06" y2="25.4" width="0.1524" layer="91"/>
 <wire x1="-25.4" y1="43.18" x2="-35.56" y2="43.18" width="0.1524" layer="91"/>
 <pinref part="U$1" gate="G$1" pin="AS_DATA1"/>
-<pinref part="U1" gate="A" pin="SO"/>
+<pinref part="SPI" gate="A" pin="SO"/>
 </segment>
 </net>
 <net name="N$9" class="0">
@@ -14463,7 +14467,7 @@ with GPIOB26. Will disable!</text>
 <wire x1="-33.02" y1="38.1" x2="-33.02" y2="40.64" width="0.1524" layer="91"/>
 <wire x1="-33.02" y1="40.64" x2="-25.4" y2="40.64" width="0.1524" layer="91"/>
 <pinref part="U$1" gate="G$1" pin="AS_DATA0"/>
-<pinref part="U1" gate="A" pin="SI"/>
+<pinref part="SPI" gate="A" pin="SI"/>
 </segment>
 </net>
 <net name="N$10" class="0">
@@ -14471,7 +14475,7 @@ with GPIOB26. Will disable!</text>
 <pinref part="R9" gate="G$1" pin="2"/>
 <wire x1="-50.8" y1="27.94" x2="-50.8" y2="35.56" width="0.1524" layer="91"/>
 <wire x1="-50.8" y1="35.56" x2="-63.5" y2="35.56" width="0.1524" layer="91"/>
-<pinref part="U1" gate="A" pin="~WP"/>
+<pinref part="SPI" gate="A" pin="~WP"/>
 </segment>
 </net>
 <net name="N$11" class="0">
@@ -14479,7 +14483,7 @@ with GPIOB26. Will disable!</text>
 <wire x1="-63.5" y1="40.64" x2="-43.18" y2="40.64" width="0.1524" layer="91"/>
 <pinref part="R10" gate="G$1" pin="2"/>
 <wire x1="-43.18" y1="40.64" x2="-43.18" y2="27.94" width="0.1524" layer="91"/>
-<pinref part="U1" gate="A" pin="~HOLD"/>
+<pinref part="SPI" gate="A" pin="~HOLD"/>
 </segment>
 </net>
 <net name="N$12" class="0">
@@ -16010,7 +16014,7 @@ with GPIOB26. Will disable!</text>
 </plain>
 <instances>
 <instance part="VGA" gate="G$1" x="114.3" y="124.46"/>
-<instance part="DAC" gate="A" x="-5.08" y="81.28"/>
+<instance part="VIDEODACSA" gate="A" x="-5.08" y="81.28"/>
 <instance part="GND1" gate="1" x="20.32" y="109.22"/>
 <instance part="GND2" gate="1" x="-43.18" y="25.4"/>
 <instance part="GND3" gate="1" x="114.3" y="88.9"/>
@@ -16025,9 +16029,9 @@ with GPIOB26. Will disable!</text>
 <instance part="C14" gate="G$1" x="-40.64" y="139.7"/>
 <instance part="R31" gate="G$1" x="154.94" y="78.74" rot="R90"/>
 <instance part="R32" gate="G$1" x="170.18" y="78.74" rot="R90"/>
-<instance part="SVIDEO" gate="G$1" x="109.22" y="58.42"/>
-<instance part="COMPOSITE" gate="B" x="63.5" y="58.42"/>
-<instance part="X1" gate="G$1" x="-88.9" y="104.14"/>
+<instance part="S-VIDEO" gate="G$1" x="109.22" y="58.42"/>
+<instance part="C-VIDEO" gate="B" x="63.5" y="58.42"/>
+<instance part="HDMI" gate="G$1" x="-88.9" y="104.14"/>
 <instance part="GND20" gate="1" x="-68.58" y="66.04"/>
 <instance part="RN28" gate="G$1" x="-116.84" y="116.84"/>
 <instance part="RN29" gate="G$1" x="-116.84" y="106.68"/>
@@ -16044,9 +16048,9 @@ with GPIOB26. Will disable!</text>
 <segment>
 <pinref part="GND1" gate="1" pin="GND"/>
 <wire x1="20.32" y1="116.84" x2="20.32" y2="111.76" width="0.1524" layer="91"/>
-<pinref part="DAC" gate="A" pin="~IOB"/>
-<pinref part="DAC" gate="A" pin="~IOG"/>
-<pinref part="DAC" gate="A" pin="~IOR"/>
+<pinref part="VIDEODACSA" gate="A" pin="~IOB"/>
+<pinref part="VIDEODACSA" gate="A" pin="~IOG"/>
+<pinref part="VIDEODACSA" gate="A" pin="~IOR"/>
 <wire x1="12.7" y1="127" x2="20.32" y2="127" width="0.1524" layer="91"/>
 <wire x1="20.32" y1="127" x2="20.32" y2="124.46" width="0.1524" layer="91"/>
 <wire x1="20.32" y1="124.46" x2="12.7" y2="124.46" width="0.1524" layer="91"/>
@@ -16058,10 +16062,10 @@ with GPIOB26. Will disable!</text>
 <wire x1="20.32" y1="119.38" x2="20.32" y2="116.84" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="DAC" gate="A" pin="GND_2"/>
+<pinref part="VIDEODACSA" gate="A" pin="GND_2"/>
 <wire x1="-22.86" y1="38.1" x2="-27.94" y2="38.1" width="0.1524" layer="91"/>
 <wire x1="-27.94" y1="38.1" x2="-27.94" y2="35.56" width="0.1524" layer="91"/>
-<pinref part="DAC" gate="A" pin="GND"/>
+<pinref part="VIDEODACSA" gate="A" pin="GND"/>
 <wire x1="-27.94" y1="35.56" x2="-27.94" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="-27.94" y1="33.02" x2="-27.94" y2="30.48" width="0.1524" layer="91"/>
 <wire x1="-27.94" y1="30.48" x2="-27.94" y2="27.94" width="0.1524" layer="91"/>
@@ -16069,22 +16073,22 @@ with GPIOB26. Will disable!</text>
 <wire x1="-27.94" y1="25.4" x2="-27.94" y2="22.86" width="0.1524" layer="91"/>
 <wire x1="-27.94" y1="22.86" x2="-27.94" y2="20.32" width="0.1524" layer="91"/>
 <wire x1="-22.86" y1="20.32" x2="-27.94" y2="20.32" width="0.1524" layer="91"/>
-<pinref part="DAC" gate="A" pin="GND_8"/>
+<pinref part="VIDEODACSA" gate="A" pin="GND_8"/>
 <wire x1="-27.94" y1="22.86" x2="-22.86" y2="22.86" width="0.1524" layer="91"/>
 <junction x="-27.94" y="22.86"/>
-<pinref part="DAC" gate="A" pin="GND_7"/>
+<pinref part="VIDEODACSA" gate="A" pin="GND_7"/>
 <wire x1="-22.86" y1="25.4" x2="-27.94" y2="25.4" width="0.1524" layer="91"/>
 <junction x="-27.94" y="25.4"/>
-<pinref part="DAC" gate="A" pin="GND_6"/>
+<pinref part="VIDEODACSA" gate="A" pin="GND_6"/>
 <wire x1="-22.86" y1="27.94" x2="-27.94" y2="27.94" width="0.1524" layer="91"/>
 <junction x="-27.94" y="27.94"/>
-<pinref part="DAC" gate="A" pin="GND_5"/>
+<pinref part="VIDEODACSA" gate="A" pin="GND_5"/>
 <wire x1="-22.86" y1="30.48" x2="-27.94" y2="30.48" width="0.1524" layer="91"/>
 <junction x="-27.94" y="30.48"/>
-<pinref part="DAC" gate="A" pin="GND_4"/>
+<pinref part="VIDEODACSA" gate="A" pin="GND_4"/>
 <wire x1="-22.86" y1="33.02" x2="-27.94" y2="33.02" width="0.1524" layer="91"/>
 <junction x="-27.94" y="33.02"/>
-<pinref part="DAC" gate="A" pin="GND_3"/>
+<pinref part="VIDEODACSA" gate="A" pin="GND_3"/>
 <wire x1="-22.86" y1="35.56" x2="-27.94" y2="35.56" width="0.1524" layer="91"/>
 <junction x="-27.94" y="35.56"/>
 <pinref part="GND2" gate="1" pin="GND"/>
@@ -16096,7 +16100,7 @@ with GPIOB26. Will disable!</text>
 <pinref part="R14" gate="G$1" pin="1"/>
 <wire x1="-33.02" y1="35.56" x2="-33.02" y2="27.94" width="0.1524" layer="91"/>
 <junction x="-33.02" y="27.94"/>
-<pinref part="DAC" gate="A" pin="~SYNC"/>
+<pinref part="VIDEODACSA" gate="A" pin="~SYNC"/>
 <wire x1="-22.86" y1="55.88" x2="-48.26" y2="55.88" width="0.1524" layer="91"/>
 <wire x1="-48.26" y1="55.88" x2="-48.26" y2="27.94" width="0.1524" layer="91"/>
 <wire x1="-48.26" y1="27.94" x2="-43.18" y2="27.94" width="0.1524" layer="91"/>
@@ -16125,12 +16129,12 @@ with GPIOB26. Will disable!</text>
 <pinref part="VGA" gate="G$1" pin="7"/>
 <wire x1="122.174" y1="129.54" x2="142.24" y2="129.54" width="0.1524" layer="91"/>
 <junction x="142.24" y="129.54"/>
-<pinref part="SVIDEO" gate="G$1" pin="1"/>
+<pinref part="S-VIDEO" gate="G$1" pin="1"/>
 <wire x1="99.06" y1="63.5" x2="96.52" y2="63.5" width="0.1524" layer="91"/>
 <wire x1="96.52" y1="63.5" x2="96.52" y2="99.06" width="0.1524" layer="91"/>
 <wire x1="96.52" y1="99.06" x2="99.06" y2="99.06" width="0.1524" layer="91"/>
 <junction x="99.06" y="99.06"/>
-<pinref part="SVIDEO" gate="G$1" pin="2"/>
+<pinref part="S-VIDEO" gate="G$1" pin="2"/>
 <wire x1="99.06" y1="60.96" x2="96.52" y2="60.96" width="0.1524" layer="91"/>
 <wire x1="96.52" y1="60.96" x2="96.52" y2="63.5" width="0.1524" layer="91"/>
 <junction x="96.52" y="63.5"/>
@@ -16138,7 +16142,7 @@ with GPIOB26. Will disable!</text>
 <wire x1="96.52" y1="40.64" x2="96.52" y2="60.96" width="0.1524" layer="91"/>
 <junction x="96.52" y="60.96"/>
 <wire x1="71.12" y1="40.64" x2="71.12" y2="55.88" width="0.1524" layer="91"/>
-<pinref part="COMPOSITE" gate="B" pin="2"/>
+<pinref part="C-VIDEO" gate="B" pin="2"/>
 <wire x1="71.12" y1="55.88" x2="66.04" y2="55.88" width="0.1524" layer="91"/>
 </segment>
 <segment>
@@ -16169,37 +16173,37 @@ with GPIOB26. Will disable!</text>
 <wire x1="-60.96" y1="71.12" x2="-68.58" y2="71.12" width="0.1524" layer="91"/>
 <pinref part="GND20" gate="1" pin="GND"/>
 <wire x1="-68.58" y1="71.12" x2="-68.58" y2="68.58" width="0.1524" layer="91"/>
-<pinref part="X1" gate="G$1" pin="GND@1"/>
+<pinref part="HDMI" gate="G$1" pin="GND@1"/>
 <wire x1="-60.96" y1="119.38" x2="-71.12" y2="119.38" width="0.1524" layer="91"/>
-<pinref part="X1" gate="G$1" pin="GND@2"/>
+<pinref part="HDMI" gate="G$1" pin="GND@2"/>
 <wire x1="-71.12" y1="116.84" x2="-60.96" y2="116.84" width="0.1524" layer="91"/>
 <junction x="-60.96" y="116.84"/>
-<pinref part="X1" gate="G$1" pin="GND@3"/>
+<pinref part="HDMI" gate="G$1" pin="GND@3"/>
 <wire x1="-71.12" y1="114.3" x2="-60.96" y2="114.3" width="0.1524" layer="91"/>
 <junction x="-60.96" y="114.3"/>
-<pinref part="X1" gate="G$1" pin="GND@4"/>
+<pinref part="HDMI" gate="G$1" pin="GND@4"/>
 <wire x1="-71.12" y1="111.76" x2="-60.96" y2="111.76" width="0.1524" layer="91"/>
 <junction x="-60.96" y="111.76"/>
-<pinref part="X1" gate="G$1" pin="GND@5"/>
+<pinref part="HDMI" gate="G$1" pin="GND@5"/>
 <wire x1="-71.12" y1="109.22" x2="-60.96" y2="109.22" width="0.1524" layer="91"/>
 <junction x="-60.96" y="109.22"/>
-<pinref part="X1" gate="G$1" pin="GND@6"/>
+<pinref part="HDMI" gate="G$1" pin="GND@6"/>
 <wire x1="-71.12" y1="106.68" x2="-60.96" y2="106.68" width="0.1524" layer="91"/>
 <junction x="-60.96" y="106.68"/>
-<pinref part="X1" gate="G$1" pin="GND@7"/>
+<pinref part="HDMI" gate="G$1" pin="GND@7"/>
 <wire x1="-71.12" y1="104.14" x2="-60.96" y2="104.14" width="0.1524" layer="91"/>
 <junction x="-60.96" y="104.14"/>
-<pinref part="X1" gate="G$1" pin="GND@8"/>
+<pinref part="HDMI" gate="G$1" pin="GND@8"/>
 <wire x1="-71.12" y1="101.6" x2="-60.96" y2="101.6" width="0.1524" layer="91"/>
 <junction x="-60.96" y="101.6"/>
-<pinref part="X1" gate="G$1" pin="GND@9"/>
+<pinref part="HDMI" gate="G$1" pin="GND@9"/>
 <wire x1="-71.12" y1="99.06" x2="-60.96" y2="99.06" width="0.1524" layer="91"/>
 <junction x="-60.96" y="99.06"/>
 </segment>
 </net>
 <net name="N$13" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="IOR"/>
+<pinref part="VIDEODACSA" gate="A" pin="IOR"/>
 <wire x1="12.7" y1="137.16" x2="53.34" y2="137.16" width="0.1524" layer="91"/>
 <wire x1="53.34" y1="137.16" x2="83.82" y2="137.16" width="0.1524" layer="91"/>
 <wire x1="83.82" y1="137.16" x2="99.06" y2="137.16" width="0.1524" layer="91"/>
@@ -16209,7 +16213,7 @@ with GPIOB26. Will disable!</text>
 <pinref part="R13" gate="G$1" pin="2"/>
 <wire x1="53.34" y1="127" x2="53.34" y2="137.16" width="0.1524" layer="91"/>
 <junction x="53.34" y="137.16"/>
-<pinref part="SVIDEO" gate="G$1" pin="3"/>
+<pinref part="S-VIDEO" gate="G$1" pin="3"/>
 <wire x1="99.06" y1="58.42" x2="83.82" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="83.82" y1="58.42" x2="83.82" y2="137.16" width="0.1524" layer="91"/>
 <junction x="83.82" y="137.16"/>
@@ -16217,7 +16221,7 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="N$14" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="IOG"/>
+<pinref part="VIDEODACSA" gate="A" pin="IOG"/>
 <wire x1="12.7" y1="134.62" x2="45.72" y2="134.62" width="0.1524" layer="91"/>
 <wire x1="45.72" y1="134.62" x2="78.74" y2="134.62" width="0.1524" layer="91"/>
 <wire x1="78.74" y1="134.62" x2="96.52" y2="134.62" width="0.1524" layer="91"/>
@@ -16227,7 +16231,7 @@ with GPIOB26. Will disable!</text>
 <pinref part="R12" gate="G$1" pin="2"/>
 <wire x1="45.72" y1="127" x2="45.72" y2="134.62" width="0.1524" layer="91"/>
 <junction x="45.72" y="134.62"/>
-<pinref part="SVIDEO" gate="G$1" pin="4"/>
+<pinref part="S-VIDEO" gate="G$1" pin="4"/>
 <wire x1="99.06" y1="55.88" x2="78.74" y2="55.88" width="0.1524" layer="91"/>
 <wire x1="78.74" y1="55.88" x2="78.74" y2="134.62" width="0.1524" layer="91"/>
 <junction x="78.74" y="134.62"/>
@@ -16235,7 +16239,7 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="VGA_R0" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="R0"/>
+<pinref part="VIDEODACSA" gate="A" pin="R0"/>
 <wire x1="-50.8" y1="129.54" x2="-22.86" y2="129.54" width="0.1524" layer="91"/>
 <label x="-48.26" y="129.54" size="1.778" layer="95"/>
 </segment>
@@ -16247,7 +16251,7 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="VGA_R1" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="R1"/>
+<pinref part="VIDEODACSA" gate="A" pin="R1"/>
 <wire x1="-50.8" y1="127" x2="-22.86" y2="127" width="0.1524" layer="91"/>
 <label x="-48.26" y="127" size="1.778" layer="95"/>
 </segment>
@@ -16259,14 +16263,14 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="VGA_R2" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="R2"/>
+<pinref part="VIDEODACSA" gate="A" pin="R2"/>
 <wire x1="-50.8" y1="124.46" x2="-22.86" y2="124.46" width="0.1524" layer="91"/>
 <label x="-48.26" y="124.46" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_R3" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="R3"/>
+<pinref part="VIDEODACSA" gate="A" pin="R3"/>
 <wire x1="-50.8" y1="121.92" x2="-22.86" y2="121.92" width="0.1524" layer="91"/>
 <label x="-48.26" y="121.92" size="1.778" layer="95"/>
 </segment>
@@ -16278,7 +16282,7 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="VGA_R4" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="R4"/>
+<pinref part="VIDEODACSA" gate="A" pin="R4"/>
 <wire x1="-50.8" y1="119.38" x2="-22.86" y2="119.38" width="0.1524" layer="91"/>
 <label x="-48.26" y="119.38" size="1.778" layer="95"/>
 </segment>
@@ -16290,91 +16294,91 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="VGA_R5" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="R5"/>
+<pinref part="VIDEODACSA" gate="A" pin="R5"/>
 <wire x1="-50.8" y1="116.84" x2="-22.86" y2="116.84" width="0.1524" layer="91"/>
 <label x="-48.26" y="116.84" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_R6" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="R6"/>
+<pinref part="VIDEODACSA" gate="A" pin="R6"/>
 <wire x1="-50.8" y1="114.3" x2="-22.86" y2="114.3" width="0.1524" layer="91"/>
 <label x="-48.26" y="114.3" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_R7" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="R7"/>
+<pinref part="VIDEODACSA" gate="A" pin="R7"/>
 <wire x1="-50.8" y1="111.76" x2="-22.86" y2="111.76" width="0.1524" layer="91"/>
 <label x="-48.26" y="111.76" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_G0" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="G0"/>
+<pinref part="VIDEODACSA" gate="A" pin="G0"/>
 <wire x1="-50.8" y1="106.68" x2="-22.86" y2="106.68" width="0.1524" layer="91"/>
 <label x="-48.26" y="106.68" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_G1" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="G1"/>
+<pinref part="VIDEODACSA" gate="A" pin="G1"/>
 <wire x1="-50.8" y1="104.14" x2="-22.86" y2="104.14" width="0.1524" layer="91"/>
 <label x="-48.26" y="104.14" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_G2" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="G2"/>
+<pinref part="VIDEODACSA" gate="A" pin="G2"/>
 <wire x1="-50.8" y1="101.6" x2="-22.86" y2="101.6" width="0.1524" layer="91"/>
 <label x="-48.26" y="101.6" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_G3" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="G3"/>
+<pinref part="VIDEODACSA" gate="A" pin="G3"/>
 <wire x1="-50.8" y1="99.06" x2="-22.86" y2="99.06" width="0.1524" layer="91"/>
 <label x="-48.26" y="99.06" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_G4" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="G4"/>
+<pinref part="VIDEODACSA" gate="A" pin="G4"/>
 <wire x1="-50.8" y1="96.52" x2="-22.86" y2="96.52" width="0.1524" layer="91"/>
 <label x="-48.26" y="96.52" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_G5" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="G5"/>
+<pinref part="VIDEODACSA" gate="A" pin="G5"/>
 <wire x1="-50.8" y1="93.98" x2="-22.86" y2="93.98" width="0.1524" layer="91"/>
 <label x="-48.26" y="93.98" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_G6" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="G6"/>
+<pinref part="VIDEODACSA" gate="A" pin="G6"/>
 <wire x1="-50.8" y1="91.44" x2="-22.86" y2="91.44" width="0.1524" layer="91"/>
 <label x="-48.26" y="91.44" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_G7" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="G7"/>
+<pinref part="VIDEODACSA" gate="A" pin="G7"/>
 <wire x1="-50.8" y1="88.9" x2="-22.86" y2="88.9" width="0.1524" layer="91"/>
 <label x="-48.26" y="88.9" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_B0" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="B0"/>
+<pinref part="VIDEODACSA" gate="A" pin="B0"/>
 <wire x1="-50.8" y1="83.82" x2="-22.86" y2="83.82" width="0.1524" layer="91"/>
 <label x="-48.26" y="83.82" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_B1" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="B1"/>
+<pinref part="VIDEODACSA" gate="A" pin="B1"/>
 <wire x1="-50.8" y1="81.28" x2="-22.86" y2="81.28" width="0.1524" layer="91"/>
 <label x="-48.26" y="81.28" size="1.778" layer="95"/>
 </segment>
@@ -16386,21 +16390,21 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="VGA_B2" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="B2"/>
+<pinref part="VIDEODACSA" gate="A" pin="B2"/>
 <wire x1="-50.8" y1="78.74" x2="-22.86" y2="78.74" width="0.1524" layer="91"/>
 <label x="-48.26" y="78.74" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_B3" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="B3"/>
+<pinref part="VIDEODACSA" gate="A" pin="B3"/>
 <wire x1="-50.8" y1="76.2" x2="-22.86" y2="76.2" width="0.1524" layer="91"/>
 <label x="-48.26" y="76.2" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_B4" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="B4"/>
+<pinref part="VIDEODACSA" gate="A" pin="B4"/>
 <wire x1="-50.8" y1="73.66" x2="-22.86" y2="73.66" width="0.1524" layer="91"/>
 <label x="-48.26" y="73.66" size="1.778" layer="95"/>
 </segment>
@@ -16412,7 +16416,7 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="VGA_B5" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="B5"/>
+<pinref part="VIDEODACSA" gate="A" pin="B5"/>
 <wire x1="-50.8" y1="71.12" x2="-22.86" y2="71.12" width="0.1524" layer="91"/>
 <label x="-48.26" y="71.12" size="1.778" layer="95"/>
 </segment>
@@ -16424,7 +16428,7 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="VGA_B6" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="B6"/>
+<pinref part="VIDEODACSA" gate="A" pin="B6"/>
 <wire x1="-50.8" y1="68.58" x2="-22.86" y2="68.58" width="0.1524" layer="91"/>
 <label x="-48.26" y="68.58" size="1.778" layer="95"/>
 </segment>
@@ -16436,28 +16440,28 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="VGA_B7" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="B7"/>
+<pinref part="VIDEODACSA" gate="A" pin="B7"/>
 <wire x1="-50.8" y1="66.04" x2="-22.86" y2="66.04" width="0.1524" layer="91"/>
 <label x="-48.26" y="66.04" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_BLANK_N" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="~BLANK"/>
+<pinref part="VIDEODACSA" gate="A" pin="~BLANK"/>
 <wire x1="-50.8" y1="60.96" x2="-22.86" y2="60.96" width="0.1524" layer="91"/>
 <label x="-48.26" y="60.96" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VGA_CLK" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="CLOCK"/>
+<pinref part="VIDEODACSA" gate="A" pin="CLOCK"/>
 <wire x1="-50.8" y1="53.34" x2="-22.86" y2="53.34" width="0.1524" layer="91"/>
 <label x="-48.26" y="53.34" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$16" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="VREF"/>
+<pinref part="VIDEODACSA" gate="A" pin="VREF"/>
 <wire x1="-22.86" y1="50.8" x2="-43.18" y2="50.8" width="0.1524" layer="91"/>
 <pinref part="C13" gate="G$1" pin="1"/>
 <wire x1="-43.18" y1="50.8" x2="-43.18" y2="48.26" width="0.1524" layer="91"/>
@@ -16465,14 +16469,14 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="N$17" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="RSET"/>
+<pinref part="VIDEODACSA" gate="A" pin="RSET"/>
 <pinref part="R14" gate="G$1" pin="2"/>
 <wire x1="-22.86" y1="45.72" x2="-33.02" y2="45.72" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$18" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="COMP"/>
+<pinref part="VIDEODACSA" gate="A" pin="COMP"/>
 <wire x1="-22.86" y1="43.18" x2="-27.94" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="-27.94" y1="43.18" x2="-27.94" y2="132.08" width="0.1524" layer="91"/>
 <wire x1="-27.94" y1="132.08" x2="-40.64" y2="132.08" width="0.1524" layer="91"/>
@@ -16482,14 +16486,14 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="3V3" class="0">
 <segment>
-<pinref part="DAC" gate="A" pin="VAA"/>
+<pinref part="VIDEODACSA" gate="A" pin="VAA"/>
 <wire x1="-22.86" y1="134.62" x2="-25.4" y2="134.62" width="0.1524" layer="91"/>
 <wire x1="-25.4" y1="134.62" x2="-25.4" y2="137.16" width="0.1524" layer="91"/>
-<pinref part="DAC" gate="A" pin="VAA_3"/>
+<pinref part="VIDEODACSA" gate="A" pin="VAA_3"/>
 <wire x1="-25.4" y1="137.16" x2="-22.86" y2="137.16" width="0.1524" layer="91"/>
 <wire x1="-25.4" y1="137.16" x2="-25.4" y2="139.7" width="0.1524" layer="91"/>
 <junction x="-25.4" y="137.16"/>
-<pinref part="DAC" gate="A" pin="VAA_2"/>
+<pinref part="VIDEODACSA" gate="A" pin="VAA_2"/>
 <wire x1="-25.4" y1="139.7" x2="-22.86" y2="139.7" width="0.1524" layer="91"/>
 <wire x1="-25.4" y1="139.7" x2="-25.4" y2="144.78" width="0.1524" layer="91"/>
 <junction x="-25.4" y="139.7"/>
@@ -16497,7 +16501,7 @@ with GPIOB26. Will disable!</text>
 <pinref part="C14" gate="G$1" pin="1"/>
 <wire x1="-40.64" y1="144.78" x2="-40.64" y2="142.24" width="0.1524" layer="91"/>
 <label x="-30.48" y="144.78" size="1.778" layer="95"/>
-<pinref part="DAC" gate="A" pin="~PSAVE"/>
+<pinref part="VIDEODACSA" gate="A" pin="~PSAVE"/>
 <wire x1="-22.86" y1="58.42" x2="-55.88" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="-55.88" y1="58.42" x2="-55.88" y2="144.78" width="0.1524" layer="91"/>
 <wire x1="-55.88" y1="144.78" x2="-40.64" y2="144.78" width="0.1524" layer="91"/>
@@ -16542,8 +16546,8 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="N$143" class="0">
 <segment>
-<pinref part="COMPOSITE" gate="B" pin="1"/>
-<pinref part="DAC" gate="A" pin="IOB"/>
+<pinref part="C-VIDEO" gate="B" pin="1"/>
+<pinref part="VIDEODACSA" gate="A" pin="IOB"/>
 <wire x1="12.7" y1="132.08" x2="38.1" y2="132.08" width="0.1524" layer="91"/>
 <wire x1="38.1" y1="132.08" x2="76.2" y2="132.08" width="0.1524" layer="91"/>
 <wire x1="76.2" y1="132.08" x2="93.98" y2="132.08" width="0.1524" layer="91"/>
@@ -16560,7 +16564,7 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="5V0" class="0">
 <segment>
-<pinref part="X1" gate="G$1" pin="+5V"/>
+<pinref part="HDMI" gate="G$1" pin="+5V"/>
 <wire x1="-71.12" y1="91.44" x2="-66.04" y2="91.44" width="0.1524" layer="91"/>
 <wire x1="-66.04" y1="91.44" x2="-66.04" y2="83.82" width="0.1524" layer="91"/>
 <label x="-73.66" y="83.82" size="1.778" layer="95"/>
@@ -16569,13 +16573,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$134" class="0">
 <segment>
 <pinref part="RN28" gate="G$1" pin="8"/>
-<pinref part="X1" gate="G$1" pin="TX2_P"/>
+<pinref part="HDMI" gate="G$1" pin="TX2_P"/>
 <wire x1="-109.22" y1="119.38" x2="-106.68" y2="119.38" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$144" class="0">
 <segment>
-<pinref part="X1" gate="G$1" pin="TX2_N"/>
+<pinref part="HDMI" gate="G$1" pin="TX2_N"/>
 <pinref part="RN28" gate="G$1" pin="7"/>
 <wire x1="-106.68" y1="116.84" x2="-109.22" y2="116.84" width="0.1524" layer="91"/>
 </segment>
@@ -16583,13 +16587,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$146" class="0">
 <segment>
 <pinref part="RN28" gate="G$1" pin="6"/>
-<pinref part="X1" gate="G$1" pin="TX1_P"/>
+<pinref part="HDMI" gate="G$1" pin="TX1_P"/>
 <wire x1="-109.22" y1="114.3" x2="-106.68" y2="114.3" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$147" class="0">
 <segment>
-<pinref part="X1" gate="G$1" pin="TX1_N"/>
+<pinref part="HDMI" gate="G$1" pin="TX1_N"/>
 <pinref part="RN28" gate="G$1" pin="5"/>
 <wire x1="-106.68" y1="111.76" x2="-109.22" y2="111.76" width="0.1524" layer="91"/>
 </segment>
@@ -16597,13 +16601,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$148" class="0">
 <segment>
 <pinref part="RN29" gate="G$1" pin="8"/>
-<pinref part="X1" gate="G$1" pin="TX0_P"/>
+<pinref part="HDMI" gate="G$1" pin="TX0_P"/>
 <wire x1="-109.22" y1="109.22" x2="-106.68" y2="109.22" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$149" class="0">
 <segment>
-<pinref part="X1" gate="G$1" pin="TX0_N"/>
+<pinref part="HDMI" gate="G$1" pin="TX0_N"/>
 <pinref part="RN29" gate="G$1" pin="7"/>
 <wire x1="-106.68" y1="106.68" x2="-109.22" y2="106.68" width="0.1524" layer="91"/>
 </segment>
@@ -16611,13 +16615,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$150" class="0">
 <segment>
 <pinref part="RN29" gate="G$1" pin="6"/>
-<pinref part="X1" gate="G$1" pin="CLK_P"/>
+<pinref part="HDMI" gate="G$1" pin="CLK_P"/>
 <wire x1="-109.22" y1="104.14" x2="-106.68" y2="104.14" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$151" class="0">
 <segment>
-<pinref part="X1" gate="G$1" pin="CLK_N"/>
+<pinref part="HDMI" gate="G$1" pin="CLK_N"/>
 <pinref part="RN29" gate="G$1" pin="5"/>
 <wire x1="-106.68" y1="101.6" x2="-109.22" y2="101.6" width="0.1524" layer="91"/>
 </segment>
@@ -16642,7 +16646,7 @@ with GPIOB26. Will disable!</text>
 <instance part="R35" gate="G$1" x="12.7" y="88.9" rot="R90"/>
 <instance part="C35" gate="G$1" x="-20.32" y="99.06" rot="R90"/>
 <instance part="C36" gate="G$1" x="-20.32" y="76.2" rot="R90"/>
-<instance part="AUDIO" gate="G$1" x="-35.56" y="88.9"/>
+<instance part="AUDIO" gate="G$1" x="-33.02" y="88.9"/>
 </instances>
 <busses>
 </busses>
@@ -16680,7 +16684,7 @@ with GPIOB26. Will disable!</text>
 <wire x1="-10.16" y1="88.9" x2="-10.16" y2="86.36" width="0.1524" layer="91"/>
 <wire x1="-20.32" y1="91.44" x2="-20.32" y2="93.98" width="0.1524" layer="91"/>
 <pinref part="AUDIO" gate="G$1" pin="SLEEVE"/>
-<wire x1="-20.32" y1="93.98" x2="-30.48" y2="93.98" width="0.1524" layer="91"/>
+<wire x1="-20.32" y1="93.98" x2="-27.94" y2="93.98" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$27" class="0">
@@ -16717,7 +16721,7 @@ with GPIOB26. Will disable!</text>
 <wire x1="-25.4" y1="99.06" x2="-22.86" y2="99.06" width="0.1524" layer="91"/>
 <pinref part="C35" gate="G$1" pin="1"/>
 <pinref part="AUDIO" gate="G$1" pin="RING"/>
-<wire x1="-25.4" y1="91.44" x2="-30.48" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="-25.4" y1="91.44" x2="-27.94" y2="91.44" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$141" class="0">
@@ -16726,7 +16730,7 @@ with GPIOB26. Will disable!</text>
 <wire x1="-25.4" y1="76.2" x2="-22.86" y2="76.2" width="0.1524" layer="91"/>
 <pinref part="C36" gate="G$1" pin="1"/>
 <pinref part="AUDIO" gate="G$1" pin="TIP"/>
-<wire x1="-25.4" y1="83.82" x2="-30.48" y2="83.82" width="0.1524" layer="91"/>
+<wire x1="-25.4" y1="83.82" x2="-27.94" y2="83.82" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$5" class="0">
@@ -16759,9 +16763,9 @@ with GPIOB26. Will disable!</text>
 <text x="-40.64" y="73.66" size="1.778" layer="91">Resistors!!</text>
 </plain>
 <instances>
-<instance part="GPIOA" gate="G$1" x="-30.48" y="7.62"/>
-<instance part="GPIOB" gate="G$1" x="45.72" y="7.62"/>
-<instance part="GPIOC" gate="G$1" x="121.92" y="7.62"/>
+<instance part="GPIO_A" gate="G$1" x="-30.48" y="7.62"/>
+<instance part="GPIO_B" gate="G$1" x="45.72" y="7.62"/>
+<instance part="GPIO_C" gate="G$1" x="121.92" y="7.62"/>
 <instance part="GND13" gate="1" x="106.68" y="68.58"/>
 <instance part="RN15" gate="G$1" x="144.78" y="-30.48" rot="MR0"/>
 <instance part="RN9" gate="G$1" x="144.78" y="50.8" rot="MR0"/>
@@ -16816,18 +16820,18 @@ with GPIOB26. Will disable!</text>
 <segment>
 <wire x1="-20.32" y1="76.2" x2="-10.16" y2="76.2" width="0.1524" layer="91"/>
 <label x="-17.78" y="76.2" size="1.778" layer="95"/>
-<pinref part="GPIOA" gate="G$1" pin="5V0"/>
+<pinref part="GPIO_A" gate="G$1" pin="5V0"/>
 <wire x1="-10.16" y1="76.2" x2="66.04" y2="76.2" width="0.1524" layer="91"/>
 <wire x1="66.04" y1="76.2" x2="137.16" y2="76.2" width="0.1524" layer="91"/>
 <wire x1="137.16" y1="76.2" x2="149.86" y2="76.2" width="0.1524" layer="91"/>
 <wire x1="-20.32" y1="66.04" x2="-10.16" y2="66.04" width="0.1524" layer="91"/>
 <wire x1="-10.16" y1="66.04" x2="-10.16" y2="76.2" width="0.1524" layer="91"/>
 <junction x="-10.16" y="76.2"/>
-<pinref part="GPIOB" gate="G$1" pin="5V0"/>
+<pinref part="GPIO_B" gate="G$1" pin="5V0"/>
 <wire x1="55.88" y1="66.04" x2="66.04" y2="66.04" width="0.1524" layer="91"/>
 <wire x1="66.04" y1="66.04" x2="66.04" y2="76.2" width="0.1524" layer="91"/>
 <junction x="66.04" y="76.2"/>
-<pinref part="GPIOC" gate="G$1" pin="5V0"/>
+<pinref part="GPIO_C" gate="G$1" pin="5V0"/>
 <wire x1="132.08" y1="66.04" x2="137.16" y2="66.04" width="0.1524" layer="91"/>
 <wire x1="137.16" y1="66.04" x2="137.16" y2="76.2" width="0.1524" layer="91"/>
 <junction x="137.16" y="76.2"/>
@@ -16842,31 +16846,31 @@ with GPIOB26. Will disable!</text>
 <wire x1="106.68" y1="71.12" x2="142.24" y2="71.12" width="0.1524" layer="91"/>
 <junction x="106.68" y="71.12"/>
 <label x="-17.78" y="71.12" size="1.778" layer="95"/>
-<pinref part="GPIOA" gate="G$1" pin="GND@1"/>
+<pinref part="GPIO_A" gate="G$1" pin="GND@1"/>
 <wire x1="142.24" y1="71.12" x2="149.86" y2="71.12" width="0.1524" layer="91"/>
 <wire x1="-20.32" y1="60.96" x2="-17.78" y2="60.96" width="0.1524" layer="91"/>
 <wire x1="-17.78" y1="60.96" x2="-5.08" y2="60.96" width="0.1524" layer="91"/>
 <wire x1="-5.08" y1="60.96" x2="-5.08" y2="71.12" width="0.1524" layer="91"/>
 <junction x="-5.08" y="71.12"/>
-<pinref part="GPIOA" gate="G$1" pin="GND@2"/>
+<pinref part="GPIO_A" gate="G$1" pin="GND@2"/>
 <wire x1="-20.32" y1="58.42" x2="-17.78" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="-17.78" y1="58.42" x2="-17.78" y2="60.96" width="0.1524" layer="91"/>
 <junction x="-17.78" y="60.96"/>
-<pinref part="GPIOB" gate="G$1" pin="GND@1"/>
+<pinref part="GPIO_B" gate="G$1" pin="GND@1"/>
 <wire x1="55.88" y1="60.96" x2="58.42" y2="60.96" width="0.1524" layer="91"/>
 <wire x1="58.42" y1="60.96" x2="71.12" y2="60.96" width="0.1524" layer="91"/>
 <wire x1="71.12" y1="60.96" x2="71.12" y2="71.12" width="0.1524" layer="91"/>
 <junction x="71.12" y="71.12"/>
-<pinref part="GPIOB" gate="G$1" pin="GND@2"/>
+<pinref part="GPIO_B" gate="G$1" pin="GND@2"/>
 <wire x1="55.88" y1="58.42" x2="58.42" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="58.42" y1="58.42" x2="58.42" y2="60.96" width="0.1524" layer="91"/>
 <junction x="58.42" y="60.96"/>
-<pinref part="GPIOC" gate="G$1" pin="GND@1"/>
+<pinref part="GPIO_C" gate="G$1" pin="GND@1"/>
 <wire x1="132.08" y1="60.96" x2="134.62" y2="60.96" width="0.1524" layer="91"/>
 <wire x1="134.62" y1="60.96" x2="142.24" y2="60.96" width="0.1524" layer="91"/>
 <wire x1="142.24" y1="60.96" x2="142.24" y2="71.12" width="0.1524" layer="91"/>
 <junction x="142.24" y="71.12"/>
-<pinref part="GPIOC" gate="G$1" pin="GND@2"/>
+<pinref part="GPIO_C" gate="G$1" pin="GND@2"/>
 <wire x1="132.08" y1="58.42" x2="134.62" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="134.62" y1="58.42" x2="134.62" y2="60.96" width="0.1524" layer="91"/>
 <junction x="134.62" y="60.96"/>
@@ -16876,18 +16880,18 @@ with GPIOB26. Will disable!</text>
 <segment>
 <wire x1="-20.32" y1="73.66" x2="-7.62" y2="73.66" width="0.1524" layer="91"/>
 <label x="-17.78" y="73.66" size="1.778" layer="95"/>
-<pinref part="GPIOA" gate="G$1" pin="3V3"/>
+<pinref part="GPIO_A" gate="G$1" pin="3V3"/>
 <wire x1="-7.62" y1="73.66" x2="68.58" y2="73.66" width="0.1524" layer="91"/>
 <wire x1="68.58" y1="73.66" x2="139.7" y2="73.66" width="0.1524" layer="91"/>
 <wire x1="139.7" y1="73.66" x2="149.86" y2="73.66" width="0.1524" layer="91"/>
 <wire x1="-20.32" y1="63.5" x2="-7.62" y2="63.5" width="0.1524" layer="91"/>
 <wire x1="-7.62" y1="63.5" x2="-7.62" y2="73.66" width="0.1524" layer="91"/>
 <junction x="-7.62" y="73.66"/>
-<pinref part="GPIOB" gate="G$1" pin="3V3"/>
+<pinref part="GPIO_B" gate="G$1" pin="3V3"/>
 <wire x1="55.88" y1="63.5" x2="68.58" y2="63.5" width="0.1524" layer="91"/>
 <wire x1="68.58" y1="63.5" x2="68.58" y2="73.66" width="0.1524" layer="91"/>
 <junction x="68.58" y="73.66"/>
-<pinref part="GPIOC" gate="G$1" pin="3V3"/>
+<pinref part="GPIO_C" gate="G$1" pin="3V3"/>
 <wire x1="132.08" y1="63.5" x2="139.7" y2="63.5" width="0.1524" layer="91"/>
 <wire x1="139.7" y1="63.5" x2="139.7" y2="73.66" width="0.1524" layer="91"/>
 <junction x="139.7" y="73.66"/>
@@ -17192,7 +17196,7 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="N$22" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_0"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_0"/>
 <wire x1="-20.32" y1="53.34" x2="-12.7" y2="53.34" width="0.1524" layer="91"/>
 <pinref part="RN1" gate="G$1" pin="8"/>
 </segment>
@@ -17208,238 +17212,238 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="N$24" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_1"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_1"/>
 <wire x1="-20.32" y1="50.8" x2="-12.7" y2="50.8" width="0.1524" layer="91"/>
 <pinref part="RN1" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$29" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_2"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_2"/>
 <wire x1="-12.7" y1="48.26" x2="-20.32" y2="48.26" width="0.1524" layer="91"/>
 <pinref part="RN1" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$30" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_3"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_3"/>
 <wire x1="-20.32" y1="45.72" x2="-12.7" y2="45.72" width="0.1524" layer="91"/>
 <pinref part="RN1" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$31" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_4"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_4"/>
 <wire x1="-12.7" y1="43.18" x2="-20.32" y2="43.18" width="0.1524" layer="91"/>
 <pinref part="RN2" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$32" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_5"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_5"/>
 <wire x1="-20.32" y1="40.64" x2="-12.7" y2="40.64" width="0.1524" layer="91"/>
 <pinref part="RN2" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$33" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_6"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_6"/>
 <wire x1="-12.7" y1="38.1" x2="-20.32" y2="38.1" width="0.1524" layer="91"/>
 <pinref part="RN2" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$34" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_7"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_7"/>
 <wire x1="-20.32" y1="35.56" x2="-12.7" y2="35.56" width="0.1524" layer="91"/>
 <pinref part="RN2" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$35" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_8"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_8"/>
 <wire x1="-20.32" y1="33.02" x2="5.08" y2="33.02" width="0.1524" layer="91"/>
 <pinref part="RN3" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$36" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_9"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_9"/>
 <wire x1="5.08" y1="30.48" x2="-20.32" y2="30.48" width="0.1524" layer="91"/>
 <pinref part="RN3" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$37" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_10"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_10"/>
 <wire x1="-20.32" y1="27.94" x2="5.08" y2="27.94" width="0.1524" layer="91"/>
 <pinref part="RN3" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$38" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_11"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_11"/>
 <wire x1="5.08" y1="25.4" x2="-20.32" y2="25.4" width="0.1524" layer="91"/>
 <pinref part="RN3" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$41" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_13"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_13"/>
 <wire x1="5.08" y1="20.32" x2="-20.32" y2="20.32" width="0.1524" layer="91"/>
 <pinref part="RN4" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$40" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_14"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_14"/>
 <wire x1="5.08" y1="17.78" x2="-20.32" y2="17.78" width="0.1524" layer="91"/>
 <pinref part="RN4" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$42" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_15"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_15"/>
 <wire x1="-20.32" y1="15.24" x2="5.08" y2="15.24" width="0.1524" layer="91"/>
 <pinref part="RN4" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$43" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_16"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_16"/>
 <wire x1="-12.7" y1="12.7" x2="-20.32" y2="12.7" width="0.1524" layer="91"/>
 <pinref part="RN13" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$44" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_17"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_17"/>
 <wire x1="-20.32" y1="10.16" x2="-12.7" y2="10.16" width="0.1524" layer="91"/>
 <pinref part="RN13" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$45" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_18"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_18"/>
 <wire x1="-12.7" y1="7.62" x2="-20.32" y2="7.62" width="0.1524" layer="91"/>
 <pinref part="RN13" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$46" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_19"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_19"/>
 <wire x1="-20.32" y1="5.08" x2="-12.7" y2="5.08" width="0.1524" layer="91"/>
 <pinref part="RN13" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$47" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_20"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_20"/>
 <wire x1="-12.7" y1="2.54" x2="-20.32" y2="2.54" width="0.1524" layer="91"/>
 <pinref part="RN24" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$48" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_22"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_22"/>
 <wire x1="-20.32" y1="-2.54" x2="-12.7" y2="-2.54" width="0.1524" layer="91"/>
 <pinref part="RN24" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$49" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_21"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_21"/>
 <wire x1="-12.7" y1="0" x2="-20.32" y2="0" width="0.1524" layer="91"/>
 <pinref part="RN24" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$50" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_23"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_23"/>
 <wire x1="-20.32" y1="-5.08" x2="-12.7" y2="-5.08" width="0.1524" layer="91"/>
 <pinref part="RN24" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$51" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_24"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_24"/>
 <wire x1="-20.32" y1="-7.62" x2="5.08" y2="-7.62" width="0.1524" layer="91"/>
 <pinref part="RN25" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$52" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_25"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_25"/>
 <wire x1="5.08" y1="-10.16" x2="-20.32" y2="-10.16" width="0.1524" layer="91"/>
 <pinref part="RN25" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$53" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_26"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_26"/>
 <wire x1="-20.32" y1="-12.7" x2="5.08" y2="-12.7" width="0.1524" layer="91"/>
 <pinref part="RN25" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$54" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_27"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_27"/>
 <wire x1="5.08" y1="-15.24" x2="-20.32" y2="-15.24" width="0.1524" layer="91"/>
 <pinref part="RN25" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$55" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_28"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_28"/>
 <wire x1="-20.32" y1="-17.78" x2="5.08" y2="-17.78" width="0.1524" layer="91"/>
 <pinref part="RN26" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$56" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_29"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_29"/>
 <wire x1="5.08" y1="-20.32" x2="-20.32" y2="-20.32" width="0.1524" layer="91"/>
 <pinref part="RN26" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$57" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_30"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_30"/>
 <wire x1="-20.32" y1="-22.86" x2="5.08" y2="-22.86" width="0.1524" layer="91"/>
 <pinref part="RN26" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$58" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_31"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_31"/>
 <wire x1="5.08" y1="-25.4" x2="-20.32" y2="-25.4" width="0.1524" layer="91"/>
 <pinref part="RN26" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$59" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_32"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_32"/>
 <wire x1="-20.32" y1="-27.94" x2="-12.7" y2="-27.94" width="0.1524" layer="91"/>
 <pinref part="RN27" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$60" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_33"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_33"/>
 <wire x1="-12.7" y1="-30.48" x2="-20.32" y2="-30.48" width="0.1524" layer="91"/>
 <pinref part="RN27" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$61" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_34"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_34"/>
 <wire x1="-20.32" y1="-33.02" x2="-12.7" y2="-33.02" width="0.1524" layer="91"/>
 <pinref part="RN27" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$62" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_35"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_35"/>
 <wire x1="-12.7" y1="-35.56" x2="-20.32" y2="-35.56" width="0.1524" layer="91"/>
 <pinref part="RN27" gate="G$1" pin="5"/>
 </segment>
@@ -17745,252 +17749,252 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="N$63" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_0"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_0"/>
 <wire x1="55.88" y1="53.34" x2="63.5" y2="53.34" width="0.1524" layer="91"/>
 <pinref part="RN5" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$64" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_1"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_1"/>
 <wire x1="55.88" y1="50.8" x2="63.5" y2="50.8" width="0.1524" layer="91"/>
 <pinref part="RN5" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$65" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_2"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_2"/>
 <wire x1="63.5" y1="48.26" x2="55.88" y2="48.26" width="0.1524" layer="91"/>
 <pinref part="RN5" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$66" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_3"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_3"/>
 <wire x1="55.88" y1="45.72" x2="63.5" y2="45.72" width="0.1524" layer="91"/>
 <pinref part="RN5" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$67" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_4"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_4"/>
 <wire x1="63.5" y1="43.18" x2="55.88" y2="43.18" width="0.1524" layer="91"/>
 <pinref part="RN6" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$68" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_5"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_5"/>
 <wire x1="55.88" y1="40.64" x2="63.5" y2="40.64" width="0.1524" layer="91"/>
 <pinref part="RN6" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$69" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_6"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_6"/>
 <wire x1="63.5" y1="38.1" x2="55.88" y2="38.1" width="0.1524" layer="91"/>
 <pinref part="RN6" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$70" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_7"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_7"/>
 <wire x1="55.88" y1="35.56" x2="63.5" y2="35.56" width="0.1524" layer="91"/>
 <pinref part="RN6" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$71" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_8"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_8"/>
 <wire x1="55.88" y1="33.02" x2="78.74" y2="33.02" width="0.1524" layer="91"/>
 <pinref part="RN7" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$72" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_9"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_9"/>
 <wire x1="78.74" y1="30.48" x2="55.88" y2="30.48" width="0.1524" layer="91"/>
 <pinref part="RN7" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$73" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_10"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_10"/>
 <wire x1="55.88" y1="27.94" x2="78.74" y2="27.94" width="0.1524" layer="91"/>
 <pinref part="RN7" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$74" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_11"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_11"/>
 <wire x1="78.74" y1="25.4" x2="55.88" y2="25.4" width="0.1524" layer="91"/>
 <pinref part="RN7" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$75" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_12"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_12"/>
 <wire x1="55.88" y1="22.86" x2="78.74" y2="22.86" width="0.1524" layer="91"/>
 <pinref part="RN8" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$76" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_13"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_13"/>
 <wire x1="78.74" y1="20.32" x2="55.88" y2="20.32" width="0.1524" layer="91"/>
 <pinref part="RN8" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$77" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_14"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_14"/>
 <wire x1="55.88" y1="17.78" x2="78.74" y2="17.78" width="0.1524" layer="91"/>
 <pinref part="RN8" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$78" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_15"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_15"/>
 <wire x1="78.74" y1="15.24" x2="55.88" y2="15.24" width="0.1524" layer="91"/>
 <pinref part="RN8" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$79" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_16"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_16"/>
 <wire x1="55.88" y1="12.7" x2="63.5" y2="12.7" width="0.1524" layer="91"/>
 <pinref part="RN14" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$80" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_17"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_17"/>
 <wire x1="63.5" y1="10.16" x2="55.88" y2="10.16" width="0.1524" layer="91"/>
 <pinref part="RN14" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$81" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_18"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_18"/>
 <wire x1="55.88" y1="7.62" x2="63.5" y2="7.62" width="0.1524" layer="91"/>
 <pinref part="RN14" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$82" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_19"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_19"/>
 <wire x1="63.5" y1="5.08" x2="55.88" y2="5.08" width="0.1524" layer="91"/>
 <pinref part="RN14" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$83" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_20"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_20"/>
 <wire x1="55.88" y1="2.54" x2="63.5" y2="2.54" width="0.1524" layer="91"/>
 <pinref part="RN20" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$84" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_21"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_21"/>
 <wire x1="63.5" y1="0" x2="55.88" y2="0" width="0.1524" layer="91"/>
 <pinref part="RN20" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$85" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_22"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_22"/>
 <wire x1="55.88" y1="-2.54" x2="63.5" y2="-2.54" width="0.1524" layer="91"/>
 <pinref part="RN20" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$86" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_23"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_23"/>
 <wire x1="63.5" y1="-5.08" x2="55.88" y2="-5.08" width="0.1524" layer="91"/>
 <pinref part="RN20" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$87" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_24"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_24"/>
 <wire x1="55.88" y1="-7.62" x2="78.74" y2="-7.62" width="0.1524" layer="91"/>
 <pinref part="RN21" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$88" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_25"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_25"/>
 <wire x1="78.74" y1="-10.16" x2="55.88" y2="-10.16" width="0.1524" layer="91"/>
 <pinref part="RN21" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$89" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_26"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_26"/>
 <wire x1="55.88" y1="-12.7" x2="78.74" y2="-12.7" width="0.1524" layer="91"/>
 <pinref part="RN21" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$90" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_27"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_27"/>
 <wire x1="78.74" y1="-15.24" x2="55.88" y2="-15.24" width="0.1524" layer="91"/>
 <pinref part="RN21" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$91" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_28"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_28"/>
 <wire x1="55.88" y1="-17.78" x2="78.74" y2="-17.78" width="0.1524" layer="91"/>
 <pinref part="RN22" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$92" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_29"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_29"/>
 <wire x1="78.74" y1="-20.32" x2="55.88" y2="-20.32" width="0.1524" layer="91"/>
 <pinref part="RN22" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$93" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_30"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_30"/>
 <wire x1="55.88" y1="-22.86" x2="78.74" y2="-22.86" width="0.1524" layer="91"/>
 <pinref part="RN22" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$94" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_31"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_31"/>
 <wire x1="78.74" y1="-25.4" x2="55.88" y2="-25.4" width="0.1524" layer="91"/>
 <pinref part="RN22" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="N$95" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_32"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_32"/>
 <wire x1="55.88" y1="-27.94" x2="63.5" y2="-27.94" width="0.1524" layer="91"/>
 <pinref part="RN23" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$96" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_33"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_33"/>
 <wire x1="63.5" y1="-30.48" x2="55.88" y2="-30.48" width="0.1524" layer="91"/>
 <pinref part="RN23" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="N$97" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_34"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_34"/>
 <wire x1="55.88" y1="-33.02" x2="63.5" y2="-33.02" width="0.1524" layer="91"/>
 <pinref part="RN23" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="N$98" class="0">
 <segment>
-<pinref part="GPIOB" gate="G$1" pin="GPIO_35"/>
+<pinref part="GPIO_B" gate="G$1" pin="GPIO_35"/>
 <wire x1="63.5" y1="-35.56" x2="55.88" y2="-35.56" width="0.1524" layer="91"/>
 <pinref part="RN23" gate="G$1" pin="5"/>
 </segment>
@@ -18321,21 +18325,21 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="N$39" class="0">
 <segment>
-<pinref part="GPIOA" gate="G$1" pin="GPIO_12"/>
+<pinref part="GPIO_A" gate="G$1" pin="GPIO_12"/>
 <wire x1="-20.32" y1="22.86" x2="5.08" y2="22.86" width="0.1524" layer="91"/>
 <pinref part="RN4" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="N$15" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_0"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_0"/>
 <pinref part="RN9" gate="G$1" pin="8"/>
 <wire x1="132.08" y1="53.34" x2="137.16" y2="53.34" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$99" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_1"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_1"/>
 <pinref part="RN9" gate="G$1" pin="7"/>
 <wire x1="132.08" y1="50.8" x2="137.16" y2="50.8" width="0.1524" layer="91"/>
 </segment>
@@ -18343,13 +18347,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$100" class="0">
 <segment>
 <pinref part="RN9" gate="G$1" pin="6"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_2"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_2"/>
 <wire x1="137.16" y1="48.26" x2="132.08" y2="48.26" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$101" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_3"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_3"/>
 <pinref part="RN9" gate="G$1" pin="5"/>
 <wire x1="132.08" y1="45.72" x2="137.16" y2="45.72" width="0.1524" layer="91"/>
 </segment>
@@ -18357,20 +18361,20 @@ with GPIOB26. Will disable!</text>
 <net name="N$102" class="0">
 <segment>
 <pinref part="RN10" gate="G$1" pin="8"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_4"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_4"/>
 <wire x1="137.16" y1="43.18" x2="132.08" y2="43.18" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$103" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_5"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_5"/>
 <pinref part="RN10" gate="G$1" pin="7"/>
 <wire x1="132.08" y1="40.64" x2="137.16" y2="40.64" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$104" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_6"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_6"/>
 <pinref part="RN10" gate="G$1" pin="6"/>
 <wire x1="132.08" y1="38.1" x2="137.16" y2="38.1" width="0.1524" layer="91"/>
 </segment>
@@ -18378,13 +18382,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$105" class="0">
 <segment>
 <pinref part="RN10" gate="G$1" pin="5"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_7"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_7"/>
 <wire x1="137.16" y1="35.56" x2="132.08" y2="35.56" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$106" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_8"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_8"/>
 <pinref part="RN11" gate="G$1" pin="8"/>
 <wire x1="132.08" y1="33.02" x2="154.94" y2="33.02" width="0.1524" layer="91"/>
 </segment>
@@ -18392,13 +18396,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$107" class="0">
 <segment>
 <pinref part="RN11" gate="G$1" pin="7"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_9"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_9"/>
 <wire x1="154.94" y1="30.48" x2="132.08" y2="30.48" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$108" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_10"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_10"/>
 <pinref part="RN11" gate="G$1" pin="6"/>
 <wire x1="132.08" y1="27.94" x2="154.94" y2="27.94" width="0.1524" layer="91"/>
 </segment>
@@ -18406,13 +18410,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$109" class="0">
 <segment>
 <pinref part="RN11" gate="G$1" pin="5"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_11"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_11"/>
 <wire x1="154.94" y1="25.4" x2="132.08" y2="25.4" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$110" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_12"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_12"/>
 <pinref part="RN12" gate="G$1" pin="8"/>
 <wire x1="132.08" y1="22.86" x2="154.94" y2="22.86" width="0.1524" layer="91"/>
 </segment>
@@ -18420,13 +18424,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$111" class="0">
 <segment>
 <pinref part="RN12" gate="G$1" pin="7"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_13"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_13"/>
 <wire x1="154.94" y1="20.32" x2="132.08" y2="20.32" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$112" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_14"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_14"/>
 <pinref part="RN12" gate="G$1" pin="6"/>
 <wire x1="132.08" y1="17.78" x2="154.94" y2="17.78" width="0.1524" layer="91"/>
 </segment>
@@ -18434,20 +18438,20 @@ with GPIOB26. Will disable!</text>
 <net name="N$113" class="0">
 <segment>
 <pinref part="RN12" gate="G$1" pin="5"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_15"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_15"/>
 <wire x1="154.94" y1="15.24" x2="132.08" y2="15.24" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$114" class="0">
 <segment>
 <pinref part="RN16" gate="G$1" pin="8"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_16"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_16"/>
 <wire x1="137.16" y1="12.7" x2="132.08" y2="12.7" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$115" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_17"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_17"/>
 <pinref part="RN16" gate="G$1" pin="7"/>
 <wire x1="132.08" y1="10.16" x2="137.16" y2="10.16" width="0.1524" layer="91"/>
 </segment>
@@ -18455,13 +18459,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$116" class="0">
 <segment>
 <pinref part="RN16" gate="G$1" pin="6"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_18"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_18"/>
 <wire x1="137.16" y1="7.62" x2="132.08" y2="7.62" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$117" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_19"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_19"/>
 <pinref part="RN16" gate="G$1" pin="5"/>
 <wire x1="132.08" y1="5.08" x2="137.16" y2="5.08" width="0.1524" layer="91"/>
 </segment>
@@ -18469,13 +18473,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$118" class="0">
 <segment>
 <pinref part="RN17" gate="G$1" pin="8"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_20"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_20"/>
 <wire x1="137.16" y1="2.54" x2="132.08" y2="2.54" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$119" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_21"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_21"/>
 <pinref part="RN17" gate="G$1" pin="7"/>
 <wire x1="132.08" y1="0" x2="137.16" y2="0" width="0.1524" layer="91"/>
 </segment>
@@ -18483,13 +18487,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$120" class="0">
 <segment>
 <pinref part="RN17" gate="G$1" pin="6"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_22"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_22"/>
 <wire x1="137.16" y1="-2.54" x2="132.08" y2="-2.54" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$121" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_23"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_23"/>
 <pinref part="RN17" gate="G$1" pin="5"/>
 <wire x1="132.08" y1="-5.08" x2="137.16" y2="-5.08" width="0.1524" layer="91"/>
 </segment>
@@ -18497,13 +18501,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$122" class="0">
 <segment>
 <pinref part="RN18" gate="G$1" pin="8"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_24"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_24"/>
 <wire x1="154.94" y1="-7.62" x2="132.08" y2="-7.62" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$123" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_25"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_25"/>
 <pinref part="RN18" gate="G$1" pin="7"/>
 <wire x1="132.08" y1="-10.16" x2="154.94" y2="-10.16" width="0.1524" layer="91"/>
 </segment>
@@ -18511,13 +18515,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$124" class="0">
 <segment>
 <pinref part="RN18" gate="G$1" pin="6"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_26"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_26"/>
 <wire x1="154.94" y1="-12.7" x2="132.08" y2="-12.7" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$125" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_27"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_27"/>
 <pinref part="RN18" gate="G$1" pin="5"/>
 <wire x1="132.08" y1="-15.24" x2="154.94" y2="-15.24" width="0.1524" layer="91"/>
 </segment>
@@ -18525,13 +18529,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$126" class="0">
 <segment>
 <pinref part="RN19" gate="G$1" pin="8"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_28"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_28"/>
 <wire x1="154.94" y1="-17.78" x2="132.08" y2="-17.78" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$127" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_29"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_29"/>
 <pinref part="RN19" gate="G$1" pin="7"/>
 <wire x1="132.08" y1="-20.32" x2="154.94" y2="-20.32" width="0.1524" layer="91"/>
 </segment>
@@ -18539,13 +18543,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$128" class="0">
 <segment>
 <pinref part="RN19" gate="G$1" pin="6"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_30"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_30"/>
 <wire x1="154.94" y1="-22.86" x2="132.08" y2="-22.86" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$129" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_31"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_31"/>
 <pinref part="RN19" gate="G$1" pin="5"/>
 <wire x1="132.08" y1="-25.4" x2="154.94" y2="-25.4" width="0.1524" layer="91"/>
 </segment>
@@ -18579,7 +18583,7 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="N$130" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_32"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_32"/>
 <pinref part="RN15" gate="G$1" pin="8"/>
 <wire x1="132.08" y1="-27.94" x2="137.16" y2="-27.94" width="0.1524" layer="91"/>
 </segment>
@@ -18587,13 +18591,13 @@ with GPIOB26. Will disable!</text>
 <net name="N$131" class="0">
 <segment>
 <pinref part="RN15" gate="G$1" pin="7"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_33"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_33"/>
 <wire x1="137.16" y1="-30.48" x2="132.08" y2="-30.48" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$132" class="0">
 <segment>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_34"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_34"/>
 <pinref part="RN15" gate="G$1" pin="6"/>
 <wire x1="132.08" y1="-33.02" x2="137.16" y2="-33.02" width="0.1524" layer="91"/>
 </segment>
@@ -18601,7 +18605,7 @@ with GPIOB26. Will disable!</text>
 <net name="N$133" class="0">
 <segment>
 <pinref part="RN15" gate="G$1" pin="5"/>
-<pinref part="GPIOC" gate="G$1" pin="GPIO_35"/>
+<pinref part="GPIO_C" gate="G$1" pin="GPIO_35"/>
 <wire x1="137.16" y1="-35.56" x2="132.08" y2="-35.56" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -18939,8 +18943,8 @@ with GPIOB26. Will disable!</text>
 <text x="20.32" y="83.82" size="1.778" layer="95">Use a zener diode for basic 5V/3.3V conversion</text>
 </plain>
 <instances>
-<instance part="USBA" gate="G$1" x="134.62" y="53.34"/>
-<instance part="USBB" gate="G$1" x="134.62" y="17.78"/>
+<instance part="USB.A" gate="G$1" x="134.62" y="53.34"/>
+<instance part="USB.B" gate="G$1" x="134.62" y="17.78"/>
 <instance part="GND9" gate="1" x="119.38" y="2.54"/>
 <instance part="R15" gate="G$1" x="93.98" y="63.5"/>
 <instance part="R16" gate="G$1" x="93.98" y="58.42"/>
@@ -18951,7 +18955,7 @@ with GPIOB26. Will disable!</text>
 <instance part="R21" gate="G$1" x="106.68" y="22.86" rot="R270"/>
 <instance part="R22" gate="G$1" x="114.3" y="17.78" rot="R270"/>
 <instance part="GND11" gate="1" x="33.02" y="58.42"/>
-<instance part="PS2" gate="G$1" x="50.8" y="68.58"/>
+<instance part="PS/2" gate="G$1" x="50.8" y="68.58"/>
 <instance part="ZD1" gate="G$1" x="25.4" y="73.66" rot="R90"/>
 <instance part="ZD2" gate="G$1" x="25.4" y="63.5" rot="R90"/>
 <instance part="R26" gate="G$1" x="33.02" y="76.2"/>
@@ -18973,10 +18977,10 @@ with GPIOB26. Will disable!</text>
 <nets>
 <net name="GND" class="0">
 <segment>
-<pinref part="USBB" gate="G$1" pin="GND"/>
+<pinref part="USB.B" gate="G$1" pin="GND"/>
 <wire x1="132.08" y1="17.78" x2="119.38" y2="17.78" width="0.1524" layer="91"/>
 <wire x1="119.38" y1="17.78" x2="119.38" y2="45.72" width="0.1524" layer="91"/>
-<pinref part="USBA" gate="G$1" pin="GND"/>
+<pinref part="USB.A" gate="G$1" pin="GND"/>
 <wire x1="119.38" y1="45.72" x2="119.38" y2="48.26" width="0.1524" layer="91"/>
 <wire x1="119.38" y1="48.26" x2="119.38" y2="53.34" width="0.1524" layer="91"/>
 <wire x1="119.38" y1="53.34" x2="132.08" y2="53.34" width="0.1524" layer="91"/>
@@ -19003,7 +19007,7 @@ with GPIOB26. Will disable!</text>
 <pinref part="ZD2" gate="G$1" pin="A"/>
 <pinref part="GND11" gate="1" pin="GND"/>
 <wire x1="33.02" y1="60.96" x2="25.4" y2="60.96" width="0.1524" layer="91"/>
-<pinref part="PS2" gate="G$1" pin="3"/>
+<pinref part="PS/2" gate="G$1" pin="3"/>
 <wire x1="40.64" y1="71.12" x2="33.02" y2="71.12" width="0.1524" layer="91"/>
 <pinref part="ZD1" gate="G$1" pin="A"/>
 <wire x1="33.02" y1="71.12" x2="25.4" y2="71.12" width="0.1524" layer="91"/>
@@ -19015,26 +19019,26 @@ with GPIOB26. Will disable!</text>
 <net name="5V0" class="0">
 <segment>
 <wire x1="116.84" y1="71.12" x2="121.92" y2="71.12" width="0.1524" layer="91"/>
-<pinref part="USBA" gate="G$1" pin="VBUS"/>
+<pinref part="USB.A" gate="G$1" pin="VBUS"/>
 <wire x1="121.92" y1="71.12" x2="129.54" y2="71.12" width="0.1524" layer="91"/>
 <wire x1="132.08" y1="55.88" x2="121.92" y2="55.88" width="0.1524" layer="91"/>
 <wire x1="121.92" y1="55.88" x2="121.92" y2="71.12" width="0.1524" layer="91"/>
 <junction x="121.92" y="71.12"/>
 <wire x1="121.92" y1="55.88" x2="121.92" y2="20.32" width="0.1524" layer="91"/>
 <junction x="121.92" y="55.88"/>
-<pinref part="USBB" gate="G$1" pin="VBUS"/>
+<pinref part="USB.B" gate="G$1" pin="VBUS"/>
 <wire x1="121.92" y1="20.32" x2="132.08" y2="20.32" width="0.1524" layer="91"/>
 <label x="116.84" y="73.66" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="PS2" gate="G$1" pin="4"/>
+<pinref part="PS/2" gate="G$1" pin="4"/>
 <wire x1="40.64" y1="68.58" x2="35.56" y2="68.58" width="0.1524" layer="91"/>
 <label x="35.56" y="68.58" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$20" class="0">
 <segment>
-<pinref part="USBA" gate="G$1" pin="D+"/>
+<pinref part="USB.A" gate="G$1" pin="D+"/>
 <wire x1="132.08" y1="60.96" x2="116.84" y2="60.96" width="0.1524" layer="91"/>
 <wire x1="116.84" y1="60.96" x2="116.84" y2="63.5" width="0.1524" layer="91"/>
 <pinref part="R19" gate="G$1" pin="1"/>
@@ -19049,7 +19053,7 @@ with GPIOB26. Will disable!</text>
 <pinref part="R16" gate="G$1" pin="2"/>
 <pinref part="R20" gate="G$1" pin="1"/>
 <wire x1="99.06" y1="58.42" x2="114.3" y2="58.42" width="0.1524" layer="91"/>
-<pinref part="USBA" gate="G$1" pin="D-"/>
+<pinref part="USB.A" gate="G$1" pin="D-"/>
 <wire x1="114.3" y1="58.42" x2="132.08" y2="58.42" width="0.1524" layer="91"/>
 <junction x="114.3" y="58.42"/>
 </segment>
@@ -19062,13 +19066,13 @@ with GPIOB26. Will disable!</text>
 <wire x1="106.68" y1="27.94" x2="127" y2="27.94" width="0.1524" layer="91"/>
 <wire x1="127" y1="27.94" x2="127" y2="25.4" width="0.1524" layer="91"/>
 <junction x="106.68" y="27.94"/>
-<pinref part="USBB" gate="G$1" pin="D+"/>
+<pinref part="USB.B" gate="G$1" pin="D+"/>
 <wire x1="127" y1="25.4" x2="132.08" y2="25.4" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$26" class="0">
 <segment>
-<pinref part="USBB" gate="G$1" pin="D-"/>
+<pinref part="USB.B" gate="G$1" pin="D-"/>
 <pinref part="R22" gate="G$1" pin="1"/>
 <wire x1="132.08" y1="22.86" x2="114.3" y2="22.86" width="0.1524" layer="91"/>
 <pinref part="R18" gate="G$1" pin="2"/>
@@ -19126,7 +19130,7 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="N$19" class="0">
 <segment>
-<pinref part="PS2" gate="G$1" pin="5"/>
+<pinref part="PS/2" gate="G$1" pin="5"/>
 <pinref part="R27" gate="G$1" pin="2"/>
 <wire x1="40.64" y1="66.04" x2="38.1" y2="66.04" width="0.1524" layer="91"/>
 </segment>
@@ -19134,7 +19138,7 @@ with GPIOB26. Will disable!</text>
 <net name="N$21" class="0">
 <segment>
 <pinref part="R26" gate="G$1" pin="2"/>
-<pinref part="PS2" gate="G$1" pin="1"/>
+<pinref part="PS/2" gate="G$1" pin="1"/>
 <wire x1="38.1" y1="76.2" x2="40.64" y2="76.2" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -19221,15 +19225,15 @@ with GPIOB26. Will disable!</text>
 <instance part="C24" gate="G$1" x="104.14" y="76.2"/>
 <instance part="C25" gate="G$1" x="104.14" y="27.94"/>
 <instance part="C26" gate="G$1" x="104.14" y="-17.78"/>
-<instance part="5VINB" gate="G$1" x="-45.72" y="81.28" rot="R180"/>
+<instance part="5V_IN_B" gate="G$1" x="-45.72" y="81.28" rot="R180"/>
 <instance part="GND16" gate="1" x="-58.42" y="55.88"/>
-<instance part="POW" gate="G$1" x="-17.78" y="76.2"/>
+<instance part="POWER_SW" gate="G$1" x="-17.78" y="76.2"/>
 <instance part="R7" gate="G$1" x="5.08" y="53.34"/>
 <instance part="C31" gate="G$1" x="15.24" y="45.72"/>
 <instance part="C32" gate="G$1" x="15.24" y="60.96"/>
 <instance part="R30" gate="G$1" x="5.08" y="48.26"/>
 <instance part="PF1" gate="G$1" x="-30.48" y="88.9"/>
-<instance part="5VIN" gate="G$1" x="-78.74" y="38.1" rot="R180"/>
+<instance part="5V_IN" gate="G$1" x="-78.74" y="38.1" rot="R180"/>
 <instance part="C37" gate="G$1" x="88.9" y="-17.78"/>
 <instance part="R36" gate="G$1" x="96.52" y="-20.32" rot="R90"/>
 <instance part="R37" gate="G$1" x="96.52" y="-35.56" rot="R90"/>
@@ -19273,7 +19277,7 @@ with GPIOB26. Will disable!</text>
 <junction x="-7.62" y="50.8"/>
 <junction x="0" y="50.8"/>
 <label x="-25.4" y="33.02" size="1.778" layer="95"/>
-<pinref part="POW" gate="G$1" pin="3"/>
+<pinref part="POWER_SW" gate="G$1" pin="3"/>
 <wire x1="-12.7" y1="78.74" x2="-7.62" y2="78.74" width="0.1524" layer="91"/>
 <junction x="-7.62" y="78.74"/>
 </segment>
@@ -19413,12 +19417,12 @@ with GPIOB26. Will disable!</text>
 <junction x="15.24" y="20.32"/>
 </segment>
 <segment>
-<pinref part="5VINB" gate="G$1" pin="GND"/>
+<pinref part="5V_IN_B" gate="G$1" pin="GND"/>
 <wire x1="-43.18" y1="81.28" x2="-40.64" y2="81.28" width="0.1524" layer="91"/>
 <wire x1="-40.64" y1="81.28" x2="-40.64" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="-40.64" y1="58.42" x2="-58.42" y2="58.42" width="0.1524" layer="91"/>
 <pinref part="GND16" gate="1" pin="GND"/>
-<pinref part="5VIN" gate="G$1" pin="5"/>
+<pinref part="5V_IN" gate="G$1" pin="5"/>
 <wire x1="-73.66" y1="43.18" x2="-68.58" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="-68.58" y1="43.18" x2="-68.58" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="-68.58" y1="58.42" x2="-58.42" y2="58.42" width="0.1524" layer="91"/>
@@ -19438,12 +19442,12 @@ with GPIOB26. Will disable!</text>
 </net>
 <net name="N$2" class="0">
 <segment>
-<pinref part="5VINB" gate="G$1" pin="VBUS"/>
+<pinref part="5V_IN_B" gate="G$1" pin="VBUS"/>
 <wire x1="-35.56" y1="78.74" x2="-43.18" y2="78.74" width="0.1524" layer="91"/>
 <label x="-33.02" y="81.28" size="1.778" layer="95"/>
 <pinref part="PF1" gate="G$1" pin="1"/>
 <wire x1="-35.56" y1="78.74" x2="-35.56" y2="88.9" width="0.1524" layer="91"/>
-<pinref part="5VIN" gate="G$1" pin="1"/>
+<pinref part="5V_IN" gate="G$1" pin="1"/>
 <wire x1="-73.66" y1="33.02" x2="-60.96" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="-60.96" y1="33.02" x2="-60.96" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="-60.96" y1="43.18" x2="-35.56" y2="43.18" width="0.1524" layer="91"/>
@@ -19486,7 +19490,7 @@ with GPIOB26. Will disable!</text>
 <segment>
 <pinref part="PF1" gate="G$1" pin="2"/>
 <wire x1="-22.86" y1="88.9" x2="-25.4" y2="88.9" width="0.1524" layer="91"/>
-<pinref part="POW" gate="G$1" pin="1"/>
+<pinref part="POWER_SW" gate="G$1" pin="1"/>
 <wire x1="-22.86" y1="88.9" x2="-22.86" y2="76.2" width="0.1524" layer="91"/>
 </segment>
 </net>
