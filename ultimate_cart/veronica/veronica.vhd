@@ -313,7 +313,7 @@ begin
 		read_data => veronica_read_data
 	);
 	
-	EXT_SRAM_CE <= '0';
+	EXT_SRAM_CE <= '1';
 	
 	cart_rd4 <= '1' when atari_bank8_enable='1' else 'Z';
 	cart_rd5 <= '1' when atari_banka_enable='1' else 'Z';
