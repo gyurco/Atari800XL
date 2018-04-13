@@ -53,8 +53,8 @@ port(
 	-- Some unknown inputs
 	abort : in std_logic; -- another interrupt (active low)
 	be : in std_logic;    -- bus enable (active high)
-	err_i : in std_logic; -- set to 1 in example
-	rty_i : in std_logic; -- set to 1 in example
+	err_i : in std_logic; -- set to 0 in example
+	rty_i : in std_logic; -- set to 0 in example
 
 	-- Some unknown outputs
 	vpa : out std_logic; -- valid program address
@@ -151,8 +151,8 @@ begin
 			rdy => not(atari_bus_request), -- 6502 priority for sram access!
 			abort => '1',
 			be => '1',
-			err_i => '1',
-			rty_i => '1',
+			err_i => '0',
+			rty_i => '0',
 			ad => veronica_address,
 			rw => veronica_w_n,
 			dw => veronica_write_data,
