@@ -169,10 +169,10 @@ begin
 					end if;
 				end if;
 			when state_write_request =>
-				if (delay_reg(45)='1') then -- n+4 cycles
+				if (delay_reg(47)='1') then -- n+4 cycles
 					bus_data_in_next <= bus_data;
 				end if;
-				if (delay_reg(46)='1') then -- n+4 cycles
+				if (delay_reg(48)='1') then -- n+4 cycles
 					internal_memory_request <= '1';
 					state_next <= state_wait_addrctl;
 				end if;
