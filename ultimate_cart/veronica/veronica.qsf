@@ -137,6 +137,7 @@ set_global_assignment -name VHDL_FILE veronica_address_decoder.vhd
 set_global_assignment -name VHDL_FILE atari_address_decoder.vhd
 set_global_assignment -name VHDL_FILE sram_mux.vhd
 set_global_assignment -name VHDL_FILE output_mux.vhd
+set_global_assignment -name VHDL_FILE memory_timing_bridge.vhd
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SD_CARD_miso
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SD_CARD_mosi
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SD_CARD_sclk
