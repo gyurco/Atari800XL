@@ -13,7 +13,9 @@ ENTITY config_regs_6502 IS
 				BANK_HALF_SELECT: out std_logic;
 				BANK_SELECT: out std_logic;
 				ENABLE_65816: out std_logic;
-
+				
+				SEM_WRITE_65816 : in std_logic;
+				SEM_VALUE_65816 : in std_logic;				
 				
 				DATA_IN: in std_logic_vector(7 downto 0);
 				DATA_OUT: out std_logic_vector(7 downto 0);
@@ -61,7 +63,7 @@ begin
 		end if;
 	end process;
 	
-	process(data_in,rw_n,sem_reg,banka_enable_reg,bank8_enable_reg,bank_half_reg,bank_select_reg,enable_65816_reg)
+	process(data_in,rw_n,sem_reg,banka_enable_reg,bank8_enable_reg,bank_half_reg,bank_select_reg,enable_65816_reg,sem_write_65816,sem_value_65816)
 	begin
 		sem_next <= sem_reg;
 		banka_enable_next <= banka_enable_reg;
@@ -77,6 +79,10 @@ begin
 			bank_half_next <= data_in(3);
 			bank_select_next <= data_in(1);
 			enable_65816_next <= data_in(0);
+		end if;
+		
+		if (sem_write_65816='1') then
+			sem_next <= sem_value_65816;
 		end if;
 	end process;
 	

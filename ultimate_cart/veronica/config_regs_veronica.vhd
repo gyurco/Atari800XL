@@ -11,6 +11,9 @@ ENTITY config_regs_veronica IS
 				WINDOW_ADDRESS: out std_logic;
 				BANK_HALF_SELECT: out std_logic;
 				
+				SEM_WRITE : out std_logic;
+				SEM_VALUE : out std_logic;
+				
 				DATA_IN: in std_logic_vector(7 downto 0);
 				DATA_OUT: out std_logic_vector(7 downto 0);
 				RW_N: in std_logic
@@ -41,10 +44,14 @@ begin
 	begin
 		window_address_next <= window_address_reg;
 		bank_half_next <= bank_half_reg;
+		sem_write <= '0';
+		sem_value <= '0'; -- Not important
 		
 		if (rw_n='0') then
 			window_address_next <= data_in(6);
 			bank_half_next <= data_in(5);
+			sem_write <= '1';
+			sem_value <= not(data_in(7));
 		end if;
 	end process;
 	

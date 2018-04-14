@@ -53,8 +53,8 @@ port(
 	-- Some unknown inputs
 	abort : in std_logic; -- another interrupt (active low)
 	be : in std_logic;    -- bus enable (active high)
-	err_i : in std_logic; -- set to 0 in example
-	rty_i : in std_logic; -- set to 0 in example
+	err_i : in std_logic; -- set to 1 in example
+	rty_i : in std_logic; -- set to 1 in example
 
 	-- Some unknown outputs
 	vpa : out std_logic; -- valid program address
@@ -116,9 +116,13 @@ end component;
 	signal atari_bank_half_select : std_logic;
 	signal atari_config_data : std_logic_vector(7 downto 0);
 
-	-- common config
+	-- common config	
+	signal common_bank_select : std_logic;	
+	 
+	-- semaphora
 	signal common_sem : std_logic;	
-	signal common_bank_select : std_logic;
+	signal veronica_sem_write : std_logic;
+	signal veronica_sem_value : std_logic;
 	
 	-- cart driving
 	signal cart_bus_data_out : std_logic_vector(7 downto 0);
@@ -174,6 +178,8 @@ begin
 		sem_in => common_sem,
 		window_address => veronica_window_address,
 		bank_half_select => veronica_bank_half_select,
+		sem_write => veronica_sem_write,
+		sem_value => veronica_sem_value,
 		
 		data_in => veronica_write_data,
 		data_out => veronica_config_data,
@@ -195,6 +201,8 @@ begin
 		bank_half_select => atari_bank_half_select,
 		bank_select => common_bank_select,
 		enable_65816 => veronica_reset,
+		sem_write_65816 => veronica_sem_write,
+		sem_value_65816 => veronica_sem_value,		
 		
 		data_in => atari_write_data,
 		data_out => atari_config_data,
