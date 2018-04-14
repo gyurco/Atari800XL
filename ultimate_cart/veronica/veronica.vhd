@@ -173,7 +173,7 @@ begin
 	port map
 	(
 		clk => clk_adj,
-		reset_n => reset_n,
+		reset_n => reset_n and veronica_reset,
 		
 		sem_in => common_sem,
 		window_address => veronica_window_address,
