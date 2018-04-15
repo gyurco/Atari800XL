@@ -1,3 +1,16 @@
-This is not a 'real' veronica
-Its a clone to try out Rob Finch's 65816 core - it will run on the ultimate cart (when finished, not ready yet)
-If you like it consider buying the original real cartridge with a real 65816
+This is an implementation, a behavior based clone, of the Project Veronica 65816 cartridge. It is designed to run on the Ultimate Cart. The 65816 implementation is not cycle exact but seems to run fairly reliably so far.
+
+Software suggestions:
+http://atariage.com/forums/topic/164097-project-veronica/?p=3190927 : atr file with tests and demos
+http://atariage.com/forums/topic/164097-project-veronica/?p=3227906 : Veronica Basic
+
+Many thanks to Zenon/DIAL, Marek Konopka, and Simius for their work on the original. Thanks for Robin Edwards for his work on the Ultimate Cart. Thanks to Robert Finch for his 65816 core. Thanks for Avery Lee for his work on the documentation of the Veronica cart and Veronica Basic.
+
+See https://github.com/robinhedwards/UltimateCart for details about the Ultimate Cart.
+See http://atariage.com/forums/topic/164097-project-veronica/ for details about Project Veronica.
+See https://github.com/robfinch/Cores/tree/master/FT816 for the 65816 core.
+
+Video demos:
+https://youtu.be/p3m2Kh3Zom8
+https://youtu.be/mNBle7D7TNI
+
