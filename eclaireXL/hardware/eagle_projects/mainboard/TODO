@@ -1,6 +1,0 @@
-DONE:Fix micro USB - slightly too close
-DONE: Power switch missing solder pads
-Check micro USB replacement footprint
-Check sdram replacement data sheet
-A9EFA did not work - guessing it was a soldering error or a bad ic (sourced cheap from ebay seller...)
-BGA placement - use copper not silk screen

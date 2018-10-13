@@ -1,6 +1,0 @@
-	component serial_loader is
-		port (
-			noe_in : in std_logic := 'X'  -- noe
-		);
-	end component serial_loader;
-

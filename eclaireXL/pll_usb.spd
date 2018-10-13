@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<simPackage>
- <file path="pll_usb_sim/pll_usb.vho" type="VHDL" />
- <topLevel name="pll_usb" />
- <deviceFamily name="cyclonev" />
-</simPackage>
