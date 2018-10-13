@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy
+ date="2016.12.30.21:15:22"
+ outputDirectory="/home/markw/fpga/svn/repo/trunk/atari_800xl/eclaireXL_ITX/build_A2EBA/ddioclkctrl/">
+ <perimeter>
+  <parameter
+     name="AUTO_GENERATION_ID"
+     type="Integer"
+     defaultValue="0"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_UNIQUE_ID"
+     type="String"
+     defaultValue=""
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_DEVICE_FAMILY"
+     type="String"
+     defaultValue="Cyclone V"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_DEVICE"
+     type="String"
+     defaultValue="5CEBA2F23C8"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_DEVICE_SPEEDGRADE"
+     type="String"
+     defaultValue="8"
+     onHdl="0"
+     affectsHdl="1" />
+  <interface name="altclkctrl_input" kind="conduit" start="0">
+   <property name="associatedClock" value="" />
+   <property name="associatedReset" value="" />
+   <port name="inclk3x" direction="input" role="inclk3x" width="1" />
+   <port name="inclk2x" direction="input" role="inclk2x" width="1" />
+   <port name="inclk1x" direction="input" role="inclk1x" width="1" />
+   <port name="inclk0x" direction="input" role="inclk0x" width="1" />
+   <port name="clkselect" direction="input" role="clkselect" width="2" />
+   <port name="ena" direction="input" role="ena" width="1" />
+  </interface>
+  <interface name="altclkctrl_output" kind="conduit" start="0">
+   <property name="associatedClock" value="" />
+   <property name="associatedReset" value="" />
+   <port name="outclk" direction="output" role="outclk" width="1" />
+  </interface>
+ </perimeter>
+ <entity
+   path=""
+   parameterizationKey="ddioclkctrl:1.0:AUTO_DEVICE=5CEBA2F23C8,AUTO_DEVICE_FAMILY=Cyclone V,AUTO_DEVICE_SPEEDGRADE=8,AUTO_GENERATION_ID=1483132522,AUTO_UNIQUE_ID=(altclkctrl:16.1:CLOCK_TYPE=0,DEVICE_FAMILY=Cyclone V,ENA_REGISTER_MODE=2,GUI_USE_ENA=true,NUMBER_OF_CLOCKS=4,USE_GLITCH_FREE_SWITCH_OVER_IMPLEMENTATION=false)"
+   instancePathKey="ddioclkctrl"
+   kind="ddioclkctrl"
+   version="1.0"
+   name="ddioclkctrl">
+  <parameter name="AUTO_GENERATION_ID" value="1483132522" />
+  <parameter name="AUTO_DEVICE" value="5CEBA2F23C8" />
+  <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone V" />
+  <parameter name="AUTO_UNIQUE_ID" value="" />
+  <parameter name="AUTO_DEVICE_SPEEDGRADE" value="8" />
+  <generatedFiles>
+   <file
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/eclaireXL_ITX/build_A2EBA/ddioclkctrl/synthesis/ddioclkctrl.vhd"
+       type="VHDL" />
+  </generatedFiles>
+  <childGeneratedFiles>
+   <file
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/eclaireXL_ITX/build_A2EBA/ddioclkctrl/synthesis/submodules/ddioclkctrl_altclkctrl_0.v"
+       type="VERILOG"
+       attributes="" />
+  </childGeneratedFiles>
+  <sourceFiles>
+   <file
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/eclaireXL_ITX/build_A2EBA/ddioclkctrl.qsys" />
+  </sourceFiles>
+  <childSourceFiles>
+   <file
+       path="/home/markw/fpga/intelFPGA_lite/16.1/ip/altera/megafunctions/altclkctrl/altclkctrl_hw.tcl" />
+  </childSourceFiles>
+  <messages>
+   <message level="Debug" culprit="ddioclkctrl">queue size: 0 starting:ddioclkctrl "ddioclkctrl"</message>
+   <message level="Progress" culprit="min"></message>
+   <message level="Progress" culprit="max"></message>
+   <message level="Progress" culprit="current"></message>
+   <message level="Debug">Transform: CustomInstructionTransform</message>
+   <message level="Debug">No custom instruction connections, skipping transform </message>
+   <message level="Debug" culprit="merlin_custom_instruction_transform"><![CDATA[After transform: <b>1</b> modules, <b>0</b> connections]]></message>
+   <message level="Debug">Transform: MMTransform</message>
+   <message level="Debug">Transform: InterruptMapperTransform</message>
+   <message level="Debug">Transform: InterruptSyncTransform</message>
+   <message level="Debug">Transform: InterruptFanoutTransform</message>
+   <message level="Debug">Transform: AvalonStreamingTransform</message>
+   <message level="Debug">Transform: ResetAdaptation</message>
+   <message level="Debug" culprit="ddioclkctrl"><![CDATA["<b>ddioclkctrl</b>" reuses <b>altclkctrl</b> "<b>submodules/ddioclkctrl_altclkctrl_0</b>"]]></message>
+   <message level="Debug" culprit="ddioclkctrl">queue size: 0 starting:altclkctrl "submodules/ddioclkctrl_altclkctrl_0"</message>
+   <message level="Info" culprit="altclkctrl_0">Generating top-level entity ddioclkctrl_altclkctrl_0.</message>
+   <message level="Debug" culprit="altclkctrl_0">Current quartus bindir: /home/markw/fpga/intelFPGA_lite/16.1/quartus/linux64/.</message>
+   <message level="Info" culprit="altclkctrl_0"><![CDATA["<b>ddioclkctrl</b>" instantiated <b>altclkctrl</b> "<b>altclkctrl_0</b>"]]></message>
+  </messages>
+ </entity>
+ <entity
+   path="submodules/"
+   parameterizationKey="altclkctrl:16.1:CLOCK_TYPE=0,DEVICE_FAMILY=Cyclone V,ENA_REGISTER_MODE=2,GUI_USE_ENA=true,NUMBER_OF_CLOCKS=4,USE_GLITCH_FREE_SWITCH_OVER_IMPLEMENTATION=false"
+   instancePathKey="ddioclkctrl:.:altclkctrl_0"
+   kind="altclkctrl"
+   version="16.1"
+   name="ddioclkctrl_altclkctrl_0">
+  <parameter name="NUMBER_OF_CLOCKS" value="4" />
+  <parameter name="USE_GLITCH_FREE_SWITCH_OVER_IMPLEMENTATION" value="false" />
+  <parameter name="GUI_USE_ENA" value="true" />
+  <parameter name="DEVICE_FAMILY" value="Cyclone V" />
+  <parameter name="ENA_REGISTER_MODE" value="2" />
+  <parameter name="CLOCK_TYPE" value="0" />
+  <generatedFiles>
+   <file
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/eclaireXL_ITX/build_A2EBA/ddioclkctrl/synthesis/submodules/ddioclkctrl_altclkctrl_0.v"
+       type="VERILOG"
+       attributes="" />
+  </generatedFiles>
+  <childGeneratedFiles/>
+  <sourceFiles>
+   <file
+       path="/home/markw/fpga/intelFPGA_lite/16.1/ip/altera/megafunctions/altclkctrl/altclkctrl_hw.tcl" />
+  </sourceFiles>
+  <childSourceFiles/>
+  <instantiator instantiator="ddioclkctrl" as="altclkctrl_0" />
+  <messages>
+   <message level="Debug" culprit="ddioclkctrl">queue size: 0 starting:altclkctrl "submodules/ddioclkctrl_altclkctrl_0"</message>
+   <message level="Info" culprit="altclkctrl_0">Generating top-level entity ddioclkctrl_altclkctrl_0.</message>
+   <message level="Debug" culprit="altclkctrl_0">Current quartus bindir: /home/markw/fpga/intelFPGA_lite/16.1/quartus/linux64/.</message>
+   <message level="Info" culprit="altclkctrl_0"><![CDATA["<b>ddioclkctrl</b>" instantiated <b>altclkctrl</b> "<b>altclkctrl_0</b>"]]></message>
+  </messages>
+ </entity>
+</deploy>

@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="pokeymax.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="attributes" />
+            <top_module name="numeric_std" />
+            <top_module name="pokeymax_tb" />
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_misc" />
+            <top_module name="std_logic_textio" />
+            <top_module name="std_logic_unsigned" />
+            <top_module name="textio" />
+            <top_module name="vl_types" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="105" />
+   <wvobject fp_name="/pokeymax_tb/thebigone/oscillator/clkout" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clkout</obj_property>
+      <obj_property name="ObjectShortName">clkout</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/phi_multiplier/phi2" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">phi2</obj_property>
+      <obj_property name="ObjectShortName">phi2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pll_inst/inclk0" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">inclk0</obj_property>
+      <obj_property name="ObjectShortName">inclk0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pll_inst/c0" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">c0</obj_property>
+      <obj_property name="ObjectShortName">c0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pll_inst/locked" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">locked</obj_property>
+      <obj_property name="ObjectShortName">locked</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/bus_adaptor/bus_phi2" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bus_phi2</obj_property>
+      <obj_property name="ObjectShortName">bus_phi2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey1/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey1/enable_179" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">enable_179</obj_property>
+      <obj_property name="ObjectShortName">enable_179</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey1/addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">addr[3:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey1/data_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">data_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_in[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey1/wr_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">wr_en</obj_property>
+      <obj_property name="ObjectShortName">wr_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey1/data_out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">data_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_out[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/bus_adapt/enable_cycle" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">enable_cycle</obj_property>
+      <obj_property name="ObjectShortName">enable_cycle</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey1/enable_179" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">enable_179</obj_property>
+      <obj_property name="ObjectShortName">enable_179</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey1/timer0/count_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">count_reg[7:0]</obj_property>
+      <obj_property name="ObjectShortName">count_reg[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey1/channel_0_out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">channel_0_out[3:0]</obj_property>
+      <obj_property name="ObjectShortName">channel_0_out[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey1/channel_1_out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">channel_1_out[3:0]</obj_property>
+      <obj_property name="ObjectShortName">channel_1_out[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey1/channel_2_out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">channel_2_out[3:0]</obj_property>
+      <obj_property name="ObjectShortName">channel_2_out[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey1/channel_3_out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">channel_3_out[3:0]</obj_property>
+      <obj_property name="ObjectShortName">channel_3_out[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/pbi_write_enable" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">pbi_write_enable</obj_property>
+      <obj_property name="ObjectShortName">pbi_write_enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/pbi_addr_out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">pbi_addr_out[15:0]</obj_property>
+      <obj_property name="ObjectShortName">pbi_addr_out[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/cart_data_write" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cart_data_write[7:0]</obj_property>
+      <obj_property name="ObjectShortName">cart_data_write[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/bus_adaptor/data_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">data_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_in[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/bus_adaptor/bus_data_out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bus_data_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bus_data_out[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/bus_adaptor/bus_data_oe" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bus_data_oe</obj_property>
+      <obj_property name="ObjectShortName">bus_data_oe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/bus_adaptor/request" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">request</obj_property>
+      <obj_property name="ObjectShortName">request</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/phi2" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">phi2</obj_property>
+      <obj_property name="ObjectShortName">phi2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/clk_slow" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_slow</obj_property>
+      <obj_property name="ObjectShortName">clk_slow</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/a" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">a[4:0]</obj_property>
+      <obj_property name="ObjectShortName">a[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/d" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">d[7:0]</obj_property>
+      <obj_property name="ObjectShortName">d[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/bus_adapt/state_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">state_reg[2:0]</obj_property>
+      <obj_property name="ObjectShortName">state_reg[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/bus_adapt/delay_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">delay_reg[31:0]</obj_property>
+      <obj_property name="ObjectShortName">delay_reg[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/w_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">w_n</obj_property>
+      <obj_property name="ObjectShortName">w_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/bus_adaptor/control_n_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">control_n_in[0:0]</obj_property>
+      <obj_property name="ObjectShortName">control_n_in[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/bus_adaptor/bus_control_n" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bus_control_n[0:0]</obj_property>
+      <obj_property name="ObjectShortName">bus_control_n[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/bus_cs_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bus_cs_n</obj_property>
+      <obj_property name="ObjectShortName">bus_cs_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/cs_comb" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cs_comb</obj_property>
+      <obj_property name="ObjectShortName">cs_comb</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/bus_adapt/bus_data_out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bus_data_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bus_data_out[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/bus_adapt/internal_memory_request" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">internal_memory_request</obj_property>
+      <obj_property name="ObjectShortName">internal_memory_request</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/bus_adapt/bus_drive" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bus_drive</obj_property>
+      <obj_property name="ObjectShortName">bus_drive</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/bus_adapt/bus_request" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bus_request</obj_property>
+      <obj_property name="ObjectShortName">bus_request</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/bus_adapt/addr_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">addr_in[4:0]</obj_property>
+      <obj_property name="ObjectShortName">addr_in[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/bus_adapt/data_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">data_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_in[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/bus_adapt/rw_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rw_n</obj_property>
+      <obj_property name="ObjectShortName">rw_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/bus_adaptor/bus_control_n" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bus_control_n[0:0]</obj_property>
+      <obj_property name="ObjectShortName">bus_control_n[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/bus_adapt/bus_cs" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bus_cs</obj_property>
+      <obj_property name="ObjectShortName">bus_cs</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/bus_adapt/cs" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cs</obj_property>
+      <obj_property name="ObjectShortName">cs</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/do_mux" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">do_mux[7:0]</obj_property>
+      <obj_property name="ObjectShortName">do_mux[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/aud[4]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[4]</obj_property>
+      <obj_property name="ObjectShortName">aud[4]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/aud[3]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[3]</obj_property>
+      <obj_property name="ObjectShortName">aud[3]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/aud[2]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[2]</obj_property>
+      <obj_property name="ObjectShortName">aud[2]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/aud[1]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[1]</obj_property>
+      <obj_property name="ObjectShortName">aud[1]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/volume_out_l" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">volume_out_l[15:0]</obj_property>
+      <obj_property name="ObjectShortName">volume_out_l[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/volume_out_r" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">volume_out_r[15:0]</obj_property>
+      <obj_property name="ObjectShortName">volume_out_r[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/enable_179" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">enable_179</obj_property>
+      <obj_property name="ObjectShortName">enable_179</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/channel_l_0" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">channel_l_0[3:0]</obj_property>
+      <obj_property name="ObjectShortName">channel_l_0[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/channel_l_1" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">channel_l_1[3:0]</obj_property>
+      <obj_property name="ObjectShortName">channel_l_1[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/channel_l_2" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">channel_l_2[3:0]</obj_property>
+      <obj_property name="ObjectShortName">channel_l_2[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/channel_l_3" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">channel_l_3[3:0]</obj_property>
+      <obj_property name="ObjectShortName">channel_l_3[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/covox_channel_l_0" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">covox_channel_l_0[7:0]</obj_property>
+      <obj_property name="ObjectShortName">covox_channel_l_0[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/covox_channel_l_1" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">covox_channel_l_1[7:0]</obj_property>
+      <obj_property name="ObjectShortName">covox_channel_l_1[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/channel_r_0" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">channel_r_0[3:0]</obj_property>
+      <obj_property name="ObjectShortName">channel_r_0[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/channel_r_1" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">channel_r_1[3:0]</obj_property>
+      <obj_property name="ObjectShortName">channel_r_1[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/channel_r_2" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">channel_r_2[3:0]</obj_property>
+      <obj_property name="ObjectShortName">channel_r_2[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/channel_r_3" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">channel_r_3[3:0]</obj_property>
+      <obj_property name="ObjectShortName">channel_r_3[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/covox_channel_r_0" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">covox_channel_r_0[7:0]</obj_property>
+      <obj_property name="ObjectShortName">covox_channel_r_0[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/covox_channel_r_1" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">covox_channel_r_1[7:0]</obj_property>
+      <obj_property name="ObjectShortName">covox_channel_r_1[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/gtia_sound" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">gtia_sound</obj_property>
+      <obj_property name="ObjectShortName">gtia_sound</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/sio_audio" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sio_audio[7:0]</obj_property>
+      <obj_property name="ObjectShortName">sio_audio[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/filter_right/audio_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">audio_in[15:0]</obj_property>
+      <obj_property name="ObjectShortName">audio_in[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/filter_right/sample_in" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sample_in</obj_property>
+      <obj_property name="ObjectShortName">sample_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/filter_left/audio_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">audio_in[15:0]</obj_property>
+      <obj_property name="ObjectShortName">audio_in[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/left_channel_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">left_channel_reg</obj_property>
+      <obj_property name="ObjectShortName">left_channel_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/pokey_mixer_both/filter_left/sample_in" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sample_in</obj_property>
+      <obj_property name="ObjectShortName">sample_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/iox_sda" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">iox_sda</obj_property>
+      <obj_property name="ObjectShortName">iox_sda</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/iox_scl" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">iox_scl</obj_property>
+      <obj_property name="ObjectShortName">iox_scl</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/i2c_master0/ena" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ena</obj_property>
+      <obj_property name="ObjectShortName">ena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/i2c_master0/addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">addr[6:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[6:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/i2c_master0/rw" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rw</obj_property>
+      <obj_property name="ObjectShortName">rw</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/i2c_master0/data_wr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">data_wr[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_wr[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/i2c_master0/busy" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">busy</obj_property>
+      <obj_property name="ObjectShortName">busy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/iox_glue/busy_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">busy_reg</obj_property>
+      <obj_property name="ObjectShortName">busy_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/iox_glue/op_complete" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">op_complete</obj_property>
+      <obj_property name="ObjectShortName">op_complete</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/iox_glue/state_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">state_reg[3:0]</obj_property>
+      <obj_property name="ObjectShortName">state_reg[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/i2c_master0/ena" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ena</obj_property>
+      <obj_property name="ObjectShortName">ena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/i2c_master0/data_wr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">data_wr[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_wr[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/iox_glue/i2c_state_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i2c_state_reg[1:0]</obj_property>
+      <obj_property name="ObjectShortName">i2c_state_reg[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/i2cslave/scl" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">scl</obj_property>
+      <obj_property name="ObjectShortName">scl</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/i2cslave/sda" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sda</obj_property>
+      <obj_property name="ObjectShortName">sda</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/i2cslave/read_req" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">read_req</obj_property>
+      <obj_property name="ObjectShortName">read_req</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/i2cslave/data_to_master" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">data_to_master[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_to_master[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/i2cslave/data_valid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">data_valid</obj_property>
+      <obj_property name="ObjectShortName">data_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/i2cslave/data_from_master" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">data_from_master[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_from_master[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/i2cslave/state_reg" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">state_reg</obj_property>
+      <obj_property name="ObjectShortName">state_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/i2cslave/sda_prev_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sda_prev_reg</obj_property>
+      <obj_property name="ObjectShortName">sda_prev_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/i2cslave/scl_prev_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">scl_prev_reg</obj_property>
+      <obj_property name="ObjectShortName">scl_prev_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/i2cslave/scl_debounced" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">scl_debounced</obj_property>
+      <obj_property name="ObjectShortName">scl_debounced</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/i2cslave/sda_debounced" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sda_debounced</obj_property>
+      <obj_property name="ObjectShortName">sda_debounced</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/i2cslave/start_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">start_reg</obj_property>
+      <obj_property name="ObjectShortName">start_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/i2cslave/stop_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">stop_reg</obj_property>
+      <obj_property name="ObjectShortName">stop_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/iox_glue/keyboard_response_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">keyboard_response_reg[1:0]</obj_property>
+      <obj_property name="ObjectShortName">keyboard_response_reg[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/keyboard_scan" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">keyboard_scan[5:0]</obj_property>
+      <obj_property name="ObjectShortName">keyboard_scan[5:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/iox_glue/keyboard_scan_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">keyboard_scan_reg[5:0]</obj_property>
+      <obj_property name="ObjectShortName">keyboard_scan_reg[5:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/pokeymax_tb/thebigone/iox_glue/keyboard_response" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">keyboard_response[1:0]</obj_property>
+      <obj_property name="ObjectShortName">keyboard_response[1:0]</obj_property>
+   </wvobject>
+</wave_config>

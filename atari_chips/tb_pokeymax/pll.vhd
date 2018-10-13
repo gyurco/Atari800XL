@@ -1,0 +1,154 @@
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+
+ENTITY pll IS
+PORT 
+( 
+	inclk0 : IN STD_LOGIC;
+	c0 : OUT STD_LOGIC;
+	locked : OUT STD_LOGIC
+);
+END pll;
+
+ARCHITECTURE vhdl OF pll IS
+  constant CLK0_PERIOD : time := 1 us / (1.79*32);
+begin
+	p_clk_gen_a : process
+	begin
+	if inclk0/= '1' then
+     	   wait until (inclk0='1');
+	end if;
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for clk0_period - (clk0_period/2 );
+	c0 <= '1';
+	wait for CLK0_PERIOD/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for clk0_period - (clk0_period/2 );
+	c0 <= '1';
+	wait for CLK0_PERIOD/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for clk0_period - (clk0_period/2 );
+	c0 <= '1';
+	wait for CLK0_PERIOD/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for clk0_period - (clk0_period/2 );
+	c0 <= '1';
+	wait for CLK0_PERIOD/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for clk0_period - (clk0_period/2 );
+	c0 <= '1';
+	wait for CLK0_PERIOD/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for clk0_period - (clk0_period/2 );
+	c0 <= '1';
+	wait for CLK0_PERIOD/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for clk0_period - (clk0_period/2 );
+	c0 <= '1';
+	wait for CLK0_PERIOD/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for clk0_period - (clk0_period/2 );
+	c0 <= '1';
+	wait for CLK0_PERIOD/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for clk0_period - (clk0_period/2 );
+	c0 <= '1';
+	wait for CLK0_PERIOD/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for clk0_period - (clk0_period/2 );
+	c0 <= '1';
+	wait for CLK0_PERIOD/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for clk0_period - (clk0_period/2 );
+	c0 <= '1';
+	wait for CLK0_PERIOD/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for clk0_period - (clk0_period/2 );
+	c0 <= '1';
+	wait for CLK0_PERIOD/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for clk0_period - (clk0_period/2 );
+	c0 <= '1';
+	wait for CLK0_PERIOD/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for clk0_period - (clk0_period/2 );
+	c0 <= '1';
+	wait for CLK0_PERIOD/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for clk0_period - (clk0_period/2 );
+	c0 <= '1';
+	wait for CLK0_PERIOD/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	wait for CLK0_PERIOD - (CLK0_PERIOD/2 );
+	c0 <= '1';
+	wait for clk0_period/2;
+	c0 <= '0';
+	end process;
+
+	locked <= '0', '1' after 2000ns;
+end vhdl;
+

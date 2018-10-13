@@ -189,10 +189,10 @@ BEGIN
 			end if;
 		when x"c" =>
 		when x"d" =>
+		when x"e" =>
 			complete_next <= request_handling_reg;
 			request_handling_next <= '0';
 			data_read_next <= bus_data_in;
-		when x"e" =>
 			phi2_next <= '0';
 		when x"f" =>
 			addr_next <= (others=>'0');

@@ -2,6 +2,7 @@
 #define MEMORY_H
 
 #define SRAM_BASE ((void*) 0x200000)
+#define ROM_BASE   ((void*) 0x400000)
 #define SDRAM_BASE ((void*) 0x800000)
 
 // Memory usage...
@@ -18,6 +19,8 @@
 #define FREEZER_ROM_MEM (SDRAM_BASE + 0x4A0000)
 #define HAVE_FREEZER_ROM_MEM 1
 
+#define SCRATCH_MEM (SDRAM_BASE + 0x4B0000)
+
 #define CARTRIDGE_MEM (SDRAM_BASE + 0x500000)
 
 // offset into SDRAM
@@ -27,5 +30,6 @@
 #define atari_regmirror  ((void*) 0x20000)
 #define zpu_regbase ((void*) 0x40000)
 #define pokey_regbase ((void*) 0x40400)
+#define pll_regbase ((void*) 0x41c00)
 
 #endif

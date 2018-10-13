@@ -1,0 +1,29 @@
+Info: Starting: Create block symbol file (.bsf)
+Info: qsys-generate /home/markw/fpga/svn/repo/branches/eclaireitx/atari_800xl/eclaireXL_ITX/build_A4EBArom/sfl.qsys --block-symbol-file --output-directory=/home/markw/fpga/svn/repo/branches/eclaireitx/atari_800xl/eclaireXL_ITX/build_A4EBArom/sfl --family="Cyclone V" --part=5CEBA4F23C8
+Progress: Loading build_A4EBArom/sfl.qsys
+Progress: Reading input file
+Progress: Adding serial_flash_loader_0 [altera_serial_flash_loader 17.0]
+Progress: Parameterizing module serial_flash_loader_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: qsys-generate succeeded.
+Info: Finished: Create block symbol file (.bsf)
+Info: 
+Info: Starting: Create HDL design files for synthesis
+Info: qsys-generate /home/markw/fpga/svn/repo/branches/eclaireitx/atari_800xl/eclaireXL_ITX/build_A4EBArom/sfl.qsys --synthesis=VHDL --output-directory=/home/markw/fpga/svn/repo/branches/eclaireitx/atari_800xl/eclaireXL_ITX/build_A4EBArom/sfl/synthesis --family="Cyclone V" --part=5CEBA4F23C8
+Progress: Loading build_A4EBArom/sfl.qsys
+Progress: Reading input file
+Progress: Adding serial_flash_loader_0 [altera_serial_flash_loader 17.0]
+Progress: Parameterizing module serial_flash_loader_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: sfl: Generating sfl "sfl" for QUARTUS_SYNTH
+Info: serial_flash_loader_0: generating top-level entity altera_serial_flash_loader
+Info: serial_flash_loader_0: "sfl" instantiated altera_serial_flash_loader "serial_flash_loader_0"
+Info: sfl: Done "sfl" with 2 modules, 2 files
+Info: qsys-generate succeeded.
+Info: Finished: Create HDL design files for synthesis

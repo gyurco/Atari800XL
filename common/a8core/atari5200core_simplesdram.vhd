@@ -10,6 +10,9 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
 use IEEE.STD_LOGIC_MISC.all;
 use ieee.numeric_std.all;
+USE ieee.math_real.log2;
+USE ieee.math_real.ceil;
+USE ieee.math_real.realmax;
 
 LIBRARY work;
 -- Simple version that:
@@ -116,7 +119,6 @@ SIGNAL	ROM_REQUEST :  STD_LOGIC;
 SIGNAL	ROM_REQUEST_COMPLETE :  STD_LOGIC;
 
 -- CONFIG
-SIGNAL USE_SDRAM : STD_LOGIC;
 SIGNAL ROM_IN_RAM : STD_LOGIC;
 
 -- TRIG
@@ -218,7 +220,8 @@ atari5200_simple_sdram1 : entity work.atari5200core
 	(
 		cycle_length => cycle_length,
 		video_bits => video_bits,
-		palette => palette
+		palette => palette,
+		sdram_start_bank => integer(realmax(0.0,ceil(log2(real(internal_ram))-14.0)))
 	)
 	PORT MAP
 	(
@@ -305,7 +308,6 @@ atari5200_simple_sdram1 : entity work.atari5200core
 		MEMORY_READY_DMA => MEMORY_READY_DMA,
 
 		-- Special config params
-		USE_SDRAM => USE_SDRAM,
 		ROM_IN_RAM => ROM_IN_RAM,
 		THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
 		HALT => HALT
@@ -338,7 +340,6 @@ internalromram1 : entity work.internalromram
 		RAM_DATA => RAM_DO(7 downto 0)
 	);
 
-USE_SDRAM <= '1' when internal_ram=0 else '0';
 ROM_IN_RAM <= '1' when internal_rom=0 else '0';
 
 CONTROLLER_SELECT <= CONSOL_OUT(1 downto 0);

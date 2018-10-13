@@ -1,0 +1,33 @@
+Info: Starting: Create block symbol file (.bsf)
+Info: qsys-generate /home/markw/fpga/svn/repo/trunk/atari_800xl/eclaireXL_HDMI2/build_A2EBA/clkctrl.qsys --block-symbol-file --output-directory=/home/markw/fpga/svn/repo/trunk/atari_800xl/eclaireXL_HDMI2/build_A2EBA/clkctrl --family="Cyclone V" --part=5CEBA2F23C8
+Progress: Loading build_A2EBA/clkctrl.qsys
+Progress: Reading input file
+Progress: Adding altclkctrl_0 [altclkctrl 16.1]
+Progress: Parameterizing module altclkctrl_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+: clkctrl.altclkctrl_0: Targeting device family: Cyclone V.
+: clkctrl.altclkctrl_0: Selecting AUTO allows the compiler to pick the best clock buffer to use, while other values restrict usage to only the given clock buffer.
+Info: qsys-generate succeeded.
+Info: Finished: Create block symbol file (.bsf)
+Info: 
+Info: Starting: Create HDL design files for synthesis
+Info: qsys-generate /home/markw/fpga/svn/repo/trunk/atari_800xl/eclaireXL_HDMI2/build_A2EBA/clkctrl.qsys --synthesis=VERILOG --output-directory=/home/markw/fpga/svn/repo/trunk/atari_800xl/eclaireXL_HDMI2/build_A2EBA/clkctrl/synthesis --family="Cyclone V" --part=5CEBA2F23C8
+Progress: Loading build_A2EBA/clkctrl.qsys
+Progress: Reading input file
+Progress: Adding altclkctrl_0 [altclkctrl 16.1]
+Progress: Parameterizing module altclkctrl_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+: clkctrl.altclkctrl_0: Targeting device family: Cyclone V.
+: clkctrl.altclkctrl_0: Selecting AUTO allows the compiler to pick the best clock buffer to use, while other values restrict usage to only the given clock buffer.
+Info: clkctrl: Generating clkctrl "clkctrl" for QUARTUS_SYNTH
+Info: altclkctrl_0: Generating top-level entity clkctrl_altclkctrl_0.
+Info: altclkctrl_0: "clkctrl" instantiated altclkctrl "altclkctrl_0"
+Info: clkctrl: Done "clkctrl" with 2 modules, 2 files
+Info: qsys-generate succeeded.
+Info: Finished: Create HDL design files for synthesis

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="sallymax.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="math_real" />
+            <top_module name="numeric_std" />
+            <top_module name="sallymax_tb" />
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_textio" />
+            <top_module name="std_logic_unsigned" />
+            <top_module name="textio" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="42" />
+   <wvobject fp_name="/sallymax_tb/thebigone/phi0" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">phi0</obj_property>
+      <obj_property name="ObjectShortName">phi0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/rst_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/clk_slow" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_slow</obj_property>
+      <obj_property name="ObjectShortName">clk_slow</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/rdy" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rdy</obj_property>
+      <obj_property name="ObjectShortName">rdy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/halt_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">halt_n</obj_property>
+      <obj_property name="ObjectShortName">halt_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/nmi_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">nmi_n</obj_property>
+      <obj_property name="ObjectShortName">nmi_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/irq_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">irq_n</obj_property>
+      <obj_property name="ObjectShortName">irq_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/s0" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">s0</obj_property>
+      <obj_property name="ObjectShortName">s0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/clk_out" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_out</obj_property>
+      <obj_property name="ObjectShortName">clk_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/a" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">a[15:0]</obj_property>
+      <obj_property name="ObjectShortName">a[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/w_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">w_n</obj_property>
+      <obj_property name="ObjectShortName">w_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/sync" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sync</obj_property>
+      <obj_property name="ObjectShortName">sync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/phi1" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">phi1</obj_property>
+      <obj_property name="ObjectShortName">phi1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/phi2" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">phi2</obj_property>
+      <obj_property name="ObjectShortName">phi2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/d" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">d[7:0]</obj_property>
+      <obj_property name="ObjectShortName">d[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/cpu6502/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/cpu6502/reset" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/cpu6502/enable" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">enable</obj_property>
+      <obj_property name="ObjectShortName">enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/cpu6502/di" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">di[7:0]</obj_property>
+      <obj_property name="ObjectShortName">di[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/cpu6502/irq_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">irq_n</obj_property>
+      <obj_property name="ObjectShortName">irq_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/cpu6502/nmi_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">nmi_n</obj_property>
+      <obj_property name="ObjectShortName">nmi_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/cpu6502/memory_ready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">memory_ready</obj_property>
+      <obj_property name="ObjectShortName">memory_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/cpu6502/throttle" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">throttle</obj_property>
+      <obj_property name="ObjectShortName">throttle</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/cpu6502/rdy" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rdy</obj_property>
+      <obj_property name="ObjectShortName">rdy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/cpu6502/do" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">do[7:0]</obj_property>
+      <obj_property name="ObjectShortName">do[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/cpu6502/a" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">a[15:0]</obj_property>
+      <obj_property name="ObjectShortName">a[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/cpu6502/r_w_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">r_w_n</obj_property>
+      <obj_property name="ObjectShortName">r_w_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/cpu6502/cpu_fetch" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cpu_fetch</obj_property>
+      <obj_property name="ObjectShortName">cpu_fetch</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/enables/antic_enable_179" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">antic_enable_179</obj_property>
+      <obj_property name="ObjectShortName">antic_enable_179</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/enables/oldcpu_enable" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">oldcpu_enable</obj_property>
+      <obj_property name="ObjectShortName">oldcpu_enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/enables/cpu_enable_out" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cpu_enable_out</obj_property>
+      <obj_property name="ObjectShortName">cpu_enable_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/enables/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/enables/reset_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">reset_n</obj_property>
+      <obj_property name="ObjectShortName">reset_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/enables/antic_refresh" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">antic_refresh</obj_property>
+      <obj_property name="ObjectShortName">antic_refresh</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/enables/memory_ready_cpu" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">memory_ready_cpu</obj_property>
+      <obj_property name="ObjectShortName">memory_ready_cpu</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/enables/memory_ready_antic" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">memory_ready_antic</obj_property>
+      <obj_property name="ObjectShortName">memory_ready_antic</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/enables/pause_6502" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">pause_6502</obj_property>
+      <obj_property name="ObjectShortName">pause_6502</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/enables/throttle_count_6502" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">throttle_count_6502[5:0]</obj_property>
+      <obj_property name="ObjectShortName">throttle_count_6502[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/enables/oldcpu_pending_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">oldcpu_pending_reg</obj_property>
+      <obj_property name="ObjectShortName">oldcpu_pending_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/enables/cpu_extra_enable_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cpu_extra_enable_reg</obj_property>
+      <obj_property name="ObjectShortName">cpu_extra_enable_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/enables/speed_shift_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">speed_shift_reg[31:0]</obj_property>
+      <obj_property name="ObjectShortName">speed_shift_reg[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/enables/enable_179" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">enable_179</obj_property>
+      <obj_property name="ObjectShortName">enable_179</obj_property>
+   </wvobject>
+</wave_config>

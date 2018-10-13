@@ -10,6 +10,8 @@ use ieee.std_logic_unsigned.all;
 entity os16 is
 port(
         clock:in std_logic;
+	we:in std_logic;
+        data:in std_logic_vector(7 downto 0);
         address:in std_logic_vector(13 downto 0);
         q:out std_logic_vector(7 downto 0)
 );
@@ -16412,6 +16414,9 @@ begin
         process(clock)
         begin
                 if(clock'event and clock='1')then
+			if we='1' then
+				ROM(conv_integer(address)) <= data;
+			end if;
                 	q<=rdata;
                 end if;
         end process;

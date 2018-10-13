@@ -1,0 +1,6 @@
+        //memory map of flash
+        //0x200000: settings (32KB!)
+        //0x208000: basic rom (32KB)
+        //0x210000: os rom (64KB - 4x16KB)
+        //0x220000: freezer rom (64KB)
+        //0x230000: ?? (64KB)

@@ -10,6 +10,9 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
 use IEEE.STD_LOGIC_MISC.all;
 use ieee.numeric_std.all;
+USE ieee.math_real.log2;
+USE ieee.math_real.ceil;
+USE ieee.math_real.realmax;
 
 LIBRARY work;
 -- Simple version that:
@@ -175,10 +178,6 @@ ARCHITECTURE vhdl OF atari800core_simple_sdram IS
 	-- ANTIC
 	signal ANTIC_LIGHTPEN : std_logic;
 	
-	-- CARTRIDGE ACCESS
-	SIGNAL	CART_RD4 :  STD_LOGIC;
-	SIGNAL	CART_RD5 :  STD_LOGIC;
-	
 	-- PBI
 	SIGNAL PBI_WRITE_DATA : std_logic_vector(31 downto 0);
 	
@@ -193,9 +192,9 @@ ARCHITECTURE vhdl OF atari800core_simple_sdram IS
 	SIGNAL	ROM_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL	ROM_REQUEST :  STD_LOGIC;
 	SIGNAL	ROM_REQUEST_COMPLETE :  STD_LOGIC;
+	SIGNAL	ROM_WRITE_ENABLE :  STD_LOGIC;
 	
 	-- CONFIG
-	SIGNAL USE_SDRAM : STD_LOGIC;
 	SIGNAL ROM_IN_RAM : STD_LOGIC;
 
 	-- POTS
@@ -218,10 +217,6 @@ ANTIC_LIGHTPEN <= JOY2_n(4) and JOY1_n(4);
 
 -- GTIA triggers
 GTIA_TRIG <= "11"&JOY2_n(4)&JOY1_n(4);
-
--- Cartridge not inserted
-CART_RD4 <= '0';
-CART_RD5 <= '0';
 
 -- Since we're not exposing PBI, expose a few key parts needed for SDRAM
 SDRAM_DI <= PBI_WRITE_DATA;
@@ -294,13 +289,15 @@ internalromram1 : entity work.internalromram
 	GENERIC MAP
 	(
 		internal_rom => internal_rom,
-		internal_ram => internal_ram
+		internal_ram => internal_ram 
 	)
 	PORT MAP (
  		clock   => CLK,
 		reset_n => RESET_N,
 
 		ROM_ADDR => ROM_ADDR,
+		ROM_WR_ENABLE => ROM_WRITE_ENABLE,
+		ROM_DATA_IN => PBI_WRITE_DATA(7 downto 0),
 		ROM_REQUEST_COMPLETE => ROM_REQUEST_COMPLETE,
 		ROM_REQUEST => ROM_REQUEST,
 		ROM_DATA => ROM_DO,
@@ -313,7 +310,6 @@ internalromram1 : entity work.internalromram
 		RAM_DATA => RAM_DO(7 downto 0)
 	);
 
-	USE_SDRAM <= '1' when internal_ram=0 else '0';
 	ROM_IN_RAM <= '1' when internal_rom=0 else '0';
 
 atari800xl : entity work.atari800core
@@ -324,7 +320,8 @@ atari800xl : entity work.atari800core
 		palette => palette,
 		low_memory => low_memory,
 		stereo => stereo,
-		covox => covox
+		covox => covox,
+		sdram_start_bank => integer(realmax(0.0,ceil(log2(real(internal_ram))-14.0)))
 	)
 	PORT MAP
 	(
@@ -344,6 +341,7 @@ atari800xl : entity work.atari800core
 
 		AUDIO_L => AUDIO_L,
 		AUDIO_R => AUDIO_R,
+		SIO_AUDIO => "00000000",
 
 		CA1_IN => CA1_IN,
 		CB1_IN => CB1_IN,
@@ -376,14 +374,15 @@ atari800xl : entity work.atari800core
 		PBI_WIDTH_32bit_ACCESS => SDRAM_32BIT_WRITE_ENABLE,
 
 		PBI_ROM_DO => "11111111",
-		PBI_REQUEST => open,
-		PBI_REQUEST_COMPLETE => '1',
+		PBI_TAKEOVER => '0',
+		PBI_RELEASE => '0',
+		PBI_REQUEST_COMPLETE => '0',
+		PBI_DISABLE => '1',
 
-		CART_RD4 => CART_RD4,
-		CART_RD5 => CART_RD5,
-		CART_S4_n => open,
-		CART_S5_N => open,
-		CART_CCTL_N => open,
+		CART_RD5 => '0',
+		PBI_MPD_N => '1',
+
+		PBI_IRQ_N => '1',
 
 		SIO_RXD => SIO_RXD,
 		SIO_TXD => SIO_TXD,
@@ -413,6 +412,7 @@ atari800xl : entity work.atari800core
 		ROM_DO => ROM_DO,
 		ROM_REQUEST => ROM_REQUEST,
 		ROM_REQUEST_COMPLETE => ROM_REQUEST_COMPLETE,
+		ROM_WRITE_ENABLE => ROM_WRITE_ENABLE,
 
 		DMA_FETCH => DMA_FETCH,
 		DMA_READ_ENABLE => DMA_READ_ENABLE,
@@ -426,7 +426,6 @@ atari800xl : entity work.atari800core
 		RAM_SELECT => RAM_SELECT,
 		CART_EMULATION_SELECT => emulated_cartridge_select,
 		PAL => PAL,
-		USE_SDRAM => USE_SDRAM,
 		ROM_IN_RAM => ROM_IN_RAM,
 		THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
 		HALT => HALT,

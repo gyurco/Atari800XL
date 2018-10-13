@@ -106,6 +106,7 @@ zpupkg.vhd
 See file header
 
 spi_master.vhd
+i2c_master.vhd
 
 -----------------------------------------------------------------------------------
 (c) Frederic Requin
@@ -115,6 +116,12 @@ mcc*/sdram*
 mcc*/rbf2arg*
 
 mcc*/svideo/*
+
+----------------------------------------------------------------------------------
+(c) mvvproject
+hdmi/* - dvi parts
+(c) Alexey Spirkov
+hdmi/* - hdmi av parts
 
 ----------------------------------------------------------------------------------
 (c) Robert Jenkins - core USB HID

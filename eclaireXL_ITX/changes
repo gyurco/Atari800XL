@@ -1,0 +1,63 @@
+Index: atari800core_eclaireXLv2.vhd
+===================================================================
+--- atari800core_eclaireXLv2.vhd	(revision 532)
++++ atari800core_eclaireXLv2.vhd	(working copy)
+---adc084_inst : entity work.adc084
+---  PORT MAP(
+---    clk       => CLK,
+---    reset_n   => RESET_N,
+---
+---    CS        => ADC_CS,
+---    SCLK      => ADC_SCLK,
+---    DOUT      => ADC_DOUT,
+---    DIN       => ADC_DIN,
+---
+---    CH1OUT    => ADC_1, -- PBI        -> mix (TODO)
+---    CH2OUT    => ADC_2, -- SIO        -> mix
+---    CH3OUT    => ADC_3, -- JACK/LEFT  -> sampler!
+---    CH4OUT    => ADC_4  -- JACK/RIGHT -> sampler!
+---  );
+-ADC_CS <= '1';
+-ADC_SCLK <= 'Z';
+-ADC_DOUT <= 'Z';
+-ADC_DIN <= 'Z';
+-ADC_1 <= (others=>'0');
+-ADC_2 <= (others=>'0');
+-ADC_3 <= (others=>'0');
+-ADC_4 <= (others=>'0');
++adc084_inst : entity work.adc084
++  PORT MAP(
++    clk       => CLK,
++    reset_n   => RESET_N,
+ 
++    CS        => ADC_CS,
++    SCLK      => ADC_SCLK,
++    DOUT      => ADC_DOUT,
++    DIN       => ADC_DIN,
++
++    CH1OUT    => ADC_PBI,  --     -> mix 
++    CH2OUT    => ADC_SIO,  --     -> mix
++    CH3OUT    => ADC_MICL, -- JACK/LEFT  -> sampler! (TODO)
++    CH4OUT    => ADC_MICR  -- JACK/RIGHT -> sampler!
++  );
++  process(ADC_PBI,ADC_SIO)
++  begin
++    --ADC_PBISIO <= std_logic_vector((unsigned("0"&ADC_MICL)+unsigned("0"&ADC_MICR)));
++    ADC_PBISIO <= std_logic_vector((unsigned("0"&ADC_PBI)+unsigned("0"&ADC_SIO)));
++    --ADC_PBISIO <= std_logic_vector((unsigned("0"&ADC_SIO)+unsigned("0"&ADC_SIO)));
++  end process;
++
+ --adc_i2c : entity work.i2c_master
+ --  GENERIC MAP(
+ --    input_clk => 58_000_000, --input clock speed from user logic in Hz - approx
+@@ -1246,8 +1303,8 @@
+ 			SCANDOUBLE <= '1';
+ 		when "010" => -- svideo
+ 			VGA_G <= svideo_yout;
+-			VGA_B <= "00"&svideo_c;
+-			VGA_R <= "00"&svideo_c;
++			VGA_B <= "0"&svideo_c;
++			VGA_R <= "0"&svideo_c;
+ 
+ 			VGA_BLANK_N <= '1'; -- TODO
+ 			VGA_SYNC_N <= svideo_sync_n;

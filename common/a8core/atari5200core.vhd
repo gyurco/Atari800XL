@@ -21,7 +21,8 @@ ENTITY atari5200core IS
 		cycle_length : integer := 16; -- or 32...
 		video_bits : integer := 8;
 		palette : integer :=0; -- 0:gtia colour on VIDEO_B, 1:on
-		low_memory : integer := 0 -- 0:8MB memory map, 1:1MB memory map
+		low_memory : integer := 0; -- 0:8MB memory map, 1:1MB memory map
+		sdram_start_bank : integer := 0
 	);
 	PORT
 	(
@@ -154,7 +155,6 @@ ENTITY atari5200core IS
 		MEMORY_READY_DMA : out std_logic; -- op complete
 
 		-- Special config params
-		USE_SDRAM :  in STD_LOGIC;
 		ROM_IN_RAM : in std_logic;
 		HALT : in std_logic;
 		THROTTLE_COUNT_6502 : in STD_LOGIC_VECTOR(5 DOWNTO 0)
@@ -296,6 +296,7 @@ PORT MAP(CLK => CLK,
 pokey_mixer : entity work.pokey_mixer_mux
 PORT MAP(CLK => CLK,
 		 GTIA_SOUND => '0',
+		 SIO_AUDIO => "00000000",
 		 CHANNEL_L_0 => POKEY1_CHANNEL0,
 		 CHANNEL_L_1 => POKEY1_CHANNEL1,
 		 CHANNEL_L_2 => POKEY1_CHANNEL2,
@@ -314,7 +315,7 @@ PORT MAP(CLK => CLK,
 -- TODO, this is freddy, replace with 5200 equiv rather than generic
 -- Also remove dma logic from here if possible
 mmu1 : entity work.address_decoder
-GENERIC MAP(low_memory => low_memory, system => 10)
+GENERIC MAP(low_memory => low_memory, system => 10, sdram_start_bank => sdram_start_bank)
 PORT MAP(CLK => CLK,
 		 CPU_FETCH => CPU_FETCH,
 		 CPU_WRITE_N => R_W_N,
@@ -330,7 +331,6 @@ PORT MAP(CLK => CLK,
 		 reset_n => RESET_N,
 		 CART_RD4 => '0', -- TODO, which line does the 5200 use?
 		 CART_RD5 => '0',
-		 use_sdram => USE_SDRAM,
 		 SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
 		 ANTIC_ADDR => ANTIC_ADDR,
 		 ANTIC_DATA => ANTIC_DO,

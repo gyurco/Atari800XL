@@ -44,7 +44,10 @@
 #include "integer.h"
 
 // function prototypes
-void mmcChipSelect(int select);
+void mmcChipSelect();
+void mmcChipDeselect();
+void flashChipSelect();
+void flashChipDeselect();
 
 void set_spi_clock_freq();
 

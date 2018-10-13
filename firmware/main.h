@@ -6,6 +6,7 @@
 #include "printf.h"
 #include "joystick.h"
 #include "freeze.h"
+#include "vidi2c.h"
 
 #include "simpledir.h"
 #include "simplefile.h"
@@ -27,8 +28,11 @@
 
 #include "memory.h"
 
+void test_ram();
+
 extern char ROM_DIR[];
 extern unsigned char freezer_rom_present;
+extern unsigned char sd_present;
 
 void mainmenu();
 
@@ -79,25 +83,45 @@ BIT_REG(,0x1,0,pause_6502,zpu_out1)
 BIT_REG(,0x1,1,reset_6502,zpu_out1)
 BIT_REG(,0x3f,2,turbo_6502,zpu_out1)
 BIT_REG(,0x7,8,ram_select,zpu_out1)
+BIT_REG(,0x1,11,atari800mode,zpu_out1)
 //BIT_REG(,0x3f,11,rom_select,zpu_out1)
 BIT_REG(,0x3f,17,cart_select,zpu_out1)
 // reserve 2 bits for extending cart_select
 BIT_REG(,0x01,25,freezer_enable,zpu_out1)
+BIT_REG(,0x03,26,key_type,zpu_out1) // ansi,iso,custom1,custom2
+BIT_REG(,0x07,28,turbo_drive,zpu_out1) 
+
+BIT_REG(,0x07,0,video,zpu_out6)
+BIT_REG(,0x01,4,tv,zpu_out6)
+BIT_REG(,0x01,5,scanlines,zpu_out6)
+BIT_REG(,0x01,6,csync,zpu_out6)
 
 BIT_REG_RO(,0x1,8,hotkey_softboot,zpu_in1)
 BIT_REG_RO(,0x1,9,hotkey_coldboot,zpu_in1)
-BIT_REG_RO(,0x1,10,hotkey_fileselect,zpu_in1)
-BIT_REG_RO(,0x1,11,hotkey_settings,zpu_in1)
+BIT_REG_RO(,0x1,10,hotkey_settings,zpu_in1)
+BIT_REG_RO(,0x1,11,hotkey_fileselect,zpu_in1)
 
 BIT_REG_RO(,0x3f,12,controls,zpu_in1) // (esc)FLRDU
+BIT_REG_RO(,0x1,18,sd_detect,zpu_in1) // sd_detect
+BIT_REG_RO(,0x1,19,sd_writeprotect,zpu_in1) // sd_writeprotect
+
+#define VIDEO_RGB 0
+#define VIDEO_SCANDOUBLE 1
+#define VIDEO_SVIDEO 2
+#define VIDEO_HDMI 3
+#define VIDEO_DVI 4
+#define VIDEO_VGA 5
+#define VIDEO_COMPOSITE 6
+
+#define TV_NTSC 0
+#define TV_PAL 1
 
 
 void
 wait_us(int unsigned num)
 {
-	// pause counter runs at pokey frequency - should be 1.79MHz
-	int unsigned cycles = (num*230)>>7;
-	*zpu_pause = cycles;
+	// pause counter runs in us
+	*zpu_pause = num;
 #ifdef LINUX_BUILD
 	usleep(num);
 #endif
@@ -122,8 +146,9 @@ void memset32(void * address, int value, int length)
 
 void clear_main_ram()
 {
-	memset8(SRAM_BASE, 0, main_ram_size); // SRAM, if present (TODO)
-	memset32(SDRAM_BASE, 0, main_ram_size/4);
+	memset8(SRAM_BASE, 0, 1024); // SRAM, if present (TODO)
+	memset32(SDRAM_BASE, 0, 1024/4);
+	*atari_cartswitch = 0;
 }
 
 void
@@ -220,7 +245,7 @@ struct SimpleFile * files[NUM_FILES];
 
 void loadromfile(struct SimpleFile * file, int size, size_t ram_address)
 {
-	void* absolute_ram_address = SDRAM_BASE + ram_address;
+	void* absolute_ram_address = ROM_BASE + ram_address;
 	int read = 0;
 	file_read(file, absolute_ram_address, size, &read);
 }
@@ -249,10 +274,14 @@ int main(void)
 {
 	INIT_MEM
 
+	set_pll2();
+	//set_vidi2c();
+
 	fil_type_rom = "ROM";
 	fil_type_bin = "BIN";
 	fil_type_car = "CAR";
 	fil_type_mem = "MEM";
+	fil_type_rpd = "RPD";
 
 	int i;
 	for (i=0; i!=NUM_FILES; ++i)
@@ -273,6 +302,12 @@ int main(void)
 	set_ram_select(2);
 	set_cart_select(0);
 	set_freezer_enable(0);
+	set_key_type(0);
+	set_turbo_drive(0);
+	set_atari800mode(0);
+
+	*atari_colbk = 0xc8;
+		//test_ram();
 
 	init_printf(0, char_out);
 
@@ -320,6 +355,116 @@ void rotate_usb_sticks()
 		}
 	}
 }
+
+char const * get_video_mode(int video_mode)
+{
+	static char const * videotxt[] = 
+	{
+		"RGB",
+		"SCANDOUBLE",
+		"SVIDEO",
+		"HDMI",
+		"DVI",
+		"VGA",
+		"COMPOSITE"
+	};
+	return videotxt[video_mode];
+}
+
+char const * get_tv_standard(int tv)
+{
+	static char const * tvtxt[] = 
+	{
+		"NTSC",
+		"PAL"
+	};
+	return tvtxt[tv];
+}
+
+void load_settings(int profile)
+{
+	struct SimpleDirEntry * entries = dir_entries(ROM_DIR);
+	unsigned int settings[2],origSettings[2];
+	settings[0] = *zpu_out1;
+	settings[1] = *zpu_out6;
+	origSettings[0] = settings[0];
+	origSettings[1] = settings[1];
+	if (profile==4)
+	{
+		if (sd_present && SimpleFile_OK == file_open_name_in_dir(entries, "settings", files[6]))
+		{
+			int read = 0;
+			file_read(files[6], &settings[0], 8, &read);
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		readFlash(0x200000 + (profile<<13),8,&settings[0]);
+	}
+		
+	unsigned int mask = 1|(1<<1)|(0x3f<<17)|(1<<25); //do not override pause, reset, cart_select, freezer_enable
+	settings[0] &= ~mask;
+	settings[0] |= origSettings[0]&mask;
+		
+	*zpu_out1 = settings[0];
+	*zpu_out6 = settings[1];
+		
+	set_pll(get_tv()==TV_PAL, get_video()>=VIDEO_HDMI && get_video()<VIDEO_COMPOSITE);
+}
+
+void save_settings(int profile)
+{
+	struct SimpleDirEntry * entries = dir_entries(ROM_DIR);
+	unsigned int settings[2];
+	settings[0] = *zpu_out1;
+	settings[1] = *zpu_out6;
+
+	if (profile==4)
+	{
+		if (sd_present && SimpleFile_OK == file_open_name_in_dir(entries, "settings", files[6]))
+		{
+			file_seek(files[6],0);
+			int written = 0;
+			file_write(files[6],&settings[0],8,&written);
+			file_write_flush();
+		}
+	}
+	else
+	{
+		int size = 192; // last 64KB is unused
+
+		clearscreen();
+		debug_pos = 0;
+		debug_adjust = 0;
+		printf("Flashing settings");
+
+		debug_pos = 80;
+
+		printf("DO NOT POWER OFF");
+	
+		debug_pos = 160;
+
+
+		printf("Read     ");
+		readFlash(0x200000,size*1024,SCRATCH_MEM); // back up rest of settings
+		printf("Erase    ");
+		eraseFlash(0x200000,size*1024); // Clear at last 256kB
+		printf("Write    ");
+
+		memcp8(&settings[0],SCRATCH_MEM+(profile<<13),0,8);
+		memcp8(ROM_BASE+0x4000,SCRATCH_MEM+0x10000+(profile<<14),0,16384);
+		memcp8(ROM_BASE+0xc000,SCRATCH_MEM+0x8000+(profile<<13),0,8192);
+
+		writeFlash(0x200000,size*1024,SCRATCH_MEM);// write back rest of settings*/
+		printf("Done    ");
+		wait_us(1000000);
+	}
+}
+
 
 void usb_devices(int debugPos)
 {

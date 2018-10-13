@@ -3,6 +3,8 @@
 #include "curses_screen.h"
 #include "linux_helper.h"
 #include "linux_memory.h"
+#include "integer.h"
+#include "regs.h"
 
 int zpu_main(void);
 
@@ -19,6 +21,7 @@ int main(int argc, char** argv)
 	}
 
 	init_memory();
+	*zpu_uart_rx_fifo = 0x100;
 
 	print_log("starting zpu_main\n");
 	zpu_main();

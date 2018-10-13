@@ -45,12 +45,22 @@ ENTITY zpucore IS
 		ZPU_ROM_DATA : in std_logic_vector(31 downto 0);
 		ZPU_ROM_WREN : out std_logic;
 
+		-- change clock support
+		ZPU_PLL_WRITE : out std_logic;
+		ZPU_PLL_DATA : out std_logic_vector(31 downto 0);
+		ZPU_PLL_ADDR : out std_logic_vector(7 downto 2);
+
 		-- spi master
 		-- Too painful to bit bang spi from zpu, so we have a hardware master in here
-		ZPU_SD_DAT0 :  IN  STD_LOGIC;
-		ZPU_SD_CLK :  OUT  STD_LOGIC;
-		ZPU_SD_CMD :  OUT  STD_LOGIC;
-		ZPU_SD_DAT3 :  OUT  STD_LOGIC;
+		--ZPU_SD_DAT0 :  IN  STD_LOGIC;
+		--ZPU_SD_CLK :  OUT  STD_LOGIC;
+		--ZPU_SD_CMD :  OUT  STD_LOGIC;
+		--ZPU_SD_DAT3 :  OUT  STD_LOGIC;
+		ZPU_SPI_DI :  IN  STD_LOGIC;
+		ZPU_SPI_CLK :  OUT  STD_LOGIC;
+		ZPU_SPI_DO :  OUT  STD_LOGIC;
+		ZPU_SPI_SELECT0 :  OUT  STD_LOGIC;
+		ZPU_SPI_SELECT1 :  OUT  STD_LOGIC;
 
 		-- SIO
 		-- Ditto for speaking to Atari, we have a built in Pokey
@@ -58,6 +68,7 @@ ENTITY zpucore IS
 		ZPU_SIO_TXD : out std_logic;
 		ZPU_SIO_RXD : in std_logic;
 		ZPU_SIO_COMMAND : in std_logic;
+		ZPU_SIO_CLK : in std_logic;
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
@@ -81,7 +92,13 @@ ENTITY zpucore IS
 		USBWireVMin :in std_logic_vector(usb-1 downto 0) := (others=>'0');
 		USBWireVPout :out std_logic_vector(usb-1 downto 0);
 		USBWireVMout :out std_logic_vector(usb-1 downto 0);
-		USBWireOE_n :out std_logic_vector(usb-1 downto 0)
+		USBWireOE_n :out std_logic_vector(usb-1 downto 0);
+
+		-- I2C (400k)
+		i2c0_sda : inout std_logic;
+		i2c0_scl : inout std_logic;
+		i2c1_sda : inout std_logic;
+		i2c1_scl : inout std_logic
 	);
 END zpucore;
 
@@ -163,15 +180,27 @@ PORT MAP (
 	OUT4 => ZPU_OUT4,
 	OUT5 => ZPU_OUT5,
 	OUT6 => ZPU_OUT6,
+
+	PLL_WRITE => ZPU_PLL_WRITE,
+	PLL_DATA => ZPU_PLL_DATA,
+	PLL_ADDR => ZPU_PLL_ADDR,
 	
-	SDCARD_DAT => ZPU_SD_DAT0,
-	SDCARD_CLK => ZPU_SD_CLK,
-	SDCARD_CMD => ZPU_SD_CMD,
-	SDCARD_DAT3 => ZPU_SD_DAT3,
-	
+	SPI_DI => ZPU_SPI_DI,
+	SPI_CLK => ZPU_SPI_CLK,
+	SPI_DO => ZPU_SPI_DO,
+	SPI_SELECT0 => ZPU_SPI_SELECT0,
+	SPI_SELECT1 => ZPU_SPI_SELECT1,
+
+	--SPI_DI => ZPU_SD_DAT0,
+	--SPI_CLK => ZPU_SD_CLK,
+	--SPI_DO => ZPU_SD_CMD,
+	--SPI_SELECT0 => ZPU_SD_DAT3,
+	--SPI_SELECT1 => ZPU_SD_DAT3,
+
 	SIO_DATA_IN => ZPU_SIO_TXD,
 	SIO_DATA_OUT => ZPU_SIO_RXD,
 	SIO_COMMAND => ZPU_SIO_COMMAND,
+	SIO_CLK_OUT => ZPU_SIO_CLK,
 
 	sd_addr => ZPU_SD_DMA_ADDR,
 	sd_data => ZPU_SD_DMA_DATA,
@@ -186,7 +215,12 @@ PORT MAP (
 	USBWireVMin => USBWireVMin,
 	USBWireVPout => USBWireVPout,
 	USBWireVMout => USBWireVMout,
-	USBWireOE_n => USBWireOE_n
+	USBWireOE_n => USBWireOE_n,
+
+	i2c0_sda => i2c0_sda,
+	i2c0_scl => i2c0_scl,
+	i2c1_sda => i2c1_sda,
+	i2c1_scl => i2c1_scl
 	);
 
 decode_addr1 : entity work.complete_address_decoder
