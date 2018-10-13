@@ -1,0 +1,33 @@
+Info: Starting: Create block symbol file (.bsf)
+Info: qsys-generate /home/markw/fpga/svn/repo/trunk/atari_800xl/eclaireXL_ITX/build_A2EBA/ddioclkctrl.qsys --block-symbol-file --output-directory=/home/markw/fpga/svn/repo/trunk/atari_800xl/eclaireXL_ITX/build_A2EBA/ddioclkctrl --family="Cyclone V" --part=5CEBA2F23C8
+Progress: Loading build_A2EBA/ddioclkctrl.qsys
+Progress: Reading input file
+Progress: Adding altclkctrl_0 [altclkctrl 16.1]
+Progress: Parameterizing module altclkctrl_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+: ddioclkctrl.altclkctrl_0: Targeting device family: Cyclone V.
+: ddioclkctrl.altclkctrl_0: Selecting AUTO allows the compiler to pick the best clock buffer to use, while other values restrict usage to only the given clock buffer.
+Info: qsys-generate succeeded.
+Info: Finished: Create block symbol file (.bsf)
+Info: 
+Info: Starting: Create HDL design files for synthesis
+Info: qsys-generate /home/markw/fpga/svn/repo/trunk/atari_800xl/eclaireXL_ITX/build_A2EBA/ddioclkctrl.qsys --synthesis=VHDL --output-directory=/home/markw/fpga/svn/repo/trunk/atari_800xl/eclaireXL_ITX/build_A2EBA/ddioclkctrl/synthesis --family="Cyclone V" --part=5CEBA2F23C8
+Progress: Loading build_A2EBA/ddioclkctrl.qsys
+Progress: Reading input file
+Progress: Adding altclkctrl_0 [altclkctrl 16.1]
+Progress: Parameterizing module altclkctrl_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+: ddioclkctrl.altclkctrl_0: Targeting device family: Cyclone V.
+: ddioclkctrl.altclkctrl_0: Selecting AUTO allows the compiler to pick the best clock buffer to use, while other values restrict usage to only the given clock buffer.
+Info: ddioclkctrl: Generating ddioclkctrl "ddioclkctrl" for QUARTUS_SYNTH
+Info: altclkctrl_0: Generating top-level entity ddioclkctrl_altclkctrl_0.
+Info: altclkctrl_0: "ddioclkctrl" instantiated altclkctrl "altclkctrl_0"
+Info: ddioclkctrl: Done "ddioclkctrl" with 2 modules, 2 files
+Info: qsys-generate succeeded.
+Info: Finished: Create HDL design files for synthesis

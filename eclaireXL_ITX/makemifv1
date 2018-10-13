@@ -1,0 +1,23 @@
+#!/bin/bash
+export TODAY=`date +'%Y%m%d'`
+export VERSION=`cat VERSION`
+echo "D:$TODAY:"
+echo "V:$VERSION:"
+cat ../firmware/ECLAIREXL.bin |sed -e "s/Date:YYYYMMDD Core:XX/Date:$TODAY Core:$VERSION/" > ../firmware/ECLAIREXL.bin_dated
+../firmware/mif_file_stuff/zpuromgen ../firmware/ECLAIREXL.bin_dated  > zpu_rom.mif_insidesv1
+cat ../firmware/mif_file_stuff/rom_prologue_40.vhd  zpu_rom.mif_insidesv1 ../firmware/mif_file_stuff/rom_epilogue.vhd  > zpu_romv1.mif
+
+if [ $1 != "BUILD" ]; then
+    echo Updating existing
+
+    cp zpu_romv1.mif build_A2EBArom/zpu_rom.mif
+    quartus_cdb --update_mif build_A2EBArom/atari800core_eclaireXLv1.qpf
+    quartus_asm build_A2EBArom/atari800core_eclaireXLv1.qpf
+    
+    pushd build_A2EBArom/
+    quartus_cpf --convert ../convertv1.cof
+    popd
+else
+    echo Skipping update
+fi
+

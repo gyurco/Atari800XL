@@ -1,0 +1,1 @@
+quartus_pgm -z  --mode=jtag --operation="ip;./build_A2EBArom/output_files/atari800core_eclaireXLv1.jic"

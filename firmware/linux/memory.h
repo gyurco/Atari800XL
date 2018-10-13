@@ -1,11 +1,13 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
+extern void* ROM_BASE;
 extern void* SDRAM_BASE;
 extern void* SRAM_BASE;
 extern void* CARTRIDGE_MEM;
 extern void* FREEZER_RAM_MEM;
 extern void* FREEZER_ROM_MEM;
+extern void* SCRATCH_MEM;
 
 #define HAVE_FREEZER_ROM_MEM 1
 
@@ -27,6 +29,7 @@ extern void* atari_regbase;
 extern void* atari_regmirror;
 extern void* zpu_regbase;
 extern void* pokey_regbase;
+extern void* pll_regbase;
 
 void init_memory(void);
 

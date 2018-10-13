@@ -1,0 +1,13 @@
+	component sfl is
+		port (
+			asmi_access_granted : in  std_logic                    := 'X';             -- asmi_access_granted
+			asmi_access_request : out std_logic;                                       -- asmi_access_request
+			data_in             : in  std_logic_vector(3 downto 0) := (others => 'X'); -- data_in
+			data_oe             : in  std_logic_vector(3 downto 0) := (others => 'X'); -- data_oe
+			data_out            : out std_logic_vector(3 downto 0);                    -- data_out
+			dclk_in             : in  std_logic                    := 'X';             -- dclkin
+			ncso_in             : in  std_logic                    := 'X';             -- scein
+			noe_in              : in  std_logic                    := 'X'              -- noe
+		);
+	end component sfl;
+

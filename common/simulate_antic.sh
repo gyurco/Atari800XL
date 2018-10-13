@@ -9,7 +9,7 @@ name=antic
 
 
 
-. /home/markw/fpga/xilinx/14.7/ISE_DS/settings64.sh
+. /home/markw/fpga/xilinx/14.7/ISE_DS/settings32.sh
 
 mkdir -p sim
 pushd sim

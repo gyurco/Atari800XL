@@ -1,0 +1,56 @@
+Building A2EBA_SVIDEO_NTSC of eclaireXL
+Building A2EBA_SVIDEO_PAL of eclaireXL
+Building A2EBA_VGA50 of eclaireXL
+cp: cannot stat ‘*gpioram*’: No such file or directory
+cp: cannot stat ‘*.v’: No such file or directory
+cp: cannot stat ‘*gpioram*’: No such file or directory
+cp: cannot stat ‘*gpioram*’: No such file or directory
+cp: cannot stat ‘*.v’: No such file or directory
+cp: cannot stat ‘*.v’: No such file or directory
+cp: omitting directory ‘../common/a8core/addr_decoder_simplification’
+cp: omitting directory ‘../common/components/usbhostslave’
+cp: omitting directory ‘../common/a8core/addr_decoder_simplification’
+cp: omitting directory ‘../common/zpu/sim’
+cp: omitting directory ‘../common/zpu/tb’
+cp: omitting directory ‘../common/a8core/addr_decoder_simplification’
+cp: omitting directory ‘../common/components/usbhostslave’
+cp: omitting directory ‘../common/zpu/sim’
+cp: omitting directory ‘../common/zpu/tb’
+cp: omitting directory ‘../common/components/usbhostslave’
+cp: omitting directory ‘../common/zpu/sim’
+cp: omitting directory ‘../common/zpu/tb’
+Building A2EBA_VGA60 of eclaireXL
+cp: cannot stat ‘*gpioram*’: No such file or directory
+cp: cannot stat ‘*.v’: No such file or directory
+cp: omitting directory ‘../common/a8core/addr_decoder_simplification’
+cp: omitting directory ‘../common/components/usbhostslave’
+cp: omitting directory ‘../common/zpu/sim’
+cp: omitting directory ‘../common/zpu/tb’
+Building A2EBArom_SVIDEO_NTSC of eclaireXL
+cp: cannot stat ‘*gpioram*’: No such file or directory
+cp: cannot stat ‘*.v’: No such file or directory
+cp: omitting directory ‘../common/a8core/addr_decoder_simplification’
+cp: omitting directory ‘../common/components/usbhostslave’
+cp: omitting directory ‘../common/zpu/sim’
+cp: omitting directory ‘../common/zpu/tb’
+Building A2EBArom_SVIDEO_PAL of eclaireXL
+cp: cannot stat ‘*gpioram*’: No such file or directory
+cp: cannot stat ‘*.v’: No such file or directory
+cp: omitting directory ‘../common/a8core/addr_decoder_simplification’
+cp: omitting directory ‘../common/components/usbhostslave’
+cp: omitting directory ‘../common/zpu/sim’
+cp: omitting directory ‘../common/zpu/tb’
+Building A2EBArom_VGA50 of eclaireXL
+cp: cannot stat ‘*gpioram*’: No such file or directory
+cp: cannot stat ‘*.v’: No such file or directory
+cp: omitting directory ‘../common/a8core/addr_decoder_simplification’
+cp: omitting directory ‘../common/components/usbhostslave’
+cp: omitting directory ‘../common/zpu/sim’
+cp: omitting directory ‘../common/zpu/tb’
+Building A2EBArom_VGA60 of eclaireXL
+cp: cannot stat ‘*gpioram*’: No such file or directory
+cp: cannot stat ‘*.v’: No such file or directory
+cp: omitting directory ‘../common/a8core/addr_decoder_simplification’
+cp: omitting directory ‘../common/components/usbhostslave’
+cp: omitting directory ‘../common/zpu/sim’
+cp: omitting directory ‘../common/zpu/tb’

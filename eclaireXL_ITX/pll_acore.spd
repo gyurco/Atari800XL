@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file path="pll_acore_sim/pll_acore.vho" type="VHDL" />
+ <topLevel name="pll_acore" />
+ <deviceFamily name="cyclonev" />
+</simPackage>

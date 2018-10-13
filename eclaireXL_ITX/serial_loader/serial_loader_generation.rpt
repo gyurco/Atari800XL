@@ -1,0 +1,29 @@
+Info: Starting: Create block symbol file (.bsf)
+Info: qsys-generate C:\cygwin64\home\Mark\atari800_fpga\atari_800xl\eclaireXL\build_A2EBA\serial_loader.qsys --block-symbol-file --output-directory=C:\cygwin64\home\Mark\atari800_fpga\atari_800xl\eclaireXL\build_A2EBA\serial_loader --family="Cyclone V" --part=5CEBA2F23C8
+Progress: Loading build_A2EBA/serial_loader.qsys
+Progress: Reading input file
+Progress: Adding serial_flash_loader_0 [altera_serial_flash_loader 15.0]
+Progress: Parameterizing module serial_flash_loader_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: ip-generate succeeded.
+Info: Finished: Create block symbol file (.bsf)
+Info: 
+Info: Starting: Create HDL design files for synthesis
+Info: qsys-generate C:\cygwin64\home\Mark\atari800_fpga\atari_800xl\eclaireXL\build_A2EBA\serial_loader.qsys --synthesis=VERILOG --output-directory=C:\cygwin64\home\Mark\atari800_fpga\atari_800xl\eclaireXL\build_A2EBA\serial_loader\synthesis --family="Cyclone V" --part=5CEBA2F23C8
+Progress: Loading build_A2EBA/serial_loader.qsys
+Progress: Reading input file
+Progress: Adding serial_flash_loader_0 [altera_serial_flash_loader 15.0]
+Progress: Parameterizing module serial_flash_loader_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: serial_loader: Generating serial_loader "serial_loader" for QUARTUS_SYNTH
+Info: serial_flash_loader_0: generating top-level entity altera_serial_flash_loader
+Info: serial_flash_loader_0: "serial_loader" instantiated altera_serial_flash_loader "serial_flash_loader_0"
+Info: serial_loader: Done "serial_loader" with 2 modules, 2 files
+Info: ip-generate succeeded.
+Info: Finished: Create HDL design files for synthesis

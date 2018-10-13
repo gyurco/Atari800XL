@@ -1,0 +1,1 @@
+quartus_pgm -z --mode=jtag --operation="p;./build_A4EBArom/output_files/atari800core_eclaireXLv2.sof"

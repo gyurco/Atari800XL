@@ -1,0 +1,25 @@
+#        //memory map of flash
+#        //0x200000: settings (32KB!) (8KB each)
+#        //0x208000: basic rom (32KB) (8KB each)
+#        //0x210000: os rom (64KB - 4x16KB) (16KB each)
+#        //0x220000: freezer rom (64KB)
+#        //0x230000: ?? (64KB)
+#
+#        -rw-r--r--  1 markw markw  16384 Feb 18 22:53 xlhias.rom
+#        -rw-r--r--  1 markw markw  16384 Feb 18 22:53 xlorig.rom
+#        -rw-r--r--  1 markw markw  10240 Feb 18 22:53 osborig.rom
+#        drwxr-xr-x 24 markw markw  12288 Feb 18 22:53 .
+#        -rw-r--r--  1 markw markw  16384 Feb 18 22:53 ultimon.rom
+
+./makehex ../firmware/576kcompy_PAL_VGA settings1.hex "0x200000"
+./makehex ../firmware/576kcompy_PAL_VGA settings2.hex "0x202000"
+./makehex ../firmware/576kcompy_PAL_VGA settings3.hex "0x204000"
+./makehex ../firmware/48k800_PAL_VGA settings4.hex "0x206000"
+cat ./ataribas.rom altirra_roms_3.0/atbasic.rom ataribas.rom ataribas.rom > basic.rom
+./makehex ./basic.rom basic.hex   "0x208000"
+dd if=/dev/zero of=blank.rom bs=1 count=6144
+cat ./xlhias.rom ./altirra_roms_3.0/altirraos-xl.rom xlorig.rom blank.rom osborig.rom > os.rom
+./makehex ./os.rom   os.hex    "0x210000"
+./makehex ./freezer.rom  freezer.hex    "0x220000"
+
+

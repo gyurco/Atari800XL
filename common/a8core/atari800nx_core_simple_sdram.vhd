@@ -13,6 +13,9 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
 use IEEE.STD_LOGIC_MISC.all;
 use ieee.numeric_std.all;
+USE ieee.math_real.log2;
+USE ieee.math_real.ceil;
+USE ieee.math_real.realmax;
 
 LIBRARY work;
 -- Simple version that:
@@ -204,7 +207,6 @@ ARCHITECTURE vhdl OF atari800nxcore_simple_sdram IS
 	SIGNAL	ROM_REQUEST_COMPLETE :  STD_LOGIC;
 	
 	-- CONFIG
-	SIGNAL USE_SDRAM : STD_LOGIC;
 	SIGNAL ROM_IN_RAM : STD_LOGIC;
 
 	-- POTS
@@ -381,7 +383,6 @@ internalromram1 : entity work.internalromram
 		RAM_DATA => RAM_DO(7 downto 0)
 	);
 
-	USE_SDRAM <= '1' when internal_ram=0 else '0';
 	ROM_IN_RAM <= '1' when internal_rom=0 else '0';
 
 atari800xl : entity work.atari800core
@@ -393,7 +394,8 @@ atari800xl : entity work.atari800core
 		low_memory => low_memory,
 		stereo => stereo,
 		covox => covox,
-		system => 1
+		system => 1,
+		sdram_start_bank => integer(realmax(0.0,ceil(log2(real(internal_ram))-14.0)))
 	)
 	PORT MAP
 	(
@@ -413,6 +415,7 @@ atari800xl : entity work.atari800core
 
 		AUDIO_L => AUDIO_L,
 		AUDIO_R => AUDIO_R,
+		SIO_AUDIO => "00000000",
 
 		CA1_IN => CA1_IN,
 		CB1_IN => CB1_IN,
@@ -495,7 +498,6 @@ atari800xl : entity work.atari800core
 		RAM_SELECT => RAM_SELECT,
 		CART_EMULATION_SELECT => emulated_cartridge_select,
 		PAL => PAL,
-		USE_SDRAM => USE_SDRAM,
 		ROM_IN_RAM => ROM_IN_RAM,
 		THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
 		HALT => HALT,

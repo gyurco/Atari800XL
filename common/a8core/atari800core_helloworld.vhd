@@ -85,6 +85,8 @@ keyboard_map1 : entity work.ps2_to_atari800
 		RESET_N => reset_n,
 		PS2_CLK => ps2_clk,
 		PS2_DAT => ps2_dat,
+
+		KEY_TYPE => '0',
 		
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,

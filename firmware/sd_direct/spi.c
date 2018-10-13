@@ -35,11 +35,13 @@
 #include "printf.h"
 
 int spi_slow; // 1 is slow
-int spi_chip_select_n; // 0 is selected
+enum {spi_slave_sd = 0, spi_slave_flash = 1};
+enum {spi_select_none = 6, spi_select_sd = 4, spi_select_flash = 2};
+int spi_select;
 int display;
 void updateSpiState()
 {
-	*zpu_spi_state = (spi_slow<<1)|(spi_chip_select_n);
+	*zpu_spi_state = (spi_slow<<3)|(spi_select);
 }
 
 // access routines
@@ -64,13 +66,31 @@ void spiInit()
 {
 	spiDisplay(0);
 	spi_slow = 1;
-	spi_chip_select_n = 1;
+	spi_select = spi_select_none|spi_slave_sd;
 	updateSpiState();
 }
 
-void mmcChipSelect(int select)
+void mmcChipSelect()
 {
-	spi_chip_select_n = !select;
+	spi_select = spi_select_sd|spi_slave_sd;
+	updateSpiState();
+}
+
+void mmcChipDeselect()
+{
+	spi_select = spi_select_none|spi_slave_sd;
+	updateSpiState();
+}
+
+void flashChipSelect()
+{
+	spi_select = spi_select_flash|spi_slave_flash;
+	updateSpiState();
+}
+
+void flashChipDeselect()
+{
+	spi_select = spi_select_none|spi_slave_flash;
 	updateSpiState();
 }
 

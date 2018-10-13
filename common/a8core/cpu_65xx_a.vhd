@@ -1307,11 +1307,13 @@ calcT: process(clk)
 -- -----------------------------------------------------------------------
 -- Stack pointer
 -- -----------------------------------------------------------------------
-	process(clk)
+	process(clk,reset)
 		variable sIncDec : unsigned(7 downto 0);
 		variable updateFlag : boolean;
 	begin
-		if rising_edge(clk) then
+		if reset='1' then
+                  S <= (others=>'1'); -- better for sim, not sure if its random or not on real hardware.
+		elsif rising_edge(clk) then
 
 			if opcInfo(opcStackUp) = '1' then
 				sIncDec := S + 1;
