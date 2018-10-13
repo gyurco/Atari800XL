@@ -464,6 +464,7 @@ static uint8_t usb_hid_release(usb_device_t *dev) {
   return 0;
 }
 
+#ifdef FIRMWARE_5200
 // special 5200daptor button processing
 static void handle_5200daptor(usb_hid_iface_info_t *iface, uint8_t *buf) {
 
@@ -521,6 +522,7 @@ static void handle_5200daptor(usb_hid_iface_info_t *iface, uint8_t *buf) {
     iface->key_state = keys;
   }
 }
+#endif
 
 // special MCC button processing
 static void handle_MCC(usb_hid_iface_info_t *iface, uint32_t * jmap_ptr, uint8_t type) {
@@ -811,8 +813,10 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
 	      event_analog_joystick(idx, a[0]-128, a[1]-128);
 
 	      // do special 5200daptor treatment
+#ifdef FIRMWARE_5200
 	      if(iface->is_5200daptor)
 		handle_5200daptor(iface, buf);
+#endif
 	    }
 	  }
 	}
@@ -822,27 +826,6 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
   }
 
   return 0;
-}
-
-void hid_set_kbd_led(unsigned char led, bool on) {
-  // check if led state has changed
-  if( (on && !(kbd_led_state&led)) || (!on && (kbd_led_state&led))) {
-    if(on) kbd_led_state |=  led;
-    else   kbd_led_state &= ~led;
-
-    // search for all keyboard interfaces on all hid devices
-    usb_device_t *dev = usb_get_devices();
-    int i;
-    for(i=0;i<USB_NUMDEVICES;i++) {
-      if(dev[i].bAddress && (dev[i].class == &usb_hid_class)) {
-	// search for keyboard interfaces
-	int j;
-	for(j=0;j<MAX_IFACES;j++)
-	  if(dev[i].hid_info.iface[j].device_type == HID_DEVICE_KEYBOARD)
-	    hid_set_report(dev+i, dev[i].hid_info.iface[j].iface_idx, 2, 0, 1, &kbd_led_state);
-      }
-    }
-  }
 }
 
 const usb_device_class_config_t usb_hid_class = {
