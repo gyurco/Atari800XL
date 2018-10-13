@@ -3,9 +3,9 @@ export TODAY=`date +'%Y%m%d'`
 export VERSION=`cat VERSION`
 echo "D:$TODAY:"
 echo "V:$VERSION:"
-cat ../firmware/ECLAIREXL.bin |sed -e "s/Date:YYYYMMDD Core:XX/Date:$TODAY Core:$VERSION/" > ../firmware/ECLAIREXL.bin_dated
-../firmware/mif_file_stuff/zpuromgen ../firmware/ECLAIREXL.bin_dated  > zpu_rom.mif_insidesv1
-cat ../firmware/mif_file_stuff/rom_prologue_40.vhd  zpu_rom.mif_insidesv1 ../firmware/mif_file_stuff/rom_epilogue.vhd  > zpu_romv1.mif
+cat ../firmware_eclairexl/ECLAIREXL.bin |sed -e "s/Date:YYYYMMDD Core:XX/Date:$TODAY Core:$VERSION/" > ../firmware_eclairexl/ECLAIREXL.bin_dated
+../firmware_eclairexl/mif_file_stuff/zpuromgen ../firmware_eclairexl/ECLAIREXL.bin_dated  > zpu_rom.mif_insidesv1
+cat ../firmware_eclairexl/mif_file_stuff/rom_prologue_40.vhd  zpu_rom.mif_insidesv1 ../firmware_eclairexl/mif_file_stuff/rom_epilogue.vhd  > zpu_romv1.mif
 
 if [ $1 != "BUILD" ]; then
     echo Updating existing
