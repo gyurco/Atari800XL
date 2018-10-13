@@ -175,7 +175,7 @@ CFLAGS_5200_USB2 = $(CFLAGS) -DFIRMWARE_5200  -DUSB -DUSB2 -Iusb
 HOST_CFLAGS_5200 = $(HOST_CFLAGS) -DFIRMWARE_5200
 
 # Our target.
-all: eclairexl mcc mcctv mist de1 aeon_lite chameleon  de1_5200 mist_5200 mcc_5200 mcctv_5200 sockit papilioduo
+all: mcc mcctv mist de1 aeon_lite chameleon  de1_5200 mist_5200 mcc_5200 mcctv_5200 sockit papilioduo
 
 install:
 	cd ../common/romgen && ./createall && cd ../../firmware
