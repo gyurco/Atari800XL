@@ -5,18 +5,20 @@
    <db_ref_list>
       <db_ref path="sallymax.wdb" id="1" type="auto">
          <top_modules>
+            <top_module name="attributes" />
             <top_module name="math_real" />
             <top_module name="numeric_std" />
             <top_module name="sallymax_tb" />
             <top_module name="std_logic_1164" />
             <top_module name="std_logic_arith" />
+            <top_module name="std_logic_misc" />
             <top_module name="std_logic_textio" />
             <top_module name="std_logic_unsigned" />
             <top_module name="textio" />
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="42" />
+   <WVObjectSize size="48" />
    <wvobject fp_name="/sallymax_tb/thebigone/phi0" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">phi0</obj_property>
       <obj_property name="ObjectShortName">phi0</obj_property>
@@ -189,5 +191,33 @@
    <wvobject fp_name="/sallymax_tb/thebigone/enables/enable_179" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">enable_179</obj_property>
       <obj_property name="ObjectShortName">enable_179</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/cpu6502/cpu_6502_peter/thecpucycle" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">thecpucycle</obj_property>
+      <obj_property name="ObjectShortName">thecpucycle</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/thebigone/cpu6502/cpu_6502_peter/theopcode" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">theopcode[7:0]</obj_property>
+      <obj_property name="ObjectShortName">theopcode[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/slave_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">slave_addr[15:0]</obj_property>
+      <obj_property name="ObjectShortName">slave_addr[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/slave_data_out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">slave_data_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">slave_data_out[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/slave_data_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">slave_data_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">slave_data_in[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sallymax_tb/slave_request" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">slave_request</obj_property>
+      <obj_property name="ObjectShortName">slave_request</obj_property>
    </wvobject>
 </wave_config>
