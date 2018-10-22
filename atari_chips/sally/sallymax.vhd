@@ -75,6 +75,7 @@ ARCHITECTURE vhdl OF sallymax IS
 	signal BUS_DATA : std_logic_vector(7 downto 0);
 	signal BUS_DATA_OE : std_logic;
 	signal BUS_WRITE_N : std_logic;
+	signal BUS_WRITE_OE : std_logic;
 	
 	signal PLLRESET_N : std_logic;
 	
@@ -136,6 +137,7 @@ bus_adapt : entity work.timing6502
 		BUS_DATA_OUT => BUS_DATA,
 		BUS_DATA_OE => BUS_DATA_OE,
 		BUS_WRITE_N => BUS_WRITE_N, 
+		BUS_WRITE_OE => BUS_WRITE_OE,
 		BUS_CONTROL_N => open,
 		BUS_CONTROL_OE => open
 	);	
@@ -158,9 +160,9 @@ PORT MAP(CLK => CLK,
 -- Wire up pins
 CLK_OUT <= PHI2_6X;
 
-D <= BUS_DATA when (CPU_REQUEST='1' and BUS_DATA_OE='1')  else (others=>'Z');
-A <= BUS_ADDR when (CPU_REQUEST='1' and BUS_ADDR_OE='1') else (others=>'Z');
-W_N <= BUS_WRITE_N when (CPU_REQUEST='1') else 'Z';
+D <= BUS_DATA when (BUS_DATA_OE='1')  else (others=>'Z');
+A <= BUS_ADDR when (BUS_ADDR_OE='1') else (others=>'Z');
+W_N <= BUS_WRITE_N when (BUS_WRITE_OE='1') else 'Z';
 
 SYNC <= 'Z'; -- Not implemented yet
 
