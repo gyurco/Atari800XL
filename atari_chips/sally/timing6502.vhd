@@ -186,6 +186,7 @@ BEGIN
 		end if;
 
 		if (syncphi2 = '1') then
+			phi1_next <= '0';
 			state_next <= "01110";
 		end if;
 
@@ -209,12 +210,13 @@ BEGIN
 		when "11100" =>			
 			data_read_next <= bus_data_in;
 			phi2_next <= '0';
-		when "11101" =>
-			request_handling_next <= '0';
-			CPU_REQUEST_COMPLETE <= request_handling_reg;
+
 			nmi_n_next <= nmi_n;
 			irq_n_next <= irq_n;
 			halt_n_next <= halt_n;
+		when "11101" =>
+			request_handling_next <= '0';
+			CPU_REQUEST_COMPLETE <= request_handling_reg;
 		when "11110" =>
 			addr_next <= (others=>'0');
 			addr_oe_next <= '0';
