@@ -37,6 +37,8 @@ architecture rtl of sallymax_tb is
   signal slave_rw_n : std_logic;
   signal slave_cs : std_logic;
 
+  signal halt_n : std_logic;
+
 begin
 	p_clk_gen_b : process
 	begin
@@ -70,7 +72,7 @@ begin
 		W_N => BUS_RW,
 
 		RDY => '1',
-		HALT_N => '1',
+		HALT_N => halt_n,
 		NMI_N => '1',
 		IRQ_N => '1',
 		S0 => '1',
@@ -109,6 +111,7 @@ begin
 
 	process
 	begin
+		halt_n <= '1';
 		wait until reset_n='1';
 
 		wait until slave_request='1';
@@ -148,6 +151,13 @@ begin
 		wait until slave_request='1';
 		slave_data_out <= x"ea";
 		wait until slave_request='0';
+
+		wait until bus_phi2='1';
+		wait until bus_phi2='0';
+		wait for 200ns;
+		halt_n <= '0';
+
+		wait for 20us;
 		
 	end process;
 

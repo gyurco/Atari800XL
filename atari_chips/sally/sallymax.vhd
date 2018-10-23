@@ -27,7 +27,7 @@ ENTITY sallymax IS
 		W_N : OUT STD_LOGIC;
 
 		RDY : IN STD_LOGIC;
-		HALT_N : IN STD_LOGIC;
+		HALT_N : IN STD_LOGIC; -- TODO, wire this up!
 		NMI_N : IN STD_LOGIC;
 		IRQ_N : IN STD_LOGIC;
 		S0 : IN STD_LOGIC; -- not implemented yet!
@@ -62,13 +62,15 @@ ARCHITECTURE vhdl OF sallymax IS
 	signal CLK : std_logic;
 	signal RESET_N : std_logic;
 
-	signal CPU_ENABLE : std_logic;
 	signal CPU_REQUEST : std_logic;
 	signal CPU_REQUEST_COMPLETE : std_logic;
 	signal CPU_ADDR : std_logic_vector(15 downto 0);
 	signal CPU_WRITE_DATA : std_logic_vector(7 downto 0);
 	signal CPU_READ_DATA : std_logic_vector(7 downto 0);
 	signal CPU_WRITE_N : std_logic;
+
+	signal CPU_NMI_N : std_logic;
+	signal CPU_IRQ_N : std_logic;
 
 	signal BUS_ADDR : std_logic_vector(15 downto 0);
 	signal BUS_ADDR_OE : std_logic;
@@ -115,17 +117,20 @@ bus_adapt : entity work.timing6502
 		
 		PHI0 => PHI0,
 		HALT_N => HALT_N,		
+		NMI_N => NMI_N,		
+		IRQ_N => IRQ_N,		
 
 		-- FGPA side
 		ADDR_IN => CPU_ADDR,
 		DATA_IN => CPU_WRITE_DATA,
 		WRITE_IN => not(CPU_WRITE_N),
-		CONTROL_N_IN => (others=>'0'),
 
 		DATA_OUT => CPU_READ_DATA,
 		
 		CPU_REQUEST => CPU_REQUEST,		
 		CPU_REQUEST_COMPLETE => CPU_REQUEST_COMPLETE,
+		CPU_NMI_N => CPU_NMI_N,		
+		CPU_IRQ_N => CPU_IRQ_N,		
 
 		-- bus side
 		BUS_DATA_IN => D,		
@@ -137,17 +142,15 @@ bus_adapt : entity work.timing6502
 		BUS_DATA_OUT => BUS_DATA,
 		BUS_DATA_OE => BUS_DATA_OE,
 		BUS_WRITE_N => BUS_WRITE_N, 
-		BUS_WRITE_OE => BUS_WRITE_OE,
-		BUS_CONTROL_N => open,
-		BUS_CONTROL_OE => open
+		BUS_WRITE_OE => BUS_WRITE_OE
 	);	
 				 
 cpu6502 : entity work.cpu
 PORT MAP(CLK => CLK,
 		 RESET => NOT(RESET_N),
 		 ENABLE => RESET_N,
-		 IRQ_n => IRQ_N,
-		 NMI_n => NMI_N,
+		 IRQ_n => CPU_IRQ_N,
+		 NMI_n => CPU_NMI_N,
 		 MEMORY_READY => CPU_REQUEST_COMPLETE,
 		 THROTTLE => CPU_REQUEST,
 		 RDY => RDY,
