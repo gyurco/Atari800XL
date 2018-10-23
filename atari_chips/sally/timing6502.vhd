@@ -207,9 +207,10 @@ BEGIN
 			if (write_in = '1') then
 				data_oe_next <= request_handling_reg;
 			end if;
+		when "11011" =>			
+			phi2_next <= '0';
 		when "11100" =>			
 			data_read_next <= bus_data_in;
-			phi2_next <= '0';
 
 			nmi_n_next <= nmi_n;
 			irq_n_next <= irq_n;
