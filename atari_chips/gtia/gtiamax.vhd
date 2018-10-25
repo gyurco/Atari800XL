@@ -186,11 +186,11 @@ PORT MAP(CLK => CLK,
 	-- ANTIC interface
 	COLOUR_CLOCK_ORIGINAL => CC_FALLING,
 	COLOUR_CLOCK => CC_FALLING,
-	COLOUR_CLOCK_HIGHRES => CC_FALLING,
+	COLOUR_CLOCK_HIGHRES => OSC_CLEAN_EVENT,
 	AN => AN,
 	
 	-- keyboard interface
-	CONSOL_IN => S,
+	CONSOL_IN => NOT(S),
 	CONSOL_OUT => S_OUT,
 	
 	-- keyboard interface
