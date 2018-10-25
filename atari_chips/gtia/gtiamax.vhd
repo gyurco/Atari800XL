@@ -83,6 +83,13 @@ ARCHITECTURE vhdl OF gtiamax IS
 
 	signal GTIA_WRITE_ENABLE : std_logic;
 
+	signal PAL_CLEAN : std_logic;
+
+	signal PAL_NTSC_N : std_logic;
+
+	signal COLOUR_OSC : std_logic;
+	signal COLOUR_OSC_PHASED : std_logic;
+
 	signal OSC_CLEAN : std_logic;
 	signal OSC_CLEAN_EVENT : std_logic;
 	signal CC_FALLING : std_logic;
@@ -153,6 +160,16 @@ bus_adapt : entity work.slave_timing_6502
 		DATA_OUT => GTIA_DO
 	);
 
+
+osc_cleaner2 : entity work.correct_duty
+PORT MAP(
+	CLK => CLK,
+	RESET_N => RESET_N,
+	CLKIN => PAL,
+	CLKOUT => PAL_CLEAN,
+	CLKOUT_EVENT => open
+	);
+
 osc_cleaner : entity work.correct_duty
 PORT MAP(
 	CLK => CLK,
@@ -163,6 +180,8 @@ PORT MAP(
 	);
 
 	CC_FALLING <= OSC_CLEAN_EVENT and not(OSC_CLEAN);
+
+	pal_ntsc_n <= '1'; -- TODO GPIO
 
 gtia1 : entity work.gtia
 PORT MAP(CLK => CLK,
@@ -181,7 +200,7 @@ PORT MAP(CLK => CLK,
 	ANTIC_FETCH => '0',
 	CPU_ENABLE_ORIGINAL => '0',
 
-	PAL => '1', -- TODO: GPIO
+	PAL => pal_ntsc_n,
 	
 	-- ANTIC interface
 	COLOUR_CLOCK_ORIGINAL => CC_FALLING,
@@ -210,6 +229,24 @@ PORT MAP(CLK => CLK,
 
 GTIA_WRITE_ENABLE <= NOT(WRITE_N) and REQUEST;
 
+colour_osc <= pal_clean when pal_ntsc_n='1' else osc_clean;
+
+col_phase : entity work.hue
+PORT MAP 
+( 
+	clk => clk,
+	reset_n => reset_n,
+
+	hue => video_colour(7 downto 4),
+	burst => video_burst,
+	blank => video_blank,
+	vpos_lsb => video_odd_line,
+	pal => pal_ntsc_n,
+
+	colour_osc => colour_osc,
+	colour_osc_phased => colour_osc_phased
+);
+
 -- Wire up pins
 CLK_OUT <= PHI2_6X;
 
@@ -221,7 +258,7 @@ S(2) <= '0' when S_OUT(2)='1' else 'Z';
 S(3) <= '0' when S_OUT(3)='1' else 'Z';
 
 CSYNC <= NOT(VIDEO_CSYNC);
-COLOR <= '0'; -- TODO
+COLOR <= colour_osc_phased;
 LUM(3 downto 0) <= VIDEO_COLOUR(3 downto 0);
 
 FO0 <= OSC_CLEAN;

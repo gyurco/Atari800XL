@@ -7,6 +7,7 @@
          <top_modules>
             <top_module name="attributes" />
             <top_module name="gtiamax_tb" />
+            <top_module name="math_real" />
             <top_module name="numeric_std" />
             <top_module name="std_logic_1164" />
             <top_module name="std_logic_arith" />
@@ -17,7 +18,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="27" />
+   <WVObjectSize size="30" />
    <wvobject fp_name="/gtiamax_tb/thebigone/phi2" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">phi2</obj_property>
       <obj_property name="ObjectShortName">phi2</obj_property>
@@ -127,5 +128,18 @@
    <wvobject fp_name="/gtiamax_tb/thebigone/gtia1/colour_clock_highres" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">colour_clock_highres</obj_property>
       <obj_property name="ObjectShortName">colour_clock_highres</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/col_phase/colour_osc_phased_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">colour_osc_phased_reg</obj_property>
+      <obj_property name="ObjectShortName">colour_osc_phased_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/col_phase/colour_osc_delay_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">colour_osc_delay_reg[255:0]</obj_property>
+      <obj_property name="ObjectShortName">colour_osc_delay_reg[255:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/col_phase/colour_osc" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">colour_osc</obj_property>
+      <obj_property name="ObjectShortName">colour_osc</obj_property>
    </wvobject>
 </wave_config>
