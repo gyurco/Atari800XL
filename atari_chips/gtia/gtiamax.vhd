@@ -42,7 +42,7 @@ ENTITY gtiamax IS
 
 		CSYNC : OUT STD_LOGIC;
 		COLOR : OUT STD_LOGIC;
-		LUM : OUT STD_LOGIC_VECTOR(3 downto 0);
+		LUM : OUT STD_LOGIC_VECTOR(3 downto 0)
 	);
 END gtiamax;		
 		
@@ -80,6 +80,23 @@ ARCHITECTURE vhdl OF gtiamax IS
 	signal WRITE_N : std_logic;
 
 	signal GTIA_DO : std_logic_vector(7 downto 0);
+
+	signal GTIA_WRITE_ENABLE : std_logic;
+
+	signal OSC_CLEAN : std_logic;
+	signal OSC_CLEAN_EVENT : std_logic;
+	signal CC_FALLING : std_logic;
+
+	signal S_OUT : std_logic_vector(3 downto 0);
+
+	signal VIDEO_COLOUR : std_logic_vector(7 downto 0);
+	signal VIDEO_HSYNC : std_logic;
+	signal VIDEO_VSYNC : std_logic;
+	signal VIDEO_CSYNC : std_logic;
+	signal VIDEO_BLANK : std_logic;
+	signal VIDEO_BURST : std_logic;
+	signal VIDEO_START_OF_FIELD : std_logic;
+	signal VIDEO_ODD_LINE : std_logic;
 BEGIN
 	NC <= (others=>'Z');
 	GPIO <= (others=>'Z');
@@ -121,7 +138,7 @@ bus_adapt : entity work.slave_timing_6502
 		-- output to the cart port
 		bus_data_out => BUS_DATA,
 		bus_drive => BUS_OE,
-		bus_cs => CS_COMB,
+		bus_cs => NOT(CS_N),
 		bus_rw_n => W_N,
 
 		-- request for a memory bus cycle (read or write)
@@ -135,28 +152,42 @@ bus_adapt : entity work.slave_timing_6502
 
 		DATA_OUT => GTIA_DO
 	);
-		 
+
+osc_cleaner : entity work.correct_duty
+PORT MAP(
+	CLK => CLK,
+	RESET_N => RESET_N,
+	CLKIN => OSC,
+	CLKOUT => OSC_CLEAN,
+	CLKOUT_EVENT => OSC_CLEAN_EVENT
+	);
+
+	CC_FALLING <= OSC_CLEAN_EVENT and not(OSC_CLEAN);
+
 gtia1 : entity work.gtia
 PORT MAP(CLK => CLK,
 	ENABLE_179 => ENABLE_CYCLE,
 	WR_EN => GTIA_WRITE_ENABLE,
 	RESET_N => RESET_N,
 	ADDR => ADDR_IN(4 DOWNTO 0),
-	DATA_IN => WRITE_DATA(7 DOWNTO 0),
+	CPU_DATA_IN => WRITE_DATA(7 DOWNTO 0),
 	DATA_OUT => GTIA_DO,
 
 	-- pmg dma
-	MEMORY_DATA_IN => BUS_SNOOP,
-	ANTIC_FETCH => BUS_HALT,
-	CPU_ENABLE_ORIGINAL => ENABLE_CYCLE,
+	--MEMORY_DATA_IN => BUS_SNOOP,
+	--ANTIC_FETCH => BUS_HALT,
+	--CPU_ENABLE_ORIGINAL => ENABLE_CYCLE,
+	MEMORY_DATA_IN => (others=>'1'),
+	ANTIC_FETCH => '0',
+	CPU_ENABLE_ORIGINAL => '0',
 
 	PAL => '1', -- TODO: GPIO
 	
 	-- ANTIC interface
-	COLOUR_CLOCK_ORIGINAL => BUS_COLOUR_CLOCK,
-	COLOUR_CLOCK => BUS_COLOUR_CLOCK,
-	COLOUR_CLOCK_HIGHRES => BUS_COLOUR_CLOCK,
-	AN => BUS_AN,
+	COLOUR_CLOCK_ORIGINAL => CC_FALLING,
+	COLOUR_CLOCK => CC_FALLING,
+	COLOUR_CLOCK_HIGHRES => CC_FALLING,
+	AN => AN,
 	
 	-- keyboard interface
 	CONSOL_IN => S,
@@ -164,9 +195,6 @@ PORT MAP(CLK => CLK,
 	
 	-- keyboard interface
 	TRIG => T,
-	
-	-- CPU interface
-	DATA_OUT => GTIA_DO,
 	
 	-- TO scandoubler...
 	COLOUR_out => VIDEO_COLOUR,
@@ -191,5 +219,11 @@ S(0) <= '0' when S_OUT(0)='1' else 'Z';
 S(1) <= '0' when S_OUT(1)='1' else 'Z';
 S(2) <= '0' when S_OUT(2)='1' else 'Z';
 S(3) <= '0' when S_OUT(3)='1' else 'Z';
+
+CSYNC <= NOT(VIDEO_CSYNC);
+COLOR <= '0'; -- TODO
+LUM(3 downto 0) <= VIDEO_COLOUR(3 downto 0);
+
+FO0 <= OSC_CLEAN;
 
 END vhdl;
