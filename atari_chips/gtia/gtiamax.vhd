@@ -58,6 +58,7 @@ ARCHITECTURE vhdl OF gtiamax IS
 		port (
 			inclk0   : in  std_logic := '0';
 			c0 : out std_logic;
+			c1 : out std_logic;
 			locked   : out std_logic
 		);
 	end component;
@@ -66,6 +67,7 @@ ARCHITECTURE vhdl OF gtiamax IS
 	signal PHI2_6X : std_logic;
 
 	signal CLK : std_logic;
+	signal FAST_CLK : std_logic;
 	signal RESET_N : std_logic;
 
 	signal ENABLE_CYCLE : std_logic;
@@ -91,6 +93,7 @@ ARCHITECTURE vhdl OF gtiamax IS
 	signal COLOUR_OSC_PHASED : std_logic;
 
 	signal OSC_CLEAN : std_logic;
+	signal OSC_CLEAN_VIDEO : std_logic;
 	signal OSC_CLEAN_EVENT : std_logic;
 	signal CC_FALLING : std_logic;
 
@@ -128,7 +131,8 @@ BEGIN
 
 	pll_inst : pll
 	PORT MAP(inclk0 => CLK_SLOW,
-			 c0 => CLK, -- 27MHz 
+			 c0 => CLK, -- 56MHz 
+			 c1 => FAST_CLK, -- 300MHz
 			 locked => RESET_N);
 
 bus_adapt : entity work.slave_timing_6502
@@ -161,9 +165,18 @@ bus_adapt : entity work.slave_timing_6502
 	);
 
 
+osc_cleaner3 : entity work.correct_duty
+PORT MAP(
+	CLK => FAST_CLK,
+	RESET_N => RESET_N,
+	CLKIN => OSC,
+	CLKOUT => OSC_CLEAN_VIDEO,
+	CLKOUT_EVENT => open
+	);
+	
 osc_cleaner2 : entity work.correct_duty
 PORT MAP(
-	CLK => CLK,
+	CLK => FAST_CLK,
 	RESET_N => RESET_N,
 	CLKIN => PAL,
 	CLKOUT => PAL_CLEAN,
@@ -229,12 +242,12 @@ PORT MAP(CLK => CLK,
 
 GTIA_WRITE_ENABLE <= NOT(WRITE_N) and REQUEST;
 
-colour_osc <= pal_clean when pal_ntsc_n='1' else osc_clean;
+colour_osc <= pal_clean when pal_ntsc_n='1' else osc_clean_video;
 
 col_phase : entity work.hue
 PORT MAP 
 ( 
-	clk => clk,
+	clk => fast_clk,
 	reset_n => reset_n,
 
 	hue => video_colour(7 downto 4),

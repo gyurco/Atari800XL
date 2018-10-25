@@ -57,14 +57,14 @@ BEGIN
 	end process;
 
 	-- next state
-	process(colour_osc_delay_reg)
+	process(colour_osc_delay_reg,colour_osc)
 	begin
 		colour_osc_delay_next(255 downto 0) <= colour_osc_delay_reg(254 downto 0)&colour_osc;
 	end process;
 
 	process(colour_osc_delay_reg,sin_phase,sin_on)
 	begin
-		colour_osc_phased_next <= colour_osc_delay_reg(to_integer(unsigned(sin_phase))/20);
+		colour_osc_phased_next <= colour_osc_delay_reg(to_integer(unsigned(sin_phase))/4);
 	end process;
 
 	-- 4.43361875MHz - PAL carrier  - i.e. 12.8 clock cycles per sin wave! so if we have 256 sine entries,+5*16/4 per cycle, +20 per cycle
