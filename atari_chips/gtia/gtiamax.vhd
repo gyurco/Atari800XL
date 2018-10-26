@@ -110,6 +110,11 @@ ARCHITECTURE vhdl OF gtiamax IS
 	signal VIDEO_ODD_LINE : std_logic;
 
 	signal HALT_N_ADJ : std_logic;
+
+	signal AN_DEL_NEXT : std_logic_vector(2 downto 0);
+	signal AN_DEL_REG : std_logic_vector(2 downto 0);
+	signal AN_DEL2_NEXT : std_logic_vector(2 downto 0);
+	signal AN_DEL2_REG : std_logic_vector(2 downto 0);
 BEGIN
 	NC <= (others=>'Z');
 	GPIO <= (others=>'Z');
@@ -137,6 +142,28 @@ BEGIN
 			 c0 => CLK, -- 56MHz 
 			 c1 => FAST_CLK, -- 300MHz
 			 locked => RESET_N);
+
+	process(clk,reset_n)
+	begin
+		if (reset_n='0') then
+			AN_DEL_REG <= (others=>'0');
+			AN_DEL2_REG <= (others=>'0');
+		elsif (clk'event and clk='1') then
+			AN_DEL_REG <= AN_DEL_NEXT;
+			AN_DEL2_REG <= AN_DEL2_NEXT;
+		end if;
+	end process;
+
+	process(AN,AN_DEL_REG,AN_DEL2_REG,CC_FALLING)
+	begin
+		AN_DEL_NEXT <= AN_DEL_REG;
+		AN_DEL2_NEXT <= AN_DEL2_REG;
+
+		if (CC_FALLING='1') then
+			AN_DEL_NEXT <= AN;
+			AN_DEL2_NEXT <= AN_DEL_REG;
+		end if;
+	end process;
 
 bus_adapt : entity work.slave_timing_6502
 	PORT MAP
@@ -222,7 +249,7 @@ PORT MAP(CLK => CLK,
 	COLOUR_CLOCK_ORIGINAL => CC_FALLING,
 	COLOUR_CLOCK => CC_FALLING,
 	COLOUR_CLOCK_HIGHRES => OSC_CLEAN_EVENT,
-	AN => AN,
+	AN => AN_DEL2_REG,
 	
 	-- keyboard interface
 	CONSOL_IN => NOT(S),
