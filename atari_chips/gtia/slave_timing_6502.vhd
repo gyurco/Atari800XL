@@ -27,6 +27,8 @@ ENTITY slave_timing_6502 IS
 				CS : out std_logic;
 
 				ENABLE_CYCLE : out std_logic;
+				HALT_N : in std_logic;
+				HALT_N_OUT : out std_logic;
 
 				DATA_OUT: in std_logic_vector(7 downto 0) -- read_data
 			);
@@ -38,6 +40,9 @@ ARCHITECTURE vhdl OF slave_timing_6502 IS
 	
 	signal phi_edge_prev_next : std_logic;
 	signal phi_edge_prev_reg: std_logic;	
+
+	signal halt_n_next : std_logic;
+	signal halt_n_reg: std_logic;	
 
 	signal delay_next : std_logic_vector(31 downto 0);	
 	signal delay_reg : std_logic_vector(31 downto 0);
@@ -87,6 +92,8 @@ begin
 			registered_read_data_reg <= (others=>'0');
 
 			state_reg <= state_wait_addrctl;
+
+			halt_n_reg <= '1';
 		elsif (clk'event and clk='1') then
 			phi_edge_prev_reg <= phi_edge_prev_next;
 			delay_reg <= delay_next;
@@ -101,6 +108,8 @@ begin
 			bus_addr_in_reg <= bus_addr_in_next;
 
 			state_reg <= state_next;
+
+			halt_n_reg <= halt_n_next;
 		end if;
 	end process;
 	
@@ -176,6 +185,14 @@ begin
 		
 	end process;
 
+	process(delay_reg,halt_n,halt_n_reg)
+	begin
+		halt_n_next <= halt_n_reg;
+		if (delay_reg(29)='1') then
+			halt_n_next <= halt_n;
+		end if;
+	end process;
+
 	bus_data_out <= bus_data_out_reg;
 	bus_drive <= bus_drive_reg;
 	bus_request <= internal_memory_request;
@@ -185,5 +202,6 @@ begin
 	CS <= bus_cs_reg;
 
 	enable_cycle <= delay_reg(29);
+	halt_n_out <= halt_n_reg;
 
 end vhdl;

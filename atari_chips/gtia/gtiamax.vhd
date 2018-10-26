@@ -107,6 +107,8 @@ ARCHITECTURE vhdl OF gtiamax IS
 	signal VIDEO_BURST : std_logic;
 	signal VIDEO_START_OF_FIELD : std_logic;
 	signal VIDEO_ODD_LINE : std_logic;
+
+	signal HALT_N_ADJ : std_logic;
 BEGIN
 	NC <= (others=>'Z');
 	GPIO <= (others=>'Z');
@@ -160,6 +162,8 @@ bus_adapt : entity work.slave_timing_6502
 
 		-- end of cycle
 		ENABLE_CYCLE => ENABLE_CYCLE,
+		HALT_N => HALT_N,
+		HALT_N_OUT => HALT_N_ADJ,
 
 		DATA_OUT => GTIA_DO
 	);
@@ -207,7 +211,7 @@ PORT MAP(CLK => CLK,
 
 	-- pmg dma
 	MEMORY_DATA_IN => D,
-	ANTIC_FETCH => not(HALT_N),
+	ANTIC_FETCH => not(HALT_N_ADJ),
 	CPU_ENABLE_ORIGINAL => ENABLE_CYCLE,
 
 	PAL => pal_ntsc_n,
