@@ -27,6 +27,7 @@ ENTITY slave_timing_6502 IS
 				CS : out std_logic;
 
 				ENABLE_CYCLE : out std_logic;
+				DATA_CYCLE : out std_logic;
 				HALT_N : in std_logic;
 				HALT_N_OUT : out std_logic;
 
@@ -201,6 +202,7 @@ begin
 	rw_n <= bus_rw_n_reg;	
 	CS <= bus_cs_reg;
 
+	data_cycle <= delay_reg(26);
 	enable_cycle <= delay_reg(29);
 	halt_n_out <= halt_n_reg;
 

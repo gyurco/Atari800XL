@@ -71,6 +71,7 @@ ARCHITECTURE vhdl OF gtiamax IS
 	signal RESET_N : std_logic;
 
 	signal ENABLE_CYCLE : std_logic;
+	signal DATA_CYCLE : std_logic;
 
 	signal ADDR_IN : std_logic_vector(4 downto 0);
 	signal WRITE_DATA : std_logic_vector(7 downto 0);
@@ -162,6 +163,7 @@ bus_adapt : entity work.slave_timing_6502
 
 		-- end of cycle
 		ENABLE_CYCLE => ENABLE_CYCLE,
+		DATA_CYCLE => DATA_CYCLE,
 		HALT_N => HALT_N,
 		HALT_N_OUT => HALT_N_ADJ,
 
@@ -212,7 +214,7 @@ PORT MAP(CLK => CLK,
 	-- pmg dma
 	MEMORY_DATA_IN => D,
 	ANTIC_FETCH => not(HALT_N_ADJ),
-	CPU_ENABLE_ORIGINAL => ENABLE_CYCLE,
+	CPU_ENABLE_ORIGINAL => DATA_CYCLE,
 
 	PAL => pal_ntsc_n,
 	
