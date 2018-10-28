@@ -25,6 +25,7 @@ PORT
 	WR_EN : IN STD_LOGIC;
 	
 	RESET_N : IN STD_LOGIC;
+	RNMI_N : IN STD_LOGIC := '1';
 	
 	MEMORY_READY_ANTIC : IN STD_LOGIC;
 	MEMORY_READY_CPU : IN STD_LOGIC;
@@ -672,7 +673,7 @@ BEGIN
 		end if;
 	end process;
 	
-	process(colour_clock_half_x,colour_clock_1x,colour_clock_2x, colour_clock_4x, colour_clock_8x, dmactl_delayed_reg, playfield_dma_start_reg, playfield_dma_start_raw, playfield_dma_end_reg, playfield_dma_end_raw, hcount_reg, an_current_next)
+	process(colour_clock_half_x,colour_clock_1x,colour_clock_2x, colour_clock_4x, colour_clock_8x, dmactl_delayed_reg, playfield_dma_start_reg, playfield_dma_start_raw, playfield_dma_end_reg, playfield_dma_end_raw, hcount_reg, hscrol_reg, an_current_next)
 	begin
 		enable_dma <= colour_clock_half_x;
 		colour_clock_selected <= colour_clock_1x;
@@ -802,7 +803,7 @@ BEGIN
 	end process;
 	
 	-- Calculate playfield start/end
-	process(hscrol_enabled_reg, dmactl_delayed_reg, hscrol_adj)
+	process(hscrol_enabled_reg, dmactl_delayed_reg, hscrol_adj, hscrol_reg)
 		variable width : std_logic_vector(1 downto 0);
 		variable hscrol_adj_en : std_logic_vector(5 downto 0);
 	begin		
@@ -1127,17 +1128,17 @@ BEGIN
 		generic map (COUNT=>1,WIDTH=>2)
 		port map (clk=>clk,sync_reset=>'0',data_in=>nmien_raw_reg(7 downto 6),enable=>antic_enable_179,reset_n=>reset_n,data_out=>nmien_delayed_reg(7 downto 6));
 		
-	process(antic_enable_179,nmi_reg,dli_nmi_reg,vbi_nmi_reg,nmien_delayed_reg) --delay_line/latch
+	process(antic_enable_179,nmi_reg,dli_nmi_reg,vbi_nmi_reg,nmien_delayed_reg,rnmi_n) --delay_line/latch
 	begin
 		nmi_next <= nmi_reg;
 		if (antic_enable_179 = '1') then
-			nmi_next <= not((dli_nmi_reg and nmien_delayed_reg(7)) or (vbi_nmi_reg and nmien_delayed_reg(6)));
+			nmi_next <= not((dli_nmi_reg and nmien_delayed_reg(7)) or (vbi_nmi_reg and nmien_delayed_reg(6))) and rnmi_n;
 		end if;
 	end process;
 	
-	process(nmist_reg, vbi_nmi_reg, dli_nmi_reg, vbi_nmi_next, dli_nmi_next, nmist_reset)
+	process(nmist_reg, vbi_nmi_reg, dli_nmi_reg, vbi_nmi_next, dli_nmi_next, nmist_reset, rnmi_n)
 	begin	
-		nmist_next(5) <= '0';
+		nmist_next(5) <= ((nmist_reg(5) and not(nmist_reset))) or not(rnmi_n);
 		nmist_next(6) <= ((nmist_reg(6) and not(nmist_reset)) or vbi_nmi_reg or vbi_nmi_next) and not(dli_nmi_reg or dli_nmi_next); -- auto clear vbi flat on dli!
 		nmist_next(7) <= ((nmist_reg(7) and not(nmist_reset))or dli_nmi_reg or dli_nmi_next) and not(vbi_nmi_reg or vbi_nmi_next); -- auto clear dli flag on vbi!
 	end process;
@@ -1413,7 +1414,7 @@ BEGIN
 	-- dma fetching
 	-- dma fetch - cache response until needed
 	-- we allow two colour clocks for each fetch...
-	process(memory_data_in,memory_ready_both,cycle_latter,dma_fetch_reg,dma_address_reg,dma_fetch_destination_reg,dma_cache_ready_reg,dma_cache_reg,dma_fetch_request,vblank_reg, instruction_type_reg, instruction_reg, display_list_address_reg, memory_scan_address_reg, enable_dma, display_list_address_low_temp_reg)
+	process(memory_data_in,memory_ready_both,cycle_latter,dma_fetch_reg,dma_address_reg,dma_fetch_destination_reg,dma_cache_ready_reg,dma_cache_reg,dma_fetch_request,vblank_reg, instruction_type_reg, instruction_reg, display_list_address_reg, memory_scan_address_reg, enable_dma, display_list_address_low_temp_reg,allow_real_dma_reg,allow_real_dma_next)
 	begin	
 		instruction_next <= instruction_reg;
 		
@@ -1436,6 +1437,10 @@ BEGIN
 		if (dma_fetch_reg = '1' and memory_ready_both = '1') then
 			dma_cache_next <= memory_data_in;
 			dma_cache_ready_next <= '1';
+			dma_fetch_next <= '0';
+		end if;
+
+		if (allow_real_dma_reg='0' and allow_real_dma_next='1') then
 			dma_fetch_next <= '0';
 		end if;
 		

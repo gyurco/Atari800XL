@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="gtiamax.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="attributes" />
+            <top_module name="gtiamax_tb" />
+            <top_module name="math_real" />
+            <top_module name="numeric_std" />
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_misc" />
+            <top_module name="std_logic_textio" />
+            <top_module name="std_logic_unsigned" />
+            <top_module name="textio" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="30" />
+   <wvobject fp_name="/gtiamax_tb/thebigone/phi2" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">phi2</obj_property>
+      <obj_property name="ObjectShortName">phi2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/clk_out" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_out</obj_property>
+      <obj_property name="ObjectShortName">clk_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/clk_slow" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_slow</obj_property>
+      <obj_property name="ObjectShortName">clk_slow</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/a" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">a[4:0]</obj_property>
+      <obj_property name="ObjectShortName">a[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/w_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">w_n</obj_property>
+      <obj_property name="ObjectShortName">w_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/cs_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cs_n</obj_property>
+      <obj_property name="ObjectShortName">cs_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/t" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">t[3:0]</obj_property>
+      <obj_property name="ObjectShortName">t[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/an" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">an[2:0]</obj_property>
+      <obj_property name="ObjectShortName">an[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/halt_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">halt_n</obj_property>
+      <obj_property name="ObjectShortName">halt_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/osc" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">osc</obj_property>
+      <obj_property name="ObjectShortName">osc</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/fo0" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">fo0</obj_property>
+      <obj_property name="ObjectShortName">fo0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/pal" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">pal</obj_property>
+      <obj_property name="ObjectShortName">pal</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/cad3" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cad3</obj_property>
+      <obj_property name="ObjectShortName">cad3</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/csync" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">csync</obj_property>
+      <obj_property name="ObjectShortName">csync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/color" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">color</obj_property>
+      <obj_property name="ObjectShortName">color</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/lum" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">lum[3:0]</obj_property>
+      <obj_property name="ObjectShortName">lum[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/osc_cleaner/clkin" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clkin</obj_property>
+      <obj_property name="ObjectShortName">clkin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/osc_cleaner/clkout" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clkout</obj_property>
+      <obj_property name="ObjectShortName">clkout</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/osc_cleaner/clkout_event" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clkout_event</obj_property>
+      <obj_property name="ObjectShortName">clkout_event</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/osc_cleaner/cnt_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cnt_reg[7:0]</obj_property>
+      <obj_property name="ObjectShortName">cnt_reg[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/osc_cleaner/half_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">half_reg[6:0]</obj_property>
+      <obj_property name="ObjectShortName">half_reg[6:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/osc_cleaner/sync_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">sync_reg</obj_property>
+      <obj_property name="ObjectShortName">sync_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/osc_cleaner/clkout_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clkout_reg</obj_property>
+      <obj_property name="ObjectShortName">clkout_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/osc_cleaner/clkout_event_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clkout_event_reg</obj_property>
+      <obj_property name="ObjectShortName">clkout_event_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/gtia1/colour_clock_original" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">colour_clock_original</obj_property>
+      <obj_property name="ObjectShortName">colour_clock_original</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/gtia1/colour_clock" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">colour_clock</obj_property>
+      <obj_property name="ObjectShortName">colour_clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/gtia1/colour_clock_highres" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">colour_clock_highres</obj_property>
+      <obj_property name="ObjectShortName">colour_clock_highres</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/col_phase/colour_osc_phased_reg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">colour_osc_phased_reg</obj_property>
+      <obj_property name="ObjectShortName">colour_osc_phased_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/col_phase/colour_osc_delay_reg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">colour_osc_delay_reg[255:0]</obj_property>
+      <obj_property name="ObjectShortName">colour_osc_delay_reg[255:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/gtiamax_tb/thebigone/col_phase/colour_osc" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">colour_osc</obj_property>
+      <obj_property name="ObjectShortName">colour_osc</obj_property>
+   </wvobject>
+</wave_config>
