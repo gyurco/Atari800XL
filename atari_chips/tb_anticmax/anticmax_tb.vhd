@@ -62,9 +62,9 @@ begin
 	p_clk_gen_c : process
 	begin
 	clk_fast <= '1';
-	wait for 3*CLK_FAST_BUS_PERIOD/4;
+	wait for CLK_FAST_BUS_PERIOD/2;
 	clk_fast <= '0';
-	wait for CLK_FAST_BUS_PERIOD - (3*CLK_FAST_BUS_PERIOD/4 );
+	wait for CLK_FAST_BUS_PERIOD - (CLK_FAST_BUS_PERIOD/2 );
 	end process;
 
 	reset_n <= '0', '1' after 1000ns;
@@ -215,32 +215,23 @@ begin
 	port map
 	(
 		PHI2 => BUS_PHI2,
+		RST => not(reset_n),
 		CLK_OUT => CLK_ROUTED,
 		CLK_SLOW => CLK_ROUTED,
 
 
-		A => BUS_ADDR(4 downto 0),
+		A => BUS_ADDR,
 		D => BUS_DATA,
-		CS_N => BUS_CS_N,
 		W_N => BUS_RW,
 
+		AN => open,
+		HALT_N =>open,
 
-		S => open,
-		T => "1010",
-
-		AN => "000",
-		HALT_N =>'1',
-
-		OSC => clk_fast,
-		FO0 => open,
-		PAL => '0',
-
-		CAD3 => '0',
-
-		CSYNC => open,
-		COLOR => open,
-		LUM => open
-
+		FO0 => clk_fast, -- TODO, phase vs phi2?
+		LP_N => '1',
+		RNMI_N => '1',
+		
+		NC => (others=>'0')
 	);
 
 	bus_adaptor : ENTITY work.timing6502
@@ -284,25 +275,6 @@ begin
 	BUS_DATA <= bus_data_out when bus_data_oe='1' else (others=>'Z');
 	CS_N <= '0' when pbi_addr_out(15 downto 8)= x"D0" else '1';
 	BUS_CS_N <= BUS_CS_N_OUT when BUS_CONTROL_OE='1' else 'Z';
-
-	i2cslave : entity work.I2C_slave
-	generic map (
-		SLAVE_ADDR => "0100000"
-	)
-	port map (
-		scl => iox_scl,
-		sda => iox_sda,
-		clk => clk_routed,
-		rst => not(reset_n),
-
-		read_req => open,
-		data_to_master => x"5a",
-		data_valid => '1',
-		data_from_master => open
-	);
-
-	iox_scl <= 'H';
-	iox_sda <= 'H';
 
 end rtl;
 

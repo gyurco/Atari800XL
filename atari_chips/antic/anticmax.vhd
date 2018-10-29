@@ -29,7 +29,7 @@ ENTITY anticmax IS
 		CLK_SLOW : IN STD_LOGIC; -- ... and back in here, then to pll!		
 		
 		D :  INOUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
-		A :  IN  STD_LOGIC_VECTOR(15 DOWNTO 0);
+		A :  INOUT  STD_LOGIC_VECTOR(15 DOWNTO 0);
 		W_N : IN STD_LOGIC;
 
 		LP_N : IN STD_LOGIC; -- light pen
@@ -37,7 +37,7 @@ ENTITY anticmax IS
 		NMI_N : OUT STD_LOGIC; 
 		RNMI_N : IN STD_LOGIC;  -- Internal pull-up
 
-		RDY : OUT_STD_LOGIC;    -- Open drain
+		RDY : OUT STD_LOGIC;    -- Open drain
 		REF_N : OUT STD_LOGIC;  -- Driven, but... turbo freezer!! Try internal pull-ups?
 		HALT_N : OUT STD_LOGIC; -- Driven, but... future devices like freezer? Try internal pull-ups?
 
@@ -82,24 +82,31 @@ ARCHITECTURE vhdl OF anticmax IS
 	signal ADDR_IN : std_logic_vector(15 downto 0);
 	signal WRITE_DATA : std_logic_vector(7 downto 0);
 
+	signal BUS_ADDR : std_logic_vector(15 downto 0);
+	signal BUS_ADDR_OE : std_logic;
+
 	signal BUS_DATA : std_logic_vector(7 downto 0);
-	signal BUS_OE : std_logic;
+	signal BUS_DATA_OE : std_logic;
 
 	signal REQUEST : std_logic;
 	signal WRITE_N : std_logic;
 
-	SIGNAL SEL_ANTIC : STD_LOGIC;
-
 	SIGNAL PAL_NTSC_N : STD_LOGIC;
 
-	SIGNAL DMA_FETCH : STD_LOGIC;
-	SIGNAL DMA_FETCH_ADDRESS : STD_LOGIC_VECTOR(15 downto 0);
+	SIGNAL DMA_FETCH_ADDR : STD_LOGIC_VECTOR(15 downto 0);
 
 	SIGNAL AN_OUT : STD_LOGIC_VECTOR(2 downto 0);
 	SIGNAL AN_OUT_ENABLE : STD_LOGIC;
 
-	signal ANTIC_READY : STD_LOGIC; 
-	signal ANTIC_REFRESH : STD_LOGIC; 
+	SIGNAL ANTIC_NEXT_CYCLE : STD_LOGIC_VECTOR(2 downto 0); --000=cpu,001=dma,010=refresh,011=undef,100=undef,101=dma_wsync,110=refresh_wsync,101=undef
+
+	SIGNAL RDY_DATA : STD_LOGIC;
+	SIGNAL REF_N_DATA : STD_LOGIC;
+	SIGNAL REF_N_OE : STD_LOGIC;
+	SIGNAL HALT_N_DATA : STD_LOGIC;
+	SIGNAL HALT_N_OE : STD_LOGIC;
+
+	SIGNAL ANTIC_LP : STD_LOGIC;
 BEGIN
 	oscillator : int_osc
 	port map 
@@ -132,33 +139,56 @@ BEGIN
 	end process;
 	PHI0 <= PHI0_REG;
 
-bus_adapt : entity work.slave_timing_6502
+bus_adapt : entity work.timing_antic
 	PORT MAP
 	(
 		CLK => CLK,
 		RESET_N => RESET_N,
 		
-		-- input from the cart port
+		-- input from the pins
 		PHI2 => PHI2,
 		bus_addr => A,
 		bus_data => D,
-	
+
+		bus_lp_n => lp_n,
+		bus_rnmi_n => rnmi_n,
+
 		-- output to the cart port
+		bus_addr_out => BUS_ADDR,
+		bus_addr_oe => BUS_ADDR_OE,
 		bus_data_out => BUS_DATA,
-		bus_drive => BUS_OE,
-		bus_cs => '1',
+		bus_data_oe => BUS_DATA_OE,
 		bus_rw_n => W_N,
+		bus_rdy => RDY_DATA,
+		bus_ref_n => REF_N_DATA,
+		bus_ref_n_oe => REF_N_OE,
+		bus_halt_n => HALT_N_DATA,
+		bus_halt_n_oe => HALT_N_OE,
+		bus_an_out => AN,
 
 		-- request for a memory bus cycle (read or write)
+		-- into antic
+		-- requests from the cpu
 		BUS_REQUEST => REQUEST,
 		ADDR_IN => ADDR_IN,
 		DATA_IN => WRITE_DATA,
 		RW_N => WRITE_N,
+		LIGHTPEN => ANTIC_LP,
+
+		-- response to the request, out of antic
+		DATA_OUT => ANTIC_DO,
+
+		-- antic dma master
+		CYCLE_TYPE => antic_next_cycle,
+		ADDR_OUT => dma_fetch_addr,
+
+		-- antic an0 output
+		AN_OUT => AN_OUT,
+		AN_OUT_ENABLE => AN_OUT_ENABLE,
+		FO0 => FO0,
 
 		-- end of cycle
-		ENABLE_CYCLE => ENABLE_CYCLE,
-
-		DATA_OUT => ANTIC_DO
+		ENABLE_CYCLE => ENABLE_CYCLE
 	);
 
 PAL_NTSC_N <= '1'; -- TODO, GPIO!
@@ -176,8 +206,8 @@ PORT MAP(CLK => CLK,
 		-- ANTIC DMA!
 		MEMORY_DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		MEMORY_READY_ANTIC => REQUEST,
-		dma_fetch_out => dma_fetch, -- TODO -> to halt, but needs to be raised earlier?
-		dma_address_out => dma_fetch_address,
+		dma_fetch_out => open,
+		dma_address_out => dma_fetch_addr,
 
 		-- IRQs
 		RNMI_N => RNMI_N,
@@ -186,19 +216,22 @@ PORT MAP(CLK => CLK,
 		-- TV system (in fact just how many lines...)
 		PAL => PAL_NTSC_N,
 	
-		lightpen => not(LP_N), -- synchronized? TODO
+		lightpen => ANTIC_LP,
 	
 		-- WSYNC
-		ANTIC_READY => ANTIC_READY,
+		ANTIC_READY => open,
 	
 		-- GTIA interface
 		AN => AN_OUT, -- needs to be 1 cycle earlier?
 		COLOUR_CLOCK_ORIGINAL_OUT => AN_OUT_ENABLE, --  input from FO0, urg, back to front...
 		COLOUR_CLOCK_OUT => open,
 		HIGHRES_COLOUR_CLOCK_OUT => open, -- gtia makes this...
+
+		-- next cycle
+		next_cycle_type => antic_next_cycle,
 	
 		-- refresh
-		refresh_out => ANTIC_REFRESH, -- TODO -> to halt, but needs to be raised earlier??
+		refresh_out => open, 
 
 		-- if we are in turbo mode -- would be cool to get 2x and 4x colour clock but needs much more work, possibly new hardware too
 		turbo_out => open,
@@ -210,19 +243,15 @@ PORT MAP(CLK => CLK,
 		vcount_out => open
 	);
 
-	process(ADDR_IN)
-	begin
-		SEL_ANTIC <= '0';
-		if (ADDR_IN(15 downto 8)=x"D4") then
-			SEL_ANTIC <= '1';
-		end if;
-	end process;
-
-	ANTIC_WRITE_ENABLE <= NOT(WRITE_N) and REQUEST and SEL_ANTIC;
+	ANTIC_WRITE_ENABLE <= NOT(WRITE_N) and REQUEST;
 
 	-- Wire up pins
 	CLK_OUT <= PHI2_6X;
 	
-	D <= BUS_DATA when BUS_OE='1' else (others=>'Z');
+	D <= BUS_DATA when BUS_DATA_OE='1' else (others=>'Z');
+	A <= BUS_ADDR when BUS_ADDR_OE='1' else (others=>'Z');
+	HALT_N <= HALT_N_DATA when HALT_N_OE='1' else 'Z';
+	REF_N <= REF_N_DATA when REF_N_OE='1' else 'Z';
+	RDY <= '0' when RDY_DATA='0' else 'Z';
 
 END vhdl;

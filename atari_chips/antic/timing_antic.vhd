@@ -3,36 +3,55 @@ USE ieee.std_logic_1164.all;
 USE ieee.numeric_std.all;
 use IEEE.STD_LOGIC_MISC.all;
 
-ENTITY slave_timing_6502 IS
+ENTITY timing_antic IS
 	PORT (
-				CLK: in std_logic;
-				RESET_N: in std_logic;
+			CLK: in std_logic;
+			RESET_N: in std_logic;
 				
-				-- input from the cart port
-				PHI2 : in std_logic; -- async to our clk (ish):-(
-				bus_addr : in std_logic_vector(4 downto 0);
-				bus_data : in std_logic_vector(7 downto 0);
-				bus_cs : in std_logic;
-				bus_rw_n : in std_logic;
+			-- input from the cart port
+			PHI2 : in std_logic; -- async to our clk (ish):-(
+			bus_addr : in std_logic_vector(15 downto 0);
+			bus_data : in std_logic_vector(7 downto 0);
+			bus_rw_n : in std_logic;
+
+			bus_lp_n : in std_logic;
+			bus_rnmi_n : in std_logic;
 	
-				-- output to the cart port
-				bus_data_out : out std_logic_vector(7 downto 0);
-				bus_drive : out std_logic;
+			-- output to the cart port
+			bus_data_out : out std_logic_vector(7 downto 0);
+			bus_data_oe : out std_logic;
+			bus_addr_out : out std_logic_vector(15 downto 0);
+			bus_addr_oe : out std_logic;
+			bus_rdy : out std_logic;
+			bus_ref_n : out std_logic;
+			bus_ref_n_oe : out std_logic;
+			bus_halt_n : out std_logic;
+			bus_halt_n_oe : out std_logic;
+			bus_an_out : out std_logic_vector(2 downto 0);
 
-				-- request for a memory bus cycle (read or write)
-				BUS_REQUEST: out std_logic;
-				ADDR_IN: out std_logic_vector(4 downto 0);
-				DATA_IN: out std_logic_vector(7 downto 0);
-				RW_N: out std_logic;
-				CS : out std_logic;
+			-- request for a memory bus cycle (read or write)
+			BUS_REQUEST: out std_logic;
+			ADDR_IN: out std_logic_vector(15 downto 0);
+			DATA_IN: out std_logic_vector(7 downto 0);
+			RW_N: out std_logic;
+			LIGHTPEN : out std_logic;
 
-				ENABLE_CYCLE : out std_logic;
+			ENABLE_CYCLE : out std_logic;
 
-				DATA_OUT: in std_logic_vector(7 downto 0) -- read_data
-			);
-END slave_timing_6502;
+			DATA_OUT: in std_logic_vector(7 downto 0); -- read_data
 
-ARCHITECTURE vhdl OF slave_timing_6502 IS
+			-- antic bus master
+			ADDR_OUT : in std_logic_vector(15 downto 0);
+			CYCLE_TYPE : in std_logic_vector(2 downto 0); --000=cpu,001=dma,010=refresh,011=undef,100=undef,101=dma_wsync,110=refresh_wsync,101=undef
+	
+			-- antic an0 output
+			AN_OUT : out std_logic_vector(2 downto 0);
+			AN_OUT_ENABLE : out std_logic;
+			FO0 : in std_logic
+	);
+END timing_antic;
+
+ARCHITECTURE vhdl OF timing_antic IS
 
 	signal PHI2_sync : std_logic;
 	
@@ -45,17 +64,15 @@ ARCHITECTURE vhdl OF slave_timing_6502 IS
 	signal bus_data_out_next : std_logic_vector(7 downto 0);	
 	signal bus_data_out_reg : std_logic_vector(7 downto 0);
 
-	signal bus_drive_next : std_logic;
-	signal bus_drive_reg : std_logic;
+	signal bus_data_oe_next : std_logic;
+	signal bus_data_oe_reg : std_logic;
 
 	signal bus_data_in_next : std_logic_vector(7 downto 0);	
 	signal bus_data_in_reg : std_logic_vector(7 downto 0);
-	signal bus_addr_in_next : std_logic_vector(4 downto 0);	
-	signal bus_addr_in_reg : std_logic_vector(4 downto 0);
+	signal bus_addr_in_next : std_logic_vector(15 downto 0);	
+	signal bus_addr_in_reg : std_logic_vector(15 downto 0);
 	signal bus_rw_n_next : std_logic;
 	signal bus_rw_n_reg : std_logic;
-	signal bus_cs_next : std_logic;
-	signal bus_cs_reg : std_logic;
 
 	signal state_reg : std_logic_vector(2 downto 0);
 	signal state_next : std_logic_vector(2 downto 0);
@@ -77,9 +94,8 @@ begin
 			phi_edge_prev_reg <= '1';
 			delay_reg <= (others=>'0');
 			bus_data_out_reg <= (others=>'0');
-			bus_drive_reg <= '0';
+			bus_data_oe_reg <= '0';
 
-			bus_cs_reg <= '1';
 			bus_rw_n_reg <= '1';
 			bus_data_in_reg <= (others=>'0');
 			bus_addr_in_reg <= (others=>'0');
@@ -91,11 +107,10 @@ begin
 			phi_edge_prev_reg <= phi_edge_prev_next;
 			delay_reg <= delay_next;
 			bus_data_out_reg <= bus_data_out_next;
-			bus_drive_reg <= bus_drive_next;
+			bus_data_oe_reg <= bus_data_oe_next;
 
 			registered_read_data_reg <= registered_read_data_next;
 
-			bus_cs_reg <= bus_cs_next;
 			bus_rw_n_reg <= bus_rw_n_next;
 			bus_data_in_reg <= bus_data_in_next;
 			bus_addr_in_reg <= bus_addr_in_next;
@@ -110,10 +125,9 @@ begin
 	phi_edge_prev_next <= phi2_sync;
 
 	process(registered_read_data_reg, data_out,phi2_sync, phi_edge_prev_reg, delay_reg, 
-		bus_drive_reg,bus_data_out_reg, 
+		bus_data_oe_reg,bus_data_out_reg, 
 		bus_rw_n_reg,bus_addr_in_reg,bus_data_in_reg,
 		bus_rw_n,
-		bus_cs,bus_cs_reg,
 		bus_data,bus_addr,
 		state_reg)
 	begin
@@ -125,8 +139,7 @@ begin
 		internal_memory_request <= '0';
 		delay_next <= delay_reg(30 downto 0)&(not(phi2_sync) and phi_edge_prev_reg);
 		bus_data_out_next <= bus_data_out_reg;
-		bus_drive_next <= bus_drive_reg;
-		bus_cs_next <= bus_cs_reg;
+		bus_data_oe_next <= bus_data_oe_reg;
 
 		registered_read_data_next <= registered_read_data_reg;
 
@@ -136,11 +149,10 @@ begin
 		state_next <= state_reg;
 		case (state_reg) is
 			when state_wait_addrctl =>
-				if ((bus_cs and delay_reg(11))='1') then
+				if (delay_reg(11)='1' and bus_addr(15 downto 8)=x"D4") then
 					-- snap control signals, should be stable by now
 					bus_addr_in_next <= bus_addr;
 					bus_rw_n_next <= bus_rw_n;
-					bus_cs_next <= bus_cs;
 
 					if (bus_rw_n='1') then -- read
 						state_next <= state_read_output_fetch;
@@ -163,12 +175,12 @@ begin
 			when state_read_output_start =>
 				if (delay_reg(20)='1') then
 					bus_data_out_next <= registered_read_data_reg;
-					bus_drive_next <= '1';
+					bus_data_oe_next <= '1';
 					state_next <= state_read_output_end;
 				end if;
 			when state_read_output_end =>
 				if (delay_reg(31)='1') then
-					bus_drive_next <= '0';
+					bus_data_oe_next <= '0';
 					state_next <= state_wait_addrctl;
 				end if;
 			when others =>
@@ -176,13 +188,22 @@ begin
 		
 	end process;
 
+	-- at some point, we need to ask antic what next cycle is:
+	-- i) normal, cpu controlled
+	-- ii) antic dma
+	-- iii) antic refresh
+	-- Then depending on the type, switch state machine to a different mode...
+	-- typically we find this out on the 'enable cycle' at the end of the 6502 cycle, but this is TOO late for asserting HALT.
+	-- in sallymax its on cycle 28,
+	-- i'm clockin in writes to antic on cycle 27 and doing next cycle on 29 currently. 
+	-- ideally I'd know prior to the write...
+
 	bus_data_out <= bus_data_out_reg;
-	bus_drive <= bus_drive_reg;
+	bus_data_oe <= bus_data_oe_reg;
 	bus_request <= internal_memory_request;
 	addr_in <= bus_addr_in_reg;
 	data_in <= bus_data_in_reg;
 	rw_n <= bus_rw_n_reg;	
-	CS <= bus_cs_reg;
 
 	enable_cycle <= delay_reg(29);
 

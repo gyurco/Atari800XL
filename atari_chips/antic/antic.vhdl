@@ -54,6 +54,9 @@ PORT
 	-- refresh
 	refresh_out : out std_logic; -- used by sdram
 
+	-- next cycle
+	next_cycle_type : out STD_LOGIC_VECTOR(2 downto 0); --000=cpu,001=dma,010=refresh,011=undef,100=undef,101=dma_wsync,110=refresh_wsync,101=undef
+
 	-- if we are in turbo mode
 	turbo_out : out std_logic;
 	
@@ -1845,6 +1848,8 @@ BEGIN
 	hcount_out <= hcount_reg(9 downto 2);
 
 	turbo_out <= dmactl_raw_reg(6);
+
+	next_cycle_type <= (others=>'X'); -- TODO! Need to know after prior colour clock, if next one will be dma...
 	
 END vhdl;
 
