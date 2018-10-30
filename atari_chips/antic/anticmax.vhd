@@ -89,6 +89,7 @@ ARCHITECTURE vhdl OF anticmax IS
 	signal BUS_DATA_OE : std_logic;
 
 	signal REQUEST : std_logic;
+	signal DMA_COMPLETE : std_logic;
 	signal WRITE_N : std_logic;
 
 	SIGNAL PAL_NTSC_N : STD_LOGIC;
@@ -181,6 +182,7 @@ bus_adapt : entity work.timing_antic
 		-- antic dma master
 		CYCLE_TYPE => antic_next_cycle,
 		ADDR_OUT => dma_fetch_addr,
+		DMA_COMPLETE => dma_complete,
 
 		-- antic an0 output
 		AN_OUT => AN_OUT,
@@ -205,7 +207,7 @@ PORT MAP(CLK => CLK,
 
 		-- ANTIC DMA!
 		MEMORY_DATA_IN => WRITE_DATA(7 DOWNTO 0),
-		MEMORY_READY_ANTIC => REQUEST,
+		MEMORY_READY_ANTIC => dma_complete,
 		dma_fetch_out => open,
 		dma_address_out => dma_fetch_addr,
 
