@@ -202,8 +202,10 @@ begin
 		bus_data,bus_addr,
 		cycle_type_reg,cycle_type,
 		bus_halt_n_reg,bus_ref_n_reg,
+		bus_rdy_reg,bus_addr_out_reg,bus_addr_oe_reg,
 		refresh_count_reg,
-		state_reg)
+		state_reg,
+		addr_out)
 	begin
 		-- maintain snap (only read bus when safe!)
 		bus_addr_in_next <= bus_addr_in_reg;
@@ -224,6 +226,9 @@ begin
 		bus_halt_n_oe_next <= not(bus_halt_n_reg); --drive low only
 		bus_ref_n_next <= bus_ref_n_reg;
 		bus_ref_n_oe_next <= not(bus_ref_n_reg); --drive low only
+		bus_rdy_next <= bus_rdy_reg;
+		bus_addr_out_next <= bus_addr_out_reg;
+		bus_addr_oe_next <= bus_addr_oe_reg;
 
 		refresh_count_next <= refresh_count_reg;
 
@@ -362,5 +367,7 @@ begin
 	bus_an_out <= bus_an_reg;
 
 	enable_cycle <= delay_reg(29);
+	
+	lightpen <= not(bus_lp_n); --TODO synchronize/sample...
 
 end vhdl;

@@ -20,7 +20,7 @@ ENTITY anticmax IS
 		-- OSC->GTIA->FO0->ANTIC->PHI0->CPU->PHI2->...
 
 		PHI2 : IN STD_LOGIC;
-		RST : IN STD_LOGIC;
+		RST_N : IN STD_LOGIC;
 
 		FO0 : IN STD_LOGIC;
 		PHI0 : OUT STD_LOGIC;
@@ -30,7 +30,7 @@ ENTITY anticmax IS
 		
 		D :  INOUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
 		A :  INOUT  STD_LOGIC_VECTOR(15 DOWNTO 0);
-		W_N : IN STD_LOGIC;
+		RW_N : IN STD_LOGIC;
 
 		LP_N : IN STD_LOGIC; -- light pen
 
@@ -159,7 +159,7 @@ bus_adapt : entity work.timing_antic
 		bus_addr_oe => BUS_ADDR_OE,
 		bus_data_out => BUS_DATA,
 		bus_data_oe => BUS_DATA_OE,
-		bus_rw_n => W_N,
+		bus_rw_n => RW_N,
 		bus_rdy => RDY_DATA,
 		bus_ref_n => REF_N_DATA,
 		bus_ref_n_oe => REF_N_OE,
@@ -196,6 +196,7 @@ bus_adapt : entity work.timing_antic
 PAL_NTSC_N <= '1'; -- TODO, GPIO!
 
 antic1 : entity work.antic
+GENERIC MAP(cycle_length=>32)
 PORT MAP(CLK => CLK,
 		ANTIC_ENABLE_179 => ENABLE_CYCLE,
 		WR_EN => ANTIC_WRITE_ENABLE,

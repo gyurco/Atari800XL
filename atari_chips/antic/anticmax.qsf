@@ -160,13 +160,19 @@ set_global_assignment -name USE_SIGNALTAP_FILE output_files/stp1.stp
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MINIMUM CURRENT" -to CLK_OUT
 
 set_global_assignment -name OPTIMIZATION_MODE BALANCED
-set_global_assignment -name VHDL_FILE slave_timing_6502.vhd
+
+set_global_assignment -name VHDL_FILE generic_ram_infer.vhdl
+set_global_assignment -name VHDL_FILE simple_counter.vhdl
+set_global_assignment -name VHDL_FILE wide_delay_line.vhdl
+set_global_assignment -name VHDL_FILE antic_dma_clock.vhdl
+set_global_assignment -name VHDL_FILE antic_counter.vhdl
+set_global_assignment -name VHDL_FILE antic.vhdl
+set_global_assignment -name VHDL_FILE timing_antic.vhd
 set_global_assignment -name SDC_FILE anticmax.sdc
 set_global_assignment -name VHDL_FILE complete_address_decoder.vhdl
 set_global_assignment -name VHDL_FILE syncreset_enable_divider.vhd
 set_global_assignment -name VHDL_FILE delay_line.vhdl
 set_global_assignment -name VHDL_FILE latch_delay_line.vhdl
-set_global_assignment -name VHDL_FILE mult_infer.vhdl
 set_global_assignment -name VHDL_FILE phi_mult.vhdl
 set_global_assignment -name VHDL_FILE synchronizer.vhdl
 set_global_assignment -name VHDL_FILE anticmax.vhd
