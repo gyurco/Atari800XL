@@ -54,6 +54,9 @@ PORT
 	-- refresh
 	refresh_out : out std_logic; -- used by sdram
 
+	-- next cycle
+	next_cycle_type : out STD_LOGIC_VECTOR(2 downto 0); --000=cpu,001=dma,010=refresh,011=undef,100=undef,101=dma_wsync,110=refresh_wsync,101=undef
+
 	-- if we are in turbo mode
 	turbo_out : out std_logic;
 	
@@ -131,24 +134,7 @@ ARCHITECTURE vhdl OF antic IS
 		current_value : out std_logic_vector(COUNT_WIDTH-1 downto 0)
 	);
 	END component;
-	
-	component reg_file IS
-	generic
-	(
-		BYTES : natural := 1;
-		WIDTH : natural := 1
-	);
-	PORT 
-	( 
-		CLK : IN STD_LOGIC;
-		ADDR : IN STD_LOGIC_VECTOR(width-1 DOWNTO 0);
-		DATA_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		WR_EN : IN STD_LOGIC;
-		
-		DATA_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
-	);
-	END component;
-	
+
 	function To_Std_Logic(L: BOOLEAN) return std_ulogic is
 	begin
 		if L then
@@ -1168,12 +1154,14 @@ BEGIN
 		port map (clk=>clk, reset_n=>reset_n,enable_dma=>enable_dma, playfield_start=>playfield_dma_start,playfield_end=>playfield_dma_end,vblank=>vblank_reg,slow_dma=>slow_dma_s,medium_dma=>medium_dma_s,fast_dma=>fast_dma_s,dma_clock_out_0=>dma_clock_character_name,dma_clock_out_1=>dma_clock_character_inc,dma_clock_out_2=>dma_clock_bitmap_data,dma_clock_out_3=>dma_clock_character_data);
 
 	-- line buffer
-	reg_file1 : reg_file
+	reg_file1 : entity work.generic_ram_infer
 		--generic map (BYTES=>48, WIDTH=>6) -- TODO:reset after 63, not 64?
 		--port map (clk=>clk,addr=>line_buffer_address_reg(5 downto 0),data_in=>line_buffer_data_in,wr_en=>line_buffer_write, data_out=>line_buffer_data_out);		
-		generic map (BYTES=>192, WIDTH=>8) -- TODO:reset after 63, not 64?
-		port map (clk=>clk,addr=>line_buffer_address_reg,data_in=>line_buffer_data_in,wr_en=>line_buffer_write, data_out=>line_buffer_data_out);
-		
+		--generic map (BYTES=>192, WIDTH=>8) -- TODO:reset after 63, not 64?
+		--port map (clk=>clk,addr=>line_buffer_address_reg,data_in=>line_buffer_data_in,wr_en=>line_buffer_write, data_out=>line_buffer_data_out);
+		generic map (ADDRESS_WIDTH=>8, SPACE=>192) -- TODO:reset after 63, not 64?
+		port map (clock=>clk,reset_n=>reset_n,data=>line_buffer_data_in,address=>line_buffer_address_reg,we=>line_buffer_write,q=>line_buffer_data_out);
+
 	-- vertical scrolling
 	-- load row count from vscrol must be done at time of instruction load
 	-- vscrol adjustment to affect dli should be done by cycle 5 - i.e. dli 'last line'
@@ -1845,6 +1833,8 @@ BEGIN
 	hcount_out <= hcount_reg(9 downto 2);
 
 	turbo_out <= dmactl_raw_reg(6);
+
+	next_cycle_type <= (others=>'X'); -- TODO! Need to know after prior colour clock, if next one will be dma...
 	
 END vhdl;
 
