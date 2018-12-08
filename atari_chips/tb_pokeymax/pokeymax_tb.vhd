@@ -44,8 +44,7 @@ architecture rtl of pokeymax_tb is
 	signal bus_control_oe : std_logic;
 	signal bus_cs_n_out : std_logic;
 
-	signal iox_sda : std_logic;
-	signal iox_scl : std_logic;
+	signal paddle : std_logic_vector(7 downto 0);
 
 begin
 	p_clk_gen_b : process
@@ -210,7 +209,8 @@ begin
 
 		A => BUS_ADDR(4 downto 0),
 		D => BUS_DATA,
-		CS_COMB => not(BUS_CS_N),
+		CS0_N => BUS_CS_N,
+		CS1 => not(BUS_CS_N),
 		W_N => BUS_RW,
 
 		IRQ => open,
@@ -221,13 +221,12 @@ begin
 
 		AUD => open,
 
-		PADDLE => (others=>'0'),
+		PADDLE => paddle,
 
-		IOX_RST => open,
-		IOX_INT => '1',
-		IOX_SDA => iox_sda,
-		IOX_SCL => iox_scl
+		KEYBOARD_RESPONSE => "11"
 	);
+
+	paddle <= (others=>'0');
 
 	bus_adaptor : ENTITY work.timing6502
 	GENERIC MAP
@@ -270,25 +269,6 @@ begin
 	BUS_DATA <= bus_data_out when bus_data_oe='1' else (others=>'Z');
 	CS_N <= '0' when pbi_addr_out(15 downto 8)= x"D2" else '1';
 	BUS_CS_N <= BUS_CS_N_OUT when BUS_CONTROL_OE='1' else 'Z';
-
-	i2cslave : entity work.I2C_slave
-	generic map (
-		SLAVE_ADDR => "0100000"
-	)
-	port map (
-		scl => iox_scl,
-		sda => iox_sda,
-		clk => clk_routed,
-		rst => not(reset_n),
-
-		read_req => open,
-		data_to_master => x"5a",
-		data_valid => '1',
-		data_from_master => open
-	);
-
-	iox_scl <= 'H';
-	iox_sda <= 'H';
 
 end rtl;
 

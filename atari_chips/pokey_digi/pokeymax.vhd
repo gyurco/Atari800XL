@@ -14,10 +14,6 @@ USE IEEE.STD_LOGIC_UNSIGNED.ALL;
 LIBRARY work;
 
 ENTITY pokeymax IS 
-	GENERIC
-	(
-		stereo : integer := 1 -- 0=MONO,1=STEREO
-	);
 	PORT
 	(
 		PHI2 : IN STD_LOGIC;
@@ -33,25 +29,15 @@ ENTITY pokeymax IS
 		ACLK : OUT STD_LOGIC;
 		BCLK : INOUT STD_LOGIC;
 		SID : IN STD_LOGIC;
-		CS_COMB : IN STD_LOGIC;
+		CS1 : IN STD_LOGIC;
+		CS0_N : IN STD_LOGIC;
 
 		AUD : OUT STD_LOGIC_VECTOR(4 DOWNTO 1);
 
-		PADDLE : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
---set_location_assignment PIN_M1 -to PADDLE[0] (pin3/potch7/pot7/p0)
---set_location_assignment PIN_M2 -to PADDLE[1] (pin2/potch6/pot6/p1)
---set_location_assignment PIN_N2 -to PADDLE[3] (pin0/potch5/pot5/p3)
---set_location_assignment PIN_M3 -to PADDLE[2] (pin1/potch4/pot4/p2)
---set_location_assignment PIN_N3 -to PADDLE[5] (pin7/potch3/pot3/p5)
---set_location_assignment PIN_M4 -to PADDLE[7] (pin4/potch1/pot0/p7)
---set_location_assignment PIN_N4 -to PADDLE[4] (pin6/potch2/pot2/p4)
---set_location_assignment PIN_N5 -to PADDLE[6] (pin5/potch0/pot1/p6)
+		PADDLE : INOUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 
-
-		IOX_RST : OUT STD_LOGIC;
-		IOX_INT : IN STD_LOGIC;
-		IOX_SDA : INOUT STD_LOGIC;
-		IOX_SCL : INOUT STD_LOGIC
+		KEYBOARD_SCAN : OUT STD_LOGIC_VECTOR(5 downto 0);
+		KEYBOARD_RESPONSE : IN STD_LOGIC_VECTOR(1 downto 0)
 	);
 END pokeymax;		
 		
@@ -97,13 +83,6 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal POKEY1_CHANNEL2 : std_logic_vector(3 downto 0);
 	signal POKEY1_CHANNEL3 : std_logic_vector(3 downto 0);
 	
-	SIGNAL	POKEY2_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-	SIGNAL	POKEY2_WRITE_ENABLE :  STD_LOGIC;
-	signal POKEY2_CHANNEL0 : std_logic_vector(3 downto 0);
-	signal POKEY2_CHANNEL1 : std_logic_vector(3 downto 0);
-	signal POKEY2_CHANNEL2 : std_logic_vector(3 downto 0);
-	signal POKEY2_CHANNEL3 : std_logic_vector(3 downto 0);
-
 	signal SIO_CLOCKIN_IN : std_logic;
 	signal SIO_CLOCKIN_OUT : std_logic;
 	signal SIO_CLOCKIN_OE : std_logic;
@@ -120,16 +99,8 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal WRITE_DATA : std_logic_vector(7 downto 0);
 
 	signal AUDIO_L : std_logic_vector(15 downto 0);
-	signal AUDIO_R : std_logic_vector(15 downto 0);
-	signal AUDIO_M : std_logic_vector(15 downto 0);
 
 	signal AUDIO_LEFT : std_logic;
-	signal AUDIO_RIGHT : std_logic;
-	signal AUDIO_MIXED : std_logic;
-
-	signal KEYBOARD_SCAN : std_logic_vector(5 downto 0);
-	signal KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
-	signal KEYBOARD_SCAN_ENABLE : std_logic;
 
 	signal BUS_DATA : std_logic_vector(7 downto 0);
 	signal BUS_OE : std_logic;
@@ -139,18 +110,8 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal DO_MUX : std_logic_vector(7 downto 0);
 
-	signal i2c0_ena : std_logic;
-	signal i2c0_addr : std_logic_vector(7 downto 1);
-	signal i2c0_rw : std_logic;
-	signal i2c0_write_data : std_logic_vector(7 downto 0);
-	signal i2c0_busy : std_logic;
-	signal i2c0_read_data : std_logic_vector(7 downto 0);
-	signal i2c0_error : std_logic;
-
-	signal sel_pokey2 : std_logic;
+	signal CS_COMB : std_logic;
 BEGIN
-	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
-
 	oscillator : int_osc
 	port map 
 	(
@@ -173,6 +134,8 @@ BEGIN
 	PORT MAP(inclk0 => CLK_SLOW,
 			 c0 => CLK, -- 27MHz 
 			 locked => RESET_N);
+
+	CS_COMB <= not(CS0_N) and CS1;
 
 bus_adapt : entity work.slave_timing_6502
 	PORT MAP
@@ -209,18 +172,18 @@ PORT MAP(CLK => CLK,
 		 CHANNEL_L_1 => POKEY1_CHANNEL1,
 		 CHANNEL_L_2 => POKEY1_CHANNEL2,
 		 CHANNEL_L_3 => POKEY1_CHANNEL3,
-		 CHANNEL_R_0 => POKEY2_CHANNEL0,
-		 CHANNEL_R_1 => POKEY2_CHANNEL1,
-		 CHANNEL_R_2 => POKEY2_CHANNEL2,
-		 CHANNEL_R_3 => POKEY2_CHANNEL3,
-		 VOLUME_OUT_M => AUDIO_M,
+		 CHANNEL_R_0 => (others=>'0'),
+		 CHANNEL_R_1 => (others=>'0'),
+		 CHANNEL_R_2 => (others=>'0'),
+		 CHANNEL_R_3 => (others=>'0'),
+		 VOLUME_OUT_M => open,
 		 VOLUME_OUT_L => AUDIO_L,
-		 VOLUME_OUT_R => AUDIO_R);
+		 VOLUME_OUT_R => open);
 		 
 pokey1 : entity work.pokey
 GENERIC MAP
 (
-	custom_keyboard_scan => 1
+	custom_keyboard_scan => 0
 )
 PORT MAP(CLK => CLK,
 		 ENABLE_179 => ENABLE_CYCLE,
@@ -247,68 +210,14 @@ PORT MAP(CLK => CLK,
 		 CHANNEL_2_OUT => POKEY1_CHANNEL2,
 		 CHANNEL_3_OUT => POKEY1_CHANNEL3,
 		 DATA_OUT => POKEY_DO,
-		 keyboard_scan => KEYBOARD_SCAN,
-		 keyboard_scan_enable => KEYBOARD_SCAN_ENABLE
+		 keyboard_scan => KEYBOARD_SCAN
 		);
-
-gen_stereo : if stereo=1 generate
-	process(SEL_POKEY2,POKEY_DO,POKEY2_DO)
-	begin
-		DO_MUX <= (others =>'0');
-		if (SEL_POKEY2='1') then
-			DO_MUX <= POKEY2_DO;
-		else
-			DO_MUX <= POKEY_DO;
-		end if;
-	end process;
-
-	isstereo : ENTITY work.stereo_detect
-	PORT MAP
-	( 
-		CLK => clk,
-		RESET_N => reset_n,
-	
-		A => A, -- raw...
-		ADDR_IN => ADDR_IN, -- on request
-	
-		SEL_POKEY2 => sel_pokey2
-	);
-
-	POKEY_WRITE_ENABLE <= NOT(WRITE_N) and REQUEST and NOT(SEL_POKEY2);
-	POKEY2_WRITE_ENABLE <= NOT(WRITE_N) and REQUEST and SEL_POKEY2;
-
-pokey2 : entity work.pokey
-PORT MAP(CLK => CLK,
-		 ENABLE_179 => ENABLE_CYCLE,
-		 WR_EN => POKEY2_WRITE_ENABLE,
-		 RESET_N => RESET_N,
-		 ADDR => ADDR_IN(3 DOWNTO 0),
-		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
-		 CHANNEL_0_OUT => POKEY2_CHANNEL0,
-		 CHANNEL_1_OUT => POKEY2_CHANNEL1,
-		 CHANNEL_2_OUT => POKEY2_CHANNEL2,
-		 CHANNEL_3_OUT => POKEY2_CHANNEL3,
-		 DATA_OUT => POKEY2_DO,
-		 SIO_IN1 => '1',
-		 SIO_IN2 => '1',
-		 SIO_IN3 => '1',
-		 keyboard_response => "00",
-		 pot_in=>"00000000");
-end generate;
-
-gen_mono : if stereo=0 generate
-	POKEY2_CHANNEL0 <= "0000";
-	POKEY2_CHANNEL1 <= "0000";
-	POKEY2_CHANNEL2 <= "0000";
-	POKEY2_CHANNEL3 <= "0000";
 
 	DO_MUX <= POKEY_DO;
 
 	POKEY_WRITE_ENABLE <= NOT(WRITE_N) and REQUEST;
-	
-end generate;
 
-dac_left : hq_dac
+dac_mixed : hq_dac
 port map
 (
   reset => not(reset_n),
@@ -318,67 +227,13 @@ port map
   dac_out => AUDIO_LEFT
 );
 
-dac_right : hq_dac
-port map
-(
-  reset => not(reset_n),
-  clk => clk,
-  clk_ena => '1',
-  pcm_in => AUDIO_R&"0000",
-  dac_out => AUDIO_RIGHT
-);
-
-dac_mixed : hq_dac
-port map
-(
-  reset => not(reset_n),
-  clk => clk,
-  clk_ena => '1',
-  pcm_in => AUDIO_M&"0000",
-  dac_out => AUDIO_MIXED
-);
-
 -- io extension
 -- drive to 0 for pot reset (otherwise high imp)
 -- drive keyboard lines
-	i2c_master0 : entity work.i2c_master
- 	generic map(input_clk=>58_000_000, bus_clk=>400_000)
-	port map(
-		clk=>clk,
-		reset_n=>reset_n,
-
-		ena=>i2c0_ena,
-		addr=>i2c0_addr,
-		rw=>i2c0_rw,
-		data_wr=>i2c0_write_data,
-		busy=>i2c0_busy,
-		data_rd=>i2c0_read_data,
-		ack_error=>i2c0_error,
-
-		sda=>IOX_SDA,
-		scl=>IOX_SCL
-	);
-
-	iox_glue : entity work.iox_glue
-	port map(
-		clk=>clk,
-		reset_n=>reset_n,
-
-		ena=>i2c0_ena,
-		addr=>i2c0_addr,
-		rw=>i2c0_rw,
-		write_data=>i2c0_write_data,
-		busy=>i2c0_busy,
-		read_data=>i2c0_read_data,
-		error=>i2c0_error,
-
-		int=>iox_int,
-
-		pot_reset=>pot_reset,
-		keyboard_scan=>keyboard_scan,
-		keyboard_scan_enable=>keyboard_scan_enable,
-		keyboard_response=>keyboard_response
-	);
+--		pot_reset=>pot_reset,
+--		keyboard_scan=>keyboard_scan,
+--		keyboard_scan_enable=>keyboard_scan_enable,
+--		keyboard_response=>keyboard_response
 
 -- Wire up pins
 CLK_OUT <= PHI2_6X;
@@ -390,19 +245,15 @@ SIO_CLOCKIN_IN <= BCLK;
 SOD <= '0' when SIO_TXD='0' else 'Z';
 SIO_RXD <= SID;
 
---3
-AUD(3) <= AUDIO_LEFT;
---4
-AUD(4) <= AUDIO_RIGHT;
---2
-AUD(2) <= AUDIO_MIXED;
 --gnd
 --
 --1->pin37
-AUD(1) <= AUDIO_MIXED;
+AUD(1) <= AUDIO_LEFT;
 
 IRQ <= '0' when POKEY_IRQ='0' else 'Z';
 
 D <= BUS_DATA when BUS_OE='1' else (others=>'Z');
+
+PADDLE <= (others=>'0') when POT_RESET='1' else (others=>'Z');
 
 END vhdl;
