@@ -22,7 +22,7 @@ ENTITY pokeymax IS
 		CLK_SLOW : IN STD_LOGIC; -- ... and back in here, then to pll!		
 		
 		D :  INOUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
-		A :  IN  STD_LOGIC_VECTOR(4 DOWNTO 0);
+		A :  IN  STD_LOGIC_VECTOR(3 DOWNTO 0);
 		W_N : IN STD_LOGIC;
 		IRQ : INOUT STD_LOGIC;
 		SOD : OUT STD_LOGIC;
@@ -32,7 +32,7 @@ ENTITY pokeymax IS
 		CS1 : IN STD_LOGIC;
 		CS0_N : IN STD_LOGIC;
 
-		AUD : OUT STD_LOGIC_VECTOR(4 DOWNTO 1);
+		AUD : OUT STD_LOGIC;
 
 		PADDLE : INOUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 
@@ -145,7 +145,8 @@ bus_adapt : entity work.slave_timing_6502
 		
 		-- input from the cart port
 		PHI2 => PHI2,
-		bus_addr => A,
+		bus_addr(3 downto 0) => A,
+		bus_addr(4) => '0',
 		bus_data => D,
 	
 		-- output to the cart port
@@ -248,7 +249,7 @@ SIO_RXD <= SID;
 --gnd
 --
 --1->pin37
-AUD(1) <= AUDIO_LEFT;
+AUD <= AUDIO_LEFT;
 
 IRQ <= '0' when POKEY_IRQ='0' else 'Z';
 

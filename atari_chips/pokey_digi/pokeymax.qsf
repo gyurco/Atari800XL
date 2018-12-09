@@ -54,62 +54,62 @@ set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 256
 set_location_assignment PIN_G9 -to CLK_SLOW
 set_location_assignment PIN_H8 -to CLK_OUT
 
-set location_assignment PIN_A6  -to NC[0] #PIN1 (VSS)
-set location_assignment PIN_B5  -to D[3] #PIN2
-set location_assignment PIN_A5  -to D[4] #PIN3
-set location_assignment PIN_B4  -to D[5] #PIN4
-set location_assignment PIN_A4  -to D[6] #PIN5
-set location_assignment PIN_B3  -to D[7] #PIN6
-set location_assignment PIN_A3  -to PHI2 #PIN7
-set location_assignment PIN_C1  -to PADDLE[6] #PIN8
-set location_assignment PIN_D1  -to NC[1]     #PIN8
-set location_assignment PIN_A2  -to PADDLE[7] #PIN9
-set location_assignment PIN_B2  -to NC[2]     #PIN9
-set location_assignment PIN_B1  -to PADDLE[2] #PIN10
-set location_assignment PIN_M1  -to PADDLE[5] #PIN11
-set location_assignment PIN_M2  -to PADDLE[2] #PIN12
-set location_assignment PIN_N2  -to PADDLE[3] #PIN13
-set location_assignment PIN_L3  -to PADDLE[0] #PIN14
-set location_assignment PIN_M3  -to PADDLE[1] #PIN15
-set location_assignment PIN_N3  -to NC[3] #PIN15
-set location_assignment PIN_K5  -to NC[4] #PIN15
-set location_assignment PIN_M4  -to KEYBOARD_RESPONSE[1]  #PIN16
-set location_assignment PIN_N4  -to NC[5] #PIN17 (VCC)
-set location_assignment PIN_M5  -to KEYBOARD_SCAN[5] #PIN18
-set location_assignment PIN_N5  -to KEYBOARD_SCAN[4] #PIN19
-set location_assignment PIN_N6  -to KEYBOARD_SCAN[3] #PIN20
-set location_assignment PIN_M7  -to KEYBOARD_SCAN[2] #PIN21
-set location_assignment PIN_N7  -to KEYBOARD_SCAN[1] #PIN22
-set location_assignment PIN_M8  -to KEYBOARD_SCAN[0] #PIN23
-set location_assignment PIN_N8  -to SID  #PIN24
-set location_assignment PIN_M9  -to KEYBOARD_RESPONSE[0]  #PIN25
-set location_assignment PIN_N9  -to BCLK #PIN26
-set location_assignment PIN_M10 -to ACLK #PIN27
-set location_assignment PIN_N10 -to SOD  #PIN28
-set location_assignment PIN_M11 -to IRQ  #PIN29
-set location_assignment PIN_N11 -to CS0_N #PIN30
-set location_assignment PIN_A12 -to CS1 #PIN31
-set location_assignment PIN_B11 -to RW_N #PIN32
-set location_assignment PIN_A11 -to A[3] #PIN33
-set location_assignment PIN_B10 -to A[2] #PIN34
-set location_assignment PIN_A10 -to A[1] #PIN35
-set location_assignment PIN_A9  -to A[0] #PIN36
-set location_assignment PIN_A8  -to AUD #PIN37
-set location_assignment PIN_B7  -to D[0] #PIN38
-set location_assignment PIN_A7  -to D[1] #PIN39
-set location_assignment PIN_B6  -to D[2] #PIN40
-set location_assignment PIN_L13 -to GPIO[0]  #JP1_1
-set location_assignment PIN_M13 -to GPIO[1]  #JP1_2
-set location_assignment PIN_N12 -to GPIO[2]  #JP1_3
-set location_assignment PIN_K13 -to GPIO[3]  #JP2_1
-set location_assignment PIN_K12 -to GPIO[4]  #JP2_2
-set location_assignment PIN_L12 -to GPIO[5]  #JP2_3
-set location_assignment PIN_C13 -to GPIO[6]  #JP3_1
-set location_assignment PIN_D12 -to GPIO[7]  #JP3_2
-set location_assignment PIN_D13 -to GPIO[8]  #JP3_3
-set location_assignment PIN_B12 -to GPIO[9]  #JP4_1
-set location_assignment PIN_B13 -to GPIO[10]  #JP4_2
-set location_assignment PIN_C12 -to GPIO[11]  #JP4_3
+set_location_assignment PIN_A6  -to NC[0] #PIN1 (VSS)
+set_location_assignment PIN_B5  -to D[3] #PIN2
+set_location_assignment PIN_A5  -to D[4] #PIN3
+set_location_assignment PIN_B4  -to D[5] #PIN4
+set_location_assignment PIN_A4  -to D[6] #PIN5
+set_location_assignment PIN_B3  -to D[7] #PIN6
+set_location_assignment PIN_A3  -to PHI2 #PIN7
+set_location_assignment PIN_C1  -to PADDLE[6] #PIN8
+set_location_assignment PIN_D1  -to NC[1]     #PIN8
+set_location_assignment PIN_A2  -to PADDLE[7] #PIN9
+set_location_assignment PIN_B2  -to NC[2]     #PIN9
+set_location_assignment PIN_B1  -to PADDLE[4] #PIN10
+set_location_assignment PIN_M1  -to PADDLE[5] #PIN11
+set_location_assignment PIN_M2  -to PADDLE[2] #PIN12
+set_location_assignment PIN_N2  -to PADDLE[3] #PIN13
+set_location_assignment PIN_L3  -to PADDLE[0] #PIN14
+set_location_assignment PIN_M3  -to PADDLE[1] #PIN15
+set_location_assignment PIN_N3  -to NC[3] #PIN15
+set_location_assignment PIN_K5  -to NC[4] #PIN15
+set_location_assignment PIN_M4  -to KEYBOARD_RESPONSE[1]  #PIN16
+set_location_assignment PIN_N4  -to NC[5] #PIN17 (VCC)
+set_location_assignment PIN_M5  -to KEYBOARD_SCAN[5] #PIN18
+set_location_assignment PIN_N5  -to KEYBOARD_SCAN[4] #PIN19
+set_location_assignment PIN_N6  -to KEYBOARD_SCAN[3] #PIN20
+set_location_assignment PIN_M7  -to KEYBOARD_SCAN[2] #PIN21
+set_location_assignment PIN_N7  -to KEYBOARD_SCAN[1] #PIN22
+set_location_assignment PIN_M8  -to KEYBOARD_SCAN[0] #PIN23
+set_location_assignment PIN_N8  -to SID  #PIN24
+set_location_assignment PIN_M9  -to KEYBOARD_RESPONSE[0]  #PIN25
+set_location_assignment PIN_N9  -to BCLK #PIN26
+set_location_assignment PIN_M10 -to ACLK #PIN27
+set_location_assignment PIN_N10 -to SOD  #PIN28
+set_location_assignment PIN_M11 -to IRQ  #PIN29
+set_location_assignment PIN_N11 -to CS0_N #PIN30
+set_location_assignment PIN_A12 -to CS1 #PIN31
+set_location_assignment PIN_B11 -to W_N #PIN32
+set_location_assignment PIN_A11 -to A[3] #PIN33
+set_location_assignment PIN_B10 -to A[2] #PIN34
+set_location_assignment PIN_A10 -to A[1] #PIN35
+set_location_assignment PIN_A9  -to A[0] #PIN36
+set_location_assignment PIN_A8  -to AUD #PIN37
+set_location_assignment PIN_B7  -to D[0] #PIN38
+set_location_assignment PIN_A7  -to D[1] #PIN39
+set_location_assignment PIN_B6  -to D[2] #PIN40
+set_location_assignment PIN_L13 -to GPIO[0]  #JP1_1
+set_location_assignment PIN_M13 -to GPIO[1]  #JP1_2
+set_location_assignment PIN_N12 -to GPIO[2]  #JP1_3
+set_location_assignment PIN_K13 -to GPIO[3]  #JP2_1
+set_location_assignment PIN_K12 -to GPIO[4]  #JP2_2
+set_location_assignment PIN_L12 -to GPIO[5]  #JP2_3
+set_location_assignment PIN_C13 -to GPIO[6]  #JP3_1
+set_location_assignment PIN_D12 -to GPIO[7]  #JP3_2
+set_location_assignment PIN_D13 -to GPIO[8]  #JP3_3
+set_location_assignment PIN_B12 -to GPIO[9]  #JP4_1
+set_location_assignment PIN_B13 -to GPIO[10]  #JP4_2
+set_location_assignment PIN_C12 -to GPIO[11]  #JP4_3
 
 #set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PADDLE[7]
 
@@ -160,4 +160,7 @@ set_global_assignment -name VHDL_FILE synchronizer.vhdl
 set_global_assignment -name VHDL_FILE pokeymax.vhd
 set_global_assignment -name QIP_FILE int_osc/synthesis/int_osc.qip
 set_global_assignment -name QIP_FILE pll.qip
+
+
+
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
