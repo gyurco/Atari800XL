@@ -451,14 +451,8 @@ ARCHITECTURE vhdl OF antic IS
 	signal colour_clock_selected : std_logic;
 	signal colour_clock_selected_highres : std_logic;
 	
-	signal colour_clock_shift0_reg : std_logic_vector(cycle_length-1 downto 0);
-	signal colour_clock_shift0_next : std_logic_vector(cycle_length-1 downto 0);
-	signal colour_clock_shift2_reg : std_logic_vector(cycle_length/4-1 downto 0);
-	signal colour_clock_shift2_next : std_logic_vector(cycle_length/4-1 downto 0);
-	signal colour_clock_shift4_reg : std_logic_vector(cycle_length/8-1 downto 0);
-	signal colour_clock_shift4_next : std_logic_vector(cycle_length/8-1 downto 0);
-	signal colour_clock_shift8_reg : std_logic_vector(cycle_length/16-1 downto 0);
-	signal colour_clock_shift8_next : std_logic_vector(cycle_length/16-1 downto 0);
+	signal colour_clock_shift_reg : std_logic_vector(cycle_length-1 downto 0);
+	signal colour_clock_shift_next : std_logic_vector(cycle_length-1 downto 0);
 	
 	signal memory_ready_both : std_logic;
 	
@@ -540,10 +534,7 @@ BEGIN
 			penh_reg <= (others=>'0');
 			penv_reg <= (others=>'0');
 			
-			colour_clock_shift0_reg <= (others=>'0');
-			colour_clock_shift2_reg <= (others=>'0');
-			colour_clock_shift4_reg <= (others=>'0');
-			colour_clock_shift8_reg <= (others=>'0');
+			colour_clock_shift_reg <= (others=>'0');
 
 			playfield_dma_start_reg <= (others=>'0');
 			playfield_dma_end_reg <= (others=>'0');
@@ -620,10 +611,7 @@ BEGIN
 			penh_reg <= penh_next;
 			penv_reg <= penv_next;
 			
-			colour_clock_shift0_reg <= colour_clock_shift0_next;
-			colour_clock_shift2_reg <= colour_clock_shift2_next;
-			colour_clock_shift4_reg <= colour_clock_shift4_next;
-			colour_clock_shift8_reg <= colour_clock_shift8_next;
+			colour_clock_shift_reg <= colour_clock_shift_next;
 
 			playfield_dma_start_reg <= playfield_dma_start_next;
 			playfield_dma_end_reg <= playfield_dma_end_next;
@@ -635,18 +623,48 @@ BEGIN
 	-- TODO - allow double for 640 pixel width and quadruple for 1280 pixel width)
 	-- TODO - allow other clocks for driving VGA (mostly higher dot clock + line doubling (buffer between antic and gtia??))
 
-	process(colour_clock_shift0_reg, colour_clock_shift2_reg, colour_clock_shift4_reg, colour_clock_shift8_reg, ANTIC_ENABLE_179 )		
+	process(colour_clock_shift_reg, ANTIC_ENABLE_179,colour_clock_4x )		
+		variable reduce_1x : std_logic_vector(1 downto 0);
+		variable reduce_2x : std_logic_vector(1 downto 0);
+		variable reduce_4x : std_logic_vector(3 downto 0);
+		variable reduce_8x : std_logic_vector(7 downto 0);
 	begin
-		colour_clock_shift0_next(cycle_length-1 downto 0) <= colour_clock_shift0_reg(cycle_length-2 downto 0)&(ANTIC_ENABLE_179 or colour_clock_shift0_reg(cycle_length-1));
-		colour_clock_shift2_next(cycle_length/4-1 downto 0) <= colour_clock_shift2_reg(cycle_length/4-2 downto 0)&(ANTIC_ENABLE_179 or colour_clock_shift2_reg(cycle_length/4-1));
-		colour_clock_shift4_next(cycle_length/8-1 downto 0) <= colour_clock_shift4_reg(cycle_length/8-2 downto 0)&(ANTIC_ENABLE_179 or colour_clock_shift4_reg(cycle_length/8-1));
-		colour_clock_shift8_next(cycle_length/16-1 downto 0) <= colour_clock_shift8_reg(cycle_length/16-2 downto 0)&(ANTIC_ENABLE_179 or colour_clock_shift8_reg(cycle_length/16-1));
+		colour_clock_shift_next(cycle_length-1 downto 0) <= colour_clock_shift_reg(cycle_length-2 downto 0)&'0';
+
+		if(ANTIC_ENABLE_179='1') then
+			colour_clock_shift_next(cycle_length-1 downto 1) <= (others=>'0');
+			colour_clock_shift_next(0) <= '1';
+		end if;
 		
-		colour_clock_half_x <= colour_clock_shift0_reg(cycle_length-1);
-		colour_clock_1x <= colour_clock_shift0_reg(cycle_length-1) or colour_clock_shift0_reg(cycle_length/2-1);
-		colour_clock_2x <= colour_clock_shift2_reg(cycle_length/4-1);
-		colour_clock_4x <= colour_clock_shift4_reg(cycle_length/8-1);
-		colour_clock_8x <= colour_clock_shift8_reg(cycle_length/16-1);
+		colour_clock_half_x <= antic_enable_179;
+
+		reduce_1x(0) := antic_enable_179;
+		reduce_1x(1) := colour_clock_shift_reg(cycle_length/2-1);
+
+		colour_clock_1x <= or_reduce(reduce_1x);
+
+		reduce_2x(0) := colour_clock_shift_reg(1*cycle_length/4-1);
+		reduce_2x(1) := colour_clock_shift_reg(3*cycle_length/4-1);
+
+		colour_clock_2x <= or_reduce(reduce_1x&reduce_2x);
+
+		reduce_4x(0) := colour_clock_shift_reg(1*cycle_length/8-1);
+		reduce_4x(1) := colour_clock_shift_reg(3*cycle_length/8-1);
+		reduce_4x(2) := colour_clock_shift_reg(5*cycle_length/8-1);
+		reduce_4x(3) := colour_clock_shift_reg(7*cycle_length/8-1);
+
+		colour_clock_4x <= or_reduce(reduce_1x&reduce_2x&reduce_4x);
+
+		reduce_8x(0) := colour_clock_shift_reg(1*cycle_length/16-1);
+		reduce_8x(1) := colour_clock_shift_reg(3*cycle_length/16-1);
+		reduce_8x(2) := colour_clock_shift_reg(5*cycle_length/16-1);
+		reduce_8x(3) := colour_clock_shift_reg(7*cycle_length/16-1);
+		reduce_8x(4) := colour_clock_shift_reg(9*cycle_length/16-1);
+		reduce_8x(5) := colour_clock_shift_reg(11*cycle_length/16-1);
+		reduce_8x(6) := colour_clock_shift_reg(13*cycle_length/16-1);
+		reduce_8x(7) := colour_clock_shift_reg(15*cycle_length/16-1);
+
+		colour_clock_8x <= or_reduce(colour_clock_4x&reduce_8x);
 	end process;
 
 	process(playfield_dma_end_raw, playfield_dma_end_reg, playfield_dma_start_raw, playfield_dma_start_reg, colour_clock_4x)
@@ -861,8 +879,8 @@ BEGIN
 		end case;				
 	end process;
 
-	-- Actions done based on horizontal position - notably dma!
-	process (dmactl_delayed_enabled, hcount_reg, vcount_reg, vblank_reg, hblank_reg, dmactl_delayed_reg, playfield_dma_start_cycle, playfield_dma_end_cycle, playfield_display_start_cycle, playfield_display_end_cycle, instruction_final_row_reg, display_list_address_reg, pmbase_reg, first_line_of_instruction_reg, last_line_of_instruction_live, last_line_of_instruction_reg, instruction_type_reg, dma_clock_character_name, dma_clock_character_data, dma_clock_bitmap_data, allow_real_dma_reg, row_count_reg, dma_address_reg, memory_scan_address_reg, chbase_delayed_reg, line_buffer_data_out, enable_dma, colour_clock_1x, colour_clock_selected, two_part_instruction_reg, dma_fetch_destination_reg, playfield_display_active_reg, character_reg, dma_clock_character_inc, single_colour_character_reg, twoline_character_reg, instruction_reg, dli_enabled_reg, refresh_fetch_next, chactl_reg, vscrol_enabled_reg, vscrol_last_enabled_reg,twopixel_reg,dli_nmi_reg,vbi_nmi_reg,displayed_character_reg, playfield_dma_enabled)
+	-- Actions done based on horizontal position - no dma!
+	process (dmactl_delayed_enabled, hcount_reg, vcount_reg, vblank_reg, hblank_reg, dmactl_delayed_reg, playfield_dma_start_cycle, playfield_dma_end_cycle, playfield_display_start_cycle, playfield_display_end_cycle, instruction_final_row_reg, display_list_address_reg, pmbase_reg, first_line_of_instruction_reg, last_line_of_instruction_live, last_line_of_instruction_reg, instruction_type_reg, dma_clock_character_name, dma_clock_character_data, dma_clock_bitmap_data, allow_real_dma_reg, row_count_reg, dma_address_reg, memory_scan_address_reg, chbase_delayed_reg, line_buffer_data_out, enable_dma, colour_clock_1x, colour_clock_selected, two_part_instruction_reg, dma_fetch_destination_reg, playfield_display_active_reg, character_reg, dma_clock_character_inc, single_colour_character_reg, twoline_character_reg, instruction_reg, dli_enabled_reg, refresh_fetch_next, chactl_reg, vscrol_enabled_reg, vscrol_last_enabled_reg,dli_nmi_reg,vbi_nmi_reg,displayed_character_reg, playfield_dma_enabled)
 	begin
 		allow_real_dma_next <= allow_real_dma_reg;
 
@@ -1076,7 +1094,7 @@ BEGIN
 		
 		end if;
 	end process;
-	
+
 	-- refresh handling
 	process(cycle_latter,hcount_reg,refresh_count_reg,colour_clock_selected,dma_fetch_next,refresh_pending_reg, refresh_fetch_reg, allow_real_dma_next)
 	begin
@@ -1084,20 +1102,23 @@ BEGIN
 		refresh_pending_next <= refresh_pending_reg;
 		refresh_fetch_next <= refresh_fetch_reg;
 		
-		if (colour_clock_selected = '1' and cycle_latter= '1') then
+		if (colour_clock_selected = '1') then
 			refresh_fetch_next <= '0';
-		
-			-- do pending refresh once we have a spare cycle
-			if (refresh_pending_reg='1' and (dma_fetch_next='0' or allow_real_dma_next='0')) then
-				refresh_fetch_next <= '1';		
-				refresh_pending_next <= '0';
+
+			if (cycle_latter= '1') then
+				-- do pending refresh once we have a spare cycle
+				if (refresh_pending_reg='1' and (dma_fetch_next='0' or allow_real_dma_next='0')) then
+					refresh_fetch_next <= '1';		
+					refresh_pending_next <= '0';
+				end if;
 			end if;
-		
-			-- do scheduled refresh - if block, enable pending one
-			if (hcount_reg(4 downto 3) = "01" and unsigned(refresh_count_reg)<9) then
-				increment_refresh_count <= '1';
-				refresh_fetch_next <= not(dma_fetch_next);
-				refresh_pending_next <= dma_fetch_next;
+
+			if(cycle_latter='0') then
+				-- do scheduled refresh - if block, enable pending one
+				if (hcount_reg(4 downto 3) = "01" and unsigned(refresh_count_reg)<9) then
+					increment_refresh_count <= '1';
+					refresh_pending_next <= '1';
+				end if;
 			end if;
 		end if;
 	end process;
@@ -1834,7 +1855,7 @@ BEGIN
 
 	turbo_out <= dmactl_raw_reg(6);
 
-	next_cycle_type <= (others=>'X'); -- TODO! Need to know after prior colour clock, if next one will be dma...
+	next_cycle_type <= wsync_reg&refresh_fetch_reg&(allow_real_dma_reg and dma_fetch_reg); -- TODO! Need to know after prior colour clock, if next one will be dma...
 	
 END vhdl;
 
