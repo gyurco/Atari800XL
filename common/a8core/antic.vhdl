@@ -451,14 +451,8 @@ ARCHITECTURE vhdl OF antic IS
 	signal colour_clock_selected : std_logic;
 	signal colour_clock_selected_highres : std_logic;
 	
-	signal colour_clock_shift0_reg : std_logic_vector(cycle_length-1 downto 0);
-	signal colour_clock_shift0_next : std_logic_vector(cycle_length-1 downto 0);
-	signal colour_clock_shift2_reg : std_logic_vector(cycle_length/4-1 downto 0);
-	signal colour_clock_shift2_next : std_logic_vector(cycle_length/4-1 downto 0);
-	signal colour_clock_shift4_reg : std_logic_vector(cycle_length/8-1 downto 0);
-	signal colour_clock_shift4_next : std_logic_vector(cycle_length/8-1 downto 0);
-	signal colour_clock_shift8_reg : std_logic_vector(cycle_length/16-1 downto 0);
-	signal colour_clock_shift8_next : std_logic_vector(cycle_length/16-1 downto 0);
+	signal colour_clock_shift_reg : std_logic_vector(cycle_length-1 downto 0);
+	signal colour_clock_shift_next : std_logic_vector(cycle_length-1 downto 0);
 	
 	signal memory_ready_both : std_logic;
 	
@@ -540,10 +534,7 @@ BEGIN
 			penh_reg <= (others=>'0');
 			penv_reg <= (others=>'0');
 			
-			colour_clock_shift0_reg <= (others=>'0');
-			colour_clock_shift2_reg <= (others=>'0');
-			colour_clock_shift4_reg <= (others=>'0');
-			colour_clock_shift8_reg <= (others=>'0');
+			colour_clock_shift_reg <= (others=>'0');
 
 			playfield_dma_start_reg <= (others=>'0');
 			playfield_dma_end_reg <= (others=>'0');
@@ -620,10 +611,7 @@ BEGIN
 			penh_reg <= penh_next;
 			penv_reg <= penv_next;
 			
-			colour_clock_shift0_reg <= colour_clock_shift0_next;
-			colour_clock_shift2_reg <= colour_clock_shift2_next;
-			colour_clock_shift4_reg <= colour_clock_shift4_next;
-			colour_clock_shift8_reg <= colour_clock_shift8_next;
+			colour_clock_shift_reg <= colour_clock_shift_next;
 
 			playfield_dma_start_reg <= playfield_dma_start_next;
 			playfield_dma_end_reg <= playfield_dma_end_next;
@@ -635,18 +623,48 @@ BEGIN
 	-- TODO - allow double for 640 pixel width and quadruple for 1280 pixel width)
 	-- TODO - allow other clocks for driving VGA (mostly higher dot clock + line doubling (buffer between antic and gtia??))
 
-	process(colour_clock_shift0_reg, colour_clock_shift2_reg, colour_clock_shift4_reg, colour_clock_shift8_reg, ANTIC_ENABLE_179 )		
+	process(colour_clock_shift_reg, ANTIC_ENABLE_179,colour_clock_4x )		
+		variable reduce_1x : std_logic_vector(1 downto 0);
+		variable reduce_2x : std_logic_vector(1 downto 0);
+		variable reduce_4x : std_logic_vector(3 downto 0);
+		variable reduce_8x : std_logic_vector(7 downto 0);
 	begin
-		colour_clock_shift0_next(cycle_length-1 downto 0) <= colour_clock_shift0_reg(cycle_length-2 downto 0)&(ANTIC_ENABLE_179 or colour_clock_shift0_reg(cycle_length-1));
-		colour_clock_shift2_next(cycle_length/4-1 downto 0) <= colour_clock_shift2_reg(cycle_length/4-2 downto 0)&(ANTIC_ENABLE_179 or colour_clock_shift2_reg(cycle_length/4-1));
-		colour_clock_shift4_next(cycle_length/8-1 downto 0) <= colour_clock_shift4_reg(cycle_length/8-2 downto 0)&(ANTIC_ENABLE_179 or colour_clock_shift4_reg(cycle_length/8-1));
-		colour_clock_shift8_next(cycle_length/16-1 downto 0) <= colour_clock_shift8_reg(cycle_length/16-2 downto 0)&(ANTIC_ENABLE_179 or colour_clock_shift8_reg(cycle_length/16-1));
+		colour_clock_shift_next(cycle_length-1 downto 0) <= colour_clock_shift_reg(cycle_length-2 downto 0)&'0';
+
+		if(ANTIC_ENABLE_179='1') then
+			colour_clock_shift_next(cycle_length-1 downto 1) <= (others=>'0');
+			colour_clock_shift_next(0) <= '1';
+		end if;
 		
-		colour_clock_half_x <= colour_clock_shift0_reg(cycle_length-1);
-		colour_clock_1x <= colour_clock_shift0_reg(cycle_length-1) or colour_clock_shift0_reg(cycle_length/2-1);
-		colour_clock_2x <= colour_clock_shift2_reg(cycle_length/4-1);
-		colour_clock_4x <= colour_clock_shift4_reg(cycle_length/8-1);
-		colour_clock_8x <= colour_clock_shift8_reg(cycle_length/16-1);
+		colour_clock_half_x <= antic_enable_179;
+
+		reduce_1x(0) := antic_enable_179;
+		reduce_1x(1) := colour_clock_shift_reg(cycle_length/2-1);
+
+		colour_clock_1x <= or_reduce(reduce_1x);
+
+		reduce_2x(0) := colour_clock_shift_reg(1*cycle_length/4-1);
+		reduce_2x(1) := colour_clock_shift_reg(3*cycle_length/4-1);
+
+		colour_clock_2x <= or_reduce(reduce_1x&reduce_2x);
+
+		reduce_4x(0) := colour_clock_shift_reg(1*cycle_length/8-1);
+		reduce_4x(1) := colour_clock_shift_reg(3*cycle_length/8-1);
+		reduce_4x(2) := colour_clock_shift_reg(5*cycle_length/8-1);
+		reduce_4x(3) := colour_clock_shift_reg(7*cycle_length/8-1);
+
+		colour_clock_4x <= or_reduce(reduce_1x&reduce_2x&reduce_4x);
+
+		reduce_8x(0) := colour_clock_shift_reg(1*cycle_length/16-1);
+		reduce_8x(1) := colour_clock_shift_reg(3*cycle_length/16-1);
+		reduce_8x(2) := colour_clock_shift_reg(5*cycle_length/16-1);
+		reduce_8x(3) := colour_clock_shift_reg(7*cycle_length/16-1);
+		reduce_8x(4) := colour_clock_shift_reg(9*cycle_length/16-1);
+		reduce_8x(5) := colour_clock_shift_reg(11*cycle_length/16-1);
+		reduce_8x(6) := colour_clock_shift_reg(13*cycle_length/16-1);
+		reduce_8x(7) := colour_clock_shift_reg(15*cycle_length/16-1);
+
+		colour_clock_8x <= or_reduce(colour_clock_4x&reduce_8x);
 	end process;
 
 	process(playfield_dma_end_raw, playfield_dma_end_reg, playfield_dma_start_raw, playfield_dma_start_reg, colour_clock_4x)
