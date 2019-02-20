@@ -179,6 +179,7 @@ signal JOY2Y : std_logic_vector(7 downto 0);
 signal JOY1_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
 signal JOY2_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
 signal joy_still : std_logic;
+signal FIRE2: std_logic_vector(3 downto 0);
 
 SIGNAL KEYBOARD_RESPONSE :  STD_LOGIC_VECTOR(1 DOWNTO 0);
 SIGNAL KEYBOARD_SCAN :  STD_LOGIC_VECTOR(5 DOWNTO 0);
@@ -327,12 +328,14 @@ mist_user_io : user_io
         SERIAL_STROBE => '0'
     );
 
-joy1_n <= not(joy1(5)&joy1(3 downto 0)) when mist_status(2) = '0' else not(joy2(5)&joy2(3 downto 0));
-joy2_n <= not(joy2(5)&joy2(3 downto 0)) when mist_status(2) = '0' else not(joy1(5)&joy1(3 downto 0));
+joy1_n <= not(joy1(4 downto 0)) when mist_status(2) = '0' else not(joy2(4 downto 0));
+joy2_n <= not(joy2(4 downto 0)) when mist_status(2) = '0' else not(joy1(4 downto 0));
 joy1x <= mist_joy1x when mist_status(2) = '0' else mist_joy2x;
 joy1y <= mist_joy1y when mist_status(2) = '0' else mist_joy2y;
 joy2x <= mist_joy2x when mist_status(2) = '0' else mist_joy1x;
 joy2y <= mist_joy2y when mist_status(2) = '0' else mist_joy1y;
+
+FIRE2 <= "00" & joy2(5)&joy1(5) when mist_status(2) = '0' else "00"&joy1(5)&joy2(5);
 
 -- PS2 to pokey
 keyboard_map1 : entity work.ps2_to_atari5200
@@ -343,7 +346,7 @@ keyboard_map1 : entity work.ps2_to_atari5200
 		PS2_CLK => ps2_clk,
 		PS2_DAT => ps2_dat,
 
-		FIRE2 => '0'&'0'&joy2(4)&joy1(4),
+		FIRE2 => FIRE2,
 		CONTROLLER_SELECT => CONTROLLER_SELECT, -- selected stick keyboard/shift button
 		
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
