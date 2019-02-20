@@ -898,10 +898,11 @@ zpu: entity work.zpucore
 
 		-- spi master
 		-- Too painful to bit bang spi from zpu, so we have a hardware master in here
-		ZPU_SD_DAT0 => sd_dat0,
-		ZPU_SD_CLK => sd_clk,
-		ZPU_SD_CMD => sd_cmd,
-		ZPU_SD_DAT3 => sd_dat3,
+		ZPU_SPI_DI => sd_dat0,
+		ZPU_SPI_CLK => sd_clk,
+		ZPU_SPI_DO => sd_cmd,
+		ZPU_SPI_SELECT0 => sd_dat3,
+		ZPU_SPI_SELECT1 => open,
 
 		-- SIO
 		-- Ditto for speaking to Atari, we have a built in Pokey
@@ -909,6 +910,7 @@ zpu: entity work.zpucore
 		ZPU_SIO_TXD => zpu_sio_txd,
 		ZPU_SIO_RXD => zpu_sio_rxd,
 		ZPU_SIO_COMMAND => zpu_sio_command,
+		ZPU_SIO_CLK => '0',
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
