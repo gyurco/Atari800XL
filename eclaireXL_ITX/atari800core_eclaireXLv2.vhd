@@ -1058,7 +1058,7 @@ atari800 : entity work.atari800core
 		cycle_length => 32,
 		video_bits => 8,
 		palette => 0,
-		sdram_start_bank => integer(realmax(0.0,ceil(log2(real(internal_ram))-14.0)))
+		internal_ram => internal_ram
 	)
 	PORT MAP
 	(

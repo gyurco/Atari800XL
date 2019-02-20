@@ -9,7 +9,9 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use IEEE.STD_LOGIC_MISC.all;
-
+USE ieee.math_real.log2;
+USE ieee.math_real.ceil;
+USE ieee.math_real.realmax;
 
 ENTITY address_decoder IS
 GENERIC
@@ -17,7 +19,8 @@ GENERIC
 	low_memory : integer := 0; -- if 0, we assume 8MB SDRAM, if 1, we assume 1MB 'SDRAM', if 2 we assume 512KB 'SDRAM'.
 	stereo : integer := 1; 
 	system : integer := 0; -- 0=Atari XL/XE, 10=Atari5200 (space left for more systems)
-	sdram_start_bank : integer := 0 -- 0=sdram only, 5=512k ram. (2^n*16)
+	--sdram_start_bank : integer := 0 -- 0=sdram only, 5=512k ram. (2^n*16)
+	internal_ram : integer := 0 -- must be power of 2...
 );
 PORT 
 ( 
@@ -517,7 +520,17 @@ BEGIN
 	extended_access_antic <= (extended_access_addr and antic_fetch_real_next and not(portb(5)));
 	extended_access_cpu <= (extended_access_addr and cpu_fetch_real_next and not(portb(4)));
 	extended_access_either <= extended_access_addr and not(portb(4));
-	sdram_only_bank <= or_reduce(extended_bank(8 downto sdram_start_bank));
+
+	process (extended_bank)
+		variable sdram_start_bank : integer;
+	begin
+		if (internal_ram=0) then
+			sdram_only_bank <= '1';
+		else
+			sdram_start_bank := integer(realmax(0.0,ceil(log2(real(internal_ram))-14.0)));
+			sdram_only_bank <= or_reduce(extended_bank(8 downto sdram_start_bank));
+		end if;
+	end process;
 	
 	process(extended_access_cpu_or_antic,extended_access_either,extended_access_addr,addr_next,ram_select,portb,atari800mode)
 	begin	
