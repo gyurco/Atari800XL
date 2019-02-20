@@ -64,6 +64,7 @@ gen_internal_5200 : if internal_rom=4 generate
 			 address => rom_addr(10 downto 0),
 			 q => ROM_data
 			 );
+	rom_request_next <= rom_request and not(ROM_WR_ENABLE);
 	rom_request_complete <= rom_request_reg;
 	
 end generate;
