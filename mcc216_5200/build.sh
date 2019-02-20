@@ -81,7 +81,8 @@ foreach my $variant (sort keys %variants)
 	`mkdir $dir/common/zpu`;
 	`mkdir $dir/svideo`;
 	`cp ../common/a8core/* ./$dir/common/a8core`;
-	`cp ../common/components/* ./$dir/common/components`;
+	`cp -r ../common/components/* ./$dir/common/components`;
+	`mv ./$dir/common/components/*cyclone3/* ./$dir/common/components/`;
 	mkdir "./$dir/common/components/usbhostslave";
 	`cp ../common/components/usbhostslave/trunk/RTL/*/*.v ./$dir/common/components/usbhostslave`;
 	`cp ../common/zpu/* ./$dir/common/zpu`;
