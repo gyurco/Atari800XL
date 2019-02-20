@@ -19,8 +19,7 @@ GENERIC
 	TV : integer;  -- 1 = PAL, 0=NTSC
 	VIDEO : integer; -- 1 = RGB, 2 = VGA
 	COMPOSITE_SYNC : integer; --0 = no, 1 = yes!
-	SCANDOUBLE : integer; -- 1 = YES, 0=NO, (+ later scanlines etc)
-	SYSTEM : integer -- 1 = YES, 0=NO, (+ later scanlines etc)
+	SCANDOUBLE : integer -- 1 = YES, 0=NO, (+ later scanlines etc)
 );
 port
 (
@@ -222,6 +221,7 @@ end component;
 	signal zpu_sio_txd : std_logic;
 	signal zpu_sio_rxd : std_logic;
 	signal zpu_sio_command : std_logic;
+	SIGNAL ASIO_CLOCKOUT : std_logic;
 
 	-- system control from zpu
 	signal ram_select : std_logic_vector(2 downto 0);
@@ -229,6 +229,8 @@ end component;
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
 	signal emulated_cartridge_select: std_logic_vector(5 downto 0);
+	signal key_type : std_logic;
+	signal atari800mode : std_logic;
 
 	SIGNAL PAL : std_logic;
 	SIGNAL COMPOSITE_ON_HSYNC : std_logic;
@@ -377,7 +379,6 @@ end generate;
 --		PAL => '1'
 --	);
 
-gen_xl : if system=0 generate
 atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
 	(
@@ -449,83 +450,6 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		freezer_enable => freezer_enable,
 		freezer_activate => freezer_activate
 	);
-end generate;
-
-gen_800 : if system=1 generate
-atarixl_simple_sdram1 : entity work.atari800nxcore_simple_sdram
-	GENERIC MAP
-	(
-		cycle_length => 32,
-		internal_rom => 0,
-		internal_ram => 0,
-		video_bits => 8,
-		palette => 0
-	)
-	PORT MAP
-	(
-		CLK => CLK,
-		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
-
-		-- VIDEO OUT - PAL/NTSC, original Atari timings approx (may be higher res)
-		VIDEO_VS => VGA_VS_RAW,
-		VIDEO_HS => VGA_HS_RAW,
-		VIDEO_CS => VGA_CS_RAW,
-		VIDEO_B => VIDEO_B,
-		VIDEO_G => open,
-		VIDEO_R => open,
-
-		-- AUDIO OUT - Pokey/GTIA 1-bit and Covox all mixed
-		AUDIO_L => audio_l_raw,
-		AUDIO_R => audio_r_raw,
-
-		-- JOYSTICK
-		JOY1_n => std_logic_vector(docking_joystick1_reg and ir_joya)(4 downto 0),
-		JOY2_n => std_logic_vector(docking_joystick2_reg and ir_joyb)(4 downto 0),
-		JOY3_n => std_logic_vector(docking_joystick3_reg)(4 downto 0),
-		JOY4_n => std_logic_vector(docking_joystick4_reg)(4 downto 0),
-
-		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
-		KEYBOARD_SCAN => KEYBOARD_SCAN,
-
-		SIO_COMMAND => zpu_sio_command,
-		SIO_RXD => zpu_sio_txd,
-		SIO_TXD => zpu_sio_rxd,
-
-		CONSOL_OPTION => CONSOL_OPTION or ir_option,
-		CONSOL_SELECT => CONSOL_SELECT or ir_select,
-		CONSOL_START => CONSOL_START or ir_start,
-
-		SDRAM_REQUEST => SDRAM_REQUEST,
-		SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
-		SDRAM_READ_ENABLE => SDRAM_READ_ENABLE,
-		SDRAM_WRITE_ENABLE => SDRAM_WRITE_ENABLE,
-		SDRAM_ADDR => SDRAM_ADDR,
-		SDRAM_DO => SDRAM_DO,
-		SDRAM_DI => SDRAM_DI,
-		SDRAM_32BIT_WRITE_ENABLE => SDRAM_WIDTH_32bit_ACCESS,
-		SDRAM_16BIT_WRITE_ENABLE => SDRAM_WIDTH_16bit_ACCESS,
-		SDRAM_8BIT_WRITE_ENABLE => SDRAM_WIDTH_8bit_ACCESS,
-		SDRAM_REFRESH => SDRAM_REFRESH,
-
-		DMA_FETCH => dma_fetch,
-		DMA_READ_ENABLE => dma_read_enable,
-		DMA_32BIT_WRITE_ENABLE => dma_32bit_write_enable,
-		DMA_16BIT_WRITE_ENABLE => dma_16bit_write_enable,
-		DMA_8BIT_WRITE_ENABLE => dma_8bit_write_enable,
-		DMA_ADDR => dma_addr_fetch,
-		DMA_WRITE_DATA => dma_write_data,
-		MEMORY_READY_DMA => dma_memory_ready,
-		DMA_MEMORY_DATA => dma_memory_data, 
-
-   		RAM_SELECT => ram_select,
-		PAL => PAL,
-		HALT => pause_atari,
-		THROTTLE_COUNT_6502 => speed_6502,
-		emulated_cartridge_select => emulated_cartridge_select,
-		freezer_enable => freezer_enable,
-		freezer_activate => freezer_activate
-	);
-end generate;
 
 -- video glue
 --nHSync <= (VGA_HS_RAW xor VGA_VS_RAW);
@@ -936,6 +860,10 @@ keyboard_map1 : entity work.ps2_to_atari800
 		RESET_N => reset_n,
 		PS2_CLK => ps2_keyboard_clk_in,
 		PS2_DAT => ps2_keyboard_dat_in,
+
+ 		INPUT => zpu_out4,
+
+		KEY_TYPE => key_type,
 		
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE_ps2,
@@ -1173,10 +1101,11 @@ zpu: entity work.zpucore
 
 		-- spi master
 		-- Too painful to bit bang spi from zpu, so we have a hardware master in here
-		ZPU_SD_DAT0 => spi_miso,
-		ZPU_SD_CLK => spi_clk,
-		ZPU_SD_CMD => spi_mosi,
-		ZPU_SD_DAT3 => spi_cs_n,
+		ZPU_SPI_DI => spi_miso,
+		ZPU_SPI_CLK => spi_clk,
+		ZPU_SPI_DO => spi_mosi,
+		ZPU_SPI_SELECT0 => spi_cs_n,
+		ZPU_SPI_SELECT1 => open,
 
 		-- SIO
 		-- Ditto for speaking to Atari, we have a built in Pokey
@@ -1184,6 +1113,7 @@ zpu: entity work.zpucore
 		ZPU_SIO_TXD => zpu_sio_txd,
 		ZPU_SIO_RXD => zpu_sio_rxd,
 		ZPU_SIO_COMMAND => zpu_sio_command,
+		ZPU_SIO_CLK => ASIO_CLOCKOUT,
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
@@ -1205,8 +1135,10 @@ zpu: entity work.zpucore
 	reset_atari <= zpu_out1(1) or reset_short_reg;
 	speed_6502 <= zpu_out1(7 downto 2);
 	ram_select <= zpu_out1(10 downto 8);
+	atari800mode <= zpu_out1(11);
 	emulated_cartridge_select <= zpu_out1(22 downto 17);
 	freezer_enable <= zpu_out1(25);
+	key_type <= zpu_out1(26);
 
 zpu_rom1: entity work.zpu_rom
 	port map(
