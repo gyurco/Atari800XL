@@ -348,6 +348,7 @@ END COMPONENT;
 	signal zpu_sio_txd : std_logic;
 	signal zpu_sio_rxd : std_logic;
 	signal zpu_sio_command : std_logic;
+	SIGNAL ASIO_CLOCKOUT : std_logic;
 
 	-- system control from zpu
 	signal ram_select : std_logic_vector(2 downto 0);
@@ -355,6 +356,8 @@ END COMPONENT;
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
 	signal emulated_cartridge_select: std_logic_vector(5 downto 0);
+	signal key_type : std_logic;
+	signal atari800mode : std_logic;
 
 	-- turbo freezer!
 	signal freezer_enable : std_logic;
@@ -505,6 +508,8 @@ keyboard_map1 : entity work.ps2_to_atari800
 		PS2_DAT => ps2k_dat,
 
 		INPUT => zpu_out4,
+
+		KEY_TYPE => key_type,
 		
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
@@ -609,6 +614,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		SIO_COMMAND => zpu_sio_command,
 		SIO_RXD => zpu_sio_txd,
 		SIO_TXD => zpu_sio_rxd,
+		SIO_CLOCKOUT => ASIO_CLOCKOUT,
 
 		CONSOL_OPTION => CONSOL_OPTION,
 		CONSOL_SELECT => CONSOL_SELECT,
@@ -988,10 +994,11 @@ zpu: entity work.zpucore
 
 		-- spi master
 		-- Too painful to bit bang spi from zpu, so we have a hardware master in here
-		ZPU_SD_DAT0 => sd_dat0,
-		ZPU_SD_CLK => sd_clk,
-		ZPU_SD_CMD => sd_cmd,
-		ZPU_SD_DAT3 => sd_dat3,
+		ZPU_SPI_DI => sd_dat0,
+		ZPU_SPI_CLK => sd_clk,
+		ZPU_SPI_DO => sd_cmd,
+		ZPU_SPI_SELECT0 => sd_dat3,
+		ZPU_SPI_SELECT1 => open,
 
 		-- SIO
 		-- Ditto for speaking to Atari, we have a built in Pokey
@@ -999,6 +1006,7 @@ zpu: entity work.zpucore
 		ZPU_SIO_TXD => zpu_sio_txd,
 		ZPU_SIO_RXD => zpu_sio_rxd,
 		ZPU_SIO_COMMAND => zpu_sio_command,
+		ZPU_SIO_CLK => ASIO_CLOCKOUT,
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
@@ -1030,8 +1038,10 @@ zpu: entity work.zpucore
 	reset_atari <= zpu_out1(1);
 	speed_6502 <= zpu_out1(7 downto 2);
 	ram_select <= zpu_out1(10 downto 8);
+	atari800mode <= zpu_out1(11);
 	emulated_cartridge_select <= zpu_out1(22 downto 17);
 	freezer_enable <= zpu_out1(25);
+	key_type <= zpu_out1(26);
 
 zpu_rom1: entity work.zpu_rom
 	port map(
