@@ -222,7 +222,7 @@ atari5200_simple_sdram1 : entity work.atari5200core
 		cycle_length => cycle_length,
 		video_bits => video_bits,
 		palette => palette,
-		sdram_start_bank => integer(realmax(0.0,ceil(log2(real(internal_ram))-14.0)))
+		internal_ram => internal_ram
 	)
 	PORT MAP
 	(

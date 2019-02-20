@@ -12,13 +12,6 @@ use ieee.numeric_std.all;
 LIBRARY work;
 
 ENTITY atari5200core_mist IS 
-	GENERIC
-	(
-		TV : integer;  -- 1 = PAL, 0=NTSC
-		VIDEO : integer; -- 1 = RGB, 2 = VGA
-		COMPOSITE_SYNC : integer; --0 = no, 1 = yes!
-		SCANDOUBLE : integer -- 1 = YES, 0=NO, (+ later scanlines etc)
-	);
 	PORT
 	(
 		CLOCK_27 :  IN  STD_LOGIC_VECTOR(1 downto 0);
@@ -71,267 +64,275 @@ port (
 );
 end component;
 
+COMPONENT rgb2ypbpr
+PORT (
+        red     :        IN std_logic_vector(5 DOWNTO 0);
+        green   :        IN std_logic_vector(5 DOWNTO 0);
+        blue    :        IN std_logic_vector(5 DOWNTO 0);
+        y       :        OUT std_logic_vector(5 DOWNTO 0);
+        pb      :        OUT std_logic_vector(5 DOWNTO 0);
+        pr      :        OUT std_logic_vector(5 DOWNTO 0)
+        );
+END COMPONENT;
+
+component osd
+generic ( OSD_COLOR : integer := 1 );  -- blue
+port (
+        clk_sys     : in std_logic;
+        R_in        : in std_logic_vector(5 downto 0);
+        G_in        : in std_logic_vector(5 downto 0);
+        B_in        : in std_logic_vector(5 downto 0);
+        HSync       : in std_logic;
+        VSync       : in std_logic;
+
+        R_out       : out std_logic_vector(5 downto 0);
+        G_out       : out std_logic_vector(5 downto 0);
+        B_out       : out std_logic_vector(5 downto 0);
+
+        SPI_SCK     : in std_logic;
+        SPI_SS3     : in std_logic;
+        SPI_DI      : in std_logic
+);
+end component osd;
+
 component user_io
-	GENERIC(
-		STRLEN : in integer := 0
-	);
-	PORT(
-		-- conf_str? how to do in vhdl...
+    generic (
+        STRLEN : integer := 0;
+        PS2DIV : integer := 1500 );
+    port (
+        clk_sys : in std_logic;
+        clk_sd  : in std_logic;
+        SPI_CLK, SPI_SS_IO, SPI_MOSI :in std_logic;
+        SPI_MISO : out std_logic;
+        conf_str : in std_logic_vector(8*STRLEN-1 downto 0);
+        joystick_0 : out std_logic_vector(31 downto 0);
+        joystick_1 : out std_logic_vector(31 downto 0);
+        joystick_analog_0 : out std_logic_vector(15 downto 0);
+        joystick_analog_1 : out std_logic_vector(15 downto 0);
+        status: out std_logic_vector(31 downto 0);
+        switches : out std_logic_vector(1 downto 0);
+        buttons : out std_logic_vector(1 downto 0);
+        scandoubler_disable: out std_logic;
+        ypbpr: out std_logic;
+        ps2_kbd_clk : out std_logic;
+        ps2_kbd_data : out std_logic;
+        ps2_mouse_clk : out std_logic;
+        ps2_mouse_data : out std_logic;
+        serial_data : in std_logic_vector(7 downto 0);
+        serial_strobe : in std_logic
+      );
+end component user_io;
 
-		-- mist spi to firmware
-		SPI_CLK : in std_logic;
-		SPI_SS_IO : in std_logic;
-		SPI_MISO : out std_logic;
-		SPI_MOSI : in std_logic;
+component data_io
+    port (
+        clk_sys : in std_logic;
 
-		-- joysticks
-		JOYSTICK_0 : out std_logic_vector(5 downto 0);
-		JOYSTICK_1 : out std_logic_vector(5 downto 0);
-		JOYSTICK_ANALOG_0 : out std_logic_vector(15 downto 0);
-		JOYSTICK_ANALOG_1 : out std_logic_vector(15 downto 0); -- x axis is top 8 bits, y axis is bottom 8 bits. signed.
-		BUTTONS : out std_logic_vector(1 downto 0);
-		SWITCHES : out std_logic_vector(1 downto 0);
-		STATUS : out std_logic_vector(7 downto 0); -- what is this?
+        SPI_SCK : in std_logic;
+        SPI_SS2 : in std_logic;
+        SPI_DI  : in std_logic;
 
-		-- ps2
-		PS2_CLK : in std_logic; --12-16khz
-		PS2_KBD_CLK : out std_logic;
-		PS2_KBD_DATA : out std_logic;
+        ioctl_wait     : in std_logic;
+        ioctl_download : out std_logic;
+        ioctl_index    : out std_logic_vector(7 downto 0);
+        ioctl_wr       : out std_logic;
+        ioctl_addr     : out std_logic_vector(24 downto 0);
+        ioctl_dout     : out std_logic_vector(15 downto 0)
+      );
+end component data_io;
 
-		-- serial (one way?)
-		SERIAL_DATA : in std_logic_vector(7 downto 0);
-		SERIAL_STROBE : in std_logic;
+signal AUDIO_L_PCM : std_logic_vector(15 downto 0);
+signal AUDIO_R_PCM : std_logic_vector(15 downto 0);
 
-		-- connection to sd card emulation
-		sd_lba : in std_logic_vector(31 downto 0);
-		sd_rd : in std_logic;
-		sd_wr : in std_logic;
-		sd_ack : out std_logic;
-		sd_conf : in std_logic;
-		sd_sdhc : in std_logic;
-		sd_dout : out std_logic_vector(7 downto 0);
-		sd_dout_strobe : out std_logic;
-		sd_din : in std_logic_vector(7 downto 0);
-		sd_din_strobe : out std_logic
-	  );
-	end component;
+signal VGA_VS_RAW : std_logic;
+signal VGA_HS_RAW : std_logic;
+signal VGA_CS_RAW : std_logic;
 
-	component sd_card
-	PORT (
-		-- link to user_io for io controller
-		io_lba : out std_logic_vector(31 downto 0);
-		io_rd : out std_logic;
-		io_wr : out std_logic;
-		io_ack : in std_logic;
-		io_conf : out std_logic;
-		io_sdhc : out std_logic;
-		
-		-- data coming in from io controller
-		io_din : in std_logic_vector(7 downto 0);
-		io_din_strobe : in std_logic;
-		
-		-- data going out to io controller
-		io_dout : out std_logic_vector(7 downto 0);
-		io_dout_strobe : in std_logic;
-		
-		-- configuration input
-		allow_sdhc : in std_logic;
-	
-		sd_cs : in std_logic;
-		sd_sck : in std_logic;
-		sd_sdi : in std_logic;
-		sd_sdo : out std_logic
-	); 
-	end component;
+signal RESET_n : std_logic;
+signal PLL_LOCKED : std_logic;
+signal CLK : std_logic;
+signal CLK_SDRAM : std_logic;
 
-  signal AUDIO_L_PCM : std_logic_vector(15 downto 0);
-  signal AUDIO_R_PCM : std_logic_vector(15 downto 0);
+SIGNAL PS2_CLK : std_logic;
+SIGNAL PS2_DAT : std_logic;
+SIGNAL FKEYS : std_logic_vector(11 downto 0);
 
-  signal VGA_VS_RAW : std_logic;
-  signal VGA_HS_RAW : std_logic;
-  signal VGA_CS_RAW : std_logic;
-
-  signal RESET_n : std_logic;
-  signal PLL_LOCKED : std_logic;
-  signal CLK : std_logic;
-  signal CLK_SDRAM : std_logic;
-
-  signal CLK_PLL1 : std_logic; -- cascaded to get better pal clock
-  signal PLL1_LOCKED : std_logic;
-
-  SIGNAL PS2_CLK : std_logic;
-  SIGNAL PS2_DAT : std_logic;
-  SIGNAL FKEYS : std_logic_vector(11 downto 0);
-
-  signal capslock_pressed : std_logic;
-  signal capsheld_next : std_logic;
-  signal capsheld_reg : std_logic;
+signal capslock_pressed : std_logic;
+signal capsheld_next : std_logic;
+signal capsheld_reg : std_logic;
   
-  signal spi_miso_io : std_logic;
+signal spi_miso_io : std_logic;
 
-  signal mist_buttons : std_logic_vector(1 downto 0);
-  signal mist_switches : std_logic_vector(1 downto 0);
+signal mist_buttons : std_logic_vector(1 downto 0);
+signal mist_switches : std_logic_vector(1 downto 0);
+signal mist_status : std_logic_vector(31 downto 0);
+signal mist_JOY1X : std_logic_vector(7 downto 0);
+signal mist_JOY1Y : std_logic_vector(7 downto 0);
+signal mist_JOY2X : std_logic_vector(7 downto 0);
+signal mist_JOY2Y : std_logic_vector(7 downto 0);
 
-  signal		JOY1 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
-  signal		JOY2 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
-  signal		JOY1X : std_logic_vector(7 downto 0);
-  signal		JOY1Y : std_logic_vector(7 downto 0);
-  signal		JOY2X : std_logic_vector(7 downto 0);
-  signal		JOY2Y : std_logic_vector(7 downto 0);
-  signal		JOY1_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
-  signal		JOY2_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
-  signal joy_still : std_logic;
+signal JOY1 :  STD_LOGIC_VECTOR(31 DOWNTO 0);
+signal JOY2 :  STD_LOGIC_VECTOR(31 DOWNTO 0);
+signal JOY1X : std_logic_vector(7 downto 0);
+signal JOY1Y : std_logic_vector(7 downto 0);
+signal JOY2X : std_logic_vector(7 downto 0);
+signal JOY2Y : std_logic_vector(7 downto 0);
+signal JOY1_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
+signal JOY2_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
+signal joy_still : std_logic;
 
-  SIGNAL	KEYBOARD_RESPONSE :  STD_LOGIC_VECTOR(1 DOWNTO 0);
-  SIGNAL	KEYBOARD_SCAN :  STD_LOGIC_VECTOR(5 DOWNTO 0);
-  signal controller_select : std_logic_vector(1 downto 0);
+SIGNAL KEYBOARD_RESPONSE :  STD_LOGIC_VECTOR(1 DOWNTO 0);
+SIGNAL KEYBOARD_SCAN :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+signal controller_select : std_logic_vector(1 downto 0);
 
-  SIGNAL PAL : std_logic;
-  SIGNAL COMPOSITE_ON_HSYNC : std_logic;
-  SIGNAL VGA : std_logic;
+SIGNAL PAL : std_logic;
+SIGNAL COMPOSITE_ON_HSYNC : std_logic;
+SIGNAL VGA : std_logic;
 
-  signal SDRAM_REQUEST : std_logic;
-  signal SDRAM_REQUEST_COMPLETE : std_logic;
-  signal SDRAM_READ_ENABLE :  STD_LOGIC;
-  signal SDRAM_WRITE_ENABLE : std_logic;
-  signal SDRAM_ADDR : STD_LOGIC_VECTOR(22 DOWNTO 0);
-  signal SDRAM_DO : STD_LOGIC_VECTOR(31 DOWNTO 0);
-  signal SDRAM_DI : STD_LOGIC_VECTOR(31 DOWNTO 0);
-  signal SDRAM_WIDTH_8bit_ACCESS : std_logic;
-  signal SDRAM_WIDTH_16bit_ACCESS : std_logic;
-  signal SDRAM_WIDTH_32bit_ACCESS : std_logic;
+signal SDRAM_REQUEST : std_logic;
+signal SDRAM_REQUEST_COMPLETE : std_logic;
+signal SDRAM_READ_ENABLE :  STD_LOGIC;
+signal SDRAM_WRITE_ENABLE : std_logic;
+signal SDRAM_ADDR_OUT : STD_LOGIC_VECTOR(22 DOWNTO 0);
+signal SDRAM_ADDR_IN : STD_LOGIC_VECTOR(22 DOWNTO 0);
+signal SDRAM_DO : STD_LOGIC_VECTOR(31 DOWNTO 0);
+signal SDRAM_DI : STD_LOGIC_VECTOR(31 DOWNTO 0);
+signal SDRAM_WIDTH_8bit_ACCESS : std_logic;
+signal SDRAM_WIDTH_16bit_ACCESS : std_logic;
+signal SDRAM_WIDTH_32bit_ACCESS : std_logic;
 
-  signal SDRAM_REFRESH : std_logic;
-  
-  signal SDRAM_RESET_N : std_logic;
+signal SDRAM_REFRESH : std_logic;
+signal SDRAM_RESET_N : std_logic;
 
-	-- dma/virtual drive
-	signal DMA_ADDR_FETCH : std_logic_vector(23 downto 0);
-	signal DMA_WRITE_DATA : std_logic_vector(31 downto 0);
-	signal DMA_FETCH : std_logic;
-	signal DMA_32BIT_WRITE_ENABLE : std_logic;
-	signal DMA_16BIT_WRITE_ENABLE : std_logic;
-	signal DMA_8BIT_WRITE_ENABLE : std_logic;
-	signal DMA_READ_ENABLE : std_logic;
-	signal DMA_MEMORY_READY : std_logic;
-	signal DMA_MEMORY_DATA : std_logic_vector(31 downto 0);
+-- dma/virtual drive
+signal DMA_ADDR_FETCH : std_logic_vector(23 downto 0);
+signal DMA_WRITE_DATA : std_logic_vector(31 downto 0);
+signal DMA_FETCH : std_logic;
+signal DMA_32BIT_WRITE_ENABLE : std_logic;
+signal DMA_16BIT_WRITE_ENABLE : std_logic;
+signal DMA_8BIT_WRITE_ENABLE : std_logic;
+signal DMA_READ_ENABLE : std_logic;
+signal DMA_MEMORY_READY : std_logic;
 
-	signal ZPU_ADDR_ROM : std_logic_vector(15 downto 0);
-	signal ZPU_ROM_DATA :  std_logic_vector(31 downto 0);
+signal pause_btnD  : std_logic;
+signal pause_state : std_logic;
+signal reset_atari : std_logic;
+signal pause_atari : std_logic;
+SIGNAL speed_6502 : std_logic_vector(5 downto 0);
 
-	signal ZPU_OUT1 : std_logic_vector(31 downto 0);
-	signal ZPU_OUT2 : std_logic_vector(31 downto 0);
-	signal ZPU_OUT3 : std_logic_vector(31 downto 0);
-	signal ZPU_OUT4 : std_logic_vector(31 downto 0);
+-- data io
+type ioctl_t is (
+    IOCTL_IDLE,
+    IOCTL_WRITE,
+    IOCTL_ACK);
+signal ioctl_state     : ioctl_t;
+signal ioctl_download  : std_logic;
+signal ioctl_download_D: std_logic;
+signal ioctl_index     : std_logic_vector(7 downto 0);
+signal ioctl_wr        : std_logic;
+signal ioctl_addr      : std_logic_vector(24 downto 0);
+signal ioctl_dout      : std_logic_vector(15 downto 0);
+signal reset_load      : std_logic;
 
-	signal zpu_pokey_enable : std_logic;
-	signal zpu_sio_txd : std_logic;
-	signal zpu_sio_rxd : std_logic;
-	signal zpu_sio_command : std_logic;
+type cart_t is (
+    CART_32k,
+    CART_16k_1,
+    CART_16k_2,
+    CART_8k,
+    CART_4k);
+signal cart_type : cart_t;
 
-	-- system control from zpu
-	signal ram_select : std_logic_vector(2 downto 0);
-	signal reset_atari : std_logic;
-	signal pause_atari : std_logic;
-	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
+-- ps2
+signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
+signal PS2_KEYS_NEXT : STD_LOGIC_VECTOR(511 downto 0);
 
-	-- connection to sd card emulation
-	signal sd_lba : std_logic_vector(31 downto 0);
-	signal sd_rd : std_logic;
-	signal sd_wr : std_logic;
-	signal sd_ack : std_logic;
-	signal sd_conf : std_logic;
-	signal sd_sdhc : std_logic;
-	signal sd_dout : std_logic_vector(7 downto 0);
-	signal sd_dout_strobe : std_logic;
-	signal sd_din : std_logic_vector(7 downto 0);
-	signal sd_din_strobe : std_logic;
+-- scandoubler
+signal half_scandouble_enable_reg : std_logic;
+signal half_scandouble_enable_next : std_logic;
+signal scanlines_reg : std_logic;
+signal VIDEO_B : std_logic_vector(7 downto 0);
+signal scandoubler_disable : std_logic;
+signal ypbpr : std_logic;
 
-	signal mist_sd_sdo : std_logic;
-	signal mist_sd_sck : std_logic;
-	signal mist_sd_sdi : std_logic;
-	signal mist_sd_cs : std_logic;
+signal sd_hs        : std_logic;
+signal sd_vs        : std_logic;
+signal osd_red_i    : std_logic_vector(5 downto 0);
+signal osd_green_i  : std_logic_vector(5 downto 0);
+signal osd_blue_i   : std_logic_vector(5 downto 0);
+signal osd_vs_i     : std_logic;
+signal osd_hs_i     : std_logic;
+signal osd_red_o    : std_logic_vector(5 downto 0);
+signal osd_green_o  : std_logic_vector(5 downto 0);
+signal osd_blue_o   : std_logic_vector(5 downto 0);
+signal vga_y_o      : std_logic_vector(5 downto 0);
+signal vga_pb_o     : std_logic_vector(5 downto 0);
+signal vga_pr_o     : std_logic_vector(5 downto 0);
 
-	-- ps2
-	signal SLOW_PS2_CLK : std_logic; -- around 16KHz
-	signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
-	signal PS2_KEYS_NEXT : STD_LOGIC_VECTOR(511 downto 0);
+constant CONF_STR : string :=
+    "A5200;A52BIN;"&
+    "O3,16k Cart,1 Chip,2 Chips;"&
+    "O2,Joystick swap,Off,On;"&
+    "O46,CPU Speed,1x,2x,4x,8x,16x;"&
+    "O1,Scanlines,Off,On;"&
+    "T0,Reset;";
 
-	-- scandoubler
-	signal half_scandouble_enable_reg : std_logic;
-	signal half_scandouble_enable_next : std_logic;
-	signal scanlines_reg : std_logic;
-	signal scanlines_next : std_logic;
-	signal VIDEO_B : std_logic_vector(7 downto 0);
+-- convert string to std_logic_vector to be given to user_io
+   function to_slv(s: string) return std_logic_vector is
+        constant ss: string(1 to s'length) := s;
+        variable rval: std_logic_vector(1 to 8 * s'length);
+        variable p: integer;
+        variable c: integer;
+    begin
+        for i in ss'range loop
+            p := 8 * i;
+            c := character'pos(ss(i));
+            rval(p - 7 to p) := std_logic_vector(to_unsigned(c,8));
+        end loop;
+        return rval;
+    end function;
 
-BEGIN 
-pal <= '1' when tv=1 else '0';
-vga <= '1' when video=2 else '0';
-composite_on_hsync <= '1' when composite_sync=1 else '0';
+BEGIN
+
+pal <= '1';
+vga <= not scandoubler_disable;
 
 -- mist spi io
-	spi_do <= spi_miso_io when CONF_DATA0 ='0' else 'Z';
+spi_do <= spi_miso_io when CONF_DATA0 ='0' else 'Z';
 
-my_user_io : user_io
-	PORT map(
-	   SPI_CLK => SPI_SCK,
-	   SPI_SS_IO => CONF_DATA0,
-	   SPI_MISO => SPI_miso_io,
-	   SPI_MOSI => SPI_DI,
-		JOYSTICK_0 => joy2,
-		JOYSTICK_1 => joy1,
-		JOYSTICK_ANALOG_0(15 downto 8) => joy2x,
-		JOYSTICK_ANALOG_0(7 downto 0) => joy2y,
-		JOYSTICK_ANALOG_1(15 downto 8) => joy1x,
-		JOYSTICK_ANALOG_1(7 downto 0) => joy1y,
-		BUTTONS => mist_buttons,
-		SWITCHES => mist_switches,
-		STATUS => open,
+mist_user_io : user_io
+    generic map (STRLEN => CONF_STR'length)
+    PORT map(
+        clk_sys => CLK,
+        clk_sd  => CLK,
+        SPI_CLK => SPI_SCK,
+        SPI_SS_IO => CONF_DATA0,
+        SPI_MISO => SPI_miso_io,
+        SPI_MOSI => SPI_DI,
+        conf_str => to_slv(CONF_STR),
+        JOYSTICK_0 => joy1,
+        JOYSTICK_1 => joy2,
+        JOYSTICK_ANALOG_0(15 downto 8) => mist_joy1x,
+        JOYSTICK_ANALOG_0(7 downto 0) => mist_joy1y,
+        JOYSTICK_ANALOG_1(15 downto 8) => mist_joy2x,
+        JOYSTICK_ANALOG_1(7 downto 0) => mist_joy2y,
+        BUTTONS => mist_buttons,
+        SWITCHES => mist_switches,
+        STATUS => mist_status,
+		scandoubler_disable => scandoubler_disable,
+        ypbpr => ypbpr,
 
-		PS2_CLK => SLOW_PS2_CLK,
-		PS2_KBD_CLK => ps2_clk,
-		PS2_KBD_DATA => ps2_dat,
-	
-		SERIAL_DATA => (others=>'0'),
-		SERIAL_STROBE => '0',
+        PS2_KBD_CLK => ps2_clk,
+        PS2_KBD_DATA => ps2_dat,
 
-		sd_lba => sd_lba,
-		sd_rd => sd_rd,
-		sd_wr => sd_wr,
-		sd_ack => sd_ack,
-		sd_conf => sd_conf,
-		sd_sdhc => sd_sdhc,
-		sd_dout => sd_dout,
-		sd_dout_strobe => sd_dout_strobe,
-		sd_din => sd_din,
-		sd_din_strobe => sd_din_strobe
-	  );
+        SERIAL_DATA => (others=>'0'),
+        SERIAL_STROBE => '0'
+    );
 
-my_sd_card : sd_card
-	PORT map (
-		io_lba => sd_lba,
-		io_rd => sd_rd,
-		io_wr => sd_wr,
-		io_ack => sd_ack,
-		io_conf => sd_conf,
-		io_sdhc => sd_sdhc,
-		
-		io_din => sd_dout,
-		io_din_strobe => sd_dout_strobe,
-		
-		io_dout => sd_din,
-		io_dout_strobe => sd_din_strobe,
-		
-		allow_sdhc => '1',
-	
-		sd_cs => mist_sd_cs,
-		sd_sck => mist_sd_sck,
-		sd_sdi => mist_sd_sdi,
-		sd_sdo => mist_sd_sdo
-	); 
-	  
-	 joy1_n <= not(joy1(5)&joy1(3 downto 0));
-	 joy2_n <= not(joy2(5)&joy2(3 downto 0));
+joy1_n <= not(joy1(5)&joy1(3 downto 0)) when mist_status(2) = '0' else not(joy2(5)&joy2(3 downto 0));
+joy2_n <= not(joy2(5)&joy2(3 downto 0)) when mist_status(2) = '0' else not(joy1(5)&joy1(3 downto 0));
+joy1x <= mist_joy1x when mist_status(2) = '0' else mist_joy2x;
+joy1y <= mist_joy1y when mist_status(2) = '0' else mist_joy2y;
+joy2x <= mist_joy2x when mist_status(2) = '0' else mist_joy1x;
+joy2y <= mist_joy2y when mist_status(2) = '0' else mist_joy1y;
 
 -- PS2 to pokey
 keyboard_map1 : entity work.ps2_to_atari5200
@@ -356,287 +357,334 @@ keyboard_map1 : entity work.ps2_to_atari5200
 -- stick 0: consol(1 downto 0)="00"
 
 joy_still <= joy1_n(3) and joy1_n(2) and joy1_n(1) and joy1_n(0); -- TODO, need something better here I think! e.g. keypad? 5200 not centreing
-	 
+
 dac_left : hq_dac
 port map
 (
-  reset => not(reset_n),
-  clk => clk,
-  clk_ena => '1',
-  pcm_in => AUDIO_L_PCM&"0000",
-  dac_out => audio_l
+    reset => not(reset_n),
+    clk => clk,
+    clk_ena => '1',
+    pcm_in => AUDIO_L_PCM&"0000",
+    dac_out => audio_l
 );
 
 dac_right : hq_dac
 port map
 (
-  reset => not(reset_n),
-  clk => clk,
-  clk_ena => '1',
-  pcm_in => AUDIO_R_PCM&"0000",
-  dac_out => audio_r
+    reset => not(reset_n),
+    clk => clk,
+    clk_ena => '1',
+    pcm_in => AUDIO_R_PCM&"0000",
+    dac_out => audio_r
 );
 
-gen_ntsc_pll : if tv=0 generate
 mist_pll : entity work.pll_ntsc
 PORT MAP(inclk0 => CLOCK_27(0),
-		 c0 => CLK_SDRAM,
-		 c1 => CLK,
-		 c2 => SDRAM_CLK,
-		 c3 => SLOW_PS2_CLK,
-		 locked => PLL_LOCKED);
-end generate;
-
-gen_pal_pll : if tv=1 generate
-mist_pll : entity work.pll_pal_pre
-PORT MAP(inclk0 => CLOCK_27(0),
-		 c0 => CLK_PLL1,
-		 locked => PLL1_LOCKED);
-mist_pll2 : entity work.pll_pal_post
-PORT MAP(inclk0 => CLK_PLL1,
-		 c0 => CLK_SDRAM,
-		 c1 => CLK,
-		 c2 => SDRAM_CLK,
-		 c3 => SLOW_PS2_CLK,
-		 areset => not(PLL1_LOCKED),
-		 locked => PLL_LOCKED);
-end generate;
+    c0 => CLK_SDRAM,
+    c1 => CLK,
+    c2 => SDRAM_CLK,
+    locked => PLL_LOCKED);
 
 reset_n <= PLL_LOCKED;
 
-atari5200_test : entity work.atari5200core_simplesdram
-	GENERIC MAP
+atari5200 : entity work.atari5200core_simplesdram
+    GENERIC MAP
+    (
+        cycle_length => 32,
+--      internal_rom => 4, --5200 rom...
+--      internal_rom => 0, --5200 rom...
+--      internal_ram => 16384 -- only 1 option for 5200...
+        video_bits => 8,
+        palette => 0
+    )
+    PORT MAP
 	(
-		cycle_length => 32,
-		--internal_rom => 4, --5200 rom...
-		internal_rom => 0, --5200 rom...
-		internal_ram => 0, -- only 1 option for 5200...
-		video_bits => 8,
-		palette => 0
-	)
-	PORT MAP
-	(
-		CLK => CLK,
-		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
+        CLK => CLK,
+        RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
 
-		VIDEO_VS => VGA_VS_RAW,
-		VIDEO_HS => VGA_HS_RAW,
-		VIDEO_CS => VGA_CS_RAW,
-		VIDEO_B => VIDEO_B,
-		VIDEO_G => open,
-		VIDEO_R => open,
+        VIDEO_VS => VGA_VS_RAW,
+        VIDEO_HS => VGA_HS_RAW,
+        VIDEO_CS => VGA_CS_RAW,
+        VIDEO_B => VIDEO_B,
+        VIDEO_G => open,
+        VIDEO_R => open,
 
-		AUDIO_L => AUDIO_L_PCM,
-		AUDIO_R => AUDIO_R_PCM,
-
-		SDRAM_REQUEST => SDRAM_REQUEST,
-		SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
-		SDRAM_READ_ENABLE => SDRAM_READ_ENABLE,
-		SDRAM_WRITE_ENABLE => SDRAM_WRITE_ENABLE,
-		SDRAM_ADDR => SDRAM_ADDR,
-		SDRAM_DO => SDRAM_DO,
-		SDRAM_DI => SDRAM_DI,
-		SDRAM_32BIT_WRITE_ENABLE => SDRAM_WIDTH_32bit_ACCESS,
-		SDRAM_16BIT_WRITE_ENABLE => SDRAM_WIDTH_16bit_ACCESS,
-		SDRAM_8BIT_WRITE_ENABLE => SDRAM_WIDTH_8bit_ACCESS,
-		SDRAM_REFRESH => SDRAM_REFRESH,
-
-		DMA_FETCH => dma_fetch,
-		DMA_READ_ENABLE => dma_read_enable,
-		DMA_32BIT_WRITE_ENABLE => dma_32bit_write_enable,
-		DMA_16BIT_WRITE_ENABLE => dma_16bit_write_enable,
-		DMA_8BIT_WRITE_ENABLE => dma_8bit_write_enable,
-		DMA_ADDR => dma_addr_fetch,
-		DMA_WRITE_DATA => dma_write_data,
-		MEMORY_READY_DMA => dma_memory_ready,
-		DMA_MEMORY_DATA => dma_memory_data, 
-
-		THROTTLE_COUNT_6502 => speed_6502,
-		HALT => pause_atari,
+        AUDIO_L => AUDIO_L_PCM,
+        AUDIO_R => AUDIO_R_PCM,
 
 		-- JOYSTICK
-		JOY1_X => signed(joy1x),
-		JOY1_Y => signed(joy1y),
-		JOY1_n => JOY1_n(4)&JOY1_n(0)&JOY1_n(1)&JOY1_n(2)&JOY1_n(3),
-		JOY2_X => signed(joy2x),
-		JOY2_Y => signed(joy2y),
-		JOY2_n => JOY2_n(4)&JOY2_n(0)&JOY2_n(1)&JOY2_n(2)&JOY2_n(3),
+        JOY1_X => signed(joy1x),
+        JOY1_Y => signed(joy1y),
+        JOY2_X => signed(joy2x),
+        JOY2_Y => signed(joy2y),
 
-		-- Pokey keyboard matrix
-		-- Standard component available to connect this to PS2
-		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
-		KEYBOARD_SCAN => KEYBOARD_SCAN,
-		CONTROLLER_SELECT => CONTROLLER_SELECT
+        JOY1_n => JOY1_n(4)&JOY1_n(0)&JOY1_n(1)&JOY1_n(2)&JOY1_n(3),
+        JOY2_n => JOY2_n(4)&JOY2_n(0)&JOY2_n(1)&JOY2_n(2)&JOY2_n(3),
+
+        KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
+        KEYBOARD_SCAN => KEYBOARD_SCAN,
+
+        SDRAM_REQUEST => SDRAM_REQUEST,
+        SDRAM_REQUEST_COMPLETE => SDRAM_REQUEST_COMPLETE,
+        SDRAM_READ_ENABLE => SDRAM_READ_ENABLE,
+        SDRAM_WRITE_ENABLE => SDRAM_WRITE_ENABLE,
+        SDRAM_ADDR => SDRAM_ADDR_OUT,
+        SDRAM_DO => SDRAM_DO,
+        SDRAM_DI => SDRAM_DI,
+        SDRAM_32BIT_WRITE_ENABLE => SDRAM_WIDTH_32bit_ACCESS,
+        SDRAM_16BIT_WRITE_ENABLE => SDRAM_WIDTH_16bit_ACCESS,
+        SDRAM_8BIT_WRITE_ENABLE => SDRAM_WIDTH_8bit_ACCESS,
+        SDRAM_REFRESH => SDRAM_REFRESH,
+
+        DMA_FETCH => dma_fetch, -- in
+        DMA_READ_ENABLE => dma_read_enable, -- in
+        DMA_32BIT_WRITE_ENABLE => dma_32bit_write_enable, -- in
+        DMA_16BIT_WRITE_ENABLE => dma_16bit_write_enable, -- in
+        DMA_8BIT_WRITE_ENABLE => dma_8bit_write_enable, -- in
+        DMA_ADDR => dma_addr_fetch, -- in
+        DMA_WRITE_DATA => dma_write_data,	-- in
+        MEMORY_READY_DMA => dma_memory_ready,	-- out
+        DMA_MEMORY_DATA => open, -- out
+
+        --PAL => PAL,
+        HALT => pause_atari,
+        THROTTLE_COUNT_6502 => speed_6502,
+        --emulated_cartridge_select => emulated_cartridge_select,
+        --freezer_enable => freezer_enable,
+        --freezer_activate => freezer_activate,
+
+        CONTROLLER_SELECT => CONTROLLER_SELECT
 	);
-
 sdram_adaptor : entity work.sdram_statemachine
 GENERIC MAP(ADDRESS_WIDTH => 22,
-			AP_BIT => 10,
-			COLUMN_WIDTH => 8,
-			ROW_WIDTH => 12
-			)
+        AP_BIT => 10,
+        COLUMN_WIDTH => 8,
+        ROW_WIDTH => 12
+)
 PORT MAP(CLK_SYSTEM => CLK,
-		 CLK_SDRAM => CLK_SDRAM,
-		 RESET_N =>  RESET_N,
-		 READ_EN => SDRAM_READ_ENABLE,
-		 WRITE_EN => SDRAM_WRITE_ENABLE,
-		 REQUEST => SDRAM_REQUEST,
-		 BYTE_ACCESS => SDRAM_WIDTH_8BIT_ACCESS,
-		 WORD_ACCESS => SDRAM_WIDTH_16BIT_ACCESS,
-		 LONGWORD_ACCESS => SDRAM_WIDTH_32BIT_ACCESS,
-		 REFRESH => SDRAM_REFRESH,
-		 ADDRESS_IN => SDRAM_ADDR,
-		 DATA_IN => SDRAM_DI,
-		 SDRAM_DQ => SDRAM_DQ,
-		 COMPLETE => SDRAM_REQUEST_COMPLETE,
-		 SDRAM_BA0 => SDRAM_BA(0),
-		 SDRAM_BA1 => SDRAM_BA(1),
-		 SDRAM_CKE => SDRAM_CKE,
-		 SDRAM_CS_N => SDRAM_nCS,
-		 SDRAM_RAS_N => SDRAM_nRAS,
-		 SDRAM_CAS_N => SDRAM_nCAS,
-		 SDRAM_WE_N => SDRAM_nWE,
-		 SDRAM_ldqm => SDRAM_DQML,
-		 SDRAM_udqm => SDRAM_DQMH,
-		 DATA_OUT => SDRAM_DO,
-		 SDRAM_ADDR => SDRAM_A(11 downto 0),
-		 reset_client_n => SDRAM_RESET_N
-		 );
-		 
+        CLK_SDRAM => CLK_SDRAM,
+        RESET_N =>  RESET_N,
+        READ_EN => SDRAM_READ_ENABLE,
+        WRITE_EN => SDRAM_WRITE_ENABLE,
+        REQUEST => SDRAM_REQUEST,
+        BYTE_ACCESS => SDRAM_WIDTH_8BIT_ACCESS,
+        WORD_ACCESS => SDRAM_WIDTH_16BIT_ACCESS,
+        LONGWORD_ACCESS => SDRAM_WIDTH_32BIT_ACCESS,
+        REFRESH => SDRAM_REFRESH,
+        ADDRESS_IN => SDRAM_ADDR_IN,
+        DATA_IN => SDRAM_DI,
+        SDRAM_DQ => SDRAM_DQ,
+        COMPLETE => SDRAM_REQUEST_COMPLETE,
+        SDRAM_BA0 => SDRAM_BA(0),
+        SDRAM_BA1 => SDRAM_BA(1),
+        SDRAM_CKE => SDRAM_CKE,
+        SDRAM_CS_N => SDRAM_nCS,
+        SDRAM_RAS_N => SDRAM_nRAS,
+        SDRAM_CAS_N => SDRAM_nCAS,
+        SDRAM_WE_N => SDRAM_nWE,
+        SDRAM_ldqm => SDRAM_DQML,
+        SDRAM_udqm => SDRAM_DQMH,
+        DATA_OUT => SDRAM_DO,
+        SDRAM_ADDR => SDRAM_A(11 downto 0),
+        reset_client_n => SDRAM_RESET_N
+);
+
 SDRAM_A(12) <= '0';
---SDRAM_REFRESH <= '0'; -- TODO
 
--- Until SDRAM enabled... TODO
---SDRAM_nCS <= '1';
---SDRAM_DQ <= (others=>'Z');
+LED <= not ioctl_download;
 
---SDRAM_CKE <= '1';		 
-LED <= zpu_sio_rxd;
+process(clk,RESET_N,SDRAM_RESET_N,reset_atari)
+begin
+	if ((RESET_N and SDRAM_RESET_N and not(reset_atari))='0') then
+		half_scandouble_enable_reg <= '0';
+		scanlines_reg <= '0';
+	elsif (clk'event and clk='1') then
+		half_scandouble_enable_reg <= half_scandouble_enable_next;
+		scanlines_reg <= mist_status(1);
+	end if;
+end process;
 
---VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
---VGA_VS <= not(VGA_VS_RAW);
+half_scandouble_enable_next <= not(half_scandouble_enable_reg);
 
-	scanlines_next <= scanlines_reg xor (not(ps2_keys(16#11#)) and ps2_keys_next(16#11#)); -- left alt
-
-	process(clk,RESET_N,SDRAM_RESET_N,reset_atari)
-	begin
-		if ((RESET_N and SDRAM_RESET_N and not(reset_atari))='0') then
-			half_scandouble_enable_reg <= '0';
-			scanlines_reg <= '0';
-		elsif (clk'event and clk='1') then
-			half_scandouble_enable_reg <= half_scandouble_enable_next;
-			scanlines_reg <= scanlines_next;
-		end if;
-	end process;
-
-	half_scandouble_enable_next <= not(half_scandouble_enable_reg);
-
-	scandoubler1: entity work.scandoubler
-	GENERIC MAP
+scandoubler1: entity work.scandoubler
+GENERIC MAP
 	(
 		video_bits=>6
 	)
-	PORT MAP
+PORT MAP
 	( 
 		CLK => CLK,
 		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
-		
-		VGA => vga,
-		COMPOSITE_ON_HSYNC => composite_on_hsync,
 
-		pal => '0',
+		VGA => vga,
+		COMPOSITE_ON_HSYNC => '0',
+
 		colour_enable => half_scandouble_enable_reg,
 		doubled_enable => '1',
 		scanlines_on => scanlines_reg,
-		
+
 		-- GTIA interface
+		pal => PAL,
 		colour_in => VIDEO_B,
 		vsync_in => VGA_VS_RAW,
 		hsync_in => VGA_HS_RAW,
 		csync_in => VGA_CS_RAW,
-		
-		-- TO TV...
-		R => VGA_R,
-		G => VGA_G,
-		B => VGA_B,
-		
-		VSYNC => VGA_VS,
-		HSYNC => VGA_HS
-	);
 
-zpu: entity work.zpucore
-	GENERIC MAP
-	(
-		platform => 1,
-		spi_clock_div => 16 -- 28MHz/2. Max for SD cards is 25MHz...
-	)
-	PORT MAP
-	(
-		-- standard...
-		CLK => CLK,
-		RESET_N => RESET_N and sdram_reset_n,
+        -- TO OSD
+        R => osd_red_i,
+        G => osd_green_i,
+        B => osd_blue_i,
 
-		-- dma bus master (with many waitstates...)
-		ZPU_ADDR_FETCH => dma_addr_fetch,
-		ZPU_DATA_OUT => dma_write_data,
-		ZPU_FETCH => dma_fetch,
-		ZPU_32BIT_WRITE_ENABLE => dma_32bit_write_enable,
-		ZPU_16BIT_WRITE_ENABLE => dma_16bit_write_enable,
-		ZPU_8BIT_WRITE_ENABLE => dma_8bit_write_enable,
-		ZPU_READ_ENABLE => dma_read_enable,
-		ZPU_MEMORY_READY => dma_memory_ready,
-		ZPU_MEMORY_DATA => dma_memory_data, 
+        VSYNC => sd_vs,
+        HSYNC => sd_hs
+);
 
-		-- rom bus master
-		-- data on next cycle after addr
-		ZPU_ADDR_ROM => zpu_addr_rom,
-		ZPU_ROM_DATA => zpu_rom_data,
-	
-		ZPU_ROM_WREN => open,
+osd_inst: osd
+port map (
+        clk_sys     => CLK,
+        SPI_SCK     => SPI_SCK,
+        SPI_SS3     => SPI_SS3,
+        SPI_DI      => SPI_DI,
 
-		-- spi master
-		ZPU_SD_DAT0 => mist_sd_sdo,
-		ZPU_SD_CLK => mist_sd_sck,
-		ZPU_SD_CMD => mist_sd_sdi,
-		ZPU_SD_DAT3 => mist_sd_cs,
+        R_in        => osd_red_i,
+        G_in        => osd_green_i,
+        B_in        => osd_blue_i,
+        HSync       => sd_hs,
+        VSync       => sd_vs,
 
-		-- SIO
-		-- Ditto for speaking to Atari, we have a built in Pokey
-		ZPU_POKEY_ENABLE => zpu_pokey_enable,
-		ZPU_SIO_TXD => zpu_sio_txd,
-		ZPU_SIO_RXD => zpu_sio_rxd,
-		ZPU_SIO_COMMAND => zpu_sio_command,
+        R_out       => osd_red_o,
+        G_out       => osd_green_o,
+        B_out       => osd_blue_o
+);
 
-		-- external control
-		-- switches etc. sector DMA blah blah.
-		ZPU_IN1 => X"000"&
-				"00"&ps2_keys(16#76#)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
-				(FKEYS(11) or (mist_buttons(0) and not(joy1_n(4))))&(FKEYS(10) or (mist_buttons(0) and joy1_n(4) and joy_still))&(FKEYS(9) or (mist_buttons(0) and joy1_n(4) and not(joy_still)))&FKEYS(8 downto 0),
-		ZPU_IN2 => X"00000000",
-		ZPU_IN3 => X"00000000",
-		ZPU_IN4 => X"00000000",
+rgb2component: rgb2ypbpr
+port map (
+        red => osd_red_o,
+        green => osd_green_o,
+        blue => osd_blue_o,
+        y => vga_y_o,
+        pb => vga_pb_o,
+        pr => vga_pr_o
+);
 
-		-- ouputs - e.g. Atari system control, halt, throttle, rom select
-		ZPU_OUT1 => zpu_out1,
-		ZPU_OUT2 => zpu_out2,
-		ZPU_OUT3 => zpu_out3,
-		ZPU_OUT4 => zpu_out4
-	);
+ -- If 15kHz Video - composite sync to VGA_HS and VGA_VS high for MiST RGB cable
+VGA_HS <= not (sd_hs xor sd_vs) when scandoubler_disable='1' or ypbpr='1' else sd_hs;
+VGA_VS <= '1' when scandoubler_disable='1' or ypbpr='1' else sd_vs;
+VGA_R <= vga_pr_o when ypbpr='1' else osd_red_o;
+VGA_G <= vga_y_o  when ypbpr='1' else osd_green_o;
+VGA_B <= vga_pb_o when ypbpr='1' else osd_blue_o;
 
-	pause_atari <= zpu_out1(0);
-	reset_atari <= zpu_out1(1);
-	speed_6502 <= zpu_out1(7 downto 2);
-	ram_select <= zpu_out1(10 downto 8);
+pause_atari <= ioctl_download or pause_state;
+process (CLK, RESET_N) begin
+    if RESET_N = '0' then
+        pause_state <= '0';
+    elsif rising_edge(CLK) then
+        pause_btnD <= joy1(6) or joy2(6);
+        if (joy1(6) or joy2(6)) = '1' and pause_btnD = '0' then
+            pause_state <= not pause_state;
+        end if;
+    end if;
+end process;
 
-zpu_rom1: entity work.zpu_rom
-	port map(
-	        clock => clk,
-	        address => zpu_addr_rom(13 downto 2),
-	        q => zpu_rom_data
-	);
+reset_atari <= mist_status(0) or mist_buttons(1) or reset_load;
+speed_6502 <= "000001" when mist_status(6 downto 4) = "000" else
+              "000010" when mist_status(6 downto 4) = "001" else
+              "000100" when mist_status(6 downto 4) = "010" else
+              "001000" when mist_status(6 downto 4) = "011" else
+              "010000";
 
-enable_179_clock_div_zpu_pokey : entity work.enable_divider
-	generic map (COUNT=>32) -- cycle_length
-	port map(clk=>clk,reset_n=>reset_n,enable_in=>'1',enable_out=>zpu_pokey_enable);
+dma_read_enable <= '0'; -- in
+dma_32bit_write_enable <= '0'; -- in
+dma_8bit_write_enable <= '0'; -- in
+
+mist_data_io: data_io
+    port map (
+        clk_sys => CLK,
+
+        SPI_SCK => SPI_SCK,
+        SPI_SS2 => SPI_SS2,
+        SPI_DI  => SPI_DI,
+
+        ioctl_wait     => '0',
+        ioctl_download => ioctl_download,
+        ioctl_index    => ioctl_index,
+        ioctl_wr       => ioctl_wr,
+        ioctl_addr     => ioctl_addr,
+        ioctl_dout     => ioctl_dout
+      );
+
+process (CLK, RESET_N) begin
+    if RESET_N = '0' then
+        ioctl_state <= IOCTL_IDLE;
+        reset_load <= '0';
+    elsif rising_edge(CLK) then
+        ioctl_download_D <= ioctl_download;
+        case ioctl_state is
+        when IOCTL_IDLE =>
+            reset_load <= '0';
+            dma_fetch <= '0';
+            dma_16bit_write_enable <= '0';
+            if ioctl_download_D = '0' and ioctl_download = '1' then
+                cart_type <= CART_32k;
+                ioctl_state <= IOCTL_WRITE;
+            end if;
+        when IOCTL_WRITE =>
+            if ioctl_download = '0' then
+                if ioctl_addr(15 downto 12) = x"5" then cart_type <= CART_4k;
+                elsif ioctl_addr(15 downto 12) = x"6" then cart_type <= CART_8k;
+                elsif ioctl_addr(15 downto 12) = x"8" then
+                    if mist_status(3) = '0' then cart_type <= CART_16k_1; else cart_type <= CART_16k_2; end if;
+                end if;
+                ioctl_state <= IOCTL_IDLE;
+                reset_load <= '1';
+            elsif ioctl_wr = '1' then
+                dma_fetch <= '1';
+                dma_16bit_write_enable <= '1';
+                dma_write_data <= ioctl_dout & ioctl_dout;
+                dma_addr_fetch <= ioctl_addr(23 downto 0);
+                ioctl_state <= IOCTL_ACK;
+            end if;
+        when IOCTL_ACK =>
+            if dma_memory_ready = '1' then
+                dma_fetch <= '0';
+                dma_16bit_write_enable <= '0';
+                ioctl_state <= IOCTL_WRITE;
+            end if;
+        when others => null;
+        end case;
+    end if;
+end process;
+
+process (SDRAM_ADDR_OUT) begin
+    SDRAM_ADDR_IN <= SDRAM_ADDR_OUT;
+    case cart_type is
+    when CART_16k_1 =>
+    -- one chip 16k
+        case SDRAM_ADDR_OUT(15 downto 14) is
+            when "10" => SDRAM_ADDR_IN(15 downto 14) <= "01";
+            when others => null;
+        end case;
+
+    when CART_16k_2 =>
+    -- two chip 16k
+        case SDRAM_ADDR_OUT(15 downto 13) is
+            when "011" => SDRAM_ADDR_IN(15 downto 13) <= "010";
+            when "100" => SDRAM_ADDR_IN(15 downto 13) <= "011";
+            when "101" => SDRAM_ADDR_IN(15 downto 13) <= "011";
+        when others => null;
+        end case;
+
+    when CART_8k =>
+    -- 8k
+        SDRAM_ADDR_IN(15 downto 13) <= "010";
+
+    when CART_4k =>
+    -- 4k
+        SDRAM_ADDR_IN(15 downto 12) <= "0100";
+    
+    when others => null;
+    end case;
+
+end process;
 
 END vhdl;
