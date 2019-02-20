@@ -10,9 +10,6 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
 use IEEE.STD_LOGIC_MISC.all;
 use ieee.numeric_std.all;
-USE ieee.math_real.log2;
-USE ieee.math_real.ceil;
-USE ieee.math_real.realmax;
 
 LIBRARY work;
 -- Simple version that:
@@ -86,6 +83,7 @@ ENTITY atari800core_simple_sdram is
 		SIO_COMMAND : out std_logic;
 		SIO_RXD : in std_logic;
 		SIO_TXD : out std_logic;
+		SIO_CLOCKOUT : out std_logic;
 
 		-- GTIA consol
 		CONSOL_OPTION : IN STD_LOGIC;
@@ -321,7 +319,7 @@ atari800xl : entity work.atari800core
 		low_memory => low_memory,
 		stereo => stereo,
 		covox => covox,
-		sdram_start_bank => integer(realmax(0.0,ceil(log2(real(internal_ram))-14.0)))
+		internal_ram => internal_ram
 	)
 	PORT MAP
 	(
@@ -386,6 +384,7 @@ atari800xl : entity work.atari800core
 
 		SIO_RXD => SIO_RXD,
 		SIO_TXD => SIO_TXD,
+		SIO_CLOCKOUT => SIO_CLOCKOUT,
 
 		CONSOL_OPTION => CONSOL_OPTION,
 		CONSOL_SELECT => CONSOL_SELECT,

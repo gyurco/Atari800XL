@@ -24,7 +24,7 @@ ENTITY atari800core IS
 		low_memory : integer := 0; -- 0:8MB memory map, 1:1MB memory map
 		stereo : integer := 1;
 		covox : integer := 1;
-		sdram_start_bank : integer := 0
+		internal_ram : integer := 0
 	);
 	PORT
 	(
@@ -451,7 +451,7 @@ PORT MAP(CLK => CLK,
 		 PORTB_OUT => PORTB_OUT_INT);
 
 mmu1 : entity work.address_decoder
-GENERIC MAP(low_memory => low_memory, stereo => stereo, sdram_start_bank => sdram_start_bank)
+GENERIC MAP(low_memory => low_memory, stereo => stereo, internal_ram => internal_ram)
 PORT MAP(CLK => CLK,
 		 CPU_FETCH => CPU_FETCH,
 		 CPU_WRITE_N => R_W_N,
