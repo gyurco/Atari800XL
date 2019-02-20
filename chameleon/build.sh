@@ -12,85 +12,66 @@ my $NTSC = 0;
 my $RGB = 1; # i.e. not scandoubled
 my $VGA = 2;
 
-my $XL = 0;
-my $A800 = 1;
-
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
 my %variants = 
 (
-	"PAL_RGB_800" => 
+	"PAL_RGB" => 
 	{
 		"TV" => $PAL,
 		"SCANDOUBLE" => 0,
 		"VIDEO" => $RGB,
-		"COMPOSITE_SYNC" => 1,
-		"SYSTEM" => $A800
-	},
-	"PAL_RGB_XL" => 
-	{
-		"TV" => $PAL,
-		"SCANDOUBLE" => 0,
-		"VIDEO" => $RGB,
-		"COMPOSITE_SYNC" => 1,
-		"SYSTEM" => $XL
+		"COMPOSITE_SYNC" => 1
 	},
 	"PAL_RGBHV" => 
 	{
 		"TV" => $PAL,
 		"SCANDOUBLE" => 0,
 		"VIDEO" => $RGB,
-		"COMPOSITE_SYNC" => 0,
-		"SYSTEM" => $XL
+		"COMPOSITE_SYNC" => 0
 	},
 	"PAL_VGA" =>
 	{
 		"TV" => $PAL,
 		"SCANDOUBLE" => 1,
 		"VIDEO" => $VGA,
-		"COMPOSITE_SYNC" => 0,
-		"SYSTEM" => $XL
+		"COMPOSITE_SYNC" => 0
 	},
 	"PAL_VGA_CS" =>
 	{
 		"TV" => $PAL,
 		"SCANDOUBLE" => 1,
 		"VIDEO" => $VGA,
-		"COMPOSITE_SYNC" => 1,
-		"SYSTEM" => $XL
+		"COMPOSITE_SYNC" => 1
 	},
 	"NTSC_RGB" =>
 	{
 		"TV" => $NTSC,
 		"SCANDOUBLE" => 0,
 		"VIDEO" => $RGB, 
-		"COMPOSITE_SYNC" => 1,
-		"SYSTEM" => $XL
+		"COMPOSITE_SYNC" => 1
 	},
 	"NTSC_RGBHV" =>
 	{
 		"TV" => $NTSC,
 		"SCANDOUBLE" => 0,
 		"VIDEO" => $RGB, 
-		"COMPOSITE_SYNC" => 0,
-		"SYSTEM" => $XL
+		"COMPOSITE_SYNC" => 0
 	},
 	"NTSC_VGA" => 
 	{
 		"TV" => $NTSC,
 		"SCANDOUBLE" => 1,
 		"VIDEO" => $VGA,
-		"COMPOSITE_SYNC" => 0,
-		"SYSTEM" => $XL
+		"COMPOSITE_SYNC" => 0
 	},
 	"NTSC_VGA_CS" => 
 	{
 		"TV" => $NTSC,
 		"SCANDOUBLE" => 1,
 		"VIDEO" => $VGA,
-		"COMPOSITE_SYNC" => 1,
-		"SYSTEM" => $XL
+		"COMPOSITE_SYNC" => 1
 	}
 );
 
@@ -119,7 +100,8 @@ foreach my $variant (sort keys %variants)
 	`mkdir $dir/common/components`;
 	`mkdir $dir/common/zpu`;
 	`cp ../common/a8core/* ./$dir/common/a8core`;
-	`cp ../common/components/* ./$dir/common/components`;
+	`cp -r ../common/components/* ./$dir/common/components`;
+	`mv ./$dir/common/components/*cyclone3/* ./$dir/common/components/`;
 	`cp ../common/zpu/* ./$dir/common/zpu`;
 
 	chdir $dir;
