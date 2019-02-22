@@ -126,20 +126,22 @@ module switch()
 
 module power_in()
 {
-    color("black")
     difference()
     {
     union()
-    {
+    {        
+    color("grey") 
     translate([0,1.5,10.5/2])
     cube([9,3,10.5],center=true);        
+    color("grey")        
     translate([0,0,6])
-    rotate([-90,0,0])
+    rotate([-90,0,0])        
     cylinder(h=13,r=4,center=false);  
+    color("grey")        
     translate([0,13/2,8/2])
     cube([8,13,6],center=true);         
     }
-    translate([0,0,6])
+    translate([0,-0.01,6])
     rotate([-90,0,0])
     cylinder(h=12,r=3,center=false);
     }
