@@ -9,13 +9,13 @@ basey=-casemain.y/2+4;
 spacing=3;
 
 //cartholesize=[86,27,10];
-cartholesize=[66,24,21];
-cartholesizebig=[66+3,27+3,20];
+cartholesize=[74,24,24];
+cartholesizebig=[74+3,27+3,20];
 cartholeloc=[cart_loc.x+basex,basey+cart_loc.y,casemain.z/2-9];
 
 pbiholesize=[85,5,16];
-pbiholesizebig=[85+3,4,16+3]; 
-pbiholeloc=[171+basex,basey+58,casemain.z/2-25];
+pbiholesizebig=[85+3,1.5,16+3]; 
+pbiholeloc=[173.5+basex,basey+58,casemain.z/2-25];
 
 sioholesize=[32+spacing,8,14+spacing];
 sioholeloc=[basex+sio_loc.x,basey,1];
@@ -30,7 +30,7 @@ sdholeloc=[basex+sdcard_loc.x,basey2,-5];
 sdholesize=[27+spacing,14,3+spacing];
 
 usb1loc=[basex+vertusb1_loc.x,basey2,1];
-usb1size=[6+spacing,14,15+spacing];
+usb1size=[6+spacing-1.5,14,15+spacing];
 
 usb2loc=[basex+vertusb2_loc.x,basey2,1];
 
@@ -38,15 +38,15 @@ jackloc=[basex+jack_loc.x+1,basey2,1.5];
 jackrad=3+spacing/2;
 
 vgaloc=[basex+db15_loc.x,basey2,0];
-vgasize=[30.5+spacing,14,12+spacing];
+vgasize=[30.5+spacing-1,14,12+spacing];
 
 vidloc=[basex+hdmi_loc.x,basey2,-3];
-vidsize=[14+spacing+1,14,5.5+spacing+1];
+vidsize=[14+spacing,14,5.5+spacing+1];
 
 swloc=[basex+switch_loc.x,basey2,1];
-swsize=[10+spacing,14,18+spacing];
+swsize=[10+spacing-2,14,18+spacing];
 
-powloc=[basex+power_loc.x+1,basey2,0];
+powloc=[basex+power_loc.x,basey2,0];
 powrad=3.5+spacing/2;
 
 module caseremove(casemain)
@@ -169,6 +169,9 @@ module pbisurround()
 
 module portholes()
 {
+    translate([0,0,1.5])
+    union()
+    {
         //cart hole
         translate(cartholeloc)
         rotate([0,0,90])
@@ -196,12 +199,17 @@ module portholes()
         //usb hole
         translate(usb1loc)
         rotate([0,0,180])
-        portcube(usb1size,center=true);
-
+        portcube(usb1size,center=true);           
+        
         translate(usb2loc)
         rotate([0,0,180])
         portcube(usb1size,center=true);
-    
+            
+        /*translate((usb1loc+usb2loc)/2)
+        rotate([0,0,180])
+        scale([1,1,0.9])
+        portcube(usb1size,center=true);*/       
+        
         // jack
         color("red")
         translate(jackloc)
@@ -234,6 +242,7 @@ module portholes()
         translate(pbiholeloc)
         rotate([0,00,90])
         portcube(pbiholesize,center=true);    
+    }
 }
 
 module lowerscrewmain()
@@ -286,7 +295,7 @@ module lowerscrews()
 
 module upperscrew(hl)
 {
-    screwheightt=24.5;
+    screwheightt=24;
     
     filletradout=5/2;
     filleth=4;
@@ -297,7 +306,7 @@ module upperscrew(hl)
     
     heath=5.25;
 
-    translate([holes[hl].x,holes[hl].y,+board.z])    
+    translate([holes[hl].x,holes[hl].y,+board.z+0.5])    
     rotate_extrude() difference()
         {
             polygon( 
@@ -467,9 +476,10 @@ union()
 }
 
 $fn=40;
-//tophalf();
+tophalf();
 bottomhalf();
-//board();
+translate([0,0,1.5])
+board();
 
 //projection(cut=true)
 //translate([0,0,-10])
