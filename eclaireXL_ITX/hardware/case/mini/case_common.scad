@@ -1,5 +1,6 @@
 include <board.scad>;
 
+texton=false;
 thickness=1.2;
 casespace=6;
 casexexpand=2; //extra space to fit board easily
@@ -130,9 +131,49 @@ module case(casemain)
 module hollowcase()
 {
     // a hollow case!
+    if (texton)
+    {
     translate([10+-casemain.x/2,10+-casemain.y/2,casemain.z/2])
       linear_extrude(height=1.5,center=false)
        text("EclaireXL", font = "Liberation Sans:style=Bold Italic", size=14, spacing=1.05);
+    
+    color("black")
+    translate([14-casemain.x/2,-casemain.y/2,-10])    
+    union()
+    {
+    translate([db9_loc1.x,0,0])
+        rotate([90,0,0])    
+      linear_extrude(height=1,center=false)
+       text("4", font = "Liberation Sans:style=Bold Italic", size=3, spacing=1.05);    
+    translate([db9_loc2.x,0,0])
+        rotate([90,0,0])    
+      linear_extrude(height=1,center=false)
+       text("3", font = "Liberation Sans:style=Bold Italic", size=3, spacing=1.05);    
+    translate([db9_loc3.x,0,0])
+        rotate([90,0,0])    
+      linear_extrude(height=1,center=false)
+       text("2", font = "Liberation Sans:style=Bold Italic", size=3, spacing=1.05);    
+    translate([db9_loc4.x,0,0])
+        rotate([90,0,0])    
+      linear_extrude(height=1,center=false)
+       text("1", font = "Liberation Sans:style=Bold Italic", size=3, spacing=1.05);    
+    }
+    }
+
+    color("red")
+    translate([-4,casemain.y/2,-9])   
+    union()
+    {
+    translate([powloc.x,0,0])
+        rotate([-90,180,0])    
+      linear_extrude(height=1,center=false)
+        text("5V (+)-", font = "Liberation Sans:style=Bold Italic", size=3.2, spacing=1.05,valign="center",halign="center");
+
+    translate([vgaloc.x,0,0])
+        rotate([-90,180,0])    
+      linear_extrude(height=1,center=false)
+        text("VGA", font = "Liberation Sans:style=Bold Italic", size=3.2, spacing=1.05,valign="center",halign="center");
+    }    
 
     difference()
     {
@@ -483,6 +524,9 @@ union()
 }
 
 $fn=40;
+texton=true;
+//$fn=10;
+//texton=false;
 tophalf();
 bottomhalf();
 translate([0,0,1.5])
