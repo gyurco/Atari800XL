@@ -361,8 +361,8 @@ module vent()
 module vents()
 {
     ventspace=8;
-    translate([75,45,0])
-    for (i=[1:16])
+    translate([74+casexexpand/2,45,0])
+    for (i=[1:(16+casexexpand/ventspace)])
     {
         translate([-i*ventspace,00])
         vent();
