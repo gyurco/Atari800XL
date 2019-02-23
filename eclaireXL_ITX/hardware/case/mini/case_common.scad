@@ -2,20 +2,22 @@ include <board.scad>;
 
 thickness=1.2;
 casespace=6;
-casemain = [board.x+casespace+10+4,board.y+casespace,40];
+casexexpand=2; //extra space to fit board easily
+//casexexpand=2+30; //for pbi adaptor on early revisions
+casemain = [board.x+casespace+10+4+casexexpand,board.y+casespace,40];
 
 basex=-db9_loc1.x-18.5; 
 basey=-casemain.y/2+4;
 spacing=3;
 
 //cartholesize=[86,27,10];
-cartholesize=[74,24,24];
+cartholesize=[74,24,21];
 cartholesizebig=[74+3,27+3,20];
-cartholeloc=[cart_loc.x+basex,basey+cart_loc.y,casemain.z/2-9];
+cartholeloc=[cart_loc.x+basex-casexexpand/2,basey+cart_loc.y,casemain.z/2-9];
 
-pbiholesize=[85,5,16];
-pbiholesizebig=[85+3,1.5,16+3]; 
-pbiholeloc=[173.5+basex,basey+58,casemain.z/2-25];
+pbiholesize=[85,5+casexexpand,16];
+pbiholesizebig=[85+3,1.5+casexexpand,16+3]; 
+pbiholeloc=[casemain.x-95.5-casexexpand,basey+58,casemain.z/2-25];
 
 sioholesize=[32+spacing,8,14+spacing];
 sioholeloc=[basex+sio_loc.x,basey,1];
@@ -169,14 +171,11 @@ module pbisurround()
 
 module portholes()
 {
-    translate([0,0,1.5])
     union()
     {
-        //cart hole
-        translate(cartholeloc)
-        rotate([0,0,90])
-        portcube(cartholesize,center=true);
-        
+    translate([-casexexpand/2,0,1.5])
+    union()
+    {
         //sio hole
         translate(sioholeloc)
         portcube(sioholesize,center=true); 
@@ -236,12 +235,20 @@ module portholes()
         translate(powloc)
         rotate([90,0,180])
         cylinder(r=powrad,h=20,center=true);      
-        
+    }
+    union()
+    {       
         // pbi hole  
         color("black")
         translate(pbiholeloc)
         rotate([0,00,90])
         portcube(pbiholesize,center=true);    
+        
+        //cart hole
+        translate(cartholeloc)
+        rotate([0,0,90])
+        portcube(cartholesize,center=true);               
+    }
     }
 }
 
@@ -281,7 +288,7 @@ module lowerscrew(hl)
                 [screwradin,0]
             ] );
             translate([screwradout+5,5,0])
-            circle(r=5,center=true);
+            circle(r=5);
         }    
 }
 
@@ -321,7 +328,7 @@ module upperscrew(hl)
                 [headradout,screwheightt-filleth]
             ] );
             translate([5+headradout,screwheightt-5,0])
-            circle(r=5,center=true);
+            circle(r=5);
         }
 }
 
@@ -341,7 +348,7 @@ module wallslice()
     intersection()
     {
         hollowcase();
-        translate([0,0,65]) cube([200,200,100], center=true);
+        translate([0,0,65]) cube([1000,200,100], center=true);
     }
 }
 
@@ -405,11 +412,11 @@ union()
                 {
                     hollowcase();
                     translate([0,0,65])
-                    cube([200,200,100], center=true);
+                    cube([1000,200,100], center=true);
                 };
                 pbisurround();
                 //cartsurround();
-            }      
+            }              
             portholes(); 
         }
         lowerscrewmain();
@@ -439,7 +446,7 @@ union()
                 intersection()
                 {
                     hollowcase();
-                    translate([0,0,65]) cube([200,200,100], center=true);
+                    translate([0,0,65]) cube([1000,200,100], center=true);
                 }                
                 
                 difference()
@@ -480,6 +487,10 @@ tophalf();
 bottomhalf();
 translate([0,0,1.5])
 board();
+
+/*translate([casemain.x/2-16,casemain.y/2-4,6])
+translate([0,0,120])
+portholes();*/
 
 //projection(cut=true)
 //translate([0,0,-10])
