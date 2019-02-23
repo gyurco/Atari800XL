@@ -46,8 +46,8 @@ vgasize=[30.5+spacing-1,14,12+spacing];
 vidloc=[basex+hdmi_loc.x,basey2,-3];
 vidsize=[14+spacing,14,5.5+spacing+1];
 
-swloc=[basex+switch_loc.x,basey2,1];
-swsize=[10+spacing-2,14,18+spacing];
+swloc=[basex+switch_loc.x,basey2,3];
+swsize=[10+spacing-2,14,22+spacing];
 
 powloc=[basex+power_loc.x,basey2,0];
 powrad=3.5+spacing/2;
@@ -136,8 +136,8 @@ module hollowcase()
     translate([10+-casemain.x/2,10+-casemain.y/2,casemain.z/2])
       linear_extrude(height=1.5,center=false)
        text("EclaireXL", font = "Liberation Sans:style=Bold Italic", size=14, spacing=1.05);
-    
-    color("black")
+    }
+  /*  color("black")
     translate([14-casemain.x/2,-casemain.y/2,-10])    
     union()
     {
@@ -173,7 +173,7 @@ module hollowcase()
         rotate([-90,180,0])    
       linear_extrude(height=1,center=false)
         text("VGA", font = "Liberation Sans:style=Bold Italic", size=3.2, spacing=1.05,valign="center",halign="center");
-    }    
+    }*/    
 
     difference()
     {
@@ -257,6 +257,10 @@ module portholes()
         cylinder(r=jackrad,h=20,center=true);      
 
         // vga
+        translate(vgaloc+[0,0,10])
+        rotate([0,0,180])
+        portcube(vgasize,center=true); 
+        
         translate(vgaloc)
         rotate([0,0,180])
         portcube(vgasize,center=true);
@@ -505,9 +509,14 @@ union()
                 }
                 
                 cartsurround();
+                translate(vgaloc+[-1,thickness/2,12.5])
+                cube([31,thickness,8],center=true);                 
             }      
-            portholes(); 
             vents();
+            //cart hole
+            translate(cartholeloc)
+            rotate([0,0,90])
+            portcube(cartholesize,center=true);            
         }
     }
     difference()
@@ -523,8 +532,8 @@ union()
 }
 }
 
-$fn=40;
-texton=true;
+//$fn=40;
+//texton=true;
 //$fn=10;
 //texton=false;
 tophalf();
