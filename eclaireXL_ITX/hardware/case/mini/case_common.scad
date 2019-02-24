@@ -509,7 +509,7 @@ union()
                 }
                 
                 cartsurround();
-                translate(vgaloc+[-1,thickness/2,12.5])
+                translate(vgaloc+[-1,thickness+0.2,12.5])
                 cube([31,thickness,8],center=true);                 
             }      
             vents();
@@ -532,14 +532,14 @@ union()
 }
 }
 
-//$fn=40;
-//texton=true;
+$fn=40;
+texton=true;
 //$fn=10;
 //texton=false;
 tophalf();
-bottomhalf();
-translate([0,0,1.5])
-board();
+//bottomhalf();
+//translate([0,0,1.5])
+//board();
 
 /*translate([casemain.x/2-16,casemain.y/2-4,6])
 translate([0,0,120])
