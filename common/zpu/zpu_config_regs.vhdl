@@ -15,7 +15,8 @@ GENERIC
 (
 	platform : integer := 1; -- So ROM can detect which type of system...
 	spi_clock_div : integer := 4; -- Quite conservative by default - probably want to use 1 with 28MHz input clock, 2 for 57MHz input clock, 4 for 114MHz input clock etc
-	usb : integer :=0 -- USB host slave instances
+	usb : integer :=0; -- USB host slave instances
+	nMHz_clock_div : integer -- divide the nMHz clock by n to get 1MHz
 );
 PORT 
 ( 
@@ -69,6 +70,9 @@ PORT
 	-- CPU interface
 	DATA_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 	PAUSE_ZPU : out std_logic;
+
+	-- 1MHz clock (multiple)
+	CLK_nMHz : in std_logic;
 
 	-- USB host
 	CLK_USB : in std_logic;
@@ -207,12 +211,12 @@ ARCHITECTURE vhdl OF zpu_config_regs IS
 	signal i2c1_error  : std_logic;
 
 	-- Create 1MHz toggle from 48MHZ USB clock
-	signal usb_count_next : std_logic_vector(5 downto 0);
-	signal usb_count_reg : std_logic_vector(5 downto 0);
-	signal usb_toggle_next : std_logic;
-	signal usb_toggle_reg : std_logic;
-	signal usb_toggle_safe_reg : std_logic;
-	signal usb_toggle_safe_next : std_logic;
+	signal tick_count_next : std_logic_vector(7 downto 0);
+	signal tick_count_reg : std_logic_vector(7 downto 0);
+	signal tick_toggle_next : std_logic;
+	signal tick_toggle_reg : std_logic;
+	signal tick_toggle_safe_reg : std_logic;
+	signal tick_toggle_safe_next : std_logic;
 	signal tick_us : std_logic;
 
 	-- pokey style 17-bit LSFR, but faster
@@ -239,7 +243,7 @@ begin
 			timer_reg <= (others=>'0');
 			timer2_reg <= (others=>'0');
 			timer2_threshold_reg <= (others=>'0');
-			usb_toggle_safe_reg <= '0';
+			tick_toggle_safe_reg <= '0';
 
 			spi_dma_addr_reg <= (others=>'0');
 			spi_dma_addrend_reg <= (others=>'0');
@@ -269,7 +273,7 @@ begin
 			timer_reg <= timer_next;
 			timer2_reg <= timer2_next;
 			timer2_threshold_reg <= timer2_threshold_next;
-			usb_toggle_safe_reg <= usb_toggle_safe_next;
+			tick_toggle_safe_reg <= tick_toggle_safe_next;
 
 			spi_dma_addr_reg <= spi_dma_addr_next;
 			spi_dma_addrend_reg <= spi_dma_addrend_next;
@@ -284,43 +288,39 @@ begin
 		end if;
 	end process;
 
-	-- register (usb clock)
-	process(clk_usb,reset_n) -- TODO: Make something sensible for when there is no USB!
+	-- register (tick clk)
+	process(CLK_nMHz,reset_n) 
 	begin
 		if (reset_n='0') then
-			usb_count_reg <= (others=>'0');
-			usb_toggle_reg <= '0';
-		elsif (clk_usb'event and clk_usb='1') then	
-			usb_count_reg <= usb_count_next;
-			usb_toggle_reg <= usb_toggle_next;
+			tick_count_reg <= (others=>'0');
+			tick_toggle_reg <= '0';
+		elsif (CLK_nMHz'event and CLK_nMHz='1') then	
+			tick_count_reg <= tick_count_next;
+			tick_toggle_reg <= tick_toggle_next;
 		end if;
 	end process;
 
 	-- create exact 1MHz
-	process(usb_count_reg, usb_toggle_reg)
+	process(tick_count_reg, tick_toggle_reg)
 	begin
-		usb_count_next <= std_logic_vector(unsigned(usb_count_reg)-1);
-		usb_toggle_next <= usb_toggle_reg;
-		if (or_reduce(usb_count_reg)='0') then
-			usb_toggle_next <= not(usb_toggle_reg);
-			usb_count_next <= "101111";
+		tick_count_next <= std_logic_vector(unsigned(tick_count_reg)-1);
+		tick_toggle_next <= tick_toggle_reg;
+		if (or_reduce(tick_count_reg)='0') then
+			tick_toggle_next <= not(tick_toggle_reg);
+			tick_count_next <= std_logic_vector(to_unsigned(nMHz_clock_div-1,8));
 		end if;
 	end process;
 
-	usb_toggle_synchronizer : entity work.synchronizer
-		port map (clk=>clk, raw=>usb_toggle_reg, sync=>usb_toggle_safe_next);	
+	tick_toggle_synchronizer : entity work.synchronizer
+		port map (clk=>clk, raw=>tick_toggle_reg, sync=>tick_toggle_safe_next);	
 
-	process(usb_toggle_safe_reg, usb_toggle_safe_next)
+	process(tick_toggle_safe_reg, tick_toggle_safe_next)
 	begin
 		tick_us <= '0';
-		if (usb>0) then
-			if (usb_toggle_safe_reg = usb_toggle_safe_next) then
-				tick_us <= '0';
-			else
-				tick_us <= '1';
-			end if;
+		if (tick_toggle_safe_reg = tick_toggle_safe_next) then
+			tick_us <= '0';
 		else
-			report "Not implemented for non-USB boards (also see i2c master)" severity failure;
+			tick_us <= '1';
 		end if;
 	end process;	
 
@@ -378,6 +378,7 @@ begin
 	-- chip select
 
 
+	 -- TODO: Use real clk freq... Not that important since only used on eclaire for now anyway.
 	 i2c_master0 : entity work.i2c_master
 	 	generic map(input_clk=>58_000_000, bus_clk=>400_000)
 		port map (clk=>clk,reset_n=>reset_n,ena=>i2c0_write_reg,addr=>i2c0_write_data_reg(15 downto 9),rw=>i2c0_write_data_reg(8),data_wr=>i2c0_write_data_reg(7 downto 0),busy=>i2c0_busy_next,data_rd=>i2c0_read_data,ack_error=>i2c0_error,sda=>i2c0_sda,scl=>i2c0_scl);

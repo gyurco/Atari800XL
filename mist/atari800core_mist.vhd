@@ -627,7 +627,8 @@ zpu: entity work.zpucore
 	GENERIC MAP
 	(
 		platform => 1,
-		spi_clock_div => 16 -- 28MHz/2. Max for SD cards is 25MHz...
+		spi_clock_div => 16,	-- 28MHz/2. Max for SD cards is 25MHz...
+		nMHz_clock_div => 27
 	)
 	PORT MAP
 	(
@@ -652,6 +653,9 @@ zpu: entity work.zpucore
 		ZPU_ROM_DATA => zpu_rom_data,
 	
 		ZPU_ROM_WREN => open,
+
+		-- nmhz clock
+		CLK_nMHz => CLOCK_27(0),
 
 		-- spi master
 		ZPU_SPI_DI => mist_sd_sdo,
