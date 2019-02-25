@@ -872,7 +872,8 @@ zpu: entity work.zpucore
 		platform => 1,
 		spi_clock_div => 1, -- 28MHz/2. Max for SD cards is 25MHz...
 		memory => 8192,
-		usb => 1
+		usb => 1,
+		nMHz_clock_div => 48
 	)
 	PORT MAP
 	(
@@ -929,6 +930,7 @@ zpu: entity work.zpucore
 		ZPU_OUT5 => zpu_out5, --analog stick
 
 		-- USB host
+		CLK_nMHz => CLK_USB,
 		CLK_USB => CLK_USB,
 	
 		USBWireVPin(0) => USBWireVPin,
