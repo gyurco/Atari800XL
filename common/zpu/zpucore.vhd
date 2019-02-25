@@ -20,7 +20,8 @@ ENTITY zpucore IS
 		platform : integer := 1; -- So ROM can detect which type of system...
 		spi_clock_div : integer := 4;  -- see notes on zpu_config_regs
 		memory : integer := 4096; -- up to 32K allowed
-		usb : integer := 0
+		usb : integer := 0;
+		nMHz_clock_div : integer
 	);
 	PORT
 	(
@@ -84,6 +85,9 @@ ENTITY zpucore IS
 		ZPU_OUT4 : out std_logic_vector(31 downto 0);
 		ZPU_OUT5 : out std_logic_vector(31 downto 0);
 		ZPU_OUT6 : out std_logic_vector(31 downto 0);
+
+		-- nMHz clock, for timer. Divided by n before use.
+		CLK_nMHz : in std_logic;
 
 		-- USB host
 		CLK_USB : in std_logic := '0';
@@ -156,7 +160,8 @@ config_regs : entity work.zpu_config_regs
 GENERIC MAP (
 	platform => platform,
 	spi_clock_div => spi_clock_div,
-	usb => usb
+	usb => usb,
+	nmhz_clock_div => nmhz_clock_div
 )
 PORT MAP (
 	CLK => CLK,
@@ -208,6 +213,8 @@ PORT MAP (
 	
 	DATA_OUT => ZPU_CONFIG_DO,
 	PAUSE_ZPU => ZPU_PAUSE,
+
+	CLK_nMHz => CLK_nMHz,
 
 	CLK_USB => CLK_USB,
 	
