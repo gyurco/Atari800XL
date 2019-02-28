@@ -1075,7 +1075,8 @@ zpu: entity work.zpucore
 	GENERIC MAP
 	(
 		platform => 1, -- TODO
-		spi_clock_div => 16 -- 57MHz/32. Max for SD cards is 25MHz... TODO Same for DE1, too high??
+		spi_clock_div => 16, -- 57MHz/32. Max for SD cards is 25MHz... TODO Same for DE1, too high??
+		nMHz_clock_div => 8
 	)
 	PORT MAP
 	(
@@ -1123,6 +1124,9 @@ zpu: entity work.zpucore
 		ZPU_IN2 => X"00000000",
 		ZPU_IN3 => X"00000000",
 		ZPU_IN4 => X"00000000",
+
+		-- nMHz clock
+		CLK_nMHz => CLK8,
 
 		-- ouputs - e.g. Atari system control, halt, throttle, rom select
 		ZPU_OUT1 => zpu_out1,
