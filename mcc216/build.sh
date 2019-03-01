@@ -100,7 +100,7 @@ foreach my $variant (sort keys %variants)
 	`cp ../mcc_common/*remote_update*.* $dir`;
 	`cp ../mcc_common/*delayed_reconfig*.* $dir`;
 	`cp sdram_ctrl_3_ports.v $dir`;
-	`cp zpu_rom.vhdl $dir`;
+	`cp zpu_rom* $dir`;
 	`cp atari800core.sdc $dir`;
 	`mkdir $dir/common`;
 	`mkdir $dir/common/a8core`;

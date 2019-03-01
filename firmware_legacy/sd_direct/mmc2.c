@@ -11,8 +11,8 @@
 /* Platform dependent macros and functions needed to be modified           */
 /*-------------------------------------------------------------------------*/
 
-#define SELECT() mmcChipSelect(1)
-#define	DESELECT() mmcChipSelect(0)
+#define SELECT() mmcChipSelect()
+#define	DESELECT() mmcChipDeselect()
 
 unsigned char mmc_sector_buffer[512];
 

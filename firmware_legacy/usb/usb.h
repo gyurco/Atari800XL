@@ -33,7 +33,7 @@ typedef struct {
   };
 } ep_t;
 
-#define USB_NUMDEVICES 16      // number of supported USB devices
+#define USB_NUMDEVICES 8      // number of supported USB devices
 
 /* Common setup data constant combinations  */
 #define USB_REQ_GET_DESCR     USB_SETUP_DEVICE_TO_HOST|USB_SETUP_TYPE_STANDARD|USB_SETUP_RECIPIENT_DEVICE     //get descriptor request type

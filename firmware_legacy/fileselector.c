@@ -8,17 +8,45 @@
 extern int debug_pos; // ARG!
 extern int debug_adjust; // ARG!
 extern char USER_DIR[];
+unsigned char sd_present=1; //TODO
+
 
 // TODO!
 #define MAX_PATH_LENGTH (9*5 + 8+3+1 + 1) 
 
 int (* filter)(struct SimpleDirEntry * entry);
 
+static unsigned char filter_keys[6];
+
+int filter_ascii(struct SimpleDirEntry * entry)
+{
+	int i;
+	int keynum = 0;
+	char const * f = dir_filename(entry);
+
+	for(;*f!=0;++f)
+	{
+		unsigned char key = *f;
+
+		if (filter_keys[keynum] == 0)
+			return filter(entry);
+
+		if (key>='a' && key<='z')
+		{
+			key=key-'a'+'A';
+		}
+
+		if (filter_keys[keynum] == key)
+			keynum = keynum+1;
+	}
+	return 0;
+}
+
 int filter_disks(struct SimpleDirEntry * entry)
 {
 	if (dir_is_subdir(entry)) return 1;
 	char const * f = dir_filename(entry);
-	int res = (compare_ext(f,"ATR") || compare_ext(f,"XFD") || compare_ext(f,"XEX"));
+	int res = (compare_ext(f,"ATR") || compare_ext(f,"XFD") || compare_ext(f,"XEX") || compare_ext(f,"ATX"));
 	//printf("filter_disks:%s:%d\n",f,res);
 	return res;
 }
@@ -28,6 +56,7 @@ char const * fil_type_rom;
 char const * fil_type_bin;
 char const * fil_type_car;
 char const * fil_type_mem;
+char const * fil_type_rpd;
 int filter_specified(struct SimpleDirEntry * entry)
 {
 	if (dir_is_subdir(entry)) return 1;
@@ -39,7 +68,14 @@ void dir_of(char * dir, char const * path); // TODO - into simpledir
 
 void file_selector(struct SimpleFile * file)
 {
+	int filter_key = 0;
+
 	char dir[MAX_PATH_LENGTH];
+	if (!sd_present)
+		return;
+
+	memset8(&filter_keys[0],0,6);
+
 	if (file_name(file)[0] == '\0')
 	{
 		strcpy(&dir[0],USER_DIR);
@@ -53,7 +89,7 @@ void file_selector(struct SimpleFile * file)
 	joy.x_ = joy.y_ = joy.fire_ = joy.escape_ = 0;
 	for (;!joy.escape_;)
 	{
-		struct SimpleDirEntry * entry = dir_entries_filtered(dir,filter);
+		struct SimpleDirEntry * entry = dir_entries_filtered(dir,filter_ascii);
 
 		// Count how many we have
 		int entries = 0;
@@ -110,10 +146,10 @@ void file_selector(struct SimpleFile * file)
 				// output the new entries
 				int line;
 				debug_pos = 0;
-				debug_adjust = 0;
-				printf("Choose ");
 				debug_adjust = 128;
-				printf("file");
+				printf("choose ");
+				debug_adjust = 0;
+				printf("file  %s", (unsigned char *)filter_keys);
 				debug_pos = 40;
 				int end = 22*40;
 				for (;;)
@@ -162,6 +198,29 @@ void file_selector(struct SimpleFile * file)
 			// move
 			joystick_wait(&joy,WAIT_QUIET);
 			joystick_wait(&joy,WAIT_EITHER);
+			if (joy.keyPressed_==-1)
+			{
+				filter_key = filter_key-1;
+				if (filter_key<0)
+				{
+					filter_key = 0;
+				}
+				filter_keys[filter_key] = 0;
+				break;
+			}
+			else if (joy.keyPressed_ > 0) 
+			{
+				if (filter_key==5)
+				{
+					memset8(&filter_keys[0],0,6);
+					filter_key = 0;
+				}
+				else
+				{
+					filter_keys[filter_key++] = joy.keyPressed_;
+				}
+				break;
+			}
 			if (joy.escape_) break;
 			
 			if (joy.fire_)

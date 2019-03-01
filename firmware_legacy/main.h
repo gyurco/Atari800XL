@@ -79,18 +79,27 @@ BIT_REG(,0x1,0,pause_6502,zpu_out1)
 BIT_REG(,0x1,1,reset_6502,zpu_out1)
 BIT_REG(,0x3f,2,turbo_6502,zpu_out1)
 BIT_REG(,0x7,8,ram_select,zpu_out1)
+BIT_REG(,0x1,11,atari800mode,zpu_out1)
 //BIT_REG(,0x3f,11,rom_select,zpu_out1)
 BIT_REG(,0x3f,17,cart_select,zpu_out1)
 // reserve 2 bits for extending cart_select
 BIT_REG(,0x01,25,freezer_enable,zpu_out1)
+BIT_REG(,0x03,26,key_type,zpu_out1) // ansi,iso,custom1,custom2
+BIT_REG(,0x07,28,turbo_drive,zpu_out1) 
+
+BIT_REG(,0x07,0,video,zpu_out6)
+BIT_REG(,0x01,4,tv,zpu_out6)
+BIT_REG(,0x01,5,scanlines,zpu_out6)
+BIT_REG(,0x01,6,csync,zpu_out6)
 
 BIT_REG_RO(,0x1,8,hotkey_softboot,zpu_in1)
 BIT_REG_RO(,0x1,9,hotkey_coldboot,zpu_in1)
-BIT_REG_RO(,0x1,10,hotkey_fileselect,zpu_in1)
-BIT_REG_RO(,0x1,11,hotkey_settings,zpu_in1)
+BIT_REG_RO(,0x1,10,hotkey_settings,zpu_in1)
+BIT_REG_RO(,0x1,11,hotkey_fileselect,zpu_in1)
 
 BIT_REG_RO(,0x3f,12,controls,zpu_in1) // (esc)FLRDU
-
+BIT_REG_RO(,0x1,18,sd_detect,zpu_in1) // sd_detect
+BIT_REG_RO(,0x1,19,sd_writeprotect,zpu_in1) // sd_writeprotect
 
 void
 wait_us(int unsigned num)
@@ -220,7 +229,7 @@ struct SimpleFile * files[NUM_FILES];
 
 void loadromfile(struct SimpleFile * file, int size, size_t ram_address)
 {
-	void* absolute_ram_address = SDRAM_BASE + ram_address;
+	void* absolute_ram_address = ROM_BASE + ram_address;
 	int read = 0;
 	file_read(file, absolute_ram_address, size, &read);
 }
