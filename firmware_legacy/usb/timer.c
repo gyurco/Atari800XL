@@ -24,7 +24,3 @@ msec_t timer_get_msec() {
 }
 #endif
 
-void timer_delay_msec(msec_t t) {
-	int y = t;
-	wait_us(y<<10);
-}
