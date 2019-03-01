@@ -62,7 +62,8 @@ void usb_init(struct usb_host * host, int portnumber) {
   host->delay = 0;
 
   USBHOSTSLAVE_WRITE(OHS900_HOSTSLAVECTLREG, OHS900_HSCTLREG_RESET_CORE);
-  timer_delay_msec(1);
+ // timer_delay_msec(1);
+  wait_us(1000);
   USBHOSTSLAVE_WRITE(OHS900_TXLINECTLREG, 0);
   USBHOSTSLAVE_WRITE(OHS900_HOSTSLAVECTLREG, OHS900_HS_CTL_INIT);
   USBHOSTSLAVE_WRITE(OHS900_SOFENREG, 0);
