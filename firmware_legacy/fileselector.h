@@ -8,6 +8,7 @@ extern char const * fil_type_rom;
 extern char const * fil_type_bin;
 extern char const * fil_type_car;
 extern char const * fil_type_mem;
+extern char const * fil_type_rpd;
 int filter_specified(struct SimpleDirEntry * entry);
 
 extern int (* filter)(struct SimpleDirEntry * entry);

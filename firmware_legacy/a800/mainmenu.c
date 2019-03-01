@@ -71,6 +71,18 @@ void test_ram()
 }
 */
 
+/*
+void test_display()
+{
+	int o=0;
+	for (;;++o)
+	{
+		*atari_colbk = o;
+		wait_us(200);
+	}
+}
+*/
+
 void mainmenu()
 {
 #ifdef USB

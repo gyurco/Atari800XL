@@ -5,6 +5,7 @@
 #include "diskio.h"
 #include "simplefile.h"
 //#include "printf.h"
+#include "regs.h"
 
 struct SimpleFile * openfile;
 
@@ -86,7 +87,9 @@ void file_check_open(struct SimpleFile * file)
 	{
 		file_write_flush();
 
+		*zpu_uart_debug2=0x83;
 		pf_open(&file->path[0]);
+		*zpu_uart_debug2=0x93;
 		openfile = file;
 	}
 }
@@ -180,12 +183,21 @@ enum SimpleFileStatus file_seek(struct SimpleFile * file, int offsetFromStart)
 	if (write_pending >=0 && write_pending != offsetFromStart)
 	{
 		//printf("flush on seek\n");
+		*zpu_uart_debug2 = 0x43;
+		*zpu_uart_debug3 = write_pending;
 		file_write_flush();
 	}
 
+	*zpu_uart_debug2 = 0x53;
+
 	file_check_open(file);
 
+	*zpu_uart_debug2 = 0x63;
+
 	res = pf_lseek(offsetFromStart);
+
+	*zpu_uart_debug2 = 0x73;
+
 	return translateStatus(res);
 }
 

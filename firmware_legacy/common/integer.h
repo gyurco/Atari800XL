@@ -39,9 +39,12 @@ typedef unsigned int u32;
 typedef unsigned int uint32_t;
 
 typedef uint8_t bool;
+typedef uint8_t BOOL;
 #define false (0)
+#define FALSE (0)
 #define NULL (0)
 #define true (1)
+#define TRUE (1)
 
 #endif
 

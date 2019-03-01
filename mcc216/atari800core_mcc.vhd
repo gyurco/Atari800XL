@@ -1045,7 +1045,7 @@ zpu: entity work.zpucore
 	freezer_enable <= zpu_out1(25);
 	key_type <= zpu_out1(26);
 
-zpu_rom1: entity work.zpu_rom
+	zpu_rom1: entity work.zpu_rom
 	port map(
 	        clock => clk,
 	        address => zpu_addr_rom(14 downto 2),

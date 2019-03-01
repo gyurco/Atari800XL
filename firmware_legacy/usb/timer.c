@@ -19,11 +19,12 @@ msec_t timer_get_msec() {
 #else
 msec_t timer_get_msec() {
 	int res = *zpu_timer;
+	res = res >> 10; // Divide by 1024, good enough for here!
 	return res;
 }
 #endif
 
 void timer_delay_msec(msec_t t) {
 	int y = t;
-	wait_us(y*1000);
+	wait_us(y<<10);
 }
