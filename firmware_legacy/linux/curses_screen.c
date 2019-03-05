@@ -15,6 +15,8 @@ static attr_t atari_inverse_color;
 static attr_t status_color;
 static attr_t log_color;
 
+int ps2Pressed = 0;
+
 int init_curses_screen(void)
 {
 	int height;
@@ -131,6 +133,8 @@ void check_keys(void)
 			*zpu_in1 = 1<<11; return;
 		case KEY_F(11):
 			*zpu_in1 = 1<<10; return;
+		default:
+			*zpu_in1 = 0; return;
 		}
 	}
 }

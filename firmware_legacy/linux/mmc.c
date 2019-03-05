@@ -27,6 +27,7 @@ void mmcInit(void)
 	disk_image = fopen(sdcard_filename,"r+");
 	if (!disk_image) {
 		LOG("cannot open %s\n", sdcard_filename);
+		perror(0);
 	} else {
 		LOG("opened sdcard %s\n", sdcard_filename);
 	}
