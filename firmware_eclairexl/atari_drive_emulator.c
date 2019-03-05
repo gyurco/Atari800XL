@@ -259,6 +259,7 @@ void set_drive_status(int driveNumber, struct SimpleFile * file)
 		atr_header.wSecSize = 0x80;
 		atr_header.btFlags |= file_readonly(file);
 	}
+#ifdef ATX
 	else if (atx == 1)
 	{
 		int i;
@@ -277,6 +278,7 @@ void set_drive_status(int driveNumber, struct SimpleFile * file)
 		gAtxFile = file;
 		sectorSize = loadAtxFile(0);
 	}
+#endif
 	else if (atr_header.wMagic == 0xFFFF) // XEX
 	{
 		int i;
@@ -763,6 +765,7 @@ set_number_of_sectors_to_buffer_1_2:
 
 		action->bytes = XEX_SECTOR_SIZE;
 	}
+#ifdef ATX
 	else if (custom_loader==2)
 	{
 		gAtxFile = file;
@@ -775,6 +778,7 @@ set_number_of_sectors_to_buffer_1_2:
 		// Are existing default delays workable or do they need removing?
 		// What if put into drive 3/4? Boom?
 	}
+#endif
 	else
 	{
 		location = offset;
