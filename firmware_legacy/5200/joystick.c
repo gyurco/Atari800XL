@@ -17,6 +17,8 @@ extern struct usb_host usb_porta;
 extern struct usb_host usb_portb;
 #endif
 
+int ps2Pressed;
+
 unsigned char pot0;
 unsigned char pot1;
 unsigned char pot2;
@@ -26,6 +28,8 @@ void joystick_poll(struct joystick_status * status)
 	status->x_ = 0;
 	status->y_ = 0;
 	status->fire_ = 0;
+	status->escape_ = 0;
+	status->keyPressed_ = 0;
 
 #ifdef USB
 	usb_poll(&usb_porta);
