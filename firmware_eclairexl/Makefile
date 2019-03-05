@@ -156,7 +156,7 @@ LINUXSIM_5200_OBJ	= $(patsubst %.c,$(LINUXSIM_5200_BUILD_DIR)/%.o,$(LINUXSIM_520
 #ZPUOPTS= -mno-poppcrel -mno-pushspadd -mno-callpcrel -mno-shortop -mno-neg # No-neg requires bugfixed toolchain
 #Include everything -> need to include emulation rom...
 ZPUOPTS =
-CFLAGS  = -I. -Ispiflash -Ividi2c -Iclkgen -Ipll -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX -DMAX_RAM_SELECT_XL=6 -DMAX_RAM_SELECT_800=4
+CFLAGS  = -I. -Ispiflash -Ividi2c -Iclkgen -Ipll -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX -DMAX_RAM_SELECT_XL=6 -DMAX_RAM_SELECT_800=4 -DATX
 CFLAGS_AEON  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Iaeon_lite -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX -DMAX_RAM_SELECT_XL=5
 CFLAGS_PAPILIODUO  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Ipapilioduo -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX -DMAX_RAM_SELECT_XL=3
 
