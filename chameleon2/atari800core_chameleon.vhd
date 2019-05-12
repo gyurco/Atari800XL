@@ -1134,5 +1134,28 @@ chameleon_io_inst : entity work.chameleon2_io
 		led_red => not(zpu_sio_txd)
 	);
 
+usb : entity work.chameleon_usb
+	port map (
+		clk => clk_sdram,
+		
+		req => open,
+		we => open,
+		a => open,
+		q => open,
+		
+		reconfig => reconfig_reg,
+		reconfig_slot => "0000",
+		
+		flashslot => open, -- I guess I can use this for where to read/write flash data from/to?
+		
+		-- talk to microcontroller
+		serial_clk => usart_clk,
+		serial_rxd => usart_tx,
+		serial_txd => usart_rx,
+		serial_cts_n => usart_rts,
+		
+		serial_debug_trigger => open,
+		serial_debug_data => open
+	);
 
 end vhdl;
