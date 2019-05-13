@@ -69,6 +69,8 @@ ENTITY atari800core_simple_sdram is
 		-- JOYSTICK
 		JOY1_n : IN std_logic_vector(4 downto 0); -- FRLDU, 0=pressed
 		JOY2_n : IN std_logic_vector(4 downto 0); -- FRLDU, 0=pressed
+		JOY3_n : IN std_logic_vector(4 downto 0) :="11111"; -- FRLDU, 0=pressed
+		JOY4_n : IN std_logic_vector(4 downto 0) :="11111"; -- FRLDU, 0=pressed
 		PADDLE0 : IN signed(7 downto 0) := to_signed(-128,8);
 		PADDLE1 : IN signed(7 downto 0) := to_signed(-128,8);
 		PADDLE2 : IN signed(7 downto 0) := to_signed(-128,8);
@@ -149,7 +151,8 @@ ENTITY atari800core_simple_sdram is
 		THROTTLE_COUNT_6502 : in std_logic_vector(5 downto 0); -- standard speed is cycle_length-1
 		emulated_cartridge_select: in std_logic_vector(5 downto 0);
 		freezer_enable: in std_logic := '0';
-		freezer_activate: in std_logic := '0'
+		freezer_activate: in std_logic := '0';
+		atari800mode: in std_logic := '0'
 	);
 end atari800core_simple_sdram;
 
@@ -168,7 +171,7 @@ ARCHITECTURE vhdl OF atari800core_simple_sdram IS
 	SIGNAL	PORTA_DIR_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL	PORTB_IN :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL	PORTB_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-	--SIGNAL	PORTB_DIR_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+	SIGNAL	PORTB_DIR_OUT :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 	
 	-- GTIA
 	signal GTIA_TRIG : std_logic_vector(3 downto 0);
@@ -208,13 +211,13 @@ CA2_IN <= CA2_OUT when CA2_DIR_OUT='1' else '1';
 CB2_IN <= CB2_OUT when CB2_DIR_OUT='1' else '1';
 SIO_COMMAND <= CB2_OUT;
 PORTA_IN <= ((JOY2_n(3)&JOY2_n(2)&JOY2_n(1)&JOY2_n(0)&JOY1_n(3)&JOY1_n(2)&JOY1_n(1)&JOY1_n(0)) and not (porta_dir_out)) or (porta_dir_out and porta_out);
-PORTB_IN <= PORTB_OUT;
+PORTB_IN <= ((JOY4_n(3)&JOY4_n(2)&JOY4_n(1)&JOY4_n(0)&JOY3_n(3)&JOY3_n(2)&JOY3_n(1)&JOY3_n(0)) and not (portb_dir_out)) or (portb_dir_out and portb_out and (JOY4_n(3)&JOY4_n(2)&JOY4_n(1)&JOY4_n(0)&JOY3_n(3)&JOY3_n(2)&JOY3_n(1)&JOY3_n(0)));
 
 -- ANTIC lightpen
 ANTIC_LIGHTPEN <= JOY2_n(4) and JOY1_n(4);
 
 -- GTIA triggers
-GTIA_TRIG <= "11"&JOY2_n(4)&JOY1_n(4);
+GTIA_TRIG <= JOY4_n(4)&JOY3_n(4)&JOY2_n(4)&JOY1_n(4);
 
 -- Since we're not exposing PBI, expose a few key parts needed for SDRAM
 SDRAM_DI <= PBI_WRITE_DATA;
@@ -353,7 +356,7 @@ atari800xl : entity work.atari800core
 		PORTA_DIR_OUT => PORTA_DIR_OUT,
 		PORTA_OUT => PORTA_OUT,
 		PORTB_IN => PORTB_IN,
-		PORTB_DIR_OUT => open,--PORTB_DIR_OUT,
+		PORTB_DIR_OUT => PORTB_DIR_OUT,
 		PORTB_OUT => PORTB_OUT,
 
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
@@ -429,7 +432,8 @@ atari800xl : entity work.atari800core
 		THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
 		HALT => HALT,
 		freezer_enable => freezer_enable,
-		freezer_activate => freezer_activate
+		freezer_activate => freezer_activate,
+		atari800mode => atari800mode
 	);
 
 end vhdl;
