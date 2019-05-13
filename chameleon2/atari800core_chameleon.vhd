@@ -14,13 +14,10 @@ use IEEE.STD_LOGIC_MISC.all;
 LIBRARY work;
 
 entity atari800core_chameleon is
-GENERIC
-(
-	TV : integer;  -- 1 = PAL, 0=NTSC
-	VIDEO : integer; -- 1 = RGB, 2 = VGA
-	COMPOSITE_SYNC : integer; --0 = no, 1 = yes!
-	SCANDOUBLE : integer -- 1 = YES, 0=NO, (+ later scanlines etc)
-);
+	GENERIC
+	(
+	       TV : integer  -- 1 = PAL, 0=NTSC - PLL only, no auto-pll adjust!
+	);
 	port (
 -- Clocks
 		clk50m : in std_logic;
@@ -258,6 +255,7 @@ end component;
 	signal ZPU_OUT2 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT3 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT4 : std_logic_vector(31 downto 0);
+	signal ZPU_OUT6 : std_logic_vector(31 downto 0);
 
 	signal zpu_pokey_enable : std_logic;
 	signal zpu_sio_txd : std_logic;
@@ -274,10 +272,6 @@ end component;
 	signal key_type : std_logic;
 	signal atari800mode : std_logic;
 
-	SIGNAL PAL : std_logic;
-	SIGNAL COMPOSITE_ON_HSYNC : std_logic;
-	SIGNAL VGA : std_logic;
-
 	-- spi
 	--signal spi_cs_n : std_logic;
 	--signal spi_mosi : std_logic;
@@ -289,11 +283,6 @@ end component;
 	signal VIDEO_B : std_logic_vector(7 downto 0);
 	signal VGA_VS : std_logic;
 	signal VGA_HS : std_logic;
-	signal scanlines_next : std_logic;
-	signal scanlines_reg : std_logic;
-	signal freeze_n_reg : std_logic;
-	signal freeze_n_next : std_logic;
-	signal freeze_n_sync : std_logic;
 	signal ir_data_sync : std_logic;
 
 	-- turbo freezer!
@@ -321,10 +310,14 @@ end component;
 	signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
 	signal PS2_KEYS_NEXT : STD_LOGIC_VECTOR(511 downto 0);
 
+	-- video settings
+	signal pal : std_logic;
+	signal scandouble : std_logic;
+	signal scanlines : std_logic;
+	signal csync : std_logic;
+	signal video_mode : std_logic_vector(2 downto 0);
+
 begin
-pal <= '1' when tv=1 else '0';
-vga <= '1' when video=2 else '0';
-composite_on_hsync <= '1' when composite_sync=1 else '0';
 RESET_N <= PLL_LOCKED;
 rtc_cs <= '0';   -- active high
 flash_cs <= '1'; -- active low
@@ -804,7 +797,9 @@ zpu: entity work.zpucore
 		ZPU_OUT1 => zpu_out1,
 		ZPU_OUT2 => zpu_out2,
 		ZPU_OUT3 => zpu_out3,
-		ZPU_OUT4 => zpu_out4
+		ZPU_OUT4 => zpu_out4,
+		ZPU_OUT5 => open, -- usb analog stick
+		ZPU_OUT6 => zpu_out6
 	);
 
 	pause_atari <= zpu_out1(0);
@@ -815,6 +810,42 @@ zpu: entity work.zpucore
 	emulated_cartridge_select <= zpu_out1(22 downto 17);
 	freezer_enable <= zpu_out1(25);
 	key_type <= zpu_out1(26);
+
+	video_mode <= zpu_out6(2 downto 0);
+	PAL <= zpu_out6(4);
+	scanlines <= zpu_out6(5);
+	csync <= zpu_out6(6);
+
+process(video_mode)
+begin
+	SCANDOUBLE <= '0';
+
+	-- original RGB
+	-- scandoubled RGB (works on some vga devices...)
+	-- svideo
+	-- hdmi with audio  (and vga exact mode...)
+	-- dvi (i.e. no preamble or audio) (and vga exact mode...)
+	-- vga exact mode (hdmi off)
+	-- composite (todo firmware...)
+
+	case video_mode is
+		when "000" =>
+		when "001" =>
+			SCANDOUBLE <= '1';
+		when "010" => -- svideo
+			-- not supported
+		when "011" =>
+			-- not supported
+		when "100" =>
+			-- not supported
+		when "101" =>
+			-- not supported
+		when "110" => -- composite
+			-- not supported
+
+		when others =>
+	end case;
+end process;
 
 zpu_rom1: entity work.zpu_rom
 	port map(
@@ -851,12 +882,12 @@ enable_179_clock_div_zpu_pokey : entity work.enable_divider
 		CLK => CLK,
 		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
 		
-		VGA => vga,
-		COMPOSITE_ON_HSYNC => composite_on_hsync,
+		VGA => scandouble,
+		COMPOSITE_ON_HSYNC => csync,
 
 		colour_enable => half_scandouble_enable_reg,
 		doubled_enable => '1',
-		scanlines_on => scanlines_reg,
+		scanlines_on => scanlines,
 		
 		-- GTIA interface
 		pal => pal,
@@ -876,26 +907,9 @@ enable_179_clock_div_zpu_pokey : entity work.enable_divider
 hsync_n <= VGA_HS;
 vsync_n <= VGA_VS;
 
-select_sync : entity work.synchronizer
-PORT MAP ( CLK => clk, raw => freeze_btn, sync=>freeze_n_sync);
-
-process(scanlines_reg, freeze_n_sync, freeze_n_reg, ena_10hz)
-begin
-	scanlines_next <= scanlines_reg;
-	freeze_n_next <= freeze_n_reg;
-	if (ena_10hz = '1') then
-		freeze_n_next <= freeze_n_sync;
-		if (freeze_n_reg = '1' and freeze_n_sync = '0')then
-			scanlines_next <= not(scanlines_reg);
-		end if;
-	end if;
-end process;
-
 process(clk,reset_n)
 begin
 	if (reset_n='0') then
-		scanlines_reg <= '0';
-		freeze_n_reg <= '1';
 		chameleon_reset_n_reg <= (others=>'1');
 		reconfig_reg <= '0';
 		reset_long_reg <= '0';
@@ -907,8 +921,6 @@ begin
 		docking_joystick4_reg <= (others=>'1');
 		ir_fkeys_reg <= (others=>'0');
 	elsif (clk'event and clk = '1') then
-		scanlines_reg <= scanlines_next;
-		freeze_n_reg <= freeze_n_next;
 		chameleon_reset_n_reg <= chameleon_reset_n_next;
 		reconfig_reg <= reconfig_next;
 		reset_long_reg <= reset_long_next;
