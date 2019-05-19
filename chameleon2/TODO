@@ -1,6 +1,6 @@
+DONE:Wire up reconfig/usb thingy
+DONE:Use new firmware (atari800 mode)
+DONE:Load OS from flash ram
 Check high cap cards
-Load OS from sd card
-Wire up reconfig/usb thingy
-Use new firmware (atari800 mode)
 Check atari800 wiring on chameleon 1...
 
