@@ -285,6 +285,7 @@ end component;
 	signal VGA_HS : std_logic;
 	signal ir_data_sync : std_logic;
 
+
 	-- turbo freezer!
 	signal freezer_enable : std_logic;
 	signal freezer_activate: std_logic;
@@ -306,6 +307,7 @@ end component;
 	signal fkeys_int : std_logic_vector(11 downto 0);
 	signal keyboard_response_ps2 : std_logic_vector(1 downto 0);
 	signal atari_keyboard : std_logic_vector(63 downto 0);
+	signal atari_keyboard_ps2 : std_logic_vector(63 downto 0);
 
 	signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
 	signal PS2_KEYS_NEXT : STD_LOGIC_VECTOR(511 downto 0);
@@ -317,10 +319,24 @@ end component;
 	signal csync : std_logic;
 	signal video_mode : std_logic_vector(2 downto 0);
 
+	-- flash memory slot
+	signal flashslot : unsigned(4 downto 0);
+
+
+	-- sync this, think its messing up state machine?
+	signal ba_in_sync : std_logic;
+
 begin
 RESET_N <= PLL_LOCKED;
 rtc_cs <= '0';   -- active high
-flash_cs <= '1'; -- active low
+
+-- Unused 
+	iec_clk_out <= '0';
+	iec_atn_out <= '0';
+	iec_dat_out <= '0';
+	iec_srq_out <= '0';
+	irq_out <= '0';
+	nmi_out <= '0';
 
 --process(clk)
 --begin
@@ -525,7 +541,7 @@ keyboard_map1 : entity work.ps2_to_atari800
 		PS2_CLK => ps2_keyboard_clk_in, 
 		PS2_DAT => ps2_keyboard_dat_in,
 
- 		INPUT => zpu_out4,
+ 		ATARI_KEYBOARD_OUT => atari_keyboard_ps2,
 
 		KEY_TYPE => key_type,
 		
@@ -769,8 +785,8 @@ zpu: entity work.zpucore
 		ZPU_SPI_DI => spi_miso,
 		ZPU_SPI_CLK => spi_clk,
 		ZPU_SPI_DO => spi_mosi,
-		ZPU_SPI_SELECT0 => mmc_cs, -- TODO: invert?
-		ZPU_SPI_SELECT1 => open,
+		ZPU_SPI_SELECT0 => mmc_cs, 
+		ZPU_SPI_SELECT1 => flash_cs, 
 
 		-- SIO
 		-- Ditto for speaking to Atari, we have a built in Pokey
@@ -784,11 +800,12 @@ zpu: entity work.zpucore
 		-- switches etc. sector DMA blah blah.
 		ZPU_IN1 => X"000"&
 			mmc_wp&mmc_cd&
-			(ps2_keys(16#76#) or ir_escape)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
+			(atari_keyboard(28) or atari_keyboard_ps2(28) or ir_escape)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
 			(FKEYS or ir_fkeys_reg),
-		ZPU_IN2 => X"00000000",
-		ZPU_IN3 => X"00000000",
-		ZPU_IN4 => X"00000000",
+		ZPU_IN2(31 downto 4) => (others=>'0'),
+		ZPU_IN2(3 downto 0) => std_logic_vector(flashslot(3 downto 0)),
+		ZPU_IN3 => atari_keyboard(31 downto 0) or atari_keyboard_ps2(31 downto 0),
+		ZPU_IN4 => atari_keyboard(63 downto 32) or atari_keyboard_ps2(63 downto 32),
 
 		-- nMHz clock
 		CLK_nMHz => clk50m,
@@ -1040,6 +1057,10 @@ myIr : entity work.chameleon_cdtv_remote
 --		debug_code : out unsigned(11 downto 0)
 	);
 
+
+ba_synchron : entity work.synchronizer
+PORT MAP ( CLK => clk, raw => ba_in, sync=>ba_in_sync);
+
 chameleon_io_inst : entity work.chameleon2_io 
 	generic map (
 		enable_docking_station => true,
@@ -1070,7 +1091,7 @@ chameleon_io_inst : entity work.chameleon2_io
 		game_out => game_out,
 		exrom_out => exrom_out,
 
-		ba_in => ba_in,
+		ba_in => ba_in_sync,
 --		rw_in : in std_logic;
 		rw_out => rw_out,
 
@@ -1158,7 +1179,7 @@ usb : entity work.chameleon_usb
 		reconfig => reconfig_reg,
 		reconfig_slot => "0000",
 		
-		flashslot => open, -- I guess I can use this for where to read/write flash data from/to?
+		flashslot => flashslot, 
 		
 		-- talk to microcontroller
 		serial_clk => usart_clk,
