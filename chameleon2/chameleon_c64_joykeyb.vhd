@@ -284,6 +284,8 @@ begin
 					joy34_flag <= not joy34_flag;
 					req_reg <= not req_reg;
 					state <= SET_COL;
+				when OTHERS =>
+					state <= INIT_RESET;
 				end case;
 			end if;
 			if reset = '1' then
