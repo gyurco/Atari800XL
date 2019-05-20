@@ -757,6 +757,8 @@ int settings_menu()
 				apply = 0;
 			}
 
+			if (video_mode > MAX_VIDEO_MODE)
+				video_mode = MAX_VIDEO_MODE;
 			if (apply==1)
 			{
 				row = 10; // set, do not save
@@ -872,8 +874,8 @@ int settings_menu()
 			{
 				if (joy.x_==1) video_mode = video_mode+1;
 				if (joy.x_==-1) video_mode = video_mode-1;
-				if (video_mode > 6)
-					video_mode = 6;
+				if (video_mode > MAX_VIDEO_MODE)
+					video_mode = MAX_VIDEO_MODE;
 				if (video_mode < 0)
 					video_mode = 0;
 			}

@@ -289,7 +289,7 @@ $(PAPILIODUO_BUILD_DIR)/%.o: %.c Makefile
 
 $(CHAMELEON_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(CHAMELEON_DIR) $(CFLAGS)  -o $@ -c $<
+	$(CC) -I$(CHAMELEON_DIR) $(CFLAGS) -DMAX_VIDEO_MODE=1 -o $@ -c $<
 
 $(DE1_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
@@ -301,7 +301,7 @@ $(DE1_5200_BUILD_DIR)/%.o: %.c Makefile
 
 $(ECLAIREXL_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(ECLAIREXL_DIR) $(CFLAGS_USB2) -DRPD_SUPPORT -o $@ -c $<
+	$(CC) -I$(ECLAIREXL_DIR) $(CFLAGS_USB2) -DRPD_SUPPORT -DMAX_VIDEO_MODE=6 -o $@ -c $<
 
 $(MCC_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
