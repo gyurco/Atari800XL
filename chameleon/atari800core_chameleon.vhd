@@ -16,10 +16,7 @@ LIBRARY work;
 entity atari800core_chameleon is
 GENERIC
 (
-	TV : integer;  -- 1 = PAL, 0=NTSC
-	VIDEO : integer; -- 1 = RGB, 2 = VGA
-	COMPOSITE_SYNC : integer; --0 = no, 1 = yes!
-	SCANDOUBLE : integer -- 1 = YES, 0=NO, (+ later scanlines etc)
+	TV : integer  -- 1 = PAL, 0=NTSC
 );
 port
 (
@@ -179,6 +176,7 @@ end component;
         signal ir_joya : unsigned(5 downto 0);
         signal ir_joyb : unsigned(5 downto 0);
 	signal ir : std_logic;
+	signal ir_escape : std_logic;
 	signal ir_start : std_logic;
 	signal ir_select : std_logic;
 	signal ir_option : std_logic;
@@ -216,6 +214,7 @@ end component;
 	signal ZPU_OUT2 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT3 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT4 : std_logic_vector(31 downto 0);
+	signal ZPU_OUT6 : std_logic_vector(31 downto 0);
 
 	signal zpu_pokey_enable : std_logic;
 	signal zpu_sio_txd : std_logic;
@@ -232,14 +231,11 @@ end component;
 	signal key_type : std_logic;
 	signal atari800mode : std_logic;
 
-	SIGNAL PAL : std_logic;
-	SIGNAL COMPOSITE_ON_HSYNC : std_logic;
-	SIGNAL VGA : std_logic;
-
 	-- spi
 	signal spi_cs_n : std_logic;
 	signal spi_mosi : std_logic;
 	signal spi_clk : std_logic;
+	signal flash_cs_n : std_logic;
 
 	-- scandoubler
 	signal half_scandouble_enable_reg : std_logic;
@@ -274,14 +270,22 @@ end component;
 	signal fkeys_int : std_logic_vector(11 downto 0);
 	signal keyboard_response_ps2 : std_logic_vector(1 downto 0);
 	signal atari_keyboard : std_logic_vector(63 downto 0);
+	signal atari_keyboard_ps2 : std_logic_vector(63 downto 0);
 
 	signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
 	signal PS2_KEYS_NEXT : STD_LOGIC_VECTOR(511 downto 0);
 
+	-- video settings
+	signal pal : std_logic;
+	signal scandouble : std_logic;
+	signal scanlines : std_logic;
+	signal csync : std_logic;
+	signal video_mode : std_logic_vector(2 downto 0);
+
+	-- flash memory slot
+	signal flashslot : unsigned(4 downto 0);
+
 begin
-pal <= '1' when tv=1 else '0';
-vga <= '1' when video=2 else '0';
-composite_on_hsync <= '1' when composite_sync=1 else '0';
 --RESET_N <= PLL_LOCKED;
 process(clk)
 begin
@@ -408,6 +412,8 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		-- JOYSTICK
 		JOY1_n => std_logic_vector(docking_joystick1_reg and ir_joya)(4 downto 0),
 		JOY2_n => std_logic_vector(docking_joystick2_reg and ir_joyb)(4 downto 0),
+		JOY3_n => std_logic_vector(docking_joystick3_reg)(4 downto 0),
+		JOY4_n => std_logic_vector(docking_joystick4_reg)(4 downto 0),
 
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
@@ -415,6 +421,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		SIO_COMMAND => zpu_sio_command,
 		SIO_RXD => zpu_sio_txd,
 		SIO_TXD => zpu_sio_rxd,
+		SIO_CLOCKOUT => ASIO_CLOCKOUT,
 
 		CONSOL_OPTION => CONSOL_OPTION or ir_option,
 		CONSOL_SELECT => CONSOL_SELECT or ir_select,
@@ -448,7 +455,8 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		THROTTLE_COUNT_6502 => speed_6502,
 		emulated_cartridge_select => emulated_cartridge_select,
 		freezer_enable => freezer_enable,
-		freezer_activate => freezer_activate
+		freezer_activate => freezer_activate,
+		atari800mode => atari800mode
 	);
 
 -- video glue
@@ -617,7 +625,7 @@ chameleon_io : entity work.chameleon_io
 
 -- SPI chip-selects
 		mmc_cs_n => spi_cs_n,
-		flash_cs_n => '1',
+		flash_cs_n => flash_cs_n,
 		rtc_cs => '0',
 
 -- SPI controller (enable_raw_spi must be set to false)
@@ -699,6 +707,7 @@ myIr : entity work.chameleon_cdtv_remote
 --		key_0 => ir_fkeys_next(9),
 --		key_escape : out std_logic;
 --		key_enter : out std_logic;
+		key_escape => ir_escape,
 		key_genlock => ir_fkeys_next(10),
 		key_cdtv => ir_fkeys_next(11),
 		key_power => ir_fkeys_next(9),
@@ -864,6 +873,8 @@ keyboard_map1 : entity work.ps2_to_atari800
  		INPUT => zpu_out4,
 
 		KEY_TYPE => key_type,
+
+ 		ATARI_KEYBOARD_OUT => atari_keyboard_ps2,
 		
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE_ps2,
@@ -1106,7 +1117,7 @@ zpu: entity work.zpucore
 		ZPU_SPI_CLK => spi_clk,
 		ZPU_SPI_DO => spi_mosi,
 		ZPU_SPI_SELECT0 => spi_cs_n,
-		ZPU_SPI_SELECT1 => open,
+		ZPU_SPI_SELECT1 => flash_cs_n,
 
 		-- SIO
 		-- Ditto for speaking to Atari, we have a built in Pokey
@@ -1119,11 +1130,13 @@ zpu: entity work.zpucore
 		-- external control
 		-- switches etc. sector DMA blah blah.
 		ZPU_IN1 => X"000"&
-			"00"&ps2_keys(16#76#)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
-			FKEYS,
-		ZPU_IN2 => X"00000000",
-		ZPU_IN3 => X"00000000",
-		ZPU_IN4 => X"00000000",
+			mmc_wp&mmc_cd_n&
+			(atari_keyboard(28) or atari_keyboard_ps2(28) or ir_escape)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
+			(FKEYS or ir_fkeys_reg),
+		ZPU_IN2(31 downto 4) => (others=>'0'),
+		ZPU_IN2(3 downto 0) => std_logic_vector(flashslot(3 downto 0)),
+		ZPU_IN3 => atari_keyboard(31 downto 0) or atari_keyboard_ps2(31 downto 0),
+		ZPU_IN4 => atari_keyboard(63 downto 32) or atari_keyboard_ps2(63 downto 32),
 
 		-- nMHz clock
 		CLK_nMHz => CLK8,
@@ -1132,7 +1145,8 @@ zpu: entity work.zpucore
 		ZPU_OUT1 => zpu_out1,
 		ZPU_OUT2 => zpu_out2,
 		ZPU_OUT3 => zpu_out3,
-		ZPU_OUT4 => zpu_out4
+		ZPU_OUT4 => zpu_out4,
+		ZPU_OUT6 => zpu_out6
 	);
 
 	pause_atari <= zpu_out1(0);
@@ -1144,10 +1158,46 @@ zpu: entity work.zpucore
 	freezer_enable <= zpu_out1(25);
 	key_type <= zpu_out1(26);
 
+	video_mode <= zpu_out6(2 downto 0);
+	PAL <= zpu_out6(4);
+	scanlines <= zpu_out6(5);
+	csync <= zpu_out6(6);
+
+process(video_mode)
+begin
+	SCANDOUBLE <= '0';
+
+	-- original RGB
+	-- scandoubled RGB (works on some vga devices...)
+	-- svideo
+	-- hdmi with audio  (and vga exact mode...)
+	-- dvi (i.e. no preamble or audio) (and vga exact mode...)
+	-- vga exact mode (hdmi off)
+	-- composite (todo firmware...)
+
+	case video_mode is
+		when "000" =>
+		when "001" =>
+			SCANDOUBLE <= '1';
+		when "010" => -- svideo
+			-- not supported
+		when "011" =>
+			-- not supported
+		when "100" =>
+			-- not supported
+		when "101" =>
+			-- not supported
+		when "110" => -- composite
+			-- not supported
+
+		when others =>
+	end case;
+end process;
+
 zpu_rom1: entity work.zpu_rom
 	port map(
 	        clock => clk,
-	        address => zpu_addr_rom(13 downto 2),
+	        address => zpu_addr_rom(14 downto 2),
 	        q => zpu_rom_data
 	);
 
@@ -1179,8 +1229,8 @@ enable_179_clock_div_zpu_pokey : entity work.enable_divider
 		CLK => CLK,
 		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
 		
-		VGA => vga,
-		COMPOSITE_ON_HSYNC => composite_on_hsync,
+		VGA => scandouble,
+		COMPOSITE_ON_HSYNC => csync,
 
 		colour_enable => half_scandouble_enable_reg,
 		doubled_enable => '1',
@@ -1308,7 +1358,7 @@ usb : entity work.chameleon_usb
 		reconfig => reconfig_reg,
 		reconfig_slot => "0000",
 		
-		flashslot => open,
+		flashslot => flashslot, 
 		
 		-- talk to microcontroller
 		serial_clk => usart_clk,
