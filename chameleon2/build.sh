@@ -17,61 +17,13 @@ my $VGA = 2;
 
 my %variants = 
 (
-	"PAL_RGB" => 
+	"PAL" => 
 	{
-		"TV" => $PAL,
-		"SCANDOUBLE" => 0,
-		"VIDEO" => $RGB,
-		"COMPOSITE_SYNC" => 1
+		"TV" => $PAL
 	},
-	"PAL_RGBHV" => 
+	"NTSC" =>
 	{
-		"TV" => $PAL,
-		"SCANDOUBLE" => 0,
-		"VIDEO" => $RGB,
-		"COMPOSITE_SYNC" => 0
-	},
-	"PAL_VGA" =>
-	{
-		"TV" => $PAL,
-		"SCANDOUBLE" => 1,
-		"VIDEO" => $VGA,
-		"COMPOSITE_SYNC" => 0
-	},
-	"PAL_VGA_CS" =>
-	{
-		"TV" => $PAL,
-		"SCANDOUBLE" => 1,
-		"VIDEO" => $VGA,
-		"COMPOSITE_SYNC" => 1
-	},
-	"NTSC_RGB" =>
-	{
-		"TV" => $NTSC,
-		"SCANDOUBLE" => 0,
-		"VIDEO" => $RGB, 
-		"COMPOSITE_SYNC" => 1
-	},
-	"NTSC_RGBHV" =>
-	{
-		"TV" => $NTSC,
-		"SCANDOUBLE" => 0,
-		"VIDEO" => $RGB, 
-		"COMPOSITE_SYNC" => 0
-	},
-	"NTSC_VGA" => 
-	{
-		"TV" => $NTSC,
-		"SCANDOUBLE" => 1,
-		"VIDEO" => $VGA,
-		"COMPOSITE_SYNC" => 0
-	},
-	"NTSC_VGA_CS" => 
-	{
-		"TV" => $NTSC,
-		"SCANDOUBLE" => 1,
-		"VIDEO" => $VGA,
-		"COMPOSITE_SYNC" => 1
+		"TV" => $NTSC
 	}
 );
 
