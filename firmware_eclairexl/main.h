@@ -12,6 +12,8 @@
 #include "simplefile.h"
 #include "fileselector.h"
 #include "cartridge.h"
+#include "spibase.h"
+#include "rom_location.h"
 
 #ifdef LINUX_BUILD
 #include "curses_screen.h"
@@ -243,14 +245,14 @@ void char_out ( void* p, char c)
 #define NUM_FILES 8
 struct SimpleFile * files[NUM_FILES];
 
-void loadromfile(struct SimpleFile * file, int size, size_t ram_address)
+void loadromfile(struct SimpleFile * file, int size, unsigned char * ram_address)
 {
-	void* absolute_ram_address = ROM_BASE + ram_address;
+	void* absolute_ram_address = ram_address;
 	int read = 0;
 	file_read(file, absolute_ram_address, size, &read);
 }
 
-void loadrom(char const * path, int size, size_t ram_address)
+void loadrom(char const * path, int size, unsigned char * ram_address)
 {
 	if (SimpleFile_OK == file_open_name(path, files[5]))
 	{
@@ -258,7 +260,7 @@ void loadrom(char const * path, int size, size_t ram_address)
 	}
 }
 
-void loadrom_indir(struct SimpleDirEntry * entries, char const * filename, int size, size_t ram_address)
+void loadrom_indir(struct SimpleDirEntry * entries, char const * filename, int size, unsigned char * ram_address)
 {
 	if (SimpleFile_OK == file_open_name_in_dir(entries, filename, files[5]))
 	{
@@ -356,116 +358,6 @@ void rotate_usb_sticks()
 	}
 }
 
-char const * get_video_mode(int video_mode)
-{
-	static char const * videotxt[] = 
-	{
-		"RGB",
-		"SCANDOUBLE",
-		"SVIDEO",
-		"HDMI",
-		"DVI",
-		"VGA",
-		"COMPOSITE"
-	};
-	return videotxt[video_mode];
-}
-
-char const * get_tv_standard(int tv)
-{
-	static char const * tvtxt[] = 
-	{
-		"NTSC",
-		"PAL"
-	};
-	return tvtxt[tv];
-}
-
-void load_settings(int profile)
-{
-	struct SimpleDirEntry * entries = dir_entries(ROM_DIR);
-	unsigned int settings[2],origSettings[2];
-	settings[0] = *zpu_out1;
-	settings[1] = *zpu_out6;
-	origSettings[0] = settings[0];
-	origSettings[1] = settings[1];
-	if (profile==4)
-	{
-		if (sd_present && SimpleFile_OK == file_open_name_in_dir(entries, "settings", files[6]))
-		{
-			int read = 0;
-			file_read(files[6], &settings[0], 8, &read);
-		}
-		else
-		{
-			return;
-		}
-	}
-	else
-	{
-		readFlash(0x200000 + (profile<<13),8,&settings[0]);
-	}
-		
-	unsigned int mask = 1|(1<<1)|(0x3f<<17)|(1<<25); //do not override pause, reset, cart_select, freezer_enable
-	settings[0] &= ~mask;
-	settings[0] |= origSettings[0]&mask;
-		
-	*zpu_out1 = settings[0];
-	*zpu_out6 = settings[1];
-		
-	set_pll(get_tv()==TV_PAL, get_video()>=VIDEO_HDMI && get_video()<VIDEO_COMPOSITE);
-}
-
-void save_settings(int profile)
-{
-	struct SimpleDirEntry * entries = dir_entries(ROM_DIR);
-	unsigned int settings[2];
-	settings[0] = *zpu_out1;
-	settings[1] = *zpu_out6;
-
-	if (profile==4)
-	{
-		if (sd_present && SimpleFile_OK == file_open_name_in_dir(entries, "settings", files[6]))
-		{
-			file_seek(files[6],0);
-			int written = 0;
-			file_write(files[6],&settings[0],8,&written);
-			file_write_flush();
-		}
-	}
-	else
-	{
-		int size = 192; // last 64KB is unused
-
-		clearscreen();
-		debug_pos = 0;
-		debug_adjust = 0;
-		printf("Flashing settings");
-
-		debug_pos = 80;
-
-		printf("DO NOT POWER OFF");
-	
-		debug_pos = 160;
-
-
-		printf("Read     ");
-		readFlash(0x200000,size*1024,SCRATCH_MEM); // back up rest of settings
-		printf("Erase    ");
-		eraseFlash(0x200000,size*1024); // Clear at last 256kB
-		printf("Write    ");
-
-		memcp8(&settings[0],SCRATCH_MEM+(profile<<13),0,8);
-		memcp8(ROM_BASE+0x4000,SCRATCH_MEM+0x10000+(profile<<14),0,16384);
-		memcp8(ROM_BASE+0xc000,SCRATCH_MEM+0x8000+(profile<<13),0,8192);
-
-		writeFlash(0x200000,size*1024,SCRATCH_MEM);// write back rest of settings*/
-		printf("Done    ");
-		wait_us(1000000);
-	}
-}
-
-
 void usb_devices(int debugPos)
 {
 	usb_device_t *devices = usb_get_devices();
@@ -521,3 +413,121 @@ void usb_devices(int debugPos)
 	}
 }
 #endif
+
+char const * get_video_mode(int video_mode)
+{
+	static char const * videotxt[] = 
+	{
+		"RGB",
+		"SCANDOUBLE",
+		"SVIDEO",
+		"HDMI",
+		"DVI",
+		"VGA",
+		"COMPOSITE"
+	};
+	return videotxt[video_mode];
+}
+
+char const * get_tv_standard(int tv)
+{
+	static char const * tvtxt[] = 
+	{
+		"NTSC",
+		"PAL"
+	};
+	return tvtxt[tv];
+}
+
+void load_settings(int profile)
+{
+	struct SimpleDirEntry * entries = dir_entries(ROM_DIR);
+	unsigned int settings[2],origSettings[2];
+	settings[0] = *zpu_out1;
+	settings[1] = *zpu_out6;
+	origSettings[0] = settings[0];
+	origSettings[1] = settings[1];
+	if (profile==4)
+	{
+		if (sd_present && SimpleFile_OK == file_open_name_in_dir(entries, "settings", files[6]))
+		{
+			int read = 0;
+			file_read(files[6], &settings[0], 8, &read);
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		readFlash(romstart + (profile<<13),8,&settings[0]);
+	}
+		
+	unsigned int mask = 1|(1<<1)|(0x3f<<17)|(1<<25); //do not override pause, reset, cart_select, freezer_enable
+	settings[0] &= ~mask;
+	settings[0] |= origSettings[0]&mask;
+		
+	*zpu_out1 = settings[0];
+	*zpu_out6 = settings[1];
+		
+	set_pll(get_tv()==TV_PAL, get_video()>=VIDEO_HDMI && get_video()<VIDEO_COMPOSITE);
+}
+
+void save_settings(int profile)
+{
+	struct SimpleDirEntry * entries = dir_entries(ROM_DIR);
+	unsigned int settings[2];
+	settings[0] = *zpu_out1;
+	settings[1] = *zpu_out6;
+
+	if (profile==4)
+	{
+		if (sd_present && SimpleFile_OK == file_open_name_in_dir(entries, "settings", files[6]))
+		{
+			file_seek(files[6],0);
+			int written = 0;
+			file_write(files[6],&settings[0],8,&written);
+			file_write_flush();
+		}
+	}
+	else
+	{
+		int size = 192; // last 64KB is unused
+
+		clearscreen();
+		debug_pos = 0;
+		debug_adjust = 0;
+		printf("Flashing settings");
+
+		debug_pos = 80;
+
+		printf("DO NOT POWER OFF");
+	
+		debug_pos = 160;
+
+
+		printf("Read     ");
+		readFlash(romstart,size*1024,SCRATCH_MEM); // back up rest of settings
+		printf("Erase    ");
+		eraseFlash(romstart,size*1024); // Clear at last 256kB
+		printf("Write    ");
+
+		memcp8(&settings[0],SCRATCH_MEM+(profile<<13),0,8);
+		memcp8(os_addr(),SCRATCH_MEM+0x10000+(profile<<14),0,16384);
+		memcp8(basic_addr(),SCRATCH_MEM+0x8000+(profile<<13),0,8192);
+
+		int romstartsectoraligned = romstart&0xffffff00;
+		int aligncorrection = romstart-romstartsectoraligned;
+		int extra = 0;
+		if (aligncorrection!=0)
+		{
+			extra = 256;
+		}
+		writeFlash(romstartsectoraligned,size*1024+extra,SCRATCH_MEM-aligncorrection);// write back rest of settings*/
+		printf("Done    ");
+		wait_us(1000000);
+	}
+}
+
+

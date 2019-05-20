@@ -70,7 +70,7 @@ LINUXSIM_5200_BUILD_DIR = $(BUILD_DIR)/$(LINUXSIM_5200_DIR)
 MINSTARTUP_SRC = mycrt0.s
 MINSTARTUP_OBJ = $(patsubst $(STARTUP_DIR)/%.s,$(BUILD_DIR)/%.o,$(MINSTARTUP_SRC))
 
-CORE_SRC = cartridge.c fileutils.c fileselector.c uart/uart.c hexdump.c common/utils.c printf/printf.c  pll/pll.c 
+CORE_SRC = cartridge.c fileutils.c fileselector.c uart/uart.c hexdump.c common/utils.c printf/printf.c 
 FAT_SRC = fat/pff_file.c fat/pff.c 
 COMMON_SRC = ${FAT_SRC} ${CORE_SRC}
 SDCARD_SRC = sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc2.c
@@ -97,15 +97,15 @@ DE1_5200_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(5200_SRC) de1_5200/dirs.c
 DE1_5200_OBJ = $(patsubst %.c,$(DE1_5200_BUILD_DIR)/%.o,$(DE1_5200_SRC))
 
 CHAMELEON_PRJ = CHAMELEON
-CHAMELEON_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) chameleon/dirs.c
+CHAMELEON_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) chameleon/dirs.c dummy/pll.c dummy/pll2.c spiflash/spiflash.c dummy/vidi2c.c chameleon/spibase.c sdram_common/rom_location.c
 CHAMELEON_OBJ = $(patsubst %.c,$(CHAMELEON_BUILD_DIR)/%.o,$(CHAMELEON_SRC))
 
 ECLAIREXL_PRJ = ECLAIREXL
-ECLAIREXL_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) de1/dirs.c clkgen/pll2.c vidi2c/vidi2c.c spiflash/spiflash.c
+ECLAIREXL_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) de1/dirs.c clkgen/pll2.c vidi2c/vidi2c.c spiflash/spiflash.c pll/pll.c eclairexl/rom_location.c
 ECLAIREXL_OBJ = $(patsubst %.c,$(ECLAIREXL_BUILD_DIR)/%.o,$(ECLAIREXL_SRC))
 
 MCC_PRJ = MCC216
-MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) mcc/dirs.c
+MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) mcc/dirs.c dummy/pll.c dummy/pll2.c dummy/spiflash.c dummy/vidi2c.c
 #MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mcc/dirs.c
 MCC_OBJ = $(patsubst %.c,$(MCC_BUILD_DIR)/%.o,$(MCC_SRC))
 
@@ -245,13 +245,14 @@ $(DE1_5200_PRJ).elf: $(MINSTARTUP_OBJ) $(DE1_5200_OBJ)
 	$(LD) $(LFLAGS_5200) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
 $(CHAMELEON_PRJ).elf: $(MINSTARTUP_OBJ) $(CHAMELEON_OBJ)
-	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
+	$(LD) $(LFLAGS) -T $(LINKMAP_LARGE) -o $@ $+ $(LIBS)
 
 $(ECLAIREXL_PRJ).elf: $(MINSTARTUP_OBJ) $(ECLAIREXL_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP_LARGER) -o $@ $+ $(LIBS)
 
 $(MCC_PRJ).elf: $(MINSTARTUP_OBJ) $(MCC_OBJ)
-	$(LD) $(LFLAGS) -T $(LINKMAP_LARGE) -o $@ $+ $(LIBS)
+	$(LD) $(LFLAGS) -T $(LINKMAP_LARGER) -o $@ $+ $(LIBS)
+#	$(LD) $(LFLAGS) -T $(LINKMAP_LARGE) -o $@ $+ $(LIBS)
 #	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
 $(MCC_5200_PRJ).elf: $(MINSTARTUP_OBJ) $(MCC_5200_OBJ)
@@ -300,7 +301,7 @@ $(DE1_5200_BUILD_DIR)/%.o: %.c Makefile
 
 $(ECLAIREXL_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(ECLAIREXL_DIR) $(CFLAGS_USB2)  -o $@ -c $<
+	$(CC) -I$(ECLAIREXL_DIR) $(CFLAGS_USB2) -DRPD_SUPPORT -o $@ -c $<
 
 $(MCC_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`

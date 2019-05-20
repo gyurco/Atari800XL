@@ -4,26 +4,28 @@ static const int main_ram_size=65536;
 #include "log.h"
 #include "utils.h"
 #include "sd_direct/spi.h"
+#include "rom_location.h"
 
 unsigned char freezer_rom_present;
 unsigned char sd_present;
 unsigned char sel_profile;
+unsigned int romstart;
 
 void loadosrom()
 {
 	if (!sd_present) return;
 	if (file_size(files[5]) == 0x4000)
 	{
-		loadromfile(files[5],0x4000, 0x4000);
+		loadromfile(files[5],0x4000, os_addr());
 	}
 	else if (file_size(files[5]) ==0x2800)
 	{
-		loadromfile(files[5],0x2800, 0x5800);
-		memset8(ROM_BASE+0x4000,0xff,0x1000);
+		loadromfile(files[5],0x2800, os_addr()+0x1800);
+		memset8(os_addr(),0xff,0x1000);
 	}
 	else if (file_size(files[5]) ==0x2000)
 	{
-		loadromfile(files[5],0x2000, 0xc000);
+		loadromfile(files[5],0x2000, basic_addr());
 	}
 }
 
@@ -322,9 +324,9 @@ void load_roms(int profile)
 	}
 	else
 	{
-		readFlash(0x208000 + (profile<<13),0x2000,ROM_BASE + 0xc000);
-		readFlash(0x210000 + (profile<<14),0x4000,ROM_BASE + 0x4000);
-		readFlash(0x220000,0x10000,FREEZER_ROM_MEM);
+		readFlash(romstart + 0x08000 + (profile<<13),0x2000,basic_addr());
+		readFlash(romstart + 0x10000 + (profile<<14),0x4000,os_addr());
+		readFlash(romstart + 0x20000,0x10000,FREEZER_ROM_MEM);
 		freezer_rom_present = 1;
 	}
 
@@ -358,6 +360,9 @@ void mainmenu()
 			//printf("DIR init failed\n");
 		}
 	}
+
+	// Find rom settings location
+	init_romstart();
 
 	// default to flash
 	load_roms(0);
@@ -673,6 +678,7 @@ int settings_menu()
 		if (sd_present)
 			printf("Save SD");
 
+#ifdef RPD_SUPPORT
 		debug_pos = 720;
 		debug_adjust = row==13 ? 128 : 0;
 		printf("Program RBD");
@@ -680,6 +686,11 @@ int settings_menu()
 		debug_pos = 800;
 		debug_adjust = row==14 ? 128 : 0;
 		printf("Exit");
+#else
+		debug_pos = 720;
+		debug_adjust = row==13 ? 128 : 0;
+		printf("Exit");
+#endif
 
 		debug_pos = 840;
 		debug_adjust = 0;
@@ -755,7 +766,11 @@ int settings_menu()
 
 		row+=joy.y_;
 		if (row<0) row = 0;
+#ifdef RPD_SUPPORT
 		if (row>14) row = 14;
+#else
+		if (row>13) row = 13;
+#endif
 		actions();
 
 		switch (row)
@@ -921,6 +936,7 @@ int settings_menu()
 				save_settings(4);
 			}
 			break;
+#ifdef RPD_SUPPORT
 		case 13:
 			if (sd_present)
 			{
@@ -938,6 +954,14 @@ int settings_menu()
 				done = 1;
 			}
 			break;
+#else
+		case 13:
+			if (joy.fire_)
+			{
+				done = 1;
+			}
+			break;
+#endif
 		}
 	}
 	return 0;
