@@ -17,8 +17,6 @@ extern struct usb_host usb_porta;
 extern struct usb_host usb_portb;
 #endif
 
-int ps2Pressed;
-
 unsigned char pot0;
 unsigned char pot1;
 unsigned char pot2;

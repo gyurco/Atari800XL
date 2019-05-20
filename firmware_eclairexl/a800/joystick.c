@@ -16,66 +16,84 @@ extern struct usb_host usb_porta;
 extern struct usb_host usb_portb;
 #endif
 
-int ps2Pressed;
-
-static unsigned char ps2ascii[] = 
+/* TODO: probably simpler to output ascii from the vhdl */
+static unsigned char bitascii[] = 
 {
-	0x1C,//'A',
-	0x32,//'B',
-	0x21,//'C',
-	0x23,//'D',
-	0x24,//'E',
-	0x2B,//'F',
-	0x34,//'G',
-	0x33,//'H',
-	0x43,//'I',
-	0x3B,//'J',
-	0x42,//'K',
-	0x4B,//'L',
-	0x3A,//'M',
-	0x31,//'N',
-	0x44,//'O',
-	0x4D,//'P',
-	0x15,//'Q',
-	0x2D,//'R',
-	0x1B,//'S',
-	0x2C,//'T',
-	0x3C,//'U',
-	0x2A,//'V',
-	0x1D,//'W',
-	0x22,//'X',
-	0x35,//'Y',
-	0x1A,//'Z'
+	63,//'A',
+	21,//'B',
+	18,//'C',
+	58,//'D',
+	42,//'E',
+	56,//'F',
+	61,//'G',
+	57,//'H',
+	13,//'I',
+	1,//'J',
+	5,//'K',
+	0,//'L',
+	37,//'M',
+	35,//'N',
+	8,//'O',
+	10,//'P',
+	47,//'Q',
+	40,//'R',
+	62,//'S',
+	45,//'T',
+	11,//'U',
+	16,//'V',
+	46,//'W',
+	22,//'X',
+	43,//'Y',
+	23,//'Z'
 };
 
-static unsigned char ps2asciinum[] = 
+static unsigned char bitasciinum[] = 
 {
-	0x45,//'0',
-	0x16,//'1',
-	0x1E,//'2',
-	0x26,//'3',
-	0x25,//'4',
-	0x2E,//'5',
-	0x36,//'6',
-	0x3D,//'7',
-	0x3E,//'8',
-	0x46,//'9',
+	50,//'0',
+	31,//'1',
+	30,//'2',
+	26,//'3',
+	24,//'4',
+	29,//'5',
+	27,//'6',
+	51,//'7',
+	53,//'8',
+	48,//'9',
 };
 
-int decodeKey(int ps2)
+int bit_set(unsigned int low, unsigned int high, int bit)
 {
+	if (bit<32)
+	{
+		return (low&(1<<bit))!=0;
+	}
+	else if (bit<64)
+	{
+		return (high&(1<<bit))!=0;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+int decodeKey()
+{
+	unsigned int lowAtariKeys = *zpu_in3;
+	unsigned int highAtariKeys = *zpu_in4;
+
 	int i;
 	for (i='A';i<='Z';++i)
 	{
-		if (ps2ascii[i-'A']==ps2)
+		if (bit_set(lowAtariKeys,highAtariKeys,bitascii[i-'A']))
 			return i;
 	}
 	for (i='0';i<='9';++i)
 	{
-		if (ps2asciinum[i-'0']==ps2)
+		if (bit_set(lowAtariKeys,highAtariKeys,bitasciinum[i-'0']))
 			return i;
 	}
-	if (ps2 == 0x66)
+	if (bit_set(lowAtariKeys,highAtariKeys,52)) //backspace
 	{
 		return -1;
 	}
@@ -88,7 +106,7 @@ void joystick_poll(struct joystick_status * status)
 	status->y_ = 0;
 	status->fire_ = 0;
 	status->escape_ = 0;
-	status->keyPressed_ = decodeKey(ps2Pressed);
+	status->keyPressed_ = decodeKey();
 
 #ifdef USB
 	usb_poll(&usb_porta);
