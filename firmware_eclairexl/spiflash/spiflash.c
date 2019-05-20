@@ -76,7 +76,7 @@ void waitWriteComplete()
 
 int flashSectorSize()
 {
-	int sectorSize;
+	int sectorSize; /* Size for D8 erase... */
 
 	unsigned int id1,id2;
 	readFlashId(&id1,&id2);
@@ -90,6 +90,10 @@ int flashSectorSize()
 		sectorSize = 256*1024;
 	}
 	else if (id2==0x012018)
+	{
+		sectorSize = 64*1024;
+	}
+	else if (id2==0x1c7018)
 	{
 		sectorSize = 64*1024;
 	}
