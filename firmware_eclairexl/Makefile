@@ -101,7 +101,7 @@ CHAMELEON_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) chameleon/dirs.c dummy/p
 CHAMELEON_OBJ = $(patsubst %.c,$(CHAMELEON_BUILD_DIR)/%.o,$(CHAMELEON_SRC))
 
 ECLAIREXL_PRJ = ECLAIREXL
-ECLAIREXL_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) de1/dirs.c clkgen/pll2.c vidi2c/vidi2c.c spiflash/spiflash.c pll/pll.c eclairexl/rom_location.c
+ECLAIREXL_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) de1/dirs.c clkgen/pll2.c vidi2c/vidi2c.c spiflash/spiflash.c pll/pll.c eclairexl/spibase.c eclairexl/rom_location.c 
 ECLAIREXL_OBJ = $(patsubst %.c,$(ECLAIREXL_BUILD_DIR)/%.o,$(ECLAIREXL_SRC))
 
 MCC_PRJ = MCC216
