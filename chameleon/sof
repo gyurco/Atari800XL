@@ -1,0 +1,1 @@
+quartus_pgm -z --mode=jtag --operation="p;./build_PAL/output_files/atari800core.sof@2"  
