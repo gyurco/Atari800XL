@@ -15,8 +15,6 @@ static attr_t atari_inverse_color;
 static attr_t status_color;
 static attr_t log_color;
 
-int ps2Pressed = 0;
-
 int init_curses_screen(void)
 {
 	int height;
