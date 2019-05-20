@@ -11,8 +11,6 @@ uint32_t jmaps[4];
 int8_t analogx[4];
 int8_t analogy[4];
 
-extern int ps2Pressed;
-
 void event_keyboard(uint8_t mod, uint8_t buf[])
 {
 	//printf("Event keyboard:%d\n", mod);
@@ -68,7 +66,6 @@ void event_keyboard(uint8_t mod, uint8_t buf[])
 		if (!found)
 		{
 			*zpu_out4 = oldkey; // unpress
-			ps2Pressed = 0;
 		}
 	}
 
@@ -80,8 +77,6 @@ void event_keyboard(uint8_t mod, uint8_t buf[])
 		uint32_t newkey = usb2ps2[buf[i]];
 
 		if (newkey==MISS) continue;
-
-		ps2Pressed = newkey;
 
 		// press new one
 		*zpu_out4 = (1<<16)|newkey;
