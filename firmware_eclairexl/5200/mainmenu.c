@@ -17,7 +17,7 @@ void loadosrom()
 		int i=0;
 		unsigned char * src = (unsigned char *)(ROM_OFS + 0x4000 + SDRAM_BASE);
 		unsigned char * dest1 = (unsigned char *)(ROM_OFS + 0x4800 + SDRAM_BASE);
-		loadromfile(files[5],0x0800, ROM_OFS + 0x4000);
+		loadromfile(files[5],0x0800, SDRAM_BASE + ROM_OFS + 0x4000);
 
 		for (i=0; i!=0x800; ++i)
 		{
@@ -74,7 +74,7 @@ void load_cartridge(int type)
 	switch(type)
 	{
 	case 4: //32k
-		loadromfile(files[4],0x8000,0x004000);
+		loadromfile(files[4],0x8000,SDRAM_BASE + 0x004000);
 		break;
 	case 6: // 16k two chip
 		{
@@ -86,8 +86,8 @@ void load_cartridge(int type)
 			//*atari_colbk = 0x68;
 			//wait_us(5000000);
 
-			loadromfile(files[4],0x2000,0x004000);
-			loadromfile(files[4],0x2000,0x008000);
+			loadromfile(files[4],0x2000,SDRAM_BASE + 0x004000);
+			loadromfile(files[4],0x2000,SDRAM_BASE + 0x008000);
 	
 			for (i=0; i!=0x2000; ++i)
 			{
@@ -98,7 +98,7 @@ void load_cartridge(int type)
 		break;
 	case 16: // 16k one chip
 		{
-			loadromfile(files[4],0x4000,0x008000);
+			loadromfile(files[4],0x4000,SDRAM_BASE+0x008000);
 			unsigned char * src = (unsigned char *)(0x8000 + SDRAM_BASE);
 			unsigned char * dest1 = (unsigned char *)(0x4000 + SDRAM_BASE);
 			int i = 0;
@@ -112,7 +112,7 @@ void load_cartridge(int type)
 		{
 			//*atari_colbk = 0x58;
 			//wait_us(4000000);
-			loadromfile(files[4],0x2000,0x004000);
+			loadromfile(files[4],0x2000,SDRAM_BASE+0x004000);
 			unsigned char * src = (unsigned char *)(0x4000 + SDRAM_BASE);
 			unsigned char * dest1 = (unsigned char *)(0x6000 + SDRAM_BASE);
 			unsigned char * dest2 = (unsigned char *)(0x8000 + SDRAM_BASE);
@@ -130,7 +130,7 @@ void load_cartridge(int type)
 		{
 			//*atari_colbk = 0x58;
 			//wait_us(4000000);
-			loadromfile(files[4],0x1000,0x004000);
+			loadromfile(files[4],0x1000,SDRAM_BASE+0x004000);
 			unsigned char * src = (unsigned char *)(0x4000 + SDRAM_BASE);
 			unsigned char * dest1 = (unsigned char *)(0x5000 + SDRAM_BASE);
 			unsigned char * dest2 = (unsigned char *)(0x6000 + SDRAM_BASE);
