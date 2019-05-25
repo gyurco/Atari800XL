@@ -304,6 +304,7 @@ end component;
 	-- pokey keyboard
 	SIGNAL KEYBOARD_SCAN : std_logic_vector(5 downto 0);
 	SIGNAL KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
+	signal atari_keyboard : std_logic_vector(63 downto 0);
 	
 	-- gtia consol keys
 	SIGNAL CONSOL_START : std_logic;
@@ -944,6 +945,7 @@ keyboard_map1 : entity work.ps2_to_atari800
 		INPUT => zpu_out4,
 		
 		KEY_TYPE => key_type,
+ 		ATARI_KEYBOARD_OUT => atari_keyboard,
 		
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
 		KEYBOARD_RESPONSE => KEYBOARD_RESPONSE,
@@ -1176,11 +1178,11 @@ zpu: entity work.zpucore
 		-- switches etc. sector DMA blah blah.
 		ZPU_IN1 => X"000"&
 			sd_writeprotect&sd_detect&
-			ps2_keys(16#76#)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
+			(atari_keyboard(28))&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
 			FKEYS,
 		ZPU_IN2 => X"00000000",
-		ZPU_IN3 => X"00000000",
-		ZPU_IN4 => X"00000000",
+		ZPU_IN3 => atari_keyboard(31 downto 0),
+		ZPU_IN4 => atari_keyboard(63 downto 32),
 
 		-- ouputs - e.g. Atari system control, halt, throttle, rom select
 		ZPU_OUT1 => zpu_out1,
