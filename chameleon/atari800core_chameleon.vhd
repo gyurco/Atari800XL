@@ -1133,8 +1133,8 @@ zpu: entity work.zpucore
 			mmc_wp&mmc_cd_n&
 			(atari_keyboard(28) or atari_keyboard_ps2(28) or ir_escape)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
 			(FKEYS or ir_fkeys_reg),
-		ZPU_IN2(31 downto 4) => (others=>'0'),
-		ZPU_IN2(3 downto 0) => std_logic_vector(flashslot(3 downto 0)),
+		ZPU_IN2(31 downto 5) => (others=>'0'),
+		ZPU_IN2(4 downto 0) => std_logic_vector(flashslot),
 		ZPU_IN3 => atari_keyboard(31 downto 0) or atari_keyboard_ps2(31 downto 0),
 		ZPU_IN4 => atari_keyboard(63 downto 32) or atari_keyboard_ps2(63 downto 32),
 
