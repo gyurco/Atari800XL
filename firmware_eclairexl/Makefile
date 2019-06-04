@@ -105,7 +105,7 @@ ECLAIREXL_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) de1/dirs.c cl
 ECLAIREXL_OBJ = $(patsubst %.c,$(ECLAIREXL_BUILD_DIR)/%.o,$(ECLAIREXL_SRC))
 
 MCC_PRJ = MCC216
-MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) mcc/dirs.c dummy/pll.c dummy/pll2.c dummy/spiflash.c dummy/vidi2c.c
+MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) mcc/dirs.c dummy/pll.c dummy/pll2.c dummy/spiflash.c dummy/vidi2c.c sdram_common/rom_location.c
 #MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mcc/dirs.c
 MCC_OBJ = $(patsubst %.c,$(MCC_BUILD_DIR)/%.o,$(MCC_SRC))
 
@@ -305,7 +305,7 @@ $(ECLAIREXL_BUILD_DIR)/%.o: %.c Makefile
 
 $(MCC_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(MCC_DIR) $(CFLAGS_USB)  -o $@ -c $<
+	$(CC) -I$(MCC_DIR) $(CFLAGS_USB) -DMAX_VIDEO_MODE=1 -o $@ -c $<
 
 $(MCC_5200_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
