@@ -28,3 +28,7 @@ void writeFlash(int address, int totalbytes, u08 * dest)
 }
 
 
+void init_romstart()
+{
+}
+
