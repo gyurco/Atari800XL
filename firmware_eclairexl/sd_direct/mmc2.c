@@ -4,6 +4,7 @@
 
 #include "pff.h"
 #include "diskio.h"
+#include "spi.h"
 
 //#include "printf.h"
 
