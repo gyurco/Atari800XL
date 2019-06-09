@@ -2,6 +2,7 @@
 
 #include "stdarg.h"
 #include "simplefile.h"
+#include "utils.h"
 
 #include "printf/printf.h"
 

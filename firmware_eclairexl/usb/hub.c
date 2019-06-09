@@ -6,6 +6,8 @@
 
 //#include "printf.h"
 
+uint8_t usb_configure(uint8_t parent, uint8_t port, bool lowspeed);
+
 uint16_t bs16(uint8_t * in);
 
 uint32_t bs32(uint8_t * in)
