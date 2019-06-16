@@ -108,7 +108,7 @@ void display_menu(char const * title, struct MenuEntry * entries, menuPress menu
 						if (entry->flags&MENU_FLAG_SD && !sd_present)
 						{}
 						else if ((entry->flags&MENU_FLAG_LEFT && joy.x_<0) || (entry->flags&MENU_FLAG_RIGHT && joy.x_>0) || (entry->flags&MENU_FLAG_FIRE && joy.fire_))
-							if (entry->actionFunction(menuData, &joy))
+							if (entry->actionFunction(menuData, &joy, entry->userData))
 								if (entry->flags&MENU_FLAG_MAYEXIT)
 									done = 1;
 					}

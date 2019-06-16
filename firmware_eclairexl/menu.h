@@ -13,7 +13,7 @@
 #include "joystick.h"
 
 typedef void (*menuDisplay) (void * menuData, void * userData); /*Call printf...*/
-typedef BOOL (*menuAction) (void * menuData, struct joystick_status *);  /* return true to exit */
+typedef BOOL (*menuAction) (void * menuData, struct joystick_status *, void * userData);  /* return true to exit */
 
 typedef void (*menuPress) (void * menuData, unsigned char key_ascii);
 

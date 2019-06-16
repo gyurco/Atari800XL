@@ -423,8 +423,8 @@ void menuPrintDrive(void * menuData, void * itemData)
 	int i = (int)itemData;
 
 	char buffer[20];
-	describe_disk(i-1,&buffer[0]);
-	printf("Drive %d:%s %s", i, file_name(files[i-1]), &buffer[0]);
+	describe_disk(i,&buffer[0]);
+	printf("Drive %d:%s %s", i+1, file_name(files[i]), &buffer[0]);
 }
 
 void menuPrintCart(void * menuData, void * itemData)
@@ -463,23 +463,6 @@ void menuDrive(void * menuData, struct joystick_status * joy, int drive)
 			set_drive_status(0,temp);
 		}
 	}
-}
-
-void menuDrive1(void * menuData, struct joystick_status * joy)
-{
-	menuDrive(menuData,joy,0);
-}
-void menuDrive2(void * menuData, struct joystick_status * joy)
-{
-	menuDrive(menuData,joy,1);
-}
-void menuDrive3(void * menuData, struct joystick_status * joy)
-{
-	menuDrive(menuData,joy,2);
-}
-void menuDrive4(void * menuData, struct joystick_status * joy)
-{
-	menuDrive(menuData,joy,3);
 }
 
 void menuCart(void * menuData, struct joystick_status * joy)
@@ -532,10 +515,10 @@ int devices_menu()
 {
 	struct MenuEntry entries[] = 
 	{
-		{&menuPrintDrive,1,&menuDrive1,MENU_FLAG_MOVE|MENU_FLAG_FIRE|MENU_FLAG_SD},
-		{&menuPrintDrive,2,&menuDrive2,MENU_FLAG_MOVE|MENU_FLAG_FIRE|MENU_FLAG_SD},
-		{&menuPrintDrive,3,&menuDrive3,MENU_FLAG_MOVE|MENU_FLAG_FIRE|MENU_FLAG_SD},
-		{&menuPrintDrive,4,&menuDrive4,MENU_FLAG_MOVE|MENU_FLAG_FIRE|MENU_FLAG_SD},
+		{&menuPrintDrive,0,&menuDrive,MENU_FLAG_MOVE|MENU_FLAG_FIRE|MENU_FLAG_SD},
+		{&menuPrintDrive,1,&menuDrive,MENU_FLAG_MOVE|MENU_FLAG_FIRE|MENU_FLAG_SD},
+		{&menuPrintDrive,2,&menuDrive,MENU_FLAG_MOVE|MENU_FLAG_FIRE|MENU_FLAG_SD},
+		{&menuPrintDrive,3,&menuDrive,MENU_FLAG_MOVE|MENU_FLAG_FIRE|MENU_FLAG_SD},
 		{&menuPrintCart,0,&menuCart,MENU_FLAG_MOVE|MENU_FLAG_SD},
 #ifdef USBSETTINGS
 		{0,"Rotate USB joysticks",&menuRotateUSB,MENU_FLAG_FIRE}, 
