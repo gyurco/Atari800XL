@@ -74,7 +74,7 @@ CORE_SRC = cartridge.c fileutils.c fileselector.c uart/uart.c hexdump.c common/u
 FAT_SRC = fat/pff_file.c fat/pff.c 
 COMMON_SRC = ${FAT_SRC} ${CORE_SRC}
 SDCARD_SRC = sd_direct/diskio_mmc.c sd_direct/spi.c sd_direct/mmc2.c
-A800_SRC_LIGHT = a800/freeze.c  a800/mainmenu.c atari_drive_emulator.c atx.c atx_eclaire.c libgcc_divmod.c
+A800_SRC_LIGHT = menu.c a800/freeze.c  a800/mainmenu.c atari_drive_emulator.c atx.c atx_eclaire.c libgcc_divmod.c 
 A800_SRC = ${A800_SRC_LIGHT} a800/joystick.c 
 5200_SRC_LIGHT = 5200/freeze.c  5200/mainmenu.c
 5200_SRC = ${5200_SRC_LIGHT} 5200/joystick.c
@@ -141,7 +141,9 @@ LINKMAP_LARGER  = ./standalone_simple_larger.ld
 LINUXSIM_EXE	= linuxsim
 LINUXSIM_SRC	= $(COMMON_SRC) $(A800_SRC_LIGHT) $(USB_SRC) linux/main.c linux/mmc.c \
 	sd_direct/diskio_mmc.c linux/dirs.c linux/linux_memory.c linux/curses_screen.c \
-	linux/linux_helper.c linux/emulate_usb.c linux/pll2.c linux/spiflash.c linux/vidi2c.c
+	linux/linux_helper.c linux/emulate_usb.c linux/pll2.c linux/vidi2c.c \
+	dummy/spiflash.c dummy/pll.c \
+	sdram_common/rom_location.c
 
 LINUXSIM_5200_EXE	= linuxsim_5200
 LINUXSIM_5200_SRC	= $(COMMON_SRC) $(5200_SRC_LIGHT) linux/main.c linux/mmc.c \
@@ -156,13 +158,13 @@ LINUXSIM_5200_OBJ	= $(patsubst %.c,$(LINUXSIM_5200_BUILD_DIR)/%.o,$(LINUXSIM_520
 #ZPUOPTS= -mno-poppcrel -mno-pushspadd -mno-callpcrel -mno-shortop -mno-neg # No-neg requires bugfixed toolchain
 #Include everything -> need to include emulation rom...
 ZPUOPTS =
-CFLAGS  = -I. -Ispiflash -Ividi2c -Iclkgen -Ipll -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX -DMAX_RAM_SELECT_XL=6 -DMAX_RAM_SELECT_800=4 -DATX
+CFLAGS  = -I. -Ispiflash -Ividi2c -Iclkgen -Ipll -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX -DMAX_RAM_SELECT_XL=6 -DMAX_RAM_SELECT_800=4 -DATX 
 CFLAGS_AEON  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Iaeon_lite -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX -DMAX_RAM_SELECT_XL=5
 CFLAGS_PAPILIODUO  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Ipapilioduo -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX -DMAX_RAM_SELECT_XL=3
 
 SOCKIT_CFLAGS += -I. -Icommon -Isockit -Iprintf -DMAX_RAM_SELECT_XL=6
 
-HOST_CFLAGS += -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -DDISABLE_UART_RX -DUSB -Iusb -Ividi2c -Ispiflash -Iclkgen -DMAX_RAM_SELECT_XL=6 -DMAX_RAM_SELECT_800=4
+HOST_CFLAGS += -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -DDISABLE_UART_RX -DUSB -Iusb -Ividi2c -Ispiflash -Iclkgen -DMAX_RAM_SELECT_XL=6 -DMAX_RAM_SELECT_800=4 -DMAX_VIDEO_MODE=6
 
 LFLAGS  = -nostartfiles -nostdlib -Wl,--relax -g -Os -Wl,-Map=out.map
 LFLAGS_5200  = -nostartfiles -Wl,--relax -g -Os -Wl,-Map=out.map
