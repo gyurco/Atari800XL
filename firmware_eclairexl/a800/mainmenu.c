@@ -5,6 +5,8 @@ static const int main_ram_size=65536;
 #include "utils.h"
 #include "sd_direct/spi.h"
 #include "rom_location.h"
+#include "printf.h"
+#include "menu.h"
 
 unsigned char freezer_rom_present;
 unsigned char sd_present;
@@ -300,25 +302,28 @@ void load_roms(int profile)
 
 	if (profile == 4)
 	{
-		if (sd_present && SimpleFile_OK == file_open_name_in_dir(entries, "ataribas.rom", files[5]))
+		if (sd_present)
 		{
-			loadosrom();
-		}
-		if (sd_present && SimpleFile_OK == file_open_name_in_dir(entries, "atarixl.rom", files[5]))
-		{
-			loadosrom();
-		}
-		if (sd_present && SimpleFile_OK == file_open_name_in_dir(entries, "freezer.rom", files[6]))
-		{
-			enum SimpleFileStatus ok;
-			int len;
-			ok = file_read(files[6], FREEZER_ROM_MEM, 0x10000, &len);
-			if (ok == SimpleFile_OK && len == 0x10000) {
-				LOG("freezer rom loaded\n");
-				freezer_rom_present = 1;
-			} else {
-				LOG("loading freezer rom failed\n");
-				freezer_rom_present = 0;
+			if (SimpleFile_OK == file_open_name_in_dir(entries, "ataribas.rom", files[5]))
+			{
+				loadosrom();
+			}
+			if (SimpleFile_OK == file_open_name_in_dir(entries, "atarixl.rom", files[5]))
+			{
+				loadosrom();
+			}
+			if (SimpleFile_OK == file_open_name_in_dir(entries, "freezer.rom", files[6]))
+			{
+				enum SimpleFileStatus ok;
+				int len;
+				ok = file_read(files[6], FREEZER_ROM_MEM, 0x10000, &len);
+				if (ok == SimpleFile_OK && len == 0x10000) {
+					LOG("freezer rom loaded\n");
+					freezer_rom_present = 1;
+				} else {
+					LOG("loading freezer rom failed\n");
+					freezer_rom_present = 0;
+				}
 			}
 		}
 	}
@@ -413,175 +418,137 @@ static char const * system[] =
 	"400/800"
 };
 
-int devices_menu()
+void menuPrintDrive(void * menuData, void * itemData)
 {
-	struct joystick_status joy;
-	joy.x_ = joy.y_ = joy.fire_ = joy.escape_ = 0;
+	int i = (int)itemData;
 
-	int row = 0;
+	char buffer[20];
+	describe_disk(i-1,&buffer[0]);
+	printf("Drive %d:%s %s", i, file_name(files[i-1]), &buffer[0]);
+}
 
-	int done = 0;
-	for (;!done;)
+void menuPrintCart(void * menuData, void * itemData)
+{
+	printf("Cart: %s", get_cart_select() ? file_name(files[4]) : "NONE");
+}
+
+void menuDrive(void * menuData, struct joystick_status * joy, int drive)
+{
+	if (!joy || joy->x_>0)
 	{
-		u08 res;
-		int i;
-		u08 data[8];
-
-		// Render
-		clearscreen();
-		debug_pos = 0;
-		debug_adjust = 0;
-		printf("Devices");
-
-		debug_pos = 80;
-		for (i=1;i!=5;++i)
+		// Choose new disk
+		filter = filter_disks;
+		file_selector(files[drive]);
+		set_drive_status(drive,files[0]);
+	}
+	else if(joy->x_<0)
+	{
+		// Remove disk
+		file_init(files[drive]);
+		set_drive_status(drive,0);
+	}
+	else if (joy->fire_)
+	{
 		{
-			int temp = debug_pos;
-			debug_adjust = row==i-1 ? 128 : 0;
-			char buffer[20];
-			describe_disk(i-1,&buffer[0]);
-			printf("Drive %d:%s %s", i, file_name(files[i-1]), &buffer[0]);
-			debug_pos = temp+40;
+			// Swap files
+			struct SimpleFile * temp = files[drive];
+			files[drive] = files[0];
+			files[0] = temp;
 		}
 
-		debug_pos = 240;
-		debug_adjust = row==4 ? 128 : 0;
-		printf("Cart: %s", get_cart_select() ? file_name(files[4]) : "NONE");
-
-#ifdef USBSETTINGS
-		debug_pos = 320;
-		debug_adjust = row==5 ? 128 : 0;
-		printf("Rotate USB joysticks");
-
-		debug_pos = 400;
-		debug_adjust = row==6 ? 128 : 0;
-		printf("Exit");
-
-		debug_adjust = 0;
-
-		usb_devices(480);
-#else
-		debug_pos = 320;
-		debug_adjust = row==5 ? 128 : 0;
-		printf("Exit");
-#endif
-
-		// Slow it down a bit
-		wait_us(100000);
-
-		// move
-		joystick_wait(&joy,WAIT_QUIET);
-		joystick_wait(&joy,WAIT_EITHER);
-		switch (joy.keyPressed_)
 		{
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-			row = joy.keyPressed_-'1';
-			joy.x_ = 1;
-			break;
-		case 'C':
-			row = 4;
-			joy.x_ = 1;
-			break;
-		}
-		if (joy.escape_) break;
-
-		row+=joy.y_;
-		if (row<0) row = 0;
-#ifdef USBSETTINGS
-		if (row>6) row = 6;
-#else
-		if (row>5) row = 5;
-#endif
-		actions();
-
-		int drive_offset = 0;
-
-		switch (row)
-		{
-		case 0:
-		case 1:
-		case 2:
-		case 3:
-			{
-				if (joy.x_>0)
-				{
-					// Choose new disk
-					filter = filter_disks;
-					file_selector(files[row-drive_offset]);
-					set_drive_status(row-drive_offset,files[row-drive_offset]);
-				}
-				else if(joy.x_<0)
-				{
-					// Remove disk
-					file_init(files[row-drive_offset]);
-					set_drive_status(row-drive_offset,0);
-				}
-				else if (joy.fire_)
-				{
-					{
-						// Swap files
-						struct SimpleFile * temp = files[row-drive_offset];
-						files[row-drive_offset] = files[0];
-						files[0] = temp;
-					}
-
-					{
-						// Swap disks
-						struct SimpleFile * temp = get_drive_status(row-drive_offset);
-						set_drive_status(row-drive_offset, get_drive_status(0));
-						set_drive_status(0,temp);
-					}
-				}
-			}
-			break;
-		case 4:
-			{
-				if (sd_present)
-				{
-					if (joy.x_>0) {
-						fil_type = fil_type_car;
-						filter = filter_specified;
-						file_selector(files[4]);
-						unsigned char mode = load_car(files[4]);
-						set_cart_select(mode);
-						if (mode) {
-							return 1;
-						}
-					}
-					else if (joy.x_<0) {
-						file_init(files[4]);
-						set_cart_select(0);
-					}
-				}
-			}
-			break;
-#ifdef USBSETTINGS
-		case 5:
-			if (joy.fire_)
-			{
-				rotate_usb_sticks();
-			}
-			break;
-		case 6:
-			if (joy.fire_)
-			{
-				done = 1;
-			}
-			break;
-#else
-		case 5:
-			if (joy.fire_)
-			{
-				done = 1;
-			}
-			break;
-#endif
+			// Swap disks
+			struct SimpleFile * temp = get_drive_status(drive);
+			set_drive_status(drive, get_drive_status(0));
+			set_drive_status(0,temp);
 		}
 	}
+}
 
+void menuDrive1(void * menuData, struct joystick_status * joy)
+{
+	menuDrive(menuData,joy,0);
+}
+void menuDrive2(void * menuData, struct joystick_status * joy)
+{
+	menuDrive(menuData,joy,1);
+}
+void menuDrive3(void * menuData, struct joystick_status * joy)
+{
+	menuDrive(menuData,joy,2);
+}
+void menuDrive4(void * menuData, struct joystick_status * joy)
+{
+	menuDrive(menuData,joy,3);
+}
+
+void menuCart(void * menuData, struct joystick_status * joy)
+{
+	if (joy->x_>0) {
+		fil_type = fil_type_car;
+		filter = filter_specified;
+		file_selector(files[4]);
+		unsigned char mode = load_car(files[4]);
+		set_cart_select(mode);
+		if (mode) {
+			//return 1; TODO reboot
+		}
+	}
+	else if (joy->x_<0) {
+		file_init(files[4]);
+		set_cart_select(0);
+	}
+}
+
+void menuDevicesHotkeys(void * menuData, unsigned char keyPressed)
+{
+	switch (keyPressed)
+	{
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+		menuDrive(0,0,keyPressed-'1'); //TODO
+		break;
+	case 'C':
+		menuCart(0,0); //TODO
+		break;
+	}
+}
+
+#ifdef USBSETTINGS
+void menuRotateUSB(void * menuData, struct joystick_status * joy)
+{
+	rotate_usb_sticks();
+}
+
+void menuPrintUsb(void * menuData, void * itemData)
+{
+	usb_devices(debug_pos);
+}
+#endif
+
+int devices_menu()
+{
+	struct MenuEntry entries[] = 
+	{
+		{&menuPrintDrive,1,&menuDrive1,MENU_FLAG_MOVE|MENU_FLAG_FIRE|MENU_FLAG_SD},
+		{&menuPrintDrive,2,&menuDrive2,MENU_FLAG_MOVE|MENU_FLAG_FIRE|MENU_FLAG_SD},
+		{&menuPrintDrive,3,&menuDrive3,MENU_FLAG_MOVE|MENU_FLAG_FIRE|MENU_FLAG_SD},
+		{&menuPrintDrive,4,&menuDrive4,MENU_FLAG_MOVE|MENU_FLAG_FIRE|MENU_FLAG_SD},
+		{&menuPrintCart,0,&menuCart,MENU_FLAG_MOVE|MENU_FLAG_SD},
+#ifdef USBSETTINGS
+		{0,"Rotate USB joysticks",&menuRotateUSB,MENU_FLAG_FIRE}, 
+#endif
+		{0,0,0,0}, //blank line
+		{0,"Exit",0,MENU_FLAG_EXIT},
+		{0,0,0,0}, //blank line
+#ifdef USBSETTINGS
+		{&menuPrintUsb,0,0,MENU_FLAG_FINAL}
+#endif
+	};
+
+	display_menu("Devices",&entries[0], &menuDevicesHotkeys, 0);
 	return 0;
 }
 
@@ -601,250 +568,326 @@ void set_system()
 	}
 }
 
-int settings_menu()
+struct MenuData
 {
-	struct joystick_status joy;
-	joy.x_ = joy.y_ = joy.fire_ = joy.escape_ = 0;
-
-	int row = 0;
-
-	int video_mode = get_video();
-	int tv = get_tv();
-	int scanlines = get_scanlines();
-	int csync = get_csync();
+	int video_mode;
+	int tv;
+	int scanlines;
+	int csync;
 
 	int flashid1;
 	int flashid2;
 	int sectorSize;
-	readFlashId(&flashid1,&flashid2);
-	sectorSize = flashSectorSize();
+};
+
+void updateMenuDataVideoMode(struct MenuData * menuData2)
+{
+	menuData2->video_mode = get_video();
+	menuData2->tv = get_tv();
+	menuData2->scanlines = get_scanlines();
+	menuData2->csync = get_csync();
+}
+
+void updateMenuDataFlashInfo(struct MenuData * menuData2)
+{
+	readFlashId(&menuData2->flashid1,&menuData2->flashid2);
+	menuData2->sectorSize = flashSectorSize();
+}
+
+void menuPrintProfile(void * menuData, void * itemData)
+{
+	printf("Profile:%d",sel_profile);
+}
+
+
+void menuProfileLoad(void * menuData)
+{
+	load_roms(sel_profile-1);
+	load_settings(sel_profile-1);
+
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+	updateMenuDataVideoMode(menuData2);
 
 	set_system();
+}
 
-	int done = 0;
-	for (;!done;)
+void menuProfile(void * menuData, struct joystick_status * joy)
+{
+	sel_profile += joy->x_;
+	if (sel_profile > 4)
+		sel_profile = 4;
+	if (sel_profile < 1)
+		sel_profile = 1;
+
+	if (joy->fire_)
 	{
-		u08 res;
-		int i;
-		u08 data[8];
+		menuProfileLoad(menuData);
+	}
+}
 
-		// Render
-		clearscreen();
-		debug_pos = 0;
-		debug_adjust = 0;
-		printf("Settings");
+void menuPrintCpu(void * menuData, void * itemData)
+{
+	printf("CPU:%dx", get_turbo_6502());
+}
 
-		debug_pos = 80;
-		debug_adjust = row==0 ? 128 : 0;
-		printf("Profile:%d", sel_profile);
+void menuCpu(void * menuData, struct joystick_status * joy)
+{
+	int turbo = get_turbo_6502();
+	if (joy->x_==1) turbo<<=1;
+	if (joy->x_==-1) turbo>>=1;
+	if (turbo>32) turbo = 32;
+	if (turbo<1) turbo = 1;
+	set_turbo_6502(turbo);
+}
 
-		debug_pos = 160;
-		debug_adjust = row==1 ? 128 : 0;
-		printf("CPU:%dx", get_turbo_6502());
-		debug_pos = 200;
-		debug_adjust = row==2 ? 128 : 0;
-		printf("Drive Turbo:%s", get_turbo_drive_str());
-		debug_pos = 240;
-		debug_adjust = row==3 ? 128 : 0;
-		printf("System:%s %s", ram[get_ram_select()], system[get_atari800mode()]);
-		debug_pos = 280;
-		debug_adjust = row==4 ? 128 : 0;
-		printf("ROM:%s", file_name(files[5]));
-		debug_pos = 320;
-		debug_adjust = row==5 ? 128 : 0;
-		printf("Keyboard:%s", key_types[get_key_type()]);
+void menuPrintDriveTurbo(void * menuData, void * itemData)
+{
+	printf("Drive Turbo:%s", get_turbo_drive_str());
+}
 
-		debug_pos = 400;
-		debug_adjust = row==6 ? 128 : 0;
-		printf("Mode:%s", get_video_mode(video_mode));
-		debug_pos = 440;
-		debug_adjust = row==7 ? 128 : 0;
-		printf("TV standard:%s", get_tv_standard(tv));
-		debug_pos = 480;
-		debug_adjust = row==8 ? 128 : 0;
-		printf("Scanlines:%d", scanlines);
-		debug_pos = 520;
-		debug_adjust = row==9 ? 128 : 0;
-		printf("Composite sync:%d", csync);
-		debug_pos = 560;
-		debug_adjust = row==10 ? 128 : 0;
-		printf("Apply video");
+void menuDriveTurbo(void * menuData, struct joystick_status * joy)
+{
+	int turbo = get_turbo_drive();
+	turbo+=joy->x_;
+	if (turbo<0) turbo = 0;
+	if (turbo>7) turbo = 7;
+	set_turbo_drive(turbo);
+}
 
-		debug_pos = 640;
-		debug_adjust = row==11 ? 128 : 0;
-		printf("Save Flash");
-		debug_pos = 680;
-		debug_adjust = row==12 ? 128 : 0;
-		if (sd_present)
-			printf("Save SD");
+void menuPrintSystem(void * menuData, void * itemData)
+{
+	printf("System:%s %s", ram[get_ram_select()], system[get_atari800mode()]);
+}
 
+void menuSystem(void * menuData, struct joystick_status * joy)
+{
+	int ram_select = get_ram_select();
+	ram_select+=joy->x_;
+
+	if (joy->fire_)
+	{
+		set_atari800mode(!get_atari800mode());
+		set_system();
+	}
+
+	if (ram_select<0) ram_select = 0;
+	if (ram_select>max_ram_select) ram_select = max_ram_select;
+	set_ram_select(ram_select);
+}
+
+void menuPrintOS(void * menuData, void * itemData)
+{
+	printf("ROM:%s", file_name(files[5]));
+}
+
+void menuOS(void * menuData, struct joystick_status * joy)
+{
+	fil_type = fil_type_rom;
+	filter = filter_specified;
+	file_selector(files[5]);
+	loadosrom();
+}
+
+void menuPrintKeyboard(void * menuData, void * itemData)
+{
+	printf("Keyboard:%s", key_types[get_key_type()]);
+}
+
+void menuKeyboard(void * menuData, struct joystick_status * joy)
+{
+	set_key_type(!get_key_type());
+}
+
+void menuPrintVideoMode(void * menuData, void * itemData)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+	printf("Mode:%s", get_video_mode(menuData2->video_mode));
+}
+
+void menuVideoMode(void * menuData, struct joystick_status * joy)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+	menuData2->video_mode = menuData2->video_mode + joy->x_;
+	if (menuData2->video_mode > MAX_VIDEO_MODE)
+		menuData2->video_mode = MAX_VIDEO_MODE;
+	if (menuData2->video_mode < 0)
+		menuData2->video_mode = 0;
+}
+
+void menuPrintTVStandard(void * menuData, void * itemData)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+	printf("TV standard:%s", get_tv_standard(menuData2->tv));
+}
+
+void menuTVStandard(void * menuData, struct joystick_status * joy)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+	menuData2->tv = !menuData2->tv;
+}
+
+void menuPrintScanlines(void * menuData, void * itemData)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+	printf("Scanlines:%d", menuData2->scanlines);
+}
+
+void menuScanlines(void * menuData, struct joystick_status * joy)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+	menuData2->scanlines = !menuData2->scanlines;
+}
+
+void menuPrintCompositeSync(void * menuData, void * itemData)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+	printf("Composite sync:%d", menuData2->csync);
+}
+
+void menuCompositeSync(void * menuData, struct joystick_status * joy)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+	menuData2->csync = !menuData2->csync;
+}
+
+void menuApplyVideo(void * menuData, struct joystick_status * joy)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+	set_video(menuData2->video_mode);
+	set_tv(menuData2->tv);
+	set_scanlines(menuData2->scanlines);
+	set_csync(menuData2->csync);
+	set_pll(get_tv()==TV_PAL, get_video()>=VIDEO_HDMI && get_video()<VIDEO_COMPOSITE);
+}
+
+void menuSettingsHotKeys(void * menuData, unsigned char keyPressed)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+
+	int apply = 1;
+	switch(keyPressed)
+	{
+	case 'P': // PAL
+		menuData2->tv = TV_PAL;
+		break;
+	case 'N': // NTSC
+		menuData2->tv = TV_NTSC;
+		break;
+
+	case 'R': // RGB
+		menuData2->video_mode = VIDEO_RGB;
+		break;
+	case 'A': // scAndouble (S taken for svideo, C taken for composite)
+		menuData2->video_mode = VIDEO_SCANDOUBLE;
+		break;
+	case 'D': // DVI
+		menuData2->video_mode = VIDEO_DVI;
+		break;
+	case 'H': // HDMI
+		menuData2->video_mode = VIDEO_HDMI;
+		break;
+	case 'V': // VGA
+		menuData2->video_mode = VIDEO_VGA;
+		break;
+	case 'S': // Svideo
+		menuData2->video_mode = VIDEO_SVIDEO;
+		break;
+	case 'C': // Composite
+		menuData2->video_mode = VIDEO_COMPOSITE;
+		break;
+	case 'Z': // Composite sync toggle
+		menuData2->csync  = !menuData2->csync;
+		break;
+	case 'X': // Scanlines toggle
+		menuData2->scanlines  = !menuData2->scanlines;
+		break;
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+		sel_profile = keyPressed - '0';
+
+		menuProfileLoad(menuData);
+		break;
+	default:
+		apply = 0;
+	}
+
+	if (menuData2->video_mode > MAX_VIDEO_MODE)
+		menuData2->video_mode = MAX_VIDEO_MODE;
+	if (apply==1)
+	{
+		menuApplyVideo(menuData,0);
+	}
+}
+
+void menuSaveFlash(void * menuData, struct joystick_status * joy)
+{
+	save_settings(sel_profile-1);
+}
+
+void menuSaveSD(void * menuData, struct joystick_status * joy)
+{
+	save_settings(4);
+}
+
+void menuProgramRBD(void * menuData, struct joystick_status * joy)
+{
+	fil_type = fil_type_rpd;
+	filter = filter_specified;
+	file_selector(files[4]);
+	flash_rpd(files[4]);
+}
+
+void menuStatus1(void * menuData, struct joystick_status * joy)
+{
+	printf("Board:%d %s %s%s%s",*zpu_board,"Date:YYYYMMDD Core:XX",isHDMIConnected() ? "HDMI " : "",isVGAConnected() ? "VGA ":"",sd_present ? "SD ":"");
+}
+
+void menuStatus2(void * menuData, struct joystick_status * joy)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+	printf("SPI:%08x/%08x/%d",menuData2->flashid1,menuData2->flashid2,menuData2->sectorSize);
+}
+
+int settings_menu()
+{
+	struct MenuEntry entries[] = 
+	{
+		{&menuPrintProfile,0,&menuProfile,MENU_FLAG_MOVE|MENU_FLAG_FIRE},
+		{0,0,0,0}, //blank line
+		{&menuPrintCpu,0,&menuCpu,MENU_FLAG_MOVE},
+		{&menuPrintDriveTurbo,0,&menuDriveTurbo,MENU_FLAG_MOVE},
+		{&menuPrintSystem,0,&menuSystem,MENU_FLAG_MOVE|MENU_FLAG_FIRE},
+		{&menuPrintOS,0,&menuOS,MENU_FLAG_FIRE},
+		{&menuPrintKeyboard,0,&menuKeyboard,MENU_FLAG_FIRE},
+		{0,0,0,0}, //blank line
+		{&menuPrintVideoMode,0,&menuVideoMode,MENU_FLAG_MOVE},
+		{&menuPrintTVStandard,0,&menuTVStandard,MENU_FLAG_FIRE},
+		{&menuPrintScanlines,0,&menuScanlines,MENU_FLAG_FIRE},
+		{&menuPrintCompositeSync,0,&menuCompositeSync,MENU_FLAG_FIRE},
+		{0,"Apply video",&menuApplyVideo,MENU_FLAG_FIRE},
+		{0,0,0,0}, //blank line
+		{0,"Save Flash",&menuSaveFlash,MENU_FLAG_FIRE},
+		{0,"Save SD",&menuSaveSD,MENU_FLAG_FIRE|MENU_FLAG_SD}, 
 #ifdef RPD_SUPPORT
-		debug_pos = 720;
-		debug_adjust = row==13 ? 128 : 0;
-		printf("Program RBD");
-
-		debug_pos = 800;
-		debug_adjust = row==14 ? 128 : 0;
-		printf("Exit");
-#else
-		debug_pos = 720;
-		debug_adjust = row==13 ? 128 : 0;
-		printf("Exit");
+		{0,"Program RBD",&menuProgramRBD,MENU_FLAG_FIRE|MENU_FLAG_SD}, 
 #endif
+		{0,0,0,0}, //blank line
+		{0,"Exit",0,MENU_FLAG_FINAL|MENU_FLAG_EXIT},
+		{0,0,0,0}, //blank line
+		{&menuStatus1,0,0,0},
+		{&menuStatus2,0,0,MENU_FLAG_FINAL},
+	};
 
-		debug_pos = 840;
-		debug_adjust = 0;
-		printf("Board:%d %s %s%s%s",*zpu_board,"Date:YYYYMMDD Core:XX",isHDMIConnected() ? "HDMI " : "",isVGAConnected() ? "VGA ":"",sd_present ? "SD ":"");
-		debug_pos = 880;
-		printf("SPI:%08x/%08x/%d",flashid1,flashid2,sectorSize);
+	set_system(); // sets up ram variable!
+	struct MenuData menuData;
+	updateMenuDataVideoMode(&menuData);
+	updateMenuDataFlashInfo(&menuData);
 
-		// Slow it down a bit
-		wait_us(100000);
+	display_menu("Settings",&entries[0], &menuSettingsHotKeys, &menuData);
+	return 0;
 
-		// move
-		joystick_wait(&joy,WAIT_QUIET);
-		joystick_wait(&joy,WAIT_EITHER);
-		if (joy.escape_) break;
-		if (joy.keyPressed_ > 0) 
-		{
-			int apply = 1;
-			switch(joy.keyPressed_)
-			{
-			case 'P': // PAL
-				tv = TV_PAL;
-				break;
-			case 'N': // NTSC
-				tv = TV_NTSC;
-				break;
-
-			case 'R': // RGB
-				video_mode = VIDEO_RGB;
-				break;
-			case 'A': // scAndouble (S taken for svideo, C taken for composite)
-				video_mode = VIDEO_SCANDOUBLE;
-				break;
-			case 'D': // DVI
-				video_mode = VIDEO_DVI;
-				break;
-			case 'H': // HDMI
-				video_mode = VIDEO_HDMI;
-				break;
-			case 'V': // VGA
-				video_mode = VIDEO_VGA;
-				break;
-			case 'S': // Svideo
-				video_mode = VIDEO_SVIDEO;
-				break;
-			case 'C': // Composite
-				video_mode = VIDEO_COMPOSITE;
-				break;
-			case 'Z': // Composite sync toggle
-				csync  = !csync;
-				break;
-			case 'X': // Scanlines toggle
-				scanlines  = !scanlines;
-				break;
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-				apply = 0;
-				row = 0;
-				sel_profile = joy.keyPressed_ - '0';
-				joy.fire_ = 1;
-				break;
-			default:
-				apply = 0;
-			}
-
-			if (video_mode > MAX_VIDEO_MODE)
-				video_mode = MAX_VIDEO_MODE;
-			if (apply==1)
-			{
-				row = 10; // set, do not save
-				joy.fire_ = 1;
-			}
-		}
-
-		row+=joy.y_;
-		if (row<0) row = 0;
-#ifdef RPD_SUPPORT
-		if (row>14) row = 14;
-#else
-		if (row>13) row = 13;
-#endif
-		actions();
-
-		switch (row)
-		{
-		case 0:
-			{
-				sel_profile += joy.x_;
-				if (sel_profile > 4)
-					sel_profile = 4;
-				if (sel_profile < 1)
-					sel_profile = 1;
-
-				if (joy.fire_)
-				{
-					load_roms(sel_profile-1);
-					load_settings(sel_profile-1);
-
-					video_mode = get_video();
-					tv = get_tv();
-					scanlines = get_scanlines();
-					csync = get_csync();
-
-					set_system();
-				}
-			}
-			break;
-		case 1:
-			{
-				int turbo = get_turbo_6502();
-				if (joy.x_==1) turbo<<=1;
-				if (joy.x_==-1) turbo>>=1;
-				if (turbo>32) turbo = 32;
-				if (turbo<1) turbo = 1;
-				set_turbo_6502(turbo);
-			}
-			break;
-		case 2:
-			{
-				int turbo = get_turbo_drive();
-				turbo+=joy.x_;
-				if (turbo<0) turbo = 0;
-				if (turbo>7) turbo = 7;
-				set_turbo_drive(turbo);
-			}
-			break;
-		case 3:
-			{
-				int ram_select = get_ram_select();
-				ram_select+=joy.x_;
-
-				if (joy.fire_)
-				{
-					set_atari800mode(!get_atari800mode());
-					set_system();
-				}
-
-				if (ram_select<0) ram_select = 0;
-				if (ram_select>max_ram_select) ram_select = max_ram_select;
-				set_ram_select(ram_select);
-			}
-			break;
-		case 4:
-			{
-				if (joy.x_ || joy.fire_)
-				{
-					fil_type = fil_type_rom;
-					filter = filter_specified;
-					file_selector(files[5]);
-					loadosrom();
-				}
-			}
-			break;
 /*		case 9:
 		case 10:
 			{
@@ -864,109 +907,6 @@ int settings_menu()
 				}
 			}
 			break;*/
-		case 5:
-			if (joy.x_ || joy.fire_)
-			{
-				set_key_type(!get_key_type());
-			}
-			break;
-		case 6:
-			{
-				if (joy.x_==1) video_mode = video_mode+1;
-				if (joy.x_==-1) video_mode = video_mode-1;
-				if (video_mode > MAX_VIDEO_MODE)
-					video_mode = MAX_VIDEO_MODE;
-				if (video_mode < 0)
-					video_mode = 0;
-			}
-			break;
-		case 7:
-			{
-				if (joy.x_ || joy.fire_)
-				{
-					tv = !tv;
-				}
-			}
-			break;
-		case 8:
-			{
-				if (joy.x_ || joy.fire_)
-				{
-					scanlines = !scanlines;
-				}
-			}
-			break;
-		case 9:
-			{
-				if (joy.x_ || joy.fire_)
-				{
-					csync = !csync;
-				}
-			}
-			break;
-		case 10:
-			if (joy.fire_)
-			{
-				set_video(video_mode);
-				set_tv(tv);
-				set_scanlines(scanlines);
-				set_csync(csync);
-				set_pll(get_tv()==TV_PAL, get_video()>=VIDEO_HDMI && get_video()<VIDEO_COMPOSITE);
-			}
-			break;
-		case 11:
-			if (joy.fire_)
-			{
-				set_video(video_mode);
-				set_tv(tv);
-				set_scanlines(scanlines);
-				set_csync(csync);
-				set_pll(get_tv()==TV_PAL, get_video()>=VIDEO_HDMI && get_video()<VIDEO_COMPOSITE);
-
-				save_settings(sel_profile-1);
-			}
-			break;
-		case 12:
-			if (joy.fire_)
-			{
-				set_video(video_mode);
-				set_tv(tv);
-				set_scanlines(scanlines);
-				set_csync(csync);
-				set_pll(get_tv()==TV_PAL, get_video()>=VIDEO_HDMI && get_video()<VIDEO_COMPOSITE);
-
-				save_settings(4);
-			}
-			break;
-#ifdef RPD_SUPPORT
-		case 13:
-			if (sd_present)
-			{
-				if (joy.x_>0) {
-					fil_type = fil_type_rpd;
-					filter = filter_specified;
-					file_selector(files[4]);
-					flash_rpd(files[4]);
-				}
-			}
-			break;
-		case 14:
-			if (joy.fire_)
-			{
-				done = 1;
-			}
-			break;
-#else
-		case 13:
-			if (joy.fire_)
-			{
-				done = 1;
-			}
-			break;
-#endif
-		}
-	}
-	return 0;
 }
 
 void update_keys()

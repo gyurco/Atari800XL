@@ -15,6 +15,8 @@
 #include "spibase.h"
 #include "rom_location.h"
 
+#include "menu.h"
+
 #ifdef LINUX_BUILD
 #include "curses_screen.h"
 #define after_set_reg_hook() display_out_regs()
@@ -274,7 +276,10 @@ int zpu_main(void)
 int main(void)
 #endif
 {
+
 	INIT_MEM
+
+	init_printf(0, char_out);
 
 	set_pll2();
 	//set_vidi2c();
@@ -310,8 +315,6 @@ int main(void)
 
 	*atari_colbk = 0xc8;
 		//test_ram();
-
-	init_printf(0, char_out);
 
 	mainmenu();
 	return 0;
