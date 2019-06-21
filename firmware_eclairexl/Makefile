@@ -311,7 +311,7 @@ $(MCC_BUILD_DIR)/%.o: %.c Makefile
 
 $(MCC_5200_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(MCC_5200_DIR) $(CFLAGS_5200_USB)  -o $@ -c $<
+	$(CC) -I$(MCC_5200_DIR) $(CFLAGS_5200_USB) -DNO_FLASH  -o $@ -c $<
 
 $(MCCTV_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`

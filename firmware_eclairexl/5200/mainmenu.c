@@ -9,6 +9,8 @@ void actions();
 #include "usb.h"
 #endif
 
+unsigned char sd_present;
+
 void loadosrom()
 {
 	int j=0;
@@ -33,6 +35,25 @@ struct usb_host usb_porta;
 struct usb_host usb_portb;
 #endif
 
+int init_sd()
+{
+	if (SimpleFile_OK == dir_init((void *)DIR_INIT_MEM, DIR_INIT_MEMSIZE))
+	{
+		#ifdef USB
+			usb_log_init(files[7]);
+		#endif
+
+		struct SimpleDirEntry * entries = dir_entries(ROM_DIR);
+
+		if (SimpleFile_OK == file_open_name_in_dir(entries, "5200.rom", files[5]))
+		{
+			loadosrom();
+		}
+		return 1;
+	}
+	return 0;
+}
+
 void mainmenu()
 {
 #ifdef USB
@@ -44,21 +65,18 @@ void mainmenu()
 	memset8(SRAM_BASE+0x4000, 0, 32768);
 	memset32(SDRAM_BASE+0x4000, 0, 32768/4);
 
-	if (SimpleFile_OK == dir_init((void *)DIR_INIT_MEM, DIR_INIT_MEMSIZE))
-	{
-		#ifdef USB
-			usb_log_init(files[7]);
-		#endif
-		struct SimpleDirEntry * entries = dir_entries(ROM_DIR);
+	sd_present = !get_sd_detect();
 
-		if (SimpleFile_OK == file_open_name_in_dir(entries, "5200.rom", files[5]))
-		{
-			loadosrom();
-		}
-	}
-	else
+	if (sd_present)
 	{
-		//printf("DIR init failed\n");
+		if (init_sd())
+		{
+		}
+		else
+		{
+			//printf("DIR init failed\n");
+			sd_present = 0;
+		}
 	}
 	reboot(1);
 	for (;;) actions();
@@ -388,6 +406,29 @@ void actions()
 #endif
 	// Show some activity!
 	//*atari_colbk = *atari_random;
+	
+	int sd_really_present;
+
+	sd_really_present = !get_sd_detect();
+	if (sd_present==0 && sd_really_present==1)
+	{
+		if (init_sd())
+		{
+		}
+		else
+		{
+			sd_really_present = 0;
+		}
+	}
+	if (sd_present==1 && sd_really_present==0)
+	{
+		int i;
+		for (i=0; i!=NUM_FILES; ++i)
+		{
+			file_init(files[i]);
+		}
+	}
+	sd_present = sd_really_present;
 	
 	// Hot keys
 	if (get_hotkey_softboot())
