@@ -118,6 +118,7 @@ int init_sd()
 				        0x0F, 0x8F, 0x4F, 0xCF, 0x2F, 0xAF, 0x6F, 0xEF, 0x1F, 0x9F, 0x5F, 0xDF, 0x3F, 0xBF, 0x7F, 0xFF
 };*/
 
+#ifdef RPD_SUPPORT
 int flash_rpd(struct SimpleFile* file)
 {
 	int len;
@@ -286,6 +287,7 @@ int flash_rpd(struct SimpleFile* file)
 	}
 	for (;;);*/
 }
+#endif
 
 void load_roms(int profile)
 {
@@ -300,8 +302,10 @@ void load_roms(int profile)
 	//0x220000: freezer rom (64KB)
 	//0x230000: ?? (64KB)
 
+#ifndef NO_FLASH
 	if (profile == 4)
 	{
+#endif
 		if (sd_present)
 		{
 			if (SimpleFile_OK == file_open_name_in_dir(entries, "ataribas.rom", files[5]))
@@ -326,6 +330,7 @@ void load_roms(int profile)
 				}
 			}
 		}
+#ifndef NO_FLASH
 	}
 	else
 	{
@@ -334,6 +339,7 @@ void load_roms(int profile)
 		readFlash(romstart + 0x20000,0x10000,FREEZER_ROM_MEM);
 		freezer_rom_present = 1;
 	}
+#endif
 
 	set_freezer_enable(freezer_rom_present);
 }
@@ -558,9 +564,11 @@ struct MenuData
 	int scanlines;
 	int csync;
 
+#ifndef NO_FLASH
 	int flashid1;
 	int flashid2;
 	int sectorSize;
+#endif
 };
 
 void updateMenuDataVideoMode(struct MenuData * menuData2)
@@ -573,8 +581,10 @@ void updateMenuDataVideoMode(struct MenuData * menuData2)
 
 void updateMenuDataFlashInfo(struct MenuData * menuData2)
 {
+#ifndef NO_FLASH
 	readFlashId(&menuData2->flashid1,&menuData2->flashid2);
 	menuData2->sectorSize = flashSectorSize();
+#endif
 }
 
 void menuPrintProfile(void * menuData, void * itemData)
@@ -740,7 +750,9 @@ void menuApplyVideo(void * menuData, struct joystick_status * joy)
 	set_tv(menuData2->tv);
 	set_scanlines(menuData2->scanlines);
 	set_csync(menuData2->csync);
+#ifdef PLL_SUPPORT
 	set_pll(get_tv()==TV_PAL, get_video()>=VIDEO_HDMI && get_video()<VIDEO_COMPOSITE);
+#endif
 }
 
 void menuSettingsHotKeys(void * menuData, unsigned char keyPressed)
@@ -804,16 +816,19 @@ void menuSettingsHotKeys(void * menuData, unsigned char keyPressed)
 	}
 }
 
+#ifndef NO_FLASH
 void menuSaveFlash(void * menuData, struct joystick_status * joy)
 {
 	save_settings(sel_profile-1);
 }
+#endif
 
 void menuSaveSD(void * menuData, struct joystick_status * joy)
 {
 	save_settings(4);
 }
 
+#ifdef RPD_SUPPORT
 void menuProgramRBD(void * menuData, struct joystick_status * joy)
 {
 	fil_type = fil_type_rpd;
@@ -821,17 +836,20 @@ void menuProgramRBD(void * menuData, struct joystick_status * joy)
 	file_selector(files[4]);
 	flash_rpd(files[4]);
 }
+#endif
 
 void menuStatus1(void * menuData, struct joystick_status * joy)
 {
 	printf("Board:%d %s %s%s%s",*zpu_board,"Date:YYYYMMDD Core:XX",isHDMIConnected() ? "HDMI " : "",isVGAConnected() ? "VGA ":"",sd_present ? "SD ":"");
 }
 
+#ifndef NO_FLASH
 void menuStatus2(void * menuData, struct joystick_status * joy)
 {
 	struct MenuData * menuData2 = (struct MenuData *)menuData;
 	printf("SPI:%08x/%08x/%d",menuData2->flashid1,menuData2->flashid2,menuData2->sectorSize);
 }
+#endif
 
 int settings_menu()
 {
@@ -851,7 +869,9 @@ int settings_menu()
 		{&menuPrintCompositeSync,0,&menuCompositeSync,MENU_FLAG_FIRE},
 		{0,"Apply video",&menuApplyVideo,MENU_FLAG_FIRE},
 		{0,0,0,0}, //blank line
+#ifndef NO_FLASH
 		{0,"Save Flash",&menuSaveFlash,MENU_FLAG_FIRE},
+#endif
 		{0,"Save SD",&menuSaveSD,MENU_FLAG_FIRE|MENU_FLAG_SD}, 
 #ifdef RPD_SUPPORT
 		{0,"Program RBD",&menuProgramRBD,MENU_FLAG_FIRE|MENU_FLAG_SD}, 
@@ -859,8 +879,12 @@ int settings_menu()
 		{0,0,0,0}, //blank line
 		{0,"Exit",0,MENU_FLAG_FINAL|MENU_FLAG_EXIT},
 		{0,0,0,0}, //blank line
+#ifndef NO_FLASH
 		{&menuStatus1,0,0,0},
 		{&menuStatus2,0,0,MENU_FLAG_FINAL},
+#else
+		{&menuStatus1,0,0,MENU_FLAG_FINAL},
+#endif
 	};
 
 	set_system(); // sets up ram variable!
