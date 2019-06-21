@@ -330,6 +330,7 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
       if(rcode) return rcode;
 
       hid_debugf("TYPE%02x ", info->iface[i].device_type);
+      /*
       if(info->iface[i].device_type == CONFIG_TYPE_JOYSTICK) {
 	char k;
         
@@ -349,15 +350,27 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
 	  iprintf("Button%d: @%d/%d\n", k,
 		  info->iface[i].conf.joystick.button[k].byte_offset,
 		  info->iface[i].conf.joystick.button[k].bitmask);
-      }
+      }*/
       
       
       // use fixed setup for known interfaces 
-      if((vid == 0x0079) && (pid == 0x0011) && (i==0)) {
+      if (i==0)
+      {
+      if((vid == 0x0079) && (pid == 0x0011)) {
 	iprintf("hacking cheap NES pad\n");
         
         // fixed setup for nes gamepad
-        info->iface[0].conf.joystick.button[0].byte_offset = 5;
+/*	int i;
+	  static const struct {
+	    uint8_t byte_offset; 
+	    uint8_t bitmask;  
+	  } d[] = {{5,32},{5,64},{6,16},{6,32}};
+	for (i=0;i!=4;++i)
+	{
+	        info->iface[0].conf.joystick.button[i].byte_offset = d[i].byte_offset;
+ 	      	info->iface[0].conf.joystick.button[i].bitmask = d[i].bitmask;
+	}*/
+	info->iface[0].conf.joystick.button[0].byte_offset = 5;
         info->iface[0].conf.joystick.button[0].bitmask = 32;
         info->iface[0].conf.joystick.button[1].byte_offset = 5;
         info->iface[0].conf.joystick.button[1].bitmask = 64;
@@ -367,7 +380,7 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
         info->iface[0].conf.joystick.button[3].bitmask = 32;
       }
 
-      if((vid == 0x04d8) && (pid == 0xf6ec) && (i==0)) {
+      if((vid == 0x04d8) && (pid == 0xf6ec)) {
 	iprintf("hacking 5200daptor\n");
         
 	info->iface[0].conf.joystick.button[2].byte_offset = 4;
@@ -378,15 +391,16 @@ static uint8_t usb_hid_init(usb_device_t *dev) {
 	info->iface[0].is_5200daptor = true;
       }
 
-      if((vid == 0x0079) && (pid == 0x0006) && (i==0)) {
+      if((vid == 0x0079) && (pid == 0x0006)) {
 	iprintf("MCC classic\n");
 
 	info->iface[0].is_MCC = 1;
       }
-      if((vid == 0x1a34) && (pid == 0x0809) && (i==0)) {
+      if((vid == 0x1a34) && (pid == 0x0809)) {
 	iprintf("MCC Xeox\n");
 
 	info->iface[0].is_MCC = 2;
+      }
       }
     }
 
@@ -639,6 +653,13 @@ uint32_t jmap = *jmap_ptr;
   event_keyboard(0x00, buf);
 }
 
+struct buttonbits
+{
+	unsigned char byte;
+	unsigned char mask;
+	unsigned char bit;
+};
+
 static uint8_t usb_hid_poll(usb_device_t *dev) {
   usb_hid_info_t *info = &(dev->hid_info);
   int8_t i;
@@ -721,7 +742,37 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
 
 		if (buf[0]==00 && buf[1]==0x14)
 		{
-			if (buf[2]&1) jmap |= JOY_UP;
+			struct buttonbits buttonbitmap[] = 
+			{
+/*#define JOY_RIGHT       0x01
+#define JOY_LEFT        0x02
+#define JOY_DOWN        0x04
+#define JOY_UP          0x08*/
+				{2,1,3}, //up
+				{2,2,2}, //down
+				{2,4,1}, //left
+				{2,8,0} , //right
+				{3,0x80,4}, //1
+				{3,0x20,5}, //2
+				{3,0x10,6}, //3
+				{3,0x40,7}, //4
+
+				{3,1,8}, //l1
+				{3,2,9}, //r1
+				{4,0x80,10}, //l2
+				{5,0x80,11}, //r2
+				{2,0x20,12}, //select
+				{2,0x10,13}, //select
+				{2,0x40,14}, //select
+				{2,0x80,15} //select
+			};
+                        for (i=0;i!=(sizeof(buttonbitmap)/sizeof(struct buttonbits));++i)
+			{
+				if (buf[buttonbitmap[i].byte]&buttonbitmap[i].mask)
+					jmap |= 1<<buttonbitmap[i].bit;
+			}
+
+/*			if (buf[2]&1) jmap |= JOY_UP;
 			if (buf[2]&2) jmap |= JOY_DOWN;
 			if (buf[2]&4) jmap |= JOY_LEFT;
 			if (buf[2]&8) jmap |= JOY_RIGHT;
@@ -736,7 +787,7 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
 			if (buf[2]&0x20) jmap |= 1<<12; //select
 			if (buf[2]&0x10) jmap |= 1<<13;  //start
 			if (buf[2]&0x40) jmap |= 1<<14;  //lstick click
-			if (buf[2]&0x80) jmap |= 1<<15;  //rstick click
+			if (buf[2]&0x80) jmap |= 1<<15;  //rstick click*/
 
 			int8_t x = (char)buf[7];
 			int8_t y = (char)buf[9];
@@ -746,7 +797,6 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
 		}
 		else
 		{
-			jmap = 0;
 			a[0] = 128;
 			a[1] = 128;
 		}
@@ -765,12 +815,14 @@ static uint8_t usb_hid_poll(usb_device_t *dev) {
 	            a[i] += (buf[conf->joystick.axis[i].byte_offset+1])<<8;
 
 	          // scale to 0 -> 255 range. 99% of the joysticks already deliver that
+#ifdef FIRMWARE_5200
 	          if((conf->joystick.axis[i].logical.min != 0) ||
 	             (conf->joystick.axis[i].logical.max != 255)) {
 	            a[i] = ((a[i] - conf->joystick.axis[i].logical.min) * 255)/
 	              (conf->joystick.axis[i].logical.max - 
 	               conf->joystick.axis[i].logical.min);
 	          }
+#endif
 	        }
   	      
   	        //	      iprintf("JOY X:%d Y:%d\n", a[0], a[1]);
