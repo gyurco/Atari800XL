@@ -17,7 +17,6 @@ ENTITY atari800core_mcc IS
 	(
 		TV : integer;  -- 1 = PAL, 0=NTSC
 		VIDEO : integer; -- 1 = SVIDEO, 2 = VGA
-		SCANDOUBLE : integer; -- 1 = YES, 0=NO, (+ later scanlines etc)
 		internal_rom : integer;
 		internal_ram : integer;
 		ext_clock : integer
@@ -135,7 +134,7 @@ port
   --// Write enable
   ap2_wren : in std_logic;
   --// Byte enable
-  ap2_bena : in std_logic_vector(1 downto 0);
+  Ap2_bena : in std_logic_vector(1 downto 0);
   --// Data bus (read)
   ap2_rddata : out std_logic_vector(15 downto 0);
   --// Data bus (write)
@@ -210,8 +209,6 @@ END COMPONENT;
 	signal VIDEO_START_OF_FIELD : std_logic;
 	signal VIDEO_ODD_LINE : std_logic;
 
-	signal PAL : std_logic;
-	
 	signal JOY1_IN_n : std_logic_vector(4 downto 0);
 	signal JOY2_IN_n : std_logic_vector(4 downto 0);
 
@@ -294,6 +291,7 @@ END COMPONENT;
 	-- pokey keyboard
 	SIGNAL KEYBOARD_SCAN : std_logic_vector(5 downto 0);
 	SIGNAL KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
+	signal atari_keyboard : std_logic_vector(63 downto 0);
 	
 	-- gtia consol keys
 	SIGNAL CONSOL_START : std_logic;
@@ -306,18 +304,7 @@ END COMPONENT;
 
 	signal half_scandouble_enable_reg : std_logic;
 	signal half_scandouble_enable_next : std_logic;
-	signal scanlines_reg : std_logic;
-	signal scanlines_next : std_logic;
 
-	function palette_from_scandouble( scandouble : integer ) return integer is
-	begin
-		if (scandouble = 1) then
-			return 0;
-		else
-			return 1;
-		end if;
-	end palette_from_scandouble;
-	
 	-- svideo
 	signal svideo_dac_clk : std_logic;
 
@@ -343,6 +330,7 @@ END COMPONENT;
 	signal ZPU_OUT3 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT4 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT5 : std_logic_vector(31 downto 0);
+	signal ZPU_OUT6 : std_logic_vector(31 downto 0);
 
 	signal zpu_pokey_enable : std_logic;
 	signal zpu_sio_txd : std_logic;
@@ -382,6 +370,13 @@ END COMPONENT;
 	signal		JOY1Y : std_logic_vector(7 downto 0);
 	signal		JOY2X : std_logic_vector(7 downto 0);
 	signal		JOY2Y : std_logic_vector(7 downto 0);
+
+	-- video settings
+	signal pal : std_logic;
+	signal scandouble : std_logic;
+	signal scanlines : std_logic;
+	signal csync : std_logic;
+	signal video_mode : std_logic_vector(2 downto 0);
 
 BEGIN 
 
@@ -509,6 +504,8 @@ keyboard_map1 : entity work.ps2_to_atari800
 
 		INPUT => zpu_out4,
 
+ 		ATARI_KEYBOARD_OUT => atari_keyboard,
+
 		KEY_TYPE => key_type,
 		
 		KEYBOARD_SCAN => KEYBOARD_SCAN,
@@ -524,8 +521,6 @@ keyboard_map1 : entity work.ps2_to_atari800
 		PS2_KEYS_NEXT_OUT => ps2_keys_next,
 		PS2_KEYS => ps2_keys
 	);
-
-PAL <= '1' when TV=1 else '0';
 
 -- hack for paddles
 	process(clk,RESET_N)
@@ -560,7 +555,6 @@ JOY2Y <= zpu_out5(31 downto 24);
 	end process;
 
 	paddle_mode_next <= paddle_mode_reg xor (not(ps2_keys(16#11F#)) and ps2_keys_next(16#11F#)); -- left windows key
-	scanlines_next <= scanlines_reg xor (not(ps2_keys(16#11#)) and ps2_keys_next(16#11#)); -- left alt
 
 return_to_boot_menu : entity work.delayed_reconfig
 	PORT MAP
@@ -577,7 +571,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		internal_rom => internal_rom,
 		internal_ram => internal_ram,
 		video_bits => 8,
-		palette => palette_from_scandouble(scandouble)
+		palette => 0
 	)
 	PORT MAP
 	(
@@ -877,57 +871,45 @@ sdram_a(12) <= '1';
 
 -- Video options
 gen_video_vga : if video=2 generate
-	gen_scandouble_off: if scandouble=0 generate
-		VGA_HS <= not(VIDEO_CS);
-		VGA_VS <= '1';
-		VGA_B <= VIDEO_B(7 downto 4);
-		VGA_G <= VIDEO_G(7 downto 4);
-		VGA_R <= VIDEO_R(7 downto 4);
-	end generate;
+	process(scandouble_clk,sdram_reset_n_reg)
+	begin
+		if (sdram_reset_n_reg='0') then
+			half_scandouble_enable_reg <= '0';
+		elsif (scandouble_clk'event and scandouble_clk='1') then
+			half_scandouble_enable_reg <= half_scandouble_enable_next;
+		end if;
+	end process;
 
-	gen_scandouble_on: if scandouble=1 generate
-		process(scandouble_clk,sdram_reset_n_reg)
-		begin
-			if (sdram_reset_n_reg='0') then
-				half_scandouble_enable_reg <= '0';
-				scanlines_reg <= '0';
-			elsif (scandouble_clk'event and scandouble_clk='1') then
-				half_scandouble_enable_reg <= half_scandouble_enable_next;
-				scanlines_reg <= scanlines_next;
-			end if;
-		end process;
+	half_scandouble_enable_next <= not(half_scandouble_enable_reg);
 
-		half_scandouble_enable_next <= not(half_scandouble_enable_reg);
+	scandoubler1: entity work.scandoubler
+	PORT MAP
+	( 
+		CLK => SCANDOUBLE_CLK,
+	        RESET_N => sdram_reset_n_reg,
+		
+		VGA => scandouble,
+		COMPOSITE_ON_HSYNC => csync,
 
-		scandoubler1: entity work.scandoubler
-		PORT MAP
-		( 
-			CLK => SCANDOUBLE_CLK,
-		        RESET_N => sdram_reset_n_reg,
-			
-			VGA => '1',
-			COMPOSITE_ON_HSYNC => '0', -- TODO
-
-			colour_enable => half_scandouble_enable_reg,
-			doubled_enable => '1',
-			scanlines_on => scanlines_reg,
-			
-			-- GTIA interface
-			pal => PAL,
-			colour_in => VIDEO_B,
-			vsync_in => VIDEO_VS,
-			hsync_in => VIDEO_HS,
-			csync_in => VIDEO_CS,
-			
-			-- TO TV...
-			R => VGA_R,
-			G => VGA_G,
-			B => VGA_B,
-			
-			VSYNC => VGA_VS,
-			HSYNC => VGA_HS
-		);
-	end generate;
+		colour_enable => half_scandouble_enable_reg,
+		doubled_enable => '1',
+		scanlines_on => scanlines,
+		
+		-- GTIA interface
+		pal => PAL,
+		colour_in => VIDEO_B,
+		vsync_in => VIDEO_VS,
+		hsync_in => VIDEO_HS,
+		csync_in => VIDEO_CS,
+		
+		-- TO TV...
+		R => VGA_R,
+		G => VGA_G,
+		B => VGA_B,
+		
+		VSYNC => VGA_VS,
+		HSYNC => VGA_HS
+	);
 
 end generate;
 
@@ -1012,11 +994,12 @@ zpu: entity work.zpucore
 		-- external control
 		-- switches etc. sector DMA blah blah.
 		ZPU_IN1 => X"000"&
-			"00"&ps2_keys(16#76#)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
+			"00"&
+			(atari_keyboard(28))&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
 			FKEYS,
 		ZPU_IN2 => X"00000000",
-		ZPU_IN3 => X"00000000",
-		ZPU_IN4 => X"00000000",
+		ZPU_IN3 => atari_keyboard(31 downto 0),
+		ZPU_IN4 => atari_keyboard(63 downto 32),
 
 		-- ouputs - e.g. Atari system control, halt, throttle, rom select
 		ZPU_OUT1 => zpu_out1,
@@ -1024,6 +1007,7 @@ zpu: entity work.zpucore
 		ZPU_OUT3 => zpu_out3, --joy1
 		ZPU_OUT4 => zpu_out4, --keyboard
 		ZPU_OUT5 => zpu_out5, --analog stick
+		ZPU_OUT6 => zpu_out6, --video mode
 
 		-- USB host
 		CLK_nMHz => CLK_USB,
@@ -1045,10 +1029,46 @@ zpu: entity work.zpucore
 	freezer_enable <= zpu_out1(25);
 	key_type <= zpu_out1(26);
 
+	video_mode <= zpu_out6(2 downto 0);
+	PAL <= zpu_out6(4);
+	scanlines <= zpu_out6(5);
+	csync <= zpu_out6(6);
+
+process(video_mode)
+begin
+	SCANDOUBLE <= '0';
+
+	-- original RGB
+	-- scandoubled RGB (works on some vga devices...)
+	-- svideo
+	-- hdmi with audio  (and vga exact mode...)
+	-- dvi (i.e. no preamble or audio) (and vga exact mode...)
+	-- vga exact mode (hdmi off)
+	-- composite (todo firmware...)
+
+	case video_mode is
+		when "000" =>
+		when "001" =>
+			SCANDOUBLE <= '1';
+		when "010" => -- svideo
+			      -- not supported -- TODO: need to provide a bitmask to firmware on what modes we support I think? Then can handle this in a better way!
+		when "011" =>
+			-- not supported
+		when "100" =>
+			-- not supported
+		when "101" =>
+			-- not supported
+		when "110" => -- composite
+			-- not supported
+
+		when others =>
+	end case;
+end process;
+
 	zpu_rom1: entity work.zpu_rom
 	port map(
 	        clock => clk,
-	        address => zpu_addr_rom(14 downto 2),
+	        address => zpu_addr_rom(15 downto 2),
 	        q => zpu_rom_data
 	);
 
