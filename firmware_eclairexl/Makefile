@@ -97,7 +97,7 @@ DE1_5200_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(5200_SRC) de1_5200/dirs.c
 DE1_5200_OBJ = $(patsubst %.c,$(DE1_5200_BUILD_DIR)/%.o,$(DE1_5200_SRC))
 
 CHAMELEON_PRJ = CHAMELEON
-CHAMELEON_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) chameleon/dirs.c dummy/pll.c dummy/pll2.c spiflash/spiflash.c dummy/vidi2c.c chameleon/spibase.c sdram_common/rom_location.c
+CHAMELEON_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) chameleon/dirs.c spiflash/spiflash.c dummy/vidi2c.c chameleon/spibase.c sdram_common/rom_location.c
 CHAMELEON_OBJ = $(patsubst %.c,$(CHAMELEON_BUILD_DIR)/%.o,$(CHAMELEON_SRC))
 
 ECLAIREXL_PRJ = ECLAIREXL
@@ -105,7 +105,7 @@ ECLAIREXL_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) de1/dirs.c cl
 ECLAIREXL_OBJ = $(patsubst %.c,$(ECLAIREXL_BUILD_DIR)/%.o,$(ECLAIREXL_SRC))
 
 MCC_PRJ = MCC216
-MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) mcc/dirs.c dummy/pll.c dummy/pll2.c dummy/spiflash.c dummy/vidi2c.c sdram_common/rom_location.c
+MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) mcc/dirs.c dummy/spiflash.c dummy/vidi2c.c sdram_common/rom_location.c
 #MCC_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mcc/dirs.c
 MCC_OBJ = $(patsubst %.c,$(MCC_BUILD_DIR)/%.o,$(MCC_SRC))
 
@@ -303,11 +303,11 @@ $(DE1_5200_BUILD_DIR)/%.o: %.c Makefile
 
 $(ECLAIREXL_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(ECLAIREXL_DIR) $(CFLAGS_USB2) -DRPD_SUPPORT -DMAX_VIDEO_MODE=6 -o $@ -c $<
+	$(CC) -I$(ECLAIREXL_DIR) $(CFLAGS_USB2) -DPLL_SUPPORT -DRPD_SUPPORT -DMAX_VIDEO_MODE=6 -o $@ -c $<
 
 $(MCC_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(MCC_DIR) $(CFLAGS_USB) -DMAX_VIDEO_MODE=1 -o $@ -c $<
+	$(CC) -I$(MCC_DIR) $(CFLAGS_USB) -DNO_FLASH -DMAX_VIDEO_MODE=1 -o $@ -c $<
 
 $(MCC_5200_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`

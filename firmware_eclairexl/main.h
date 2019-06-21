@@ -281,7 +281,9 @@ int main(void)
 
 	init_printf(0, char_out);
 
+#ifdef PLL_SUPPORT
 	set_pll2();
+#endif
 	//set_vidi2c();
 
 	fil_type_rom = "ROM";
@@ -450,8 +452,10 @@ void load_settings(int profile)
 	settings[1] = *zpu_out6;
 	origSettings[0] = settings[0];
 	origSettings[1] = settings[1];
+#ifndef NO_FLASH
 	if (profile==4)
 	{
+#endif
 		if (sd_present && SimpleFile_OK == file_open_name_in_dir(entries, "settings", files[6]))
 		{
 			int read = 0;
@@ -461,11 +465,13 @@ void load_settings(int profile)
 		{
 			return;
 		}
+#ifndef NO_FLASH
 	}
 	else
 	{
 		readFlash(romstart + (profile<<13),8,&settings[0]);
 	}
+#endif
 		
 	unsigned int mask = 1|(1<<1)|(0x3f<<17)|(1<<25); //do not override pause, reset, cart_select, freezer_enable
 	settings[0] &= ~mask;
@@ -474,7 +480,9 @@ void load_settings(int profile)
 	*zpu_out1 = settings[0];
 	*zpu_out6 = settings[1];
 		
+#ifdef PLL_SUPPORT
 	set_pll(get_tv()==TV_PAL, get_video()>=VIDEO_HDMI && get_video()<VIDEO_COMPOSITE);
+#endif
 }
 
 void save_settings(int profile)
@@ -484,8 +492,10 @@ void save_settings(int profile)
 	settings[0] = *zpu_out1;
 	settings[1] = *zpu_out6;
 
+#ifndef NO_FLASH
 	if (profile==4)
 	{
+#endif
 		if (sd_present && SimpleFile_OK == file_open_name_in_dir(entries, "settings", files[6]))
 		{
 			file_seek(files[6],0);
@@ -493,6 +503,7 @@ void save_settings(int profile)
 			file_write(files[6],&settings[0],8,&written);
 			file_write_flush();
 		}
+#ifndef NO_FLASH
 	}
 	else
 	{
@@ -531,6 +542,7 @@ void save_settings(int profile)
 		printf("Done    ");
 		wait_us(1000000);
 	}
+#endif
 }
 
 
