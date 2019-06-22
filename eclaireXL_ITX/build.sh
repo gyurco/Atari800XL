@@ -40,42 +40,42 @@ my %variants =
 		"fpga" => "5CEBA4F23C8",
 		"postfix" => "v2"
 	},
-	"A2EBAproto" =>
-	{
-		"internal_ram" => 0,
-		"internal_rom" => 0,
-		"fpga" => "5CEBA2F23C8",
-		"postfix" => "proto"
-	},
-	"A2EBAproto_hdmiOnGPIO" =>
-	{
-		"internal_ram" => 0,
-		"internal_rom" => 0,
-		"fpga" => "5CEBA2F23C8",
-		"postfix" => "proto",
-		"hdmiOnGPIO" => 1
-	},
-	"A2EBA" =>
-	{
-		"internal_ram" => 65536,
-		"internal_rom" => 0,
-		"fpga" => "5CEBA2F23C8",
-		"postfix" => "v1"
-	},
-	"A4EBA" =>
-	{
-		"internal_ram" => 131072,
-		"internal_rom" => 0,
-		"fpga" => "5CEBA4F23C8",
-		"postfix" => "v2"
-	},
-	"A4EBAB" =>
-	{
-		"internal_ram" => 131072,
-		"internal_rom" => 0,
-		"fpga" => "5CEBA4F23C8",
-		"postfix" => "v2"
-	}
+#	"A2EBAproto" =>
+#	{
+#		"internal_ram" => 0,
+#		"internal_rom" => 0,
+#		"fpga" => "5CEBA2F23C8",
+#		"postfix" => "proto"
+#	},
+#	"A2EBAproto_hdmiOnGPIO" =>
+#	{
+#		"internal_ram" => 0,
+#		"internal_rom" => 0,
+#		"fpga" => "5CEBA2F23C8",
+#		"postfix" => "proto",
+#		"hdmiOnGPIO" => 1
+#	},
+#	"A2EBA" =>
+#	{
+#		"internal_ram" => 65536,
+#		"internal_rom" => 0,
+#		"fpga" => "5CEBA2F23C8",
+#		"postfix" => "v1"
+#	},
+#	"A4EBA" =>
+#	{
+#		"internal_ram" => 131072,
+#		"internal_rom" => 0,
+#		"fpga" => "5CEBA4F23C8",
+#		"postfix" => "v2"
+#	},
+#	"A4EBAB" =>
+#	{
+#		"internal_ram" => 131072,
+#		"internal_rom" => 0,
+#		"fpga" => "5CEBA4F23C8",
+#		"postfix" => "v2"
+#	}
 );
 
 if (not defined $wanted_variant or (not exists $variants{$wanted_variant} and $wanted_variant ne "ALL"))
