@@ -123,7 +123,7 @@ MCCTV_5200_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(5200_SRC) $(USB_SRC) mcc_5200/dir
 MCCTV_5200_OBJ = $(patsubst %.c,$(MCCTV_5200_BUILD_DIR)/%.o,$(MCCTV_5200_SRC))
 
 MIST_PRJ = MIST
-MIST_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mist/dirs.c
+MIST_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mist/dirs.c sdram_common/rom_location.c
 MIST_OBJ = $(patsubst %.c,$(MIST_BUILD_DIR)/%.o,$(MIST_SRC))
 
 MIST_5200_PRJ = MIST_5200
@@ -267,7 +267,7 @@ $(MCCTV_5200_PRJ).elf: $(MINSTARTUP_OBJ) $(MCCTV_5200_OBJ)
 	$(LD) $(LFLAGS_5200) -T $(LINKMAP_LARGE) -o $@ $+ $(LIBS)
 
 $(MIST_PRJ).elf: $(MINSTARTUP_OBJ) $(MIST_OBJ)
-	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
+	$(LD) $(LFLAGS) -T $(LINKMAP_LARGE) -o $@ $+ $(LIBS)
 
 $(MIST_5200_PRJ).elf: $(MINSTARTUP_OBJ) $(MIST_5200_OBJ)
 	$(LD) $(LFLAGS_5200) -T $(LINKMAP) -o $@ $+ $(LIBS)
@@ -323,7 +323,7 @@ $(MCCTV_5200_BUILD_DIR)/%.o: %.c Makefile
 
 $(MIST_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(MIST_DIR) $(CFLAGS)  -o $@ -c $<
+	$(CC) -I$(MIST_DIR) $(CFLAGS) -DNO_VID2I2C -DNO_FLASH -DMAX_VIDEO_MODE=1 -o $@ -c $<
 
 $(MIST_5200_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`

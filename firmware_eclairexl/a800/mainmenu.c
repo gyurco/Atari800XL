@@ -538,6 +538,8 @@ int devices_menu()
 		{0,0,0,0}, //blank line
 #ifdef USBSETTINGS
 		{&menuPrintUsb,0,0,MENU_FLAG_FINAL}
+#else
+		{0,0,0,MENU_FLAG_FINAL} //blank line
 #endif
 	};
 

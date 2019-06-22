@@ -9,69 +9,18 @@ my $name="mist";
 my $PAL = 1;
 my $NTSC = 0;
 
-my $RGB = 1; # i.e. not scandoubled
-my $VGA = 2;
-
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
 my %variants = 
 (
-	"PAL_RGB" => 
-	{
-		"TV" => $PAL,
-		"SCANDOUBLE" => 0,
-		"VIDEO" => $RGB,
-		"COMPOSITE_SYNC" => 1
-	},
-	"PAL_RGBHV" => 
-	{
-		"TV" => $PAL,
-		"SCANDOUBLE" => 0,
-		"VIDEO" => $RGB,
-		"COMPOSITE_SYNC" => 0
-	},
 	"PAL_VGA" =>
 	{
-		"TV" => $PAL,
-		"SCANDOUBLE" => 1,
-		"VIDEO" => $VGA,
-		"COMPOSITE_SYNC" => 0
-	},
-	"PAL_VGA_CS" =>
-	{
-		"TV" => $PAL,
-		"SCANDOUBLE" => 1,
-		"VIDEO" => $VGA,
-		"COMPOSITE_SYNC" => 1
-	},
-	"NTSC_RGB" =>
-	{
-		"TV" => $NTSC,
-		"SCANDOUBLE" => 0,
-		"VIDEO" => $RGB, 
-		"COMPOSITE_SYNC" => 1
-	},
-	"NTSC_RGBHV" =>
-	{
-		"TV" => $NTSC,
-		"SCANDOUBLE" => 0,
-		"VIDEO" => $RGB, 
-		"COMPOSITE_SYNC" => 0
+		"TV" => $PAL
 	},
 	"NTSC_VGA" => 
 	{
-		"TV" => $NTSC,
-		"SCANDOUBLE" => 1,
-		"VIDEO" => $VGA,
-		"COMPOSITE_SYNC" => 0
-	},
-	"NTSC_VGA_CS" => 
-	{
-		"TV" => $NTSC,
-		"SCANDOUBLE" => 1,
-		"VIDEO" => $VGA,
-		"COMPOSITE_SYNC" => 1
+		"TV" => $NTSC
 	}
 );
 
@@ -93,7 +42,7 @@ foreach my $variant (sort keys %variants)
 	`cp *mist_sector*.* $dir`;
 	`cp *.v $dir`;
 	`cp *.vhdl $dir`;
-	`cp zpu_rom.vhdl $dir`;
+	`cp zpu_rom.* $dir`;
 	`cp atari800core.sdc $dir`;
 	`mkdir $dir/common`;
 	`mkdir $dir/common/a8core`;

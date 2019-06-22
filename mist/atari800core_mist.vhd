@@ -14,10 +14,7 @@ LIBRARY work;
 ENTITY atari800core_mist IS 
 	GENERIC
 	(
-		TV : integer;  -- 1 = PAL, 0=NTSC
-		VIDEO : integer; -- 1 = RGB, 2 = VGA
-		COMPOSITE_SYNC : integer; --0 = no, 1 = yes!
-		SCANDOUBLE : integer -- 1 = YES, 0=NO, (+ later scanlines etc)
+		TV : integer  -- 1 = PAL, 0=NTSC
 	);
 	PORT
 	(
@@ -191,10 +188,7 @@ component user_io
 
   SIGNAL	KEYBOARD_RESPONSE :  STD_LOGIC_VECTOR(1 DOWNTO 0);
   SIGNAL	KEYBOARD_SCAN :  STD_LOGIC_VECTOR(5 DOWNTO 0);
-
-  SIGNAL PAL : std_logic;
-  SIGNAL COMPOSITE_ON_HSYNC : std_logic;
-  SIGNAL VGA : std_logic;
+  signal atari_keyboard : std_logic_vector(63 downto 0);
 
   signal SDRAM_REQUEST : std_logic;
   signal SDRAM_REQUEST_COMPLETE : std_logic;
@@ -229,6 +223,7 @@ component user_io
 	signal ZPU_OUT2 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT3 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT4 : std_logic_vector(31 downto 0);
+	signal ZPU_OUT6 : std_logic_vector(31 downto 0);
 
 	signal zpu_pokey_enable : std_logic;
 	signal zpu_sio_txd : std_logic;
@@ -270,8 +265,6 @@ component user_io
 	-- scandoubler
 	signal half_scandouble_enable_reg : std_logic;
 	signal half_scandouble_enable_next : std_logic;
-	signal scanlines_reg : std_logic;
-	signal scanlines_next : std_logic;
 	signal VIDEO_B : std_logic_vector(7 downto 0);
 
 	-- turbo freezer!
@@ -282,12 +275,14 @@ component user_io
 	signal paddle_mode_next : std_logic;
 	signal paddle_mode_reg : std_logic;
 
+	-- video settings
+	signal pal : std_logic;
+	signal scandouble : std_logic;
+	signal scanlines : std_logic;
+	signal csync : std_logic;
+	signal video_mode : std_logic_vector(2 downto 0);
+
 BEGIN 
-pal <= '1' when tv=1 else '0';
-vga <= '1' when video=2 else '0';
-composite_on_hsync <= '1' when composite_sync=1 else '0';
-
-
 -- hack for paddles
 	process(clk,RESET_N)
 	begin
@@ -313,7 +308,6 @@ composite_on_hsync <= '1' when composite_sync=1 else '0';
 	end process;
 
 	paddle_mode_next <= paddle_mode_reg xor (not(ps2_keys(16#11F#)) and ps2_keys_next(16#11F#)); -- left windows key
-	scanlines_next <= scanlines_reg xor (not(ps2_keys(16#11#)) and ps2_keys_next(16#11#)); -- left alt
 
 -- mist spi io
 	spi_do <= spi_miso_io when CONF_DATA0 ='0' else 'Z';
@@ -386,6 +380,8 @@ keyboard_map1 : entity work.ps2_to_atari800
 		PS2_DAT => ps2_dat,
 
  		INPUT => zpu_out4,
+
+ 		ATARI_KEYBOARD_OUT => atari_keyboard,
 
 		KEY_TYPE => key_type,
 		
@@ -581,10 +577,8 @@ LED <= zpu_sio_rxd;
 	begin
 		if ((RESET_N and SDRAM_RESET_N and not(reset_atari))='0') then
 			half_scandouble_enable_reg <= '0';
-			scanlines_reg <= '0';
 		elsif (clk'event and clk='1') then
 			half_scandouble_enable_reg <= half_scandouble_enable_next;
-			scanlines_reg <= scanlines_next;
 		end if;
 	end process;
 
@@ -600,12 +594,12 @@ LED <= zpu_sio_rxd;
 		CLK => CLK,
 		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
 		
-		VGA => vga,
-		COMPOSITE_ON_HSYNC => composite_on_hsync,
+		VGA => scandouble,
+		COMPOSITE_ON_HSYNC => csync,
 
 		colour_enable => half_scandouble_enable_reg,
 		doubled_enable => '1',
-		scanlines_on => scanlines_reg,
+		scanlines_on => scanlines,
 		
 		-- GTIA interface
 		pal => PAL,
@@ -628,7 +622,8 @@ zpu: entity work.zpucore
 	(
 		platform => 1,
 		spi_clock_div => 16,	-- 28MHz/2. Max for SD cards is 25MHz...
-		nMHz_clock_div => 27
+		nMHz_clock_div => 27,
+		memory => 8192
 	)
 	PORT MAP
 	(
@@ -675,17 +670,19 @@ zpu: entity work.zpucore
 		-- external control
 		-- switches etc. sector DMA blah blah.
 		ZPU_IN1 => X"000"&
-				"00"&ps2_keys(16#76#)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
+			"00"&
+			(atari_keyboard(28))&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
 				(FKEYS(11) or (mist_buttons(0) and not(joy1_n(4))))&(FKEYS(10) or (mist_buttons(0) and joy1_n(4) and joy_still))&(FKEYS(9) or (mist_buttons(0) and joy1_n(4) and not(joy_still)))&FKEYS(8 downto 0),
 		ZPU_IN2 => X"00000000",
-		ZPU_IN3 => X"00000000",
-		ZPU_IN4 => X"00000000",
+		ZPU_IN3 => atari_keyboard(31 downto 0),
+		ZPU_IN4 => atari_keyboard(63 downto 32),
 
 		-- ouputs - e.g. Atari system control, halt, throttle, rom select
 		ZPU_OUT1 => zpu_out1,
 		ZPU_OUT2 => zpu_out2,
 		ZPU_OUT3 => zpu_out3,
-		ZPU_OUT4 => zpu_out4
+		ZPU_OUT4 => zpu_out4,
+		ZPU_OUT6 => zpu_out6 --video mode
 	);
 
 	pause_atari <= zpu_out1(0);
@@ -697,10 +694,46 @@ zpu: entity work.zpucore
 	freezer_enable <= zpu_out1(25);
 	key_type <= zpu_out1(26);
 
-zpu_rom1: entity work.zpu_rom
+	video_mode <= zpu_out6(2 downto 0);
+	PAL <= zpu_out6(4);
+	scanlines <= zpu_out6(5);
+	csync <= zpu_out6(6);
+
+process(video_mode)
+begin
+	SCANDOUBLE <= '0';
+
+	-- original RGB
+	-- scandoubled RGB (works on some vga devices...)
+	-- svideo
+	-- hdmi with audio  (and vga exact mode...)
+	-- dvi (i.e. no preamble or audio) (and vga exact mode...)
+	-- vga exact mode (hdmi off)
+	-- composite (todo firmware...)
+
+	case video_mode is
+		when "000" =>
+		when "001" =>
+			SCANDOUBLE <= '1';
+		when "010" => -- svideo
+			      -- not supported -- TODO: need to provide a bitmask to firmware on what modes we support I think? Then can handle this in a better way!
+		when "011" =>
+			-- not supported
+		when "100" =>
+			-- not supported
+		when "101" =>
+			-- not supported
+		when "110" => -- composite
+			-- not supported
+
+		when others =>
+	end case;
+end process;
+
+	zpu_rom1: entity work.zpu_rom
 	port map(
 	        clock => clk,
-	        address => zpu_addr_rom(13 downto 2),
+	        address => zpu_addr_rom(14 downto 2),
 	        q => zpu_rom_data
 	);
 
