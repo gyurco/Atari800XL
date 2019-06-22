@@ -28,6 +28,7 @@ PORT
 	PS2_CLK : IN STD_LOGIC := '1';
 	PS2_DAT : IN STD_LOGIC := '1';
 	INPUT : IN STD_LOGIC_VECTOR(31 downto 0) := (others=>'0');
+	ATARI_KEYBOARD_OUT : OUT STD_LOGIC_VECTOR(63 downto 0);
 
 	KEY_TYPE : IN STD_LOGIC; -- 0 = ISO (EUROPEAN STYLE KEYBOARD), 1 = ANSI (AMERICAN STYLE KEYBOARD) 
 	
@@ -280,5 +281,7 @@ end generate;
 
 	PS2_KEYS <= ps2_keys_reg;
 	PS2_KEYS_NEXT_OUT <= ps2_keys_next;
+
+	ATARI_KEYBOARD_OUT <= atari_keyboard;
 END vhdl;
 
