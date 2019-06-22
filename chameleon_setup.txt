@@ -1,3 +1,5 @@
+(TODO: stale,need to review...)
+
 Here there are some quick instructions to setup the a8 core:
 
 

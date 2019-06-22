@@ -1,3 +1,5 @@
+(TODO: stale,need to review...)
+
 =============================
 Atari 800XL core instructions
 =============================

@@ -42,35 +42,47 @@ push @files, glob("chameleon/build*/output_files/*.rbf");
 push @files, glob("chameleon/build*/output_files/*.summary");
 push @files, glob("chameleon/build*/output_files/*.rpt");
 
-push @files, glob("de1/build*/output_files/*.sof");
-push @files, glob("de1/build*/output_files/*.pof");
-push @files, glob("de1/build*/output_files/*.summary");
-push @files, glob("de1/build*/output_files/*.rpt");
+push @files, glob("chameleon2/build*/output_files/*.sof");
+push @files, glob("chameleon2/build*/output_files/*.rbf");
+push @files, glob("chameleon2/build*/output_files/*.summary");
+push @files, glob("chameleon2/build*/output_files/*.rpt");
 
-push @files, glob("de1_5200/build*/output_files/*.sof");
-push @files, glob("de1_5200/build*/output_files/*.pof");
-push @files, glob("de1_5200/build*/output_files/*.summary");
-push @files, glob("de1_5200/build*/output_files/*.rpt");
+push @files, glob("eclaireXL_ITX/build*/output_files/*.sof");
+push @files, glob("eclaireXL_ITX/build*/output_files/*.rbf");
+push @files, glob("eclaireXL_ITX/build*/output_files/*.rbd");
+push @files, glob("eclaireXL_ITX/build*/output_files/*.summary");
+push @files, glob("eclaireXL_ITX/build*/output_files/*.rpt");
 
-push @files, glob("sockit/build*/output_files/*.sof");
-push @files, glob("sockit/build*/output_files/*.rbf");
-push @files, glob("sockit/build*/output_files/*.summary");
-push @files, glob("sockit/build*/output_files/*.rpt");
-push @files, glob("sockit/SOCKIT.elf");
-push @files, glob("sockit/type");
-push @files, glob("sockit/reboot");
+#push @files, glob("de1/build*/output_files/*.sof");
+#push @files, glob("de1/build*/output_files/*.pof");
+#push @files, glob("de1/build*/output_files/*.summary");
+#push @files, glob("de1/build*/output_files/*.rpt");
+#
+#push @files, glob("de1_5200/build*/output_files/*.sof");
+#push @files, glob("de1_5200/build*/output_files/*.pof");
+#push @files, glob("de1_5200/build*/output_files/*.summary");
+#push @files, glob("de1_5200/build*/output_files/*.rpt");
+#
+#push @files, glob("sockit/build*/output_files/*.sof");
+#push @files, glob("sockit/build*/output_files/*.rbf");
+#push @files, glob("sockit/build*/output_files/*.summary");
+#push @files, glob("sockit/build*/output_files/*.rpt");
+#push @files, glob("sockit/SOCKIT.elf");
+#push @files, glob("sockit/type");
+#push @files, glob("sockit/reboot");
 
-push @files, glob("papilioduo/build*/*.bit");
+#push @files, glob("papilioduo/build*/*.bit");
 
-push @files, glob("aeon_lite/build*/*.bit");
-push @files, glob("aeon_lite/build*/*.bin");
+#push @files, glob("aeon_lite/build*/*.bit");
+#push @files, glob("aeon_lite/build*/*.bin");
+#
+#push @files, glob("replay/sdcard/*.bin");
+#push @files, glob("replay/sdcard/*.ini");
 
-push @files, glob("replay/sdcard/*.bin");
-push @files, glob("replay/sdcard/*.ini");
-
-mkdir "/var/www/html/autobuild/";
+my $DEST="/home/markw/fpga/svn/repo/trunk/atari_800xl/packaged/"
+mkdir "$DEST";
 my $date = strftime("%Y%m%d",gmtime);
-my $dir = "/var/www/html/autobuild/$date";
+my $dir = "$DEST/$date";
 mkdir $dir;
 open (LOG,">".$dir."/log") or die "Failed to open log";
 foreach (@files)
