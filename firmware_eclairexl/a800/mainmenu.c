@@ -883,10 +883,8 @@ int settings_menu()
 		{&menuPrintScanlines,0,&menuScanlines,MENU_FLAG_FIRE},
 		{&menuPrintCompositeSync,0,&menuCompositeSync,MENU_FLAG_FIRE},
 		{0,"Apply video",&menuApplyVideo,MENU_FLAG_FIRE},
-#else
-		{&menuPrintTVStandard,0,0,0},
-#endif
 		{0,0,0,0}, //blank line
+#endif
 #ifndef NO_FLASH
 		{0,"Save Flash",&menuSaveFlash,MENU_FLAG_FIRE},
 #endif
