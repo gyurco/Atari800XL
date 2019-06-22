@@ -11,7 +11,9 @@ static const int main_ram_size=65536;
 unsigned char freezer_rom_present;
 unsigned char sd_present;
 unsigned char sel_profile;
+#ifndef NO_FLASH
 unsigned int romstart;
+#endif
 
 void loadosrom()
 {
@@ -372,8 +374,10 @@ void mainmenu()
 		}
 	}
 
+#ifndef NO_FLASH
 	// Find rom settings location
 	init_romstart();
+#endif
 
 	// default to flash
 	load_roms(0);
@@ -691,6 +695,7 @@ void menuKeyboard(void * menuData, struct joystick_status * joy)
 	set_key_type(!get_key_type());
 }
 
+#ifndef NO_VIDEO_MODE
 void menuPrintVideoMode(void * menuData, void * itemData)
 {
 	struct MenuData * menuData2 = (struct MenuData *)menuData;
@@ -706,6 +711,7 @@ void menuVideoMode(void * menuData, struct joystick_status * joy)
 	if (menuData2->video_mode < 0)
 		menuData2->video_mode = 0;
 }
+#endif
 
 void menuPrintTVStandard(void * menuData, void * itemData)
 {
@@ -713,6 +719,7 @@ void menuPrintTVStandard(void * menuData, void * itemData)
 	printf("TV standard:%s", get_tv_standard(menuData2->tv));
 }
 
+#ifndef NO_VIDEO_MODE
 void menuTVStandard(void * menuData, struct joystick_status * joy)
 {
 	struct MenuData * menuData2 = (struct MenuData *)menuData;
@@ -754,11 +761,13 @@ void menuApplyVideo(void * menuData, struct joystick_status * joy)
 	set_pll(get_tv()==TV_PAL, get_video()>=VIDEO_HDMI && get_video()<VIDEO_COMPOSITE);
 #endif
 }
+#endif
 
 void menuSettingsHotKeys(void * menuData, unsigned char keyPressed)
 {
 	struct MenuData * menuData2 = (struct MenuData *)menuData;
 
+#ifndef NO_VIDEO_MODE
 	int apply = 1;
 	switch(keyPressed)
 	{
@@ -814,6 +823,7 @@ void menuSettingsHotKeys(void * menuData, unsigned char keyPressed)
 	{
 		menuApplyVideo(menuData,0);
 	}
+#endif
 }
 
 #ifndef NO_FLASH
@@ -840,7 +850,11 @@ void menuProgramRBD(void * menuData, struct joystick_status * joy)
 
 void menuStatus1(void * menuData, struct joystick_status * joy)
 {
+#ifndef NO_VID2I2C
 	printf("Board:%d %s %s%s%s",*zpu_board,"Date:YYYYMMDD Core:XX",isHDMIConnected() ? "HDMI " : "",isVGAConnected() ? "VGA ":"",sd_present ? "SD ":"");
+#else
+	printf("Board:%d %s %s",*zpu_board,"Date:YYYYMMDD Core:XX",sd_present ? "SD ":"");
+#endif
 }
 
 #ifndef NO_FLASH
@@ -863,11 +877,15 @@ int settings_menu()
 		{&menuPrintOS,0,&menuOS,MENU_FLAG_FIRE},
 		{&menuPrintKeyboard,0,&menuKeyboard,MENU_FLAG_FIRE},
 		{0,0,0,0}, //blank line
+#ifndef NO_VIDEO_MODE
 		{&menuPrintVideoMode,0,&menuVideoMode,MENU_FLAG_MOVE},
 		{&menuPrintTVStandard,0,&menuTVStandard,MENU_FLAG_FIRE},
 		{&menuPrintScanlines,0,&menuScanlines,MENU_FLAG_FIRE},
 		{&menuPrintCompositeSync,0,&menuCompositeSync,MENU_FLAG_FIRE},
 		{0,"Apply video",&menuApplyVideo,MENU_FLAG_FIRE},
+#else
+		{&menuPrintTVStandard,0,0,0},
+#endif
 		{0,0,0,0}, //blank line
 #ifndef NO_FLASH
 		{0,"Save Flash",&menuSaveFlash,MENU_FLAG_FIRE},

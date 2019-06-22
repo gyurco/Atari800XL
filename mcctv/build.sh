@@ -9,9 +9,6 @@ my $name="mcctv";
 my $PAL = 1;
 my $NTSC = 0;
 
-my $SVIDEO = 1;
-my $VGA = 2;
-
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
@@ -21,7 +18,6 @@ my %variants =
 	{
 		"TV" => $PAL,
 		"SCANDOUBLE" => 0,
-		"VIDEO" => $SVIDEO,
 		"internal_ram" => 0,
 		"internal_rom" => 0,
 		"ext_clock" => 0
@@ -30,7 +26,6 @@ my %variants =
 	{
 		"TV" => $NTSC,
 		"SCANDOUBLE" => 0,
-		"VIDEO" => $SVIDEO,
 		"internal_ram" => 0,
 		"internal_rom" => 0,
 		"ext_clock" => 0
@@ -55,7 +50,7 @@ foreach my $variant (sort keys %variants)
 	`cp ../mcc_common/*remote_update*.* $dir`;
 	`cp ../mcc_common/*delayed_reconfig*.* $dir`;
 	`cp sdram_ctrl_3_ports.v $dir`;
-	`cp zpu_rom.vhdl $dir`;
+	`cp zpu_rom.* $dir`;
 	`cp atari800core.sdc $dir`;
 	`mkdir $dir/common`;
 	`mkdir $dir/common/a8core`;

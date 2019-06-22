@@ -146,7 +146,7 @@ port
   --// Write enable
   ap2_wren : in std_logic;
   --// Byte enable
-  ap2_bena : in std_logic_vector(1 downto 0);
+  Ap2_bena : in std_logic_vector(1 downto 0);
   --// Data bus (read)
   ap2_rddata : out std_logic_vector(15 downto 0);
   --// Data bus (write)
@@ -221,7 +221,7 @@ END COMPONENT;
 	signal VIDEO_ODD_LINE : std_logic;
 
 	signal PAL : std_logic;
-	
+
 	signal JOY1 : std_logic_vector(5 downto 0);
 	signal JOY2 : std_logic_vector(5 downto 0);
 	signal JOY1_n : std_logic_vector(4 downto 0);
@@ -302,6 +302,7 @@ END COMPONENT;
 	-- pokey keyboard
 	SIGNAL KEYBOARD_SCAN : std_logic_vector(5 downto 0);
 	SIGNAL KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
+	signal atari_keyboard : std_logic_vector(63 downto 0);
 	
 	-- gtia consol keys
 	SIGNAL CONSOL_START : std_logic;
@@ -545,6 +546,8 @@ keyboard_map1 : entity work.ps2_to_atari800
 		RESET_N => reset_n,
 		
 		INPUT => zpu_out4,
+
+ 		ATARI_KEYBOARD_OUT => atari_keyboard,
 
 		KEY_TYPE => key_type,
 		
@@ -989,11 +992,12 @@ zpu: entity work.zpucore
 		-- external control
 		-- switches etc. sector DMA blah blah.
 		ZPU_IN1 => X"000"&
-			"00"&ps2_keys(16#76#)&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
+			"00"&
+			(atari_keyboard(28))&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
 			FKEYS,
 		ZPU_IN2 => X"00000000",
-		ZPU_IN3 => X"00000000",
-		ZPU_IN4 => X"00000000",
+		ZPU_IN3 => atari_keyboard(31 downto 0),
+		ZPU_IN4 => atari_keyboard(63 downto 32),
 
 		-- ouputs - e.g. Atari system control, halt, throttle, rom select
 		ZPU_OUT1 => zpu_out1, --misc
@@ -1022,10 +1026,10 @@ zpu: entity work.zpucore
 	freezer_enable <= zpu_out1(25);
 	key_type <= zpu_out1(26);
 
-zpu_rom1: entity work.zpu_rom
+	zpu_rom1: entity work.zpu_rom
 	port map(
 	        clock => clk,
-	        address => zpu_addr_rom(14 downto 2),
+	        address => zpu_addr_rom(15 downto 2),
 	        q => zpu_rom_data
 	);
 
