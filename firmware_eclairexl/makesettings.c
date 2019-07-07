@@ -97,6 +97,23 @@ int main(void)
 	settings[1] = VIDEO_VGA | pal | csync;
 	save("48k800_PAL_VGA");
 
+
+	settings[0] = xlxe|mem576kcompy|speed1x; //128KB
+	settings[1] = VIDEO_VGA | pal;
+	save("576kcompy_PAL_VGA_NCS");
+
+	settings[0] = atari800|mem48k|speed1x; //48k 800
+	settings[1] = VIDEO_VGA | pal;
+	save("48k800_PAL_VGA_NCS");
+
+	settings[0] = xlxe|mem576kcompy|speed1x; //128KB
+	settings[1] = VIDEO_VGA;
+	save("576kcompy_NTSC_VGA_NCS");
+
+	settings[0] = atari800|mem48k|speed1x; //48k 800
+	settings[1] = VIDEO_VGA;
+	save("48k800_NTSC_VGA_NCS");
+
 	return 0;
 }
 
