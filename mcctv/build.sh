@@ -5,26 +5,13 @@ my $wanted_variant = shift @ARGV;
 
 my $name="mcctv";
 
-#variants...
-my $PAL = 1;
-my $NTSC = 0;
-
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
 my %variants = 
 (
-	"PAL_COMPOSITE" => 
+	"COMPOSITE" => 
 	{
-		"TV" => $PAL,
-		"SCANDOUBLE" => 0,
-		"internal_ram" => 0,
-		"internal_rom" => 0,
-		"ext_clock" => 0
-	},
-	"NTSC_COMPOSITE" =>
-	{
-		"TV" => $NTSC,
 		"SCANDOUBLE" => 0,
 		"internal_ram" => 0,
 		"internal_rom" => 0,
@@ -51,19 +38,21 @@ foreach my $variant (sort keys %variants)
 	`cp ../mcc_common/*delayed_reconfig*.* $dir`;
 	`cp sdram_ctrl_3_ports.v $dir`;
 	`cp zpu_rom.* $dir`;
+	`cp video_pll_reconfig* $dir`;
+	`cp clkctrl* $dir`;
+	`cp switch_pal_ntsc.vhd $dir`;
+	`cp ntsc.mif  pal.mif $dir`;
 	`cp atari800core.sdc $dir`;
 	`mkdir $dir/common`;
 	`mkdir $dir/common/a8core`;
 	`mkdir $dir/common/components`;
 	`mkdir $dir/common/zpu`;
-	`mkdir $dir/svideo`;
 	`cp ../common/a8core/* ./$dir/common/a8core`;
 	`cp -r ../common/components/* ./$dir/common/components`;
 	`mv ./$dir/common/components/*cyclone3/* ./$dir/common/components/`;
 	mkdir "./$dir/common/components/usbhostslave";
 	`cp ../common/components/usbhostslave/trunk/RTL/*/*.v ./$dir/common/components/usbhostslave`;
 	`cp ../common/zpu/* ./$dir/common/zpu`;
-	`cp ./svideo/* ./$dir/svideo`;
 
 	chdir $dir;
 	`../makeqsf ../atari800core.qsf ./svideo ./common/a8core ./common/components ./common/zpu ./common/components/usbhostslave`;
