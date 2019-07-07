@@ -1,0 +1,26 @@
+#        //memory map of flash
+#        //256k blank space (allows simple erase/read - flash chip I've seen supports 4k erase but I'm using 64k)
+#        //0x000000: settings (32KB!) (8KB each)
+#        //0x008000: basic rom (32KB) (8KB each)
+#        //0x010000: os rom (64KB - 4x16KB) (16KB each)
+#        //0x020000: freezer rom (64KB)
+#        //0x030000: reserved (64KB)
+#
+#        -rw-r--r--  1 markw markw  16384 Feb 18 22:53 xlhias.rom
+#        -rw-r--r--  1 markw markw  16384 Feb 18 22:53 xlorig.rom
+#        -rw-r--r--  1 markw markw  10240 Feb 18 22:53 osborig.rom
+#        -rw-r--r--  1 markw markw  16384 Feb 18 22:53 ultimon.rom
+
+dd if=../firmware_eclairexl/576kcompy_NTSC_VGA_NCS obs=1 seek=0 conv=notrunc of=sdflash.bin
+dd if=../firmware_eclairexl/576kcompy_NTSC_VGA_NCS obs=1 seek=8192 conv=notrunc of=sdflash.bin
+dd if=../firmware_eclairexl/576kcompy_NTSC_VGA_NCS obs=1 seek=16384 conv=notrunc of=sdflash.bin
+dd if=../firmware_eclairexl/48k800_NTSC_VGA_NCS    obs=1 seek=24576 conv=notrunc of=sdflash.bin
+#cat ./ataribas.rom altirra_roms_3.0/atbasic.rom ataribas.rom ataribas.rom > basic.rom
+dd if=../eclaireXL_ITX/basic.rom obs=1 seek=32768 conv=notrunc of=sdflash.bin
+#dd if=/dev/zero of=blank.rom bs=1 count=6144
+#cat ./xlhias.rom ./altirra_roms_3.0/altirraos-xl.rom xlorig.rom blank.rom osborig.rom > os.rom
+dd if=../eclaireXL_ITX/os.rom obs=1 seek=65536 conv=notrunc of=sdflash.bin
+dd if=../eclaireXL_ITX/freezer.rom obs=1 seek=131072 conv=notrunc of=sdflash.bin
+dd if=/dev/zero obs=1 seek=196608 conv=notrunc of=sdflash.bin count=65536 bs=1
+
+
