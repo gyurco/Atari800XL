@@ -39,7 +39,7 @@ struct MenuEntry
 	#define MENU_FLAG_SD 64
 };
 
-void display_menu(const char * title, struct MenuEntry * entries, menuPress menuPress, void * menuData);
+int display_menu(const char * title, struct MenuEntry * entries, menuPress menuPress, void * menuData);
 
 /*
  * Example menu

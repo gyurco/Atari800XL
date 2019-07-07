@@ -475,7 +475,7 @@ void menuDrive(void * menuData, struct joystick_status * joy, int drive)
 	}
 }
 
-void menuCart(void * menuData, struct joystick_status * joy)
+int menuCart(void * menuData, struct joystick_status * joy)
 {
 	if (joy->x_>0) {
 		fil_type = fil_type_car;
@@ -484,13 +484,14 @@ void menuCart(void * menuData, struct joystick_status * joy)
 		unsigned char mode = load_car(files[4]);
 		set_cart_select(mode);
 		if (mode) {
-			//return 1; TODO reboot
+			return 1; 
 		}
 	}
 	else if (joy->x_<0) {
 		file_init(files[4]);
 		set_cart_select(0);
 	}
+	return 0;
 }
 
 void menuDevicesHotkeys(void * menuData, unsigned char keyPressed)
@@ -529,7 +530,7 @@ int devices_menu()
 		{&menuPrintDrive,1,&menuDrive,MENU_FLAG_MOVE|MENU_FLAG_FIRE|MENU_FLAG_SD},
 		{&menuPrintDrive,2,&menuDrive,MENU_FLAG_MOVE|MENU_FLAG_FIRE|MENU_FLAG_SD},
 		{&menuPrintDrive,3,&menuDrive,MENU_FLAG_MOVE|MENU_FLAG_FIRE|MENU_FLAG_SD},
-		{&menuPrintCart,0,&menuCart,MENU_FLAG_MOVE|MENU_FLAG_SD},
+		{&menuPrintCart,0,&menuCart,MENU_FLAG_MOVE|MENU_FLAG_SD|MENU_FLAG_MAYEXIT},
 #ifdef USBSETTINGS
 		{0,"Rotate USB joysticks",&menuRotateUSB,MENU_FLAG_FIRE}, 
 #endif
@@ -543,8 +544,7 @@ int devices_menu()
 #endif
 	};
 
-	display_menu("Devices",&entries[0], &menuDevicesHotkeys, 0);
-	return 0;
+	return display_menu("Devices",&entries[0], &menuDevicesHotkeys, 0);
 }
 
 char const * const * ram;
@@ -721,13 +721,25 @@ void menuPrintTVStandard(void * menuData, void * itemData)
 	printf("TV standard:%s", get_tv_standard(menuData2->tv));
 }
 
-#ifndef NO_VIDEO_MODE
 void menuTVStandard(void * menuData, struct joystick_status * joy)
 {
 	struct MenuData * menuData2 = (struct MenuData *)menuData;
 	menuData2->tv = !menuData2->tv;
 }
 
+void menuApplyVideo(void * menuData, struct joystick_status * joy)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+	set_video(menuData2->video_mode);
+	set_tv(menuData2->tv);
+	set_scanlines(menuData2->scanlines);
+	set_csync(menuData2->csync);
+#ifdef PLL_SUPPORT
+	set_pll(get_tv()==TV_PAL, get_video()>=VIDEO_HDMI && get_video()<VIDEO_COMPOSITE);
+#endif
+}
+
+#ifndef NO_VIDEO_MODE
 void menuPrintScanlines(void * menuData, void * itemData)
 {
 	struct MenuData * menuData2 = (struct MenuData *)menuData;
@@ -751,23 +763,39 @@ void menuCompositeSync(void * menuData, struct joystick_status * joy)
 	struct MenuData * menuData2 = (struct MenuData *)menuData;
 	menuData2->csync = !menuData2->csync;
 }
-
-void menuApplyVideo(void * menuData, struct joystick_status * joy)
-{
-	struct MenuData * menuData2 = (struct MenuData *)menuData;
-	set_video(menuData2->video_mode);
-	set_tv(menuData2->tv);
-	set_scanlines(menuData2->scanlines);
-	set_csync(menuData2->csync);
-#ifdef PLL_SUPPORT
-	set_pll(get_tv()==TV_PAL, get_video()>=VIDEO_HDMI && get_video()<VIDEO_COMPOSITE);
-#endif
-}
 #endif
 
 void menuSettingsHotKeys(void * menuData, unsigned char keyPressed)
 {
 	struct MenuData * menuData2 = (struct MenuData *)menuData;
+
+#ifdef VIDEO_TV_ONLY
+	int apply = 1;
+	switch(keyPressed)
+	{
+	case 'P': // PAL
+		menuData2->tv = TV_PAL;
+		break;
+	case 'N': // NTSC
+		menuData2->tv = TV_NTSC;
+		break;
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+		sel_profile = keyPressed - '0';
+
+		menuProfileLoad(menuData);
+		break;
+	default:
+		apply = 0;
+	}
+
+	if (apply==1)
+	{
+		menuApplyVideo(menuData,0);
+	}
+#endif
 
 #ifndef NO_VIDEO_MODE
 	int apply = 1;
@@ -887,6 +915,11 @@ int settings_menu()
 		{0,"Apply video",&menuApplyVideo,MENU_FLAG_FIRE},
 		{0,0,0,0}, //blank line
 #endif
+#ifdef VIDEO_TV_ONLY
+		{&menuPrintTVStandard,0,&menuTVStandard,MENU_FLAG_FIRE},
+		{0,"Apply video",&menuApplyVideo,MENU_FLAG_FIRE},
+		{0,0,0,0}, //blank line
+#endif
 #ifndef NO_FLASH
 		{0,"Save Flash",&menuSaveFlash,MENU_FLAG_FIRE},
 #endif
@@ -895,7 +928,11 @@ int settings_menu()
 		{0,"Program RBD",&menuProgramRBD,MENU_FLAG_FIRE|MENU_FLAG_SD}, 
 #endif
 		{0,0,0,0}, //blank line
+#ifndef NO_FLASH
+		{0,"Exit",0,MENU_FLAG_EXIT},
+#else
 		{0,"Exit",0,MENU_FLAG_FINAL|MENU_FLAG_EXIT},
+#endif
 		{0,0,0,0}, //blank line
 #ifndef NO_FLASH
 		{&menuStatus1,0,0,0},
