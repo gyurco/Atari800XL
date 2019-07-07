@@ -89,7 +89,7 @@ PAPILIODUO_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) de1/dirs.c
 PAPILIODUO_OBJ = $(patsubst %.c,$(PAPILIODUO_BUILD_DIR)/%.o,$(PAPILIODUO_SRC))
 
 DE1_PRJ = DE1
-DE1_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) de1/dirs.c
+DE1_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) de1/dirs.c spiflash/spiflash.c de1/spibase.c de1/rom_location.c
 DE1_OBJ = $(patsubst %.c,$(DE1_BUILD_DIR)/%.o,$(DE1_SRC))
 
 DE1_5200_PRJ = DE1_5200
@@ -114,7 +114,7 @@ MCC_5200_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(5200_SRC) $(USB_SRC) mcc_5200/dirs.
 MCC_5200_OBJ = $(patsubst %.c,$(MCC_5200_BUILD_DIR)/%.o,$(MCC_5200_SRC))
 
 MCCTV_PRJ = MCCTV
-MCCTV_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) mcc/dirs.c sdram_common/rom_location.c
+MCCTV_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) $(USB_SRC) mcc/dirs.c sdram_common/rom_location.c sdfakeflash/sdflash.c mcc/spibase.c
 #MCCTV_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(A800_SRC) mcc/dirs.c
 MCCTV_OBJ = $(patsubst %.c,$(MCCTV_BUILD_DIR)/%.o,$(MCCTV_SRC))
 
@@ -241,7 +241,7 @@ $(PAPILIODUO_PRJ).elf: $(MINSTARTUP_OBJ) $(PAPILIODUO_OBJ)
 	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
 
 $(DE1_PRJ).elf: $(MINSTARTUP_OBJ) $(DE1_OBJ)
-	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
+	$(LD) $(LFLAGS) -T $(LINKMAP_LARGE) -o $@ $+ $(LIBS)
 
 $(DE1_5200_PRJ).elf: $(MINSTARTUP_OBJ) $(DE1_5200_OBJ)
 	$(LD) $(LFLAGS_5200) -T $(LINKMAP) -o $@ $+ $(LIBS)
@@ -295,11 +295,11 @@ $(CHAMELEON_BUILD_DIR)/%.o: %.c Makefile
 
 $(DE1_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(DE1_DIR) $(CFLAGS)  -o $@ -c $<
+	$(CC) -I$(DE1_DIR) $(CFLAGS) -DMAX_VIDEO_MODE=1 -DNO_VID2I2C -o $@ -c $<
 
 $(DE1_5200_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(DE1_5200_DIR) $(CFLAGS_5200)  -o $@ -c $<
+	$(CC) -I$(DE1_5200_DIR) $(CFLAGS_5200) -o $@ -c $<
 
 $(ECLAIREXL_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
@@ -307,7 +307,7 @@ $(ECLAIREXL_BUILD_DIR)/%.o: %.c Makefile
 
 $(MCC_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(MCC_DIR) $(CFLAGS_USB) -DNO_VID2I2C -DNO_FLASH -DMAX_VIDEO_MODE=1 -o $@ -c $<
+	$(CC) -I$(MCC_DIR) $(CFLAGS_USB) -DNO_VID2I2C -DNO_FLASH -DMAX_VIDEO_MODE=1 -DVIDEO_TV_ONLY -o $@ -c $<
 
 $(MCC_5200_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
@@ -315,7 +315,7 @@ $(MCC_5200_BUILD_DIR)/%.o: %.c Makefile
 
 $(MCCTV_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(MCCTV_DIR) $(CFLAGS_USB2) -DNO_VID2I2C -DNO_FLASH -DNO_VIDEO_MODE  -o $@ -c $<
+	$(CC) -I$(MCCTV_DIR) $(CFLAGS_USB2) -DNO_VID2I2C -DNO_VIDEO_MODE -DVIDEO_TV_ONLY -o $@ -c $<
 
 $(MCCTV_5200_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`

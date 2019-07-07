@@ -27,12 +27,14 @@ void *memset(void * s, int constant, int size)
 }
 #endif
 
-void display_menu(char const * title, struct MenuEntry * entries, menuPress menuPress, void * menuData)
+int display_menu(char const * title, struct MenuEntry * entries, menuPress menuPress, void * menuData)
 {
 	struct joystick_status joy;
 	joy.x_ = joy.y_ = joy.fire_ = joy.escape_ = 0;
 
 	int row = 0;
+
+	int res = 0;
 
 	int done = 0;
 	for (;!done;)
@@ -110,7 +112,10 @@ void display_menu(char const * title, struct MenuEntry * entries, menuPress menu
 						else if ((entry->flags&MENU_FLAG_LEFT && joy.x_<0) || (entry->flags&MENU_FLAG_RIGHT && joy.x_>0) || (entry->flags&MENU_FLAG_FIRE && joy.fire_))
 							if (entry->actionFunction(menuData, &joy, entry->userData))
 								if (entry->flags&MENU_FLAG_MAYEXIT)
+								{
+									res = 1;
 									done = 1;
+								}
 					}
 
 					break;
@@ -124,5 +129,6 @@ void display_menu(char const * title, struct MenuEntry * entries, menuPress menu
 			entry = entry + 1;
 		}
 	}
+	return res;
 }
 
