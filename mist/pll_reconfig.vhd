@@ -4,7 +4,7 @@
 -- MODULE: altpll 
 
 -- ============================================================
--- File Name: pll_ntsc.vhd
+-- File Name: pll_reconfig.vhd
 -- Megafunction Name(s):
 -- 			altpll
 --
@@ -39,34 +39,26 @@ USE ieee.std_logic_1164.all;
 LIBRARY altera_mf;
 USE altera_mf.all;
 
-ENTITY pll_ntsc IS
+ENTITY pll_reconfig IS
 	PORT
 	(
 		areset		: IN STD_LOGIC  := '0';
-		configupdate		: IN STD_LOGIC  := '0';
 		inclk0		: IN STD_LOGIC  := '0';
-		scanclk		: IN STD_LOGIC  := '1';
-		scanclkena		: IN STD_LOGIC  := '0';
-		scandata		: IN STD_LOGIC  := '0';
 		c0		: OUT STD_LOGIC ;
-		locked		: OUT STD_LOGIC ;
-		scandataout		: OUT STD_LOGIC ;
-		scandone		: OUT STD_LOGIC 
+		locked		: OUT STD_LOGIC 
 	);
-END pll_ntsc;
+END pll_reconfig;
 
 
-ARCHITECTURE SYN OF pll_ntsc IS
+ARCHITECTURE SYN OF pll_reconfig IS
 
-	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (4 DOWNTO 0);
-	SIGNAL sub_wire1	: STD_LOGIC ;
+	SIGNAL sub_wire0	: STD_LOGIC ;
+	SIGNAL sub_wire1	: STD_LOGIC_VECTOR (4 DOWNTO 0);
 	SIGNAL sub_wire2	: STD_LOGIC ;
 	SIGNAL sub_wire3	: STD_LOGIC ;
-	SIGNAL sub_wire4	: STD_LOGIC ;
-	SIGNAL sub_wire5	: STD_LOGIC ;
-	SIGNAL sub_wire6	: STD_LOGIC_VECTOR (1 DOWNTO 0);
-	SIGNAL sub_wire7_bv	: BIT_VECTOR (0 DOWNTO 0);
-	SIGNAL sub_wire7	: STD_LOGIC_VECTOR (0 DOWNTO 0);
+	SIGNAL sub_wire4	: STD_LOGIC_VECTOR (1 DOWNTO 0);
+	SIGNAL sub_wire5_bv	: BIT_VECTOR (0 DOWNTO 0);
+	SIGNAL sub_wire5	: STD_LOGIC_VECTOR (0 DOWNTO 0);
 
 
 
@@ -126,45 +118,36 @@ ARCHITECTURE SYN OF pll_ntsc IS
 		port_extclk2		: STRING;
 		port_extclk3		: STRING;
 		self_reset_on_loss_lock		: STRING;
-		width_clock		: NATURAL;
-		scan_chain_mif_file		: STRING
+		width_clock		: NATURAL
 	);
 	PORT (
 			areset	: IN STD_LOGIC ;
-			configupdate	: IN STD_LOGIC ;
-			inclk	: IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-			scanclk	: IN STD_LOGIC ;
-			scanclkena	: IN STD_LOGIC ;
-			scandata	: IN STD_LOGIC ;
-			scandataout	: OUT STD_LOGIC ;
-			scandone	: OUT STD_LOGIC ;
 			clk	: OUT STD_LOGIC_VECTOR (4 DOWNTO 0);
+			inclk	: IN STD_LOGIC_VECTOR (1 DOWNTO 0);
 			locked	: OUT STD_LOGIC 
 	);
 	END COMPONENT;
 
 BEGIN
-	sub_wire7_bv(0 DOWNTO 0) <= "0";
-	sub_wire7    <= To_stdlogicvector(sub_wire7_bv);
-	sub_wire1    <= sub_wire0(0);
-	c0    <= sub_wire1;
-	scandataout    <= sub_wire2;
-	scandone    <= sub_wire3;
-	locked    <= sub_wire4;
-	sub_wire5    <= inclk0;
-	sub_wire6    <= sub_wire7(0 DOWNTO 0) & sub_wire5;
+	sub_wire5_bv(0 DOWNTO 0) <= "0";
+	sub_wire5    <= To_stdlogicvector(sub_wire5_bv);
+	locked    <= sub_wire0;
+	sub_wire2    <= sub_wire1(0);
+	c0    <= sub_wire2;
+	sub_wire3    <= inclk0;
+	sub_wire4    <= sub_wire5(0 DOWNTO 0) & sub_wire3;
 
 	altpll_component : altpll
 	GENERIC MAP (
-		bandwidth_type => "LOW",
-		clk0_divide_by => 55,
+		bandwidth_type => "AUTO",
+		clk0_divide_by => 9,
 		clk0_duty_cycle => 50,
-		clk0_multiply_by => 63,
+		clk0_multiply_by => 4,
 		clk0_phase_shift => "0",
 		compensate_clock => "CLK0",
 		inclk0_input_frequency => 37037,
 		intended_device_family => "Cyclone III",
-		lpm_hint => "CBX_MODULE_PREFIX=pll_ntsc",
+		lpm_hint => "CBX_MODULE_PREFIX=pll_reconfig",
 		lpm_type => "altpll",
 		operation_mode => "NORMAL",
 		pll_type => "AUTO",
@@ -174,7 +157,7 @@ BEGIN
 		port_clkbad1 => "PORT_UNUSED",
 		port_clkloss => "PORT_UNUSED",
 		port_clkswitch => "PORT_UNUSED",
-		port_configupdate => "PORT_USED",
+		port_configupdate => "PORT_UNUSED",
 		port_fbin => "PORT_UNUSED",
 		port_inclk0 => "PORT_USED",
 		port_inclk1 => "PORT_UNUSED",
@@ -186,11 +169,11 @@ BEGIN
 		port_phaseupdown => "PORT_UNUSED",
 		port_pllena => "PORT_UNUSED",
 		port_scanaclr => "PORT_UNUSED",
-		port_scanclk => "PORT_USED",
-		port_scanclkena => "PORT_USED",
-		port_scandata => "PORT_USED",
-		port_scandataout => "PORT_USED",
-		port_scandone => "PORT_USED",
+		port_scanclk => "PORT_UNUSED",
+		port_scanclkena => "PORT_UNUSED",
+		port_scandata => "PORT_UNUSED",
+		port_scandataout => "PORT_UNUSED",
+		port_scandone => "PORT_UNUSED",
 		port_scanread => "PORT_UNUSED",
 		port_scanwrite => "PORT_UNUSED",
 		port_clk0 => "PORT_USED",
@@ -210,20 +193,13 @@ BEGIN
 		port_extclk2 => "PORT_UNUSED",
 		port_extclk3 => "PORT_UNUSED",
 		self_reset_on_loss_lock => "OFF",
-		width_clock => 5,
-		scan_chain_mif_file => "pll_ntsc.mif"
+		width_clock => 5
 	)
 	PORT MAP (
 		areset => areset,
-		configupdate => configupdate,
-		inclk => sub_wire6,
-		scanclk => scanclk,
-		scanclkena => scanclkena,
-		scandata => scandata,
-		clk => sub_wire0,
-		scandataout => sub_wire2,
-		scandone => sub_wire3,
-		locked => sub_wire4
+		inclk => sub_wire4,
+		locked => sub_wire0,
+		clk => sub_wire1
 	);
 
 
@@ -238,8 +214,8 @@ END SYN;
 -- Retrieval info: PRIVATE: BANDWIDTH_FEATURE_ENABLED STRING "1"
 -- Retrieval info: PRIVATE: BANDWIDTH_FREQ_UNIT STRING "MHz"
 -- Retrieval info: PRIVATE: BANDWIDTH_PRESET STRING "Low"
--- Retrieval info: PRIVATE: BANDWIDTH_USE_AUTO STRING "0"
--- Retrieval info: PRIVATE: BANDWIDTH_USE_PRESET STRING "1"
+-- Retrieval info: PRIVATE: BANDWIDTH_USE_AUTO STRING "1"
+-- Retrieval info: PRIVATE: BANDWIDTH_USE_PRESET STRING "0"
 -- Retrieval info: PRIVATE: CLKBAD_SWITCHOVER_CHECK STRING "0"
 -- Retrieval info: PRIVATE: CLKLOSS_CHECK STRING "0"
 -- Retrieval info: PRIVATE: CLKSWITCH_CHECK STRING "0"
@@ -249,9 +225,9 @@ END SYN;
 -- Retrieval info: PRIVATE: CUR_DEDICATED_CLK STRING "c0"
 -- Retrieval info: PRIVATE: CUR_FBIN_CLK STRING "c0"
 -- Retrieval info: PRIVATE: DEVICE_SPEED_GRADE STRING "8"
--- Retrieval info: PRIVATE: DIV_FACTOR0 NUMERIC "55"
+-- Retrieval info: PRIVATE: DIV_FACTOR0 NUMERIC "1"
 -- Retrieval info: PRIVATE: DUTY_CYCLE0 STRING "50.00000000"
--- Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE0 STRING "30.927273"
+-- Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE0 STRING "12.000000"
 -- Retrieval info: PRIVATE: EXPLICIT_SWITCHOVER_COUNTER STRING "0"
 -- Retrieval info: PRIVATE: EXT_FEEDBACK_RADIO STRING "0"
 -- Retrieval info: PRIVATE: GLOCKED_COUNTER_EDIT_CHANGED STRING "1"
@@ -274,10 +250,10 @@ END SYN;
 -- Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT0 STRING "deg"
 -- Retrieval info: PRIVATE: MIG_DEVICE_SPEED_GRADE STRING "Any"
 -- Retrieval info: PRIVATE: MIRROR_CLK0 STRING "0"
--- Retrieval info: PRIVATE: MULT_FACTOR0 NUMERIC "63"
+-- Retrieval info: PRIVATE: MULT_FACTOR0 NUMERIC "1"
 -- Retrieval info: PRIVATE: NORMAL_MODE_RADIO STRING "1"
--- Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "100.00000000"
--- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE0 STRING "0"
+-- Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "12.00000000"
+-- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE0 STRING "1"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT0 STRING "MHz"
 -- Retrieval info: PRIVATE: PHASE_RECONFIG_FEATURE_ENABLED STRING "1"
 -- Retrieval info: PRIVATE: PHASE_RECONFIG_INPUTS_CHECK STRING "0"
@@ -294,8 +270,8 @@ END SYN;
 -- Retrieval info: PRIVATE: PLL_PFDENA_CHECK STRING "0"
 -- Retrieval info: PRIVATE: PLL_TARGET_HARCOPY_CHECK NUMERIC "0"
 -- Retrieval info: PRIVATE: PRIMARY_CLK_COMBO STRING "inclk0"
--- Retrieval info: PRIVATE: RECONFIG_FILE STRING "pll_ntsc.mif"
--- Retrieval info: PRIVATE: SACN_INPUTS_CHECK STRING "1"
+-- Retrieval info: PRIVATE: RECONFIG_FILE STRING "pll_reconfig.mif"
+-- Retrieval info: PRIVATE: SACN_INPUTS_CHECK STRING "0"
 -- Retrieval info: PRIVATE: SCAN_FEATURE_ENABLED STRING "1"
 -- Retrieval info: PRIVATE: SELF_RESET_LOCK_LOSS STRING "0"
 -- Retrieval info: PRIVATE: SHORT_SCAN_RADIO STRING "0"
@@ -314,10 +290,10 @@ END SYN;
 -- Retrieval info: PRIVATE: USE_MIL_SPEED_GRADE NUMERIC "0"
 -- Retrieval info: PRIVATE: ZERO_DELAY_RADIO STRING "0"
 -- Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
--- Retrieval info: CONSTANT: BANDWIDTH_TYPE STRING "LOW"
--- Retrieval info: CONSTANT: CLK0_DIVIDE_BY NUMERIC "55"
+-- Retrieval info: CONSTANT: BANDWIDTH_TYPE STRING "AUTO"
+-- Retrieval info: CONSTANT: CLK0_DIVIDE_BY NUMERIC "9"
 -- Retrieval info: CONSTANT: CLK0_DUTY_CYCLE NUMERIC "50"
--- Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "63"
+-- Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "4"
 -- Retrieval info: CONSTANT: CLK0_PHASE_SHIFT STRING "0"
 -- Retrieval info: CONSTANT: COMPENSATE_CLOCK STRING "CLK0"
 -- Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "37037"
@@ -331,7 +307,7 @@ END SYN;
 -- Retrieval info: CONSTANT: PORT_CLKBAD1 STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_CLKLOSS STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_CLKSWITCH STRING "PORT_UNUSED"
--- Retrieval info: CONSTANT: PORT_CONFIGUPDATE STRING "PORT_USED"
+-- Retrieval info: CONSTANT: PORT_CONFIGUPDATE STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_FBIN STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_INCLK0 STRING "PORT_USED"
 -- Retrieval info: CONSTANT: PORT_INCLK1 STRING "PORT_UNUSED"
@@ -343,11 +319,11 @@ END SYN;
 -- Retrieval info: CONSTANT: PORT_PHASEUPDOWN STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_PLLENA STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_SCANACLR STRING "PORT_UNUSED"
--- Retrieval info: CONSTANT: PORT_SCANCLK STRING "PORT_USED"
--- Retrieval info: CONSTANT: PORT_SCANCLKENA STRING "PORT_USED"
--- Retrieval info: CONSTANT: PORT_SCANDATA STRING "PORT_USED"
--- Retrieval info: CONSTANT: PORT_SCANDATAOUT STRING "PORT_USED"
--- Retrieval info: CONSTANT: PORT_SCANDONE STRING "PORT_USED"
+-- Retrieval info: CONSTANT: PORT_SCANCLK STRING "PORT_UNUSED"
+-- Retrieval info: CONSTANT: PORT_SCANCLKENA STRING "PORT_UNUSED"
+-- Retrieval info: CONSTANT: PORT_SCANDATA STRING "PORT_UNUSED"
+-- Retrieval info: CONSTANT: PORT_SCANDATAOUT STRING "PORT_UNUSED"
+-- Retrieval info: CONSTANT: PORT_SCANDONE STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_SCANREAD STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_SCANWRITE STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_clk0 STRING "PORT_USED"
@@ -368,36 +344,22 @@ END SYN;
 -- Retrieval info: CONSTANT: PORT_extclk3 STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: SELF_RESET_ON_LOSS_LOCK STRING "OFF"
 -- Retrieval info: CONSTANT: WIDTH_CLOCK NUMERIC "5"
--- Retrieval info: CONSTANT: scan_chain_mif_file STRING "pll_ntsc.mif"
 -- Retrieval info: USED_PORT: @clk 0 0 5 0 OUTPUT_CLK_EXT VCC "@clk[4..0]"
 -- Retrieval info: USED_PORT: @inclk 0 0 2 0 INPUT_CLK_EXT VCC "@inclk[1..0]"
 -- Retrieval info: USED_PORT: areset 0 0 0 0 INPUT GND "areset"
 -- Retrieval info: USED_PORT: c0 0 0 0 0 OUTPUT_CLK_EXT VCC "c0"
--- Retrieval info: USED_PORT: configupdate 0 0 0 0 INPUT GND "configupdate"
 -- Retrieval info: USED_PORT: inclk0 0 0 0 0 INPUT_CLK_EXT GND "inclk0"
 -- Retrieval info: USED_PORT: locked 0 0 0 0 OUTPUT GND "locked"
--- Retrieval info: USED_PORT: scanclk 0 0 0 0 INPUT_CLK_EXT VCC "scanclk"
--- Retrieval info: USED_PORT: scanclkena 0 0 0 0 INPUT GND "scanclkena"
--- Retrieval info: USED_PORT: scandata 0 0 0 0 INPUT GND "scandata"
--- Retrieval info: USED_PORT: scandataout 0 0 0 0 OUTPUT VCC "scandataout"
--- Retrieval info: USED_PORT: scandone 0 0 0 0 OUTPUT VCC "scandone"
 -- Retrieval info: CONNECT: @areset 0 0 0 0 areset 0 0 0 0
--- Retrieval info: CONNECT: @configupdate 0 0 0 0 configupdate 0 0 0 0
 -- Retrieval info: CONNECT: @inclk 0 0 1 1 GND 0 0 0 0
 -- Retrieval info: CONNECT: @inclk 0 0 1 0 inclk0 0 0 0 0
--- Retrieval info: CONNECT: @scanclk 0 0 0 0 scanclk 0 0 0 0
--- Retrieval info: CONNECT: @scanclkena 0 0 0 0 scanclkena 0 0 0 0
--- Retrieval info: CONNECT: @scandata 0 0 0 0 scandata 0 0 0 0
 -- Retrieval info: CONNECT: c0 0 0 0 0 @clk 0 0 1 0
 -- Retrieval info: CONNECT: locked 0 0 0 0 @locked 0 0 0 0
--- Retrieval info: CONNECT: scandataout 0 0 0 0 @scandataout 0 0 0 0
--- Retrieval info: CONNECT: scandone 0 0 0 0 @scandone 0 0 0 0
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_ntsc.vhd TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_ntsc.ppf TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_ntsc.inc FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_ntsc.cmp TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_ntsc.bsf FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_ntsc_inst.vhd FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_ntsc.mif TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_reconfig.vhd TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_reconfig.ppf TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_reconfig.inc FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_reconfig.cmp TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_reconfig.bsf FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_reconfig_inst.vhd FALSE
 -- Retrieval info: LIB_FILE: altera_mf
 -- Retrieval info: CBX_MODULE_PREFIX: ON

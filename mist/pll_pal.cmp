@@ -13,7 +13,7 @@
 --applicable agreement for further details.
 
 
-component pll_ntsc
+component pll_pal
 	PORT
 	(
 		areset		: IN STD_LOGIC  := '0';

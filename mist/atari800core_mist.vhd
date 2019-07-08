@@ -12,10 +12,6 @@ use ieee.numeric_std.all;
 LIBRARY work;
 
 ENTITY atari800core_mist IS 
-	GENERIC
-	(
-		TV : integer  -- 1 = PAL, 0=NTSC
-	);
 	PORT
 	(
 		CLOCK_27 :  IN  STD_LOGIC_VECTOR(1 downto 0);
@@ -149,7 +145,6 @@ component user_io
   signal VGA_CS_RAW : std_logic;
 
   signal RESET_n : std_logic;
-  signal PLL_LOCKED : std_logic;
   signal CLK : std_logic;
   signal CLK_SDRAM : std_logic;
 
@@ -281,6 +276,10 @@ component user_io
 	signal scanlines : std_logic;
 	signal csync : std_logic;
 	signal video_mode : std_logic_vector(2 downto 0);
+
+	-- pll reconfig
+	signal CLK_RECONFIG_PLL : std_logic;
+	signal CLK_RECONFIG_PLL_LOCKED : std_logic;
 
 BEGIN 
 -- hack for paddles
@@ -424,32 +423,32 @@ port map
   dac_out => audio_r
 );
 
-gen_ntsc_pll : if tv=0 generate
-mist_pll : entity work.pll_ntsc
+reconfig_pll : entity work.pll_reconfig -- This only exists to generate reset!!
 PORT MAP(inclk0 => CLOCK_27(0),
-		 c0 => CLK_SDRAM,
-		 c1 => CLK,
-		 c2 => SDRAM_CLK,
-		 c3 => SLOW_PS2_CLK,
-		 locked => PLL_LOCKED);
-end generate;
+		 c0 => CLK_RECONFIG_PLL,
+		 locked => CLK_RECONFIG_PLL_LOCKED);
 
-gen_pal_pll : if tv=1 generate
-mist_pll : entity work.pll_pal_pre
-PORT MAP(inclk0 => CLOCK_27(0),
-		 c0 => CLK_PLL1,
-		 locked => PLL1_LOCKED);
-mist_pll2 : entity work.pll_pal_post
-PORT MAP(inclk0 => CLK_PLL1,
-		 c0 => CLK_SDRAM,
-		 c1 => CLK,
-		 c2 => SDRAM_CLK,
-		 c3 => SLOW_PS2_CLK,
-		 areset => not(PLL1_LOCKED),
-		 locked => PLL_LOCKED);
-end generate;
-
-reset_n <= PLL_LOCKED;
+	pll_switcher : work.switch_pal_ntsc
+	    GENERIC MAP
+	    (
+	        CLOCKS => 4,
+		SYNC_ON => 1
+	    )
+	    PORT MAP
+	    (
+	        RECONFIG_CLK => CLK_RECONFIG_PLL,
+	        RESET_N => CLK_RECONFIG_PLL_LOCKED,
+	
+	        PAL => PAL,
+	
+	        INPUT_CLK => CLOCK_27(0),
+	        PLL_CLKS(0) => CLK_SDRAM,
+	        PLL_CLKS(1) => CLK,
+	        PLL_CLKS(2) => SDRAM_CLK,
+		PLL_CLKS(3) => SLOW_PS2_CLK,
+	
+		RESET_N_OUT => RESET_N
+	    );
 
 atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 	GENERIC MAP
