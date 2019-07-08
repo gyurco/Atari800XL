@@ -4,7 +4,7 @@
 -- MODULE: altpll 
 
 -- ============================================================
--- File Name: pll_pal_post.vhd
+-- File Name: pll_downstream_pal.vhd
 -- Megafunction Name(s):
 -- 			altpll
 --
@@ -39,7 +39,7 @@ USE ieee.std_logic_1164.all;
 LIBRARY altera_mf;
 USE altera_mf.all;
 
-ENTITY pll_pal_post IS
+ENTITY pll_downstream_pal IS
 	PORT
 	(
 		areset		: IN STD_LOGIC  := '0';
@@ -50,10 +50,10 @@ ENTITY pll_pal_post IS
 		c3		: OUT STD_LOGIC ;
 		locked		: OUT STD_LOGIC 
 	);
-END pll_pal_post;
+END pll_downstream_pal;
 
 
-ARCHITECTURE SYN OF pll_pal_post IS
+ARCHITECTURE SYN OF pll_downstream_pal IS
 
 	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (4 DOWNTO 0);
 	SIGNAL sub_wire1	: STD_LOGIC ;
@@ -164,26 +164,26 @@ BEGIN
 	altpll_component : altpll
 	GENERIC MAP (
 		bandwidth_type => "HIGH",
-		clk0_divide_by => 40,
+		clk0_divide_by => 27,
 		clk0_duty_cycle => 50,
-		clk0_multiply_by => 227,
+		clk0_multiply_by => 100,
 		clk0_phase_shift => "0",
-		clk1_divide_by => 80,
+		clk1_divide_by => 27,
 		clk1_duty_cycle => 50,
-		clk1_multiply_by => 227,
+		clk1_multiply_by => 50,
 		clk1_phase_shift => "0",
-		clk2_divide_by => 40,
+		clk2_divide_by => 27,
 		clk2_duty_cycle => 50,
-		clk2_multiply_by => 227,
+		clk2_multiply_by => 100,
 		clk2_phase_shift => "-2400",
-		clk3_divide_by => 1280,
+		clk3_divide_by => 2700,
 		clk3_duty_cycle => 50,
 		clk3_multiply_by => 1,
 		clk3_phase_shift => "0",
 		compensate_clock => "CLK0",
-		inclk0_input_frequency => 50000,
+		inclk0_input_frequency => 32631,
 		intended_device_family => "Cyclone III",
-		lpm_hint => "CBX_MODULE_PREFIX=pll_pal_post",
+		lpm_hint => "CBX_MODULE_PREFIX=pll_downstream_pal",
 		lpm_type => "altpll",
 		operation_mode => "NORMAL",
 		pll_type => "AUTO",
@@ -261,10 +261,10 @@ END SYN;
 -- Retrieval info: PRIVATE: CUR_DEDICATED_CLK STRING "c0"
 -- Retrieval info: PRIVATE: CUR_FBIN_CLK STRING "c0"
 -- Retrieval info: PRIVATE: DEVICE_SPEED_GRADE STRING "8"
--- Retrieval info: PRIVATE: DIV_FACTOR0 NUMERIC "40"
--- Retrieval info: PRIVATE: DIV_FACTOR1 NUMERIC "80"
--- Retrieval info: PRIVATE: DIV_FACTOR2 NUMERIC "40"
--- Retrieval info: PRIVATE: DIV_FACTOR3 NUMERIC "1280"
+-- Retrieval info: PRIVATE: DIV_FACTOR0 NUMERIC "27"
+-- Retrieval info: PRIVATE: DIV_FACTOR1 NUMERIC "27"
+-- Retrieval info: PRIVATE: DIV_FACTOR2 NUMERIC "27"
+-- Retrieval info: PRIVATE: DIV_FACTOR3 NUMERIC "2700"
 -- Retrieval info: PRIVATE: DUTY_CYCLE0 STRING "50.00000000"
 -- Retrieval info: PRIVATE: DUTY_CYCLE1 STRING "50.00000000"
 -- Retrieval info: PRIVATE: DUTY_CYCLE2 STRING "50.00000000"
@@ -272,7 +272,7 @@ END SYN;
 -- Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE0 STRING "113.500000"
 -- Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE1 STRING "56.750000"
 -- Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE2 STRING "113.500000"
--- Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE3 STRING "0.015625"
+-- Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE3 STRING "0.011350"
 -- Retrieval info: PRIVATE: EXPLICIT_SWITCHOVER_COUNTER STRING "0"
 -- Retrieval info: PRIVATE: EXT_FEEDBACK_RADIO STRING "0"
 -- Retrieval info: PRIVATE: GLOCKED_COUNTER_EDIT_CHANGED STRING "1"
@@ -280,7 +280,7 @@ END SYN;
 -- Retrieval info: PRIVATE: GLOCKED_MODE_CHECK STRING "0"
 -- Retrieval info: PRIVATE: GLOCK_COUNTER_EDIT NUMERIC "1048575"
 -- Retrieval info: PRIVATE: HAS_MANUAL_SWITCHOVER STRING "1"
--- Retrieval info: PRIVATE: INCLK0_FREQ_EDIT STRING "20.000"
+-- Retrieval info: PRIVATE: INCLK0_FREQ_EDIT STRING "30.645"
 -- Retrieval info: PRIVATE: INCLK0_FREQ_UNIT_COMBO STRING "MHz"
 -- Retrieval info: PRIVATE: INCLK1_FREQ_EDIT STRING "100.000"
 -- Retrieval info: PRIVATE: INCLK1_FREQ_EDIT_CHANGED STRING "1"
@@ -301,15 +301,15 @@ END SYN;
 -- Retrieval info: PRIVATE: MIRROR_CLK1 STRING "0"
 -- Retrieval info: PRIVATE: MIRROR_CLK2 STRING "0"
 -- Retrieval info: PRIVATE: MIRROR_CLK3 STRING "0"
--- Retrieval info: PRIVATE: MULT_FACTOR0 NUMERIC "227"
--- Retrieval info: PRIVATE: MULT_FACTOR1 NUMERIC "227"
--- Retrieval info: PRIVATE: MULT_FACTOR2 NUMERIC "227"
+-- Retrieval info: PRIVATE: MULT_FACTOR0 NUMERIC "100"
+-- Retrieval info: PRIVATE: MULT_FACTOR1 NUMERIC "50"
+-- Retrieval info: PRIVATE: MULT_FACTOR2 NUMERIC "100"
 -- Retrieval info: PRIVATE: MULT_FACTOR3 NUMERIC "1"
 -- Retrieval info: PRIVATE: NORMAL_MODE_RADIO STRING "1"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "100.00000000"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ1 STRING "100.00000000"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ2 STRING "100.00000000"
--- Retrieval info: PRIVATE: OUTPUT_FREQ3 STRING "0.10000000"
+-- Retrieval info: PRIVATE: OUTPUT_FREQ3 STRING "100.00000000"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE0 STRING "0"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE1 STRING "0"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE2 STRING "0"
@@ -339,7 +339,7 @@ END SYN;
 -- Retrieval info: PRIVATE: PLL_PFDENA_CHECK STRING "0"
 -- Retrieval info: PRIVATE: PLL_TARGET_HARCOPY_CHECK NUMERIC "0"
 -- Retrieval info: PRIVATE: PRIMARY_CLK_COMBO STRING "inclk0"
--- Retrieval info: PRIVATE: RECONFIG_FILE STRING "pll_pal_post.mif"
+-- Retrieval info: PRIVATE: RECONFIG_FILE STRING "pll_downstream_pal.mif"
 -- Retrieval info: PRIVATE: SACN_INPUTS_CHECK STRING "0"
 -- Retrieval info: PRIVATE: SCAN_FEATURE_ENABLED STRING "1"
 -- Retrieval info: PRIVATE: SELF_RESET_LOCK_LOSS STRING "0"
@@ -369,24 +369,24 @@ END SYN;
 -- Retrieval info: PRIVATE: ZERO_DELAY_RADIO STRING "0"
 -- Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
 -- Retrieval info: CONSTANT: BANDWIDTH_TYPE STRING "HIGH"
--- Retrieval info: CONSTANT: CLK0_DIVIDE_BY NUMERIC "40"
+-- Retrieval info: CONSTANT: CLK0_DIVIDE_BY NUMERIC "27"
 -- Retrieval info: CONSTANT: CLK0_DUTY_CYCLE NUMERIC "50"
--- Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "227"
+-- Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "100"
 -- Retrieval info: CONSTANT: CLK0_PHASE_SHIFT STRING "0"
--- Retrieval info: CONSTANT: CLK1_DIVIDE_BY NUMERIC "80"
+-- Retrieval info: CONSTANT: CLK1_DIVIDE_BY NUMERIC "27"
 -- Retrieval info: CONSTANT: CLK1_DUTY_CYCLE NUMERIC "50"
--- Retrieval info: CONSTANT: CLK1_MULTIPLY_BY NUMERIC "227"
+-- Retrieval info: CONSTANT: CLK1_MULTIPLY_BY NUMERIC "50"
 -- Retrieval info: CONSTANT: CLK1_PHASE_SHIFT STRING "0"
--- Retrieval info: CONSTANT: CLK2_DIVIDE_BY NUMERIC "40"
+-- Retrieval info: CONSTANT: CLK2_DIVIDE_BY NUMERIC "27"
 -- Retrieval info: CONSTANT: CLK2_DUTY_CYCLE NUMERIC "50"
--- Retrieval info: CONSTANT: CLK2_MULTIPLY_BY NUMERIC "227"
+-- Retrieval info: CONSTANT: CLK2_MULTIPLY_BY NUMERIC "100"
 -- Retrieval info: CONSTANT: CLK2_PHASE_SHIFT STRING "-2400"
--- Retrieval info: CONSTANT: CLK3_DIVIDE_BY NUMERIC "1280"
+-- Retrieval info: CONSTANT: CLK3_DIVIDE_BY NUMERIC "2700"
 -- Retrieval info: CONSTANT: CLK3_DUTY_CYCLE NUMERIC "50"
 -- Retrieval info: CONSTANT: CLK3_MULTIPLY_BY NUMERIC "1"
 -- Retrieval info: CONSTANT: CLK3_PHASE_SHIFT STRING "0"
 -- Retrieval info: CONSTANT: COMPENSATE_CLOCK STRING "CLK0"
--- Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "50000"
+-- Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "32631"
 -- Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Cyclone III"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "altpll"
 -- Retrieval info: CONSTANT: OPERATION_MODE STRING "NORMAL"
@@ -451,11 +451,11 @@ END SYN;
 -- Retrieval info: CONNECT: c2 0 0 0 0 @clk 0 0 1 2
 -- Retrieval info: CONNECT: c3 0 0 0 0 @clk 0 0 1 3
 -- Retrieval info: CONNECT: locked 0 0 0 0 @locked 0 0 0 0
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_pal_post.vhd TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_pal_post.ppf TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_pal_post.inc FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_pal_post.cmp TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_pal_post.bsf FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL pll_pal_post_inst.vhd FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_downstream_pal.vhd TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_downstream_pal.ppf TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_downstream_pal.inc FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_downstream_pal.cmp TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_downstream_pal.bsf FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL pll_downstream_pal_inst.vhd FALSE
 -- Retrieval info: LIB_FILE: altera_mf
 -- Retrieval info: CBX_MODULE_PREFIX: ON

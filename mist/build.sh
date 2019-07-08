@@ -14,13 +14,8 @@ my $NTSC = 0;
 
 my %variants = 
 (
-	"PAL_VGA" =>
+	"COMMON" =>
 	{
-		"TV" => $PAL
-	},
-	"NTSC_VGA" => 
-	{
-		"TV" => $NTSC
 	}
 );
 
@@ -39,9 +34,12 @@ foreach my $variant (sort keys %variants)
 	mkdir $dir;
 	`cp atari800core_mist.vhd $dir`;
 	`cp *pll*.* $dir`;
+	`cp *clkctrl*.* $dir`;
 	`cp *mist_sector*.* $dir`;
 	`cp *.v $dir`;
 	`cp *.vhdl $dir`;
+	`cp *.vhd $dir`;
+	`cp ntsc.mif  pal.mif $dir`;
 	`cp zpu_rom.* $dir`;
 	`cp atari800core.sdc $dir`;
 	`mkdir $dir/common`;

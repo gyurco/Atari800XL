@@ -312,9 +312,13 @@ set_global_assignment -name QIP_FILE zpu_rom.qip
 set_global_assignment -name SDC_FILE atari800core.sdc
 set_global_assignment -name QIP_FILE mist_sector_buffer.qip
 set_global_assignment -name VHDL_FILE atari800core_mist.vhd
+set_global_assignment -name VHDL_FILE switch_pal_ntsc.vhd
 set_global_assignment -name VERILOG_FILE user_io.v
 set_global_assignment -name VERILOG_FILE sd_card.v
-set_global_assignment -name QIP_FILE pll_pal_pre.qip
-set_global_assignment -name QIP_FILE pll_pal_post.qip
-set_global_assignment -name QIP_FILE pll_ntsc.qip
+set_global_assignment -name QIP_FILE pll_pal.qip
+set_global_assignment -name QIP_FILE pll_downstream_pal.qip
+set_global_assignment -name QIP_FILE video_pll_reconfig.qip
+set_global_assignment -name QIP_FILE video_pll_reconfig_pal.qip
+set_global_assignment -name QIP_FILE clkctrl.qip
+set_global_assignment -name QIP_FILE pll_reconfig.qip
 
