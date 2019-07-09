@@ -293,11 +293,13 @@ set_instance_assignment -name IO_MAXIMUM_TOGGLE_RATE "0 MHz" -to VGA_B[3]
 set_global_assignment -name QIP_FILE usbpll.qip
 set_global_assignment -name QIP_FILE pal_pll.qip
 set_global_assignment -name QIP_FILE pll_downstream_pal.qip
-set_global_assignment -name QIP_FILE ntsc_pll.qip
-set_global_assignment -name QIP_FILE pll_downstream_ntsc.qip
+set_global_assignment -name QIP_FILE clkctrl.qip
+set_global_assignment -name QIP_FILE video_pll_reconfig_pal.qip
+set_global_assignment -name QIP_FILE video_pll_reconfig.qip 
 set_global_assignment -name QIP_FILE remote_update.qip
 set_global_assignment -name QIP_FILE zpu_rom.qip
 set_global_assignment -name VHDL_FILE delayed_reconfig.vhd
+set_global_assignment -name VHDL_FILE switch_pal_ntsc.vhd
 set_global_assignment -name SDC_FILE atari800core.sdc
 set_global_assignment -name VERILOG_FILE sdram_ctrl_3_ports.v
 set_global_assignment -name VHDL_FILE atari800core_mcc.vhd
