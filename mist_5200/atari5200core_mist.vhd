@@ -520,7 +520,7 @@ PORT MAP
 		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
 
 		VGA => vga,
-		COMPOSITE_ON_HSYNC => '0',
+		COMPOSITE_ON_HSYNC => '1',
 
 		colour_enable => half_scandouble_enable_reg,
 		doubled_enable => '1',
