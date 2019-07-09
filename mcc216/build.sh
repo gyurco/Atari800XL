@@ -6,9 +6,6 @@ my $wanted_variant = shift @ARGV;
 my $name="mcc216";
 
 #variants...
-my $PAL = 1;
-my $NTSC = 0;
-
 my $SVIDEO = 1;
 my $VGA = 2;
 
@@ -26,33 +23,15 @@ my %variants =
 #		"internal_rom" => 1,
 #		"ext_clock" => 0
 #	},
-	"PAL_SVIDEO" => 
+	"SVIDEO" => 
 	{
-		"TV" => $PAL,
 		"VIDEO" => $SVIDEO,
 		"internal_ram" => 0,
 		"internal_rom" => 0,
 		"ext_clock" => 0
 	},
-	"PAL_VGA" =>
+	"VGA" =>
 	{
-		"TV" => $PAL,
-		"VIDEO" => $VGA,
-		"internal_ram" => 0,
-		"internal_rom" => 0,
-		"ext_clock" => 0
-	},
-	"NTSC_SVIDEO" =>
-	{
-		"TV" => $NTSC,
-		"VIDEO" => $SVIDEO,
-		"internal_ram" => 0,
-		"internal_rom" => 0,
-		"ext_clock" => 0
-	},
-	"NTSC_VGA" => 
-	{
-		"TV" => $NTSC,
 		"VIDEO" => $VGA,
 		"internal_ram" => 0,
 		"internal_rom" => 0,
@@ -74,7 +53,10 @@ foreach my $variant (sort keys %variants)
 	`rm -rf $dir`;
 	mkdir $dir;
 	`cp atari800core_mcc.vhd $dir`;
+	`cp switch_pal_ntsc.vhd $dir`;
+	`cp ntsc.mif  pal.mif $dir`;
 	`cp *pll*.* $dir`;
+	`cp *clkctrl*.* $dir`;
 	`cp ../mcc_common/*remote_update*.* $dir`;
 	`cp ../mcc_common/*delayed_reconfig*.* $dir`;
 	`cp sdram_ctrl_3_ports.v $dir`;
@@ -84,7 +66,6 @@ foreach my $variant (sort keys %variants)
 	`mkdir $dir/common/a8core`;
 	`mkdir $dir/common/components`;
 	`mkdir $dir/common/zpu`;
-	`mkdir $dir/svideo`;
 	`cp ../common/a8core/* ./$dir/common/a8core`;
 	`cp -r ../common/components/* ./$dir/common/components`;
 	`mv ./$dir/common/components/*cyclone3/* ./$dir/common/components/`;

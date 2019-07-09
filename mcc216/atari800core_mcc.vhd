@@ -15,7 +15,6 @@ LIBRARY work;
 ENTITY atari800core_mcc IS 
 	GENERIC
 	(
-		TV : integer;  -- 1 = PAL, 0=NTSC
 		VIDEO : integer; -- 1 = SVIDEO, 2 = VGA
 		internal_rom : integer;
 		internal_ram : integer;
@@ -200,9 +199,7 @@ END COMPONENT;
 	signal VIDEO_VS : std_logic;
 	signal VIDEO_HS : std_logic;
 	signal VIDEO_CS : std_logic;
-	signal VIDEO_R : std_logic_vector(7 downto 0);
-	signal VIDEO_G : std_logic_vector(7 downto 0);
-	signal VIDEO_B : std_logic_vector(7 downto 0);
+	signal ATARI_COLOUR : std_logic_vector(7 downto 0);
 
 	signal VIDEO_BLANK : std_logic;
 	signal VIDEO_BURST : std_logic;
@@ -308,8 +305,9 @@ END COMPONENT;
 	-- svideo
 	signal svideo_dac_clk : std_logic;
 
-	signal svideo_y : std_logic_vector(7 downto 0);
-	signal svideo_c : std_logic_vector(5 downto 0);
+	signal chroma : std_logic_vector(7 downto 0);
+	signal luma : std_logic_vector(7 downto 0);
+	signal luma_sync_n : std_logic;
 
 	-- dma/virtual drive
 	signal DMA_ADDR_FETCH : std_logic_vector(23 downto 0);
@@ -353,6 +351,7 @@ END COMPONENT;
 
 	-- usb
 	signal CLK_USB : std_logic;
+	signal USB_PLL_LOCKED : std_logic;
 
 	signal USBWireVPin : std_logic;
 	signal USBWireVMin : std_logic;
@@ -417,43 +416,35 @@ end generate;
 usb_pll : entity work.usbpll
 PORT MAP(inclk0 => FPGA_CLK,
 	 c0 => CLK_USB,
-	 locked => open);
+	 locked => USB_PLL_LOCKED);
 
 gen_real_pll : if ext_clock=0 generate
-	gen_tv_pal : if tv=1 generate
-		mcc_pll : entity work.pal_pll
-		PORT MAP(inclk0 => FPGA_CLK,
-				 c0 => CLK_PLL1,
-				 locked => PLL1_LOCKED);
-		mcc_pll2 : entity work.pll_downstream_pal
-		PORT MAP(inclk0 => CLK_PLL1,
-				 c0 => CLK_SDRAM,
-				 c1 => CLK,
-				 c2 => SDRAM_CLK,
-				 c3 => SVIDEO_DAC_CLK,
-				 c4 => SCANDOUBLE_CLK,      
-				 areset => not(PLL1_LOCKED),
-				 locked => PLL_LOCKED);
-	end generate;
 
-	gen_tv_ntsc : if tv=0 generate
-		mcc_pll : entity work.ntsc_pll
-		PORT MAP(inclk0 => FPGA_CLK,
-				 c0 => CLK_PLL1,
-				 locked => PLL1_LOCKED);
-		mcc_pll2 : entity work.pll_downstream_ntsc
-		PORT MAP(inclk0 => CLK_PLL1,
-				 c0 => CLK_SDRAM,
-				 c1 => CLK,
-				 c2 => SDRAM_CLK,
-				 c3 => SVIDEO_DAC_CLK,
-				 c4 => SCANDOUBLE_CLK,      
-				 areset => not(PLL1_LOCKED),
-				 locked => PLL_LOCKED);
-	end generate;
+	pll_switcher : work.switch_pal_ntsc
+	    GENERIC MAP
+	    (
+	        CLOCKS => 5,
+		SYNC_ON => 1
+	    )
+	    PORT MAP
+	    (
+	        RECONFIG_CLK => CLK_USB,
+	        RESET_N => USB_PLL_LOCKED,
+	
+	        PAL => PAL,
+	
+	        INPUT_CLK => FPGA_CLK,
+	        PLL_CLKS(0) => CLK_SDRAM,
+	        PLL_CLKS(1) => CLK,
+	        PLL_CLKS(2) => SDRAM_CLK,
+		PLL_CLKS(3) => open,
+	        PLL_CLKS(4) => SCANDOUBLE_CLK,
+	
+		RESET_N_OUT => RESET_N
+	    );
+	    SVIDEO_DAC_CLK <= SCANDOUBLE_CLK;
 end generate;
 
-reset_n <= PLL_LOCKED;
 JOY1_IN_N <= JOY1_n(4)&JOY1_n(0)&JOY1_n(1)&JOY1_n(2)&JOY1_n(3);
 JOY2_IN_N <= JOY2_n(4)&JOY2_n(0)&JOY2_n(1)&JOY2_n(2)&JOY2_n(3);
 
@@ -582,9 +573,9 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		VIDEO_VS => VIDEO_VS,
 		VIDEO_HS => VIDEO_HS,
 		VIDEO_CS => VIDEO_CS,
-		VIDEO_B => VIDEO_B,
-		VIDEO_G => VIDEO_G,
-		VIDEO_R => VIDEO_R,
+		VIDEO_B => ATARI_COLOUR,
+		VIDEO_G => open,
+		VIDEO_R => open,
 		VIDEO_BLANK =>VIDEO_BLANK,
 		VIDEO_BURST =>VIDEO_BURST,
 		VIDEO_START_OF_FIELD =>VIDEO_START_OF_FIELD,
@@ -639,6 +630,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
    		RAM_SELECT => ram_select,
 		PAL => PAL,
 		HALT => pause_atari,
+		ATARI800MODE => atari800mode,
 		THROTTLE_COUNT_6502 => speed_6502,
 		emulated_cartridge_select => emulated_cartridge_select,
 		freezer_enable => freezer_enable,
@@ -897,7 +889,7 @@ gen_video_vga : if video=2 generate
 		
 		-- GTIA interface
 		pal => PAL,
-		colour_in => VIDEO_B,
+		colour_in => ATARI_COLOUR,
 		vsync_in => VIDEO_VS,
 		hsync_in => VIDEO_HS,
 		csync_in => VIDEO_CS,
@@ -915,32 +907,42 @@ end generate;
 
 gen_video_svideo: if video=1 generate
 
-	-- SVIDEO COMPONENT
-	svideo : entity work.svideo
+	svideo : entity work.svideo_gtia
 	PORT MAP
-	(
-		areset_n => RESET_N,
-		ecs_clk => CLK,
-		dac_clk => SVIDEO_DAC_CLK,
-		r_in => VIDEO_R,
-		g_in => VIDEO_G,
-		b_in => VIDEO_B,
-		sof => VIDEO_VS, -- base on vsync?
-		vpos_lsb => VIDEO_ODD_LINE,
-		blank => VIDEO_BLANK,
+	( 
+		CLK => SVIDEO_DAC_CLK, -- 56.75MHz PAL, 57.272727... NTSC
+		RESET_N => RESET_N,
+	
+		brightness => ATARI_COLOUR(3 downto 0),
+		hue => ATARI_COLOUR(7 downto 4),
 		burst => VIDEO_BURST,
+		blank => VIDEO_BLANK,
+		sof => VIDEO_VS,
 		csync_n => not(VIDEO_CS),
+		vpos_lsb => VIDEO_ODD_LINE,
+		pal => PAL,
+	
+		composite => '1',
 		
-		y_out => svideo_y,
-		c_out => svideo_c,
-		
-		pal_ntsc => not(pal)
+		chroma => chroma,
+		luma => luma,
+		luma_sync_n => luma_sync_n -- TODO, need to adjust svideo_gtia to work without this!
 	);
-	VGA_B <= svideo_y(7 downto 4);
-	VGA_G <= svideo_y(3 downto 0);
-	VGA_R <= svideo_c(5 downto 2);
-	VGA_HS <= svideo_c(1);
-	VGA_VS <= svideo_c(0);
+	
+	process(luma, luma_sync_n)
+	begin
+	  if (luma_sync_n='0') then
+	    VGA_B <= (others=>'0');
+	    VGA_G <= (others=>'0');
+	  else
+	    VGA_B <= luma(7 downto 4);
+	    VGA_G <= luma(3 downto 0);
+	  end if;
+	end process;
+
+	VGA_R <= chroma(7 downto 4);
+	VGA_HS <= chroma(3);
+	VGA_VS <= chroma(2);
 
 end generate;
 

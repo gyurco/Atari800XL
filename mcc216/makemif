@@ -10,9 +10,9 @@ cat ../firmware_eclairexl/mif_file_stuff/rom_prologue_36.vhd  zpu_rom.mif_inside
 if [ $1 != "BUILD" ]; then
     echo Updating existing
 
-    cp zpu_rom.mif build_PAL_VGA/zpu_rom.mif
-    quartus_cdb --update_mif build_PAL_VGA/atari800core.qpf
-    quartus_asm build_PAL_VGA/atari800core.qpf
+    cp zpu_rom.mif build_VGA/zpu_rom.mif
+    quartus_cdb --update_mif build_VGA/atari800core.qpf
+    quartus_asm build_VGA/atari800core.qpf
     
 #    pushd build_PAL_RGB/
 #    quartus_cpf --convert ../convertv2.cof
