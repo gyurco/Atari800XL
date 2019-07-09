@@ -658,7 +658,7 @@ process (CLK, RESET_N) begin
     end if;
 end process;
 
-process (SDRAM_ADDR_OUT) begin
+process (SDRAM_ADDR_OUT, cart_type) begin
     SDRAM_ADDR_IN <= SDRAM_ADDR_OUT;
     case cart_type is
     when CART_16k_1 =>
