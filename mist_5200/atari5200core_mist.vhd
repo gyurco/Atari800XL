@@ -12,6 +12,10 @@ use ieee.numeric_std.all;
 LIBRARY work;
 
 ENTITY atari5200core_mist IS 
+	GENERIC
+	(
+		CSYNC : IN integer
+	);
 	PORT
 	(
 		CLOCK_27 :  IN  STD_LOGIC_VECTOR(1 downto 0);
@@ -291,6 +295,8 @@ constant CONF_STR : string :=
         return rval;
     end function;
 
+    CONSTANT V01 : std_logic_vector(0 TO 1):="01";
+
 BEGIN
 
 pal <= '1';
@@ -520,8 +526,7 @@ PORT MAP
 		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
 
 		VGA => vga,
-		COMPOSITE_ON_HSYNC => '1',
-
+		COMPOSITE_ON_HSYNC => V01(csync),
 		colour_enable => half_scandouble_enable_reg,
 		doubled_enable => '1',
 		scanlines_on => scanlines_reg,
