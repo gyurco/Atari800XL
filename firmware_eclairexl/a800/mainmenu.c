@@ -626,12 +626,13 @@ void menuProfile(void * menuData, struct joystick_status * joy)
 
 void menuPrintCpu(void * menuData, void * itemData)
 {
-	printf("CPU:%dx", get_turbo_6502());
+	printf("CPU:%dx%s", get_turbo_6502(), get_turbo_6502_vblank_only() ? " VB only" : "");
 }
 
 void menuCpu(void * menuData, struct joystick_status * joy)
 {
 	int turbo = get_turbo_6502();
+	if (joy->fire_) set_turbo_6502_vblank_only(!get_turbo_6502_vblank_only());
 	if (joy->x_==1) turbo<<=1;
 	if (joy->x_==-1) turbo>>=1;
 	if (turbo>32) turbo = 32;
@@ -901,7 +902,7 @@ int settings_menu()
 	{
 		{&menuPrintProfile,0,&menuProfile,MENU_FLAG_MOVE|MENU_FLAG_FIRE},
 		{0,0,0,0}, //blank line
-		{&menuPrintCpu,0,&menuCpu,MENU_FLAG_MOVE},
+		{&menuPrintCpu,0,&menuCpu,MENU_FLAG_MOVE|MENU_FLAG_FIRE},
 		{&menuPrintDriveTurbo,0,&menuDriveTurbo,MENU_FLAG_MOVE},
 		{&menuPrintSystem,0,&menuSystem,MENU_FLAG_MOVE|MENU_FLAG_FIRE},
 		{&menuPrintOS,0,&menuOS,MENU_FLAG_FIRE},
