@@ -148,6 +148,7 @@ ENTITY atari800core_simple_sdram is
    		RAM_SELECT : in std_logic_vector(2 downto 0); -- 64K,128K,320KB Compy, 320KB Rambo, 576K Compy, 576K Rambo, 1088K, 4MB
 		PAL :  in STD_LOGIC;
 		HALT : in std_logic;
+		TURBO_VBLANK_ONLY : in std_logic;
 		THROTTLE_COUNT_6502 : in std_logic_vector(5 downto 0); -- standard speed is cycle_length-1
 		emulated_cartridge_select: in std_logic_vector(5 downto 0);
 		freezer_enable: in std_logic := '0';
@@ -431,6 +432,7 @@ atari800xl : entity work.atari800core
 		ROM_IN_RAM => ROM_IN_RAM,
 		THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
 		HALT => HALT,
+		TURBO_VBLANK_ONLY => TURBO_VBLANK_ONLY,
 		freezer_enable => freezer_enable,
 		freezer_activate => freezer_activate,
 		atari800mode => atari800mode
