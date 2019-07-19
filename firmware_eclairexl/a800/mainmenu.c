@@ -449,7 +449,7 @@ void menuDrive(void * menuData, struct joystick_status * joy, int drive)
 		// Choose new disk
 		filter = filter_disks;
 		file_selector(files[drive]);
-		set_drive_status(drive,files[0]);
+		set_drive_status(drive,files[drive]);
 	}
 	else if(joy->x_<0)
 	{
