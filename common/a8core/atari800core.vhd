@@ -192,9 +192,10 @@ ENTITY atari800core IS
 		ROM_IN_RAM : in std_logic;
 		THROTTLE_COUNT_6502 : in STD_LOGIC_VECTOR(5 DOWNTO 0);
 		HALT : in std_logic;
+		TURBO_VBLANK_ONLY : in std_logic;
 		freezer_enable: in std_logic;
 		freezer_activate: in std_logic;
-		ATARI800MODE : in std_logic := '0';
+		ATARI800MODE : in std_logic;
 
 		-- debugging
 		freezer_state_out: out std_logic_vector(2 downto 0);
@@ -226,6 +227,7 @@ SIGNAL	BREAK_PRESSED :  STD_LOGIC;
 signal hcount_temp : std_logic_vector(7 downto 0);
 signal vcount_temp : std_logic_vector(8 downto 0);
 signal ANTIC_REFRESH_CYCLE : STD_LOGIC;
+signal ANTIC_VBLANK : std_logic;
 
 -- GTIA
 SIGNAL	GTIA_SOUND :  STD_LOGIC;
@@ -258,6 +260,7 @@ SIGNAL	R_W_N :  STD_LOGIC;
 SIGNAL	CPU_SHARED_ENABLE :  STD_LOGIC;
 SIGNAL	ENABLE_179_MEMWAIT :  STD_LOGIC;
 SIGNAL	ANTIC_ENABLE_179 :  STD_LOGIC;
+SIGNAL	THROTTLE_COUNT_6502_ADJ :  STD_LOGIC_VECTOR(5 downto 0);
 
 -- POKEY
 SIGNAL	POKEY_IRQ :  STD_LOGIC;
@@ -320,6 +323,15 @@ PBI_WRITE_DATA <= WRITE_DATA;
 PBI_SNOOP_DATA <= MEMORY_DATA;
 PBI_SNOOP_READY <= MEMORY_READY_CPU or MEMORY_READY_ANTIC;
 
+-- allow vbi only turbo
+process(THROTTLE_COUNT_6502,ANTIC_VBLANK,TURBO_VBLANK_ONLY)
+begin
+	THROTTLE_COUNT_6502_ADJ <= THROTTLE_COUNT_6502;
+	if (ANTIC_VBLANK = '0' and TURBO_VBLANK_ONLY = '1') then
+		THROTTLE_COUNT_6502_ADJ <= "000001";
+	end if;
+end process;
+
 enables : entity work.shared_enable
 GENERIC MAP(cycle_length => cycle_length)
 PORT MAP(CLK => CLK,
@@ -328,7 +340,7 @@ PORT MAP(CLK => CLK,
 		 MEMORY_READY_ANTIC => MEMORY_READY_ANTIC,
 		 ANTIC_REFRESH => ANTIC_REFRESH_CYCLE,
 		 PAUSE_6502 => HALT,
-		 THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502,
+		 THROTTLE_COUNT_6502 => THROTTLE_COUNT_6502_ADJ,
 		 ANTIC_ENABLE_179 => ANTIC_ENABLE_179,
 		 oldcpu_enable => ENABLE_179_MEMWAIT,
 		 CPU_ENABLE_OUT => CPU_SHARED_ENABLE);
@@ -373,6 +385,7 @@ PORT MAP(CLK => CLK,
 		 vcount_out => vcount_temp,
 		 refresh_out => ANTIC_REFRESH_CYCLE,
 		 turbo_out => ANTIC_TURBO,
+		 vblank_out => ANTIC_VBLANK,
 		 AN => ANTIC_AN,
 		 DATA_OUT => ANTIC_DO,
 		 dma_address_out => ANTIC_ADDR);

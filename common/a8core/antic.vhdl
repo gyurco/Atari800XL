@@ -59,6 +59,9 @@ PORT
 
 	-- if we are in turbo mode
 	turbo_out : out std_logic;
+
+	-- used to throttle in vblank mode
+	vblank_out : out std_logic;
 	
 	-- for debugging
 	shift_out : out std_logic_vector(7 downto 0);
@@ -1851,6 +1854,8 @@ BEGIN
 	hcount_out <= hcount_reg(9 downto 2);
 
 	turbo_out <= dmactl_raw_reg(6);
+
+	vblank_out <= vblank_reg;
 
 	next_cycle_type <= (others=>'X'); -- TODO! Need to know after prior colour clock, if next one will be dma...
 	
