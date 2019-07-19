@@ -268,6 +268,7 @@ end component;
 	signal reset_atari : std_logic;
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
+	signal turbo_vblank_only : std_logic;
 	signal emulated_cartridge_select: std_logic_vector(5 downto 0);
 	signal key_type : std_logic;
 	signal atari800mode : std_logic;
@@ -458,6 +459,7 @@ atarixl_simple_sdram1 : entity work.atari800core_simple_sdram
 		PAL => PAL,
 		HALT => pause_atari,
 		THROTTLE_COUNT_6502 => speed_6502,
+		TURBO_VBLANK_ONLY => turbo_vblank_only,
 		emulated_cartridge_select => emulated_cartridge_select,
 		freezer_enable => freezer_enable,
 		freezer_activate => freezer_activate,
@@ -826,6 +828,8 @@ zpu: entity work.zpucore
 	emulated_cartridge_select <= zpu_out1(22 downto 17);
 	freezer_enable <= zpu_out1(25);
 	key_type <= zpu_out1(26);
+
+	turbo_vblank_only <= zpu_out1(31);
 
 	video_mode <= zpu_out6(2 downto 0);
 	PAL <= zpu_out6(4);
