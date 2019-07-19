@@ -94,6 +94,7 @@ BIT_REG(,0x3f,17,cart_select,zpu_out1)
 BIT_REG(,0x01,25,freezer_enable,zpu_out1)
 BIT_REG(,0x03,26,key_type,zpu_out1) // ansi,iso,custom1,custom2
 BIT_REG(,0x07,28,turbo_drive,zpu_out1) 
+BIT_REG(,0x01,31,turbo_6502_vblank_only,zpu_out1) 
 
 BIT_REG(,0x07,0,video,zpu_out6)
 BIT_REG(,0x01,4,tv,zpu_out6)
