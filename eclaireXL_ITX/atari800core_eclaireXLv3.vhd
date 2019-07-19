@@ -378,6 +378,7 @@ end component;
 	signal antic_rnmi_n : std_logic;        
 	signal pause_atari : std_logic;
 	SIGNAL speed_6502 : std_logic_vector(5 downto 0);
+	signal turbo_vblank_only : std_logic;
 	signal emulated_cartridge_select: std_logic_vector(5 downto 0);
 	signal key_type : std_logic;
 	signal atari800mode : std_logic;
@@ -1161,6 +1162,7 @@ atari800 : entity work.atari800core
 		PAL => PAL,
 		ROM_IN_RAM => ROM_IN_RAM,
 		THROTTLE_COUNT_6502 => speed_6502,
+		TURBO_VBLANK_ONLY => turbo_vblank_only,
 		HALT => pause_atari,
 		ATARI800MODE => atari800mode,
 
@@ -1278,6 +1280,8 @@ zpu: entity work.zpucore
 
 	freezer_enable <= zpu_out1(25);
 	key_type <= zpu_out1(26);
+
+	turbo_vblank_only <= zpu_out1(31);
 
 	video_mode <= zpu_out6(2 downto 0);
 	PAL <= zpu_out6(4);
