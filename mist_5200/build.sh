@@ -16,11 +16,11 @@ my $VGA = 2;
 
 my %variants = 
 (
-	"NTSC" =>
+	"NTSC_Normal" =>
 	{
 		csync => '0'
 	},
-	"NTSC_CS" =>
+	"NTSC_CompositeSync" =>
 	{
 		csync => '1'
 	}
