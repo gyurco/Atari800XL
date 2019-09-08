@@ -59,7 +59,7 @@ set_location_assignment PIN_A4 -to D[3]   #A4,LIN5,LVL3,D3
 set_location_assignment PIN_B4 -to CS0_N  #B4,LIN6,LVL21,CS0_N
 set_location_assignment PIN_A5 -to CS1    #A5,LIN7,LVL9,CS1
 set_location_assignment PIN_B5 -to IRQ    #B5,LIN8,LVL14,IRQ_N
-set_location_assignment PIN_A6 -to W_N a  #A6,LIN9,LVL15,RW
+set_location_assignment PIN_A6 -to W_N    #A6,LIN9,LVL15,RW
 set_location_assignment PIN_B6 -to SOD    #B6,LIN10,LVL13,SOD
 set_location_assignment PIN_A7 -to ACLK   #A7,LIN11,LVL12,ACLK
 set_location_assignment PIN_B7 -to BCLK   #B7,LIN12,LVL11,BCLK
