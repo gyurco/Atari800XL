@@ -26,27 +26,22 @@ ENTITY pokeymax IS
 		CLK_SLOW : IN STD_LOGIC; -- ... and back in here, then to pll!		
 		
 		D :  INOUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
-		A :  IN  STD_LOGIC_VECTOR(4 DOWNTO 0);
+		A :  IN  STD_LOGIC_VECTOR(3 DOWNTO 0);
 		W_N : IN STD_LOGIC;
 		IRQ : INOUT STD_LOGIC;
 		SOD : OUT STD_LOGIC;
 		ACLK : OUT STD_LOGIC;
 		BCLK : INOUT STD_LOGIC;
 		SID : IN STD_LOGIC;
-		CS_COMB : IN STD_LOGIC;
+		CS0_N : IN STD_LOGIC;
+		CS1 : IN STD_LOGIC;
 
 		AUD : OUT STD_LOGIC_VECTOR(4 DOWNTO 1);
 
-		PADDLE : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
---set_location_assignment PIN_M1 -to PADDLE[0] (pin3/potch7/pot7/p0)
---set_location_assignment PIN_M2 -to PADDLE[1] (pin2/potch6/pot6/p1)
---set_location_assignment PIN_N2 -to PADDLE[3] (pin0/potch5/pot5/p3)
---set_location_assignment PIN_M3 -to PADDLE[2] (pin1/potch4/pot4/p2)
---set_location_assignment PIN_N3 -to PADDLE[5] (pin7/potch3/pot3/p5)
---set_location_assignment PIN_M4 -to PADDLE[7] (pin4/potch1/pot0/p7)
---set_location_assignment PIN_N4 -to PADDLE[4] (pin6/potch2/pot2/p4)
---set_location_assignment PIN_N5 -to PADDLE[6] (pin5/potch0/pot1/p6)
+		EXT : INOUT STD_LOGIC_VECTOR(3 DOWNTO 1);
 
+		PADDLE : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+		POT_RESET : OUT STD_LOGIC;
 
 		IOX_RST : OUT STD_LOGIC;
 		IOX_INT : IN STD_LOGIC;
@@ -148,8 +143,12 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal i2c0_error : std_logic;
 
 	signal sel_pokey2 : std_logic;
+
+	signal CS_COMB : std_logic;
 BEGIN
 	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
+
+	CS_COMB <= CS1 and not(CS0_N);
 
 	oscillator : int_osc
 	port map 
@@ -182,7 +181,7 @@ bus_adapt : entity work.slave_timing_6502
 		
 		-- input from the cart port
 		PHI2 => PHI2,
-		bus_addr => A,
+		bus_addr => EXT[1]&A, --TODO, more pins...
 		bus_data => D,
 	
 		-- output to the cart port
@@ -374,7 +373,6 @@ port map
 
 		int=>iox_int,
 
-		pot_reset=>pot_reset,
 		keyboard_scan=>keyboard_scan,
 		keyboard_scan_enable=>keyboard_scan_enable,
 		keyboard_response=>keyboard_response
