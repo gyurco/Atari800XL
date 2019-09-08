@@ -109,8 +109,6 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal POKEY_IRQ : std_logic;
 
-	signal POT_RESET : std_logic;
-
 	signal ADDR_IN : std_logic_vector(4 downto 0);
 	signal WRITE_DATA : std_logic_vector(7 downto 0);
 
@@ -145,6 +143,8 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal sel_pokey2 : std_logic;
 
 	signal CS_COMB : std_logic;
+
+	signal AIN : std_logic_vector(4 downto 0);
 BEGIN
 	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
 
@@ -173,6 +173,7 @@ BEGIN
 			 c0 => CLK, -- 27MHz 
 			 locked => RESET_N);
 
+	AIN <= EXT(1)&A;
 bus_adapt : entity work.slave_timing_6502
 	PORT MAP
 	(
@@ -181,7 +182,7 @@ bus_adapt : entity work.slave_timing_6502
 		
 		-- input from the cart port
 		PHI2 => PHI2,
-		bus_addr => EXT[1]&A, --TODO, more pins...
+		bus_addr => AIN, --TODO, more pins...
 		bus_data => D,
 	
 		-- output to the cart port
@@ -267,7 +268,7 @@ gen_stereo : if stereo=1 generate
 		CLK => clk,
 		RESET_N => reset_n,
 	
-		A => A, -- raw...
+		A => AIN, -- raw...
 		ADDR_IN => ADDR_IN, -- on request
 	
 		SEL_POKEY2 => sel_pokey2
