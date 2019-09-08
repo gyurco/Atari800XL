@@ -41,7 +41,7 @@ ENTITY pokeymax IS
 		EXT : INOUT STD_LOGIC_VECTOR(3 DOWNTO 1);
 
 		PADDLE : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		POT_RESET : OUT STD_LOGIC;
+		POTRESET_N : OUT STD_LOGIC;
 
 		IOX_RST : OUT STD_LOGIC;
 		IOX_INT : IN STD_LOGIC;
@@ -145,8 +145,11 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal CS_COMB : std_logic;
 
 	signal AIN : std_logic_vector(4 downto 0);
+
+	signal POTRESET : std_logic;
 BEGIN
 	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
+	EXT <= (others=>'Z');
 
 	CS_COMB <= CS1 and not(CS0_N);
 
@@ -241,7 +244,7 @@ PORT MAP(CLK => CLK,
 		 SIO_OUT2 => open,
 		 SIO_OUT3 => open,
 		 SIO_CLOCKOUT => SIO_CLOCKOUT,
-		 POT_RESET => POT_RESET,
+		 POT_RESET => POTRESET,
 		 CHANNEL_0_OUT => POKEY1_CHANNEL0,
 		 CHANNEL_1_OUT => POKEY1_CHANNEL1,
 		 CHANNEL_2_OUT => POKEY1_CHANNEL2,
@@ -403,5 +406,7 @@ AUD(1) <= AUDIO_MIXED;
 IRQ <= '0' when POKEY_IRQ='0' else 'Z';
 
 D <= BUS_DATA when BUS_OE='1' else (others=>'Z');
+
+POTRESET_N <= not(POTRESET);
 
 END vhdl;
