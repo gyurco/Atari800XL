@@ -28,6 +28,7 @@ library work;
 entity FreezerLogic is
 Port (		clk: in std_logic;
 		clk_enable: in std_logic;
+		cpu_cycle: in std_logic;
 		a: in std_logic_vector(15 downto 0);
 		d_in: in std_logic_vector(7 downto 0);
 		rw: in std_logic;
@@ -104,7 +105,7 @@ begin
 		if (reset_n = '0') then
 			state <= state_disabled;
 		else
-			if (clk_enable = '1') then
+			if (clk_enable = '1' and cpu_cycle='1') then
 				case state is
 				when state_disabled =>
 					if vector_access and (activate_n = '0') and (a(0) = '0') then

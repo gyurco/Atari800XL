@@ -24,7 +24,8 @@ ENTITY atari800core IS
 		low_memory : integer := 0; -- 0:8MB memory map, 1:1MB memory map
 		stereo : integer := 1;
 		covox : integer := 1;
-		internal_ram : integer := 0
+		internal_ram : integer := 0; 
+		freezer_debug : integer := 0 --trigger nmi + freezer on addr/data match
 	);
 	PORT
 	(
@@ -121,6 +122,9 @@ ENTITY atari800core IS
 		ANTIC_REFRESH : out STD_LOGIC; -- 1 'original' cycle high when antic doing refresh cycle...
 		ANTIC_TURBO : out STD_LOGIC; -- if we are in high colour clock modes
 		ANTIC_RNMI_N : IN std_logic := '1';
+
+		-- EXTERNAL NMI
+		EXT_NMI_N : IN std_logic := '1';
 		
 		-----------------------
 		-- After here all FPGA implementation specific
@@ -197,7 +201,16 @@ ENTITY atari800core IS
 		freezer_activate: in std_logic;
 		ATARI800MODE : in std_logic;
 
-		-- debugging
+		-- freezer trigger
+		-- if these match then we enter the freezer
+		-- generic to enable them
+		freezer_debug_addr : in std_logic_vector(15 downto 0) := (others=>'0');
+		freezer_debug_data : in std_logic_vector(7 downto 0) := (others=>'0');
+		freezer_debug_read : in std_logic := '0';
+		freezer_debug_write : in std_logic := '0';
+		freezer_debug_data_match : in std_logic := '0';
+
+		-- for debugging
 		freezer_state_out: out std_logic_vector(2 downto 0);
 		state_reg_out :  OUT  STD_LOGIC_VECTOR(1 downto 0);
 		memory_ready_antic_out :  OUT  STD_LOGIC;
@@ -252,6 +265,7 @@ SIGNAL	CPU_ADDR :  STD_LOGIC_VECTOR(15 DOWNTO 0);
 SIGNAL	CPU_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
 SIGNAL	CPU_FETCH :  STD_LOGIC;
 SIGNAL	IRQ_n :  STD_LOGIC;
+SIGNAL	ANTIC_NMI_n :  STD_LOGIC;
 SIGNAL	NMI_n :  STD_LOGIC;
 SIGNAL	R_W_N :  STD_LOGIC;
 
@@ -314,6 +328,12 @@ SIGNAL PBI_ADDR_INT : std_logic_vector(15 downto 0);
 -- cart
 signal cart_trig3_out: std_logic;
 
+-- freezer trigger
+signal freezer_trigger_activate : std_logic;
+signal freezer_activate_combined : std_logic;
+signal freezer_state : std_logic_vector(2 downto 0);
+signal freezer_trigger_nmi_n : std_logic;
+
 BEGIN 
 
 PBI_WIDTH_8bit_ACCESS <= WIDTH_8bit_access;
@@ -375,7 +395,7 @@ PORT MAP(CLK => CLK,
 		 ADDR => PBI_ADDR_INT(3 DOWNTO 0),
 		 CPU_DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		 MEMORY_DATA_IN => MEMORY_DATA(7 DOWNTO 0),
-		 NMI_N_OUT => NMI_n,
+		 NMI_N_OUT => ANTIC_NMI_n,
 		 ANTIC_READY => ANTIC_RDY,
 		 COLOUR_CLOCK_ORIGINAL_OUT => ANTIC_ORIGINAL_COLOUR_CLOCK_OUT,
 		 COLOUR_CLOCK_OUT => ANTIC_COLOUR_CLOCK_OUT,
@@ -389,6 +409,7 @@ PORT MAP(CLK => CLK,
 		 AN => ANTIC_AN,
 		 DATA_OUT => ANTIC_DO,
 		 dma_address_out => ANTIC_ADDR);
+NMI_n <= ANTIC_NMI_n and EXT_NMI_N and FREEZER_TRIGGER_NMI_N;
 
 pokey_mixer_both : entity work.pokey_mixer_mux
 PORT MAP(CLK => CLK,
@@ -539,8 +560,8 @@ PORT MAP(CLK => CLK,
 		 cart_select => CART_EMULATION_SELECT,
 		 rom_in_ram => ROM_IN_RAM,
 		 freezer_enable => freezer_enable,
-		 freezer_activate => freezer_activate,
-		 freezer_state_out => freezer_state_out,
+		 freezer_activate => freezer_activate_combined,
+		 freezer_state_out => freezer_state,
 		 state_reg_out => state_reg_out);
 
 
@@ -705,12 +726,46 @@ covox1 : entity work.covox
 	);
 end generate;
 
+-- freezer debug trigger
+gen_trig_on : if freezer_debug=1 generate
+freezertrig : entity work.freezer_debug_trigger 
+	PORT MAP
+	(
+		CLK => CLK,
+		RESET_N => RESET_N,
+	
+		CPU_ADDR => CPU_ADDR,
+		CPU_WRITE_DATA => CPU_DO,
+		CPU_READ_DATA => MEMORY_DATA(7 downto 0),
+		CPU_FETCH => CPU_FETCH,
+		CPU_FETCH_COMPLETE => MEMORY_READY_CPU, -- CPU FETCH and MEMORY_READY_CPU
+		CPU_W_N => R_W_N,
+
+		-- freezer info
+		FREEZER_ENABLE => FREEZER_ENABLE,
+		FREEZER_STATE => FREEZER_STATE,
+	
+		-- settings on what we should match
+		DEBUG_ADDR => FREEZER_DEBUG_ADDR,
+		DEBUG_DATA => FREEZER_DEBUG_DATA,
+		DEBUG_READ => FREEZER_DEBUG_READ,
+		DEBUG_WRITE => FREEZER_DEBUG_WRITE,
+		DEBUG_DATA_MATCH => FREEZER_DEBUG_DATA_MATCH,
+	
+		FREEZER_TRIGGER => FREEZER_TRIGGER_ACTIVATE,
+		FREEZER_NMI_N => FREEZER_TRIGGER_NMI_N
+	);
+end generate;
+gen_trig_off : if freezer_debug=0 generate
+	freezer_trigger_activate <= '0';
+end generate;
+	freezer_activate_combined <= freezer_trigger_activate or freezer_activate;
+
 -- outputs
 PBI_ADDR <= PBI_ADDR_INT;
 ENABLE_179_EARLY <= ANTIC_ENABLE_179;
 PORTB_OUT <= PORTB_OUT_INT;
 ANTIC_REFRESH <= ANTIC_REFRESH_CYCLE;
-
 
 memory_ready_antic_out <= memory_ready_antic;
 memory_ready_cpu_out <= memory_ready_cpu;
@@ -719,5 +774,6 @@ nmi_n_out <= nmi_n;
 irq_n_out <= irq_n;
 rdy_out <= antic_rdy;
 an_out <= antic_an;
+freezer_state_out <= freezer_state;
 
 END bdf_type;

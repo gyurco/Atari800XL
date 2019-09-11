@@ -297,6 +297,7 @@ BEGIN
 	port map(
 		clk => clk,
 		clk_enable => atari_clk_enable,
+		cpu_cycle => notify_cpu,
 		a => addr_next(15 downto 0),
 		d_in => data_write_next(7 downto 0),
 		rw => not write_enable_next,
