@@ -37,9 +37,10 @@ struct MenuEntry
 	#define MENU_FLAG_FINAL 16
 	#define MENU_FLAG_MAYEXIT 32
 	#define MENU_FLAG_SD 64
+	#define MENU_FLAG_KEYPRESS 128
 };
 
-int display_menu(const char * title, struct MenuEntry * entries, menuPress menuPress, void * menuData);
+int display_menu(const char * title, struct MenuEntry * entries, menuPress hotkeys, void * menuData);
 
 /*
  * Example menu
