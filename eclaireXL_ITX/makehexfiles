@@ -11,10 +11,10 @@
 #        drwxr-xr-x 24 markw markw  12288 Feb 18 22:53 .
 #        -rw-r--r--  1 markw markw  16384 Feb 18 22:53 ultimon.rom
 
-./makehex ../firmware/576kcompy_PAL_VGA settings1.hex "0x200000"
-./makehex ../firmware/576kcompy_PAL_VGA settings2.hex "0x202000"
-./makehex ../firmware/576kcompy_PAL_VGA settings3.hex "0x204000"
-./makehex ../firmware/48k800_PAL_VGA settings4.hex "0x206000"
+./makehex ../firmware_eclairexl/576kcompy_PAL_VGA settings1.hex "0x200000"
+./makehex ../firmware_eclairexl/576kcompy_PAL_VGA settings2.hex "0x202000"
+./makehex ../firmware_eclairexl/576kcompy_PAL_VGA settings3.hex "0x204000"
+./makehex ../firmware_eclairexl/48k800_PAL_VGA settings4.hex "0x206000"
 cat ./ataribas.rom altirra_roms_3.0/atbasic.rom ataribas.rom ataribas.rom > basic.rom
 ./makehex ./basic.rom basic.hex   "0x208000"
 dd if=/dev/zero of=blank.rom bs=1 count=6144
