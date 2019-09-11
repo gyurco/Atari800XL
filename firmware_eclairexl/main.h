@@ -101,6 +101,14 @@ BIT_REG(,0x01,4,tv,zpu_out6)
 BIT_REG(,0x01,5,scanlines,zpu_out6)
 BIT_REG(,0x01,6,csync,zpu_out6)
 
+#ifdef DEBUG_SUPPORT
+BIT_REG(,0xffff,0,debug_addr,zpu_out7)
+BIT_REG(,0xff,16,debug_data,zpu_out7)
+BIT_REG(,0x1,24,debug_read_mode,zpu_out7)
+BIT_REG(,0x1,25,debug_write_mode,zpu_out7)
+BIT_REG(,0x1,26,debug_data_match,zpu_out7)
+#endif
+
 BIT_REG_RO(,0x1,8,hotkey_softboot,zpu_in1)
 BIT_REG_RO(,0x1,9,hotkey_coldboot,zpu_in1)
 BIT_REG_RO(,0x1,10,hotkey_settings,zpu_in1)
@@ -277,7 +285,6 @@ int zpu_main(void)
 int main(void)
 #endif
 {
-
 	INIT_MEM
 
 	init_printf(0, char_out);

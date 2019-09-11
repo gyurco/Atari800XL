@@ -15,6 +15,8 @@ static const int screen_address = 3136;
 #define zpu_out4 ((int volatile *)(7*4+zpu_regbase))
 #define zpu_out5 ((int volatile *)(14*4+zpu_regbase))
 #define zpu_out6 ((int volatile *)(15*4+zpu_regbase))
+#define zpu_out7 ((int volatile *)(20*4+zpu_regbase))
+#define zpu_out8 ((int volatile *)(21*4+zpu_regbase))
 
 // write to pause for some us
 #define zpu_pause ((int volatile *)(8*4+zpu_regbase))
