@@ -358,6 +358,7 @@ end component;
 	signal ZPU_OUT3 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT4 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT6 : std_logic_vector(31 downto 0);
+	signal ZPU_OUT7 : std_logic_vector(31 downto 0);
 
 	signal zpu_pokey_enable : std_logic;
 	signal zpu_sio_txd : std_logic;
@@ -402,11 +403,13 @@ end component;
 	signal half_scandouble_enable_next : std_logic;
 	signal ATARI_COLOUR : std_logic_vector(7 downto 0);
 
+	-- freezer
 	signal freezer_enable : std_logic;
 	signal freezer_activate: std_logic;
 
 	signal freezer_state: std_logic_vector(2 downto 0);
 
+	-- ps2
 	signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
 	signal PS2_KEYS_NEXT : STD_LOGIC_VECTOR(511 downto 0);
 
@@ -985,7 +988,8 @@ atari800 : entity work.atari800core
 		cycle_length => 32,
 		video_bits => 8,
 		palette => 0,
-		internal_ram => internal_ram
+		internal_ram => internal_ram,
+		freezer_debug => 1
 	)
 	PORT MAP
 	(
@@ -1193,6 +1197,7 @@ zpu: entity work.zpucore
 		ZPU_OUT4 => zpu_out4,
 		ZPU_OUT5 => open,
 		ZPU_OUT6 => zpu_out6,
+		ZPU_OUT7 => zpu_out7,
 
 		-- USB host
 		CLK_nMHz => CLK_USB,
