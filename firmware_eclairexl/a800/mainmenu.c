@@ -507,6 +507,11 @@ void menuDevicesHotkeys(void * menuData, unsigned char keyPressed)
 	case 'C':
 		menuCart(0,0); //TODO
 		break;
+#ifdef DEBUG_SUPPORT		
+	case 'D':
+		debug_menu();
+		break;
+#endif
 	}
 }
 
@@ -519,6 +524,177 @@ void menuRotateUSB(void * menuData, struct joystick_status * joy)
 void menuPrintUsb(void * menuData, void * itemData)
 {
 	usb_devices(debug_pos);
+}
+#endif
+
+#ifdef DEBUG_SUPPORT
+struct EditNumberState
+{
+	unsigned char col;
+	unsigned char mask;
+	unsigned char defaultShift;
+};
+
+struct DebugMenuData
+{
+	struct EditNumberState state[2];
+};
+
+void initDebugMenuData(struct DebugMenuData * menuData2)
+{
+	menuData2->state[0].col = 0;
+	menuData2->state[0].mask = 0x3;
+	menuData2->state[0].defaultShift = 12;
+	menuData2->state[1].col = 0;
+	menuData2->state[1].mask = 0x1;
+	menuData2->state[1].defaultShift = 4;
+}
+
+void menuDisplayEditNumber(unsigned int num, struct EditNumberState * state)
+{
+	int shift = state->defaultShift;
+	int i=0;
+	int adj = debug_adjust;
+
+	printf("0x");
+	while(shift>=0)
+	{
+		int val = num;
+		val = (val>> shift)&0xf;
+		
+		if (state->col == i)
+			debug_adjust = adj^128;
+		else
+			debug_adjust = adj;
+		printf("%1x",val);
+		shift = shift-4;
+		i=i+1;
+	}
+
+	debug_adjust = adj;
+}
+
+void menuPrintDebugAddress(void * menuData, void * itemData)
+{
+	printf("Addr:");
+	struct DebugMenuData * menuData2 = (struct DebugMenuData *)(menuData);
+	menuDisplayEditNumber(get_debug_addr(),&menuData2->state[0]);
+}
+void menuPrintDebugData(void * menuData, void * itemData)
+{
+	printf("Data:");
+	struct DebugMenuData * menuData2 = (struct DebugMenuData *)(menuData);
+	menuDisplayEditNumber(get_debug_data(),&menuData2->state[1]);
+}
+void menuPrintDebugMode(void * menuData, void * itemData)
+{
+	printf("Mode:");
+	if (get_debug_read_mode())
+		printf("Read ");
+	if (get_debug_write_mode())
+		printf("Write ");
+	if (get_debug_data_match())
+		printf("Match ");
+}
+
+bool hexDigitToNumber(unsigned char digit, int *val)
+{
+	if (digit>='0' && digit<='9')
+	{
+		*val = digit-'0';
+		return true;
+	}
+	else if (digit>='A' && digit<='F')
+	{
+		*val = 10 + digit-'A';
+		return true;
+	}
+	return false;
+}
+
+bool menuEditNumber(struct EditNumberState * state, struct joystick_status * joy, unsigned int * data)
+{
+	unsigned int val = 0;
+	unsigned int mask = 0;
+	int i;
+	int shift = state->defaultShift;
+	bool res = false;
+	if (hexDigitToNumber(joy->keyPressed_,&val))
+	{
+		//key pressed, store the number in the current location
+		for (i=0;i!=state->col;++i)
+			shift = shift-4;
+
+		mask = 0xf;
+		val = val<<shift;
+		mask = mask<<shift;
+
+		*data = ((*data)&~mask) | val;
+
+		state->col = state->col+1;
+		res = true;
+	}
+	else if (joy->keyPressed_==-1)
+	{
+		// delete pressed, move back one place
+		state->col = state->col-1;
+	}
+
+	state->col = state->col & state->mask; // sanitize col
+
+	return res;
+}
+
+void menuDebugAddress(void * menuData, struct joystick_status * joy, int j)
+{
+	int i;
+	struct DebugMenuData * menuData2 = (struct DebugMenuData *)(menuData);
+	
+	unsigned int addr = get_debug_addr();
+	if (menuEditNumber(&menuData2->state[j],joy,&addr))
+		set_debug_addr(addr);
+}
+void menuDebugData(void * menuData, struct joystick_status * joy, int j)
+{
+	int i;
+	struct DebugMenuData * menuData2 = (struct DebugMenuData *)(menuData);
+
+	unsigned int data = get_debug_data();
+
+	if (menuEditNumber(&menuData2->state[j],joy,&data))
+		set_debug_data(data);
+}
+void menuDebugHotkeys(void * menuData, unsigned char keyPressed)
+{
+	switch (keyPressed)
+	{
+	case 'R':
+		set_debug_read_mode(!get_debug_read_mode());
+		break;
+	case 'W':
+		set_debug_write_mode(!get_debug_write_mode());
+		break;
+	case 'M':
+		set_debug_data_match(!get_debug_data_match());
+		break;
+	}
+}
+
+int debug_menu()
+{
+	struct MenuEntry entries[] = 
+	{
+		{&menuPrintDebugAddress,0,&menuDebugAddress,MENU_FLAG_KEYPRESS},
+		{&menuPrintDebugData,1,&menuDebugData,MENU_FLAG_KEYPRESS},
+		{&menuPrintDebugMode,0,0,MENU_FLAG_KEYPRESS},
+		{0,0,0,0}, //blank line
+		{0,"Exit",0,MENU_FLAG_EXIT},
+		{0,0,0,MENU_FLAG_FINAL} //blank line
+	};
+
+	struct DebugMenuData menuData;
+	initDebugMenuData(&menuData);
+	return display_menu("Debug",&entries[0], &menuDebugHotkeys, &menuData);
 }
 #endif
 
@@ -535,6 +711,10 @@ int devices_menu()
 		{0,"Rotate USB joysticks",&menuRotateUSB,MENU_FLAG_FIRE}, 
 #endif
 		{0,0,0,0}, //blank line
+#ifdef DEBUG_SUPPORT
+		{0,"Debug",&debug_menu,MENU_FLAG_FIRE},
+		{0,0,0,0}, //blank line
+#endif
 		{0,"Exit",0,MENU_FLAG_EXIT},
 		{0,0,0,0}, //blank line
 #ifdef USBSETTINGS

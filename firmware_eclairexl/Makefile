@@ -303,7 +303,7 @@ $(DE1_5200_BUILD_DIR)/%.o: %.c Makefile
 
 $(ECLAIREXL_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(ECLAIREXL_DIR) $(CFLAGS_USB2) -DPLL_SUPPORT -DRPD_SUPPORT -DMAX_VIDEO_MODE=6 -o $@ -c $<
+	$(CC) -I$(ECLAIREXL_DIR) $(CFLAGS_USB2) -DDEBUG_SUPPORT -DPLL_SUPPORT -DRPD_SUPPORT -DMAX_VIDEO_MODE=6 -o $@ -c $<
 
 $(MCC_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
