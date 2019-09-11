@@ -27,7 +27,7 @@ void *memset(void * s, int constant, int size)
 }
 #endif
 
-int display_menu(char const * title, struct MenuEntry * entries, menuPress menuPress, void * menuData)
+int display_menu(char const * title, struct MenuEntry * entries, menuPress hotkeys, void * menuData)
 {
 	struct joystick_status joy;
 	joy.x_ = joy.y_ = joy.fire_ = joy.escape_ = 0;
@@ -80,9 +80,9 @@ int display_menu(char const * title, struct MenuEntry * entries, menuPress menuP
 		joystick_wait(&joy,WAIT_QUIET);
 		joystick_wait(&joy,WAIT_EITHER);
 		if (joy.escape_) break;
-		if (joy.keyPressed_ > 0 && menuPress) 
+		if (joy.keyPressed_ > 0 && hotkeys) 
 		{
-			menuPress(menuData, joy.keyPressed_);
+			hotkeys(menuData, joy.keyPressed_);
 		}
 
 		row+=joy.y_;
@@ -109,7 +109,7 @@ int display_menu(char const * title, struct MenuEntry * entries, menuPress menuP
 					{
 						if (entry->flags&MENU_FLAG_SD && !sd_present)
 						{}
-						else if ((entry->flags&MENU_FLAG_LEFT && joy.x_<0) || (entry->flags&MENU_FLAG_RIGHT && joy.x_>0) || (entry->flags&MENU_FLAG_FIRE && joy.fire_))
+						else if ((entry->flags&MENU_FLAG_LEFT && joy.x_<0) || (entry->flags&MENU_FLAG_RIGHT && joy.x_>0) || (entry->flags&MENU_FLAG_FIRE && joy.fire_) || (entry->flags&MENU_FLAG_KEYPRESS && joy.keyPressed_!=0))
 							if (entry->actionFunction(menuData, &joy, entry->userData))
 								if (entry->flags&MENU_FLAG_MAYEXIT)
 								{
