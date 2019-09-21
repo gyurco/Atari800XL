@@ -1111,7 +1111,13 @@ atari800 : entity work.atari800core
 
 		freezer_enable => freezer_enable,
 		freezer_activate => freezer_activate,
-		freezer_state_out => freezer_state
+		freezer_state_out => freezer_state,
+
+		freezer_debug_addr => zpu_out7(15 downto 0),
+		freezer_debug_data => zpu_out7(23 downto 16),
+		freezer_debug_read => zpu_out7(24),
+		freezer_debug_write => zpu_out7(25),
+		freezer_debug_data_match => zpu_out7(26)
 
 		--RAM_SELECT => "001",
 		--CART_EMULATION_SELECT => (others=>'0'),
