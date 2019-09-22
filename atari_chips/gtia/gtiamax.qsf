@@ -333,5 +333,9 @@ set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[28] -
 set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[30] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
 set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[31] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=512" -section_id auto_signaltap_0
-set_global_assignment -name SLD_FILE db/gtiastp_auto_stripped.stp
+set_global_assignment -name QIP_FILE osc_in.qip
+set_global_assignment -name SIP_FILE osc_in.sip
+set_global_assignment -name QIP_FILE osc_out.qip
+set_global_assignment -name SIP_FILE osc_out.sip
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name SLD_FILE db/gtiastp_auto_stripped.stp
