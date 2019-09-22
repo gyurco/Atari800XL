@@ -58,12 +58,13 @@ ARCHITECTURE vhdl OF iox_glue IS
 	constant state_setup5 : std_logic_vector(3 downto 0) := "0100";
 	constant state_setup6 : std_logic_vector(3 downto 0) := "0101";
 	--addr,$4f (open drain),00000001 (port 0 is open drain, port 1 is driven)
-	--addr,$06 (cfg port0), 11111111 (pot reset is inputs!) 
+	--addr,$06 (cfg port0), 00000000 
 	--addr,$07 (cfg port1), 00000011 (p1_0,p1_1 are inputs)
 	--addr,$47 (pull up/down),00000011 (use pull ups/downs)
 	--addr,$49 (pull up/down),00000011 (use pull up 100ks)
 	constant state_kbscan : std_logic_vector(3 downto 0) := "0110";
 	constant state_kbread : std_logic_vector(3 downto 0) := "0111";
+	constant state_potreset : std_logic_vector(3 downto 0) := "1000";
 	constant state_setup7 : std_logic_vector(3 downto 0) := "1001";
 	-- address, write input port0(02),val
 	-- address, read input port1(01),0xff(in)
@@ -81,6 +82,9 @@ ARCHITECTURE vhdl OF iox_glue IS
 
 	signal op_complete : std_logic;
 	signal busy_reg : std_logic;
+
+	signal pot_next : std_logic;
+	signal pot_reg : std_logic;
 begin
 	process(clk,reset_n)
 	begin
@@ -88,10 +92,12 @@ begin
 			state_reg <= state_setup1;
 			i2c_state_reg <= i2c_state_part1;
 			busy_reg <= '0';
+			pot_reg <= '0';
 		elsif (clk'event and clk='1') then
 			state_reg <= state_next;
 			i2c_state_reg <= i2c_state_next;
 			busy_reg <= busy;
+			pot_reg <= pot_next;
 		end if;
 	end process;
 
@@ -142,9 +148,10 @@ begin
 	end process;
 
 
-	process(state_reg,keyboard_scan,busy,busy_reg,read_data,op_complete)
+	process(state_reg,pot_reset,keyboard_scan,busy,busy_reg,read_data,op_complete,pot_reg)
 	begin
 		state_next <= state_reg;
+		pot_next <= pot_reg;
 
 		keyboard_response <= "11";
 		keyboard_scan_enable <= '0';
@@ -164,7 +171,7 @@ begin
 			when state_setup2 =>
 				w2 <= '1';
 				write1 <= x"06";
-				write2 <= "11111111";
+				write2 <= "00000000";
 				if (op_complete='1') then
 					state_next <= state_setup3;
 				end if;
@@ -203,6 +210,14 @@ begin
 				if (op_complete='1') then
 					state_next <= state_kbscan;
 				end if;
+			when state_potreset =>
+				w2 <= '1';
+				write1 <= x"02";
+				write2 <= not(pot_reset&pot_reset&pot_reset&pot_reset&pot_reset&pot_reset&pot_reset&pot_reset);
+				pot_next <= pot_reset;
+				if (op_complete='1') then
+					state_next <= state_kbscan;
+				end if;
 			when state_kbread =>
 				w2 <= '0';
 				write1 <= x"01";
@@ -219,7 +234,11 @@ begin
 				--write2 <= not(keyboard_scan(5))&keyboard_scan(4)&keyboard_scan(3)&not(keyboard_scan(0)&keyboard_scan(1)&keyboard_scan(2))&"00";
 				write2 <= keyboard_scan(5)&keyboard_scan(4)&keyboard_scan(3)&keyboard_scan(0)&keyboard_scan(1)&keyboard_scan(2)&"00";
 				if (op_complete='1') then
-					state_next <= state_kbread;
+					if(not(pot_reset=pot_reg)) then
+						state_next <= state_potreset;
+					else
+						state_next <= state_kbread;
+					end if;
 				end if;
 			when others =>
 				state_next <= state_setup1;

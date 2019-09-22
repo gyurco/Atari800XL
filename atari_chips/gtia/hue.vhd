@@ -24,8 +24,8 @@ PORT
 	vpos_lsb : in std_logic;
 	pal : in std_logic;
 
-	colour_osc : in std_logic_vector(1 downto 0);
-	colour_osc_phased : out std_logic_vector(1 downto 0)
+	colour_osc : in std_logic;
+	colour_osc_phased : out std_logic
 );
 END hue;
 
@@ -39,17 +39,17 @@ ARCHITECTURE vhdl OF hue IS
 	signal colour_shift : std_logic_vector(7 downto 0);
 	signal base_shift : std_logic_vector(7 downto 0);
 
-	signal colour_osc_delay_next : std_logic_vector(511 downto 0);
-	signal colour_osc_delay_reg : std_logic_vector(511 downto 0);
+	signal colour_osc_delay_next : std_logic_vector(255 downto 0);
+	signal colour_osc_delay_reg : std_logic_vector(255 downto 0);
 
-	signal colour_osc_phased_next : std_logic_vector(1 downto 0);
-	signal colour_osc_phased_reg : std_logic_vector(1 downto 0);
+	signal colour_osc_phased_next : std_logic;
+	signal colour_osc_phased_reg : std_logic;
 BEGIN
 	process(clk,reset_n)
 	begin
 		if (reset_n='0') then
 			colour_osc_delay_reg <= (others=>'0');
-			colour_osc_phased_reg <= "00";
+			colour_osc_phased_reg <= '0';
 		elsif (clk'event and clk='1') then
 			colour_osc_delay_reg <= colour_osc_delay_next;
 			colour_osc_phased_reg <= colour_osc_phased_next;
@@ -59,14 +59,12 @@ BEGIN
 	-- next state
 	process(colour_osc_delay_reg,colour_osc)
 	begin
-		colour_osc_delay_next(511 downto 0) <= colour_osc_delay_reg(509 downto 0)&colour_osc;
+		colour_osc_delay_next(255 downto 0) <= colour_osc_delay_reg(254 downto 0)&colour_osc;
 	end process;
 
 	process(colour_osc_delay_reg,sin_phase,sin_on)
-		variable idx : integer;
 	begin
-		idx := to_integer(unsigned(sin_phase))/2;
-		colour_osc_phased_next <= colour_osc_delay_reg(idx+1 downto idx);
+		colour_osc_phased_next <= colour_osc_delay_reg(to_integer(unsigned(sin_phase))/4);
 	end process;
 
 	-- 4.43361875MHz - PAL carrier  - i.e. 12.8 clock cycles per sin wave! so if we have 256 sine entries,+5*16/4 per cycle, +20 per cycle
@@ -136,7 +134,7 @@ BEGIN
 		end if;
 	end process;
 
-	colour_osc_phased <= colour_osc_phased_reg when sin_on='1' else "00";
+	colour_osc_phased <= colour_osc_phased_reg when sin_on='1' else '0';
 
 END vhdl;
 
