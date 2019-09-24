@@ -3,6 +3,12 @@ export TODAY=`date +'%Y%m%d'`
 export VERSION=`cat VERSION`
 echo "D:$TODAY:"
 echo "V:$VERSION:"
+if [[ ! -f ../firmware_eclairexl/ECLAIREXL.bin ]] ; then
+    echo 'File "../firmware_eclairexl/ECLAIREXL.bin" is not there, aborting.'
+    exit
+fi
+
+
 cat ../firmware_eclairexl/ECLAIREXL.bin |sed -e "s/Date:YYYYMMDD Core:XX/Date:$TODAY Core:$VERSION/" > ../firmware_eclairexl/ECLAIREXL.bin_dated
 ../firmware_eclairexl/mif_file_stuff/zpuromgen ../firmware_eclairexl/ECLAIREXL.bin_dated  > zpu_rom.mif_insidesv3
 cat ../firmware_eclairexl/mif_file_stuff/rom_prologue_40.vhd  zpu_rom.mif_insidesv3 ../firmware_eclairexl/mif_file_stuff/rom_epilogue.vhd  > zpu_romv3.mif
@@ -10,12 +16,12 @@ cat ../firmware_eclairexl/mif_file_stuff/rom_prologue_40.vhd  zpu_rom.mif_inside
 if [ $1 != "BUILD" ]; then
     echo Updating existing
 
-    cp zpu_romv3.mif build_v3rom/zpu_rom.mif
-    quartus_cdb --update_mif build_v3rom/atari800core_eclaireXLv3.qpf
-    quartus_asm build_v3rom/atari800core_eclaireXLv3.qpf
+    cp zpu_romv3.mif build_A4EBAv3rom/zpu_rom.mif
+    quartus_cdb --update_mif build_A4EBAv3rom/atari800core_eclaireXLv3.qpf
+    quartus_asm build_A4EBAv3rom/atari800core_eclaireXLv3.qpf
     
-    pushd build_v3rom/
-    quartus_cpf --convert ../convertv3.cof
+    pushd build_A4EBAv3rom/
+    quartus_cpf --convert ../convertv3b.cof
     popd
 else
     echo Skipping update
