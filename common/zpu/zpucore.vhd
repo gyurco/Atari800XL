@@ -85,6 +85,8 @@ ENTITY zpucore IS
 		ZPU_OUT4 : out std_logic_vector(31 downto 0);
 		ZPU_OUT5 : out std_logic_vector(31 downto 0);
 		ZPU_OUT6 : out std_logic_vector(31 downto 0);
+		ZPU_OUT7 : out std_logic_vector(31 downto 0);
+		ZPU_OUT8 : out std_logic_vector(31 downto 0);
 
 		-- nMHz clock, for timer. Divided by n before use.
 		CLK_nMHz : in std_logic;
@@ -185,6 +187,8 @@ PORT MAP (
 	OUT4 => ZPU_OUT4,
 	OUT5 => ZPU_OUT5,
 	OUT6 => ZPU_OUT6,
+	OUT7 => ZPU_OUT7,
+	OUT8 => ZPU_OUT8,
 
 	PLL_WRITE => ZPU_PLL_WRITE,
 	PLL_DATA => ZPU_PLL_DATA,
