@@ -43,6 +43,8 @@ PORT
 	OUT4 : out  std_logic_vector(31 downto 0); 
 	OUT5 : out  std_logic_vector(31 downto 0); 
 	OUT6 : out  std_logic_vector(31 downto 0); 
+	OUT7 : out  std_logic_vector(31 downto 0); 
+	OUT8 : out  std_logic_vector(31 downto 0); 
 
 	-- change clock support
 	PLL_WRITE : out std_logic;
@@ -139,6 +141,10 @@ ARCHITECTURE vhdl OF zpu_config_regs IS
 	signal out5_reg : std_logic_vector(31 downto 0);
 	signal out6_next : std_logic_vector(31 downto 0);
 	signal out6_reg : std_logic_vector(31 downto 0);
+	signal out7_next : std_logic_vector(31 downto 0);
+	signal out7_reg : std_logic_vector(31 downto 0);
+	signal out8_next : std_logic_vector(31 downto 0);
+	signal out8_reg : std_logic_vector(31 downto 0);
 	
 	signal spi_miso : std_logic;
 	signal spi_mosi : std_logic;
@@ -232,6 +238,8 @@ begin
 			out4_reg <= (others=>'0');
 			out5_reg <= (others=>'0');
 			out6_reg <= (others=>'0');
+			out7_reg <= (others=>'0');
+			out8_reg <= (others=>'0');
 			
 			spi_slave_reg <= '1';
 			spi_select_reg <= (others=>'1');
@@ -262,6 +270,8 @@ begin
 			out4_reg <= out4_next;
 			out5_reg <= out5_next;
 			out6_reg <= out6_next;
+			out7_reg <= out7_next;
+			out8_reg <= out8_next;
 			
 			spi_slave_reg <= spi_slave_next;
 			spi_select_reg <= spi_select_next;
@@ -497,9 +507,12 @@ begin
 	--  14-15 : GENERIC OUTPUT (R/W)
 	--  16    : I2C0 (W=AADD where AA is AAAAAAAR (r=1 is read)), (R=YXDD, where DD(0xff) is data, X(0x100) is busy and Y(0x200) is error)
 	--  17    : I2C1 (as above, connection 2)
+	--  18    : timer - TODO docs
+	--  19    : rand - TODO docs
+	--  20-21 : GENERIC OUTPUT (R/W) - TODO reorganise!
 				
 	-- Writes to registers
-	process(cpu_data_in,device_wr_en,addr,addr_decoded, spi_speed_reg, spi_slave_reg, spi_select_reg, out1_reg, out2_reg, out3_reg, out4_reg, out5_reg, out6_reg, pause_reg, spi_dma_addr_reg, spi_dma_addrend_reg, spi_dma_reg, spi_busy, spi_dma_addr_next, i2c0_write_reg, i2c1_write_reg, i2c0_busy_next, i2c0_busy_reg, i2c1_busy_next, i2c1_busy_reg, i2c0_write_data_reg, i2c1_write_data_reg, timer2_threshold_reg, tick_us)
+	process(cpu_data_in,device_wr_en,addr,addr_decoded, spi_speed_reg, spi_slave_reg, spi_select_reg, out1_reg, out2_reg, out3_reg, out4_reg, out5_reg, out6_reg, out7_reg, out8_reg, pause_reg, spi_dma_addr_reg, spi_dma_addrend_reg, spi_dma_reg, spi_busy, spi_dma_addr_next, i2c0_write_reg, i2c1_write_reg, i2c0_busy_next, i2c0_busy_reg, i2c1_busy_next, i2c1_busy_reg, i2c0_write_data_reg, i2c1_write_data_reg, timer2_threshold_reg, tick_us)
 	begin
 		spi_speed_next <= spi_speed_reg;
 		spi_slave_next <= spi_slave_reg;
@@ -513,6 +526,8 @@ begin
 		out4_next <= out4_reg;
 		out5_next <= out5_reg;
 		out6_next <= out6_reg;
+		out7_next <= out7_reg;
+		out8_next <= out8_reg;
 
 		timer2_threshold_next <= timer2_threshold_reg;
 
@@ -640,11 +655,20 @@ begin
 				timer2_threshold_next <= cpu_data_in(31 downto 0);
 			end if;
 
+			if(addr_decoded(20) = '1') then
+				out7_next <= cpu_data_in;
+			end if;	
+
+			if(addr_decoded(21) = '1') then
+				out8_next <= cpu_data_in;
+			end if;	
+
+
 		end if;
 	end process;
 	
 	-- Read from registers
-	process(addr,addr_decoded, in1, in2, in3, in4, out1_reg, out2_reg, out3_reg, out4_reg, out5_reg, out6_reg, SIO_COMMAND, spi_rx_data, spi_busy, timer_reg, timer2_reg, i2c0_busy_reg, i2c0_read_data, i2c1_busy_reg, i2c1_read_data, i2c0_error, i2c1_error, rand_out)
+	process(addr,addr_decoded, in1, in2, in3, in4, out1_reg, out2_reg, out3_reg, out4_reg, out5_reg, out6_reg, out7_reg, out8_reg, SIO_COMMAND, spi_rx_data, spi_busy, timer_reg, timer2_reg, i2c0_busy_reg, i2c0_read_data, i2c1_busy_reg, i2c1_read_data, i2c0_error, i2c1_error, rand_out)
 	begin
 		data_out_regs <= (others=>'0');
 
@@ -687,6 +711,14 @@ begin
 		if (addr_decoded(15) = '1') then
 			data_out_regs <= out6_reg;
 		end if;
+
+		if(addr_decoded(20) = '1') then
+			data_out_regs <= out7_reg;
+		end if;	
+
+		if(addr_decoded(21) = '1') then
+			data_out_regs <= out8_reg;
+		end if;	
 
 		if (addr_decoded(8) = '1') then
 			data_out_regs <= timer_reg;
@@ -739,6 +771,8 @@ begin
 	out4 <= out4_reg;
 	out5 <= out5_reg;
 	out6 <= out6_reg;
+	out7 <= out7_reg;
+	out8 <= out8_reg;
 	
 	--SDCARD_CLK <= spi_clk_out;
 	--SDCARD_CMD <= spi_mosi;
