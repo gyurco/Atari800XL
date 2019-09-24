@@ -28,6 +28,7 @@ generic
 port (
 	-- clocks
 	I_CLK_PIXEL		: in std_logic;
+	I_RESET		: in std_logic;
 	
 	-- components
 	I_R				: in std_logic_vector(7 downto 0);
@@ -59,6 +60,7 @@ generic
 );
 port (
 	i_pixclk	: in std_logic;
+	i_reset	: in std_logic;
 	i_hSync		: in std_logic;
 	i_vSync		: in std_logic;
 	i_blank		: in std_logic;
@@ -299,6 +301,7 @@ generic map (
 )
 port map(
 	i_pixclk		=> I_CLK_PIXEL,
+	i_reset		=> I_RESET,
 	i_blank 		=> I_BLANK,
 	i_hSync		=> I_HSYNC,
 	i_vSync		=> I_VSYNC,

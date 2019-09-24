@@ -332,6 +332,7 @@ end process;
 hdmiav_inst : entity work.hdmi
 port map (
 	I_CLK_PIXEL => clk_pixel_in,
+	I_RESET => not(reset_n),
 	I_AUDIO_PCM_L   => audio_left_reg2,
 	I_AUDIO_PCM_R   => audio_right_reg2,
 	I_HSYNC		=> hsync_reg,
