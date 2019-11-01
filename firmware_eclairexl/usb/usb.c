@@ -140,7 +140,7 @@ uint8_t usb_dispatchPktWithData( TOKEN token, uint8_t ep, uint16_t nak_limit, ui
   uint8_t retry_count = 0;
   uint16_t nak_count = 0;
 	
-  while( timeout > timer_get_msec() )  {
+  while( !timer_elapsed(timeout) )  {
     //MWW max3421e_write_u08( MAX3421E_HXFR, ( token|ep )); //launch the transfer
     USBHOSTSLAVE_WRITE(OHS900_TXENDPREG, ep);
     uint8_t control = OHS900_HCTLMASK_TRANS_REQ|controlAdj;
@@ -227,7 +227,7 @@ uint8_t usb_dispatchPktWithData( TOKEN token, uint8_t ep, uint16_t nak_limit, ui
     
     // wait for transfer completion
 	//printf("Wait:%x %x ", timer_get_msec(), timeout);
-    while( timer_get_msec() < timeout )	{
+    while( !timer_elapsed(timeout) )	{
       //tmpdata = max3421e_read_u08( MAX3421E_HIRQ );
       // MWW
       tmpdata = USBHOSTSLAVE_READ(OHS900_IRQ_STATUS);
@@ -637,7 +637,7 @@ void usb_poll(struct usb_host * host) {
   usbhostslave = host->addr;
 
   // max poll 1ms
-  if(timer_get_msec() > host->poll) {
+  if(timer_elapsed(host->poll)) {
     host->poll = timer_get_msec()+1;
 
     // poll underlaying hardware layer
@@ -719,7 +719,7 @@ void usb_poll(struct usb_host * host) {
       break;
       
     case USB_ATTACHED_SUBSTATE_SETTLE:              //settle time for just attached device            
-      if( host->delay < timer_get_msec() ) 
+      if( timer_elapsed(host->delay) ) 
 	host->usb_task_state = USB_ATTACHED_SUBSTATE_RESET_DEVICE;
       break;
       
@@ -732,7 +732,7 @@ void usb_poll(struct usb_host * host) {
       break;
       
     case USB_ATTACHED_SUBSTATE_WAIT_RESET_COMPLETE:
-      if( host->delay < timer_get_msec() )
+      if( timer_elapsed(host->delay) )
       {
         USBHOSTSLAVE_WRITE(OHS900_SOFENREG, OHS900_MASK_SOF_ENA);
         USBHOSTSLAVE_WRITE(OHS900_TXLINECTLREG, OHS900_TXLCTL_MASK_NORMAL);
@@ -752,7 +752,7 @@ void usb_poll(struct usb_host * host) {
       if (USBHOSTSLAVE_READ(OHS900_IRQ_STATUS)&OHS900_INTMASK_SOFINTR)
       {
         USBHOSTSLAVE_WRITE(OHS900_IRQ_STATUS, OHS900_INTMASK_SOFINTR);
-	if( host->delay < timer_get_msec() ) //20ms passed
+	if( timer_elapsed(host->delay) ) //20ms passed
 	  host->usb_task_state = USB_STATE_CONFIGURING;
       }
       break;

@@ -20,7 +20,25 @@ msec_t timer_get_msec() {
 msec_t timer_get_msec() {
 	int res = *zpu_timer;
 	res = res >> 10; // Divide by 1024, good enough for here!
+
 	return res;
 }
+
+bool timer_elapsed(msec_t until)
+{
+	msec_t now = timer_get_msec();
+	if (now>=until)
+		return true;
+	else 
+	{
+		unsigned int delay = until - now;
+
+		if (delay > 0x200000)
+			return true;  //overflow
+		else
+			return false; //normal case
+	}
+}
+
 #endif
 
