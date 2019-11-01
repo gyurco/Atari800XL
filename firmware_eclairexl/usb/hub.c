@@ -288,7 +288,7 @@ static uint8_t usb_hub_poll(usb_device_t *dev) {
   if (!info->bPollEnable)
     return 0;
   
-  if (info->qNextPollTime <= timer_get_msec()) {
+  if (timer_elapsed(info->qNextPollTime)) {
     rcode = usb_hub_check_hub_status(dev, info->bNbrPorts);
     //info->qNextPollTime = timer_get_msec() + 100;   // poll 10 times a second 
     info->qNextPollTime = timer_get_msec() + 2000;   // poll every 2 seconds
