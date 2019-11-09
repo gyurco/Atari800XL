@@ -758,6 +758,7 @@ freezertrig : entity work.freezer_debug_trigger
 end generate;
 gen_trig_off : if freezer_debug=0 generate
 	freezer_trigger_activate <= '0';
+	FREEZER_TRIGGER_NMI_N <= '1';
 end generate;
 	freezer_activate_combined <= freezer_trigger_activate or freezer_activate;
 
