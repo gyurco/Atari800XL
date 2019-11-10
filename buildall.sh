@@ -12,7 +12,7 @@ function max3 {
 export PATH=${ORIGPATH}:/home/markw/fpga/altera/13.0sp1/quartus/bin
 #cd de1
 #max3; ./build.sh ALL &
-cd ../chameleon
+cd chameleon
 max3; ./build.sh ALL &
 #cd ../replay
 #max3; ./build.sh > build.log 2> build.err &
