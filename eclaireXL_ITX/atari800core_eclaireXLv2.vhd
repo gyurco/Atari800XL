@@ -21,7 +21,8 @@ ENTITY atari800core_eclaireXL IS
 	(
 		-- For initial port may help to have no
 		internal_rom : integer := 1;  -- if 0 expects it in sdram,is 1:16k os+basic, is 2:... TODO
-		internal_ram : integer := 16384  -- at start of memory map
+		internal_ram : integer := 16384;  -- at start of memory map
+		sid : integer := 0
 	);
 	PORT
 	(
@@ -1065,7 +1066,8 @@ atari800 : entity work.atari800core
 		video_bits => 8,
 		palette => 0,
 		internal_ram => internal_ram,
-		freezer_debug => 1
+		freezer_debug => 1,
+		sid => sid
 	)
 	PORT MAP
 	(
@@ -1278,6 +1280,7 @@ zpu: entity work.zpucore
 			sd_writeprotect&sd_detect&
 			(atari_keyboard(28))&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
 			FKEYS,
+			-- trigger menu with fire!: (FKEYS or (not(TRIG(0))&"00000000000")),
 		ZPU_IN2 => X"00000000",
 		ZPU_IN3 => atari_keyboard(31 downto 0),
 		ZPU_IN4 => atari_keyboard(63 downto 32),
