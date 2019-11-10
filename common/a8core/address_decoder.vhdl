@@ -17,7 +17,6 @@ ENTITY address_decoder IS
 GENERIC
 (
 	low_memory : integer := 0; -- if 0, we assume 8MB SDRAM, if 1, we assume 1MB 'SDRAM', if 2 we assume 512KB 'SDRAM'.
-	stereo : integer := 1; 
 	system : integer := 0; -- 0=Atari XL/XE, 10=Atari5200 (space left for more systems)
 	--sdram_start_bank : integer := 0 -- 0=sdram only, 5=512k ram. (2^n*16)
 	internal_ram : integer := 0 -- must be power of 2...
@@ -50,8 +49,6 @@ PORT
 	CACHE_GTIA_DATA : IN STD_LOGIC_VECTOR(7 downto 0);
 	POKEY_DATA : IN STD_LOGIC_VECTOR(7 downto 0);
 	CACHE_POKEY_DATA : IN STD_LOGIC_VECTOR(7 downto 0);
-	POKEY2_DATA : IN STD_LOGIC_VECTOR(7 downto 0);	
-	CACHE_POKEY2_DATA : IN STD_LOGIC_VECTOR(7 downto 0);	
 	ANTIC_DATA : IN STD_LOGIC_VECTOR(7 downto 0);
 	CACHE_ANTIC_DATA : IN STD_LOGIC_VECTOR(7 downto 0);	
 	PIA_DATA : IN STD_LOGIC_VECTOR(7 downto 0);
@@ -97,7 +94,6 @@ PORT
 		-- these all take 1 cycle, so fine to leave device selected in general
 	GTIA_WR_ENABLE : OUT STD_LOGIC;
 	POKEY_WR_ENABLE : OUT STD_LOGIC;
-	POKEY2_WR_ENABLE : OUT STD_LOGIC;
 	ANTIC_WR_ENABLE : OUT STD_LOGIC;
 	PIA_WR_ENABLE : OUT STD_LOGIC;
 	PIA_RD_ENABLE : OUT STD_LOGIC; -- ... except PIA takes action on reads!
@@ -677,8 +673,8 @@ end generate;
 		pbi_mpd_n,
 		
 		-- input data from n sources
-		GTIA_DATA,POKEY_DATA,POKEY2_DATA,PIA_DATA,ANTIC_DATA,PBI_DATA,ROM_DATA,RAM_DATA,SDRAM_DATA,
-		CACHE_GTIA_DATA,CACHE_POKEY_DATA,CACHE_POKEY2_DATA,CACHE_ANTIC_DATA,
+		GTIA_DATA,POKEY_DATA,PIA_DATA,ANTIC_DATA,PBI_DATA,ROM_DATA,RAM_DATA,SDRAM_DATA,
+		CACHE_GTIA_DATA,CACHE_POKEY_DATA,CACHE_ANTIC_DATA,
 		LAST_BUS_REG,
 		
 		-- input data from n sources complete?
@@ -715,7 +711,6 @@ end generate;
 		
 		GTIA_WR_ENABLE <= '0';
 		POKEY_WR_ENABLE <= '0';
-		POKEY2_WR_ENABLE <= '0';
 		ANTIC_WR_ENABLE <= '0';
 		PIA_WR_ENABLE <= '0';
 		PIA_RD_ENABLE <= '0';
@@ -810,15 +805,9 @@ end generate;
 			
 				-- POKEY
 				when X"D2" =>				
-					if (stereo=0 or addr_next(4) = '0') then
-						POKEY_WR_ENABLE <= write_enable_next;
-						MEMORY_DATA_INT(7 downto 0) <= POKEY_DATA;
-						MEMORY_DATA_INT(15 downto 8) <= CACHE_POKEY_DATA;
-					else
-						POKEY2_WR_ENABLE <= write_enable_next;
-						MEMORY_DATA_INT(7 downto 0) <= POKEY2_DATA;
-						MEMORY_DATA_INT(15 downto 8) <= CACHE_POKEY2_DATA;
-					end if;
+					POKEY_WR_ENABLE <= write_enable_next;
+					MEMORY_DATA_INT(7 downto 0) <= POKEY_DATA;
+					MEMORY_DATA_INT(15 downto 8) <= CACHE_POKEY_DATA;
 					request_complete <= '1';
 					sdram_chip_select <= '0';
 					ram_chip_select <= '0';					
