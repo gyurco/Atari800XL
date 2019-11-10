@@ -16,7 +16,8 @@ my %variants =
 		"internal_rom" => 1,
 		"fpga" => "5CEBA2F23C8",
 		"postfix" => "v3",
-		"convert" => "v3a"
+		"convert" => "v3a",
+		"sid" => 0
 	},
 	"A4EBAv3rom" =>
 	{
@@ -24,21 +25,24 @@ my %variants =
 		"internal_rom" => 1,
 		"fpga" => "5CEBA4F23C8",
 		"postfix" => "v3",
-		"convert" => "v3b"
+		"convert" => "v3b",
+		"sid" => 1
 	},
 	"A2EBArom" =>
 	{
 		"internal_ram" => 65536,
 		"internal_rom" => 1,
 		"fpga" => "5CEBA2F23C8",
-		"postfix" => "v1"
+		"postfix" => "v1",
+		"sid" => 0
 	},
 	"A4EBArom" =>
 	{
 		"internal_ram" => 131072,
 		"internal_rom" => 1,
 		"fpga" => "5CEBA4F23C8",
-		"postfix" => "v2"
+		"postfix" => "v2",
+		"sid" => 1
 	},
 #	"A2EBAproto" =>
 #	{
@@ -116,6 +120,7 @@ foreach my $variant (sort keys %variants)
 	`cp atari800core*.sdc $dir`;
 	`mkdir $dir/common`;
 	`mkdir $dir/common/a8core`;
+	`mkdir $dir/common/a8core/sid8580`;
 	`mkdir $dir/common/components`;
 	`mkdir $dir/common/zpu`;
 	`mkdir $dir/svideo`;
@@ -123,6 +128,7 @@ foreach my $variant (sort keys %variants)
 	mkdir "./$dir/common/components/usbhostslave";
 	`cp ../common/components/usbhostslave/trunk/RTL/*/*.v ./$dir/common/components/usbhostslave`;
 	`cp ../common/a8core/* ./$dir/common/a8core`;
+	`cp ../common/a8core/sid8580/* ./$dir/common/a8core/sid8580/`;
 	`cp -r ../common/components/* ./$dir/common/components`;
 	`mv ./$dir/common/components/*cycloneV/* ./$dir/common/components/`;
 	`cp ../common/zpu/* ./$dir/common/zpu`;
@@ -135,7 +141,7 @@ foreach my $variant (sort keys %variants)
 
 	my $fpga = $variants{$variant}->{"fpga"};
 	
- 	`../makeqsf ../atari800core_eclaireXL$postfix.qsf ./hdmi ./svideo ./common/a8core ./common/components ./common/zpu ./common/components/usbhostslave`;
+ 	`../makeqsf ../atari800core_eclaireXL$postfix.qsf ./hdmi ./svideo ./common/a8core ./common/a8core/sid8580 ./common/components ./common/zpu ./common/components/usbhostslave`;
 
 	`echo set_global_assignment -name DEVICE $fpga >> atari800core_eclaireXL$postfix.qsf`;
 

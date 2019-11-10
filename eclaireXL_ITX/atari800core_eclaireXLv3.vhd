@@ -22,7 +22,8 @@ ENTITY atari800core_eclaireXL IS
 	(
 		-- For initial port may help to have no
 		internal_rom : integer := 1;  -- if 0 expects it in sdram,is 1:16k os+basic, is 2:... TODO
-		internal_ram : integer := 16384  -- at start of memory map
+		internal_ram : integer := 16384;  -- at start of memory map
+		sid : integer := 0
 	);
 	PORT
 	(
@@ -1045,7 +1046,8 @@ atari800 : entity work.atari800core
 		video_bits => 8,
 		palette => 0,
 		internal_ram => internal_ram,
-		freezer_debug => 1
+		freezer_debug => 1,
+		sid => sid
 	)
 	PORT MAP
 	(
