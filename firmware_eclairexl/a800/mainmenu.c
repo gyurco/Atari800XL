@@ -1,4 +1,3 @@
-static const int main_ram_size=65536;
 #include "main.h" //!!!
 #include "atari_drive_emulator.h"
 #include "log.h"
@@ -422,7 +421,7 @@ static char const * key_types[] =
 	"ANSI"
 };
 
-static char const * system[] = 
+static char const * systemname[] = 
 {
 	"XL/XE",
 	"400/800"
@@ -836,7 +835,7 @@ void menuDriveTurbo(void * menuData, struct joystick_status * joy)
 
 void menuPrintSystem(void * menuData, void * itemData)
 {
-	printf("System:%s %s", ram[get_ram_select()], system[get_atari800mode()]);
+	printf("System:%s %s", ram[get_ram_select()], systemname[get_atari800mode()]);
 }
 
 void menuSystem(void * menuData, struct joystick_status * joy)

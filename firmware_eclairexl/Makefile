@@ -8,7 +8,7 @@ DUMP    = $(BASE)-objdump
 SOCKIT_CC = arm-linux-gnueabihf-gcc
 SOCKIT_LD = arm-linux-gnueabihf-gcc
 
-SOCKIT_CFLAGS = -g -DLITTLE_ENDIAN -DSOCKIT -O2
+SOCKIT_CFLAGS = -g -DLITTLE_ENDIAN -DSOCKIT -O0
 SOCKIT_CFLAGS+= -W -Wall
 SOCKIT_LDFLAGS = -g
 
@@ -131,7 +131,7 @@ MIST_5200_SRC = $(COMMON_SRC) $(SDCARD_SRC) $(5200_SRC) mist_5200/dirs.c
 MIST_5200_OBJ = $(patsubst %.c,$(MIST_5200_BUILD_DIR)/%.o,$(MIST_5200_SRC))
 
 SOCKIT_PRJ = SOCKIT
-SOCKIT_SRC = $(CORE_SRC) a800/freeze.c  a800/mainmenu.c atari_drive_emulator.c a800/joystick.c sockit/dirs.c sockit/linuxfile.c sockit/linuxdir.c sockit/memory.c
+SOCKIT_SRC = $(CORE_SRC) $(USB_SRC) menu.c a800/freeze.c  a800/mainmenu.c atari_drive_emulator.c a800/joystick.c dummy/vidi2c.c sockit/dirs.c sockit/linuxfile.c sockit/linuxdir.c sockit/memory.c sockit/rom_location.c
 SOCKIT_OBJ = $(patsubst %.c,$(SOCKIT_BUILD_DIR)/%.o,$(SOCKIT_SRC))
 
 LINKMAP  = ./standalone_simple.ld
@@ -162,7 +162,7 @@ CFLAGS  = -I. -Ispiflash -Ividi2c -Iclkgen -Ipll -Isd_direct -Iprintf -Ifat -Ico
 CFLAGS_AEON  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Iaeon_lite -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX -DMAX_RAM_SELECT_XL=5
 CFLAGS_PAPILIODUO  = -I. -Isd_direct -Iprintf -Ifat -Icommon -Ipapilioduo -c -g -Os $(ZPUOPTS) -DDISABLE_UART_RX -DMAX_RAM_SELECT_XL=3
 
-SOCKIT_CFLAGS += -I. -Icommon -Isockit -Iprintf -DMAX_RAM_SELECT_XL=6
+SOCKIT_CFLAGS += -I. -Icommon -Isockit -Iprintf -Idummy -DMAX_RAM_SELECT_XL=3 -DMAX_RAM_SELECT_800=4 -DMAX_VIDEO_MODE=6 -DNO_FLASH -DUSB -Iusb
 
 HOST_CFLAGS += -I. -Isd_direct -Iprintf -Ifat -Icommon -Isdram_common -DDISABLE_UART_RX -DUSB -Iusb -Ividi2c -Ispiflash -Iclkgen -DMAX_RAM_SELECT_XL=6 -DMAX_RAM_SELECT_800=4 -DMAX_VIDEO_MODE=6
 

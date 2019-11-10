@@ -21,6 +21,10 @@ void init_bridge();
 #define DIR_INIT_MEM (char *)malloc(DIR_INIT_MEMSIZE)
 #define FREEZE_MEM (char unsigned *)malloc(128*1024)
 
+#define FREEZER_RAM_MEM (SDRAM_BASE + 0x480000)
+#define FREEZER_ROM_MEM (SDRAM_BASE + 0x4A0000)
+
+#define SCRATCH_MEM (SDRAM_BASE + 0x4B0000)
 #define CARTRIDGE_MEM (SDRAM_BASE + 0x500000)
 
 // offset into SDRAM
