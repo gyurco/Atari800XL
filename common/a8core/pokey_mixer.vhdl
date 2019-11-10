@@ -25,6 +25,8 @@ PORT
 
 	COVOX_CHANNEL_0 : IN STD_LOGIC_VECTOR(7 downto 0);
 	COVOX_CHANNEL_1 : IN STD_LOGIC_VECTOR(7 downto 0);
+
+	SID_CHANNEL_0 : IN STD_LOGIC_VECTOR(7 downto 0);
 	
 	VOLUME_OUT_NEXT : OUT STD_LOGIC_vector(15 downto 0)
 );
@@ -54,7 +56,7 @@ begin
 END PROCESS;
 
 	-- next state
-	process (channel_0,channel_1,channel_2,channel_3,covox_CHANNEL_0,covox_channel_1,gtia_sound,sio_audio)
+	process (channel_0,channel_1,channel_2,channel_3,covox_CHANNEL_0,covox_channel_1,sid_channel_0,gtia_sound,sio_audio)
 		variable channel0_en_long : unsigned(10 downto 0);
 		variable channel1_en_long : unsigned(10 downto 0);
 		variable channel2_en_long : unsigned(10 downto 0);
@@ -63,6 +65,7 @@ END PROCESS;
 		variable sio_audio_long : unsigned(10 downto 0);
 		variable covox_0_long : unsigned(10 downto 0);
 		variable covox_1_long : unsigned(10 downto 0);
+		variable sid_0_long : unsigned(10 downto 0);
 		
 		variable volume_int_sum : unsigned(10 downto 0);
 	begin
@@ -74,6 +77,7 @@ END PROCESS;
 		sio_audio_long := (others=>'0');
 		covox_0_long := (others=>'0');
 		covox_1_long := (others=>'0');
+		sid_0_long := (others=>'0');
 
 		channel0_en_long(7 downto 4) := unsigned(channel_0);
 		channel1_en_long(7 downto 4) := unsigned(channel_1);
@@ -83,8 +87,9 @@ END PROCESS;
 		sio_audio_long(7 downto 0) := unsigned(sio_audio);
 		covox_0_long(7 downto 0) := unsigned(covox_channel_0);
 		covox_1_long(7 downto 0) := unsigned(covox_channel_1);
+		sid_0_long(7 downto 0) := unsigned(sid_channel_0);
 
-		volume_int_sum := ((channel0_en_long + channel1_en_long) + (channel2_en_long + channel3_en_long)) + ((gtia_sound_long + sio_audio_long) + (covox_0_long + covox_1_long));
+		volume_int_sum := ((channel0_en_long + channel1_en_long) + (channel2_en_long + channel3_en_long)) + ((gtia_sound_long + sio_audio_long) + (covox_0_long + covox_1_long) + (sid_0_long + sid_0_long));
 
 		volume_sum_next(9 downto 0) <= std_logic_vector(volume_int_sum(9 downto 0)) or volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10)&volume_int_sum(10);
 		

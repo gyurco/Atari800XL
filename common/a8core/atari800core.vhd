@@ -23,6 +23,7 @@ ENTITY atari800core IS
 		palette : integer :=0; -- 0:gtia colour on VIDEO_B, 1:on
 		low_memory : integer := 0; -- 0:8MB memory map, 1:1MB memory map
 		stereo : integer := 1;
+		sid : integer := 0; -- 0(none),1(on, only when stereo enabled too)
 		covox : integer := 1;
 		internal_ram : integer := 0; 
 		freezer_debug : integer := 0 --trigger nmi + freezer on addr/data match
@@ -279,9 +280,9 @@ SIGNAL	THROTTLE_COUNT_6502_ADJ :  STD_LOGIC_VECTOR(5 downto 0);
 -- POKEY
 SIGNAL	POKEY_IRQ :  STD_LOGIC;
 
-SIGNAL	POKEY_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	CACHE_POKEY_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-SIGNAL	POKEY_WRITE_ENABLE :  STD_LOGIC;
+SIGNAL	POKEY1_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	CACHE_POKEY1_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	POKEY1_WRITE_ENABLE :  STD_LOGIC;
 signal POKEY1_CHANNEL0 : std_logic_vector(3 downto 0);
 signal POKEY1_CHANNEL1 : std_logic_vector(3 downto 0);
 signal POKEY1_CHANNEL2 : std_logic_vector(3 downto 0);
@@ -294,6 +295,10 @@ signal POKEY2_CHANNEL0 : std_logic_vector(3 downto 0);
 signal POKEY2_CHANNEL1 : std_logic_vector(3 downto 0);
 signal POKEY2_CHANNEL2 : std_logic_vector(3 downto 0);
 signal POKEY2_CHANNEL3 : std_logic_vector(3 downto 0);
+
+SIGNAL	POKEY_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	CACHE_POKEY_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL	POKEY_WRITE_ENABLE :  STD_LOGIC;
 
 -- COVOX (after market DAC)
 signal covox_write_enable : std_logic;
@@ -333,6 +338,35 @@ signal freezer_trigger_activate : std_logic;
 signal freezer_activate_combined : std_logic;
 signal freezer_state : std_logic_vector(2 downto 0);
 signal freezer_trigger_nmi_n : std_logic;
+
+-- sid (Verilog)
+signal enable_sid : std_logic;
+SIGNAL SID1_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL SID2_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL SID1_WRITE_ENABLE : std_logic;
+SIGNAL SID2_WRITE_ENABLE : std_logic;
+SIGNAL SID1_AUDIO : std_logic_vector(7 downto 0);
+SIGNAL SID2_AUDIO : std_logic_vector(7 downto 0);
+
+component sid8580 IS
+PORT 
+( 
+	RESET : IN STD_LOGIC;
+	CLK : IN STD_LOGIC;
+	CE_1M : IN STD_LOGIC;
+
+	WE : IN STD_LOGIC;
+	ADDR : IN STD_LOGIC_VECTOR(4 downto 0);
+	DATA_IN : IN STD_LOGIC_VECTOR(7 downto 0);
+	DATA_OUT : OUT STD_LOGIC_VECTOR(7 downto 0);
+
+	POT_X : IN STD_LOGIC_VECTOR(7 downto 0);
+	POT_Y : IN STD_LOGIC_VECTOR(7 downto 0);
+
+	EXTFILTER_EN : IN STD_LOGIC;
+	AUDIO_DATA : OUT STD_LOGIC_VECTOR(17 downto 0)
+);
+END component;
 
 BEGIN 
 
@@ -422,12 +456,14 @@ PORT MAP(CLK => CLK,
 		 CHANNEL_L_3 => POKEY1_CHANNEL3,
 		 COVOX_CHANNEL_L_0 => covox_channel0,
 		 COVOX_CHANNEL_L_1 => covox_channel1,
+		 SID_CHANNEL_L_0 => sid1_audio,
 		 CHANNEL_R_0 => POKEY2_CHANNEL0,
 		 CHANNEL_R_1 => POKEY2_CHANNEL1,
 		 CHANNEL_R_2 => POKEY2_CHANNEL2,
 		 CHANNEL_R_3 => POKEY2_CHANNEL3,
 		 COVOX_CHANNEL_R_0 => covox_channel2,
 		 COVOX_CHANNEL_R_1 => covox_channel3,
+		 SID_CHANNEL_R_0 => sid2_audio,
 		 VOLUME_OUT_L => AUDIO_L,
 		 VOLUME_OUT_R => AUDIO_R);
 		 
@@ -459,6 +495,115 @@ gen_mono : if stereo=0 generate
 	POKEY2_CHANNEL3 <= POKEY1_CHANNEL3;
 end generate;
 
+--todo: other id type (need to ask permission)
+gen_sid1 : if sid=1 generate
+
+sidenable : entity work.enable_divider
+GENERIC MAP(
+	COUNT => cycle_length
+)
+PORT MAP(
+	CLK => CLK,
+	RESET_N => RESET_N,
+	ENABLE_IN => '1',
+	ENABLE_OUT => ENABLE_SID
+);
+
+sid1 : sid8580
+PORT MAP(
+	RESET => NOT(RESET_N),
+	CLK => CLK,
+	CE_1M => ENABLE_SID, --1MHz
+	WE => SID1_WRITE_ENABLE,
+	ADDR => PBI_ADDR_INT(4 downto 0),
+	DATA_IN => WRITE_DATA(7 downto 0),
+	DATA_OUT => SID1_DO,
+	POT_X => (others=>'0'),
+	POT_Y => (others=>'0'),
+	EXTFILTER_EN => '0',
+	AUDIO_DATA(17 downto 10) => sid1_audio,
+	AUDIO_DATA(9 downto 0) => open
+);
+
+sid2 : sid8580
+PORT MAP(
+	RESET => NOT(RESET_N),
+	CLK => CLK,
+	CE_1M => ENABLE_SID, --1MHz
+	WE => SID2_WRITE_ENABLE,
+	ADDR => PBI_ADDR_INT(4 downto 0),
+	DATA_IN => WRITE_DATA(7 downto 0),
+	DATA_OUT => SID2_DO,
+	POT_X => (others=>'0'),
+	POT_Y => (others=>'0'),
+	EXTFILTER_EN => '0',
+	AUDIO_DATA(17 downto 10) => sid2_audio,
+	AUDIO_DATA(9 downto 0) => open
+);
+
+	process(pbi_addr_int, pokey1_do, pokey2_do, pokey_write_enable, pbi_addr_int)
+	begin
+		POKEY1_WRITE_ENABLE <= '0';
+		POKEY2_WRITE_ENABLE <= '0';
+		SID1_WRITE_ENABLE <= '0';
+		SID2_WRITE_ENABLE <= '0';
+		POKEY_DO <= (others=>'0');
+		CACHE_POKEY_DO <= (others=>'0');
+
+		case pbi_addr_int(6 downto 4) is
+		when "000"|"010" =>
+			POKEY1_WRITE_ENABLE <= POKEY_WRITE_ENABLE;
+			POKEY_DO <= POKEY1_DO;
+			CACHE_POKEY_DO <= CACHE_POKEY1_DO;
+		when "001"|"011" =>
+			POKEY2_WRITE_ENABLE <= POKEY_WRITE_ENABLE;
+			POKEY_DO <= POKEY2_DO;
+			CACHE_POKEY_DO <= CACHE_POKEY2_DO;
+		when "100"|"101" =>
+			SID1_WRITE_ENABLE <= POKEY_WRITE_ENABLE;
+			POKEY_DO <= SID1_DO;
+			-- TODO freeze
+		when "110"|"111" =>
+			SID2_WRITE_ENABLE <= POKEY_WRITE_ENABLE;
+			POKEY_DO <= SID2_DO;
+			-- TODO freeze
+		end case;
+	end process;
+
+end generate;
+
+gen_sid1only : if sid=0 generate
+	sid1_audio <= (others=>'0');
+	sid2_audio <= (others=>'0');
+
+
+	process(pbi_addr_int, pokey1_do, pokey2_do, pokey_write_enable, pbi_addr_int)
+	begin
+		POKEY1_WRITE_ENABLE <= '0';
+		POKEY2_WRITE_ENABLE <= '0';
+		POKEY_DO <= (others=>'0');
+		CACHE_POKEY_DO <= (others=>'0');
+
+		if (stereo = 1) then
+			if (pbi_addr_int(4)='0') then
+				POKEY1_WRITE_ENABLE <= POKEY_WRITE_ENABLE;
+				POKEY_DO <= POKEY1_DO;
+				CACHE_POKEY_DO <= CACHE_POKEY1_DO;
+			else
+				POKEY2_WRITE_ENABLE <= POKEY_WRITE_ENABLE;
+				POKEY_DO <= POKEY2_DO;
+				CACHE_POKEY_DO <= CACHE_POKEY2_DO;
+			end if;
+		else
+			POKEY_DO <= POKEY1_DO;
+			POKEY1_WRITE_ENABLE <= POKEY_WRITE_ENABLE;
+			POKEY2_WRITE_ENABLE <= '0';
+		end if;
+	end process;
+
+end generate;
+
+
 pia1 : entity work.pia
 PORT MAP(CLK => CLK,
 		 EN => PIA_READ_ENABLE,
@@ -485,7 +630,7 @@ PORT MAP(CLK => CLK,
 		 PORTB_OUT => PORTB_OUT_INT);
 
 mmu1 : entity work.address_decoder
-GENERIC MAP(low_memory => low_memory, stereo => stereo, internal_ram => internal_ram)
+GENERIC MAP(low_memory => low_memory, internal_ram => internal_ram)
 PORT MAP(CLK => CLK,
 		 CPU_FETCH => CPU_FETCH,
 		 CPU_WRITE_N => R_W_N,
@@ -516,8 +661,6 @@ PORT MAP(CLK => CLK,
 		 GTIA_DATA => GTIA_DO,
 		 CACHE_GTIA_DATA => CACHE_GTIA_DO,
 		 PIA_DATA => PIA_DO,
-		 POKEY2_DATA => POKEY2_DO,
-		 CACHE_POKEY2_DATA => CACHE_POKEY2_DO,
 		 POKEY_DATA => POKEY_DO,
 		 CACHE_POKEY_DATA => CACHE_POKEY_DO,
 		 PORTB => PORTB_OPTIONS,
@@ -533,7 +676,6 @@ PORT MAP(CLK => CLK,
 		 MEMORY_READY_CPU => MEMORY_READY_CPU,
 		 GTIA_WR_ENABLE => GTIA_WRITE_ENABLE,
 		 POKEY_WR_ENABLE => POKEY_WRITE_ENABLE,
-		 POKEY2_WR_ENABLE => POKEY2_WRITE_ENABLE,
 		 ANTIC_WR_ENABLE => ANTIC_WRITE_ENABLE,
 		 PIA_WR_ENABLE => PIA_WRITE_ENABLE,
 		 PIA_RD_ENABLE => PIA_READ_ENABLE,
@@ -582,7 +724,7 @@ PORT MAP(CLK => CLK,
 pokey1 : entity work.pokey
 PORT MAP(CLK => CLK,
 		 ENABLE_179 => ANTIC_ENABLE_179,
-		 WR_EN => POKEY_WRITE_ENABLE,
+		 WR_EN => POKEY1_WRITE_ENABLE,
 		 RESET_N => RESET_N,
 		 SIO_IN1 => SIO_RXD,
 		 SIO_IN2 => '1',
@@ -604,7 +746,7 @@ PORT MAP(CLK => CLK,
 		 CHANNEL_1_OUT => POKEY1_CHANNEL1,
 		 CHANNEL_2_OUT => POKEY1_CHANNEL2,
 		 CHANNEL_3_OUT => POKEY1_CHANNEL3,
-		 DATA_OUT => POKEY_DO,
+		 DATA_OUT => POKEY1_DO,
 		 keyboard_scan => KEYBOARD_SCAN);
 
 CONSOL_IN <= '1'&CONSOL_OPTION&CONSOL_SELECT&CONSOL_START;
@@ -670,8 +812,8 @@ port map(
 	CLK => CLK,
 	ADDR => PBI_ADDR_INT(3 downto 0),
 	DATA_IN => WRITE_DATA(7 downto 0),
-	WR_EN => POKEY_WRITE_ENABLE,
-	DATA_OUT => CACHE_POKEY_DO
+	WR_EN => POKEY1_WRITE_ENABLE,
+	DATA_OUT => CACHE_POKEY1_DO
 );	 
 
 pokey2_mirror : entity work.reg_file
