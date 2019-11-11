@@ -500,7 +500,7 @@ gen_sid1 : if sid=1 generate
 
 sidenable : entity work.enable_divider
 GENERIC MAP(
-	COUNT => cycle_length
+	COUNT => 58/(cycle_length/32)
 )
 PORT MAP(
 	CLK => CLK,
