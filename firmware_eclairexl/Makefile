@@ -323,7 +323,7 @@ $(MCCTV_5200_BUILD_DIR)/%.o: %.c Makefile
 
 $(MIST_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`
-	$(CC) -I$(MIST_DIR) $(CFLAGS) -DNO_VID2I2C -DMAX_VIDEO_MODE=1 -o $@ -c $<
+	$(CC) -I$(MIST_DIR) $(CFLAGS) -DNO_VID2I2C -DMAX_VIDEO_MODE=3 -DMIST_VIDEO_MODE -o $@ -c $<
 
 $(MIST_5200_BUILD_DIR)/%.o: %.c Makefile
 	mkdir -p `dirname $@`

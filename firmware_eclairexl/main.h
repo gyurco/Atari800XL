@@ -429,6 +429,7 @@ void usb_devices(int debugPos)
 
 char const * get_video_mode(int video_mode)
 {
+#ifndef MIST_VIDEO_MODE
 	static char const * videotxt[] = 
 	{
 		"RGB",
@@ -439,6 +440,18 @@ char const * get_video_mode(int video_mode)
 		"VGA",
 		"COMPOSITE"
 	};
+#else
+	static char const * videotxt[] = 
+	{
+		"RGB",
+		"SCANDOUBLE",
+		"YPBPR 240",
+		"YPBPR 480",
+		"",
+		"",
+		""
+	};
+#endif
 	return videotxt[video_mode];
 }
 
