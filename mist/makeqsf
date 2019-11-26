@@ -18,11 +18,17 @@ foreach (@ARGV)
 	my @vhdl = glob ("$_/*.vhd");
 	push @vhdl, glob ("$_/*.vhdl");
 	my @verilog = glob ("$_/*.v");
+	my @systemverilog = glob ("$_/*.sv");
 	my @qip = glob ("$_/*.qip");
 
 	foreach (@verilog)
 	{
 		print QSF_OUT "set_global_assignment -name VERILOG_FILE $_\n";
+	}
+
+	foreach (@systemverilog)
+	{
+		print QSF_OUT "set_global_assignment -name SYSTEMVERILOG_FILE $_\n";
 	}
 
 	foreach (@vhdl)

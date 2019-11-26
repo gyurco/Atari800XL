@@ -64,6 +64,17 @@ port (
 );
 end component;
 
+COMPONENT rgb2ypbpr
+PORT (
+        red     :        IN std_logic_vector(5 DOWNTO 0);
+        green   :        IN std_logic_vector(5 DOWNTO 0);
+        blue    :        IN std_logic_vector(5 DOWNTO 0);
+        y       :        OUT std_logic_vector(5 DOWNTO 0);
+        pb      :        OUT std_logic_vector(5 DOWNTO 0);
+        pr      :        OUT std_logic_vector(5 DOWNTO 0)
+        );
+END COMPONENT;
+
 component user_io
 	GENERIC(
 		STRLEN : in integer := 0
@@ -277,10 +288,19 @@ component user_io
 	signal scanlines : std_logic;
 	signal csync : std_logic;
 	signal video_mode : std_logic_vector(2 downto 0);
+	signal ypbpr : std_logic;
 
 	-- pll reconfig
 	signal CLK_RECONFIG_PLL : std_logic;
 	signal CLK_RECONFIG_PLL_LOCKED : std_logic;
+
+	-- ypbpr
+	signal SCANDOUBLE_B :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+	signal SCANDOUBLE_G :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+	signal SCANDOUBLE_R :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+	signal vga_y_o      : std_logic_vector(5 downto 0);
+	signal vga_pb_o     : std_logic_vector(5 downto 0);
+	signal vga_pr_o     : std_logic_vector(5 downto 0);
 
 BEGIN 
 -- hack for paddles
@@ -596,7 +616,7 @@ LED <= zpu_sio_rxd;
 		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
 		
 		VGA => scandouble,
-		COMPOSITE_ON_HSYNC => csync,
+		COMPOSITE_ON_HSYNC => csync or ypbpr,
 
 		colour_enable => half_scandouble_enable_reg,
 		doubled_enable => '1',
@@ -610,13 +630,27 @@ LED <= zpu_sio_rxd;
 		csync_in => VGA_CS_RAW,
 		
 		-- TO TV...
-		R => VGA_R,
-		G => VGA_G,
-		B => VGA_B,
+		R => SCANDOUBLE_R,
+		G => SCANDOUBLE_G,
+		B => SCANDOUBLE_B,
 		
 		VSYNC => VGA_VS,
 		HSYNC => VGA_HS
 	);
+
+rgb2component: rgb2ypbpr
+port map (
+        red => SCANDOUBLE_R,
+        green => SCANDOUBLE_G,
+        blue => SCANDOUBLE_B,
+        y => vga_y_o,
+        pb => vga_pb_o,
+        pr => vga_pr_o
+);
+
+VGA_R <= vga_pr_o when ypbpr='1' else SCANDOUBLE_R;
+VGA_G <= vga_y_o  when ypbpr='1' else SCANDOUBLE_G;
+VGA_B <= vga_pb_o when ypbpr='1' else SCANDOUBLE_B;
 
 zpu: entity work.zpucore
 	GENERIC MAP
@@ -705,23 +739,22 @@ zpu: entity work.zpucore
 process(video_mode)
 begin
 	SCANDOUBLE <= '0';
+	YPBPR <= '0';
 
 	-- original RGB
 	-- scandoubled RGB (works on some vga devices...)
-	-- svideo
-	-- hdmi with audio  (and vga exact mode...)
-	-- dvi (i.e. no preamble or audio) (and vga exact mode...)
-	-- vga exact mode (hdmi off)
-	-- composite (todo firmware...)
+	-- ypbpr
+	-- scandoubled ypbpr
 
 	case video_mode is
 		when "000" =>
 		when "001" =>
 			SCANDOUBLE <= '1';
-		when "010" => -- svideo
-			      -- not supported -- TODO: need to provide a bitmask to firmware on what modes we support I think? Then can handle this in a better way!
+		when "010" => 
+			YPBPR <= '1';
 		when "011" =>
-			-- not supported
+			SCANDOUBLE <= '1';
+			YPBPR <= '1';
 		when "100" =>
 			-- not supported
 		when "101" =>
