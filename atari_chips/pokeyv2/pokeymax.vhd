@@ -58,16 +58,6 @@ ARCHITECTURE vhdl OF pokeymax IS
 	);
 	end component;
 
-	component hq_dac
-	port (
-	  reset :in std_logic;
-	  clk :in std_logic;
-	  clk_ena : in std_logic;
-	  pcm_in : in std_logic_vector(19 downto 0);
-	  dac_out : out std_logic
-	);
-	end component;
-
 	component pll
 		port (
 			inclk0   : in  std_logic := '0';
@@ -115,6 +105,9 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal AUDIO_L : std_logic_vector(15 downto 0);
 	signal AUDIO_R : std_logic_vector(15 downto 0);
 	signal AUDIO_M : std_logic_vector(15 downto 0);
+	signal AUDIO_L_SIGNED : signed(15 downto 0);
+	signal AUDIO_R_SIGNED : signed(15 downto 0);
+	signal AUDIO_M_SIGNED : signed(15 downto 0);	
 
 	signal AUDIO_LEFT : std_logic;
 	signal AUDIO_RIGHT : std_logic;
@@ -311,34 +304,38 @@ gen_mono : if stereo=0 generate
 	
 end generate;
 
-dac_left : hq_dac
+AUDIO_L_SIGNED  <= to_signed(to_integer(unsigned(AUDIO_L))-32768,16);
+AUDIO_R_SIGNED <= to_signed(to_integer(unsigned(AUDIO_R))-32768,16);
+AUDIO_M_SIGNED <= to_signed(to_integer(unsigned(AUDIO_M))-32768,16);
+
+dac_left : entity work.dac_dsm3
 port map
 (
-  reset => not(reset_n),
+  n_rst => reset_n,
   clk => clk,
   clk_ena => '1',
-  pcm_in => AUDIO_L&"0000",
-  dac_out => AUDIO_LEFT
+  din => AUDIO_L_SIGNED,
+  dout => AUDIO_LEFT
 );
 
-dac_right : hq_dac
+dac_right : entity work.dac_dsm3
 port map
 (
-  reset => not(reset_n),
+  n_rst => reset_n,
   clk => clk,
   clk_ena => '1',
-  pcm_in => AUDIO_R&"0000",
-  dac_out => AUDIO_RIGHT
+  din => AUDIO_R_SIGNED,
+  dout => AUDIO_RIGHT
 );
 
-dac_mixed : hq_dac
+dac_mixed : entity work.dac_dsm3
 port map
 (
-  reset => not(reset_n),
+  n_rst => reset_n,
   clk => clk,
   clk_ena => '1',
-  pcm_in => AUDIO_M&"0000",
-  dac_out => AUDIO_MIXED
+  din => AUDIO_M_SIGNED,
+  dout => AUDIO_MIXED
 );
 
 -- io extension
