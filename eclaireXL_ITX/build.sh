@@ -42,7 +42,9 @@ my %variants =
 		"internal_rom" => 1,
 		"fpga" => "5CEBA4F23C8",
 		"postfix" => "v2",
-		"sid" => 1
+		"sid" => 1,
+		"enable_polyphasic_scaler" => 1,
+		"enable_area_scaler" => 1
 	},
 #	"A2EBAproto" =>
 #	{
