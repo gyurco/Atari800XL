@@ -1,8 +1,8 @@
 --IP Functional Simulation Model
---VERSION_BEGIN 16.1 cbx_mgl 2016:10:19:22:10:30:SJ cbx_simgen 2016:10:19:21:26:20:SJ  VERSION_END
+--VERSION_BEGIN 18.0 cbx_mgl 2018:04:18:07:37:08:SJ cbx_simgen 2018:04:18:06:50:44:SJ  VERSION_END
 
 
--- Copyright (C) 2016  Intel Corporation. All rights reserved.
+-- Copyright (C) 2018  Intel Corporation. All rights reserved.
 -- Your use of Intel Corporation's design tools, logic functions 
 -- and other software and tools, and its AMPP partner logic 
 -- functions, and any output files from any of the foregoing 
@@ -10,12 +10,11 @@
 -- associated documentation or information are expressly subject 
 -- to the terms and conditions of the Intel Program License 
 -- Subscription Agreement, the Intel Quartus Prime License Agreement,
--- the Intel MegaCore Function License Agreement, or other 
--- applicable license agreement, including, without limitation, 
--- that your use is for the sole purpose of programming logic 
--- devices manufactured by Intel and sold by Intel or its 
--- authorized distributors.  Please refer to the applicable 
--- agreement for further details.
+-- the Intel FPGA IP License Agreement, or other applicable license
+-- agreement, including, without limitation, that your use is for
+-- the sole purpose of programming logic devices manufactured by
+-- Intel and sold by Intel or its authorized distributors.  Please
+-- refer to the applicable agreement for further details.
 
 -- You may only use these simulation model output files for simulation
 -- purposes and expressly not for synthesis or any other purposes (in which
@@ -36,7 +35,6 @@
 	 ( 
 		 locked	:	OUT  STD_LOGIC;
 		 outclk_0	:	OUT  STD_LOGIC;
-		 outclk_1	:	OUT  STD_LOGIC;
 		 refclk	:	IN  STD_LOGIC;
 		 rst	:	IN  STD_LOGIC
 	 ); 
@@ -47,15 +45,14 @@
 	 ATTRIBUTE synthesis_clearbox : natural;
 	 ATTRIBUTE synthesis_clearbox OF RTL : ARCHITECTURE IS 1;
 	 SIGNAL  wire_gnd	:	STD_LOGIC;
-	 SIGNAL  wire_pll_hdmi_altera_pll_altera_pll_i_1098_locked	:	STD_LOGIC;
-	 SIGNAL  wire_pll_hdmi_altera_pll_altera_pll_i_1098_outclk	:	STD_LOGIC_VECTOR (1 DOWNTO 0);
+	 SIGNAL  wire_pll_hdmi_altera_pll_altera_pll_i_639_locked	:	STD_LOGIC;
+	 SIGNAL  wire_pll_hdmi_altera_pll_altera_pll_i_639_outclk	:	STD_LOGIC_VECTOR (0 DOWNTO 0);
  BEGIN
 
 	wire_gnd <= '0';
-	locked <= wire_pll_hdmi_altera_pll_altera_pll_i_1098_locked;
-	outclk_0 <= wire_pll_hdmi_altera_pll_altera_pll_i_1098_outclk(0);
-	outclk_1 <= wire_pll_hdmi_altera_pll_altera_pll_i_1098_outclk(1);
-	pll_hdmi_altera_pll_altera_pll_i_1098 :  altera_pll
+	locked <= wire_pll_hdmi_altera_pll_altera_pll_i_639_locked;
+	outclk_0 <= wire_pll_hdmi_altera_pll_altera_pll_i_639_outclk(0);
+	pll_hdmi_altera_pll_altera_pll_i_639 :  altera_pll
 	  GENERIC MAP (
 		c_cnt_bypass_en0 => "false",
 		c_cnt_bypass_en1 => "false",
@@ -231,10 +228,10 @@
 		n_cnt_hi_div => 1,
 		n_cnt_lo_div => 1,
 		n_cnt_odd_div_duty_en => "false",
-		number_of_clocks => 2,
+		number_of_clocks => 1,
 		operation_mode => "normal",
-		output_clock_frequency0 => "27.000000 MHz",
-		output_clock_frequency1 => "135.000000 MHz",
+		output_clock_frequency0 => "148.500000 MHz",
+		output_clock_frequency1 => "0 MHz",
 		output_clock_frequency10 => "0 MHz",
 		output_clock_frequency11 => "0 MHz",
 		output_clock_frequency12 => "0 MHz",
@@ -293,13 +290,13 @@
 		pll_vco_div => 1,
 		pll_vcoph_div => 1,
 		refclk1_frequency => "0 MHz",
-		reference_clock_frequency => "50.0 MHz",
+		reference_clock_frequency => "54.0 MHz",
 		sim_additional_refclk_cycles_to_lock => 0
 	  )
 	  PORT MAP ( 
 		fbclk => wire_gnd,
-		locked => wire_pll_hdmi_altera_pll_altera_pll_i_1098_locked,
-		outclk => wire_pll_hdmi_altera_pll_altera_pll_i_1098_outclk,
+		locked => wire_pll_hdmi_altera_pll_altera_pll_i_639_locked,
+		outclk => wire_pll_hdmi_altera_pll_altera_pll_i_639_outclk,
 		refclk => refclk,
 		rst => rst
 	  );

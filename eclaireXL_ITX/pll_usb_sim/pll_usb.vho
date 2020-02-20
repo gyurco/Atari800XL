@@ -1,8 +1,8 @@
 --IP Functional Simulation Model
---VERSION_BEGIN 16.1 cbx_mgl 2016:10:19:22:10:30:SJ cbx_simgen 2016:10:19:21:26:20:SJ  VERSION_END
+--VERSION_BEGIN 18.0 cbx_mgl 2018:04:18:07:37:08:SJ cbx_simgen 2018:04:18:06:50:44:SJ  VERSION_END
 
 
--- Copyright (C) 2016  Intel Corporation. All rights reserved.
+-- Copyright (C) 2018  Intel Corporation. All rights reserved.
 -- Your use of Intel Corporation's design tools, logic functions 
 -- and other software and tools, and its AMPP partner logic 
 -- functions, and any output files from any of the foregoing 
@@ -10,12 +10,11 @@
 -- associated documentation or information are expressly subject 
 -- to the terms and conditions of the Intel Program License 
 -- Subscription Agreement, the Intel Quartus Prime License Agreement,
--- the Intel MegaCore Function License Agreement, or other 
--- applicable license agreement, including, without limitation, 
--- that your use is for the sole purpose of programming logic 
--- devices manufactured by Intel and sold by Intel or its 
--- authorized distributors.  Please refer to the applicable 
--- agreement for further details.
+-- the Intel FPGA IP License Agreement, or other applicable license
+-- agreement, including, without limitation, that your use is for
+-- the sole purpose of programming logic devices manufactured by
+-- Intel and sold by Intel or its authorized distributors.  Please
+-- refer to the applicable agreement for further details.
 
 -- You may only use these simulation model output files for simulation
 -- purposes and expressly not for synthesis or any other purposes (in which
@@ -221,7 +220,7 @@
 		duty_cycle7 => 50,
 		duty_cycle8 => 50,
 		duty_cycle9 => 50,
-		fractional_vco_multiplier => "false",
+		fractional_vco_multiplier => "true",
 		m_cnt_bypass_en => "false",
 		m_cnt_hi_div => 1,
 		m_cnt_lo_div => 1,
@@ -234,7 +233,7 @@
 		number_of_clocks => 2,
 		operation_mode => "normal",
 		output_clock_frequency0 => "48.000000 MHz",
-		output_clock_frequency1 => "50.000000 MHz",
+		output_clock_frequency1 => "54.000000 MHz",
 		output_clock_frequency10 => "0 MHz",
 		output_clock_frequency11 => "0 MHz",
 		output_clock_frequency12 => "0 MHz",
