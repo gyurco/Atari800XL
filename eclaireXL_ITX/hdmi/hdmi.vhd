@@ -42,6 +42,9 @@ port (
 	I_AUDIO_PCM_L 	: in std_logic_vector(15 downto 0);
 	I_AUDIO_PCM_R	: in std_logic_vector(15 downto 0);
 	
+	-- VIDEO mode
+	I_VIDEO_ID_CODE : in std_logic_vector(7 downto 0);
+	
 	-- ENCODED output
  	O_R	: out std_logic_vector(9 downto 0);
  	O_G	: out std_logic_vector(9 downto 0);
@@ -66,6 +69,7 @@ port (
 	i_blank		: in std_logic;
 	i_audioL		: in std_logic_vector(15 downto 0);
 	i_audioR		: in std_logic_vector(15 downto 0);
+	i_video_id_code : in std_logic_vector(7 downto 0);
 	
 	o_d0		: out std_logic_vector(3 downto 0);
 	o_d1		: out std_logic_vector(3 downto 0);
@@ -307,6 +311,7 @@ port map(
 	i_vSync		=> I_VSYNC,
 	i_audioL		=>	I_AUDIO_PCM_L,
 	i_audioR		=>	I_AUDIO_PCM_R,
+	I_VIDEO_ID_CODE => I_VIDEO_ID_CODE,
 	o_d0 			=> dataPacket0,
 	o_d1 			=> dataPacket1,
 	o_d2 			=> dataPacket2,

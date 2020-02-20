@@ -62,6 +62,7 @@ set_global_assignment -name QIP_FILE pll_usb.qip
 #set_global_assignment -name QIP_FILE serial_loader/synthesis/serial_loader.qip
 set_global_assignment -name QIP_FILE zpu_rom.qip
 set_global_assignment -name QIP_FILE pll_hdmi.qip
+set_global_assignment -name QIP_FILE pll_hdmi2.qip
 set_global_assignment -name QIP_FILE pll_acore.qip
 set_global_assignment -name QIP_FILE pll_acore_reconfig.qip
 set_global_assignment -name QIP_FILE pll_usb.qip
@@ -71,6 +72,7 @@ set_global_assignment -name QIP_FILE fifo_receive.qip
 set_global_assignment -name QIP_FILE fifo_transmit.qip
 set_global_assignment -name QIP_FILE sfl.qip
 set_global_assignment -name QSYS_FILE clkctrl.qsys
+set_global_assignment -name QSYS_FILE clkctrl2.qsys
 set_global_assignment -name VHDL_FILE adc084.vhdl
 set_global_assignment -name VHDL_FILE gpio_debug.vhd
 
@@ -528,6 +530,32 @@ set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[12]
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[13]
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[14]
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[15]
+
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HD_TX2P
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to HD_TX2P
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to HD_TX2P
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HD_TX1P
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to HD_TX1P
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to HD_TX1P
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HD_TX0P
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to HD_TX0P
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to HD_TX0P
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HD_CLKP
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to HD_CLKP
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to HD_CLKP
+
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HD_TX2N
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to HD_TX2N
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to HD_TX2N
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HD_TX1N
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to HD_TX1N
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to HD_TX1N
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HD_TX0N
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to HD_TX0N
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to HD_TX0N
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HD_CLKN
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to HD_CLKN
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to HD_CLKN
 
 #set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SD_DAT2
 #set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SD_DAT1

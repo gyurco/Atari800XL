@@ -17,6 +17,7 @@ module hdmidataencoder
 	input 			i_blank,
 	input [15:0] 	i_audioL,
 	input [15:0] 	i_audioR,	
+	input [7:0]    i_video_id_code,
 	output [3:0] 	o_d0,
 	output [3:0] 	o_d1,
 	output [3:0] 	o_d2,
@@ -212,7 +213,7 @@ begin
 		// Byte3: 00 = 0(SC1:SC0=0 No scaling)
 		// Byte4: 00 = 0(VIC6:VIC0=0 custom resolution)
 		// Byte5: 00 = 0(PR5:PR0=0 No repeation)
-		subpacket[0]<=56'h00000000191046;
+		subpacket[0]<={16'h0000,i_video_id_code,24'h001910,8'h46 - i_video_id_code};
 		subpacket[1]<=56'h00000000000000;
 		subpacket[2]<=56'h00000000000000;
 		subpacket[3]<=56'h00000000000000;
