@@ -21,5 +21,6 @@ dd if=/dev/zero of=blank.rom bs=1 count=6144
 cat ./xlhias.rom ./altirra_roms_3.0/altirraos-xl.rom xlorig.rom blank.rom osborig.rom > os.rom
 ./makehex ./os.rom   os.hex    "0x210000"
 ./makehex ./freezer.rom  freezer.hex    "0x220000"
+./makehex ../firmware_eclairexl/video_modes.rom videomodes.hex "0x230000"
 
 
