@@ -22,12 +22,12 @@ ENTITY areascale IS
     --p3 : in std_logic_vector(23 downto 0); --RGB
     --p4 : in std_logic_vector(23 downto 0); --RGB
 	 
-	 pixels : in t_Pixel2x2;
+    pixels : in t_Pixel2x2;
 
     -- next output line
     next_y_in : in std_logic;
     next_frame_in : in std_logic;
-	 field2 : in std_logic;
+    field2 : in std_logic;
     
     -- sync/blank from crtc -> need to be delayed in line with pipeline
     hsync_in : in std_logic;
@@ -36,7 +36,7 @@ ENTITY areascale IS
 	 
     -- need to provide control signals:
     next_x : OUT STD_LOGIC;
-	 next_x_size : out std_logic_vector(1 downto 0);
+    next_x_size : out std_logic_vector(1 downto 0);
     next_y : OUT STD_LOGIC;	 
 
     -- need to output
@@ -48,27 +48,23 @@ ENTITY areascale IS
     vsync : out std_logic;
     blank : out std_logic;
 	 
-	 -- to set up params
- 	 sda : inout std_logic;
-	 scl : inout std_logic	 
+    -- to set up params
+    sda : inout std_logic;
+    scl : inout std_logic	 
   );
 END areascale;
 
 -- customscalex:568 customscaley:256 xdelta:640 ydelta:102 TA:65536
 ARCHITECTURE vhdl OF areascale IS
-	signal param_xthreshold_next : unsigned(10 downto 0);
+	-- parameters
 	signal param_xthreshold_reg : unsigned(10 downto 0);
-	signal param_ythreshold_next : unsigned(10 downto 0);
 	signal param_ythreshold_reg : unsigned(10 downto 0);
-	signal param_xdelta_next : unsigned(10 downto 0);
 	signal param_xdelta_reg : unsigned(10 downto 0);
-	signal param_ydelta_next : unsigned(10 downto 0);
 	signal param_ydelta_reg : unsigned(10 downto 0);
-	signal param_ydeltaeach_next : unsigned(10 downto 0);
 	signal param_ydeltaeach_reg : unsigned(10 downto 0);	
-	signal param_xaddrskip_next : unsigned(1 downto 0); -- We only support upscaling, so for some cases need to skip 2 pixels
-	signal param_xaddrskip_reg : unsigned(1 downto 0);
-	
+	signal param_xaddrskip_reg : unsigned(1 downto 0); -- We only support upscaling, so for some cases need to skip 2 pixels
+	signal params : std_logic_vector((11*6)-1 downto 0);
+
 	-- stage 1:5 Delay syncs in line with pipeline
 	signal hsync_next : std_logic_vector(6 downto 1);
 	signal hsync_reg : std_logic_vector(6 downto 1);
@@ -155,13 +151,6 @@ BEGIN
 	process(clock,reset_n)
 	begin
 		if (reset_n='0') then
-			param_xthreshold_reg <= (others=>'0');
-			param_ythreshold_reg <= (others=>'0');
-			param_xdelta_reg <= (others=>'0');
-			param_ydelta_reg <= (others=>'0');
-			param_ydeltaeach_reg <= (others=>'0');
-			param_xaddrskip_reg <= "01";
-			
 			-- multi stage 1-5
 			hsync_reg <= (others=>'0');
 			vsync_reg <= (others=>'0');
@@ -208,14 +197,8 @@ BEGIN
 			r_reg <= (others=>'0');
 			g_reg <= (others=>'0');
 			b_reg <= (others=>'0');
-		elsif (clock'event and clock='1') then
-			param_xthreshold_reg <= param_xthreshold_next;
-			param_xdelta_reg <= param_xdelta_next;
-			param_ythreshold_reg <= param_ythreshold_next;
-			param_ydelta_reg <= param_ydelta_next;
-			param_ydeltaeach_reg <= param_ydeltaeach_next;
-			param_xaddrskip_reg <= param_xaddrskip_next;
 
+		elsif (clock'event and clock='1') then
 			-- multi stage 1-5
 			hsync_reg <= hsync_next;
 			vsync_reg <= vsync_next;
@@ -262,6 +245,7 @@ BEGIN
 			r_reg <= r_next;
 			g_reg <= g_next;
 			b_reg <= b_next;
+
 		end if;
 	end process;
 	
@@ -275,15 +259,39 @@ BEGIN
 --	param_xaddrskip_next <= "10";
 
 	-- 1080i
-	param_xthreshold_next <= to_unsigned(400,11); -- these need to be inputs
-	param_xdelta_next <= to_unsigned(300,11);
-	param_ythreshold_next <= to_unsigned(786,11);
-	param_ydelta_next <= to_unsigned(218,11);
-	param_ydeltaeach_next <= to_unsigned(437,11); --interlace, need to skip a line
-	param_xaddrskip_next <= "01";
+--	param_xthreshold_next <= to_unsigned(400,11); -- these need to be inputs
+--	param_xdelta_next <= to_unsigned(300,11);
+--	param_ythreshold_next <= to_unsigned(786,11);
+--	param_ydelta_next <= to_unsigned(218,11);
+--	param_ydeltaeach_next <= to_unsigned(437,11); --interlace, need to skip a line
+--	param_xaddrskip_next <= "01";
+
+
+-- params set from i2c
+	i2cregs : entity work.I2C_regs
+	generic map (
+		SLAVE_ADDR => "0000001",
+		regs => 6,
+		bits => 11
+	)
+	port map (
+		scl => scl,
+		sda => sda,
+		clk => clock,
+		rst => not(reset_n),
+		
+		reg => params			
+	);
+	
+	param_xthreshold_reg <= unsigned(params(11*1-1 downto 11*0));
+	param_xdelta_reg <= unsigned(params(11*2-1 downto 11*1));
+	param_ythreshold_reg <= unsigned(params(11*3-1 downto 11*2));
+	param_ydelta_reg <= unsigned(params(11*4-1 downto 11*3));
+	param_ydeltaeach_reg <= unsigned(params(11*5-1 downto 11*4));
+	param_xaddrskip_reg <= unsigned(params(11*5+2-1 downto 11*5));
 	
 --  Delay sync in line with pipeline: multi stage 1-5
-   process(hsync_reg,vsync_reg,blank_reg,hsync_in,vsync_in,blank_in)
+	process(hsync_reg,vsync_reg,blank_reg,hsync_in,vsync_in,blank_in)
 	begin		
 		hsync_next <= hsync_reg(5 downto 1)&hsync_in;
 		vsync_next <= vsync_reg(5 downto 1)&vsync_in;

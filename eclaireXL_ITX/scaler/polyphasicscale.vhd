@@ -49,16 +49,12 @@ END polyphasicscale;
 
 -- customscalex:568 customscaley:256 xdelta:640 ydelta:102 TA:65536
 ARCHITECTURE vhdl OF polyphasicscale IS
-	signal param_xthreshold_next : unsigned(10 downto 0);
-	signal param_xthreshold_reg : unsigned(10 downto 0);
-	signal param_ythreshold_next : unsigned(10 downto 0);
-	signal param_ythreshold_reg : unsigned(10 downto 0);
-	signal param_xdelta_next : unsigned(10 downto 0);
+	signal fixed_xthreshold_reg : unsigned(10 downto 0);
+	signal fixed_ythreshold_reg : unsigned(10 downto 0);
 	signal param_xdelta_reg : unsigned(10 downto 0);
-	signal param_ydeltaeach_next : unsigned(10 downto 0);
 	signal param_ydeltaeach_reg : unsigned(10 downto 0);	
-	signal param_xaddrskip_next : unsigned(1 downto 0); -- We only support upscaling, so for some cases need to skip 2 pixels
-	signal param_xaddrskip_reg : unsigned(1 downto 0);
+	signal param_xaddrskip_reg : unsigned(1 downto 0);-- We only support upscaling, so for some cases need to skip 2 pixels
+	signal params : std_logic_vector((11*3)-1 downto 0);
 	
 	-- stage 1:5 Delay syncs in line with pipeline
 	signal hsync_next : std_logic_vector(6 downto 1);
@@ -193,12 +189,6 @@ BEGIN
 	process(clock,reset_n)
 	begin
 		if (reset_n='0') then
-			param_xthreshold_reg <= (others=>'0');
-			param_ythreshold_reg <= (others=>'0');
-			param_xdelta_reg <= (others=>'0');
-			param_ydeltaeach_reg <= (others=>'0');
-			param_xaddrskip_reg <= "01";
-			
 			-- multi stage 1-5
 			hsync_reg <= (others=>'0');
 			vsync_reg <= (others=>'0');
@@ -285,12 +275,6 @@ BEGIN
 			g_reg <= (others=>'0');
 			b_reg <= (others=>'0');
 		elsif (clock'event and clock='1') then
-			param_xthreshold_reg <= param_xthreshold_next;
-			param_xdelta_reg <= param_xdelta_next;
-			param_ythreshold_reg <= param_ythreshold_next;
-			param_ydeltaeach_reg <= param_ydeltaeach_next;
-			param_xaddrskip_reg <= param_xaddrskip_next;
-
 			-- multi stage 1-5
 			hsync_reg <= hsync_next;
 			vsync_reg <= vsync_next;
@@ -385,13 +369,38 @@ BEGIN
 --	param_xaddrskip_next <= "01";
 
 
-	param_xthreshold_next <= to_unsigned(1024,11); -- these need to be inputs
-	param_xdelta_next <= to_unsigned(768,11);
-	--param_xdelta_next <= to_unsigned(64,11);
-	param_ythreshold_next <= to_unsigned(1024,11);
-	--param_ydelta_next <= to_unsigned(284,11);
-	param_ydeltaeach_next <= to_unsigned(569,11); --interlace, need to skip a line
-	param_xaddrskip_next <= "01";
+--	param_xthreshold_next <= to_unsigned(1024,11); -- these need to be inputs
+--	param_xdelta_next <= to_unsigned(768,11);
+--	--param_xdelta_next <= to_unsigned(64,11);
+--	param_ythreshold_next <= to_unsigned(1024,11);
+--	--param_ydelta_next <= to_unsigned(284,11);
+--	param_ydeltaeach_next <= to_unsigned(569,11); --interlace, need to skip a line
+--	param_xaddrskip_next <= "01";
+	
+-- params set from i2c
+	i2cregs : entity work.I2C_regs
+	generic map (
+		SLAVE_ADDR => "0000011", --will we activate this and areascale at once? i.e. do I give it another address?
+		regs => 3,
+		bits => 11
+	)
+	port map (
+		scl => scl,
+		sda => sda,
+		clk => clock,
+		rst => not(reset_n),
+		
+		reg => params			
+	);
+	
+	fixed_xthreshold_reg <= to_unsigned(1024,11);
+	fixed_ythreshold_reg <= to_unsigned(1024,11);	
+	
+	param_xdelta_reg <= unsigned(params(11*1-1 downto 11*0));
+	param_ydeltaeach_reg <= unsigned(params(11*2-1 downto 11*1));
+	param_xaddrskip_reg <= unsigned(params(11*2+2-1 downto 11*2));		
+	
+	-- TODO: how about filter params too?
 	
 --  Delay sync in line with pipeline: multi stage 1-5
    process(hsync_reg,vsync_reg,blank_reg,hsync_in,vsync_in,blank_in)
@@ -402,15 +411,15 @@ BEGIN
 	end process;
 
 -- 	Compute accumulator - pipeline stage 1
-	process(xacc_reg,param_xdelta_reg,param_xthreshold_reg,next_y_in)
+	process(xacc_reg,param_xdelta_reg,fixed_xthreshold_reg,next_y_in)
 	begin
 		next_x <= '0';
 		next_x_delay1_next <= '0';
 		xacc_next <= xacc_reg+param_xdelta_reg;
-		if ((xacc_reg+param_xdelta_reg)>=param_xthreshold_reg) then
+		if ((xacc_reg+param_xdelta_reg)>=fixed_xthreshold_reg) then
 			next_x <= '1'; -- when I ask for data, its on p1 in 2 cycles, i.e. pipeline stage 3
 			next_x_delay1_next <= '1';
-			xacc_next <= xacc_reg+param_xdelta_reg-param_xthreshold_reg;
+			xacc_next <= xacc_reg+param_xdelta_reg-fixed_xthreshold_reg;
 		end if;
 
 		if (next_y_in ='1') then 
@@ -418,23 +427,23 @@ BEGIN
 		end if;
 	end process;
 
-	process(yacc_reg,param_ydeltaeach_reg,param_ythreshold_reg,next_y_in,next_frame_in,field2)
+	process(yacc_reg,param_ydeltaeach_reg,fixed_ythreshold_reg,next_y_in,next_frame_in,field2)
 	begin
 		yacc_next <= yacc_reg;
 		next_y <= '0';
 
 		if (next_y_in='1') then
 			yacc_next <= yacc_reg+param_ydeltaeach_reg; 
-			if ((yacc_reg+param_ydeltaeach_reg)>=param_ythreshold_reg) then
+			if ((yacc_reg+param_ydeltaeach_reg)>=fixed_ythreshold_reg) then
 				next_y <= '1';
-				yacc_next <= yacc_reg+param_ydeltaeach_reg-param_ythreshold_reg;
+				yacc_next <= yacc_reg+param_ydeltaeach_reg-fixed_ythreshold_reg;
 			end if;
 		end if;
 
 		if (next_frame_in='1') then
 			yacc_next <= (others=>'0');
 			if (field2='1') then --slightly lower on interlace field 2
-				yacc_next(9 downto 0) <= param_ythreshold_reg(10 downto 1);
+				yacc_next(9 downto 0) <= fixed_ythreshold_reg(10 downto 1);
 			end if;
 		end if;
 	end process;
