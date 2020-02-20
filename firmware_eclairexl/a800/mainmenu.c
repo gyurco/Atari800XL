@@ -748,6 +748,10 @@ struct MenuData
 	int tv;
 	int scanlines;
 	int csync;
+#ifdef PLL_SUPPORT
+	int resolution;
+	int scaler;
+#endif
 
 #ifndef NO_FLASH
 	int flashid1;
@@ -762,6 +766,10 @@ void updateMenuDataVideoMode(struct MenuData * menuData2)
 	menuData2->tv = get_tv();
 	menuData2->scanlines = get_scanlines();
 	menuData2->csync = get_csync();
+#ifdef PLL_SUPPORT
+	menuData2->resolution = get_resolution();
+	menuData2->scaler = get_scaler();
+#endif
 }
 
 void updateMenuDataFlashInfo(struct MenuData * menuData2)
@@ -907,6 +915,48 @@ void menuTVStandard(void * menuData, struct joystick_status * joy)
 	menuData2->tv = !menuData2->tv;
 }
 
+#ifdef PLL_SUPPORT
+void menuPrintScaler(void * menuData, void * itemData)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+	printf("Scaler:");
+	if (menuData2->scaler)
+		printf("Polyphasic");
+	else
+		printf("Area");
+}
+
+void menuScaler(void * menuData, struct joystick_status * joy)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+	menuData2->scaler = !menuData2->scaler;
+}
+
+void menuPrintResolution(void * menuData, void * itemData)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+
+	readFlash(romstart+0x30000,2048,SCRATCH_MEM);
+	uint8_t * addr = SCRATCH_MEM;
+	int mode = menuData2->resolution;
+	if (menuData2->tv == TV_NTSC)
+		mode = mode+4;
+	addr = addr + (mode<<8);
+
+	printf("Resolution:%s", addr); /*get_resolution(menuData2->resolution));*/
+}
+
+void menuResolution(void * menuData, struct joystick_status * joy)
+{
+	struct MenuData * menuData2 = (struct MenuData *)menuData;
+	menuData2->resolution = menuData2->resolution + joy->x_;
+	if (menuData2->resolution > 3)
+		menuData2->resolution = 3;
+	if (menuData2->resolution < 0)
+		menuData2->resolution = 0;
+}
+#endif
+
 void menuApplyVideo(void * menuData, struct joystick_status * joy)
 {
 	struct MenuData * menuData2 = (struct MenuData *)menuData;
@@ -915,7 +965,24 @@ void menuApplyVideo(void * menuData, struct joystick_status * joy)
 	set_scanlines(menuData2->scanlines);
 	set_csync(menuData2->csync);
 #ifdef PLL_SUPPORT
-	set_pll(get_tv()==TV_PAL, get_video()>=VIDEO_HDMI && get_video()<VIDEO_COMPOSITE);
+	set_resolution(menuData2->resolution);
+	set_scaler(menuData2->scaler);
+	if (get_video()>=VIDEO_HDMI && get_video()<VIDEO_COMPOSITE)
+	{
+		int mode = menuData2->resolution;
+		if (get_tv()==TV_NTSC)
+			mode = mode+4;
+
+		set_scaler_mode(mode);
+	}
+	else
+	{
+		if (get_tv()==TV_PAL)
+			set_pll(MODE_PAL_ORIG);
+		else
+			set_pll(MODE_NTSC_ORIG);
+
+	}
 #endif
 }
 
@@ -1092,6 +1159,10 @@ int settings_menu()
 		{&menuPrintTVStandard,0,&menuTVStandard,MENU_FLAG_FIRE},
 		{&menuPrintScanlines,0,&menuScanlines,MENU_FLAG_FIRE},
 		{&menuPrintCompositeSync,0,&menuCompositeSync,MENU_FLAG_FIRE},
+#ifdef PLL_SUPPORT
+		{&menuPrintScaler,0,&menuScaler,MENU_FLAG_FIRE},
+		{&menuPrintResolution,0,&menuResolution,MENU_FLAG_MOVE},
+#endif
 		{0,"Apply video",&menuApplyVideo,MENU_FLAG_FIRE},
 		{0,0,0,0}, //blank line
 #endif
