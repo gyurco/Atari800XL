@@ -1,20 +1,24 @@
 create_clock -period 50MHz [get_ports CLOCK_50]
-create_clock -period 27MHz -name CLKGEN_CLK2
-create_clock -period 74.25MHz -name CLKGEN_CLK2 -add 
+#create_clock -period 27MHz -name CLKGEN_CLK2
+#create_clock -period 74.25MHz -name CLKGEN_CLK2 -add 
 derive_pll_clocks
 derive_clock_uncertainty
 
- create_generated_clock -source {CLKGEN_CLK2} -multiply_by 5 -duty_cycle 50.00 -name {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]} {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]}
- create_generated_clock -source {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|vco0ph[0]} -divide_by 5 -duty_cycle 50.00 -name {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk} {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk}
- create_generated_clock -source {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|vco0ph[0]} -duty_cycle 50.00 -name {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk} {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk}
+#create_generated_clock -source {CLKGEN_CLK2} -multiply_by 5 -duty_cycle 50.00 -name {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]} {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]}
 
+create_clock -period 371.25MHz -name {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]} {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]}
+create_generated_clock -source {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|vco0ph[0]} -divide_by 5 -duty_cycle 50.00 -name {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk} {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk}
+create_generated_clock -source {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|vco0ph[0]} -duty_cycle 50.00 -name {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk} {pll_hdmi2_inst|pll_hdmi2_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk}
+
+#group { CLKGEN_CLK2 } \
+ 
 set_clock_groups -asynchronous \
   -group { CLOCK_50 } \
-  -group { CLKGEN_CLK2 } \
   -group { \
     pll_acore_inst|pll_acore_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk \
     pll_acore_inst|pll_acore_inst|altera_pll_i|cyclonev_pll|counter[1].output_counter|divclk \
     pll_acore_inst|pll_acore_inst|altera_pll_i|cyclonev_pll|counter[2].output_counter|divclk \
+	 pll_acore_inst|pll_acore_inst|altera_pll_i|cyclonev_pll|counter[3].output_counter|divclk \
     pll_acore_inst|pll_acore_inst|altera_pll_i|cyclonev_pll|fpll_0|fpll|vcoph[0] \
   } \
   -group { \
