@@ -22,7 +22,9 @@ ENTITY atari800core_eclaireXL IS
 		-- For initial port may help to have no
 		internal_rom : integer := 1;  -- if 0 expects it in sdram,is 1:16k os+basic, is 2:... TODO
 		internal_ram : integer := 16384;  -- at start of memory map
-		sid : integer := 0 
+		sid : integer := 0;
+		enable_area_scaler : integer := 1;
+		enable_polyphasic_scaler : integer := 0
 	);
 	PORT
 	(
@@ -129,7 +131,17 @@ component pll_gclk
 	);
 end component;
 
-component pll_hdmi
+component pll_hdmi is
+  port (
+			 refclk    : in  std_logic := '0'; --    refclk.clk
+			 rst       : in  std_logic := '0'; --     reset.reset
+			 outclk_0  : out std_logic;        --   outclk0.clk
+			 locked    : out std_logic        --    locked.export
+  );
+end component;
+
+
+component pll_hdmi2
 	port (
 		refclk   : in  std_logic := '0'; --  refclk.clk
 		rst      : in  std_logic := '0'; --   reset.reset
@@ -168,6 +180,18 @@ component pll_acore_reconfig
 	);
 end component;
 
+component ddioclkctrl is
+       port (
+               inclk3x   : in  std_logic                    := '0';             --  altclkctrl_input.inclk3x
+               inclk2x   : in  std_logic                    := '0';             --                  .inclk2x
+               inclk1x   : in  std_logic                    := '0';             --                  .inclk1x
+               inclk0x   : in  std_logic                    := '0';             --                  .inclk0x
+               clkselect : in  std_logic_vector(1 downto 0) := (others => '0'); --                  .clkselect
+               ena       : in  std_logic                    := '0';             --                  .ena
+               outclk    : out std_logic                                        -- altclkctrl_output.outclk
+       );
+end component;
+
 component clkctrl is
 	port (
 		inclk  : in  std_logic := '0'; --  altclkctrl_input.inclk
@@ -176,16 +200,15 @@ component clkctrl is
 	);
 end component;
 
-component ddioclkctrl is
-	port (
-		inclk3x   : in  std_logic                    := '0';             --  altclkctrl_input.inclk3x
-		inclk2x   : in  std_logic                    := '0';             --                  .inclk2x
-		inclk1x   : in  std_logic                    := '0';             --                  .inclk1x
-		inclk0x   : in  std_logic                    := '0';             --                  .inclk0x
-		clkselect : in  std_logic_vector(1 downto 0) := (others => '0'); --                  .clkselect
-		ena       : in  std_logic                    := '0';             --                  .ena
-		outclk    : out std_logic                                        -- altclkctrl_output.outclk
-	);
+component clkctrl2 is
+  port (
+		inclk3x   : in  std_logic                    := 'X';             -- inclk3x
+		inclk2x   : in  std_logic                    := 'X';             -- inclk2x
+		inclk1x   : in  std_logic                    := 'X';             -- inclk1x
+		inclk0x   : in  std_logic                    := 'X';             -- inclk0x
+		clkselect : in  std_logic_vector(1 downto 0) := (others => 'X'); -- clkselect
+		outclk    : out std_logic                                        -- outclk
+  );
 end component;
 
 component pll_usb is
@@ -226,7 +249,8 @@ end component;
 
 
 	-- SYSTEM
-	SIGNAL GCLOCK_50 : STD_LOGIC; -- Only 2 fplls can use the pin!
+	SIGNAL GCLOCK_54 : STD_LOGIC; -- Only 2 fplls can use the pin!
+	SIGNAL GCLOCK_148_5 : STD_LOGIC; -- Only 2 fplls can use the pin!
 	SIGNAL CLK : STD_LOGIC;
 	SIGNAL CLK_1x : STD_LOGIC;
 	SIGNAL CLK_114 : STD_LOGIC;
@@ -237,6 +261,13 @@ end component;
 
  	SIGNAL CLK_PIXEL_IN : STD_LOGIC;
  	SIGNAL CLK_HDMI_IN : STD_LOGIC;
+	
+	signal CLK_PIXEL_SWITCH : STD_LOGIC;
+ 	--SIGNAL CLK_7425_PIXEL_IN : STD_LOGIC;
+ 	--SIGNAL CLK_7425_HDMI_IN : STD_LOGIC;
+ 	--SIGNAL CLK_27_PIXEL_IN : STD_LOGIC;
+ 	--SIGNAL CLK_27_HDMI_IN : STD_LOGIC;
+	signal clk_hdmi_select : std_logic_vector(2 downto 0);
 
 	SIGNAL CLK_raw : STD_LOGIC;
 	SIGNAL CLK_1x_raw : STD_LOGIC;
@@ -479,6 +510,8 @@ end component;
 	signal pll_acore_locked : std_logic;
 
 	signal pll_hdmi_locked : std_logic;
+	signal pll_hdmi1_locked : std_logic;
+	signal pll_hdmi2_locked : std_logic;	
 
 	signal pll_pause_counter_reg : std_logic_vector(25 downto 0);
 	signal pll_pause_counter_next : std_logic_vector(25 downto 0);
@@ -536,6 +569,10 @@ end component;
 	signal spi_flash_di : std_logic;
 	signal spi_do : std_logic;
 	signal spi_clk : std_logic;
+
+	-- scaler
+	signal scaler_sda : std_logic;
+	signal scaler_scl : std_logic;
 
 function to_std_logic(i : in integer) return std_logic is
 begin
@@ -790,7 +827,7 @@ port map (
 	outclk => CLK_114
 );
 
-clkctrl2: clkctrl 
+clkctrl2i: clkctrl 
 port map (
 	inclk  => DRAM_CLK_raw,
 	ena    => pll_enable_reg,
@@ -900,11 +937,63 @@ port map (
 );
 
 pll_hdmi_inst : pll_hdmi
-PORT MAP(refclk => GCLOCK_50,
-		 outclk_0 => CLK_PIXEL_IN, -- 27MHz 
-		 outclk_1 => CLK_HDMI_IN,  -- 5*27MHz
-		 locked => PLL_HDMI_LOCKED);
+PORT MAP(refclk => GCLOCK_54,
+		 outclk_0 => GCLOCK_148_5,
+		 locked => open);
+		 
+		 
 
+    u0 : clkctrl2
+        port map (
+            inclk3x   => GCLOCK_54,   --  altclkctrl_input.inclk3x
+            inclk2x   => GCLOCK_148_5,   --                  .inclk2x
+--            inclk1x   => CLOCK_50,   --                  .inclk1x < builds/works
+--            inclk0x   => CLOCK_50,   --                  .inclk0x
+--            inclk1x   => CLKGEN_CLK2,   --                  .inclk1x < fails to build
+--            inclk0x   => CLKGEN_CLK0,   --                  .inclk0x
+            inclk1x   => CLOCK_50,   --                  .inclk1x
+            inclk0x   => CLOCK_50,   --                  .inclk0x				
+            clkselect => clk_hdmi_select(1 downto 0), --                  .clkselect
+            outclk    => CLK_PIXEL_SWITCH     -- altclkctrl_output.outclk
+        );
+		  
+--CLK_HDMI_IN <= CLK_PIXEL_IN;
+
+		 
+		 
+pll_hdmi2_inst : pll_hdmi2
+PORT MAP(refclk => CLK_PIXEL_SWITCH,
+		 locked => PLL_HDMI_LOCKED,
+		 outclk_0 => CLK_PIXEL_IN,
+		 outclk_1 => CLK_HDMI_IN);
+		 
+--PLL_HDMI_LOCKED <= PLL_HDMI1_LOCKED and PLL_HDMI2_LOCKED;
+
+--CLK_PIXEL_IN <= CLK_7425_PIXEL_IN;
+--CLK_HDMI_IN <= CLK_7425_HDMI_IN;
+		 
+--clkctrl2_1: clkctrl2
+--port map (
+--	inclk0x => CLOCK_50,
+--	inclk1x => '0',
+--	  => CLK_7425_PIXEL_IN,
+--	inclk3x  => CLK_27_PIXEL_IN,
+--	clkselect    => '1'&clk_hdmi_select,
+--	ena => '1',
+--	outclk => CLK_PIXEL_IN
+--);
+--
+--clkctrl2_2: clkctrl2
+--port map (
+--	inclk0x => CLOCK_50,
+--	inclk1x => '0',
+--	inclk2x  => ,
+--	inclk3x  => CLK_27_HDMI_IN,	
+--	clkselect    => '1'&clk_hdmi_select,
+--	ena => '1',
+--	outclk => CLK_HDMI_IN
+--);
+--		 
 --end generate;
 
 
@@ -929,7 +1018,7 @@ USBWireVPin(1) <= USB1DP;
 pllusbinstance : pll_usb
 PORT MAP(refclk => CLOCK_50, 
 		 outclk_0 => CLK_USB,
-		 outclk_1 => GCLOCK_50,
+		 outclk_1 => GCLOCK_54,
 		 locked => open);
 
 
@@ -1151,7 +1240,7 @@ zpu: entity work.zpucore
 		CLK => CLK,
 		RESET_N => RESET_N and sdram_reset_n,
 
-		-- dma bus master (with many waitstates...)
+		-- dma bus master (with manclk_hdmi_selecty waitstates...)
 		ZPU_ADDR_FETCH => dma_addr_fetch,
 		ZPU_DATA_OUT => dma_write_data,
 		ZPU_FETCH => dma_fetch,
@@ -1215,7 +1304,10 @@ zpu: entity work.zpucore
 		USBWireVMin => USBWireVMin,
 		USBWireVPout => USBWireVPout,
 		USBWireVMout => USBWireVMout,
-		USBWireOE_n => USBWireOE_n
+		USBWireOE_n => USBWireOE_n,
+
+		i2c0_sda => scaler_sda,
+		i2c0_scl => scaler_scl
 	);
 
 	pause_atari <= zpu_out1(0);
@@ -1549,6 +1641,11 @@ end process;
 
 -- HDMI
 scandoubler_hdmi_int : work.scandoubler_hdmi
+GENERIC MAP
+(
+	enable_area_scaler => enable_area_scaler,
+	enable_polyphasic_scaler => enable_polyphasic_scaler
+)
 PORT MAP
 ( 
 	CLK_ATARI_IN => CLK,
@@ -1571,6 +1668,7 @@ PORT MAP
 	--HDMI clock domain
 	CLK_HDMI_IN => clk_hdmi_in,
 	CLK_PIXEL_IN => clk_pixel_in,
+	CLK_HDMI_SELECT => clk_hdmi_select,
 
 	O_hsync => adj_hsync,
 	O_vsync => adj_vsync,
@@ -1581,7 +1679,11 @@ PORT MAP
 
 	-- TO TV...
 	O_TMDS_H => tmds_h,
-	O_TMDS_L => tmds_l
+	O_TMDS_L => tmds_l,
+	
+	-- I2C
+	sda => scaler_sda,
+	scl => scaler_scl
 );
 
 END vhdl;
