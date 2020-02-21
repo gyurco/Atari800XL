@@ -12,12 +12,14 @@ my %variants =
 (
 	"A2EBAv3rom" =>
 	{
-		"internal_ram" => 32768,
+		"internal_ram" => 65536,
 		"internal_rom" => 1,
 		"fpga" => "5CEBA2F23C8",
 		"postfix" => "v3",
 		"convert" => "v3a",
-		"sid" => 1
+		"sid" => 0,
+		"enable_polyphasic_scaler" => 0,
+		"enable_area_scaler" => 1
 	},
 	"A4EBAv3rom" =>
 	{
@@ -26,15 +28,19 @@ my %variants =
 		"fpga" => "5CEBA4F23C8",
 		"postfix" => "v3",
 		"convert" => "v3b",
-		"sid" => 1
+		"sid" => 1,
+		"enable_polyphasic_scaler" => 0,
+		"enable_area_scaler" => 1
 	},
 	"A2EBArom" =>
 	{
-		"internal_ram" => 32768,
+		"internal_ram" => 65536,
 		"internal_rom" => 1,
 		"fpga" => "5CEBA2F23C8",
 		"postfix" => "v1",
-		"sid" => 0
+		"sid" => 0,
+		"enable_polyphasic_scaler" => 0,
+		"enable_area_scaler" => 1
 	},
 	"A4EBArom" =>
 	{
