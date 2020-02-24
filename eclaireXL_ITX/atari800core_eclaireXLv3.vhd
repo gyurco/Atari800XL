@@ -1577,7 +1577,7 @@ PORT MAP
 ( 
 	CLK_ATARI_IN => CLK,
 
-	RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
+	RESET_N => RESET_N,
 
 	audio_left => audio_l_pcm,
 	audio_right => audio_r_pcm,
