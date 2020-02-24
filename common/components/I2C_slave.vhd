@@ -5,6 +5,8 @@
 ------------------------------------------------------------
 -- Copyright (c) 2016 Peter Samarin
 ------------------------------------------------------------
+-- Mark Watson 2020 - modified to not use inout, for simpler in fpga use
+------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -13,8 +15,11 @@ entity I2C_slave is
   generic (
     SLAVE_ADDR : std_logic_vector(6 downto 0));
   port (
-    scl              : inout std_logic;
-    sda              : inout std_logic;
+    scl_in           : in std_logic;
+    sda_in           : in std_logic;
+	 scl_wen          : out std_logic;
+	 sda_wen          : out std_logic;
+	 
     clk              : in    std_logic;
     rst              : in    std_logic;
     -- User interface
@@ -97,8 +102,8 @@ begin
   begin
     if rising_edge(clk) then
       -- save SCL in registers that are used for debouncing
-      scl_reg <= scl;
-      sda_reg <= sda;
+      scl_reg <= scl_in;
+      sda_reg <= sda_in;
 
       -- Delay debounced SCL and SDA by 1 clock cycle
       scl_prev_reg   <= scl_debounced;
@@ -290,10 +295,8 @@ begin
   ----------------------------------------------------------
   -- I2C interface
   ----------------------------------------------------------
-  sda <= sda_o_reg when sda_wen_reg = '1' else
-         'Z';
-  scl <= scl_o_reg when scl_wen_reg = '1' else
-         'Z';
+  scl_wen <= scl_wen_reg and not(scl_o_reg);  
+  sda_wen <= sda_wen_reg and not(sda_o_reg);
   ----------------------------------------------------------
   -- User interface
   ----------------------------------------------------------

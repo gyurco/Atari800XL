@@ -26,6 +26,8 @@
 --     Adjusted timing of SCL during start and stop conditions
 --   Version 2.2 02/05/2015 Scott Larson
 --     Corrected small SDA glitch introduced in version 2.1
+--   2020 Mark Watson
+--     Modified to use in/out instead of inout
 -- 
 --------------------------------------------------------------------------------
 
@@ -47,8 +49,13 @@ ENTITY i2c_master IS
     busy      : OUT    STD_LOGIC;                    --indicates transaction in progress
     data_rd   : OUT    STD_LOGIC_VECTOR(7 DOWNTO 0); --data read from slave
     ack_error : BUFFER STD_LOGIC;                    --flag if improper acknowledge from slave
-    sda       : INOUT  STD_LOGIC;                    --serial data output of i2c bus
-    scl       : INOUT  STD_LOGIC);                   --serial clock output of i2c bus
+
+    scl_in           : in std_logic;
+    sda_in           : in std_logic;
+	 scl_wen          : out std_logic;
+	 sda_wen          : out std_logic
+	 
+);                   --serial clock output of i2c bus
 END i2c_master;
 
 ARCHITECTURE logic OF i2c_master IS
@@ -91,7 +98,7 @@ BEGIN
           data_clk <= '1';
         WHEN divider*2 TO divider*3-1 =>  --third 1/4 cycle of clocking
           scl_clk <= '1';                 --release scl
-          IF(scl = '0') THEN              --detect if slave is stretching clock
+          IF(scl_in = '0') THEN              --detect if slave is stretching clock
             stretch <= '1';
           ELSE
             stretch <= '0';
@@ -216,13 +223,13 @@ BEGIN
               ack_error <= '0';                     --reset acknowledge error output
             END IF;
           WHEN slv_ack1 =>                          --receiving slave acknowledge (command)
-            IF(sda /= '0' OR ack_error = '1') THEN  --no-acknowledge or previous no-acknowledge
+            IF(sda_in /= '0' OR ack_error = '1') THEN  --no-acknowledge or previous no-acknowledge
               ack_error <= '1';                     --set error output if no-acknowledge
             END IF;
           WHEN rd =>                                --receiving slave data
-            data_rx(bit_cnt) <= sda;                --receive current slave data bit
+            data_rx(bit_cnt) <= sda_in;                --receive current slave data bit
           WHEN slv_ack2 =>                          --receiving slave acknowledge (write)
-            IF(sda /= '0' OR ack_error = '1') THEN  --no-acknowledge or previous no-acknowledge
+            IF(sda_in /= '0' OR ack_error = '1') THEN  --no-acknowledge or previous no-acknowledge
               ack_error <= '1';                     --set error output if no-acknowledge
             END IF;
           WHEN stop =>
@@ -240,8 +247,8 @@ BEGIN
                  NOT data_clk_prev WHEN stop,  --generate stop condition
                  sda_int WHEN OTHERS;          --set to internal sda signal    
       
-  --set scl and sda outputs
-  scl <= '0' WHEN (scl_ena = '1' AND scl_clk = '0') ELSE 'Z';
-  sda <= '0' WHEN sda_ena_n = '0' ELSE 'Z';
-  
+  --set scl and sda outputs  
+  sda_wen <= not(sda_ena_n);
+  scl_wen <= scl_ena AND not(scl_clk);
+	
 END logic;

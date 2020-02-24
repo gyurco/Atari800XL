@@ -101,10 +101,15 @@ ENTITY zpucore IS
 		USBWireOE_n :out std_logic_vector(usb-1 downto 0);
 
 		-- I2C (400k)
-		i2c0_sda : inout std_logic;
-		i2c0_scl : inout std_logic;
-		i2c1_sda : inout std_logic;
-		i2c1_scl : inout std_logic
+		i2c0_sda_in : in std_logic := '1';
+		i2c0_scl_in : in std_logic := '1';
+		i2c0_sda_wen : out std_logic;
+		i2c0_scl_wen : out std_logic;
+		
+		i2c1_sda_in : in std_logic := '1';
+		i2c1_scl_in : in std_logic := '1';
+		i2c1_sda_wen : out std_logic;
+		i2c1_scl_wen : out std_logic		
 	);
 END zpucore;
 
@@ -228,10 +233,14 @@ PORT MAP (
 	USBWireVMout => USBWireVMout,
 	USBWireOE_n => USBWireOE_n,
 
-	i2c0_sda => i2c0_sda,
-	i2c0_scl => i2c0_scl,
-	i2c1_sda => i2c1_sda,
-	i2c1_scl => i2c1_scl
+	i2c0_sda_in => i2c0_sda_in,
+	i2c0_scl_in => i2c0_scl_in,
+	i2c0_sda_wen => i2c0_sda_wen,
+	i2c0_scl_wen => i2c0_scl_wen,
+	i2c1_sda_in => i2c1_sda_in,
+	i2c1_scl_in => i2c1_scl_in,
+	i2c1_sda_wen => i2c1_sda_wen,
+	i2c1_scl_wen => i2c1_scl_wen	
 	);
 
 decode_addr1 : entity work.complete_address_decoder
