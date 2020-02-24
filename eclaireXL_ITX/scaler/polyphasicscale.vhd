@@ -42,8 +42,10 @@ ENTITY polyphasicscale IS
     blank : out std_logic;
 	 
     -- to set up params
-    sda : inout std_logic;
-    scl : inout std_logic	 
+    scl_in           : in std_logic;
+    sda_in           : in std_logic;
+	 scl_wen          : out std_logic;
+	 sda_wen          : out std_logic
   );
 END polyphasicscale;
 
@@ -385,8 +387,10 @@ BEGIN
 		bits => 11
 	)
 	port map (
-		scl => scl,
-		sda => sda,
+		scl_in => scl_in,
+		sda_in => sda_in,
+		scl_wen => scl_wen,
+		sda_wen => sda_wen,		
 		clk => clock,
 		rst => not(reset_n),
 		
