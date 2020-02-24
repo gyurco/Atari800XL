@@ -19,8 +19,11 @@ ENTITY I2C_regs IS
 	 bits : integer := 1
   );
   port (
-    scl              : inout std_logic;
-    sda              : inout std_logic;
+    scl_in           : in std_logic;
+    sda_in           : in std_logic;
+	 scl_wen          : out std_logic;
+	 sda_wen          : out std_logic;
+	 
     clk              : in    std_logic;
     rst              : in    std_logic;
 	 
@@ -84,8 +87,11 @@ BEGIN
 		SLAVE_ADDR => SLAVE_ADDR
 	)
 	port map (
-		scl => scl,
-		sda => sda,
+		scl_in => scl_in,
+		sda_in => sda_in,		
+		scl_wen => scl_wen,
+		sda_wen => sda_wen,				
+		
 		clk => clk,
 		rst => rst,
 

@@ -86,10 +86,15 @@ PORT
 	USBWireOE_n :out std_logic_vector(usb-1 downto 0);
 
 	-- I2C (400k)
-	i2c0_sda : inout std_logic;
-	i2c0_scl : inout std_logic;
-	i2c1_sda : inout std_logic;
-	i2c1_scl : inout std_logic
+	i2c0_sda_in : in std_logic;
+	i2c0_scl_in : in std_logic;
+	i2c0_sda_wen : out std_logic;
+	i2c0_scl_wen : out std_logic;
+	
+	i2c1_sda_in : in std_logic;
+	i2c1_scl_in : in std_logic;
+	i2c1_sda_wen : out std_logic;
+	i2c1_scl_wen : out std_logic		
 );
 END zpu_config_regs;
 
@@ -391,10 +396,12 @@ begin
 	 -- TODO: Use real clk freq... Not that important since only used on eclaire for now anyway.
 	 i2c_master0 : entity work.i2c_master
 	 	generic map(input_clk=>58_000_000, bus_clk=>400_000)
-		port map (clk=>clk,reset_n=>reset_n,ena=>i2c0_write_reg,addr=>i2c0_write_data_reg(15 downto 9),rw=>i2c0_write_data_reg(8),data_wr=>i2c0_write_data_reg(7 downto 0),busy=>i2c0_busy_next,data_rd=>i2c0_read_data,ack_error=>i2c0_error,sda=>i2c0_sda,scl=>i2c0_scl);
+		port map (clk=>clk,reset_n=>reset_n,ena=>i2c0_write_reg,addr=>i2c0_write_data_reg(15 downto 9),rw=>i2c0_write_data_reg(8),data_wr=>i2c0_write_data_reg(7 downto 0),busy=>i2c0_busy_next,data_rd=>i2c0_read_data,ack_error=>i2c0_error,
+		sda_in=>i2c0_sda_in,scl_in=>i2c0_scl_in,sda_wen=>i2c0_sda_wen,scl_wen=>i2c0_scl_wen);
 	 i2c_master1 : entity work.i2c_master
 	 	generic map(input_clk=>58_000_000, bus_clk=>400_000)
-		port map (clk=>clk,reset_n=>reset_n,ena=>i2c1_write_reg,addr=>i2c1_write_data_reg(15 downto 9),rw=>i2c1_write_data_reg(8),data_wr=>i2c1_write_data_reg(7 downto 0),busy=>i2c1_busy_next,data_rd=>i2c1_read_data,ack_error=>i2c1_error,sda=>i2c1_sda,scl=>i2c1_scl);
+		port map (clk=>clk,reset_n=>reset_n,ena=>i2c1_write_reg,addr=>i2c1_write_data_reg(15 downto 9),rw=>i2c1_write_data_reg(8),data_wr=>i2c1_write_data_reg(7 downto 0),busy=>i2c1_busy_next,data_rd=>i2c1_read_data,ack_error=>i2c1_error,
+		sda_in=>i2c1_sda_in,scl_in=>i2c1_scl_in,sda_wen=>i2c1_sda_wen,scl_wen=>i2c1_scl_wen);
 		
 	-- device decode
 	-- 0x000 - own regs (0)
