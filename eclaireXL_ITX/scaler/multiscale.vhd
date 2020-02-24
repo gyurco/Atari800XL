@@ -49,8 +49,10 @@ ENTITY multiscale IS
     blank : out std_logic;
 	 
     -- to set up params
-    sda : inout std_logic;
-    scl : inout std_logic	 
+    scl_in           : in std_logic;
+    sda_in           : in std_logic;
+	 scl_wen          : out std_logic;
+	 sda_wen          : out std_logic 
   );
 END multiscale;
 
@@ -105,8 +107,10 @@ polyphasicscale_impl : entity work.polyphasicscale
 		vsync => poly_vsync_next,
 		blank => poly_blank_next,
 				
-		sda => sda,
-		scl => scl		
+		scl_in => scl_in,
+		sda_in => sda_in,		
+		scl_wen => scl_wen,
+		sda_wen => sda_wen
 	);
 end generate gen_polyphasic_on;	
 	
@@ -136,8 +140,10 @@ areascale_impl : entity work.areascale
 		vsync => area_vsync_next,
 		blank => area_blank_next,
 		
-		sda => sda,
-		scl => scl
+		scl_in => scl_in,
+		sda_in => sda_in,
+		scl_wen => scl_wen,
+		sda_wen => sda_wen
 	);
 end generate gen_area_on;	
 	

@@ -56,8 +56,10 @@ PORT
 	O_TMDS_L : OUT STD_LOGIC_VECTOR(7 downto 0);
 	
 	-- I2C params
-	scl : inout std_logic;
-	sda : inout std_logic
+    scl_in           : in std_logic;
+    sda_in           : in std_logic;
+	 scl_wen          : out std_logic;
+	 sda_wen          : out std_logic 
 );
 END scandoubler_hdmi;
 
@@ -212,6 +214,12 @@ signal shift_r_next	: std_logic_vector(9 downto 0) := "0000000000";
 signal shift_g_next	: std_logic_vector(9 downto 0) := "0000000000";
 signal shift_b_next	: std_logic_vector(9 downto 0) := "0000000000";	
 signal shift_clk_next : std_logic_vector(9 downto 0) := "0000000000";
+	
+-- i2c
+signal multiscale_sda_wen : std_logic;
+signal crtc_sda_wen : std_logic;
+signal multiscale_scl_wen : std_logic;
+signal crtc_scl_wen : std_logic;
 	
 BEGIN
 
@@ -465,8 +473,10 @@ multiscale_impl : entity work.multiscale
 		vsync => vsync_next,
 		blank => blank_next,
 				
-		sda => sda,
-		scl => scl		
+		scl_in => scl_in,
+		sda_in => sda_in,	
+		scl_wen => multiscale_scl_wen,
+		sda_wen => multiscale_sda_wen
 	);	
 
 -- Resynchronization logic
@@ -525,8 +535,10 @@ crtc_impl : entity work.crtc
 		video_id_code => crtc_video_id_code,
 		scaler_select => crtc_scaler_select,
 
-		sda => sda,
-		scl => scl
+		scl_in => scl_in,
+		sda_in => sda_in,	
+		scl_wen => crtc_scl_wen,
+		sda_wen => crtc_sda_wen
 	);
 
 hdmiav_inst : entity work.hdmi
@@ -695,6 +707,10 @@ O_blue <= hs_blue_reg2(7 downto 4)&hs_blue_reg(3 downto 0);
 -- TMDS outputs - with specified timings
 O_TMDS_H <= shift_r_reg(0) & nshift_r_reg(0) & shift_g_reg(0) & nshift_g_reg(0) & shift_b_reg(0) & nshift_b_reg(0) & shift_clk_reg(0) & nshift_clk_reg(0);
 O_TMDS_L <= shift_r_reg(1) & nshift_r_reg(1) & shift_g_reg(1) & nshift_g_reg(1) & shift_b_reg(1) & nshift_b_reg(1) & shift_clk_reg(1) & nshift_clk_reg(1);
+
+-- I2C outputs
+sda_wen <= multiscale_sda_wen or crtc_sda_wen;
+scl_wen <= multiscale_scl_wen or crtc_scl_wen;
 
 end vhdl;
 
