@@ -550,6 +550,13 @@ end component;
 	signal VGA_G_L : std_logic_vector(7 downto 0);
 	signal VGA_B_H : std_logic_vector(7 downto 0);
 	signal VGA_B_L : std_logic_vector(7 downto 0);
+	
+	signal VGA_R_H_reg : std_logic_vector(7 downto 0);
+	signal VGA_R_L_reg : std_logic_vector(7 downto 0);
+	signal VGA_G_H_reg : std_logic_vector(7 downto 0);
+	signal VGA_G_L_reg : std_logic_vector(7 downto 0);
+	signal VGA_B_H_reg : std_logic_vector(7 downto 0);
+	signal VGA_B_L_reg : std_logic_vector(7 downto 0);	
 
 	signal DDIO_OUT : std_logic_vector(23 downto 0);
 	signal DDIO_OUT_CLK : std_logic;
@@ -563,6 +570,9 @@ end component;
 	signal adc_busy_next : std_logic;
 	signal adc_toggle_next : std_logic;
 	signal adc_in : std_logic_vector(7 downto 0);
+	
+	signal ADC_SDA_WEN : std_logic;
+	signal ADC_SCL_WEN : std_logic;
 
 	-- spi flash
 	signal spi_flash_select : std_logic;
@@ -573,7 +583,11 @@ end component;
 	-- scaler
 	signal scaler_sda : std_logic;
 	signal scaler_scl : std_logic;
-
+	signal scaler_master_sda_wen : std_logic;
+	signal scaler_master_scl_wen : std_logic;
+	signal scaler_slave_sda_wen : std_logic;
+	signal scaler_slave_scl_wen : std_logic;	
+	
 function to_std_logic(i : in integer) return std_logic is
 begin
     if i = 0 then
@@ -1252,7 +1266,7 @@ zpu: entity work.zpucore
 		ZPU_MEMORY_DATA => snoop_data, 
 
 		-- rom bus master
-		-- data on next cycle after addr
+		-- data on next cycle after addri2c0_sda
 		ZPU_ADDR_ROM => zpu_addr_rom,
 		ZPU_ROM_DATA => zpu_rom_data,
 
@@ -1306,8 +1320,10 @@ zpu: entity work.zpucore
 		USBWireVMout => USBWireVMout,
 		USBWireOE_n => USBWireOE_n,
 
-		i2c0_sda => scaler_sda,
-		i2c0_scl => scaler_scl
+		i2c0_sda_in => scaler_sda,
+		i2c0_scl_in => scaler_scl,
+		i2c0_sda_wen => scaler_master_sda_wen,
+		i2c0_scl_wen => scaler_master_scl_wen			
 	);
 
 	pause_atari <= zpu_out1(0);
@@ -1404,8 +1420,13 @@ adc_i2c : entity work.i2c_master
     busy      => adc_busy_next,
     data_rd   => adc_in,
     ack_error => open,
-    sda       => ADC_SDA,
-    scl       => ADC_SCL);
+	 sda_wen   => ADC_SDA_WEN,
+	 scl_wen   => ADC_SCL_WEN,
+	 sda_in    => ADC_SDA,
+	 scl_in    => ADC_SCL);
+	 
+	 ADC_SDA <= '0' when ADC_SDA_WEN='1' else 'Z';
+	 ADC_SCL <= '0' when ADC_SCL_WEN='1' else 'Z';
 
 process(adc_reg,adc_in,adc_toggle_reg,adc_busy_next,adc_busy_reg)
 begin
@@ -1463,7 +1484,7 @@ begin
 	-- dvi (i.e. no preamble or audio)
 	-- vga exact mode
 
-	case video_mode is
+	case video_mode is 
 		when "000" =>
 			VGA_R_H <= VIDEO_R;
 			VGA_R_L <= VIDEO_R;
@@ -1576,11 +1597,23 @@ end process;
 		clkselect => SELECT_DDIO_CLK,
 		outclk    => DDIO_OUT_CLK
 	);
+	
+	process(ddio_out_clk)
+	begin
+		if (ddio_out_clk'event and ddio_out_clk='1') then
+			VGA_R_H_reg <= VGA_R_H;
+			VGA_G_H_reg <= VGA_G_H;
+			VGA_B_H_reg <= VGA_B_H;
+			VGA_R_L_reg <= VGA_R_L;
+			VGA_G_L_reg <= VGA_G_L;
+			VGA_B_L_reg <= VGA_B_L;
+		end if;
+	end process;	
 
 	ddio_inst : entity work.altddio_out1
 	port map (
-		datain_h => VGA_R_H&VGA_G_H&VGA_B_H,
-		datain_l => VGA_R_L&VGA_G_L&VGA_B_L,
+		datain_h => VGA_R_H_reg&VGA_G_H_reg&VGA_B_H_reg,
+		datain_l => VGA_R_L_reg&VGA_G_L_reg&VGA_B_L_reg,
 		outclock => DDIO_OUT_CLK,
 		dataout  => DDIO_OUT);
 	VGA_R <= DDIO_OUT(23 downto 16);
@@ -1650,7 +1683,7 @@ PORT MAP
 ( 
 	CLK_ATARI_IN => CLK,
 
-	RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
+	RESET_N => RESET_N,
 
 	audio_left => audio_l_pcm,
 	audio_right => audio_r_pcm,
@@ -1682,8 +1715,13 @@ PORT MAP
 	O_TMDS_L => tmds_l,
 	
 	-- I2C
-	sda => scaler_sda,
-	scl => scaler_scl
+	scl_in => scaler_scl,
+	sda_in => scaler_sda,
+	scl_wen => scaler_slave_scl_wen,
+	sda_wen => scaler_slave_sda_wen
 );
+
+scaler_scl <= '0' when (scaler_slave_scl_wen or scaler_master_scl_wen)='1' else '1';
+scaler_sda <= '0' when (scaler_slave_sda_wen or scaler_master_sda_wen)='1' else '1';
 
 END vhdl;
