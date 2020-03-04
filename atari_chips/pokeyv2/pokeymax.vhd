@@ -16,7 +16,9 @@ LIBRARY work;
 ENTITY pokeymax IS 
 	GENERIC
 	(
-		stereo : integer := 1 -- 0=MONO,1=STEREO
+		stereo : integer := 1; -- 0=MONO,1=STEREO
+		enable_auto_stereo : integer := 0; -- 0=switch on ext,1=auto detect a4
+		enable_gtia_audio : integer := 1 -- 0=no gtia on l/r,1=gtia mixed on l/r
 	);
 	PORT
 	(
@@ -140,6 +142,9 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal AIN : std_logic_vector(4 downto 0);
 
 	signal POTRESET : std_logic;
+
+	signal stereo_enable : std_logic;
+	signal gtia_audio : std_logic;
 BEGIN
 	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
 	EXT <= (others=>'Z');
@@ -170,6 +175,16 @@ BEGIN
 			 locked => RESET_N);
 
 	AIN <= EXT(1)&A;
+
+gen_gtia : if enable_gtia_audio=1 generate
+       synchronizer_gtia_audio : entity work.synchronizer
+                port map (clk=>clk, raw=>ext(3), sync=>gtia_audio);
+end generate;
+
+gen_gtia_off : if enable_gtia_audio=0 generate
+	gtia_audio <= '0';
+end generate;
+
 bus_adapt : entity work.slave_timing_6502
 	PORT MAP
 	(
@@ -209,6 +224,7 @@ PORT MAP(CLK => CLK,
 		 CHANNEL_R_1 => POKEY2_CHANNEL1,
 		 CHANNEL_R_2 => POKEY2_CHANNEL2,
 		 CHANNEL_R_3 => POKEY2_CHANNEL3,
+		 GTIA_AUDIO => GTIA_AUDIO,
 		 VOLUME_OUT_M => AUDIO_M,
 		 VOLUME_OUT_L => AUDIO_L,
 		 VOLUME_OUT_R => AUDIO_R);
@@ -258,6 +274,8 @@ gen_stereo : if stereo=1 generate
 		end if;
 	end process;
 
+
+auto_stereo : if enable_auto_stereo=1 generate -- auto detect
 	isstereo : ENTITY work.stereo_detect
 	PORT MAP
 	( 
@@ -269,6 +287,14 @@ gen_stereo : if stereo=1 generate
 	
 		SEL_POKEY2 => sel_pokey2
 	);
+end generate;
+
+auto_stereo_off : if enable_auto_stereo=0 generate -- manual switch
+       synchronizer_stereo_enable : entity work.synchronizer
+                port map (clk=>clk, raw=>ext(2), sync=>stereo_enable);
+
+	SEL_POKEY2 <= ADDR_IN(4) and stereo_enable;
+end generate;
 
 	POKEY_WRITE_ENABLE <= NOT(WRITE_N) and REQUEST and NOT(SEL_POKEY2);
 	POKEY2_WRITE_ENABLE <= NOT(WRITE_N) and REQUEST and SEL_POKEY2;

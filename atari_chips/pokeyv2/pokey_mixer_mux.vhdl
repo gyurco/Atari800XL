@@ -26,6 +26,8 @@ PORT
 	CHANNEL_R_1 : IN STD_LOGIC_VECTOR(3 downto 0);
 	CHANNEL_R_2 : IN STD_LOGIC_VECTOR(3 downto 0);
 	CHANNEL_R_3 : IN STD_LOGIC_VECTOR(3 downto 0);
+
+	GTIA_AUDIO : IN STD_LOGIC;
 	
 	VOLUME_OUT_M : OUT STD_LOGIC_vector(15 downto 0);
 	VOLUME_OUT_L : OUT STD_LOGIC_vector(15 downto 0);
@@ -83,11 +85,15 @@ CHANNEL_NEXT(2) <= CHANNEL_REG(0);
 PROCESS(
 	CHANNEL_L_0, CHANNEL_L_1, CHANNEL_L_2, CHANNEL_L_3,
 	CHANNEL_R_0, CHANNEL_R_1, CHANNEL_R_2, CHANNEL_R_3,
+	GTIA_AUDIO,
 	channel_reg
 	)
 	variable left_sum : unsigned(6 downto 0);
 	variable right_sum : unsigned(6 downto 0);
 	variable both_sum : unsigned(6 downto 0);
+	variable gtia_sum : unsigned(6 downto 0);
+	variable left_gtia_sum : unsigned(6 downto 0);
+	variable right_gtia_sum : unsigned(6 downto 0);
 BEGIN
 	channel_sum <= (OTHERS=>'0');
 
@@ -97,16 +103,29 @@ BEGIN
 	right_sum := 
 		(resize(unsigned(CHANNEL_R_0),7) + resize(unsigned(CHANNEL_R_1),7)) +
 		(resize(unsigned(CHANNEL_R_2),7) + resize(unsigned(CHANNEL_R_3),7));
+	if (gtia_audio='1') then
+		gtia_sum := to_unsigned(8,7); -- TODO: review volume
+	else
+		gtia_sum := to_unsigned(0,7);
+	end if;
 	both_sum := left_sum + right_sum;
 	if (both_sum(6)='1') then
 		both_sum(5 downto 0) := (others=>'1');
 	end if;
+	left_gtia_sum := left_sum + gtia_sum;
+	if (left_gtia_sum(6)='1') then
+		left_gtia_sum(5 downto 0) := (others=>'1');
+	end if;
+	right_gtia_sum := right_sum + gtia_sum;
+	if (right_gtia_sum(6)='1') then
+		right_gtia_sum(5 downto 0) := (others=>'1');
+	end if;
 
 	case channel_reg is
 	when "100" => -- left
-		channel_sum <= std_logic_vector(left_sum);
+		channel_sum <= std_logic_vector(left_gtia_sum);
 	when "010" => -- right
-		channel_sum <= std_logic_vector(right_sum);
+		channel_sum <= std_logic_vector(right_gtia_sum);
 	when others => -- both
 		channel_sum <= std_logic_vector(both_sum);
 	end case;
