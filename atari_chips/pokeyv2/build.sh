@@ -36,6 +36,12 @@ my %variants =
 		"enable_stereo_switch" => 1,
 		"fpga" => "10M02SCU169C8G"
 	},
+	"10M02_quad_auto" =>
+	{
+		"stereo" => 2,
+		"enable_auto_stereo" => 1,
+		"fpga" => "10M02SCU169C8G"
+	},
 	"10M04_mono" =>
 	{
 		"stereo" => 0,
@@ -62,6 +68,12 @@ my %variants =
 		"enable_stereo_switch" => 1,
 		"fpga" => "10M04SCU169C8G"
 	},
+	"10M04_quad_auto" =>
+	{
+		"stereo" => 2,
+		"enable_auto_stereo" => 1,
+		"fpga" => "10M04SCU169C8G"
+	},
 	"10M08_mono" =>
 	{
 		"stereo" => 0,
@@ -86,6 +98,12 @@ my %variants =
 		"stereo" => 1,
 		"enable_auto_stereo" => 1,
 		"enable_stereo_switch" => 1,
+		"fpga" => "10M08SCU169C8G"
+	},
+	"10M08_quad_auto" =>
+	{
+		"stereo" => 2,
+		"enable_auto_stereo" => 1,
 		"fpga" => "10M08SCU169C8G"
 	}
 );

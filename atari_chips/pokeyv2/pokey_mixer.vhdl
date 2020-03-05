@@ -15,7 +15,7 @@ PORT
 ( 
 	CLK : IN STD_LOGIC;
 
-	SUM : IN STD_LOGIC_VECTOR(6 downto 0); -- unsigned
+	SUM : IN STD_LOGIC_VECTOR(7 downto 0); -- unsigned
 	
 	VOLUME_OUT_NEXT : OUT STD_LOGIC_vector(15 downto 0)
 );
@@ -45,13 +45,19 @@ END PROCESS;
  	process (sum, y1, y2, y1_reg, yadj_reg)
 		type LOOKUP_TYPE is array (0 to 32) of signed(15 downto 0);
 		variable lookup : LOOKUP_TYPE;
+		variable sum_saturated : std_logic_vector(5 downto 0);
 	begin
+		sum_saturated := sum(5 downto 0);
+		if (sum(6)='1' or sum(7)='1') then
+			sum_saturated := (others=>'1');
+		end if;
+
 		-- replace with piecewise interp. Takes a mul unit but saves lookup space.
 
 		lookup := (x"86E8" ,x"9E40" ,x"B3E3" ,x"C7E3" ,x"DA52" ,x"EB42" ,x"FAC5" ,x"08ED" ,x"15CB" ,x"2172" ,x"2BF4" ,x"3562" ,x"3DCE" ,x"454B" ,x"4BEA" ,x"51BD" ,x"56D6" ,x"5B47" ,x"5F22" ,x"6278" ,x"655C" ,x"67E0" ,x"6A15" ,x"6C0D" ,x"6DDB" ,x"6F90" ,x"713E" ,x"72F7" ,x"74CD" ,x"76D2" ,x"7918" ,x"7BB0" ,x"7EAD");
 
-		y1 <= lookup(to_integer(unsigned(sum(5 downto 1))));
-		y2 <= lookup(to_integer(unsigned(sum(5 downto 1)))+1);
+		y1 <= lookup(to_integer(unsigned(sum_saturated(5 downto 1))));
+		y2 <= lookup(to_integer(unsigned(sum_saturated(5 downto 1)))+1);
 
 		ych <= y2-y1;
 

@@ -92,6 +92,20 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal POKEY2_CHANNEL2 : std_logic_vector(3 downto 0);
 	signal POKEY2_CHANNEL3 : std_logic_vector(3 downto 0);
 
+	SIGNAL	POKEY3_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+	SIGNAL	POKEY3_WRITE_ENABLE :  STD_LOGIC;
+	signal POKEY3_CHANNEL0 : std_logic_vector(3 downto 0);
+	signal POKEY3_CHANNEL1 : std_logic_vector(3 downto 0);
+	signal POKEY3_CHANNEL2 : std_logic_vector(3 downto 0);
+	signal POKEY3_CHANNEL3 : std_logic_vector(3 downto 0);
+
+	SIGNAL	POKEY4_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
+	SIGNAL	POKEY4_WRITE_ENABLE :  STD_LOGIC;
+	signal POKEY4_CHANNEL0 : std_logic_vector(3 downto 0);
+	signal POKEY4_CHANNEL1 : std_logic_vector(3 downto 0);
+	signal POKEY4_CHANNEL2 : std_logic_vector(3 downto 0);
+	signal POKEY4_CHANNEL3 : std_logic_vector(3 downto 0);
+
 	signal SIO_CLOCKIN_IN : std_logic;
 	signal SIO_CLOCKIN_OUT : std_logic;
 	signal SIO_CLOCKIN_OE : std_logic;
@@ -102,7 +116,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal POKEY_IRQ : std_logic;
 
-	signal ADDR_IN : std_logic_vector(4 downto 0);
+	signal ADDR_IN : std_logic_vector(5 downto 0);
 	signal WRITE_DATA : std_logic_vector(7 downto 0);
 
 	signal AUDIO_L : std_logic_vector(15 downto 0);
@@ -138,10 +152,11 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal SEL_POKEY : std_logic_vector(1 downto 0);
 	signal A4_DETECT_FILTERED : std_logic;
+	signal A5_DETECT_FILTERED : std_logic;
 
 	signal CS_COMB : std_logic;
 
-	signal AIN : std_logic_vector(4 downto 0);
+	signal AIN : std_logic_vector(5 downto 0);
 
 	signal POTRESET : std_logic;
 
@@ -176,7 +191,7 @@ BEGIN
 			 c0 => CLK, -- 27MHz 
 			 locked => RESET_N);
 
-	AIN <= EXT(1)&A;
+	AIN <= EXT(2)&EXT(1)&A;
 
 gen_gtia : if enable_gtia_audio=1 generate
        synchronizer_gtia_audio : entity work.synchronizer
@@ -222,10 +237,18 @@ PORT MAP(CLK => CLK,
 		 CHANNEL_L_1 => POKEY1_CHANNEL1,
 		 CHANNEL_L_2 => POKEY1_CHANNEL2,
 		 CHANNEL_L_3 => POKEY1_CHANNEL3,
+		 CHANNEL_L2_0 => POKEY3_CHANNEL0,
+		 CHANNEL_L2_1 => POKEY3_CHANNEL1,
+		 CHANNEL_L2_2 => POKEY3_CHANNEL2,
+		 CHANNEL_L2_3 => POKEY3_CHANNEL3,
 		 CHANNEL_R_0 => POKEY2_CHANNEL0,
 		 CHANNEL_R_1 => POKEY2_CHANNEL1,
 		 CHANNEL_R_2 => POKEY2_CHANNEL2,
 		 CHANNEL_R_3 => POKEY2_CHANNEL3,
+		 CHANNEL_R2_0 => POKEY4_CHANNEL0,
+		 CHANNEL_R2_1 => POKEY4_CHANNEL1,
+		 CHANNEL_R2_2 => POKEY4_CHANNEL2,
+		 CHANNEL_R2_3 => POKEY4_CHANNEL3,
 		 GTIA_AUDIO => GTIA_AUDIO,
 		 VOLUME_OUT_M => AUDIO_M,
 		 VOLUME_OUT_L => AUDIO_L,
@@ -266,6 +289,131 @@ PORT MAP(CLK => CLK,
 		);
 
 gen_quad : if stereo=2 generate --quad!
+	process(SEL_POKEY,POKEY_DO,POKEY2_DO)
+	begin
+		DO_MUX <= (others =>'0');
+		case SEL_POKEY is
+			when "00" =>
+				DO_MUX <= POKEY_DO;
+			when "01" =>
+				DO_MUX <= POKEY2_DO;
+			when "10" =>
+				DO_MUX <= POKEY3_DO;
+			when "11" =>
+				DO_MUX <= POKEY4_DO;
+			when others =>
+		end case;
+	end process;
+
+auto_stereo : if enable_auto_stereo=1 generate -- auto detect
+	isstereo : ENTITY work.stereo_detect
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,
+	
+		A => AIN(4), -- raw...
+		ADDR_IN => ADDR_IN(4), -- on request
+	
+		SEL_POKEY2 => A4_DETECT_FILTERED
+	);
+	isquad : ENTITY work.stereo_detect
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,
+	
+		A => AIN(5), -- raw...
+		ADDR_IN => ADDR_IN(5), -- on request
+	
+		SEL_POKEY2 => A5_DETECT_FILTERED
+	);
+end generate;
+
+auto_stereo_off : if enable_auto_stereo=0 generate -- manual switch
+	A4_DETECT_FILTERED <= ADDR_IN(4);
+	A5_DETECT_FILTERED <= ADDR_IN(5);
+end generate;
+
+	SEL_POKEY(0) <= A4_DETECT_FILTERED;
+	SEL_POKEY(1) <= A5_DETECT_FILTERED;
+
+	process(write_n,request,sel_pokey)
+	begin
+		POKEY_WRITE_ENABLE <= '0';
+		POKEY2_WRITE_ENABLE <= '0';
+		POKEY3_WRITE_ENABLE <= '0';
+		POKEY4_WRITE_ENABLE <= '0';
+
+		if (write_n='0' and request='1') then
+			case sel_pokey is
+				when "00" =>
+					POKEY_WRITE_ENABLE <= '1';
+				when "01" =>
+					POKEY2_WRITE_ENABLE <= '1';
+				when "10" =>
+					POKEY3_WRITE_ENABLE <= '1';
+				when "11" =>
+					POKEY4_WRITE_ENABLE <= '1';
+				when others =>
+					POKEY_WRITE_ENABLE <= '1';
+			end case;
+		end if;
+	end process;
+
+pokey2 : entity work.pokey
+PORT MAP(CLK => CLK,
+		 ENABLE_179 => ENABLE_CYCLE,
+		 WR_EN => POKEY2_WRITE_ENABLE,
+		 RESET_N => RESET_N,
+		 ADDR => ADDR_IN(3 DOWNTO 0),
+		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
+		 CHANNEL_0_OUT => POKEY2_CHANNEL0,
+		 CHANNEL_1_OUT => POKEY2_CHANNEL1,
+		 CHANNEL_2_OUT => POKEY2_CHANNEL2,
+		 CHANNEL_3_OUT => POKEY2_CHANNEL3,
+		 DATA_OUT => POKEY2_DO,
+		 SIO_IN1 => '1',
+		 SIO_IN2 => '1',
+		 SIO_IN3 => '1',
+		 keyboard_response => "00",
+		 pot_in=>"00000000");
+
+pokey3 : entity work.pokey
+PORT MAP(CLK => CLK,
+		 ENABLE_179 => ENABLE_CYCLE,
+		 WR_EN => POKEY3_WRITE_ENABLE,
+		 RESET_N => RESET_N,
+		 ADDR => ADDR_IN(3 DOWNTO 0),
+		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
+		 CHANNEL_0_OUT => POKEY3_CHANNEL0,
+		 CHANNEL_1_OUT => POKEY3_CHANNEL1,
+		 CHANNEL_2_OUT => POKEY3_CHANNEL2,
+		 CHANNEL_3_OUT => POKEY3_CHANNEL3,
+		 DATA_OUT => POKEY3_DO,
+		 SIO_IN1 => '1',
+		 SIO_IN2 => '1',
+		 SIO_IN3 => '1',
+		 keyboard_response => "00",
+		 pot_in=>"00000000");
+
+pokey4 : entity work.pokey
+PORT MAP(CLK => CLK,
+		 ENABLE_179 => ENABLE_CYCLE,
+		 WR_EN => POKEY4_WRITE_ENABLE,
+		 RESET_N => RESET_N,
+		 ADDR => ADDR_IN(3 DOWNTO 0),
+		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
+		 CHANNEL_0_OUT => POKEY4_CHANNEL0,
+		 CHANNEL_1_OUT => POKEY4_CHANNEL1,
+		 CHANNEL_2_OUT => POKEY4_CHANNEL2,
+		 CHANNEL_3_OUT => POKEY4_CHANNEL3,
+		 DATA_OUT => POKEY4_DO,
+		 SIO_IN1 => '1',
+		 SIO_IN2 => '1',
+		 SIO_IN3 => '1',
+		 keyboard_response => "00",
+		 pot_in=>"00000000");
 end generate;
 
 gen_stereo : if stereo=1 generate
@@ -297,8 +445,8 @@ auto_stereo : if enable_auto_stereo=1 generate -- auto detect
 		CLK => clk,
 		RESET_N => reset_n,
 	
-		A => AIN, -- raw...
-		ADDR_IN => ADDR_IN, -- on request
+		A => AIN(4), -- raw...
+		ADDR_IN => ADDR_IN(4), -- on request
 	
 		SEL_POKEY2 => A4_DETECT_FILTERED
 	);
@@ -330,6 +478,16 @@ PORT MAP(CLK => CLK,
 		 SIO_IN3 => '1',
 		 keyboard_response => "00",
 		 pot_in=>"00000000");
+
+	POKEY3_CHANNEL0 <= "0000";
+	POKEY3_CHANNEL1 <= "0000";
+	POKEY3_CHANNEL2 <= "0000";
+	POKEY3_CHANNEL3 <= "0000";
+
+	POKEY4_CHANNEL0 <= "0000";
+	POKEY4_CHANNEL1 <= "0000";
+	POKEY4_CHANNEL2 <= "0000";
+	POKEY4_CHANNEL3 <= "0000";
 end generate;
 
 gen_mono : if stereo=0 generate
@@ -337,6 +495,16 @@ gen_mono : if stereo=0 generate
 	POKEY2_CHANNEL1 <= "0000";
 	POKEY2_CHANNEL2 <= "0000";
 	POKEY2_CHANNEL3 <= "0000";
+
+	POKEY3_CHANNEL0 <= "0000";
+	POKEY3_CHANNEL1 <= "0000";
+	POKEY3_CHANNEL2 <= "0000";
+	POKEY3_CHANNEL3 <= "0000";
+
+	POKEY4_CHANNEL0 <= "0000";
+	POKEY4_CHANNEL1 <= "0000";
+	POKEY4_CHANNEL2 <= "0000";
+	POKEY4_CHANNEL3 <= "0000";
 
 	DO_MUX <= POKEY_DO;
 

@@ -21,11 +21,19 @@ PORT
 	CHANNEL_L_1 : IN STD_LOGIC_VECTOR(3 downto 0);
 	CHANNEL_L_2 : IN STD_LOGIC_VECTOR(3 downto 0);
 	CHANNEL_L_3 : IN STD_LOGIC_VECTOR(3 downto 0);
+	CHANNEL_L2_0 : IN STD_LOGIC_VECTOR(3 downto 0);
+	CHANNEL_L2_1 : IN STD_LOGIC_VECTOR(3 downto 0);
+	CHANNEL_L2_2 : IN STD_LOGIC_VECTOR(3 downto 0);
+	CHANNEL_L2_3 : IN STD_LOGIC_VECTOR(3 downto 0);
 
 	CHANNEL_R_0 : IN STD_LOGIC_VECTOR(3 downto 0);
 	CHANNEL_R_1 : IN STD_LOGIC_VECTOR(3 downto 0);
 	CHANNEL_R_2 : IN STD_LOGIC_VECTOR(3 downto 0);
 	CHANNEL_R_3 : IN STD_LOGIC_VECTOR(3 downto 0);
+	CHANNEL_R2_0 : IN STD_LOGIC_VECTOR(3 downto 0);
+	CHANNEL_R2_1 : IN STD_LOGIC_VECTOR(3 downto 0);
+	CHANNEL_R2_2 : IN STD_LOGIC_VECTOR(3 downto 0);
+	CHANNEL_R2_3 : IN STD_LOGIC_VECTOR(3 downto 0);
 
 	GTIA_AUDIO : IN STD_LOGIC;
 	
@@ -60,7 +68,7 @@ ARCHITECTURE vhdl OF pokey_mixer_mux IS
 	signal VOLUME_POSTLOWPASS_R_REG : STD_LOGIC_VECTOR(15 downto 0);
 	signal VOLUME_POSTLOWPASS_M_REG : STD_LOGIC_VECTOR(15 downto 0);
 
-	signal channel_sum : std_logic_vector(6 downto 0);
+	signal channel_sum : std_logic_vector(7 downto 0);
 BEGIN
 
 process(clk)
@@ -88,38 +96,33 @@ PROCESS(
 	GTIA_AUDIO,
 	channel_reg
 	)
-	variable left_sum : unsigned(6 downto 0);
-	variable right_sum : unsigned(6 downto 0);
-	variable both_sum : unsigned(6 downto 0);
-	variable gtia_sum : unsigned(6 downto 0);
-	variable left_gtia_sum : unsigned(6 downto 0);
-	variable right_gtia_sum : unsigned(6 downto 0);
+	variable left_sum : unsigned(7 downto 0);
+	variable right_sum : unsigned(7 downto 0);
+	variable both_sum : unsigned(7 downto 0);
+	variable gtia_sum : unsigned(7 downto 0);
+	variable left_gtia_sum : unsigned(7 downto 0);
+	variable right_gtia_sum : unsigned(7 downto 0);
 BEGIN
 	channel_sum <= (OTHERS=>'0');
 
 	left_sum := 
-		(resize(unsigned(CHANNEL_L_0),7) + resize(unsigned(CHANNEL_L_1),7)) +
-		(resize(unsigned(CHANNEL_L_2),7) + resize(unsigned(CHANNEL_L_3),7));
+		(resize(unsigned(CHANNEL_L_0),8) + resize(unsigned(CHANNEL_L_1),8)) +
+		(resize(unsigned(CHANNEL_L_2),8) + resize(unsigned(CHANNEL_L_3),8)) +
+		(resize(unsigned(CHANNEL_L2_0),8) + resize(unsigned(CHANNEL_L2_1),8)) +
+		(resize(unsigned(CHANNEL_L2_2),8) + resize(unsigned(CHANNEL_L2_3),8));
 	right_sum := 
-		(resize(unsigned(CHANNEL_R_0),7) + resize(unsigned(CHANNEL_R_1),7)) +
-		(resize(unsigned(CHANNEL_R_2),7) + resize(unsigned(CHANNEL_R_3),7));
+		(resize(unsigned(CHANNEL_R_0),8) + resize(unsigned(CHANNEL_R_1),8)) +
+		(resize(unsigned(CHANNEL_R_2),8) + resize(unsigned(CHANNEL_R_3),8)) +
+		(resize(unsigned(CHANNEL_R2_0),8) + resize(unsigned(CHANNEL_R2_1),8)) +
+		(resize(unsigned(CHANNEL_R2_2),8) + resize(unsigned(CHANNEL_R2_3),8));
 	if (gtia_audio='1') then
-		gtia_sum := to_unsigned(8,7); -- TODO: review volume
+		gtia_sum := to_unsigned(8,8); -- TODO: review volume
 	else
-		gtia_sum := to_unsigned(0,7);
+		gtia_sum := to_unsigned(0,8);
 	end if;
 	both_sum := left_sum + right_sum;
-	if (both_sum(6)='1') then
-		both_sum(5 downto 0) := (others=>'1');
-	end if;
 	left_gtia_sum := left_sum + gtia_sum;
-	if (left_gtia_sum(6)='1') then
-		left_gtia_sum(5 downto 0) := (others=>'1');
-	end if;
 	right_gtia_sum := right_sum + gtia_sum;
-	if (right_gtia_sum(6)='1') then
-		right_gtia_sum(5 downto 0) := (others=>'1');
-	end if;
 
 	case channel_reg is
 	when "100" => -- left

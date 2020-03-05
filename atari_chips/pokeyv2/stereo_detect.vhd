@@ -16,45 +16,45 @@ PORT
 	CLK : IN STD_LOGIC;
 	RESET_N : IN STD_LOGIC;
 
-	A : IN STD_LOGIC_VECTOR(4 downto 0); -- raw
-	ADDR_IN : IN STD_LOGIC_VECTOR(4 downto 0); -- on request/timed
+	A : IN STD_LOGIC; -- raw
+	ADDR_IN : IN STD_LOGIC; -- on request/timed
 
 	SEL_POKEY2: OUT STD_LOGIC
 );
 END stereo_detect;
 
 ARCHITECTURE vhdl OF stereo_detect IS
-	signal addr_4_sync : std_logic;
-	signal addr_4_sync_reg : std_logic;
-	signal addr_4_toggle_count_next : std_logic_vector(1 downto 0);
-	signal addr_4_toggle_count_reg : std_logic_vector(1 downto 0);
+	signal addr_bit_sync : std_logic;
+	signal addr_bit_sync_reg : std_logic;
+	signal addr_bit_toggle_count_next : std_logic_vector(1 downto 0);
+	signal addr_bit_toggle_count_reg : std_logic_vector(1 downto 0);
 BEGIN
 
         synchronizer_4 : entity work.synchronizer
-		port map (clk=>clk, raw=>a(4), sync=>addr_4_sync);
+		port map (clk=>clk, raw=>a, sync=>addr_bit_sync);
 
 	process(clk,reset_n)
 	begin
 		if (reset_n='0') then
-			addr_4_sync_reg <= '1';
-			addr_4_toggle_count_reg <= (others=>'0');
+			addr_bit_sync_reg <= '1';
+			addr_bit_toggle_count_reg <= (others=>'0');
 		elsif (clk'event and clk='1')  then
-			addr_4_sync_reg <= addr_4_sync;
-			addr_4_toggle_count_reg <= addr_4_toggle_count_next;
+			addr_bit_sync_reg <= addr_bit_sync;
+			addr_bit_toggle_count_reg <= addr_bit_toggle_count_next;
 		end if;
 	end process;
 
 
-	process(addr_4_toggle_count_reg,addr_in,addr_4_sync,addr_4_sync_reg)
+	process(addr_bit_toggle_count_reg,addr_in,addr_bit_sync,addr_bit_sync_reg)
 	begin
 		SEL_POKEY2 <= '0';
-		addr_4_toggle_count_next <= addr_4_toggle_count_reg;
+		addr_bit_toggle_count_next <= addr_bit_toggle_count_reg;
 
-		if (addr_4_toggle_count_reg="11") then
-			SEL_POKEY2 <= ADDR_IN(4);
+		if (addr_bit_toggle_count_reg="11") then
+			SEL_POKEY2 <= ADDR_IN;
 		else
-			if (not(addr_4_sync = addr_4_sync_reg)) then
-				addr_4_toggle_count_next <= std_logic_vector(unsigned(addr_4_toggle_count_reg)+1);
+			if (not(addr_bit_sync = addr_bit_sync_reg)) then
+				addr_bit_toggle_count_next <= std_logic_vector(unsigned(addr_bit_toggle_count_reg)+1);
 			end if;
 		end if;
 	end process;

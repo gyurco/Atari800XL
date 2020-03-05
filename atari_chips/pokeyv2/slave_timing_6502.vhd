@@ -10,7 +10,7 @@ ENTITY slave_timing_6502 IS
 				
 				-- input from the cart port
 				PHI2 : in std_logic; -- async to our clk (ish):-(
-				bus_addr : in std_logic_vector(4 downto 0);
+				bus_addr : in std_logic_vector(5 downto 0);
 				bus_data : in std_logic_vector(7 downto 0);
 				bus_cs : in std_logic;
 				bus_rw_n : in std_logic;
@@ -21,7 +21,7 @@ ENTITY slave_timing_6502 IS
 
 				-- request for a memory bus cycle (read or write)
 				BUS_REQUEST: out std_logic;
-				ADDR_IN: out std_logic_vector(4 downto 0);
+				ADDR_IN: out std_logic_vector(5 downto 0);
 				DATA_IN: out std_logic_vector(7 downto 0);
 				RW_N: out std_logic;
 				CS : out std_logic;
@@ -59,7 +59,7 @@ ARCHITECTURE vhdl OF slave_timing_6502 IS
 	signal phi2_rising_edge : std_logic;
 	signal phi2_falling_edge_reg : std_logic;
 
-	signal phi_addr_reg : std_logic_vector(4 downto 0);
+	signal phi_addr_reg : std_logic_vector(5 downto 0);
 	signal phi_cs_reg : std_logic;
 	signal phi_rw_n_reg : std_logic;
 	signal phi_data_reg : std_logic_vector(7 downto 0);
