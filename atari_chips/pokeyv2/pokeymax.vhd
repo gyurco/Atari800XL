@@ -16,7 +16,7 @@ LIBRARY work;
 ENTITY pokeymax IS 
 	GENERIC
 	(
-		stereo : integer := 1; -- 0=MONO,1=STEREO
+		stereo : integer := 1; -- 0=MONO,1=STEREO,2=QUAD
 		enable_stereo_switch : integer := 0; -- 0=ext is low => mono
 		enable_auto_stereo : integer := 0; -- 1=auto detect a4 => not toggling => mono
 		enable_gtia_audio : integer := 1 -- 0=no gtia on l/r,1=gtia mixed on l/r
@@ -136,8 +136,8 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal i2c0_read_data : std_logic_vector(7 downto 0);
 	signal i2c0_error : std_logic;
 
-	signal sel_pokey2 : std_logic;
-	signal sel_pokey2_raw : std_logic;
+	signal SEL_POKEY : std_logic_vector(1 downto 0);
+	signal A4_DETECT_FILTERED : std_logic;
 
 	signal CS_COMB : std_logic;
 
@@ -265,11 +265,14 @@ PORT MAP(CLK => CLK,
 		 keyboard_scan_enable => KEYBOARD_SCAN_ENABLE
 		);
 
+gen_quad : if stereo=2 generate --quad!
+end generate;
+
 gen_stereo : if stereo=1 generate
-	process(SEL_POKEY2,POKEY_DO,POKEY2_DO)
+	process(SEL_POKEY,POKEY_DO,POKEY2_DO)
 	begin
 		DO_MUX <= (others =>'0');
-		if (SEL_POKEY2='1') then
+		if (SEL_POKEY(0)='1') then
 			DO_MUX <= POKEY2_DO;
 		else
 			DO_MUX <= POKEY_DO;
@@ -297,18 +300,18 @@ auto_stereo : if enable_auto_stereo=1 generate -- auto detect
 		A => AIN, -- raw...
 		ADDR_IN => ADDR_IN, -- on request
 	
-		SEL_POKEY2 => sel_pokey2_raw
+		SEL_POKEY2 => A4_DETECT_FILTERED
 	);
 end generate;
 
 auto_stereo_off : if enable_auto_stereo=0 generate -- manual switch
-	sel_pokey2_raw <= ADDR_IN(4);
+	A4_DETECT_FILTERED <= ADDR_IN(4);
 end generate;
 
-	sel_pokey2 <= sel_pokey2_raw and stereo_enable;
+	SEL_POKEY(0) <= A4_DETECT_FILTERED and stereo_enable;
 
-	POKEY_WRITE_ENABLE <= NOT(WRITE_N) and REQUEST and NOT(SEL_POKEY2);
-	POKEY2_WRITE_ENABLE <= NOT(WRITE_N) and REQUEST and SEL_POKEY2;
+	POKEY_WRITE_ENABLE <= NOT(WRITE_N) and REQUEST and NOT(SEL_POKEY(0));
+	POKEY2_WRITE_ENABLE <= NOT(WRITE_N) and REQUEST and SEL_POKEY(0);
 
 pokey2 : entity work.pokey
 PORT MAP(CLK => CLK,
