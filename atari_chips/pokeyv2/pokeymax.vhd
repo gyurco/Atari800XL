@@ -17,7 +17,8 @@ ENTITY pokeymax IS
 	GENERIC
 	(
 		stereo : integer := 1; -- 0=MONO,1=STEREO
-		enable_auto_stereo : integer := 0; -- 0=switch on ext,1=auto detect a4
+		enable_stereo_switch : integer := 0; -- 0=ext is low => mono
+		enable_auto_stereo : integer := 0; -- 1=auto detect a4 => not toggling => mono
 		enable_gtia_audio : integer := 1 -- 0=no gtia on l/r,1=gtia mixed on l/r
 	);
 	PORT
@@ -136,6 +137,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal i2c0_error : std_logic;
 
 	signal sel_pokey2 : std_logic;
+	signal sel_pokey2_raw : std_logic;
 
 	signal CS_COMB : std_logic;
 
@@ -275,6 +277,16 @@ gen_stereo : if stereo=1 generate
 	end process;
 
 
+switch_stereo : if enable_stereo_switch=1 generate 
+       synchronizer_stereo_enable : entity work.synchronizer
+                port map (clk=>clk, raw=>ext(2), sync=>stereo_enable);
+end generate;
+
+switch_stereo_off : if enable_stereo_switch=0 generate 
+	stereo_enable <= '1';
+end generate;
+
+
 auto_stereo : if enable_auto_stereo=1 generate -- auto detect
 	isstereo : ENTITY work.stereo_detect
 	PORT MAP
@@ -285,16 +297,15 @@ auto_stereo : if enable_auto_stereo=1 generate -- auto detect
 		A => AIN, -- raw...
 		ADDR_IN => ADDR_IN, -- on request
 	
-		SEL_POKEY2 => sel_pokey2
+		SEL_POKEY2 => sel_pokey2_raw
 	);
 end generate;
 
 auto_stereo_off : if enable_auto_stereo=0 generate -- manual switch
-       synchronizer_stereo_enable : entity work.synchronizer
-                port map (clk=>clk, raw=>ext(2), sync=>stereo_enable);
-
-	SEL_POKEY2 <= ADDR_IN(4) and stereo_enable;
+	sel_pokey2_raw <= ADDR_IN(4);
 end generate;
+
+	sel_pokey2 <= sel_pokey2_raw and stereo_enable;
 
 	POKEY_WRITE_ENABLE <= NOT(WRITE_N) and REQUEST and NOT(SEL_POKEY2);
 	POKEY2_WRITE_ENABLE <= NOT(WRITE_N) and REQUEST and SEL_POKEY2;

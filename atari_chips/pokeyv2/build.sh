@@ -19,12 +19,21 @@ my %variants =
 	{
 		"stereo" => 1,
 		"enable_auto_stereo" => 1,
+		"enable_stereo_switch" => 0,
 		"fpga" => "10M02SCU169C8G"
 	},
 	"10M02_stereo_u1mb" =>
 	{
 		"stereo" => 1,
 		"enable_auto_stereo" => 0,
+		"enable_stereo_switch" => 1,
+		"fpga" => "10M02SCU169C8G"
+	},
+	"10M02_stereo_u1mb_auto" =>
+	{
+		"stereo" => 1,
+		"enable_auto_stereo" => 1,
+		"enable_stereo_switch" => 1,
 		"fpga" => "10M02SCU169C8G"
 	},
 	"10M04_mono" =>
@@ -36,12 +45,21 @@ my %variants =
 	{
 		"stereo" => 1,
 		"enable_auto_stereo" => 1,
+		"enable_stereo_switch" => 0,
 		"fpga" => "10M04SCU169C8G"
 	},
 	"10M04_stereo_u1mb" =>
 	{
 		"stereo" => 1,
 		"enable_auto_stereo" => 0,
+		"enable_stereo_switch" => 1,
+		"fpga" => "10M04SCU169C8G"
+	},
+	"10M04_stereo_u1mb_auto" =>
+	{
+		"stereo" => 1,
+		"enable_auto_stereo" => 1,
+		"enable_stereo_switch" => 1,
 		"fpga" => "10M04SCU169C8G"
 	},
 	"10M08_mono" =>
@@ -53,24 +71,34 @@ my %variants =
 	{
 		"stereo" => 1,
 		"enable_auto_stereo" => 1,
+		"enable_stereo_switch" => 0,
 		"fpga" => "10M08SCU169C8G"
 	},
 	"10M08_stereo_u1mb" =>
 	{
 		"stereo" => 1,
 		"enable_auto_stereo" => 0,
+		"enable_stereo_switch" => 1,
+		"fpga" => "10M08SCU169C8G"
+	},
+	"10M08_stereo_u1mb_auto" =>
+	{
+		"stereo" => 1,
+		"enable_auto_stereo" => 1,
+		"enable_stereo_switch" => 1,
 		"fpga" => "10M08SCU169C8G"
 	}
 );
 
-if (not defined $wanted_variant or (not exists $variants{$wanted_variant} and $wanted_variant ne "ALL"))
-{
-	die "Provide variant of ALL or ".join ",",sort keys %variants;
-}
+#if (not defined $wanted_variant or (not exists $variants{$wanted_variant} and $wanted_variant ne "ALL"))
+#{
+#	die "Provide variant of ALL or ".join ",",sort keys %variants;
+#}
 
 foreach my $variant (sort keys %variants)
 {
-	next if ($wanted_variant ne $variant and $wanted_variant ne "ALL");
+	#next if ($wanted_variant ne $variant and $wanted_variant ne "ALL");
+	next unless ($variant =~ /$wanted_variant/);
 	print "Building $variant of $name\n";
 
 	my $dir = "build_$variant";
