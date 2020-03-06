@@ -17,6 +17,7 @@ ENTITY pokeymax IS
 	GENERIC
 	(
 		stereo : integer := 1; -- 0=MONO,1=STEREO,2=QUAD
+		lowpass : integer := 1; -- 0=lowpass off, 1=lowpass on (leave on except if there is no space! Low impact...)
 		enable_stereo_switch : integer := 0; -- 0=ext is low => mono
 		enable_auto_stereo : integer := 0; -- 1=auto detect a4 => not toggling => mono
 		enable_gtia_audio : integer := 1 -- 0=no gtia on l/r,1=gtia mixed on l/r
@@ -231,6 +232,10 @@ bus_adapt : entity work.slave_timing_6502
 		DATA_OUT => DO_MUX
 	);
 pokey_mixer_both : entity work.pokey_mixer_mux
+GENERIC MAP
+(
+	LOWPASS => lowpass
+)
 PORT MAP(CLK => CLK,
 		 ENABLE_179 => ENABLE_CYCLE,
 		 CHANNEL_L_0 => POKEY1_CHANNEL0,
@@ -362,6 +367,10 @@ end generate;
 	end process;
 
 pokey2 : entity work.pokey
+GENERIC MAP
+(
+	custom_keyboard_scan => 1
+)
 PORT MAP(CLK => CLK,
 		 ENABLE_179 => ENABLE_CYCLE,
 		 WR_EN => POKEY2_WRITE_ENABLE,
@@ -380,6 +389,10 @@ PORT MAP(CLK => CLK,
 		 pot_in=>"00000000");
 
 pokey3 : entity work.pokey
+GENERIC MAP
+(
+	custom_keyboard_scan => 2
+)
 PORT MAP(CLK => CLK,
 		 ENABLE_179 => ENABLE_CYCLE,
 		 WR_EN => POKEY3_WRITE_ENABLE,
@@ -398,6 +411,10 @@ PORT MAP(CLK => CLK,
 		 pot_in=>"00000000");
 
 pokey4 : entity work.pokey
+GENERIC MAP
+(
+	custom_keyboard_scan => 2
+)
 PORT MAP(CLK => CLK,
 		 ENABLE_179 => ENABLE_CYCLE,
 		 WR_EN => POKEY4_WRITE_ENABLE,
@@ -516,32 +533,29 @@ AUDIO_L_SIGNED  <= to_signed(to_integer(unsigned(AUDIO_L))-32768,16);
 AUDIO_R_SIGNED <= to_signed(to_integer(unsigned(AUDIO_R))-32768,16);
 AUDIO_M_SIGNED <= to_signed(to_integer(unsigned(AUDIO_M))-32768,16);
 
-dac_left : entity work.dac_dsm3
+dac_left : entity work.dac_dsm3_top
 port map
 (
   n_rst => reset_n,
   clk => clk,
-  clk_ena => '1',
   din => AUDIO_L_SIGNED,
   dout => AUDIO_LEFT
 );
 
-dac_right : entity work.dac_dsm3
+dac_right : entity work.dac_dsm3_top
 port map
 (
   n_rst => reset_n,
   clk => clk,
-  clk_ena => '1',
   din => AUDIO_R_SIGNED,
   dout => AUDIO_RIGHT
 );
 
-dac_mixed : entity work.dac_dsm3
+dac_mixed : entity work.dac_dsm3_top
 port map
 (
   n_rst => reset_n,
   clk => clk,
-  clk_ena => '1',
   din => AUDIO_M_SIGNED,
   dout => AUDIO_MIXED
 );

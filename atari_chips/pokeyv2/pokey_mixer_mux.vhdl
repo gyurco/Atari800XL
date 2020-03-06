@@ -11,6 +11,10 @@ use ieee.numeric_std.all;
 use IEEE.STD_LOGIC_MISC.all;
 
 ENTITY pokey_mixer_mux IS
+GENERIC
+(
+	lowpass : integer :=1 -- simple low pass. Was made for HDMI so can be turned off here with little impact to save resources. 
+);
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
@@ -170,6 +174,7 @@ END PROCESS;
 
 
 -- low pass filter output
+gen_lowpass_on : if lowpass=1 generate
 filter_left : entity work.simple_low_pass_filter
 	port map
 	(
@@ -194,6 +199,13 @@ filter_both : entity work.simple_low_pass_filter
 		SAMPLE_IN => ENABLE_179,
 		AUDIO_OUT => VOLUME_POSTLOWPASS_M_REG
 	);
+end generate;
+
+gen_lowpass_off : if lowpass=0 generate
+VOLUME_POSTLOWPASS_L_REG<=VOLUME_OUT_L_REG;
+VOLUME_POSTLOWPASS_M_REG<=VOLUME_OUT_M_REG;
+VOLUME_POSTLOWPASS_R_REG<=VOLUME_OUT_R_REG;
+end generate;
 
 -- output
 	VOLUME_OUT_L <= VOLUME_POSTLOWPASS_L_REG;

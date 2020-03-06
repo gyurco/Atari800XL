@@ -14,7 +14,7 @@ use ieee.numeric_std.all;
 ENTITY pokey IS
 GENERIC
 (
-	CUSTOM_KEYBOARD_SCAN : integer := 0 -- drive from hsync-like if 0, otherwise custom increment signal
+	CUSTOM_KEYBOARD_SCAN : integer := 0 -- 0:drive from hsync-like, 1:otherwise custom increment signal, 2:remove!
 );
 PORT 
 ( 
@@ -1212,6 +1212,14 @@ BEGIN
 	end process;
 	
 	-- keyboard scan
+gen_scan_off : if custom_keyboard_scan=2 generate
+        key_held <= '0';
+        shift_held <= '0';
+        kbcode <= (others=>'1');
+        other_key_irq <= '0';
+        break_irq <= '0';
+end generate;
+
 gen_custom_scan : if custom_keyboard_scan=1 generate
 	pokey_keyboard_scanner1 : pokey_keyboard_scanner
 		port map (clk=>clk, reset_n=>reset_n, enable=>keyboard_scan_enable, keyboard_response=>keyboard_response, debounce_disable=>not(skctl_reg(0)), scan_enable=>skctl_reg(1), keyboard_scan=>keyboard_scan, key_held=>key_held, shift_held=>shift_held, keycode=>kbcode, other_key_irq=>other_key_irq, break_irq=>break_irq);

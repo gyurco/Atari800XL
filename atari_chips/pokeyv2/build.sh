@@ -39,6 +39,7 @@ my %variants =
 	"10M02_quad_auto" =>
 	{
 		"stereo" => 2,
+		"lowpass" => 0,
 		"enable_auto_stereo" => 1,
 		"fpga" => "10M02SCU169C8G"
 	},

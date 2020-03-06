@@ -26,7 +26,7 @@ use ieee.numeric_std.all;
 
 entity dac_dsm3_top is
     generic (
-      nbits : integer);  
+      nbits : integer :=16);  
   port (
     din   : in  signed(15 downto 0);
     dout  : out std_logic;
@@ -37,7 +37,7 @@ end dac_dsm3_top;
 
 architecture beh1 of dac_dsm3_top is
 
-  component dac_dsm3
+  component dac_dsm3v
     generic (
       nbits : integer);
     port (
@@ -85,12 +85,12 @@ begin
     end if;
   end process clken1;
 
-  dac_dsm3_1 : dac_dsm3
+  dac_dsm3_1 : dac_dsm3v
     generic map (
       nbits => 16)
     port map (
       din     => din,
-      dout    => dout,
+      dout    => dac_dout,
       clk     => clk,
       clk_ena => clk_ena,
       n_rst   => n_rst);
