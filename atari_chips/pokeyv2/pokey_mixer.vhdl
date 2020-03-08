@@ -17,7 +17,7 @@ PORT
 
 	SUM : IN STD_LOGIC_VECTOR(7 downto 0); -- unsigned
 	
-	VOLUME_OUT_NEXT : OUT STD_LOGIC_vector(15 downto 0)
+	VOLUME_OUT_NEXT : OUT STD_LOGIC_vector(15 downto 0) --signed
 );
 END pokey_mixer;
 

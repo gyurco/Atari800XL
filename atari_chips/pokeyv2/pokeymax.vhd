@@ -120,16 +120,17 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal ADDR_IN : std_logic_vector(5 downto 0);
 	signal WRITE_DATA : std_logic_vector(7 downto 0);
 
-	signal AUDIO_L : std_logic_vector(15 downto 0);
-	signal AUDIO_R : std_logic_vector(15 downto 0);
-	signal AUDIO_M : std_logic_vector(15 downto 0);
 	signal AUDIO_L_SIGNED : signed(15 downto 0);
 	signal AUDIO_R_SIGNED : signed(15 downto 0);
-	signal AUDIO_M_SIGNED : signed(15 downto 0);	
-
-	signal AUDIO_LEFT : std_logic;
-	signal AUDIO_RIGHT : std_logic;
-	signal AUDIO_MIXED : std_logic;
+	signal AUDIO_M_SIGNED : signed(15 downto 0);
+	signal AUDIO_L_UNSIGNED : unsigned(15 downto 0);
+	signal AUDIO_R_UNSIGNED : unsigned(15 downto 0);
+	signal AUDIO_M_UNSIGNED : unsigned(15 downto 0);
+	
+	signal AUDIO_LEFT_LINE : std_logic;
+	signal AUDIO_RIGHT_LINE : std_logic;
+	signal AUDIO_MIXED_LINE : std_logic;
+	signal AUDIO_MIXED_MAX : std_logic;
 
 	signal KEYBOARD_SCAN : std_logic_vector(5 downto 0);
 	signal KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
@@ -255,9 +256,9 @@ PORT MAP(CLK => CLK,
 		 CHANNEL_R2_2 => POKEY4_CHANNEL2,
 		 CHANNEL_R2_3 => POKEY4_CHANNEL3,
 		 GTIA_AUDIO => GTIA_AUDIO,
-		 VOLUME_OUT_M => AUDIO_M,
-		 VOLUME_OUT_L => AUDIO_L,
-		 VOLUME_OUT_R => AUDIO_R);
+		 VOLUME_OUT_M => AUDIO_M_SIGNED,
+		 VOLUME_OUT_L => AUDIO_L_SIGNED,
+		 VOLUME_OUT_R => AUDIO_R_SIGNED);
 		 
 pokey1 : entity work.pokey
 GENERIC MAP
@@ -529,37 +530,49 @@ gen_mono : if stereo=0 generate
 	
 end generate;
 
-AUDIO_L_SIGNED  <= to_signed(to_integer(unsigned(AUDIO_L))-32768,16);
-AUDIO_R_SIGNED <= to_signed(to_integer(unsigned(AUDIO_R))-32768,16);
-AUDIO_M_SIGNED <= to_signed(to_integer(unsigned(AUDIO_M))-32768,16);
+AUDIO_L_UNSIGNED(14 downto 0) <= unsigned(AUDIO_L_SIGNED(14 downto 0));
+AUDIO_M_UNSIGNED(14 downto 0) <= unsigned(AUDIO_M_SIGNED(14 downto 0));
+AUDIO_R_UNSIGNED(14 downto 0) <= unsigned(AUDIO_R_SIGNED(14 downto 0));
+AUDIO_L_UNSIGNED(15) <= not(AUDIO_L_SIGNED(15));
+AUDIO_M_UNSIGNED(15) <= not(AUDIO_M_SIGNED(15));
+AUDIO_R_UNSIGNED(15) <= not(AUDIO_R_SIGNED(15));	
 
-dac_left : entity work.dac_dsm3_top
+--approx line level by using 5V/4 -> ok 1.25V, should be ok approx
+dac_left_line : entity work.sigmadelta
 port map
 (
-  n_rst => reset_n,
+  reset_n => reset_n,
   clk => clk,
-  din => AUDIO_L_SIGNED,
-  dout => AUDIO_LEFT
+  audin => "00"&AUDIO_L_UNSIGNED(15 downto 2),
+  AUDOUT => AUDIO_LEFT_LINE
 );
 
-dac_right : entity work.dac_dsm3_top
+dac_right_line : entity work.sigmadelta
 port map
 (
-  n_rst => reset_n,
+  reset_n => reset_n,
   clk => clk,
-  din => AUDIO_R_SIGNED,
-  dout => AUDIO_RIGHT
+  audin => "00"&AUDIO_R_UNSIGNED(15 downto 2),
+  AUDOUT => AUDIO_RIGHT_LINE
 );
 
-dac_mixed : entity work.dac_dsm3_top
+dac_mixed_line : entity work.sigmadelta
 port map
 (
-  n_rst => reset_n,
+  reset_n => reset_n,
   clk => clk,
-  din => AUDIO_M_SIGNED,
-  dout => AUDIO_MIXED
+  audin => "00"&AUDIO_M_UNSIGNED(15 downto 2),
+  AUDOUT => AUDIO_MIXED_LINE
 );
 
+dac_mixed_max : entity work.sigmadelta
+port map
+(
+  reset_n => reset_n,
+  clk => clk,
+  audin => AUDIO_M_UNSIGNED,
+  AUDOUT => AUDIO_MIXED_MAX
+);
 -- io extension
 -- drive to 0 for pot reset (otherwise high imp)
 -- drive keyboard lines
@@ -612,15 +625,15 @@ SOD <= '0' when SIO_TXD='0' else 'Z';
 SIO_RXD <= SID;
 
 --3
-AUD(3) <= AUDIO_LEFT;
+AUD(3) <= AUDIO_LEFT_LINE;
 --4
-AUD(4) <= AUDIO_RIGHT;
+AUD(4) <= AUDIO_RIGHT_LINE;
 --2
-AUD(2) <= AUDIO_MIXED;
+AUD(2) <= AUDIO_MIXED_LINE;
 --gnd
 --
 --1->pin37
-AUD(1) <= AUDIO_MIXED;
+AUD(1) <= AUDIO_MIXED_MAX;
 
 IRQ <= '0' when POKEY_IRQ='0' else 'Z';
 
