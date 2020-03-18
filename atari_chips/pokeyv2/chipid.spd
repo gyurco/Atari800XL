@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file
+   path="chipid_sim/altchip_id/mentor/altchip_id.v"
+   type="VERILOG_ENCRYPT"
+   library="chipid"
+   simulator="modelsim" />
+ <file
+   path="chipid_sim/altchip_id/cadence/altchip_id.v"
+   type="VERILOG_ENCRYPT"
+   library="chipid"
+   simulator="ncsim" />
+ <file
+   path="chipid_sim/altchip_id/synopsys/altchip_id.v"
+   type="VERILOG_ENCRYPT"
+   library="chipid"
+   simulator="vcs" />
+ <file
+   path="chipid_sim/altchip_id/aldec/altchip_id.v"
+   type="VERILOG_ENCRYPT"
+   library="chipid"
+   simulator="riviera" />
+ <file path="chipid_sim/chipid.vhd" type="VHDL" />
+ <topLevel name="chipid" />
+ <deviceFamily name="max10" />
+</simPackage>
