@@ -1218,6 +1218,7 @@ gen_scan_off : if custom_keyboard_scan=2 generate
         kbcode <= (others=>'1');
         other_key_irq <= '0';
         break_irq <= '0';
+		  keyboard_scan <= (others=>'0');
 end generate;
 
 gen_custom_scan : if custom_keyboard_scan=1 generate
