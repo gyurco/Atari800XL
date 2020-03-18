@@ -36,13 +36,13 @@ my %variants =
 		"enable_stereo_switch" => 1,
 		"fpga" => "10M02SCU169C8G"
 	},
-	"10M02_quad_auto" =>
-	{
-		"stereo" => 2,
-		"lowpass" => 0,
-		"enable_auto_stereo" => 1,
-		"fpga" => "10M02SCU169C8G"
-	},
+#	"10M02_quad_auto" =>
+#	{
+#		"stereo" => 2,
+#		"lowpass" => 0,
+#		"enable_auto_stereo" => 1,
+#		"fpga" => "10M02SCU169C8G"
+#	},
 	"10M04_mono" =>
 	{
 		"stereo" => 0,
