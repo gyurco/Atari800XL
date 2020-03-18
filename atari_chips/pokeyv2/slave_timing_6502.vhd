@@ -126,6 +126,8 @@ begin
 		bus_drive_reg,bus_data_out_reg, 
 		phi2_rising_edge,
 		phi2_falling_edge,
+		phi_cs_reg,
+		phi_rw_n_reg,
 		state_reg)
 	begin
 		-- maintain snap (only read bus when safe!)
