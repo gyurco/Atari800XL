@@ -144,7 +144,7 @@ foreach my $variant (sort keys %variants)
 	}
 
 	`quartus_sh --flow compile pokeymax > build.log 2> build.err`;
-	`quartus_cpf --convert ../convertsecure.cof`;
+	`quartus_cpf --convert ../convert_secure.cof`;
 
 	chdir "..";
 }
