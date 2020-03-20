@@ -88,30 +88,52 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal ENABLE_CYCLE : std_logic;
 
-	-- POKEY
-	SIGNAL	POKEY_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-	SIGNAL	POKEY_WRITE_ENABLE :  STD_LOGIC;
+	-- WRITE ENABLES
+	SIGNAL POKEY_WRITE_ENABLE : STD_LOGIC;	
+	SIGNAL POKEY2_WRITE_ENABLE : STD_LOGIC;	
+	SIGNAL POKEY3_WRITE_ENABLE : STD_LOGIC;	
+	SIGNAL POKEY4_WRITE_ENABLE : STD_LOGIC;	
+	
+	SIGNAL SID1_WRITE_ENABLE : STD_LOGIC;	
+	SIGNAL SID2_WRITE_ENABLE : STD_LOGIC;	
+
+	SIGNAL YM2149_1_WRITE_ENABLE : STD_LOGIC;	
+	SIGNAL YM2149_2_WRITE_ENABLE : STD_LOGIC;	
+
+	SIGNAL SAMPLE_WRITE_ENABLE : STD_LOGIC;	
+	SIGNAL CONFIG_WRITE_ENABLE : STD_LOGIC;	
+	
+	-- DATA OUTS
+	SIGNAL POKEY_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
+	SIGNAL POKEY2_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
+	SIGNAL POKEY3_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
+	SIGNAL POKEY4_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
+	
+	SIGNAL SID1_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
+	SIGNAL SID2_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
+	
+	SIGNAL YM2149_1_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
+	SIGNAL YM2149_2_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
+	
+	SIGNAL SAMPLE_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
+	SIGNAL CONFIG_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
+	
+	-- POKEY	
 	signal POKEY1_CHANNEL0 : std_logic_vector(3 downto 0);
 	signal POKEY1_CHANNEL1 : std_logic_vector(3 downto 0);
 	signal POKEY1_CHANNEL2 : std_logic_vector(3 downto 0);
 	signal POKEY1_CHANNEL3 : std_logic_vector(3 downto 0);
 	
-	SIGNAL	POKEY2_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-	SIGNAL	POKEY2_WRITE_ENABLE :  STD_LOGIC;
 	signal POKEY2_CHANNEL0 : std_logic_vector(3 downto 0);
 	signal POKEY2_CHANNEL1 : std_logic_vector(3 downto 0);
 	signal POKEY2_CHANNEL2 : std_logic_vector(3 downto 0);
 	signal POKEY2_CHANNEL3 : std_logic_vector(3 downto 0);
 
-	SIGNAL	POKEY3_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-	SIGNAL	POKEY3_WRITE_ENABLE :  STD_LOGIC;
 	signal POKEY3_CHANNEL0 : std_logic_vector(3 downto 0);
 	signal POKEY3_CHANNEL1 : std_logic_vector(3 downto 0);
 	signal POKEY3_CHANNEL2 : std_logic_vector(3 downto 0);
 	signal POKEY3_CHANNEL3 : std_logic_vector(3 downto 0);
 
-	SIGNAL	POKEY4_DO :  STD_LOGIC_VECTOR(7 DOWNTO 0);
-	SIGNAL	POKEY4_WRITE_ENABLE :  STD_LOGIC;
 	signal POKEY4_CHANNEL0 : std_logic_vector(3 downto 0);
 	signal POKEY4_CHANNEL1 : std_logic_vector(3 downto 0);
 	signal POKEY4_CHANNEL2 : std_logic_vector(3 downto 0);
@@ -141,6 +163,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal ADDR_IN : std_logic_vector(5 downto 0);
 	signal WRITE_DATA : std_logic_vector(7 downto 0);
+	signal DEVICE_ADDR : std_logic_vector(3 downto 0);
 
 	signal AUDIO_0_SIGNED : signed(15 downto 0);
 	signal AUDIO_1_SIGNED : signed(15 downto 0);
@@ -176,10 +199,10 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal i2c0_read_data : std_logic_vector(7 downto 0);
 	signal i2c0_error : std_logic;
 
-	signal SEL_POKEY : std_logic_vector(1 downto 0);
-	signal SEL_POKEY_ADJ : std_logic_vector(2 downto 0);
 	signal A4_DETECT_FILTERED : std_logic;
 	signal A5_DETECT_FILTERED : std_logic;
+	signal A6_DETECT_FILTERED : std_logic;
+	signal A7_DETECT_FILTERED : std_logic;
 
 	signal CS_COMB : std_logic;
 
@@ -198,8 +221,9 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal PRE_DIVIDE_REG : std_logic_vector(1 downto 0);
 	signal POST_DIVIDE_REG : std_logic_vector(7 downto 0);	
 	signal POST_MIX_REG : std_logic_vector(0 downto 0);	
-	signal CHIP_ID_LOC_REG : std_logic_vector(2 downto 0);
-	signal ENABLE_REG : std_logic_vector(1 downto 0);
+	signal GTIA_ENABLE_REG : std_logic_vector(3 downto 0);
+	signal CHIP_ID_LOC_REG : std_logic_vector(3 downto 0);
+	signal BANK_REG : std_logic_vector(7 downto 0);
 	
 	signal CHANNEL_MODE_NEXT : std_logic_vector(1 downto 0);
 	signal GTIA_VOLUME_NEXT : std_logic_vector(1 downto 0);
@@ -207,15 +231,14 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal PRE_DIVIDE_NEXT : std_logic_vector(1 downto 0);
 	signal POST_DIVIDE_NEXT : std_logic_vector(7 downto 0);
 	signal POST_MIX_NEXT : std_logic_vector(0 downto 0);	
-	signal CHIP_ID_LOC_NEXT : std_logic_vector(2 downto 0);
-	signal ENABLE_NEXT : std_logic_vector(1 downto 0);
+	signal GTIA_ENABLE_NEXT : std_logic_vector(3 downto 0);
+	signal CHIP_ID_LOC_NEXT : std_logic_vector(3 downto 0);
+	signal BANK_NEXT : std_logic_vector(7 downto 0);
 	
 		--config infra
 	signal config_addr_decoded : std_logic_vector(15 downto 0);	
 	signal CONFIG_ENABLE_REG : std_logic;
 	signal CONFIG_ENABLE_NEXT: std_logic;
-	signal CONFIG_DO : std_logic_vector(7 downto 0);
-	signal CONFIG_WRITE_ENABLE : std_logic;
 	
 		-- chip id (unique per max10 physical device)
 	signal chip_id : std_logic_vector(63 downto 0);
@@ -288,6 +311,36 @@ bus_adapt : entity work.slave_timing_6502
 		DATA_OUT => DO_MUX
 	);
 	
+auto_stereo : if enable_auto_stereo=1 generate -- auto detect
+	isstereo : ENTITY work.stereo_detect
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,
+	
+		A => AIN(4), -- raw...
+		ADDR_IN => ADDR_IN(4), -- on request
+	
+		SEL_POKEY2 => A4_DETECT_FILTERED
+	);
+	isquad : ENTITY work.stereo_detect
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,
+	
+		A => AIN(5), -- raw...
+		ADDR_IN => ADDR_IN(5), -- on request
+	
+		SEL_POKEY2 => A5_DETECT_FILTERED
+	);
+end generate;
+
+auto_stereo_off : if enable_auto_stereo=0 generate -- manual switch
+	A4_DETECT_FILTERED <= ADDR_IN(4);
+	A5_DETECT_FILTERED <= ADDR_IN(5);
+end generate;
+	
 -- TODO: into another entity
 process(clk)
 begin
@@ -307,6 +360,7 @@ process(
 	POKEY4_CHANNEL0,POKEY4_CHANNEL1,POKEY4_CHANNEL2,POKEY4_CHANNEL3,
 	GTIA_AUDIO,
 	GTIA_VOLUME_REG,
+	GTIA_ENABLE_REG,
 	CHANNEL_MODE_REG -- 0=mono, 1=stereo(L:1/3,R2/4), 2=quad(0=sum(chan0),1=sum(chan1) etc)
 	)
 variable p0 : unsigned(11 downto 0);	
@@ -373,10 +427,18 @@ begin
 			GTIA_VOLUME_SUM := to_unsigned(0,10);	
 		end case;
 		
-		sum0 := sum0 + GTIA_VOLUME_SUM;
-		sum1 := sum1 + GTIA_VOLUME_SUM;
-		sum2 := sum2 + GTIA_VOLUME_SUM;
-		sum3 := sum3 + GTIA_VOLUME_SUM;
+		if (GTIA_ENABLE_REG(0)='1') then
+			sum0 := sum0 + GTIA_VOLUME_SUM;
+		end if;
+		if (GTIA_ENABLE_REG(1)='1') then
+			sum1 := sum1 + GTIA_VOLUME_SUM;
+		end if;
+		if (GTIA_ENABLE_REG(2)='1') then
+			sum2 := sum2 + GTIA_VOLUME_SUM;
+		end if;			
+		if (GTIA_ENABLE_REG(3)='1') then
+			sum3 := sum3 + GTIA_VOLUME_SUM;
+		end if;
 	end if;
 	
 	CHANNEL0SUM_NEXT <= sum0;
@@ -456,8 +518,6 @@ gen_mono : if stereo=0 generate
 	POKEY4_CHANNEL1 <= "0000";
 	POKEY4_CHANNEL2 <= "0000";
 	POKEY4_CHANNEL3 <= "0000";
-
-	SEL_POKEY <= "00";
 	
 	POKEY2_IRQ	 <= '1';
 	POKEY3_IRQ	 <= '1';
@@ -478,28 +538,6 @@ end generate;
 switch_stereo_off : if enable_stereo_switch=0 generate 
 	stereo_enable <= '1';
 end generate;
-
-
-auto_stereo : if enable_auto_stereo=1 generate -- auto detect
-	isstereo : ENTITY work.stereo_detect
-	PORT MAP
-	( 
-		CLK => clk,
-		RESET_N => reset_n,
-	
-		A => AIN(4), -- raw...
-		ADDR_IN => ADDR_IN(4), -- on request
-	
-		SEL_POKEY2 => A4_DETECT_FILTERED
-	);
-end generate;
-
-auto_stereo_off : if enable_auto_stereo=0 generate -- manual switch
-	A4_DETECT_FILTERED <= ADDR_IN(4);
-end generate;
-
-	SEL_POKEY(0) <= A4_DETECT_FILTERED and stereo_enable;
-	SEL_POKEY(1) <= '0';
 	
 pokey2 : entity work.pokey
 PORT MAP(CLK => CLK,
@@ -541,38 +579,6 @@ end generate;
 -- QUAD POKEY
 --------------------------------------------------------
 gen_quad : if stereo=2 generate --quad!
-auto_stereo : if enable_auto_stereo=1 generate -- auto detect
-	isstereo : ENTITY work.stereo_detect
-	PORT MAP
-	( 
-		CLK => clk,
-		RESET_N => reset_n,
-	
-		A => AIN(4), -- raw...
-		ADDR_IN => ADDR_IN(4), -- on request
-	
-		SEL_POKEY2 => A4_DETECT_FILTERED
-	);
-	isquad : ENTITY work.stereo_detect
-	PORT MAP
-	( 
-		CLK => clk,
-		RESET_N => reset_n,
-	
-		A => AIN(5), -- raw...
-		ADDR_IN => ADDR_IN(5), -- on request
-	
-		SEL_POKEY2 => A5_DETECT_FILTERED
-	);
-end generate;
-
-auto_stereo_off : if enable_auto_stereo=0 generate -- manual switch
-	A4_DETECT_FILTERED <= ADDR_IN(4);
-	A5_DETECT_FILTERED <= ADDR_IN(5);
-end generate;
-
-	SEL_POKEY(0) <= A4_DETECT_FILTERED;
-	SEL_POKEY(1) <= A5_DETECT_FILTERED;
 
 pokey2 : entity work.pokey
 GENERIC MAP
@@ -646,58 +652,134 @@ end generate;
 
 -------------------------------------------------------
 -- COMMON, data bus
-
-SEL_POKEY_ADJ <= (CONFIG_ENABLE_REG and SEL_POKEY(0) and not(SEL_POKEY(1)))&(SEL_POKEY and ENABLE_REG);
-
-process(SEL_POKEY_ADJ,POKEY_DO,POKEY2_DO,POKEY3_DO,POKEY4_DO,CONFIG_DO,config_addr_decoded)
+A7_DETECT_FILTERED <= '0';
+A6_DETECT_FILTERED <= '0'; -- not on current hardware
+process(BANK_REG,CONFIG_ENABLE_REG,A7_DETECT_FILTERED,A6_DETECT_FILTERED,A5_DETECT_FILTERED,A4_DETECT_FILTERED,config_addr_decoded,stereo_enable)
+	variable addr_bits : std_logic_vector(3 downto 0);
 begin
-	DO_MUX <= (others =>'0');
-	case SEL_POKEY_ADJ is
-		when "000"|"100" =>
-			if (config_addr_decoded(12)='1') then
-				DO_MUX <= CONFIG_DO;
-			else
-				DO_MUX <= POKEY_DO;
+	-- choose which bank
+-- d002: bank R/W
+--          10: pokeys       (00=1 pokey,01=2 pokeys,11=4 pokeys)               ;   d000-d03f
+--        32  : others       (00=off,01=dual sid,10=dual ym2149,11=covox/sample);   d040-d07f;
+--      54    : others       (00=off,01=dual sid,10=dual ym2149,11=covox/sample);   d080-d0bf; (future hardware)
+--    76      : others       (00=off,01=dual sid,10=dual ym2149,11=covox/sample);   d0c0-d0ff; (future hardware)	
+	addr_bits := A7_DETECT_FILTERED&A6_DETECT_FILTERED&A5_DETECT_FILTERED&A4_DETECT_FILTERED;
+	
+	DEVICE_ADDR <= (others=>'0');
+	case addr_bits(3 downto 2) is
+		when "00" => --d000-d03f
+			if ((CONFIG_ENABLE_REG='1' and addr_bits(1 downto 0)="01") or config_addr_decoded(12)='1') then
+				DEVICE_ADDR <= "1100"; --config
+			else			
+				case bank_reg(1 downto 0) is
+					when "00"=> --1 pokey
+						DEVICE_ADDR <= "0000";
+					when "01"=> --2 pokey
+						DEVICE_ADDR <= "000"&(addr_bits(0) and stereo_enable);
+					when "11"=> --4 pokey
+						DEVICE_ADDR <= "00"&(addr_bits(1) and stereo_enable)&(addr_bits(0) and stereo_enable);
+					when others =>
+						DEVICE_ADDR <= "1111";
+				end case;
 			end if;
-		when "001" =>
-			DO_MUX <= POKEY2_DO;
-		when "010" =>
-			DO_MUX <= POKEY3_DO;
-		when "011" =>
-			DO_MUX <= POKEY4_DO;
-		when "101" =>
-			DO_MUX <= CONFIG_DO;
-		when others =>
+		when "01" => --d030-d07f
+			case bank_reg(3 downto 2) is
+				when "00" =>
+					DEVICE_ADDR <= "1111";
+				when "01" => -- sid
+					DEVICE_ADDR <= "01"&addr_bits(1 downto 0);
+				when "10" => -- ym
+					DEVICE_ADDR <= "100"&addr_bits(0);					
+				when "11" => -- covox/sample
+					DEVICE_ADDR <= "101"&addr_bits(0);
+			end case;
+		when "10" => --d080-d09f
+			case bank_reg(5 downto 4) is
+				when "00" =>
+					DEVICE_ADDR <= "1111";
+				when "01" => -- sid
+					DEVICE_ADDR <= "01"&addr_bits(1 downto 0);
+				when "10" => -- ym
+					DEVICE_ADDR <= "100"&addr_bits(0);					
+				when "11" => -- covox/sample
+					DEVICE_ADDR <= "101"&addr_bits(0);
+			end case;
+		when "11" => --d0a0-d0ff	
+			case bank_reg(7 downto 6) is
+				when "00" =>
+					DEVICE_ADDR <= "1111";
+				when "01" => -- sid
+					DEVICE_ADDR <= "01"&addr_bits(1 downto 0);
+				when "10" => -- ym
+					DEVICE_ADDR <= "100"&addr_bits(0);					
+				when "11" => -- covox/sample
+					DEVICE_ADDR <= "101"&addr_bits(0);
+			end case;		
 	end case;
-end process;
+end process;			
 
-process(write_n,request,sel_pokey_adj,config_addr_decoded)
+process(
+	DEVICE_ADDR,
+	POKEY_DO,POKEY2_DO,POKEY3_DO,POKEY4_DO,
+	SID1_DO,
+	SID2_DO,
+	YM2149_1_DO,
+	YM2149_2_DO,
+	SAMPLE_DO,
+	CONFIG_DO,
+	write_n,
+	request
+	)
+	variable writereq : std_logic;
 begin
+	writereq := not(write_n) and request;
+	
 	POKEY_WRITE_ENABLE <= '0';
 	POKEY2_WRITE_ENABLE <= '0';
 	POKEY3_WRITE_ENABLE <= '0';
 	POKEY4_WRITE_ENABLE <= '0';
+	SID1_WRITE_ENABLE <= '0';
+	SID2_WRITE_ENABLE <= '0';
+	YM2149_1_WRITE_ENABLE <= '0';
+	YM2149_2_WRITE_ENABLE <= '0';
+	SAMPLE_WRITE_ENABLE <= '0';
 	CONFIG_WRITE_ENABLE <= '0';
-
-	if (write_n='0' and request='1') then
-		case sel_pokey_adj is
-			when "000" =>
-				POKEY_WRITE_ENABLE <= '1';
-			when "001" =>
-				if (config_addr_decoded(12)='1') then
-					CONFIG_WRITE_ENABLE <= '1';
-				else
-					POKEY2_WRITE_ENABLE <= '1';
-				end if;
-			when "010" =>
-				POKEY3_WRITE_ENABLE <= '1';
-			when "011" =>
-				POKEY4_WRITE_ENABLE <= '1';
-			when "101" =>				
-				CONFIG_WRITE_ENABLE <= '1';				
-			when others =>
-		end case;
-	end if;
+	
+	DO_MUX <= (others =>'0');
+	
+	case DEVICE_ADDR is
+		when "0000" =>
+			DO_MUX <= POKEY_DO;
+			POKEY_WRITE_ENABLE <= writereq;
+		when "0001" =>
+			DO_MUX <= POKEY2_DO;
+			POKEY2_WRITE_ENABLE <= writereq;
+		when "0010" =>
+			DO_MUX <= POKEY3_DO;
+			POKEY3_WRITE_ENABLE <= writereq;
+		when "0011" =>
+			DO_MUX <= POKEY4_DO;
+			POKEY4_WRITE_ENABLE <= writereq;
+		when "0100"|"0101" =>
+			DO_MUX <= SID1_DO;
+			SID1_WRITE_ENABLE <= writereq;
+		when "0110"|"0111" =>
+			DO_MUX <= SID2_DO;			
+			SID2_WRITE_ENABLE <= writereq;
+		when "1000" =>
+			DO_MUX <= YM2149_1_DO;
+			YM2149_1_WRITE_ENABLE <= writereq;
+		when "1001" =>
+			DO_MUX <= YM2149_2_DO;			
+			YM2149_2_WRITE_ENABLE <= writereq;
+		when "1010"|"1011" =>
+			DO_MUX <= SAMPLE_DO;								
+			SAMPLE_WRITE_ENABLE <= writereq;
+		when "1100"|"1101" =>
+			DO_MUX <= CONFIG_DO;
+			CONFIG_WRITE_ENABLE <= writereq;
+		when others =>
+	end case;
 end process;
 
 -------------------------------------------------------
@@ -710,9 +792,10 @@ begin
 		GTIA_VOLUME_REG <= "01";
 		SATURATE_REG <= '1';
 		PRE_DIVIDE_REG <= "00";
-		ENABLE_REG <= "11";
+		BANK_REG <= "00000011";
 		POST_DIVIDE_REG <= "10101000"; -- all /4 except internal by default	
 		POST_MIX_REG <= "0"; -- direct
+		GTIA_ENABLE_REG <= "1110"; -- external only
 		CONFIG_ENABLE_REG <= '0';
 		CHIP_ID_LOC_REG <= (others=>'0');
 	elsif (clk'event and clk='1') then
@@ -720,9 +803,10 @@ begin
 		GTIA_VOLUME_REG <= GTIA_VOLUME_NEXT;
 		SATURATE_REG <= SATURATE_NEXT;
 		PRE_DIVIDE_REG <= PRE_DIVIDE_NEXT;
-		ENABLE_REG <= ENABLE_NEXT;
+		BANK_REG <= BANK_NEXT;
 		POST_DIVIDE_REG <= POST_DIVIDE_NEXT;
 		POST_MIX_REG <= POST_MIX_NEXT;
+		GTIA_ENABLE_REG <= GTIA_ENABLE_NEXT;
 		CONFIG_ENABLE_REG <= CONFIG_ENABLE_NEXT;
 		CHIP_ID_LOC_REG <= CHIP_ID_LOC_NEXT;
 	end if;
@@ -738,9 +822,9 @@ decode_addr1 : entity work.complete_address_decoder
 process(CONFIG_WRITE_ENABLE, WRITE_DATA, config_addr_decoded,
 	PRE_DIVIDE_REG,SATURATE_REG,CHANNEL_MODE_REG,GTIA_VOLUME_REG,
 	CONFIG_ENABLE_REG,
-	ENABLE_REG,
+	BANK_REG,
 	POST_DIVIDE_REG,
-	POST_MIX_REG,
+	POST_MIX_REG, GTIA_ENABLE_REG,
 	CHIP_ID_LOC_REG
 )
 begin
@@ -749,11 +833,12 @@ begin
 	CHANNEL_MODE_NEXT <= CHANNEL_MODE_REG;
 	GTIA_VOLUME_NEXT <= GTIA_VOLUME_REG;
 	
-	ENABLE_NEXT <= ENABLE_REG;
+	BANK_NEXT <= BANK_REG;
 
 	POST_DIVIDE_NEXT <= POST_DIVIDE_REG;
 	
 	POST_MIX_NEXT <= POST_MIX_REG;
+	GTIA_ENABLE_NEXT <= GTIA_ENABLE_REG;
 	
 	CONFIG_ENABLE_NEXT <= CONFIG_ENABLE_REG;
 	
@@ -768,7 +853,7 @@ begin
 		end if;
 	
 		if (config_addr_decoded(2)='1') then
-			ENABLE_NEXT <= WRITE_DATA(1 downto 0);
+			BANK_NEXT <= WRITE_DATA;
 		end if;
 		
 		if (config_addr_decoded(4)='1') then
@@ -777,10 +862,11 @@ begin
 				
 		if (config_addr_decoded(5)='1') then
 			POST_MIX_NEXT <= WRITE_DATA(0 downto 0);
+			GTIA_ENABLE_NEXT <= WRITE_DATA(7 downto 4);
 		end if;		
 
 		if (config_addr_decoded(6)='1') then
-			CHIP_ID_LOC_NEXT <= WRITE_DATA(2 downto 0);
+			CHIP_ID_LOC_NEXT <= WRITE_DATA(3 downto 0);
 		end if;
 		
 		if (config_addr_decoded(12)='1') then
@@ -802,9 +888,9 @@ port map
 	chip_id=>chip_id
 );
 
-process(config_addr_decoded,ENABLE_REG,CHIP_ID_LOC_REG,CHIP_ID,
+process(config_addr_decoded,BANK_REG,CHIP_ID_LOC_REG,CHIP_ID,
 PRE_DIVIDE_REG,SATURATE_REG,CHANNEL_MODE_REG,GTIA_VOLUME_REG, 
-POST_DIVIDE_REG,POST_MIX_REG)
+POST_DIVIDE_REG,POST_MIX_REG, GTIA_ENABLE_REG)
 begin
 	CONFIG_DO <= (others=>'1');
 	
@@ -817,8 +903,7 @@ begin
 	end if;	
 	
 	if (config_addr_decoded(2)='1') then
-		CONFIG_DO(7 downto 2) <= (others=>'0');
-		CONFIG_DO(1 downto 0) <= ENABLE_REG;
+		CONFIG_DO <= BANK_REG;
 	end if;
 	
 	if (config_addr_decoded(3)='1') then
@@ -830,6 +915,7 @@ begin
 		elsif (stereo=2) then
 			CONFIG_DO(1 downto 0) <= "10";
 		end if;
+		CONFIG_DO(5) <= '1'; -- covox always present!
 	end if;
 	
 	if (config_addr_decoded(4)='1') then
@@ -837,12 +923,12 @@ begin
 	end if;	
 	
 	if (config_addr_decoded(5)='1') then
-		CONFIG_DO(7 downto 1) <= (others=>'0');
+		CONFIG_DO(7 downto 4) <= GTIA_ENABLE_REG;
 		CONFIG_DO(0 downto 0) <= POST_MIX_REG;
 	end if;
 	
 	if (config_addr_decoded(6)='1') then
-		case CHIP_ID_LOC_REG is
+		case CHIP_ID_LOC_REG(2 downto 0) is
 			when "000" => 
 				CONFIG_DO <= CHIP_ID(7 downto 0);
 			when "001" =>
@@ -866,22 +952,38 @@ begin
 	if (config_addr_decoded(7)='1') then
 		-- copyright
 		case CHIP_ID_LOC_REG is
-			when "000" => 
+			when "0000" => 
+				CONFIG_DO <= x"32"; --2
+			when "0001" => 
+				CONFIG_DO <= x"30"; --0
+			when "0010" => 
+				CONFIG_DO <= x"32"; --2
+			when "0011" => 
+				CONFIG_DO <= x"30"; --0				
+			when "0100" => 
+				CONFIG_DO <= x"28"; --(
+			when "0101" => 
+				CONFIG_DO <= x"63"; --c				
+			when "0110" => 
+				CONFIG_DO <= x"29"; --)							
+			when "0111" => 
 				CONFIG_DO <= x"52"; --R
-			when "001" =>
-				CONFIG_DO <= x"45"; --E
-			when "010" =>
-				CONFIG_DO <= x"54"; --T
-			when "011" =>
-				CONFIG_DO <= x"52"; --R
-			when "100" => 
-				CONFIG_DO <= x"4F"; --O
-			when "101" =>
-				CONFIG_DO <= x"4E"; --N
-			when "110" =>
-				CONFIG_DO <= x"49"; --I
-			when "111" =>
-				CONFIG_DO <= x"43"; --C
+			when "1000" =>
+				CONFIG_DO <= x"65"; --E
+			when "1001" =>
+				CONFIG_DO <= x"74"; --T
+			when "1010" =>
+				CONFIG_DO <= x"72"; --R
+			when "1011" => 
+				CONFIG_DO <= x"6F"; --O
+			when "1100" =>
+				CONFIG_DO <= x"6E"; --N
+			when "1101" =>
+				CONFIG_DO <= x"69"; --I
+			when "1110" =>
+				CONFIG_DO <= x"63"; --C
+			when "1111" =>
+				CONFIG_DO <= x"73"; --S
 			when others =>
 		end case;		
 	end if;
@@ -908,8 +1010,8 @@ end process;
 --      54    : channel mode (00(mono)=TTTT, 01(stereo)=TTLR (L=0+2,R=1+3), 10(split)=0123 (0=sum(channel0),1=sum(channel1) etc)
 --    76      : gtia volume  (0=0,1=16,2=32,3=64 - volume)
 -- d001: saturate curve data shift ref (future core)
--- d002: enable R/W
---          10: pokeys       (00=1,01=2,11=4);   d000-d03f;
+-- d002: bank R/W
+--          10: pokeys       (00=1 pokey,01=2 pokeys,11=4 pokeys)               ;   d000-d03f
 --        32  : others       (00=off,01=dual sid,10=dual ym2149,11=covox/sample);   d040-d07f;
 --      54    : others       (00=off,01=dual sid,10=dual ym2149,11=covox/sample);   d080-d0bf; (future hardware)
 --    76      : others       (00=off,01=dual sid,10=dual ym2149,11=covox/sample);   d0c0-d0ff; (future hardware)
@@ -917,23 +1019,18 @@ end process;
 --          10: pokeys       (00=1,01=2,10=4);
 --         2  : sid          (0=0,1=dual sid);
 --        3   : ym2149       (0=0,1=dual ym2149);
---       4    : covox/sample (0=0,1=covox/sample);
+--       4    : covox        (0=0,1=covox);
+--      5     : sample       (0=0,1=sample);
 -- d004: post_divide W
 --          10: 00=0,01=2,10=4 channel 0 (default 0 - 0-5v)
 --        32  : 00=0,01=2,10=4 channel 1 (default 4 - 0-1.25v)
 --      54    : 00=0,01=2,10=4 channel 2 (default 4 - 0-1.25v)
 --    76      : 00=0,01=2,10=4 channel 3 (default 4 - 0-1.25v)
--- d005: post mix W
+-- d005: post mix/gtia en W
 --           0: 0=direct, 1=TTLR (after saturation/divide)
--- d006: chip id   (W(which bits), R:read the max10 id) d000-d03f;
+--    7654    : gtia on/off per channel: 7=channel3,6=channel2 etc
+-- d006: chip id   (W(which bytes to read, i.e. 4-bit address, also used for copyright), R:read the max10 64-bit id) d000-d03f;
 -- d007: copyright (R: read a short message, byte at a time!)
-
---	signal channel_mode : std_logic_vector(1 downto 0);
---	signal GTIA_VOLUME : std_logic;
---	--signal FORCE_MONO : std_logic;
---	signal SATURATE : std_logic;
---	signal PRE_DIVIDE : std_logic_vector(1 downto 0);
---	signal POST_DIVIDE : std_logic_vector(7 downto 0);
 
 -------------------------------------------------------
 -- AUDIO mixing
