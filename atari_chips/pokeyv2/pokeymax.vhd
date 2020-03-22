@@ -25,7 +25,8 @@ ENTITY pokeymax IS
 		enable_stereo_switch : integer := 0; -- 0=ext is low => mono
 		enable_auto_stereo : integer := 0; -- 1=auto detect a4 => not toggling => mono
 		enable_gtia_audio : integer := 1; -- 0=no gtia on l/r,1=gtia mixed on l/r
-		address_bits : integer := 4 
+		address_bits : integer := 4; 
+		enable_config : integer := 1
 	);
 	PORT
 	(
@@ -752,6 +753,7 @@ end process;
 
 -- default config
 
+gen_config : if enable_config=1 generate
 
 decode_addr1 : entity work.complete_address_decoder
 	generic map(width=>4)
@@ -928,6 +930,8 @@ begin
 	end if;		
 	
 end process;
+
+end generate;
 
 
 -- d20c 

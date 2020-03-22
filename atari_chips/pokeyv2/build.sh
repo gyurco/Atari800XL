@@ -32,14 +32,15 @@ my %variants =
 		"fpga" => "10M02SCU169C8G",
 		"address_bits" => 6
 	},
-#	"10M02_quad_auto" =>
-#	{
-#		"pokeys" => 4,
-#		"lowpass" => 0,
-#		"enable_auto_stereo" => 1,
-#		"fpga" => "10M02SCU169C8G"
-#		"address_bits" => 6
-#	},
+	"10M02_quad_auto" =>
+	{
+		"pokeys" => 4,
+		"lowpass" => 0,
+		"enable_config" => 0,
+		"enable_auto_stereo" => 1,
+		"fpga" => "10M02SCU169C8G",
+		"address_bits" => 6
+	},
 #	"10M04_mono" =>
 #	{
 #		"pokeys" => 1,
@@ -97,7 +98,8 @@ my %variants =
 		"pokeys" => 4,
 		"enable_auto_stereo" => 1,
 		"fpga" => "10M08SCU169C8G",
-		"address_bits" => 7
+		"address_bits" => 7,
+		"enable_gtia_audio" => 0
 	}
 );
 
