@@ -14,6 +14,9 @@ use IEEE.STD_LOGIC_MISC.all;
 
 LIBRARY work;
 
+--EXT1: A4
+--EXT2: A5/stereo
+--EXT3: A6/gtia
 ENTITY pokeymax IS 
 	GENERIC
 	(
@@ -21,7 +24,8 @@ ENTITY pokeymax IS
 		lowpass : integer := 1; -- 0=lowpass off, 1=lowpass on (leave on except if there is no space! Low impact...)
 		enable_stereo_switch : integer := 0; -- 0=ext is low => mono
 		enable_auto_stereo : integer := 0; -- 1=auto detect a4 => not toggling => mono
-		enable_gtia_audio : integer := 1 -- 0=no gtia on l/r,1=gtia mixed on l/r
+		enable_gtia_audio : integer := 1; -- 0=no gtia on l/r,1=gtia mixed on l/r
+		address_bits : integer := 4 
 	);
 	PORT
 	(
@@ -137,7 +141,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal POKEY_IRQ : std_logic_vector(3 downto 0);
 
-	signal ADDR_IN : std_logic_vector(5 downto 0);
+	signal ADDR_IN : std_logic_vector(address_bits-1 downto 0);
 	signal WRITE_DATA : std_logic_vector(7 downto 0);
 	signal DEVICE_ADDR : std_logic_vector(3 downto 0);
 
@@ -175,14 +179,11 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal i2c0_read_data : std_logic_vector(7 downto 0);
 	signal i2c0_error : std_logic;
 
-	signal A4_DETECT_FILTERED : std_logic;
-	signal A5_DETECT_FILTERED : std_logic;
-	signal A6_DETECT_FILTERED : std_logic;
-	signal A7_DETECT_FILTERED : std_logic;
+	signal AEXT : std_logic_vector(address_bits-1 downto 4);
 
 	signal CS_COMB : std_logic;
 
-	signal AIN : std_logic_vector(5 downto 0);
+	signal AIN : std_logic_vector(address_bits-1 downto 0);
 
 	signal POTRESET : std_logic;
 
@@ -253,11 +254,18 @@ BEGIN
 			 c0 => CLK, -- 27MHz 
 			 locked => RESET_N);
 
-	AIN <= EXT(2)&EXT(1)&A;
-	
+
+	AIN(3 downto 0) <= A;
+
+	ADDR_BITS_ON: 
+	for I in address_bits downto 5 generate
+	        AIN(I-1) <= EXT(I-4);
+	end generate ADDR_BITS_ON;		
+
 gen_gtia : if enable_gtia_audio=1 generate
+	assert address_bits<7 report "EXT3 already used for A6";
        synchronizer_gtia_audio : entity work.synchronizer
-                port map (clk=>clk, raw=>ext(3), sync=>gtia_audio);
+                port map (clk=>clk, raw=>EXT(3), sync=>gtia_audio);
 end generate;
 
 gen_gtia_off : if enable_gtia_audio=0 generate
@@ -265,6 +273,10 @@ gen_gtia_off : if enable_gtia_audio=0 generate
 end generate;
 
 bus_adapt : entity work.slave_timing_6502
+	GENERIC MAP
+	(
+		address_bits => address_bits
+	)
 	PORT MAP
 	(
 		CLK => CLK,
@@ -294,33 +306,25 @@ bus_adapt : entity work.slave_timing_6502
 	);
 	
 auto_stereo : if enable_auto_stereo=1 generate -- auto detect
-	isstereo : ENTITY work.stereo_detect
+	a4 : ENTITY work.stereo_detect
+	GENERIC MAP
+	(
+		address_bits => address_bits
+	)
 	PORT MAP
 	( 
 		CLK => clk,
 		RESET_N => reset_n,
 	
 		A => AIN(4), -- raw...
-		ADDR_IN => ADDR_IN(4), -- on request
+		ADDR_IN => ADDR_IN(address_bits-1 downto 4), -- on request
 	
-		SEL_POKEY2 => A4_DETECT_FILTERED
-	);
-	isquad : ENTITY work.stereo_detect
-	PORT MAP
-	( 
-		CLK => clk,
-		RESET_N => reset_n,
-	
-		A => AIN(5), -- raw...
-		ADDR_IN => ADDR_IN(5), -- on request
-	
-		SEL_POKEY2 => A5_DETECT_FILTERED
+		ADDR_OUT => AEXT(address_bits-1 downto 4)
 	);
 end generate;
 
 auto_stereo_off : if enable_auto_stereo=0 generate -- manual switch
-	A4_DETECT_FILTERED <= ADDR_IN(4);
-	A5_DETECT_FILTERED <= ADDR_IN(5);
+	AEXT(address_bits-1 downto 4) <= ADDR_IN(address_bits-1 downto 4);
 end generate;
 	
 -- TODO: into another entity
@@ -526,7 +530,7 @@ PORT MAP(CLK => CLK,
 --------------------------------------------------------
 -- COVOX
 --------------------------------------------------------
-process(ADDR_IN)
+process(ADDR_IN,SAMPLE_L_REG,SAMPLE_R_REG)
 begin
 	if (ADDR_IN(0)='1') then
 		SAMPLE_DO <= SAMPLE_L_REG;
@@ -565,8 +569,9 @@ end process;
 -- BASIC/FANCY SWITCH
 --------------------------------------------------------			
 switch_stereo : if enable_stereo_switch=1 generate 
+  	assert address_bits<6 report "EXT2 already used for A5";
        synchronizer_fancy_enable : entity work.synchronizer
-                port map (clk=>clk, raw=>ext(2), sync=>fancy_enable);
+                port map (clk=>clk, raw=>EXT(2), sync=>fancy_enable);
 end generate;
 
 switch_stereo_off : if enable_stereo_switch=0 generate 
@@ -575,9 +580,7 @@ end generate;
 	
 -------------------------------------------------------
 -- COMMON, data bus
-A7_DETECT_FILTERED <= '0';
-A6_DETECT_FILTERED <= '0'; -- not on current hardware
-process(BANK_REG,CONFIG_ENABLE_REG,A7_DETECT_FILTERED,A6_DETECT_FILTERED,A5_DETECT_FILTERED,A4_DETECT_FILTERED,config_addr_decoded,fancy_enable)
+process(BANK_REG,CONFIG_ENABLE_REG,AEXT,config_addr_decoded,fancy_enable)
 	variable addr_bits : std_logic_vector(3 downto 0);
 	variable addr_fancy : std_logic_vector(1 downto 0);
 begin
@@ -587,7 +590,8 @@ begin
 --        32  : others       (00=off,01=dual sid,10=dual ym2149,11=covox/sample);   d040-d07f;
 --      54    : others       (00=off,01=dual sid,10=dual ym2149,11=covox/sample);   d080-d0bf; (future hardware)
 --    76      : others       (00=off,01=dual sid,10=dual ym2149,11=covox/sample);   d0c0-d0ff; (future hardware)	
-	addr_bits := A7_DETECT_FILTERED&A6_DETECT_FILTERED&A5_DETECT_FILTERED&A4_DETECT_FILTERED;
+	addr_bits := (others=>'0');
+	addr_bits(address_bits-5 downto 0) := AEXT;
 	
 	DEVICE_ADDR <= (others=>'0');
 	addr_fancy := addr_bits(1 downto 0) and (fancy_enable&fancy_enable);
@@ -846,7 +850,11 @@ begin
 			CONFIG_DO(1 downto 0) <= "00";
 		elsif (pokeys=2) then
 			CONFIG_DO(1 downto 0) <= "01";
-			CONFIG_DO(5) <= '1'; -- covox
+			if (address_bits>5) then
+				CONFIG_DO(5) <= '1'; -- covox
+			else
+				CONFIG_DO(5) <= '0'; -- covox
+			end if;
 		elsif (pokeys=4) then
 			CONFIG_DO(1 downto 0) <= "10";
 			CONFIG_DO(5) <= '1'; -- covox

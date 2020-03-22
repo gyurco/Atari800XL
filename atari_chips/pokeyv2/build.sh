@@ -13,28 +13,24 @@ my %variants =
 	"10M02_mono" =>
 	{
 		"pokeys" => 1,
-		"fpga" => "10M02SCU169C8G"
+		"fpga" => "10M02SCU169C8G",
+		"address_bits" => 4
 	},
-#	"10M02_stereo_auto" =>
-#	{
-#		"pokeys" => 2,
-#		"enable_auto_stereo" => 1,
-#		"enable_stereo_switch" => 0,
-#		"fpga" => "10M02SCU169C8G"
-#	},
-#	"10M02_stereo_u1mb" =>
-#	{
-#		"pokeys" => 2,
-#		"enable_auto_stereo" => 0,
-#		"enable_stereo_switch" => 1,
-#		"fpga" => "10M02SCU169C8G"
-#	},
 	"10M02_stereo_u1mb_auto" =>
 	{
 		"pokeys" => 2,
 		"enable_auto_stereo" => 1,
 		"enable_stereo_switch" => 1,
-		"fpga" => "10M02SCU169C8G"
+		"fpga" => "10M02SCU169C8G",
+		"address_bits" => 5
+	},
+	"10M02_stereo_covox_auto" =>
+	{
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"enable_stereo_switch" => 0,
+		"fpga" => "10M02SCU169C8G",
+		"address_bits" => 6
 	},
 #	"10M02_quad_auto" =>
 #	{
@@ -42,39 +38,27 @@ my %variants =
 #		"lowpass" => 0,
 #		"enable_auto_stereo" => 1,
 #		"fpga" => "10M02SCU169C8G"
+#		"address_bits" => 6
 #	},
-	"10M04_mono" =>
-	{
-		"pokeys" => 1,
-		"fpga" => "10M04SCU169C8G"
-	},
-#	"10M04_stereo_auto" =>
+#	"10M04_mono" =>
+#	{
+#		"pokeys" => 1,
+#		"fpga" => "10M04SCU169C8G"
+#		"address_bits" => 4
+#	},
+#	"10M04_stereo_u1mb_auto" =>
 #	{
 #		"pokeys" => 2,
 #		"enable_auto_stereo" => 1,
-#		"enable_stereo_switch" => 0,
-#		"fpga" => "10M04SCU169C8G"
-#	},
-#	"10M04_stereo_u1mb" =>
-#	{
-#		"pokeys" => 2,
-#		"enable_auto_stereo" => 0,
 #		"enable_stereo_switch" => 1,
 #		"fpga" => "10M04SCU169C8G"
 #	},
-	"10M04_stereo_u1mb_auto" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_stereo_switch" => 1,
-		"fpga" => "10M04SCU169C8G"
-	},
-	"10M04_quad_auto" =>
-	{
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"fpga" => "10M04SCU169C8G"
-	},
+#	"10M04_quad_auto" =>
+#	{
+#		"pokeys" => 4,
+#		"enable_auto_stereo" => 1,
+#		"fpga" => "10M04SCU169C8G"
+#	},
 	"10M08_mono" =>
 	{
 		"pokeys" => 1,
@@ -94,18 +78,26 @@ my %variants =
 #		"enable_stereo_switch" => 1,
 #		"fpga" => "10M08SCU169C8G"
 #	},
-	"10M08_stereo_u1mb_auto" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_stereo_switch" => 1,
-		"fpga" => "10M08SCU169C8G"
-	},
+#	"10M08_stereo_u1mb_auto" =>
+#	{
+#		"pokeys" => 2,
+#		"enable_auto_stereo" => 1,
+#		"enable_stereo_switch" => 1,
+#		"fpga" => "10M08SCU169C8G"
+#	},
 	"10M08_quad_auto" =>
 	{
 		"pokeys" => 4,
 		"enable_auto_stereo" => 1,
-		"fpga" => "10M08SCU169C8G"
+		"fpga" => "10M08SCU169C8G",
+		"address_bits" => 6
+	},
+	"10M08_full" =>
+	{
+		"pokeys" => 4,
+		"enable_auto_stereo" => 1,
+		"fpga" => "10M08SCU169C8G",
+		"address_bits" => 7
 	}
 );
 
