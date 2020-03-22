@@ -12,98 +12,98 @@ my %variants =
 (
 	"10M02_mono" =>
 	{
-		"stereo" => 0,
+		"pokeys" => 1,
 		"fpga" => "10M02SCU169C8G"
 	},
 #	"10M02_stereo_auto" =>
 #	{
-#		"stereo" => 1,
+#		"pokeys" => 2,
 #		"enable_auto_stereo" => 1,
 #		"enable_stereo_switch" => 0,
 #		"fpga" => "10M02SCU169C8G"
 #	},
 #	"10M02_stereo_u1mb" =>
 #	{
-#		"stereo" => 1,
+#		"pokeys" => 2,
 #		"enable_auto_stereo" => 0,
 #		"enable_stereo_switch" => 1,
 #		"fpga" => "10M02SCU169C8G"
 #	},
 	"10M02_stereo_u1mb_auto" =>
 	{
-		"stereo" => 1,
+		"pokeys" => 2,
 		"enable_auto_stereo" => 1,
 		"enable_stereo_switch" => 1,
 		"fpga" => "10M02SCU169C8G"
 	},
 #	"10M02_quad_auto" =>
 #	{
-#		"stereo" => 2,
+#		"pokeys" => 4,
 #		"lowpass" => 0,
 #		"enable_auto_stereo" => 1,
 #		"fpga" => "10M02SCU169C8G"
 #	},
 	"10M04_mono" =>
 	{
-		"stereo" => 0,
+		"pokeys" => 1,
 		"fpga" => "10M04SCU169C8G"
 	},
 #	"10M04_stereo_auto" =>
 #	{
-#		"stereo" => 1,
+#		"pokeys" => 2,
 #		"enable_auto_stereo" => 1,
 #		"enable_stereo_switch" => 0,
 #		"fpga" => "10M04SCU169C8G"
 #	},
 #	"10M04_stereo_u1mb" =>
 #	{
-#		"stereo" => 1,
+#		"pokeys" => 2,
 #		"enable_auto_stereo" => 0,
 #		"enable_stereo_switch" => 1,
 #		"fpga" => "10M04SCU169C8G"
 #	},
 	"10M04_stereo_u1mb_auto" =>
 	{
-		"stereo" => 1,
+		"pokeys" => 2,
 		"enable_auto_stereo" => 1,
 		"enable_stereo_switch" => 1,
 		"fpga" => "10M04SCU169C8G"
 	},
 	"10M04_quad_auto" =>
 	{
-		"stereo" => 2,
+		"pokeys" => 4,
 		"enable_auto_stereo" => 1,
 		"fpga" => "10M04SCU169C8G"
 	},
 	"10M08_mono" =>
 	{
-		"stereo" => 0,
+		"pokeys" => 1,
 		"fpga" => "10M08SCU169C8G"
 	},
 #	"10M08_stereo_auto" =>
 #	{
-#		"stereo" => 1,
+#		"pokeys" => 2,
 #		"enable_auto_stereo" => 1,
 #		"enable_stereo_switch" => 0,
 #		"fpga" => "10M08SCU169C8G"
 #	},
 #	"10M08_stereo_u1mb" =>
 #	{
-#		"stereo" => 1,
+#		"pokeys" => 2,
 #		"enable_auto_stereo" => 0,
 #		"enable_stereo_switch" => 1,
 #		"fpga" => "10M08SCU169C8G"
 #	},
 	"10M08_stereo_u1mb_auto" =>
 	{
-		"stereo" => 1,
+		"pokeys" => 2,
 		"enable_auto_stereo" => 1,
 		"enable_stereo_switch" => 1,
 		"fpga" => "10M08SCU169C8G"
 	},
 	"10M08_quad_auto" =>
 	{
-		"stereo" => 2,
+		"pokeys" => 4,
 		"enable_auto_stereo" => 1,
 		"fpga" => "10M08SCU169C8G"
 	}

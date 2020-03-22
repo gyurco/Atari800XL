@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------
--- (c) 2018 mark watson
+-- (c) 2020 mark watson
 -- I am happy for anyone to use this for non-commercial use.
 -- If my vhdl files are used commercially or otherwise sold,
 -- please contact me for explicit permission at scrameta (gmail).
@@ -10,13 +10,14 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
 use ieee.numeric_std.all;
 USE IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.STD_LOGIC_MISC.all;
 
 LIBRARY work;
 
 ENTITY pokeymax IS 
 	GENERIC
 	(
-		stereo : integer := 1; -- 0=MONO,1=STEREO,2=QUAD
+		pokeys : integer := 1; -- 1-4
 		lowpass : integer := 1; -- 0=lowpass off, 1=lowpass on (leave on except if there is no space! Low impact...)
 		enable_stereo_switch : integer := 0; -- 0=ext is low => mono
 		enable_auto_stereo : integer := 0; -- 1=auto detect a4 => not toggling => mono
@@ -89,55 +90,33 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal ENABLE_CYCLE : std_logic;
 
 	-- WRITE ENABLES
-	SIGNAL POKEY_WRITE_ENABLE : STD_LOGIC;	
-	SIGNAL POKEY2_WRITE_ENABLE : STD_LOGIC;	
-	SIGNAL POKEY3_WRITE_ENABLE : STD_LOGIC;	
-	SIGNAL POKEY4_WRITE_ENABLE : STD_LOGIC;	
+	SIGNAL POKEY_WRITE_ENABLE : STD_LOGIC_VECTOR(3 downto 0);		
 	
-	SIGNAL SID1_WRITE_ENABLE : STD_LOGIC;	
-	SIGNAL SID2_WRITE_ENABLE : STD_LOGIC;	
+	SIGNAL SID_WRITE_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
 
-	SIGNAL YM2149_1_WRITE_ENABLE : STD_LOGIC;	
-	SIGNAL YM2149_2_WRITE_ENABLE : STD_LOGIC;	
+	SIGNAL YM2149_WRITE_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
 
 	SIGNAL SAMPLE_WRITE_ENABLE : STD_LOGIC;	
 	SIGNAL CONFIG_WRITE_ENABLE : STD_LOGIC;	
 	
 	-- DATA OUTS
-	SIGNAL POKEY_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
-	SIGNAL POKEY2_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
-	SIGNAL POKEY3_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
-	SIGNAL POKEY4_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
+	type DO_TYPE is array (NATURAL range <>) of std_logic_vector(7 downto 0);
 	
-	SIGNAL SID1_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
-	SIGNAL SID2_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
+	SIGNAL POKEY_DO : DO_TYPE(3 downto 0);	
 	
-	SIGNAL YM2149_1_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
-	SIGNAL YM2149_2_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
+	SIGNAL SID_DO : DO_TYPE(1 downto 0);
+	
+	SIGNAL YM2149_DO : DO_TYPE(1 DOWNTO 0);	
 	
 	SIGNAL SAMPLE_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
 	SIGNAL CONFIG_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
 	
 	-- POKEY	
-	signal POKEY1_CHANNEL0 : std_logic_vector(3 downto 0);
-	signal POKEY1_CHANNEL1 : std_logic_vector(3 downto 0);
-	signal POKEY1_CHANNEL2 : std_logic_vector(3 downto 0);
-	signal POKEY1_CHANNEL3 : std_logic_vector(3 downto 0);
-	
-	signal POKEY2_CHANNEL0 : std_logic_vector(3 downto 0);
-	signal POKEY2_CHANNEL1 : std_logic_vector(3 downto 0);
-	signal POKEY2_CHANNEL2 : std_logic_vector(3 downto 0);
-	signal POKEY2_CHANNEL3 : std_logic_vector(3 downto 0);
-
-	signal POKEY3_CHANNEL0 : std_logic_vector(3 downto 0);
-	signal POKEY3_CHANNEL1 : std_logic_vector(3 downto 0);
-	signal POKEY3_CHANNEL2 : std_logic_vector(3 downto 0);
-	signal POKEY3_CHANNEL3 : std_logic_vector(3 downto 0);
-
-	signal POKEY4_CHANNEL0 : std_logic_vector(3 downto 0);
-	signal POKEY4_CHANNEL1 : std_logic_vector(3 downto 0);
-	signal POKEY4_CHANNEL2 : std_logic_vector(3 downto 0);
-	signal POKEY4_CHANNEL3 : std_logic_vector(3 downto 0);
+	type POKEY_AUDIO is array(NATURAL range<>) of std_logic_vector(3 downto 0);
+	signal POKEY_CHANNEL0 : POKEY_AUDIO(3 downto 0);
+	signal POKEY_CHANNEL1 : POKEY_AUDIO(3 downto 0);
+	signal POKEY_CHANNEL2 : POKEY_AUDIO(3 downto 0);
+	signal POKEY_CHANNEL3 : POKEY_AUDIO(3 downto 0);
 
 	signal CHANNEL0SUM_NEXT : unsigned(11 downto 0);	
 	signal CHANNEL1SUM_NEXT : unsigned(11 downto 0);
@@ -156,10 +135,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal SIO_TXD : std_logic;
 	signal SIO_RXD : std_logic;
 
-	signal POKEY_IRQ : std_logic;
-	signal POKEY2_IRQ : std_logic;
-	signal POKEY3_IRQ : std_logic;
-	signal POKEY4_IRQ : std_logic;
+	signal POKEY_IRQ : std_logic_vector(3 downto 0);
 
 	signal ADDR_IN : std_logic_vector(5 downto 0);
 	signal WRITE_DATA : std_logic_vector(7 downto 0);
@@ -210,7 +186,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal POTRESET : std_logic;
 
-	signal stereo_enable : std_logic;
+	signal fancy_enable : std_logic;
 	signal gtia_audio : std_logic;
 	
 	-- config
@@ -242,6 +218,12 @@ ARCHITECTURE vhdl OF pokeymax IS
 	
 		-- chip id (unique per max10 physical device)
 	signal chip_id : std_logic_vector(63 downto 0);
+	
+	-- SAMPLE/COVOX
+	signal SAMPLE_R_REG : std_logic_vector(7 downto 0);
+	signal SAMPLE_L_REG : std_logic_vector(7 downto 0);
+	signal SAMPLE_R_NEXT : std_logic_vector(7 downto 0);
+	signal SAMPLE_L_NEXT : std_logic_vector(7 downto 0);
 BEGIN
 	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
 	EXT <= (others=>'Z');
@@ -354,28 +336,27 @@ end process;
 
 	
 process(
-	POKEY1_CHANNEL0,POKEY1_CHANNEL1,POKEY1_CHANNEL2,POKEY1_CHANNEL3,
-	POKEY2_CHANNEL0,POKEY2_CHANNEL1,POKEY2_CHANNEL2,POKEY2_CHANNEL3,
-	POKEY3_CHANNEL0,POKEY3_CHANNEL1,POKEY3_CHANNEL2,POKEY3_CHANNEL3,
-	POKEY4_CHANNEL0,POKEY4_CHANNEL1,POKEY4_CHANNEL2,POKEY4_CHANNEL3,
+	POKEY_CHANNEL0,POKEY_CHANNEL1,POKEY_CHANNEL2,POKEY_CHANNEL3,
 	GTIA_AUDIO,
 	GTIA_VOLUME_REG,
 	GTIA_ENABLE_REG,
-	CHANNEL_MODE_REG -- 0=mono, 1=stereo(L:1/3,R2/4), 2=quad(0=sum(chan0),1=sum(chan1) etc)
+	SAMPLE_L_REG,SAMPLE_R_REG,
+	CHANNEL_MODE_REG, -- 0=mono, 1=stereo(L:1/3,R2/4), 2=quad(0=sum(chan0),1=sum(chan1) etc)
+	fancy_enable
 	)
-variable p0 : unsigned(11 downto 0);	
-variable p1 : unsigned(11 downto 0);
-variable p2 : unsigned(11 downto 0);
-variable p3 : unsigned(11 downto 0);
+variable p0 : unsigned(5 downto 0);	
+variable p1 : unsigned(5 downto 0);
+variable p2 : unsigned(5 downto 0);
+variable p3 : unsigned(5 downto 0);
 
 variable l : unsigned(11 downto 0);	
 variable r : unsigned(11 downto 0);	
 variable total : unsigned(11 downto 0);	
 
-variable c0 : unsigned(11 downto 0);	
-variable c1 : unsigned(11 downto 0);
-variable c2 : unsigned(11 downto 0);
-variable c3 : unsigned(11 downto 0);	
+variable c0 : unsigned(5 downto 0);	
+variable c1 : unsigned(5 downto 0);
+variable c2 : unsigned(5 downto 0);
+variable c3 : unsigned(5 downto 0);	
 	
 variable sum0 : unsigned(11 downto 0);	
 variable sum1 : unsigned(11 downto 0);
@@ -384,47 +365,47 @@ variable sum3 : unsigned(11 downto 0);
 
 variable GTIA_VOLUME_SUM : unsigned(9 downto 0);
 begin
-	p0 := resize(unsigned(POKEY1_CHANNEL0&"0000"),12) + resize(unsigned(POKEY1_CHANNEL1&"0000"),12) + resize(unsigned(POKEY1_CHANNEL2&"0000"),12) + resize(unsigned(POKEY1_CHANNEL3&"0000"),12);
-	p1 := resize(unsigned(POKEY2_CHANNEL0&"0000"),12) + resize(unsigned(POKEY2_CHANNEL1&"0000"),12) + resize(unsigned(POKEY2_CHANNEL2&"0000"),12) + resize(unsigned(POKEY2_CHANNEL3&"0000"),12);
-	p2 := resize(unsigned(POKEY3_CHANNEL0&"0000"),12) + resize(unsigned(POKEY3_CHANNEL1&"0000"),12) + resize(unsigned(POKEY3_CHANNEL2&"0000"),12) + resize(unsigned(POKEY3_CHANNEL3&"0000"),12);
-	p3 := resize(unsigned(POKEY4_CHANNEL0&"0000"),12) + resize(unsigned(POKEY4_CHANNEL1&"0000"),12) + resize(unsigned(POKEY4_CHANNEL2&"0000"),12) + resize(unsigned(POKEY4_CHANNEL3&"0000"),12);
+	p0 := resize(unsigned(POKEY_CHANNEL0(0)),6) + resize(unsigned(POKEY_CHANNEL1(0)),6) + resize(unsigned(POKEY_CHANNEL2(0)),6) + resize(unsigned(POKEY_CHANNEL3(0)),6);
+	p1 := resize(unsigned(POKEY_CHANNEL0(1)),6) + resize(unsigned(POKEY_CHANNEL1(1)),6) + resize(unsigned(POKEY_CHANNEL2(1)),6) + resize(unsigned(POKEY_CHANNEL3(1)),6);
+	p2 := resize(unsigned(POKEY_CHANNEL0(2)),6) + resize(unsigned(POKEY_CHANNEL1(2)),6) + resize(unsigned(POKEY_CHANNEL2(2)),6) + resize(unsigned(POKEY_CHANNEL3(2)),6);
+	p3 := resize(unsigned(POKEY_CHANNEL0(3)),6) + resize(unsigned(POKEY_CHANNEL1(3)),6) + resize(unsigned(POKEY_CHANNEL2(3)),6) + resize(unsigned(POKEY_CHANNEL3(3)),6);
 	
-	c0 := resize(unsigned(POKEY1_CHANNEL0&"0000"),12) + resize(unsigned(POKEY2_CHANNEL0&"0000"),12) + resize(unsigned(POKEY3_CHANNEL0&"0000"),12) + resize(unsigned(POKEY4_CHANNEL0&"0000"),12);
-	c1 := resize(unsigned(POKEY1_CHANNEL1&"0000"),12) + resize(unsigned(POKEY2_CHANNEL1&"0000"),12) + resize(unsigned(POKEY3_CHANNEL1&"0000"),12) + resize(unsigned(POKEY4_CHANNEL1&"0000"),12);
-	c2 := resize(unsigned(POKEY1_CHANNEL2&"0000"),12) + resize(unsigned(POKEY2_CHANNEL2&"0000"),12) + resize(unsigned(POKEY3_CHANNEL2&"0000"),12) + resize(unsigned(POKEY4_CHANNEL2&"0000"),12);
-	c3 := resize(unsigned(POKEY1_CHANNEL3&"0000"),12) + resize(unsigned(POKEY2_CHANNEL3&"0000"),12) + resize(unsigned(POKEY3_CHANNEL3&"0000"),12) + resize(unsigned(POKEY4_CHANNEL3&"0000"),12);	
+	c0 := resize(unsigned(POKEY_CHANNEL0(0)),6) + resize(unsigned(POKEY_CHANNEL0(1)),6) + resize(unsigned(POKEY_CHANNEL0(2)),6) + resize(unsigned(POKEY_CHANNEL0(3)),6);
+	c1 := resize(unsigned(POKEY_CHANNEL1(0)),6) + resize(unsigned(POKEY_CHANNEL1(1)),6) + resize(unsigned(POKEY_CHANNEL1(2)),6) + resize(unsigned(POKEY_CHANNEL1(3)),6);
+	c2 := resize(unsigned(POKEY_CHANNEL2(0)),6) + resize(unsigned(POKEY_CHANNEL2(1)),6) + resize(unsigned(POKEY_CHANNEL2(2)),6) + resize(unsigned(POKEY_CHANNEL2(3)),6);
+	c3 := resize(unsigned(POKEY_CHANNEL3(0)),6) + resize(unsigned(POKEY_CHANNEL3(1)),6) + resize(unsigned(POKEY_CHANNEL3(2)),6) + resize(unsigned(POKEY_CHANNEL3(3)),6);	
 
-	case CHANNEL_MODE_REG is
+	case CHANNEL_MODE_REG(1 downto 1)&(CHANNEL_MODE_REG(0) and fancy_enable) is
 		when "00" =>
-			sum0 := p0;
-			sum1 := p0;
-			sum2 := p0;
-			sum3 := p0;
+			sum0 := resize(p0,12);
+			sum1 := sum0;
+			sum2 := sum0;
+			sum3 := sum0;
 		when "01" =>
-			l := p0+p2;
-			r := p1+p3;
+			l := (resize(p0,8)+resize(p2,8))&"0000"+resize(unsigned(SAMPLE_L_REG),12);
+			r := (resize(p1,8)+resize(p3,8))&"0000"+resize(unsigned(SAMPLE_R_REG),12);
 			total := l+r;
 			sum0 := total;
 			sum1 := total;
 			sum2 := l;
 			sum3 := r;	
 		when others =>
-			sum0 := c0;
-			sum1 := c1;
-			sum2 := c2;
-			sum3 := c3;			
+			sum0 := "00"&c0&"0000";
+			sum1 := "00"&c1&"0000";
+			sum2 := "00"&c2&"0000";
+			sum3 := "00"&c3&"0000";
 	end case;
 	
-	if (GTIA_AUDIO='1') then		
+	if (GTIA_AUDIO='1') then
+		GTIA_VOLUME_SUM := (others=>'0');
 		case GTIA_VOLUME_REG is		
 		when "01" =>
-			GTIA_VOLUME_SUM := to_unsigned(64,10);
+			GTIA_VOLUME_SUM(6) := '1';
 		when "10" =>
-			GTIA_VOLUME_SUM := to_unsigned(128,10);
+			GTIA_VOLUME_SUM(7) := '1';
 		when "11" =>
-			GTIA_VOLUME_SUM := to_unsigned(256,10);			
+			GTIA_VOLUME_SUM(8) := '1';
 		when others =>			
-			GTIA_VOLUME_SUM := to_unsigned(0,10);	
 		end case;
 		
 		if (GTIA_ENABLE_REG(0)='1') then
@@ -476,7 +457,7 @@ GENERIC MAP
 )
 PORT MAP(CLK => CLK,
 		 ENABLE_179 => ENABLE_CYCLE,
-		 WR_EN => POKEY_WRITE_ENABLE,
+		 WR_EN => POKEY_WRITE_ENABLE(0),
 		 RESET_N => RESET_N,
 		 SIO_IN1 => SIO_RXD,
 		 SIO_IN2 => '1',
@@ -488,174 +469,117 @@ PORT MAP(CLK => CLK,
 		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		 keyboard_response => KEYBOARD_RESPONSE,
 		 POT_IN => PADDLE,
-		 IRQ_N_OUT => POKEY_IRQ,
+		 IRQ_N_OUT => POKEY_IRQ(0),
 		 SIO_OUT1 => SIO_TXD,
 		 SIO_OUT2 => open,
 		 SIO_OUT3 => open,
 		 SIO_CLOCKOUT => SIO_CLOCKOUT,
 		 POT_RESET => POTRESET,
-		 CHANNEL_0_OUT => POKEY1_CHANNEL0,
-		 CHANNEL_1_OUT => POKEY1_CHANNEL1,
-		 CHANNEL_2_OUT => POKEY1_CHANNEL2,
-		 CHANNEL_3_OUT => POKEY1_CHANNEL3,
-		 DATA_OUT => POKEY_DO,
+		 CHANNEL_0_OUT => POKEY_CHANNEL0(0),
+		 CHANNEL_1_OUT => POKEY_CHANNEL1(0),
+		 CHANNEL_2_OUT => POKEY_CHANNEL2(0),
+		 CHANNEL_3_OUT => POKEY_CHANNEL3(0),
+		 DATA_OUT => POKEY_DO(0),
 		 keyboard_scan => KEYBOARD_SCAN,
 		 keyboard_scan_enable => KEYBOARD_SCAN_ENABLE
 		);
 
-gen_mono : if stereo=0 generate
-	POKEY2_CHANNEL0 <= "0000";
-	POKEY2_CHANNEL1 <= "0000";
-	POKEY2_CHANNEL2 <= "0000";
-	POKEY2_CHANNEL3 <= "0000";
+--------------------------------------------------------		
+-- POKEY 2-4	 
+--------------------------------------------------------		
+   POKEY_OFF: 
+   for I in pokeys to 3 generate
+      POKEY_CHANNEL0(I) <= (others=>'0');
+		POKEY_CHANNEL1(I) <= (others=>'0');
+		POKEY_CHANNEL2(I) <= (others=>'0');
+		POKEY_CHANNEL3(I) <= (others=>'0');
+		POKEY_IRQ(I) <= '1';
+		POKEY_DO(I) <= (others=>'0');
+   end generate POKEY_OFF;		
 
-	POKEY3_CHANNEL0 <= "0000";
-	POKEY3_CHANNEL1 <= "0000";
-	POKEY3_CHANNEL2 <= "0000";
-	POKEY3_CHANNEL3 <= "0000";
+   POKEY_ON: 
+   for I in 1 to pokeys-1 generate
+		pokeyx : entity work.pokey
+		GENERIC MAP
+		(
+			custom_keyboard_scan => 2
+		)
+		PORT MAP(CLK => CLK,
+				 ENABLE_179 => ENABLE_CYCLE,
+				 WR_EN => POKEY_WRITE_ENABLE(I),
+				 RESET_N => RESET_N,
+				 ADDR => ADDR_IN(3 DOWNTO 0),
+				 DATA_IN => WRITE_DATA(7 DOWNTO 0),
+				 CHANNEL_0_OUT => POKEY_CHANNEL0(I),
+				 CHANNEL_1_OUT => POKEY_CHANNEL1(I),
+				 CHANNEL_2_OUT => POKEY_CHANNEL2(I),
+				 CHANNEL_3_OUT => POKEY_CHANNEL3(I),
+				 DATA_OUT => POKEY_DO(I),
+				 SIO_IN1 => '1',
+				 SIO_IN2 => '1',
+				 SIO_IN3 => '1',
+				 IRQ_N_OUT => POKEY_IRQ(I),
+				 keyboard_response => "00",
+				 pot_in=>"00000000");
+   end generate POKEY_ON;
+	
+--------------------------------------------------------
+-- COVOX
+--------------------------------------------------------
+process(ADDR_IN)
+begin
+	if (ADDR_IN(0)='1') then
+		SAMPLE_DO <= SAMPLE_L_REG;
+	else
+		SAMPLE_DO <= SAMPLE_R_REG;
+	end if;
+end process;
 
-	POKEY4_CHANNEL0 <= "0000";
-	POKEY4_CHANNEL1 <= "0000";
-	POKEY4_CHANNEL2 <= "0000";
-	POKEY4_CHANNEL3 <= "0000";
-	
-	POKEY2_IRQ	 <= '1';
-	POKEY3_IRQ	 <= '1';
-	POKEY4_IRQ	 <= '1';	
-	
-end generate;		
+process(ADDR_IN, SAMPLE_WRITE_ENABLE,
+SAMPLE_L_REG,SAMPLE_R_REG)
+begin
+	SAMPLE_L_NEXT <= SAMPLE_L_REG;
+	SAMPLE_R_NEXT <= SAMPLE_R_REG;
+
+	if (SAMPLE_WRITE_ENABLE='1') then
+		if (ADDR_IN(0)='1') then
+			SAMPLE_L_NEXT <= WRITE_DATA;
+		else
+			SAMPLE_R_NEXT <= WRITE_DATA;
+		end if;
+	end if;
+end process;
+
+process(clk,reset_n)
+begin
+	if (reset_n='0') then
+		SAMPLE_L_REG <= (others=>'0');
+		SAMPLE_R_REG <= (others=>'0');
+	elsif (clk'event and clk='1') then
+		SAMPLE_L_REG <= SAMPLE_L_NEXT;
+		SAMPLE_R_REG <= SAMPLE_R_NEXT;
+	end if;
+end process;
 		
 --------------------------------------------------------		
--- SECONDARY POKEY		 
---------------------------------------------------------
-gen_stereo : if stereo=1 generate
-
+-- BASIC/FANCY SWITCH
+--------------------------------------------------------			
 switch_stereo : if enable_stereo_switch=1 generate 
-       synchronizer_stereo_enable : entity work.synchronizer
-                port map (clk=>clk, raw=>ext(2), sync=>stereo_enable);
+       synchronizer_fancy_enable : entity work.synchronizer
+                port map (clk=>clk, raw=>ext(2), sync=>fancy_enable);
 end generate;
 
 switch_stereo_off : if enable_stereo_switch=0 generate 
-	stereo_enable <= '1';
+	fancy_enable <= '1';
 end generate;
 	
-pokey2 : entity work.pokey
-PORT MAP(CLK => CLK,
-		 ENABLE_179 => ENABLE_CYCLE,
-		 WR_EN => POKEY2_WRITE_ENABLE,
-		 RESET_N => RESET_N,
-		 ADDR => ADDR_IN(3 DOWNTO 0),
-		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
-		 CHANNEL_0_OUT => POKEY2_CHANNEL0,
-		 CHANNEL_1_OUT => POKEY2_CHANNEL1,
-		 CHANNEL_2_OUT => POKEY2_CHANNEL2,
-		 CHANNEL_3_OUT => POKEY2_CHANNEL3,
-		 DATA_OUT => POKEY2_DO,
-		 SIO_IN1 => '1',
-		 SIO_IN2 => '1',
-		 SIO_IN3 => '1',
-		 IRQ_N_OUT => POKEY2_IRQ,
-		 keyboard_response => "00",
-		 pot_in=>"00000000");
-
-	POKEY3_CHANNEL0 <= "0000";
-	POKEY3_CHANNEL1 <= "0000";
-	POKEY3_CHANNEL2 <= "0000";
-	POKEY3_CHANNEL3 <= "0000";
-
-	POKEY4_CHANNEL0 <= "0000";
-	POKEY4_CHANNEL1 <= "0000";
-	POKEY4_CHANNEL2 <= "0000";
-	POKEY4_CHANNEL3 <= "0000";	
-	
-	POKEY3_DO <= (others=>'0');
-	POKEY4_DO <= (others=>'0');
-	
-	POKEY3_IRQ	 <= '1';
-	POKEY4_IRQ	 <= '1';
-end generate;
-
---------------------------------------------------------		
--- QUAD POKEY
---------------------------------------------------------
-gen_quad : if stereo=2 generate --quad!
-
-pokey2 : entity work.pokey
-GENERIC MAP
-(
-	custom_keyboard_scan => 1
-)
-PORT MAP(CLK => CLK,
-		 ENABLE_179 => ENABLE_CYCLE,
-		 WR_EN => POKEY2_WRITE_ENABLE,
-		 RESET_N => RESET_N,
-		 ADDR => ADDR_IN(3 DOWNTO 0),
-		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
-		 CHANNEL_0_OUT => POKEY2_CHANNEL0,
-		 CHANNEL_1_OUT => POKEY2_CHANNEL1,
-		 CHANNEL_2_OUT => POKEY2_CHANNEL2,
-		 CHANNEL_3_OUT => POKEY2_CHANNEL3,
-		 DATA_OUT => POKEY2_DO,
-		 SIO_IN1 => '1',
-		 SIO_IN2 => '1',
-		 SIO_IN3 => '1',
-		 IRQ_N_OUT => POKEY2_IRQ,
-		 keyboard_response => "00",
-		 pot_in=>"00000000");
-
-pokey3 : entity work.pokey
-GENERIC MAP
-(
-	custom_keyboard_scan => 2
-)
-PORT MAP(CLK => CLK,
-		 ENABLE_179 => ENABLE_CYCLE,
-		 WR_EN => POKEY3_WRITE_ENABLE,
-		 RESET_N => RESET_N,
-		 ADDR => ADDR_IN(3 DOWNTO 0),
-		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
-		 CHANNEL_0_OUT => POKEY3_CHANNEL0,
-		 CHANNEL_1_OUT => POKEY3_CHANNEL1,
-		 CHANNEL_2_OUT => POKEY3_CHANNEL2,
-		 CHANNEL_3_OUT => POKEY3_CHANNEL3,
-		 DATA_OUT => POKEY3_DO,
-		 SIO_IN1 => '1',
-		 SIO_IN2 => '1',
-		 SIO_IN3 => '1',
-		 IRQ_N_OUT => POKEY3_IRQ,
-		 keyboard_response => "00",
-		 pot_in=>"00000000");
-
-pokey4 : entity work.pokey
-GENERIC MAP
-(
-	custom_keyboard_scan => 2
-)
-PORT MAP(CLK => CLK,
-		 ENABLE_179 => ENABLE_CYCLE,
-		 WR_EN => POKEY4_WRITE_ENABLE,
-		 RESET_N => RESET_N,
-		 ADDR => ADDR_IN(3 DOWNTO 0),
-		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
-		 CHANNEL_0_OUT => POKEY4_CHANNEL0,
-		 CHANNEL_1_OUT => POKEY4_CHANNEL1,
-		 CHANNEL_2_OUT => POKEY4_CHANNEL2,
-		 CHANNEL_3_OUT => POKEY4_CHANNEL3,
-		 DATA_OUT => POKEY4_DO,
-		 SIO_IN1 => '1',
-		 SIO_IN2 => '1',
-		 SIO_IN3 => '1',
-		 IRQ_N_OUT => POKEY4_IRQ,
-		 keyboard_response => "00",
-		 pot_in=>"00000000");
-end generate;
-
 -------------------------------------------------------
 -- COMMON, data bus
 A7_DETECT_FILTERED <= '0';
 A6_DETECT_FILTERED <= '0'; -- not on current hardware
-process(BANK_REG,CONFIG_ENABLE_REG,A7_DETECT_FILTERED,A6_DETECT_FILTERED,A5_DETECT_FILTERED,A4_DETECT_FILTERED,config_addr_decoded,stereo_enable)
+process(BANK_REG,CONFIG_ENABLE_REG,A7_DETECT_FILTERED,A6_DETECT_FILTERED,A5_DETECT_FILTERED,A4_DETECT_FILTERED,config_addr_decoded,fancy_enable)
 	variable addr_bits : std_logic_vector(3 downto 0);
+	variable addr_fancy : std_logic_vector(1 downto 0);
 begin
 	-- choose which bank
 -- d002: bank R/W
@@ -666,21 +590,32 @@ begin
 	addr_bits := A7_DETECT_FILTERED&A6_DETECT_FILTERED&A5_DETECT_FILTERED&A4_DETECT_FILTERED;
 	
 	DEVICE_ADDR <= (others=>'0');
+	addr_fancy := addr_bits(1 downto 0) and (fancy_enable&fancy_enable);
 	case addr_bits(3 downto 2) is
 		when "00" => --d000-d03f
 			if ((CONFIG_ENABLE_REG='1' and addr_bits(1 downto 0)="01") or config_addr_decoded(12)='1') then
 				DEVICE_ADDR <= "1100"; --config
 			else			
-				case bank_reg(1 downto 0) is
-					when "00"=> --1 pokey
+				if (pokeys=1) then
+					DEVICE_ADDR <= "0000";							
+				elsif (pokeys=2) then
+					if (bank_reg(0)='1') then
+						DEVICE_ADDR <= addr_fancy(1)&"0"&addr_fancy(1)&addr_fancy(0);
+					else
 						DEVICE_ADDR <= "0000";
-					when "01"=> --2 pokey
-						DEVICE_ADDR <= "000"&(addr_bits(0) and stereo_enable);
-					when "11"=> --4 pokey
-						DEVICE_ADDR <= "00"&(addr_bits(1) and stereo_enable)&(addr_bits(0) and stereo_enable);
-					when others =>
-						DEVICE_ADDR <= "1111";
-				end case;
+					end if;				
+				elsif (pokeys=4) then
+					case bank_reg(1 downto 0) is
+						when "00"=> --1 pokey
+							DEVICE_ADDR <= "0000";
+						when "01"=> --2 pokey + covox
+							DEVICE_ADDR <= addr_fancy(1)&"0"&addr_fancy(1)&addr_fancy(0);
+						when "11"=> --4 pokey
+							DEVICE_ADDR <= "00"&addr_fancy(1)&addr_fancy(0);
+						when others =>
+							DEVICE_ADDR <= "0000";
+					end case;
+				end if;
 			end if;
 		when "01" => --d030-d07f
 			case bank_reg(3 downto 2) is
@@ -720,11 +655,9 @@ end process;
 
 process(
 	DEVICE_ADDR,
-	POKEY_DO,POKEY2_DO,POKEY3_DO,POKEY4_DO,
-	SID1_DO,
-	SID2_DO,
-	YM2149_1_DO,
-	YM2149_2_DO,
+	POKEY_DO,
+	SID_DO,
+	YM2149_DO,
 	SAMPLE_DO,
 	CONFIG_DO,
 	write_n,
@@ -734,14 +667,9 @@ process(
 begin
 	writereq := not(write_n) and request;
 	
-	POKEY_WRITE_ENABLE <= '0';
-	POKEY2_WRITE_ENABLE <= '0';
-	POKEY3_WRITE_ENABLE <= '0';
-	POKEY4_WRITE_ENABLE <= '0';
-	SID1_WRITE_ENABLE <= '0';
-	SID2_WRITE_ENABLE <= '0';
-	YM2149_1_WRITE_ENABLE <= '0';
-	YM2149_2_WRITE_ENABLE <= '0';
+	POKEY_WRITE_ENABLE <= (others=>'0');
+	SID_WRITE_ENABLE <= (others=>'0');
+	YM2149_WRITE_ENABLE <= (others=>'0');
 	SAMPLE_WRITE_ENABLE <= '0';
 	CONFIG_WRITE_ENABLE <= '0';
 	
@@ -749,29 +677,29 @@ begin
 	
 	case DEVICE_ADDR is
 		when "0000" =>
-			DO_MUX <= POKEY_DO;
-			POKEY_WRITE_ENABLE <= writereq;
+			DO_MUX <= POKEY_DO(0);
+			POKEY_WRITE_ENABLE(0) <= writereq;
 		when "0001" =>
-			DO_MUX <= POKEY2_DO;
-			POKEY2_WRITE_ENABLE <= writereq;
+			DO_MUX <= POKEY_DO(1);
+			POKEY_WRITE_ENABLE(1) <= writereq;
 		when "0010" =>
-			DO_MUX <= POKEY3_DO;
-			POKEY3_WRITE_ENABLE <= writereq;
+			DO_MUX <= POKEY_DO(2);
+			POKEY_WRITE_ENABLE(2) <= writereq;
 		when "0011" =>
-			DO_MUX <= POKEY4_DO;
-			POKEY4_WRITE_ENABLE <= writereq;
+			DO_MUX <= POKEY_DO(3);
+			POKEY_WRITE_ENABLE(3) <= writereq;
 		when "0100"|"0101" =>
-			DO_MUX <= SID1_DO;
-			SID1_WRITE_ENABLE <= writereq;
+			DO_MUX <= SID_DO(0);
+			SID_WRITE_ENABLE(0) <= writereq;
 		when "0110"|"0111" =>
-			DO_MUX <= SID2_DO;			
-			SID2_WRITE_ENABLE <= writereq;
+			DO_MUX <= SID_DO(1);
+			SID_WRITE_ENABLE(1) <= writereq;
 		when "1000" =>
-			DO_MUX <= YM2149_1_DO;
-			YM2149_1_WRITE_ENABLE <= writereq;
+			DO_MUX <= YM2149_DO(0);
+			YM2149_WRITE_ENABLE(0) <= writereq;
 		when "1001" =>
-			DO_MUX <= YM2149_2_DO;			
-			YM2149_2_WRITE_ENABLE <= writereq;
+			DO_MUX <= YM2149_DO(1);			
+			YM2149_WRITE_ENABLE(1) <= writereq;
 		when "1010"|"1011" =>
 			DO_MUX <= SAMPLE_DO;								
 			SAMPLE_WRITE_ENABLE <= writereq;
@@ -792,7 +720,13 @@ begin
 		GTIA_VOLUME_REG <= "01";
 		SATURATE_REG <= '1';
 		PRE_DIVIDE_REG <= "00";
-		BANK_REG <= "00000011";
+		if (pokeys=1) then
+			BANK_REG <= "00000000";		
+		elsif (pokeys=2) then
+			BANK_REG <= "00000001";			
+		elsif (pokeys=4) then
+			BANK_REG <= "00000011";		
+		end if;
 		POST_DIVIDE_REG <= "10101000"; -- all /4 except internal by default	
 		POST_MIX_REG <= "0"; -- direct
 		GTIA_ENABLE_REG <= "1110"; -- external only
@@ -908,14 +842,15 @@ begin
 	
 	if (config_addr_decoded(3)='1') then
 		CONFIG_DO <= (others=>'0');
-		if (stereo=0) then
+		if (pokeys=1) then
 			CONFIG_DO(1 downto 0) <= "00";
-		elsif (stereo=1) then
+		elsif (pokeys=2) then
 			CONFIG_DO(1 downto 0) <= "01";
-		elsif (stereo=2) then
+			CONFIG_DO(5) <= '1'; -- covox
+		elsif (pokeys=4) then
 			CONFIG_DO(1 downto 0) <= "10";
+			CONFIG_DO(5) <= '1'; -- covox
 		end if;
-		CONFIG_DO(5) <= '1'; -- covox always present!
 	end if;
 	
 	if (config_addr_decoded(4)='1') then
@@ -951,41 +886,33 @@ begin
 
 	if (config_addr_decoded(7)='1') then
 		-- copyright
-		case CHIP_ID_LOC_REG is
-			when "0000" => 
-				CONFIG_DO <= x"32"; --2
-			when "0001" => 
-				CONFIG_DO <= x"30"; --0
-			when "0010" => 
-				CONFIG_DO <= x"32"; --2
-			when "0011" => 
-				CONFIG_DO <= x"30"; --0				
-			when "0100" => 
-				CONFIG_DO <= x"28"; --(
-			when "0101" => 
-				CONFIG_DO <= x"63"; --c				
-			when "0110" => 
-				CONFIG_DO <= x"29"; --)							
-			when "0111" => 
-				CONFIG_DO <= x"52"; --R
-			when "1000" =>
-				CONFIG_DO <= x"65"; --E
-			when "1001" =>
-				CONFIG_DO <= x"74"; --T
-			when "1010" =>
-				CONFIG_DO <= x"72"; --R
-			when "1011" => 
-				CONFIG_DO <= x"6F"; --O
-			when "1100" =>
-				CONFIG_DO <= x"6E"; --N
-			when "1101" =>
-				CONFIG_DO <= x"69"; --I
-			when "1110" =>
-				CONFIG_DO <= x"63"; --C
-			when "1111" =>
+		if (chip_id_loc_reg(3)='1') then
+			if (or_reduce(chip_id_loc_reg(2 downto 0))='1') then
+				CONFIG_DO <= x"20"; -- 
+			else
 				CONFIG_DO <= x"73"; --S
-			when others =>
-		end case;		
+			end if;
+		else
+			case CHIP_ID_LOC_REG(2 downto 0) is
+				when "000" => 
+					CONFIG_DO <= x"52"; --R
+				when "001" =>
+					CONFIG_DO <= x"65"; --E
+				when "010" =>
+					CONFIG_DO <= x"74"; --T
+				when "011" =>
+					CONFIG_DO <= x"72"; --R
+				when "100" => 
+					CONFIG_DO <= x"6F"; --O
+				when "101" =>
+					CONFIG_DO <= x"6E"; --N
+				when "110" =>
+					CONFIG_DO <= x"69"; --I
+				when "111" =>
+					CONFIG_DO <= x"63"; --C
+				when others =>
+			end case;		
+		end if;
 	end if;
 	
 	if (config_addr_decoded(12)='1') then
@@ -1203,7 +1130,7 @@ AUD(2) <= AUDIO_1_SIGMADELTA;
 AUD(3) <= AUDIO_2_SIGMADELTA;
 AUD(4) <= AUDIO_3_SIGMADELTA;
 
-IRQ <= '0' when (POKEY_IRQ AND POKEY2_IRQ AND POKEY3_IRQ and POKEY4_IRQ)='0' else 'Z';
+IRQ <= '0' when (and_reduce(POKEY_IRQ))='0' else 'Z';
 
 D <= BUS_DATA when BUS_OE='1' else (others=>'Z');
 
