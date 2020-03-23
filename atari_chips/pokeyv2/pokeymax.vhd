@@ -382,34 +382,34 @@ begin
 
 	case CHANNEL_MODE_REG(1 downto 1)&(CHANNEL_MODE_REG(0) and fancy_enable) is
 		when "00" =>
-			sum0 := resize(p0,12);
+			sum0 := resize(p0,10)&"00";
 			sum1 := sum0;
 			sum2 := sum0;
 			sum3 := sum0;
 		when "01" =>
-			l := (resize(p0,8)+resize(p2,8))&"0000"+resize(unsigned(SAMPLE_L_REG),12);
-			r := (resize(p1,8)+resize(p3,8))&"0000"+resize(unsigned(SAMPLE_R_REG),12);
+			l := (resize(p0,10)+resize(p2,10))&"00"+resize(unsigned(SAMPLE_L_REG),12);
+			r := (resize(p1,10)+resize(p3,10))&"00"+resize(unsigned(SAMPLE_R_REG),12);
 			total := l+r;
 			sum0 := total;
 			sum1 := total;
 			sum2 := l;
 			sum3 := r;	
 		when others =>
-			sum0 := "00"&c0&"0000";
-			sum1 := "00"&c1&"0000";
-			sum2 := "00"&c2&"0000";
-			sum3 := "00"&c3&"0000";
+			sum0 := "0000"&c0&"00";
+			sum1 := "0000"&c1&"00";
+			sum2 := "0000"&c2&"00";
+			sum3 := "0000"&c3&"00";
 	end case;
 	
 	if (GTIA_AUDIO='1') then
 		GTIA_VOLUME_SUM := (others=>'0');
 		case GTIA_VOLUME_REG is		
 		when "01" =>
-			GTIA_VOLUME_SUM(6) := '1';
+			GTIA_VOLUME_SUM(5) := '1';
 		when "10" =>
-			GTIA_VOLUME_SUM(7) := '1';
+			GTIA_VOLUME_SUM(6) := '1';
 		when "11" =>
-			GTIA_VOLUME_SUM(8) := '1';
+			GTIA_VOLUME_SUM(7) := '1';
 		when others =>			
 		end case;
 		
@@ -733,8 +733,9 @@ begin
 			BANK_REG <= "00000011";		
 		end if;
 		POST_DIVIDE_REG <= "10101000"; -- all /4 except internal by default	
+		--POST_DIVIDE_REG <= "00000000"; -- all /4 except internal by default	
 		POST_MIX_REG <= "0"; -- direct
-		GTIA_ENABLE_REG <= "1110"; -- external only
+		GTIA_ENABLE_REG <= "1110"; -- external onlyf
 		CONFIG_ENABLE_REG <= '0';
 		CHIP_ID_LOC_REG <= (others=>'0');
 	elsif (clk'event and clk='1') then
@@ -990,41 +991,33 @@ begin
 	
 	case POST_DIVIDE_REG(1 downto 0) is
 		when "01" =>
-			a0u(15) := '0';
-			a0u(14 downto 0) := a0u(15 downto 1);
+			a0u := '0'&a0u(15 downto 1);
 		when "10" =>
-			a0u(15 downto 14) := "00";
-			a0u(13 downto 0) := a0u(15 downto 2);
+			a0u := "00"&a0u(15 downto 2);
 		when others =>
 	end case;
 	
 	case POST_DIVIDE_REG(3 downto 2) is
 		when "01" =>
-			a1u(15) := '0';
-			a1u(14 downto 0) := a1u(15 downto 1);
+			a1u := '0'&a1u(15 downto 1);
 		when "10" =>
-			a1u(15 downto 14) := "00";
-			a1u(13 downto 0) := a1u(15 downto 2);
+			a1u := "00"&a1u(15 downto 2);
 		when others =>
 	end case;
 
 	case POST_DIVIDE_REG(5 downto 4) is
 		when "01" =>
-			a2u(15) := '0';
-			a2u(14 downto 0) := a2u(15 downto 1);
+			a2u := '0'&a2u(15 downto 1);
 		when "10" =>
-			a2u(15 downto 14) := "00";
-			a2u(13 downto 0) := a2u(15 downto 2);
+			a2u := "00"&a2u(15 downto 2);
 		when others =>
 	end case;
 	
 	case POST_DIVIDE_REG(7 downto 6) is
 		when "01" =>
-			a3u(15) := '0';
-			a3u(14 downto 0) := a3u(15 downto 1);
+			a3u := '0'&a3u(15 downto 1);
 		when "10" =>
-			a3u(15 downto 14) := "00";
-			a3u(13 downto 0) := a3u(15 downto 2);
+			a3u := "00"&a3u(15 downto 2);
 		when others =>
 	end case;	
 	
