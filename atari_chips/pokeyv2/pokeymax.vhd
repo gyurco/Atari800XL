@@ -346,8 +346,8 @@ process(
 	GTIA_VOLUME_REG,
 	GTIA_ENABLE_REG,
 	SAMPLE_L_REG,SAMPLE_R_REG,
-	CHANNEL_MODE_REG, -- 0=mono, 1=stereo(L:1/3,R2/4), 2=quad(0=sum(chan0),1=sum(chan1) etc)
-	fancy_enable
+	CHANNEL_MODE_REG, -- 0=mono(Mix,Mix,Mix,Mix), 1=stereo(Mix,Mix,L:1/3,R2/4), 2=quad(0=sum(chan0),1=sum(chan1) etc), 3=stereoNoMix(L:1/3,R2/4,L:1/3,R2/4)
+	FANCY_ENABLE
 	)
 variable p0 : unsigned(5 downto 0);	
 variable p1 : unsigned(5 downto 0);
@@ -380,25 +380,35 @@ begin
 	c2 := resize(unsigned(POKEY_CHANNEL2(0)),6) + resize(unsigned(POKEY_CHANNEL2(1)),6) + resize(unsigned(POKEY_CHANNEL2(2)),6) + resize(unsigned(POKEY_CHANNEL2(3)),6);
 	c3 := resize(unsigned(POKEY_CHANNEL3(0)),6) + resize(unsigned(POKEY_CHANNEL3(1)),6) + resize(unsigned(POKEY_CHANNEL3(2)),6) + resize(unsigned(POKEY_CHANNEL3(3)),6);	
 
-	case CHANNEL_MODE_REG(1 downto 1)&(CHANNEL_MODE_REG(0) and fancy_enable) is
+	l := (resize(p0,10)+resize(p2,10))&"00"+resize(unsigned(SAMPLE_L_REG),12);
+	r := (resize(p1,10)+resize(p3,10))&"00"+resize(unsigned(SAMPLE_R_REG),12);
+	total := l+r;	
+	
+	if (FANCY_ENABLE='0') then
+		r := l;
+	end if;
+	
+	case CHANNEL_MODE_REG(1 downto 0) is
 		when "00" =>
-			sum0 := resize(p0,10)&"00";
-			sum1 := sum0;
-			sum2 := sum0;
-			sum3 := sum0;
+			sum0 := total;
+			sum1 := total;
+			sum2 := total;
+			sum3 := total;
 		when "01" =>
-			l := (resize(p0,10)+resize(p2,10))&"00"+resize(unsigned(SAMPLE_L_REG),12);
-			r := (resize(p1,10)+resize(p3,10))&"00"+resize(unsigned(SAMPLE_R_REG),12);
-			total := l+r;
 			sum0 := total;
 			sum1 := total;
 			sum2 := l;
 			sum3 := r;	
-		when others =>
-			sum0 := "0000"&c0&"00";
-			sum1 := "0000"&c1&"00";
+		when "10" =>
+			sum0 := "0000"&c0&"00"+resize(unsigned(SAMPLE_L_REG),12);
+			sum1 := "0000"&c1&"00"+resize(unsigned(SAMPLE_R_REG),12);
 			sum2 := "0000"&c2&"00";
 			sum3 := "0000"&c3&"00";
+		when others =>			
+			sum0 := l;
+			sum1 := r;
+			sum2 := l;
+			sum3 := r;			
 	end case;
 	
 	if (GTIA_AUDIO='1') then
@@ -947,7 +957,7 @@ end generate;
 -- d000: audio Mode W
 --          10: pre_divide   (00=1,01=2,10=4)
 --        32  : saturate     (00=off,01=pokey,10/11 reserved -> user configurable curve?)
---      54    : channel mode (00(mono)=TTTT, 01(stereo)=TTLR (L=0+2,R=1+3), 10(split)=0123 (0=sum(channel0),1=sum(channel1) etc)
+--      54    : channel mode (00(mono)=TTTT, 01(stereo)=TTLR (Mix,Mix,L=0+2,R=1+3), 10(split)=0123 (0=sum(channel0),1=sum(channel1) etc), 11(stereoNoMix)=TTLR (L=0+2,R=1+3,L,R)
 --    76      : gtia volume  (0=0,1=16,2=32,3=64 - volume)
 -- d001: saturate curve data shift ref (future core)
 -- d002: bank R/W
@@ -979,6 +989,9 @@ process(POST_DIVIDE_REG,POST_MIX_REG,AUDIO_0_SIGNED,AUDIO_1_SIGNED,AUDIO_2_SIGNE
 	variable a1u : unsigned(15 downto 0);
 	variable a2u : unsigned(15 downto 0);
 	variable a3u : unsigned(15 downto 0);
+	variable l : unsigned(15 downto 0);
+	variable r : unsigned(15 downto 0);
+	variable total : unsigned(15 downto 0);
 begin
 	a0u(14 downto 0) := unsigned(AUDIO_0_SIGNED(14 downto 0));
 	a1u(14 downto 0) := unsigned(AUDIO_1_SIGNED(14 downto 0));
@@ -1020,7 +1033,10 @@ begin
 			a3u := "00"&a3u(15 downto 2);
 		when others =>
 	end case;	
-	
+		
+	l := a0u+a2u;
+	r := a1u+a3u;
+	total:= l+r;
 	case POST_MIX_REG is
 		when "0" =>
 			-- DIRECT
@@ -1030,10 +1046,10 @@ begin
 			AUDIO_3_UNSIGNED <= a3u;			
 		when "1" =>
 			-- STEREO, post pokey
-			AUDIO_0_UNSIGNED <= a0u+a1u+a2u+a3u; -- must also /4
-			AUDIO_1_UNSIGNED <= a0u+a1u+a2u+a3u; -- must also /4
-			AUDIO_2_UNSIGNED <= a0u+a2u; -- L must also /2
-			AUDIO_3_UNSIGNED <= a1u+a3u; -- R must also /2
+			AUDIO_0_UNSIGNED <= total; -- must also /4
+			AUDIO_1_UNSIGNED <= total; -- must also /4
+			AUDIO_2_UNSIGNED <= l; -- L must also /2
+			AUDIO_3_UNSIGNED <= r; -- R must also /2
 	end case;	
 end process;
 
