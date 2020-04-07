@@ -15,7 +15,7 @@ PORT
 ( 
 	CLK : IN STD_LOGIC;
 
-	SUM : IN unsigned(11 downto 0);
+	SUM : IN unsigned(5 downto 0);
 	
 	SATURATE : IN std_logic; -- pokey style curve or linear
 	
@@ -47,13 +47,7 @@ END PROCESS;
  	process (sum, y1, y2, y1_reg, yadj_reg, saturate)
 		type LOOKUP_TYPE is array (0 to 32) of signed(15 downto 0);
 		variable lookup : LOOKUP_TYPE;
-		variable sum_saturated : unsigned(7 downto 0);
 	begin
-		sum_saturated := sum(7 downto 0);
-		if (or_reduce(std_logic_vector(sum(11 downto 8)))='1') then
-			sum_saturated := (others=>'1');
-		end if;
-
 		-- replace with piecewise interp. Takes a mul unit but saves lookup space.
 
 -- saturation on
@@ -64,18 +58,16 @@ END PROCESS;
 			lookup := (x"8000", x"87FF", x"8FFF", x"97FF", x"9FFF", x"A7FF", x"AFFF", x"B7FF", x"BFFF", x"C7FF", x"CFFF", x"D7FF", x"DFFF", x"E7FF", x"EFFF", x"F7FF", x"FFFE", x"07FF", x"0FFF", x"17FF", x"1FFF", x"27FF", x"2FFF", x"37FF", x"3FFF", x"47FF", x"4FFF", x"57FF", x"5FFF", x"67FF", x"6FFF", x"77FF", x"7FFF");
 		end if;
 
-		y1 <= lookup(to_integer(sum_saturated(7 downto 3)));
-		y2 <= lookup(to_integer(sum_saturated(7 downto 3))+1);
+		y1 <= lookup(to_integer(sum(5 downto 1)));
+		y2 <= lookup(to_integer(sum(5 downto 1))+1);
 
 		ych <= y2-y1;
 
-		volume_next <= std_logic_vector(yadj_reg(18 downto 3) + y1_reg);
+		volume_next <= std_logic_vector(yadj_reg(16 downto 1) + y1_reg);
 
-		--case volume_sum(9 downto 0) is 
-		--end case;
         end process;
 
-	B_in <= resize(signed('0'&sum(2 downto 0)),16);
+	B_in <= resize(signed('0'&sum(0 downto 0)),16);
 	linterp_mult : entity work.mult_infer
 	PORT MAP( A => signed(ych),
 		  B => b_in,

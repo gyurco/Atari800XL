@@ -10,6 +10,9 @@ USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use IEEE.STD_LOGIC_MISC.all;
 
+-- SHOULD JUST BE FOR POKEY
+-- LOWPASS DOES NOT LIVE HERE!!
+
 ENTITY pokey_mixer_mux IS
 GENERIC
 (
@@ -21,18 +24,17 @@ PORT
 
 	ENABLE_179 : IN STD_LOGIC;
 
-	CHANNEL_0 : IN unsigned(11 downto 0);
-	CHANNEL_1 : IN unsigned(11 downto 0);
-	CHANNEL_2 : IN unsigned(11 downto 0);
-	CHANNEL_3 : IN unsigned(11 downto 0);
+	CHANNEL_0 : IN unsigned(5 downto 0);
+	CHANNEL_1 : IN unsigned(5 downto 0);
+	CHANNEL_2 : IN unsigned(5 downto 0);
+	CHANNEL_3 : IN unsigned(5 downto 0);
 	
 	VOLUME_OUT_0 : OUT SIGNED(15 downto 0);
 	VOLUME_OUT_1 : OUT SIGNED(15 downto 0);
 	VOLUME_OUT_2 : OUT SIGNED(15 downto 0);
 	VOLUME_OUT_3 : OUT SIGNED(15 downto 0);
 	
-	SATURATE : IN STD_LOGIC;	
-	DIVIDE : in std_logic_vector(1 downto 0) -- 2^0=1,2^1=2,2^2=4
+	SATURATE : IN STD_LOGIC
 );
 END pokey_mixer_mux;
 
@@ -65,7 +67,7 @@ ARCHITECTURE vhdl OF pokey_mixer_mux IS
 	signal VOLUME_POSTLOWPASS_2_REG : signed(15 downto 0);
 	signal VOLUME_POSTLOWPASS_3_REG : signed(15 downto 0);
 
-	signal channel_sum_out : unsigned(11 downto 0);
+	signal channel_sum_out : unsigned(5 downto 0);
 BEGIN
 
 process(clk)
@@ -87,10 +89,9 @@ CHANNEL_NEXT(3) <= CHANNEL_REG(0);
 -- mux input
 PROCESS(
 	CHANNEL_0,CHANNEL_1,CHANNEL_2,CHANNEL_3,
-	channel_reg,
-	DIVIDE
+	channel_reg
 	)	
-	variable channel_sum : unsigned(11 downto 0);
+	variable channel_sum : unsigned(5 downto 0);
 BEGIN
 	channel_sum := (OTHERS=>'0');
 
@@ -104,16 +105,6 @@ BEGIN
    --when "0000001" => -- 3
 	when others =>
 		channel_sum := CHANNEL_3;
-	end case;
-	
-	case DIVIDE is
-	when "01" =>
-		channel_sum(10 downto 0) := channel_sum(11 downto 1);
-		channel_sum(11) := '0';
-	when "10" =>
-		channel_sum(9 downto 0) := channel_sum(11 downto 2);
-		channel_sum(11 downto 10) := (others=>'0');
-	when others=>
 	end case;
 	
 	channel_sum_out <= channel_sum;
