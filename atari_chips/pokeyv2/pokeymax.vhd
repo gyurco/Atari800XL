@@ -26,7 +26,9 @@ ENTITY pokeymax IS
 		enable_auto_stereo : integer := 0; -- 1=auto detect a4 => not toggling => mono
 		enable_gtia_audio : integer := 1; -- 0=no gtia on l/r,1=gtia mixed on l/r
 		address_bits : integer := 4; 
-		enable_config : integer := 1
+		enable_config : integer := 1;
+		enable_sid : integer := 0;
+		enable_ym : integer := 0
 	);
 	PORT
 	(
@@ -186,7 +188,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal KEYBOARD_SCAN_ENABLE : std_logic;
 
 	-- SID
-	signal ENABLE_SID : std_logic;
+	signal SID_CLK_ENABLE : std_logic;
 	type SID_AUDIO_TYPE is array(NATURAL range<>) of std_logic_vector(7 downto 0);
 	signal SID_AUDIO : SID_AUDIO_TYPE(1 downto 0);
 	
@@ -577,13 +579,14 @@ PORT MAP(CLK => CLK,
 -- SID
 --------------------------------------------------------
 
-ENABLE_SID <= CLK; -- TODO
+sid_on : if enable_sid=1 generate 
+SID_CLK_ENABLE <= '1'; -- TODO
 
 sid1 : sid8580
 PORT MAP(
 	RESET => NOT(RESET_N),
 	CLK => CLK,
-	CE_1M => ENABLE_SID, --1MHz
+	CE_1M => SID_CLK_ENABLE, --1MHz
 	WE => SID_WRITE_ENABLE(0),
 	ADDR => ADDR_IN(4 downto 0),
 	DATA_IN => WRITE_DATA(7 downto 0),
@@ -599,7 +602,7 @@ sid2 : sid8580
 PORT MAP(
 	RESET => NOT(RESET_N),
 	CLK => CLK,
-	CE_1M => ENABLE_SID, --1MHz
+	CE_1M => SID_CLK_ENABLE, --1MHz
 	WE => SID_WRITE_ENABLE(1),
 	ADDR => ADDR_IN(4 downto 0),
 	DATA_IN => WRITE_DATA(7 downto 0),
@@ -610,10 +613,12 @@ PORT MAP(
 	AUDIO_DATA(17 downto 10) => SID_AUDIO(1),
 	AUDIO_DATA(9 downto 0) => open
 );
+end generate sid_on;	
 	
 --------------------------------------------------------
 -- YM2149
 --------------------------------------------------------
+ym_on : if enable_ym=1 generate 
 YM2149_1 : entity work.YM2149
   port map(
 	clk=>clk,
@@ -637,8 +642,7 @@ YM2149_2 : entity work.YM2149
 	do=>YM2149_DO(1),
 	audio=>YM2149_AUDIO(1)
 	);
-		
-	
+end generate ym_on;		
 	
 --------------------------------------------------------
 -- COVOX

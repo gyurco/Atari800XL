@@ -99,7 +99,9 @@ my %variants =
 		"enable_auto_stereo" => 1,
 		"fpga" => "10M08SCU169C8G",
 		"address_bits" => 7,
-		"enable_gtia_audio" => 0
+		"enable_gtia_audio" => 0,
+		"enable_sid" => 1,
+		"enable_ym" => 1
 	}
 );
 
