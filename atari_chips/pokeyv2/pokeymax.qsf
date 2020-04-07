@@ -160,6 +160,17 @@ set_global_assignment -name VHDL_FILE pokey.vhdl
 set_global_assignment -name VHDL_FILE phi_mult.vhdl
 set_global_assignment -name VHDL_FILE synchronizer.vhdl
 set_global_assignment -name VHDL_FILE pokeymax.vhd
+set_global_assignment -name VHDL_FILE YM2149/YM2149_noise.vhdl
+set_global_assignment -name VHDL_FILE YM2149/YM2149.vhdl
+set_global_assignment -name VHDL_FILE YM2149/YM2149_freqdiv.vhdl
+set_global_assignment -name VHDL_FILE YM2149/YM2149_mixer.vhdl
+set_global_assignment -name VHDL_FILE YM2149/YM2149_volume.vhdl
+set_global_assignment -name VHDL_FILE YM2149/YM2149_volume_profile.vhdl
+set_global_assignment -name VERILOG_FILE sid8580/sid_tables.v
+set_global_assignment -name VERILOG_FILE sid8580/sid_filters.v
+set_global_assignment -name VERILOG_FILE sid8580/sid_envelope.v
+set_global_assignment -name VERILOG_FILE sid8580/sid_voice.v
+set_global_assignment -name VERILOG_FILE sid8580/sid8580.v
 set_global_assignment -name QIP_FILE int_osc/synthesis/int_osc.qip
 set_global_assignment -name QIP_FILE pll.qip
 set_global_assignment -name QIP_FILE chipid.qip

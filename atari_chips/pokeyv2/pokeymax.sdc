@@ -1,12 +1,12 @@
+create_clock -period 1.9MHz [get_ports PHI2]
+
 create_clock -period 85MHz [get_ports CLK_SLOW]
 derive_pll_clocks
 derive_clock_uncertainty
 
 set_clock_groups -asynchronous \
+  -group { PHI2 } \
   -group { CLK_SLOW } \
-  -group { \
-    int_osc_clk \
-  } \
   -group { \
     pll_inst|altpll_component|auto_generated|pll1|clk[0] \
   }

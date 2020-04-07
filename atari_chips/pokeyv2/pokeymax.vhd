@@ -84,6 +84,26 @@ ARCHITECTURE vhdl OF pokeymax IS
 						 chip_id    : out std_logic_vector(63 downto 0)         --       .data
 			  );
 	end component;
+
+	component sid8580 IS
+	PORT
+	(
+	        RESET : IN STD_LOGIC;
+	        CLK : IN STD_LOGIC;
+	        CE_1M : IN STD_LOGIC;
+	
+	        WE : IN STD_LOGIC;
+	        ADDR : IN STD_LOGIC_VECTOR(4 downto 0);
+	        DATA_IN : IN STD_LOGIC_VECTOR(7 downto 0);
+	        DATA_OUT : OUT STD_LOGIC_VECTOR(7 downto 0);
+	
+	        POT_X : IN STD_LOGIC_VECTOR(7 downto 0);
+	        POT_Y : IN STD_LOGIC_VECTOR(7 downto 0);
+	
+	        EXTFILTER_EN : IN STD_LOGIC;
+	        AUDIO_DATA : OUT STD_LOGIC_VECTOR(17 downto 0)
+	);
+	END component;
 		
 
 	signal OSC_CLK : std_logic;
@@ -99,6 +119,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	
 	SIGNAL SID_WRITE_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
 
+	SIGNAL YM2149_READ_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
 	SIGNAL YM2149_WRITE_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
 
 	SIGNAL SAMPLE_WRITE_ENABLE : STD_LOGIC;	
@@ -164,6 +185,17 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
 	signal KEYBOARD_SCAN_ENABLE : std_logic;
 
+	-- SID
+	signal ENABLE_SID : std_logic;
+	type SID_AUDIO_TYPE is array(NATURAL range<>) of std_logic_vector(7 downto 0);
+	signal SID_AUDIO : SID_AUDIO_TYPE(1 downto 0);
+	
+	-- YM2149
+	signal ENABLE_YM2149 : std_logic;
+	type YM2149_AUDIO_TYPE is array(NATURAL range<>) of std_logic_vector(7 downto 0);
+	signal YM2149_AUDIO : YM2149_AUDIO_TYPE(1 downto 0);	
+	
+	-- SUPPORT	
 	signal BUS_DATA : std_logic_vector(7 downto 0);
 	signal BUS_OE : std_logic;
 
@@ -226,6 +258,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal SAMPLE_L_REG : std_logic_vector(7 downto 0);
 	signal SAMPLE_R_NEXT : std_logic_vector(7 downto 0);
 	signal SAMPLE_L_NEXT : std_logic_vector(7 downto 0);
+	
 BEGIN
 	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
 	EXT <= (others=>'Z');
@@ -346,6 +379,8 @@ process(
 	GTIA_VOLUME_REG,
 	GTIA_ENABLE_REG,
 	SAMPLE_L_REG,SAMPLE_R_REG,
+	SID_AUDIO,
+	YM2149_AUDIO,
 	CHANNEL_MODE_REG, -- 0=mono(Mix,Mix,Mix,Mix), 1=stereo(Mix,Mix,L:1/3,R2/4), 2=quad(0=sum(chan0),1=sum(chan1) etc), 3=stereoNoMix(L:1/3,R2/4,L:1/3,R2/4)
 	FANCY_ENABLE
 	)
@@ -380,8 +415,8 @@ begin
 	c2 := resize(unsigned(POKEY_CHANNEL2(0)),6) + resize(unsigned(POKEY_CHANNEL2(1)),6) + resize(unsigned(POKEY_CHANNEL2(2)),6) + resize(unsigned(POKEY_CHANNEL2(3)),6);
 	c3 := resize(unsigned(POKEY_CHANNEL3(0)),6) + resize(unsigned(POKEY_CHANNEL3(1)),6) + resize(unsigned(POKEY_CHANNEL3(2)),6) + resize(unsigned(POKEY_CHANNEL3(3)),6);	
 
-	l := (resize(p0,10)+resize(p2,10))&"00"+resize(unsigned(SAMPLE_L_REG),12);
-	r := (resize(p1,10)+resize(p3,10))&"00"+resize(unsigned(SAMPLE_R_REG),12);
+	l := (resize(p0,10)+resize(p2,10))&"00"+resize(unsigned(SAMPLE_L_REG),12)+resize(unsigned(SID_AUDIO(0)),12)+resize(unsigned(YM2149_AUDIO(0)),12);
+	r := (resize(p1,10)+resize(p3,10))&"00"+resize(unsigned(SAMPLE_R_REG),12)+resize(unsigned(SID_AUDIO(1)),12)+resize(unsigned(YM2149_AUDIO(1)),12);
 	total := l+r;	
 	
 	if (FANCY_ENABLE='0') then
@@ -400,8 +435,8 @@ begin
 			sum2 := l;
 			sum3 := r;	
 		when "10" =>
-			sum0 := "0000"&c0&"00"+resize(unsigned(SAMPLE_L_REG),12);
-			sum1 := "0000"&c1&"00"+resize(unsigned(SAMPLE_R_REG),12);
+			sum0 := "0000"&c0&"00"+resize(unsigned(SAMPLE_L_REG),12)+resize(unsigned(SID_AUDIO(0)),12)+resize(unsigned(YM2149_AUDIO(0)),12);
+			sum1 := "0000"&c1&"00"+resize(unsigned(SAMPLE_R_REG),12)+resize(unsigned(SID_AUDIO(1)),12)+resize(unsigned(YM2149_AUDIO(1)),12);
 			sum2 := "0000"&c2&"00";
 			sum3 := "0000"&c3&"00";
 		when others =>			
@@ -537,6 +572,73 @@ PORT MAP(CLK => CLK,
 				 keyboard_response => "00",
 				 pot_in=>"00000000");
    end generate POKEY_ON;
+
+--------------------------------------------------------
+-- SID
+--------------------------------------------------------
+
+ENABLE_SID <= CLK; -- TODO
+
+sid1 : sid8580
+PORT MAP(
+	RESET => NOT(RESET_N),
+	CLK => CLK,
+	CE_1M => ENABLE_SID, --1MHz
+	WE => SID_WRITE_ENABLE(0),
+	ADDR => ADDR_IN(4 downto 0),
+	DATA_IN => WRITE_DATA(7 downto 0),
+	DATA_OUT => SID_DO(0),
+	POT_X => (others=>'0'),
+	POT_Y => (others=>'0'),
+	EXTFILTER_EN => '0',
+	AUDIO_DATA(17 downto 10) => SID_AUDIO(0), --TODO: review volume, can't really be 17 bits!!
+	AUDIO_DATA(9 downto 0) => open
+);
+
+sid2 : sid8580
+PORT MAP(
+	RESET => NOT(RESET_N),
+	CLK => CLK,
+	CE_1M => ENABLE_SID, --1MHz
+	WE => SID_WRITE_ENABLE(1),
+	ADDR => ADDR_IN(4 downto 0),
+	DATA_IN => WRITE_DATA(7 downto 0),
+	DATA_OUT => SID_DO(1),
+	POT_X => (others=>'0'),
+	POT_Y => (others=>'0'),
+	EXTFILTER_EN => '0',
+	AUDIO_DATA(17 downto 10) => SID_AUDIO(1),
+	AUDIO_DATA(9 downto 0) => open
+);
+	
+--------------------------------------------------------
+-- YM2149
+--------------------------------------------------------
+YM2149_1 : entity work.YM2149
+  port map(
+	clk=>clk,
+	reset_n=>reset_n,
+	enable=>'1', --TODO, frequency
+	addr=>addr_in(3 downto 0),
+	write_enable=>YM2149_WRITE_ENABLE(0),
+	di=>write_data,
+	do=>YM2149_DO(0),
+	audio=>YM2149_AUDIO(0)
+	);
+	
+YM2149_2 : entity work.YM2149
+  port map(
+	clk=>clk,
+	reset_n=>reset_n,
+	enable=>'1', --TODO, frequency
+	addr=>addr_in(3 downto 0),
+	write_enable=>YM2149_WRITE_ENABLE(1),
+	di=>write_data,
+	do=>YM2149_DO(1),
+	audio=>YM2149_AUDIO(1)
+	);
+		
+	
 	
 --------------------------------------------------------
 -- COVOX
@@ -551,7 +653,7 @@ begin
 end process;
 
 process(ADDR_IN, SAMPLE_WRITE_ENABLE,
-SAMPLE_L_REG,SAMPLE_R_REG)
+SAMPLE_L_REG,SAMPLE_R_REG,WRITE_DATA)
 begin
 	SAMPLE_L_NEXT <= SAMPLE_L_REG;
 	SAMPLE_R_NEXT <= SAMPLE_R_REG;
@@ -679,12 +781,15 @@ process(
 	request
 	)
 	variable writereq : std_logic;
+	variable readreq : std_logic;
 begin
 	writereq := not(write_n) and request;
+	readreq := write_n and request;
 	
 	POKEY_WRITE_ENABLE <= (others=>'0');
 	SID_WRITE_ENABLE <= (others=>'0');
 	YM2149_WRITE_ENABLE <= (others=>'0');
+	YM2149_READ_ENABLE <= (others=>'0');
 	SAMPLE_WRITE_ENABLE <= '0';
 	CONFIG_WRITE_ENABLE <= '0';
 	
@@ -712,9 +817,11 @@ begin
 		when "1000" =>
 			DO_MUX <= YM2149_DO(0);
 			YM2149_WRITE_ENABLE(0) <= writereq;
+			YM2149_READ_ENABLE(0) <= readreq;
 		when "1001" =>
 			DO_MUX <= YM2149_DO(1);			
 			YM2149_WRITE_ENABLE(1) <= writereq;
+			YM2149_READ_ENABLE(1) <= readreq;
 		when "1010"|"1011" =>
 			DO_MUX <= SAMPLE_DO;								
 			SAMPLE_WRITE_ENABLE <= writereq;

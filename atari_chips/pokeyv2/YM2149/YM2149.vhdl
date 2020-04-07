@@ -1,0 +1,510 @@
+---------------------------------------------------------------------------
+-- (c) 2020 mark watson
+-- I am happy for anyone to use this for non-commercial use.
+-- If my vhdl files are used commercially or otherwise sold,
+-- please contact me for explicit permission at scrameta (gmail).
+-- This applies for source and binary form and derived works.
+---------------------------------------------------------------------------
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.all; 
+use ieee.numeric_std.all;
+USE IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.STD_LOGIC_MISC.all;
+
+LIBRARY work;
+
+-- audio only, no need for io part
+ENTITY YM2149 IS 
+	PORT
+	(
+		CLK : in std_logic;
+		RESET_N : in std_logic;
+		
+		ENABLE : in std_logic;
+		
+		ADDR : in std_logic_vector(3 downto 0); --TODO: Handy to address this way, but could use the original crappy way if people prefer!
+		WRITE_ENABLE : in std_logic;
+		
+		DI : in std_logic_vector(7 downto 0);
+		DO : out std_logic_vector(7 downto 0);
+		
+		IOA_IN : in std_logic_vector(7 downto 0) := (others=>'0');
+		IOB_IN : in std_logic_vector(7 downto 0) := (others=>'0');
+		IOA_OUT : out std_logic_vector(7 downto 0);
+		IOB_OUT : out std_logic_vector(7 downto 0);		
+		IOA_OE : out std_logic;
+		IOB_OE : out std_logic;
+		
+		AUDIO : out std_logic_vector(7 downto 0)
+	);
+END YM2149;		
+		
+ARCHITECTURE vhdl OF YM2149 IS
+	signal freq_channel_a_reg : std_logic_vector(11 downto 0);
+	signal freq_channel_a_next : std_logic_vector(11 downto 0);
+	signal freq_channel_b_reg : std_logic_vector(11 downto 0);
+	signal freq_channel_b_next : std_logic_vector(11 downto 0);
+	signal freq_channel_c_reg : std_logic_vector(11 downto 0);
+	signal freq_channel_c_next : std_logic_vector(11 downto 0);
+	
+	signal freq_noise_reg : std_logic_vector(4 downto 0);
+	signal freq_noise_next : std_logic_vector(4 downto 0);	
+	
+	signal vol_channel_a_reg : std_logic_vector(4 downto 0);
+	signal vol_channel_a_next : std_logic_vector(4 downto 0);
+	signal vol_channel_b_reg : std_logic_vector(4 downto 0);
+	signal vol_channel_b_next : std_logic_vector(4 downto 0);
+	signal vol_channel_c_reg : std_logic_vector(4 downto 0);
+	signal vol_channel_c_next : std_logic_vector(4 downto 0);	
+	
+	signal freq_envelope_reg : std_logic_vector(15 downto 0);
+	signal freq_envelope_next : std_logic_vector(15 downto 0);	
+	
+	signal shape_envelope_reg : std_logic_vector(3 downto 0);
+	signal shape_envelope_next : std_logic_vector(3 downto 0);		
+
+	signal mixer_noise_reg : std_logic_vector(2 downto 0);
+	signal mixer_noise_next : std_logic_vector(2 downto 0);		
+	signal mixer_tone_reg : std_logic_vector(2 downto 0);
+	signal mixer_tone_next : std_logic_vector(2 downto 0);	
+
+	signal io_output_reg : std_logic_vector(1 downto 0);
+	signal io_output_next : std_logic_vector(1 downto 0);
+	
+	signal ioa_reg : std_logic_vector(7 downto 0);
+	signal ioa_next : std_logic_vector(7 downto 0);	
+	signal iob_reg : std_logic_vector(7 downto 0);
+	signal iob_next : std_logic_vector(7 downto 0);
+	
+	signal addr_decoded : std_logic_vector(15 downto 0);
+	
+	signal channel_a_tick : std_logic;
+	signal channel_b_tick : std_logic;
+	signal channel_c_tick : std_logic;
+	signal noise_tick : std_logic;
+	signal noise_lfsr_tick : std_logic;
+	
+	signal channel_a_val : std_logic;
+	signal channel_b_val : std_logic;
+	signal channel_c_val : std_logic;
+	
+	signal envelope_reg : std_logic_vector(3 downto 0); -- TODO
+	
+	signal channel_a_vol : std_logic_vector(3 downto 0);
+	signal channel_b_vol : std_logic_vector(3 downto 0);
+	signal channel_c_vol : std_logic_vector(3 downto 0);
+
+	signal audio_reg: std_logic_vector(7 downto 0);
+BEGIN
+	process(clk,reset_n)
+	begin
+		if (reset_n='0') then
+			freq_channel_a_reg <= (others=>'0');
+			freq_channel_b_reg <= (others=>'0');
+			freq_channel_c_reg <= (others=>'0');
+			freq_noise_reg <= (others=>'0');
+			vol_channel_a_reg <= (others=>'0');
+			vol_channel_b_reg <= (others=>'0');
+			vol_channel_c_reg <= (others=>'0');		
+			freq_envelope_reg <=	(others=>'0');
+			shape_envelope_reg <= (others=>'0');
+			mixer_noise_reg <= (others=>'0');
+			mixer_tone_reg <= (others=>'0');
+			io_output_reg <= (others=>'0');
+			ioa_reg <= (others=>'0');
+			iob_reg <= (others=>'0');
+		elsif (clk'event and clk='1') then
+			freq_channel_a_reg <= freq_channel_a_next;
+			freq_channel_b_reg <= freq_channel_b_next;
+			freq_channel_c_reg <= freq_channel_c_next;
+			freq_noise_reg <= freq_noise_next;
+			vol_channel_a_reg <= vol_channel_a_next;
+			vol_channel_b_reg <= vol_channel_b_next;
+			vol_channel_c_reg <= vol_channel_c_next;			
+			freq_envelope_reg <= freq_envelope_next;
+			shape_envelope_reg <= shape_envelope_next; 
+			mixer_noise_reg <= mixer_noise_next;
+			mixer_tone_reg <= mixer_tone_next;
+			io_output_reg <= io_output_next;
+			ioa_reg <= ioa_next;
+			iob_reg <= iob_next;
+		end if;
+	end process;
+	
+decode_addr1 : entity work.complete_address_decoder
+	generic map(width=>4)
+	port map (addr_in=>ADDR(3 downto 0), addr_decoded=>addr_decoded);	
+	
+	process(addr_decoded,write_enable,di,
+		freq_channel_a_reg,freq_channel_b_reg,freq_channel_c_reg,
+		freq_noise_reg,
+		vol_channel_a_reg,vol_channel_b_reg,vol_channel_c_reg,
+		freq_envelope_reg,
+		shape_envelope_reg,
+		mixer_noise_reg,
+		mixer_tone_reg,
+		ioa_reg,
+		iob_reg,
+		io_output_reg
+		)
+	begin
+		freq_channel_a_next <= freq_channel_a_reg;
+		freq_channel_b_next <= freq_channel_b_reg;
+		freq_channel_c_next <= freq_channel_c_reg;
+		freq_noise_next <= freq_noise_reg;
+		vol_channel_a_next <= vol_channel_a_reg;
+		vol_channel_b_next <= vol_channel_b_reg;
+		vol_channel_c_next <= vol_channel_c_reg;		
+		freq_envelope_next <= freq_envelope_reg;		
+		shape_envelope_next <= shape_envelope_reg;
+		mixer_noise_next <= mixer_noise_reg;
+		mixer_tone_next <= mixer_tone_reg;
+		io_output_next <= io_output_reg;
+		ioa_next <= ioa_reg;
+		iob_next <= iob_reg;
+	
+		if (write_enable='1') then
+			if (addr_decoded(0)='1') then
+				freq_channel_a_next(7 downto 0) <= di;
+			end if;
+			if (addr_decoded(1)='1') then
+				freq_channel_a_next(11 downto 8) <= di(3 downto 0);
+			end if;
+			
+			if (addr_decoded(2)='1') then
+				freq_channel_b_next(7 downto 0) <= di;
+			end if;
+			if (addr_decoded(3)='1') then
+				freq_channel_b_next(11 downto 8) <= di(3 downto 0);
+			end if;
+
+			if (addr_decoded(4)='1') then
+				freq_channel_c_next(7 downto 0) <= di;
+			end if;
+			if (addr_decoded(5)='1') then
+				freq_channel_c_next(11 downto 8) <= di(3 downto 0);
+			end if;
+			
+			if (addr_decoded(6)='1') then
+				freq_noise_next <= di(4 downto 0);
+			end if;
+			
+			if (addr_decoded(7)='1') then
+				io_output_next  <= di(7 downto 6);
+				mixer_noise_next <= di(5 downto 3);
+				mixer_tone_next <= di(2 downto 0);
+			end if;			
+			
+			if (addr_decoded(8)='1') then
+				vol_channel_a_next <= di(4 downto 0);
+			end if;
+			if (addr_decoded(9)='1') then
+				vol_channel_b_next <= di(4 downto 0);
+			end if;
+			if (addr_decoded(10)='1') then
+				vol_channel_c_next <= di(4 downto 0);
+			end if;			
+			
+			if (addr_decoded(11)='1') then
+				freq_envelope_next(7 downto 0) <= di;
+			end if;
+			if (addr_decoded(12)='1') then
+				freq_envelope_next(15 downto 8) <= di;
+			end if;						
+
+			if (addr_decoded(13)='1') then
+				shape_envelope_next <= di(3 downto 0);
+			end if;			
+
+			if (addr_decoded(14)='1') then
+				ioa_next <= di;
+			end if;	
+
+			if (addr_decoded(15)='1') then
+				iob_next <= di;
+			end if;				
+			
+		end if;
+	end process;
+	
+	process(addr_decoded,
+		freq_channel_a_reg,freq_channel_b_reg,freq_channel_c_reg,
+		freq_noise_reg,
+		vol_channel_a_reg,vol_channel_b_reg,vol_channel_c_reg,
+		freq_envelope_reg,
+		shape_envelope_reg,
+		mixer_noise_reg,
+		mixer_tone_reg,
+		ioa_in,
+		iob_in,
+		io_output_reg		
+		)
+	begin
+		do <= (others=>'0');
+	
+		if (write_enable='1') then
+			if (addr_decoded(0)='1') then
+				do <= freq_channel_a_reg(7 downto 0);
+			end if;
+			if (addr_decoded(1)='1') then
+				do(3 downto 0) <= freq_channel_a_reg(11 downto 8);
+			end if;
+			
+			if (addr_decoded(2)='1') then
+				do <= freq_channel_b_reg(7 downto 0);
+			end if;
+			if (addr_decoded(3)='1') then
+				do(3 downto 0) <= freq_channel_b_reg(11 downto 8);
+			end if;
+
+			if (addr_decoded(4)='1') then
+				do <= freq_channel_c_reg(7 downto 0);
+			end if;
+			if (addr_decoded(5)='1') then
+				do(3 downto 0) <= freq_channel_c_reg(11 downto 8);
+			end if;
+			
+			if (addr_decoded(6)='1') then
+				do(4 downto 0) <= freq_noise_reg;
+			end if;
+			
+			if (addr_decoded(7)='1') then
+				do(7 downto 6) <= io_output_reg;
+				do(5 downto 3) <= mixer_noise_reg;
+				do(2 downto 0) <= mixer_tone_reg;
+			end if;			
+			
+			if (addr_decoded(8)='1') then
+				do(4 downto 0) <= vol_channel_a_reg;
+			end if;
+			if (addr_decoded(9)='1') then
+				do(4 downto 0) <= vol_channel_b_reg;
+			end if;
+			if (addr_decoded(10)='1') then
+				do(4 downto 0) <= vol_channel_c_reg;
+			end if;			
+			
+			if (addr_decoded(11)='1') then
+				do <= freq_envelope_reg(7 downto 0);
+			end if;
+			if (addr_decoded(12)='1') then
+				do <= freq_envelope_reg(15 downto 8);
+			end if;						
+
+			if (addr_decoded(13)='1') then
+				do(3 downto 0) <= shape_envelope_reg;
+			end if;								
+			
+			if (addr_decoded(14)='1') then
+				do <= ioa_in;
+			end if;	
+
+			if (addr_decoded(15)='1') then
+				do <= iob_in;
+			end if;				
+			
+		end if;
+	end process;	
+	
+	-- channels A-C, frequency divider
+	channel_a_ticker : entity work.YM2149_freqdiv
+	GENERIC MAP
+	(
+		bits => 16
+	)
+	PORT MAP
+	(
+		CLK => clk,
+		RESET_N => reset_n,
+		ENABLE => enable,
+		
+		BIT_OUT => channel_a_tick,
+		
+		THRESHOLD => unsigned(freq_channel_a_reg&"0000")
+	);	
+	
+	channel_b_ticker : entity work.YM2149_freqdiv
+	GENERIC MAP
+	(
+		bits => 16
+	)
+	PORT MAP
+	(
+		CLK => clk,
+		RESET_N => reset_n,
+		ENABLE => enable,
+		
+		BIT_OUT => channel_b_tick,
+		
+		THRESHOLD => unsigned(freq_channel_b_reg&"0000")
+	);
+	
+	channel_c_ticker : entity work.YM2149_freqdiv
+	GENERIC MAP
+	(
+		bits => 16
+	)
+	PORT MAP
+	(
+		CLK => clk,
+		RESET_N => reset_n,
+		ENABLE => enable,
+		
+		BIT_OUT => channel_c_tick,
+		
+		THRESHOLD => unsigned(freq_channel_c_reg&"0000")
+	);	
+	
+	-- noise
+	--17-bit LFSR with taps at bits 17 and 14
+	--ref:https://listengine.tuxfamily.org/lists.tuxfamily.org/hatari-devel/2012/09/msg00045.html	
+	
+	-- noise freq->noise_tick->noise_val
+	noise_ticker : entity work.YM2149_freqdiv
+	GENERIC MAP
+	(
+		bits => 9
+	)	
+	PORT MAP
+	(
+		CLK => clk,
+		RESET_N => reset_n,
+		ENABLE => enable,
+		
+		BIT_OUT => noise_tick,
+		
+		THRESHOLD => unsigned(freq_noise_reg&"0000")
+	);
+	
+	noise : entity work.YM2149_noise
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,
+		ENABLE => noise_tick,
+		
+		BIT_OUT => noise_lfsr_tick
+	);
+	
+	-- mix noise and channel
+	mix_a : entity work.YM2149_mixer
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,		
+		ENABLE => enable,
+		
+		NOISE => noise_lfsr_tick,
+		CHANNEL => channel_a_tick,
+		
+		NOISE_OFF => mixer_noise_reg(0),
+		TONE_OFF => mixer_tone_reg(0),
+		
+		BIT_OUT => channel_a_val
+	);
+	
+	mix_b : entity work.YM2149_mixer
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,		
+		ENABLE => enable,
+		
+		NOISE => noise_lfsr_tick,
+		CHANNEL => channel_b_tick,
+		
+		NOISE_OFF => mixer_noise_reg(1),
+		TONE_OFF => mixer_tone_reg(1),		
+		
+		BIT_OUT => channel_b_val
+	);	
+	
+	mix_c : entity work.YM2149_mixer
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,		
+		ENABLE => enable,
+		
+		NOISE => noise_lfsr_tick,
+		CHANNEL => channel_c_tick,
+		
+		NOISE_OFF => mixer_noise_reg(2),
+		TONE_OFF => mixer_tone_reg(2),		
+		
+		BIT_OUT => channel_c_val
+	);		
+	
+	-- volume
+	vol_a : entity work.YM2149_volume
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,		
+		ENABLE => enable,
+		
+		CHANNEL => channel_a_val,
+		FIXED => vol_channel_a_reg,
+		ENVELOPE => envelope_reg,
+		
+		VOL_OUT => channel_a_vol
+	);		
+	
+	vol_b : entity work.YM2149_volume
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,		
+		ENABLE => enable,
+		
+		CHANNEL => channel_b_val,
+		FIXED => vol_channel_b_reg,
+		ENVELOPE => envelope_reg,
+		
+		VOL_OUT => channel_b_vol
+	);		
+	
+	vol_c : entity work.YM2149_volume
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,		
+		ENABLE => enable,
+		
+		CHANNEL => channel_c_val,
+		FIXED => vol_channel_c_reg,
+		ENVELOPE => envelope_reg,
+		
+		VOL_OUT => channel_c_vol
+	);		
+	
+	-- envelope
+	envelope_reg <= (others=>'0'); -- TODO!
+	
+	-- combine channels/apply log volume curve
+	vol_profile : entity work.YM2149_volume_profile
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,		
+		ENABLE => enable,
+		
+		CHANNEL_A => channel_a_vol,
+		CHANNEL_B => channel_b_vol,
+		CHANNEL_C => channel_c_vol,
+		
+		AUDIO_OUT => audio_reg
+	);	
+	
+	-- outputs
+	IOA_OUT <= ioa_reg;
+	IOB_OUT <= iob_reg;
+	IOA_OE <= io_output_reg(0);
+	IOB_OE <= io_output_reg(1);
+	
+	AUDIO <= audio_reg;
+	
+end vhdl;
+
+

@@ -123,6 +123,8 @@ foreach my $variant (sort keys %variants)
 	`cp pokeymax*.qsf $dir`;
 	`cp -r int_osc* $dir`;
 	`cp -r pll* $dir`;
+	`cp -r YM2149 $dir`;
+	`cp -r ../../common/a8core/sid8580 $dir`;
 	`cp -r chipid* $dir`;
 
 	chdir $dir;
