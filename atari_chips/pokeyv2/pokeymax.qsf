@@ -68,7 +68,7 @@ set_location_assignment PIN_A10 -to D[2]  #A10,LIN15,LVL2,D2
 set_location_assignment PIN_B10 -to D[1]  #B10,LIN16,LVL1,D1
 set_location_assignment PIN_A11 -to D[0]  #A11,LIN17,LVL0,D0
 set_location_assignment PIN_B11 -to A[0]  #B11,LIN18,LVL19,A0
-set_location_assignment PIN_A12 -to EXT[3] #A12,LIN19,LVL23,EXT3
+set_location_assignment PIN_A12 -to EXT[1] #A12,LIN19,LVL23,EXT3
 set_location_assignment PIN_B12 -to A[1]  #B12,LIN20,LVL18,A1
 set_location_assignment PIN_B13 -to EXT[2] #B13,LIN21,LVL22,EXT2
 set_location_assignment PIN_C11 -to AUD[1] #C11,AUD1,AUDF1,AUD
@@ -76,7 +76,7 @@ set_location_assignment PIN_D11 -to AUD[3] #D11,AUD2,AUDF4,AUDEXT2
 set_location_assignment PIN_C12 -to AUD[4] #C12,AUD3,AUDF2,AUDEXT3
 set_location_assignment PIN_D12 -to AUD[2] #D12,AUD4,AUDF3,AUDEXT1
 set_location_assignment PIN_C13 -to A[2]   #C13,LIN22,LVL17,A2
-set_location_assignment PIN_D13 -to EXT[1] #D13,LIN23,LVL20,EXT1
+set_location_assignment PIN_D13 -to EXT[3] #D13,LIN23,LVL20,EXT1
 set_location_assignment PIN_N2 -to PADDLE[5]  #N2,PIN3,POT7,P5
 set_location_assignment PIN_N3 -to PADDLE[1]  #N3,PIN2,POT6,P1
 set_location_assignment PIN_N4 -to PADDLE[4]  #N4,PIN0,POT5,P4
