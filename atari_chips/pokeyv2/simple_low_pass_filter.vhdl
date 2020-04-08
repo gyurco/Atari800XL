@@ -20,9 +20,9 @@ ENTITY simple_low_pass_filter IS
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
-	AUDIO_IN : IN signed(15 downto 0);
+	AUDIO_IN : IN unsigned(15 downto 0);
 	SAMPLE_IN : IN STD_LOGIC; --1.8MHz
-	AUDIO_OUT : OUT signed(15 downto 0) --Filtered to remove > 44KHz
+	AUDIO_OUT : OUT unsigned(15 downto 0) --Filtered to remove > 44KHz
 );
 END simple_low_pass_filter;
 
@@ -49,7 +49,7 @@ begin
 	process(audio_in,accum_reg,sample_in,adjust)
 	begin
 		accum_next <= accum_reg;
-		adjust <= resize(signed(audio_in&"0000"),21) - signed(accum_reg);
+		adjust <= resize(signed("0"&audio_in&"0000"),21) - signed(accum_reg);
 
 		if (sample_in = '1') then
 			accum_next <= std_logic_vector(signed(accum_reg) + resize(adjust(20 downto 4),21)); --Add diff/16
@@ -66,7 +66,7 @@ begin
 		end if;
 	end process;
 
-	audio_out <= signed(accum2_reg(19 downto 4));
+	audio_out <= unsigned(accum2_reg(19 downto 4));
 
 end vhdl;
 

@@ -184,7 +184,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	-- SID
 	signal SID_CLK_ENABLE : std_logic;
-	type SID_AUDIO_TYPE is array(NATURAL range<>) of std_logic_vector(7 downto 0);
+	type SID_AUDIO_TYPE is array(NATURAL range<>) of std_logic_vector(15 downto 0);
 	signal SID_AUDIO : SID_AUDIO_TYPE(1 downto 0);
 	
 	-- YM2149
@@ -423,10 +423,6 @@ begin
 end process;
 	
 pokey_mixer_both : entity work.pokey_mixer_mux
-GENERIC MAP
-(
-	LOWPASS => lowpass
-)
 PORT MAP(CLK => CLK,
 		 ENABLE_179 => ENABLE_CYCLE,
 		 CHANNEL_0 => CHANNEL0SUM_REG,
@@ -535,8 +531,8 @@ PORT MAP(
 	POT_X => (others=>'0'),
 	POT_Y => (others=>'0'),
 	EXTFILTER_EN => '0',
-	AUDIO_DATA(17 downto 10) => SID_AUDIO(0), --TODO: review volume, can't really be 17 bits!!
-	AUDIO_DATA(9 downto 0) => open
+	AUDIO_DATA(17 downto 2) => SID_AUDIO(0), --TODO: review volume, can't really be 17 bits!!
+	AUDIO_DATA(1 downto 0) => open
 );
 
 sid2 : sid8580
@@ -551,8 +547,8 @@ PORT MAP(
 	POT_X => (others=>'0'),
 	POT_Y => (others=>'0'),
 	EXTFILTER_EN => '0',
-	AUDIO_DATA(17 downto 10) => SID_AUDIO(1),
-	AUDIO_DATA(9 downto 0) => open
+	AUDIO_DATA(17 downto 2) => SID_AUDIO(1),
+	AUDIO_DATA(1 downto 0) => open
 );
 end generate sid_on;		
 --------------------------------------------------------
@@ -936,106 +932,166 @@ end generate;
 -------------------------------------------------------
 -- AUDIO mixing
 process(POST_DIVIDE_REG,
-	POKEY_AUDIO_0,POKEY_AUDIO_1,POKEY_AUDIO_2,POKEY_AUDIO_3 --signed
+	POKEY_AUDIO_0,POKEY_AUDIO_1,POKEY_AUDIO_2,POKEY_AUDIO_3, --signed
+	SAMPLE_L_REG, SAMPLE_R_REG,
+	SID_AUDIO,
+	YM2149_AUDIO,
+	GTIA_AUDIO
 	)
-	variable a0u : unsigned(15 downto 0);
-	variable a1u : unsigned(15 downto 0);
-	variable a2u : unsigned(15 downto 0);
-	variable a3u : unsigned(15 downto 0);
-	variable l : unsigned(15 downto 0);
-	variable r : unsigned(15 downto 0);
-	variable total : unsigned(15 downto 0);
+	variable p0u : unsigned(15 downto 0);
+	variable p1u : unsigned(15 downto 0);
+	variable p2u : unsigned(15 downto 0);
+	variable p3u : unsigned(15 downto 0);
+
+	variable a0u : unsigned(19 downto 0);
+	variable a1u : unsigned(19 downto 0);
+	variable a2u: unsigned(19 downto 0);
+	variable a3u: unsigned(19 downto 0);
+
+	variable sidu: unsigned(19 downto 0);
+	variable ymu: unsigned(19 downto 0);
+	variable samu: unsigned(19 downto 0);
 begin
 -- 
 --  0: pokey0,pokey2, pokeych1, sid0,ym0,covox0,sample0, gtia, sio in
 --  1: pokey1,pokey3, pokeych2, sid1,ym1,covox1,sample1, gtia, sio in
 --  2: pokey0,pokey2, pokeych3, sid0,ym0,covox0,sample0, gtia, sio in
 --  3: pokey1,pokey3, pokeych4, sid1,ym1,covox1,sample1, gtia, sio in  
-	a0u(14 downto 0) := unsigned(POKEY_AUDIO_0(14 downto 0));
-	a1u(14 downto 0) := unsigned(POKEY_AUDIO_1(14 downto 0));
-	a2u(14 downto 0) := unsigned(POKEY_AUDIO_2(14 downto 0));
-	a3u(14 downto 0) := unsigned(POKEY_AUDIO_3(14 downto 0));
-	a0u(15) := not(POKEY_AUDIO_0(15));
-	a1u(15) := not(POKEY_AUDIO_1(15));
-	a2u(15) := not(POKEY_AUDIO_2(15));	
-	a3u(15) := not(POKEY_AUDIO_3(15));	
-	
+	p0u(14 downto 0) := unsigned(POKEY_AUDIO_0(14 downto 0));
+	p1u(14 downto 0) := unsigned(POKEY_AUDIO_1(14 downto 0));
+	p2u(14 downto 0) := unsigned(POKEY_AUDIO_2(14 downto 0));
+	p3u(14 downto 0) := unsigned(POKEY_AUDIO_3(14 downto 0));
+	p0u(15) := not(POKEY_AUDIO_0(15));
+	p1u(15) := not(POKEY_AUDIO_1(15));
+	p2u(15) := not(POKEY_AUDIO_2(15));	
+	p3u(15) := not(POKEY_AUDIO_3(15));	
+
+	sidu := resize(unsigned(sid_audio(0)),20);
+	ymu := resize(unsigned(ym2149_audio(0)),12)&"00000000";
+	samu := resize(unsigned(sample_l_reg),12)&"00000000";
+	a0u := p0u + p2u + sidu + ymu + samu;
+
+	sidu := resize(unsigned(sid_audio(1)),20);
+	ymu := resize(unsigned(ym2149_audio(1)),12)&"00000000";
+	samu := resize(unsigned(sample_r_reg),12)&"00000000";
+	a1u := p1u + p3u + sidu + ymu + samu;
+	a2u := a0u;
+	a3u := a1u;
+
 	case POST_DIVIDE_REG(1 downto 0) is
 		when "01" =>
-			a0u := '0'&a0u(15 downto 1);
+			a0u := '0'&a0u(19 downto 1);
 		when "10" =>
-			a0u := "00"&a0u(15 downto 2);
+			a0u := "00"&a0u(19 downto 2);
 		when others =>
 	end case;
 	
 	case POST_DIVIDE_REG(3 downto 2) is
 		when "01" =>
-			a1u := '0'&a1u(15 downto 1);
+			a1u := '0'&a1u(19 downto 1);
 		when "10" =>
-			a1u := "00"&a1u(15 downto 2);
+			a1u := "00"&a1u(19 downto 2);
 		when others =>
 	end case;
 
 	case POST_DIVIDE_REG(5 downto 4) is
 		when "01" =>
-			a2u := '0'&a2u(15 downto 1);
+			a2u := '0'&a2u(19 downto 1);
 		when "10" =>
-			a2u := "00"&a2u(15 downto 2);
+			a2u := "00"&a2u(19 downto 2);
 		when others =>
 	end case;
 	
 	case POST_DIVIDE_REG(7 downto 6) is
 		when "01" =>
-			a3u := '0'&a3u(15 downto 1);
+			a3u := '0'&a3u(19 downto 1);
 		when "10" =>
-			a3u := "00"&a3u(15 downto 2);
+			a3u := "00"&a3u(19 downto 2);
 		when others =>
 	end case;	
+
+	if gtia_audio='1' then
+		--TODO
+	end if;
+
+	if or_reduce(std_logic_vector(a0u(19 downto 16)))='1' then
+		AUDIO_0_UNSIGNED <= (others=>'1');
+	else
+		AUDIO_0_UNSIGNED <= a0u(15 downto 0);
+	end if;
 		
-	l := a0u+a2u;
-	r := a1u+a3u;
-	total:= l+r;
+	if or_reduce(std_logic_vector(a1u(19 downto 16)))='1' then
+		AUDIO_1_UNSIGNED <= (others=>'1');
+	else
+		AUDIO_1_UNSIGNED <= a1u(15 downto 0);
+	end if;
 	
-	-- TODO!
-	AUDIO_0_UNSIGNED <= a0u;
-	AUDIO_1_UNSIGNED <= a1u;
-	AUDIO_2_UNSIGNED <= a2u;
-	AUDIO_3_UNSIGNED <= a3u;			
+	if or_reduce(std_logic_vector(a2u(19 downto 16)))='1' then
+		AUDIO_2_UNSIGNED <= (others=>'1');
+	else
+		AUDIO_2_UNSIGNED <= a2u(15 downto 0);
+	end if;
+	
+	if or_reduce(std_logic_vector(a3u(19 downto 16)))='1' then
+		AUDIO_3_UNSIGNED <= (others=>'1');
+	else
+		AUDIO_3_UNSIGNED <= a3u(15 downto 0);
+	end if;
 end process;
 
 --approx line level by using 5V/4 -> ok 1.25V, should be ok approx
-dac_0 : entity work.sigmadelta  --pin37
+dac_0 : entity work.filtered_sigmadelta  --pin37
+GENERIC MAP
+(
+	LOWPASS => lowpass
+)
 port map
 (
   reset_n => reset_n,
   clk => clk,
+  ENABLE_179 => ENABLE_CYCLE,
   audin => AUDIO_0_UNSIGNED,
   AUDOUT => AUDIO_0_SIGMADELTA
 );
 
-dac_1 : entity work.sigmadelta
+dac_1 : entity work.filtered_sigmadelta
+GENERIC MAP
+(
+	LOWPASS => lowpass
+)
 port map
 (
   reset_n => reset_n,
   clk => clk,
+  ENABLE_179 => ENABLE_CYCLE,
   audin => AUDIO_1_UNSIGNED,
   AUDOUT => AUDIO_1_SIGMADELTA
 );
 
-dac_2 : entity work.sigmadelta
+dac_2 : entity work.filtered_sigmadelta
+GENERIC MAP
+(
+	LOWPASS => lowpass
+)
 port map
 (
   reset_n => reset_n,
   clk => clk,
+  ENABLE_179 => ENABLE_CYCLE,
   audin => AUDIO_2_UNSIGNED,
   AUDOUT => AUDIO_2_SIGMADELTA
 );
 
-dac_3 : entity work.sigmadelta
+dac_3 : entity work.filtered_sigmadelta
+GENERIC MAP
+(
+	LOWPASS => lowpass
+)
 port map
 (
   reset_n => reset_n,
   clk => clk,
+  ENABLE_179 => ENABLE_CYCLE,
   audin => AUDIO_3_UNSIGNED,
   AUDOUT => AUDIO_3_SIGMADELTA
 );

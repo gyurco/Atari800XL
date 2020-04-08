@@ -10,14 +10,7 @@ USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use IEEE.STD_LOGIC_MISC.all;
 
--- SHOULD JUST BE FOR POKEY
--- LOWPASS DOES NOT LIVE HERE!!
-
 ENTITY pokey_mixer_mux IS
-GENERIC
-(
-	lowpass : integer :=1 -- simple low pass. Was made for HDMI so can be turned off here with little impact to save resources. 
-);
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
@@ -61,11 +54,6 @@ ARCHITECTURE vhdl OF pokey_mixer_mux IS
 	signal VOLUME_OUT_2_REG : signed(15 downto 0);
 	signal VOLUME_OUT_3_NEXT : signed(15 downto 0);
 	signal VOLUME_OUT_3_REG : signed(15 downto 0);
-
-	signal VOLUME_POSTLOWPASS_0_REG : signed(15 downto 0);
-	signal VOLUME_POSTLOWPASS_1_REG : signed(15 downto 0);
-	signal VOLUME_POSTLOWPASS_2_REG : signed(15 downto 0);
-	signal VOLUME_POSTLOWPASS_3_REG : signed(15 downto 0);
 
 	signal channel_sum_out : unsigned(5 downto 0);
 BEGIN
@@ -150,55 +138,11 @@ BEGIN
 	end case;
 END PROCESS;
 
-
--- low pass filter output
-gen_lowpass_on : if lowpass=1 generate
-filter_0 : entity work.simple_low_pass_filter
-	port map
-	(
-		CLK => CLK,
-		AUDIO_IN => VOLUME_OUT_0_REG,
-		SAMPLE_IN => ENABLE_179,
-		AUDIO_OUT => VOLUME_POSTLOWPASS_0_REG
-	);
-filter_1 : entity work.simple_low_pass_filter
-	port map
-	(
-		CLK => CLK,
-		AUDIO_IN => VOLUME_OUT_1_REG,
-		SAMPLE_IN => ENABLE_179,
-		AUDIO_OUT => VOLUME_POSTLOWPASS_1_REG
-	);
-filter_2 : entity work.simple_low_pass_filter
-	port map
-	(
-		CLK => CLK,
-		AUDIO_IN => VOLUME_OUT_2_REG,
-		SAMPLE_IN => ENABLE_179,
-		AUDIO_OUT => VOLUME_POSTLOWPASS_2_REG
-	);
-filter_3 : entity work.simple_low_pass_filter
-	port map
-	(
-		CLK => CLK,
-		AUDIO_IN => VOLUME_OUT_3_REG,
-		SAMPLE_IN => ENABLE_179,
-		AUDIO_OUT => VOLUME_POSTLOWPASS_3_REG
-	);	
-end generate;
-
-gen_lowpass_off : if lowpass=0 generate
-VOLUME_POSTLOWPASS_0_REG<=VOLUME_OUT_0_REG;
-VOLUME_POSTLOWPASS_1_REG<=VOLUME_OUT_1_REG;
-VOLUME_POSTLOWPASS_2_REG<=VOLUME_OUT_2_REG;
-VOLUME_POSTLOWPASS_3_REG<=VOLUME_OUT_3_REG;
-end generate;
-
 -- output
-	VOLUME_OUT_0 <= signed(VOLUME_POSTLOWPASS_0_REG);
-	VOLUME_OUT_1 <= signed(VOLUME_POSTLOWPASS_1_REG);
-	VOLUME_OUT_2 <= signed(VOLUME_POSTLOWPASS_2_REG);
-	VOLUME_OUT_3 <= signed(VOLUME_POSTLOWPASS_3_REG);
+	VOLUME_OUT_0 <= signed(VOLUME_OUT_0_REG);
+	VOLUME_OUT_1 <= signed(VOLUME_OUT_1_REG);
+	VOLUME_OUT_2 <= signed(VOLUME_OUT_2_REG);
+	VOLUME_OUT_3 <= signed(VOLUME_OUT_3_REG);
 
 END vhdl;
 

@@ -146,6 +146,7 @@ set_global_assignment -name VHDL_FILE syncreset_enable_divider.vhd
 set_global_assignment -name VHDL_FILE delay_line.vhdl
 set_global_assignment -name VHDL_FILE latch_delay_line.vhdl
 set_global_assignment -name VHDL_FILE sigmadelta.vhd
+set_global_assignment -name VHDL_FILE filtered_sigmadelta.vhd
 set_global_assignment -name VHDL_FILE mult_infer.vhdl
 set_global_assignment -name VHDL_FILE simple_low_pass_filter.vhdl
 set_global_assignment -name VHDL_FILE pokey_poly_17_9.vhdl
