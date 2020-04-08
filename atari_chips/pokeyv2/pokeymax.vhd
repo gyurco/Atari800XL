@@ -31,7 +31,7 @@ ENTITY pokeymax IS
 		enable_ym : integer := 0;
 		enable_covox : integer := 0;
 		enable_sample : integer := 0;
-		version : integer := 0
+   		version : STRING  := "DEVELOPR" -- 8 char string atascii
 	);
 	PORT
 	(
@@ -244,6 +244,13 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal SAMPLE_L_REG : std_logic_vector(7 downto 0);
 	signal SAMPLE_R_NEXT : std_logic_vector(7 downto 0);
 	signal SAMPLE_L_NEXT : std_logic_vector(7 downto 0);
+
+	function getByte(a : string; x : integer) return std_logic_vector is
+   		 variable ret : std_logic_vector(7 downto 0);
+	begin
+	        ret := std_logic_vector(to_unsigned(character'pos(a(x)), 8));
+	    return ret;
+	end function getByte;
 	
 BEGIN
 	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
@@ -859,24 +866,23 @@ begin
 	
 	if (config_addr_decoded(4)='1') then
 		-- version
-		CONFIG_DO(7 downto 4) <= x"4";				
 		case VERSION_LOC_REG(2 downto 0) is			
 			when "000" => 
-				CONFIG_DO <= x"50"; --P
+				CONFIG_DO <= getByte(version,1);
 			when "001" =>
-				CONFIG_DO <= x"4D"; --M
+				CONFIG_DO <= getByte(version,2);
 			when "010" =>
-				CONFIG_DO(3 downto 0) <= std_logic_vector(to_unsigned((version/100000) mod 10,4));
+				CONFIG_DO <= getByte(version,3);
 			when "011" =>
-				CONFIG_DO(3 downto 0) <= std_logic_vector(to_unsigned((version/10000) mod 10,4)); 
+				CONFIG_DO <= getByte(version,4);
 			when "100" => 
-				CONFIG_DO(3 downto 0) <= std_logic_vector(to_unsigned((version/1000) mod 10,4));
+				CONFIG_DO <= getByte(version,5);
 			when "101" =>
-				CONFIG_DO(3 downto 0) <= std_logic_vector(to_unsigned((version/100) mod 10,4));
+				CONFIG_DO <= getByte(version,6);
 			when "110" =>
-				CONFIG_DO(3 downto 0) <= std_logic_vector(to_unsigned((version/10) mod 10,4));
+				CONFIG_DO <= getByte(version,7);
 			when "111" =>
-				CONFIG_DO(3 downto 0) <= std_logic_vector(to_unsigned((version/1) mod 10,4));
+				CONFIG_DO <= getByte(version,8);
 			when others =>
 		end case;		
 	end if;
