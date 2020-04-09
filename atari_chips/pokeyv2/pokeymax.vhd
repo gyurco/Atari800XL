@@ -14,23 +14,28 @@ use IEEE.STD_LOGIC_MISC.all;
 
 LIBRARY work;
 
---EXT1: A4
---EXT2: A5/stereo
---EXT3: A6/gtia
 ENTITY pokeymax IS 
 	GENERIC
 	(
 		pokeys : integer := 1; -- 1-4
 		lowpass : integer := 1; -- 0=lowpass off, 1=lowpass on (leave on except if there is no space! Low impact...)
-		enable_stereo_switch : integer := 0; -- 0=ext is low => mono
-		enable_auto_stereo : integer := 0; -- 1=auto detect a4 => not toggling => mono
-		enable_gtia_audio : integer := 1; -- 0=no gtia on l/r,1=gtia mixed on l/r
-		address_bits : integer := 4; 
+		enable_auto_stereo : integer := 0;   -- 1=auto detect a4 => not toggling => mono
+
+		fancy_switch_bit : integer := 10; -- 0=ext is low => mono
+		gtia_audio_bit : integer := 0;    -- 0=no gtia on l/r,1=gtia mixed on l/r
+		a4_bit : integer := 0;
+		a5_bit : integer := 0;
+		a6_bit : integer := 0;
+		a7_bit : integer := 0;
+
+		ext_bits : integer := 3; 
+
 		enable_config : integer := 1;
 		enable_sid : integer := 0;
 		enable_ym : integer := 0;
 		enable_covox : integer := 0;
 		enable_sample : integer := 0;
+
    		version : STRING  := "DEVELOPR" -- 8 char string atascii
 	);
 	PORT
@@ -53,7 +58,7 @@ ENTITY pokeymax IS
 
 		AUD : OUT STD_LOGIC_VECTOR(4 DOWNTO 1);
 
-		EXT : INOUT STD_LOGIC_VECTOR(3 DOWNTO 1);
+		EXT : INOUT STD_LOGIC_VECTOR(EXT_BITS DOWNTO 1);
 
 		PADDLE : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
 		POTRESET_N : OUT STD_LOGIC;
@@ -159,7 +164,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal POKEY_IRQ : std_logic_vector(3 downto 0);
 
-	signal ADDR_IN : std_logic_vector(address_bits-1 downto 0);
+	signal ADDR_IN : std_logic_vector(7 downto 0);
 	signal WRITE_DATA : std_logic_vector(7 downto 0);
 	signal DEVICE_ADDR : std_logic_vector(3 downto 0);
 
@@ -209,16 +214,18 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal i2c0_read_data : std_logic_vector(7 downto 0);
 	signal i2c0_error : std_logic;
 
-	signal AEXT : std_logic_vector(address_bits-1 downto 4);
-
 	signal CS_COMB : std_logic;
 
-	signal AIN : std_logic_vector(address_bits-1 downto 0);
+	signal AIN : std_logic_vector(7 downto 0);
 
 	signal POTRESET : std_logic;
 
-	signal fancy_enable : std_logic;
-	signal gtia_audio : std_logic;
+	signal FANCY_ENABLE : std_logic;
+	signal FANCY_SWITCH : std_logic;
+	signal A4_DETECTED : std_logic;
+	signal GTIA_AUDIO : std_logic;
+
+	signal EXT_INT : std_logic_vector(10 downto 0);
 	
 	-- config
 		--config regs
@@ -265,6 +272,17 @@ BEGIN
 		oscena => '1'
 	);
 
+	EXT_INT(0) <= '0';  --force to 0
+	EXT_INT(10 downto 8) <= (others=>'1');
+	EXT_INT(ext_bits downto 1) <= EXT;
+	EXT_INT(7 downto ext_bits+1) <= (others=>'0');
+
+        synchronizer_gtia_audio : entity work.synchronizer
+                port map (clk=>clk, raw=>EXT_INT(gtia_audio_bit), sync=>GTIA_AUDIO);
+        synchronizer_fancy_enable : entity work.synchronizer
+		port map (clk=>clk, raw=>EXT_INT(fancy_switch_bit), sync=>FANCY_SWITCH);
+
+	--assert address_bits<7 report "EXT3 already used for A6";
 
 	--phi_multiplier : entity work.phi_mult
 	--port map 
@@ -283,26 +301,15 @@ BEGIN
 
 
 	AIN(3 downto 0) <= A;
-
-	ADDR_BITS_ON: 
-	for I in address_bits downto 5 generate
-	        AIN(I-1) <= EXT(I-4);
-	end generate ADDR_BITS_ON;		
-
-gen_gtia : if enable_gtia_audio=1 generate
-	assert address_bits<7 report "EXT3 already used for A6";
-       synchronizer_gtia_audio : entity work.synchronizer
-                port map (clk=>clk, raw=>EXT(3), sync=>gtia_audio);
-end generate;
-
-gen_gtia_off : if enable_gtia_audio=0 generate
-	gtia_audio <= '0';
-end generate;
+	AIN(7) <= EXT_INT(a7_bit);
+	AIN(6) <= EXT_INT(a6_bit);
+	AIN(5) <= EXT_INT(a5_bit);
+	AIN(4) <= EXT_INT(a4_bit);
 
 bus_adapt : entity work.slave_timing_6502
 	GENERIC MAP
 	(
-		address_bits => address_bits
+		address_bits => 8
 	)
 	PORT MAP
 	(
@@ -311,7 +318,7 @@ bus_adapt : entity work.slave_timing_6502
 		
 		-- input from the cart port
 		PHI2 => PHI2,
-		bus_addr => AIN, --TODO, more pins...
+		bus_addr => AIN, 
 		bus_data => D,
 	
 		-- output to the cart port
@@ -334,25 +341,21 @@ bus_adapt : entity work.slave_timing_6502
 	
 auto_stereo : if enable_auto_stereo=1 generate -- auto detect
 	a4 : ENTITY work.stereo_detect
-	GENERIC MAP
-	(
-		address_bits => address_bits
-	)
 	PORT MAP
 	( 
 		CLK => clk,
 		RESET_N => reset_n,
 	
 		A => AIN(4), -- raw...
-		ADDR_IN => ADDR_IN(address_bits-1 downto 4), -- on request
-	
-		ADDR_OUT => AEXT(address_bits-1 downto 4)
+		DETECT => A4_DETECTED
 	);
 end generate;
 
 auto_stereo_off : if enable_auto_stereo=0 generate -- manual switch
-	AEXT(address_bits-1 downto 4) <= ADDR_IN(address_bits-1 downto 4);
+	A4_DETECTED <= '1';
 end generate;
+
+FANCY_ENABLE <= FANCY_SWITCH and A4_DETECTED;
 	
 -- TODO: into another entity
 process(clk)
@@ -515,6 +518,12 @@ PORT MAP(CLK => CLK,
 --------------------------------------------------------
 -- SID
 --------------------------------------------------------
+sid_off : if enable_sid=0 generate 
+	SID_AUDIO(0) <= (others=>'0');
+	SID_AUDIO(1) <= (others=>'0');
+	SID_DO(0) <= (others=>'0');
+	SID_DO(1) <= (others=>'0');
+end generate sid_off;
 
 sid_on : if enable_sid=1 generate 
 SID_CLK_ENABLE <= '1'; -- TODO
@@ -554,6 +563,13 @@ end generate sid_on;
 --------------------------------------------------------
 -- YM2149
 --------------------------------------------------------
+ym_off : if enable_ym=0 generate 
+	YM2149_AUDIO(0) <= (others=>'0');
+	YM2149_AUDIO(1) <= (others=>'0');
+	YM2149_DO(0) <= (others=>'0');
+	YM2149_DO(1) <= (others=>'0');
+end generate ym_off;
+
 ym_on : if enable_ym=1 generate 
 YM2149_1 : entity work.YM2149
   port map(
@@ -583,6 +599,12 @@ end generate ym_on;
 --------------------------------------------------------
 -- COVOX
 --------------------------------------------------------
+covox_off : if enable_covox=0 generate 
+	SAMPLE_L_REG <= (others=>'0');
+	SAMPLE_R_REG <= (others=>'0');
+	SAMPLE_DO <= (others=>'0');
+end generate covox_off;
+
 covox_on : if enable_covox=1 generate 
 process(ADDR_IN,SAMPLE_L_REG,SAMPLE_R_REG)
 begin
@@ -621,19 +643,6 @@ end process;
 
 end generate covox_on;
 		
---------------------------------------------------------		
--- BASIC/FANCY SWITCH
---------------------------------------------------------			
-switch_stereo : if enable_stereo_switch=1 generate 
-  	assert address_bits<6 report "EXT2 already used for A5";
-       synchronizer_fancy_enable : entity work.synchronizer
-                port map (clk=>clk, raw=>EXT(2), sync=>fancy_enable);
-end generate;
-
-switch_stereo_off : if enable_stereo_switch=0 generate 
-	fancy_enable <= '1';
-end generate;
-	
 -------------------------------------------------------
 -- COMMON, data bus
 --
@@ -650,12 +659,12 @@ end generate;
 -- d2b0 - ym2
 -- d2f0 - config (write 0x3f to d21c to map it in d210, for low bit devices)
 
-process(CONFIG_ENABLE_REG,AEXT,config_addr_decoded,fancy_enable)
+process(CONFIG_ENABLE_REG,ADDR_IN,config_addr_decoded,fancy_enable)
 	variable addr_bits : std_logic_vector(3 downto 0);
 begin
 	-- choose which bank
 	addr_bits := (others=>'0');
-	addr_bits(address_bits-5 downto 0) := AEXT;
+	addr_bits(3 downto 0) := ADDR_IN(7 downto 4);
 	
 	if (fancy_enable='0') then
 		addr_bits := (others=>'0');
@@ -936,7 +945,7 @@ process(POST_DIVIDE_REG,
 	SAMPLE_L_REG, SAMPLE_R_REG,
 	SID_AUDIO,
 	YM2149_AUDIO,
-	GTIA_AUDIO
+	GTIA_AUDIO,GTIA_ENABLE_REG
 	)
 	variable p0u : unsigned(15 downto 0);
 	variable p1u : unsigned(15 downto 0);
@@ -948,6 +957,11 @@ process(POST_DIVIDE_REG,
 	variable a2u: unsigned(19 downto 0);
 	variable a3u: unsigned(19 downto 0);
 
+	variable gtia0u : unsigned(19 downto 0);
+	variable gtia1u : unsigned(19 downto 0);
+	variable gtia2u: unsigned(19 downto 0);
+	variable gtia3u: unsigned(19 downto 0);
+
 	variable sidu: unsigned(19 downto 0);
 	variable ymu: unsigned(19 downto 0);
 	variable samu: unsigned(19 downto 0);
@@ -957,6 +971,15 @@ begin
 --  1: pokey1,pokey3, pokeych2, sid1,ym1,covox1,sample1, gtia, sio in
 --  2: pokey0,pokey2, pokeych3, sid0,ym0,covox0,sample0, gtia, sio in
 --  3: pokey1,pokey3, pokeych4, sid1,ym1,covox1,sample1, gtia, sio in  
+	gtia0u:= (others=>'0');
+	gtia0u(15):= GTIA_AUDIO and GTIA_ENABLE_REG(0);
+	gtia1u:= (others=>'0');
+	gtia1u(15):= GTIA_AUDIO and GTIA_ENABLE_REG(1);
+	gtia2u:= (others=>'0');
+	gtia2u(15):= GTIA_AUDIO and GTIA_ENABLE_REG(2);
+	gtia3u:= (others=>'0');
+	gtia3u(15):= GTIA_AUDIO and GTIA_ENABLE_REG(3);
+
 	p0u(14 downto 0) := unsigned(POKEY_AUDIO_0(14 downto 0));
 	p1u(14 downto 0) := unsigned(POKEY_AUDIO_1(14 downto 0));
 	p2u(14 downto 0) := unsigned(POKEY_AUDIO_2(14 downto 0));
@@ -977,6 +1000,11 @@ begin
 	a1u := p1u + p3u + sidu + ymu + samu;
 	a2u := a0u;
 	a3u := a1u;
+
+	a0u := a0u + gtia0u;
+	a1u := a1u + gtia1u;
+	a2u := a2u + gtia2u;
+	a3u := a3u + gtia3u;
 
 	case POST_DIVIDE_REG(1 downto 0) is
 		when "01" =>
@@ -1009,10 +1037,6 @@ begin
 			a3u := "00"&a3u(19 downto 2);
 		when others =>
 	end case;	
-
-	if gtia_audio='1' then
-		--TODO
-	end if;
 
 	if or_reduce(std_logic_vector(a0u(19 downto 16)))='1' then
 		AUDIO_0_UNSIGNED <= (others=>'1');

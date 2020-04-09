@@ -11,19 +11,13 @@ use ieee.numeric_std.all;
 use IEEE.STD_LOGIC_MISC.all;
 
 ENTITY stereo_detect IS
-GENERIC
-(
-	ADDRESS_BITS : IN integer
-);
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
 	RESET_N : IN STD_LOGIC;
 
 	A : IN STD_LOGIC; -- raw
-	ADDR_IN : IN STD_LOGIC_VECTOR(address_bits-1 downto 4); -- on request/timed
-
-	ADDR_OUT: OUT STD_LOGIC_VECTOR(address_bits-1 downto 4)
+	DETECT : OUT STD_LOGIC
 );
 END stereo_detect;
 
@@ -49,13 +43,13 @@ BEGIN
 	end process;
 
 
-	process(addr_bit_toggle_count_reg,addr_in,addr_bit_sync,addr_bit_sync_reg)
+	process(addr_bit_toggle_count_reg,addr_bit_sync,addr_bit_sync_reg)
 	begin
-		ADDR_OUT <= (others=>'0');
+		DETECT <= '0';
 		addr_bit_toggle_count_next <= addr_bit_toggle_count_reg;
 
 		if (addr_bit_toggle_count_reg="11") then
-			ADDR_OUT <= ADDR_IN;
+			DETECT <= '1';
 		else
 			if (not(addr_bit_sync = addr_bit_sync_reg)) then
 				addr_bit_toggle_count_next <= std_logic_vector(unsigned(addr_bit_toggle_count_reg)+1);
