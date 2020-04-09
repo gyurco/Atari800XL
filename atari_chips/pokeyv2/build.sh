@@ -35,7 +35,11 @@ my %variants =
 	{
 		"pokeys" => 1,
 		"fpga" => "10M02SCU169C8G",
-		"gtia_audio_bit" => 2 
+		"enable_auto_stereo" => 1,
+		"gtia_audio_bit" => 2,
+		"a4_bit" => 1, #to access config!
+		"fancy_switch_bit" => 0,
+		"version" => "XXXM02MO"
 	},
 	"10M02_stereo_u1mb_auto" =>
 	{
@@ -44,7 +48,8 @@ my %variants =
 		"a4_bit" => 1,
 		"fancy_switch_bit" => 2,
 		"gtia_audio_bit" => 3,
-		"fpga" => "10M02SCU169C8G"
+		"fpga" => "10M02SCU169C8G",
+		"version" => "XXXM02SU"
 	},
 	"10M02_stereo_covox_auto" =>
 	{
@@ -55,6 +60,7 @@ my %variants =
 		"a7_bit" => 2,
 		"gtia_audio_bit" => 3, 
 		"fpga" => "10M02SCU169C8G",
+		"version" => "XXXM02SC"
 	},
 	"10M04_quad_auto" =>
 	{
@@ -63,7 +69,8 @@ my %variants =
 		"a4_bit" => 1,
 		"a5_bit" => 2,
 		"a6_bit" => 3,
-		"fpga" => "10M04SCU169C8G"
+		"fpga" => "10M04SCU169C8G",
+		"version" => "XXXM04QA"
 	},
 	"10M08_quad_auto" =>
 	{
@@ -72,7 +79,8 @@ my %variants =
 		"a4_bit" => 1,
 		"a5_bit" => 2,
 		"a6_bit" => 3,
-		"fpga" => "10M08SCU169C8G"
+		"fpga" => "10M08SCU169C8G",
+		"version" => "XXXM04QA"
 	},
 	"10M08_full" => 
 	{
