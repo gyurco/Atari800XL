@@ -10,98 +10,87 @@ my $name="eclaireXL";
 
 my %variants = 
 (
+#		enable_auto_stereo : integer := 0;   -- 1=auto detect a4 => not toggling => mono
+#
+#		fancy_switch_bit : integer := 10; -- 0=ext is low => mono
+#		gtia_audio_bit : integer := 0;    -- 0=no gtia on l/r,1=gtia mixed on l/r
+#		a4_bit : integer := 0;
+#		a5_bit : integer := 0;
+#		a6_bit : integer := 0;
+#		a7_bit : integer := 0;
+#
+#		ext_bits : integer := 3; 
+#
+#		enable_config : integer := 1;
+#		enable_sid : integer := 0;
+#		enable_ym : integer := 0;
+#		enable_covox : integer := 0;
+#		enable_sample : integer := 0;
+#
+#   		version : STRING  := "DEVELOPR" -- 8 char string atascii
+
+
+
 	"10M02_mono" =>
 	{
 		"pokeys" => 1,
 		"fpga" => "10M02SCU169C8G",
-		"address_bits" => 4
+		"gtia_audio_bit" => 2 
 	},
 	"10M02_stereo_u1mb_auto" =>
 	{
 		"pokeys" => 2,
 		"enable_auto_stereo" => 1,
-		"enable_stereo_switch" => 1,
-		"fpga" => "10M02SCU169C8G",
-		"address_bits" => 5
+		"a4_bit" => 1,
+		"fancy_switch_bit" => 2,
+		"gtia_audio_bit" => 3,
+		"fpga" => "10M02SCU169C8G"
 	},
 	"10M02_stereo_covox_auto" =>
 	{
 		"pokeys" => 2,
 		"enable_auto_stereo" => 1,
-		"enable_stereo_switch" => 0,
+		"enable_covox" => 1,
+		"a4_bit" => 1,
+		"a7_bit" => 2,
+		"gtia_audio_bit" => 3, 
 		"fpga" => "10M02SCU169C8G",
-		"address_bits" => 6
 	},
-	"10M02_quad_auto" =>
+	"10M04_quad_auto" =>
 	{
 		"pokeys" => 4,
-		"lowpass" => 0,
-		"enable_config" => 0,
 		"enable_auto_stereo" => 1,
-		"fpga" => "10M02SCU169C8G",
-		"address_bits" => 6
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a6_bit" => 3,
+		"fpga" => "10M04SCU169C8G"
 	},
-#	"10M04_mono" =>
-#	{
-#		"pokeys" => 1,
-#		"fpga" => "10M04SCU169C8G"
-#		"address_bits" => 4
-#	},
-#	"10M04_stereo_u1mb_auto" =>
-#	{
-#		"pokeys" => 2,
-#		"enable_auto_stereo" => 1,
-#		"enable_stereo_switch" => 1,
-#		"fpga" => "10M04SCU169C8G"
-#	},
-#	"10M04_quad_auto" =>
-#	{
-#		"pokeys" => 4,
-#		"enable_auto_stereo" => 1,
-#		"fpga" => "10M04SCU169C8G"
-#	},
-	"10M08_mono" =>
-	{
-		"pokeys" => 1,
-		"fpga" => "10M08SCU169C8G"
-	},
-#	"10M08_stereo_auto" =>
-#	{
-#		"pokeys" => 2,
-#		"enable_auto_stereo" => 1,
-#		"enable_stereo_switch" => 0,
-#		"fpga" => "10M08SCU169C8G"
-#	},
-#	"10M08_stereo_u1mb" =>
-#	{
-#		"pokeys" => 2,
-#		"enable_auto_stereo" => 0,
-#		"enable_stereo_switch" => 1,
-#		"fpga" => "10M08SCU169C8G"
-#	},
-#	"10M08_stereo_u1mb_auto" =>
-#	{
-#		"pokeys" => 2,
-#		"enable_auto_stereo" => 1,
-#		"enable_stereo_switch" => 1,
-#		"fpga" => "10M08SCU169C8G"
-#	},
 	"10M08_quad_auto" =>
 	{
 		"pokeys" => 4,
 		"enable_auto_stereo" => 1,
-		"fpga" => "10M08SCU169C8G",
-		"address_bits" => 6
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a6_bit" => 3,
+		"fpga" => "10M08SCU169C8G"
 	},
-	"10M08_full" =>
+	"10M08_full" => 
 	{
+		"board" => 3,
+		"ext_bits"=> 11,
 		"pokeys" => 4,
 		"enable_auto_stereo" => 1,
-		"fpga" => "10M08SCU169C8G",
-		"address_bits" => 7,
-		"enable_gtia_audio" => 0,
+		"fancy_switch_bit" => 1,
+		"gtia_audio_bit" => 2,
+		"a4_bit" => 3,
+		"a5_bit" => 4,
+		"a6_bit" => 5,
+		"a7_bit" => 6,
 		"enable_sid" => 1,
-		"enable_ym" => 1
+		"enable_ym" => 1,
+		"enable_covox" => 1,
+		"enable_sample" => 1,
+		"fpga" => "10M08SCU169C8G"
 	}
 );
 
@@ -127,7 +116,6 @@ foreach my $variant (sort keys %variants)
 	`cp -r pll* $dir`;
 	`cp -r YM2149 $dir`;
 	`cp -r ../../common/a8core/sid8580 $dir`;
-	`cp -r chipid* $dir`;
 
 	chdir $dir;
 

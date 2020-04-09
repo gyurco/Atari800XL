@@ -21,7 +21,7 @@ ENTITY pokeymax IS
 		lowpass : integer := 1; -- 0=lowpass off, 1=lowpass on (leave on except if there is no space! Low impact...)
 		enable_auto_stereo : integer := 0;   -- 1=auto detect a4 => not toggling => mono
 
-		fancy_switch_bit : integer := 10; -- 0=ext is low => mono
+		fancy_switch_bit : integer := 20; -- 0=ext is low => mono
 		gtia_audio_bit : integer := 0;    -- 0=no gtia on l/r,1=gtia mixed on l/r
 		a4_bit : integer := 0;
 		a5_bit : integer := 0;
@@ -225,7 +225,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal A4_DETECTED : std_logic;
 	signal GTIA_AUDIO : std_logic;
 
-	signal EXT_INT : std_logic_vector(10 downto 0);
+	signal EXT_INT : std_logic_vector(20 downto 0);
 	
 	-- config
 		--config regs
@@ -273,9 +273,8 @@ BEGIN
 	);
 
 	EXT_INT(0) <= '0';  --force to 0
-	EXT_INT(10 downto 8) <= (others=>'1');
+	EXT_INT(20 downto ext_bits+1) <= (others=>'1');
 	EXT_INT(ext_bits downto 1) <= EXT;
-	EXT_INT(7 downto ext_bits+1) <= (others=>'0');
 
         synchronizer_gtia_audio : entity work.synchronizer
                 port map (clk=>clk, raw=>EXT_INT(gtia_audio_bit), sync=>GTIA_AUDIO);
