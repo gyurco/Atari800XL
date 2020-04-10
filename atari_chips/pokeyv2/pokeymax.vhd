@@ -370,8 +370,7 @@ end process;
 	
 process(
 	POKEY_CHANNEL0,POKEY_CHANNEL1,POKEY_CHANNEL2,POKEY_CHANNEL3,
-	CHANNEL_MODE_REG, -- 0=pokeys have a channel each,1=ch 0 summed, ch 1 summed, ch 2 summed etc
-	FANCY_ENABLE
+	CHANNEL_MODE_REG -- 0=pokeys have a channel each,1=ch 0 summed, ch 1 summed, ch 2 summed etc
 	)
 variable p0 : unsigned(5 downto 0);	
 variable p1 : unsigned(5 downto 0);
@@ -399,12 +398,6 @@ begin
 	c1 := resize(unsigned(POKEY_CHANNEL1(0)),6) + resize(unsigned(POKEY_CHANNEL1(1)),6) + resize(unsigned(POKEY_CHANNEL1(2)),6) + resize(unsigned(POKEY_CHANNEL1(3)),6);
 	c2 := resize(unsigned(POKEY_CHANNEL2(0)),6) + resize(unsigned(POKEY_CHANNEL2(1)),6) + resize(unsigned(POKEY_CHANNEL2(2)),6) + resize(unsigned(POKEY_CHANNEL2(3)),6);
 	c3 := resize(unsigned(POKEY_CHANNEL3(0)),6) + resize(unsigned(POKEY_CHANNEL3(1)),6) + resize(unsigned(POKEY_CHANNEL3(2)),6) + resize(unsigned(POKEY_CHANNEL3(3)),6);	
-	
-	if (FANCY_ENABLE='0') then
-		p1 := p0;
-		p2 := p0;
-		p3 := p0;
-	end if;
 	
 	if CHANNEL_MODE_REG ='1' then
 		sum0 := c0;
@@ -658,7 +651,7 @@ end generate covox_on;
 -- d2b0 - ym2
 -- d2f0 - config (write 0x3f to d21c to map it in d210, for low bit devices)
 
-process(CONFIG_ENABLE_REG,ADDR_IN,config_addr_decoded,fancy_enable)
+process(CONFIG_ENABLE_REG,ADDR_IN,config_addr_decoded,FANCY_ENABLE)
 	variable addr_bits : std_logic_vector(3 downto 0);
 begin
 	-- choose which bank
@@ -944,7 +937,8 @@ process(POST_DIVIDE_REG,
 	SAMPLE_L_REG, SAMPLE_R_REG,
 	SID_AUDIO,
 	YM2149_AUDIO,
-	GTIA_AUDIO,GTIA_ENABLE_REG
+	GTIA_AUDIO,GTIA_ENABLE_REG,
+	FANCY_ENABLE
 	)
 	variable p0u : unsigned(15 downto 0);
 	variable p1u : unsigned(15 downto 0);
@@ -996,7 +990,11 @@ begin
 	sidu := resize(unsigned(sid_audio(1)),20);
 	ymu := resize(unsigned(ym2149_audio(1)),12)&"00000000";
 	samu := resize(unsigned(sample_r_reg),12)&"00000000";
-	a1u := p1u + p3u + sidu + ymu + samu;
+	if (FANCY_ENABLE='1') then
+		a1u := p1u + p3u + sidu + ymu + samu;
+	else
+		a1u := a0u;
+	end if;
 	a2u := a0u;
 	a3u := a1u;
 
