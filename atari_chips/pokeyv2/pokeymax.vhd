@@ -1010,6 +1010,8 @@ begin
 			a0u := '0'&a0u(19 downto 1);
 		when "10" =>
 			a0u := "00"&a0u(19 downto 2);
+		when "11" =>
+			a0u := "000"&a0u(19 downto 3);
 		when others =>
 	end case;
 	
@@ -1018,6 +1020,8 @@ begin
 			a1u := '0'&a1u(19 downto 1);
 		when "10" =>
 			a1u := "00"&a1u(19 downto 2);
+		when "11" =>
+			a1u := "000"&a1u(19 downto 3);
 		when others =>
 	end case;
 
@@ -1026,6 +1030,8 @@ begin
 			a2u := '0'&a2u(19 downto 1);
 		when "10" =>
 			a2u := "00"&a2u(19 downto 2);
+		when "11" =>
+			a2u := "000"&a2u(19 downto 3);
 		when others =>
 	end case;
 	
@@ -1034,6 +1040,8 @@ begin
 			a3u := '0'&a3u(19 downto 1);
 		when "10" =>
 			a3u := "00"&a3u(19 downto 2);
+		when "11" =>
+			a3u := "000"&a3u(19 downto 3);
 		when others =>
 	end case;	
 
