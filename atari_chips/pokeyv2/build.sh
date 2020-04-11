@@ -106,6 +106,17 @@ my %variants =
 		"fpga" => "10M08SCU169C8G",
 		"version" => $version + "M08QC"
 	},
+	"10M08_quad_sid" =>
+	{
+		"pokeys" => 4,
+		"enable_auto_stereo" => 1,
+		"enable_sid" => 1,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a6_bit" => 3,
+		"fpga" => "10M08SCU169C8G",
+		"version" => $version + "M08QS"
+	},
 #	"10M08_full" => 
 #	{
 #		"board" => 3,
