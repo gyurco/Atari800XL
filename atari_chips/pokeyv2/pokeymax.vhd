@@ -522,7 +522,7 @@ sid_off : if enable_sid=0 generate
 end generate sid_off;
 
 sid_on : if enable_sid=1 generate 
-enable_sid_div : syncreset_enable_divider
+	enable_sid_div : entity work.syncreset_enable_divider
           generic map (COUNT=>56,RESETCOUNT=>6) -- 28-22
           port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>SID_CLK_ENABLE);
 
