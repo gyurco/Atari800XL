@@ -51,7 +51,7 @@ my %variants =
 		"fancy_switch_bit" => 2,
 		"gtia_audio_bit" => 3,
 		"fpga" => "10M02SCU169C8G",
-		"version" => $version + "M02SU"
+		"version" => $version . "M02SU"
 	},
 	"10M02_stereo_covox_auto" =>
 	{
@@ -62,7 +62,7 @@ my %variants =
 		"a7_bit" => 2,
 		"gtia_audio_bit" => 3, 
 		"fpga" => "10M02SCU169C8G",
-		"version" =>  $version+"M02SC"
+		"version" =>  $version."M02SC"
 	},
 	"10M04_quad_auto" =>
 	{
@@ -72,7 +72,7 @@ my %variants =
 		"a5_bit" => 2,
 		"gtia_audio_bit" => 3, 
 		"fpga" => "10M04SCU169C8G",
-		"version" => $version + "M04QA"
+		"version" => $version . "M04QA"
 	},
 	"10M04_quad_covox_auto" =>
 	{
@@ -83,7 +83,7 @@ my %variants =
 		"a7_bit" => 3, 
 		"enable_covox" => 1,
 		"fpga" => "10M04SCU169C8G",
-		"version" => $version + "M04QC"
+		"version" => $version . "M04QC"
 	},
 	"10M08_quad_auto" =>
 	{
@@ -93,7 +93,7 @@ my %variants =
 		"a5_bit" => 2,
 		"gtia_audio_bit" => 3, 
 		"fpga" => "10M08SCU169C8G",
-		"version" => $version + "M08QA"
+		"version" => $version . "M08QA"
 	},
 	"10M08_quad_covox_auto" =>
 	{
@@ -104,7 +104,7 @@ my %variants =
 		"a7_bit" => 3, 
 		"enable_covox" => 1,
 		"fpga" => "10M08SCU169C8G",
-		"version" => $version + "M08QC"
+		"version" => $version . "M08QC"
 	},
 	"10M08_quad_sid" =>
 	{
@@ -114,8 +114,8 @@ my %variants =
 		"a4_bit" => 1,
 		"a5_bit" => 2,
 		"a6_bit" => 3,
-		"fpga" => "10M08SCU169C8G",
-		"version" => $version + "M08QS"
+		"fpga" => "10M08SCU169C8G"
+	#	"version" => $version . "M08QS"
 	},
 #	"10M08_full" => 
 #	{
