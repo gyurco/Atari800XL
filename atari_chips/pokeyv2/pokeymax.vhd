@@ -242,7 +242,8 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal VERSION_LOC_NEXT : std_logic_vector(2 downto 0);
 	
 		--config infra
-	signal addr_decoded : std_logic_vector(31 downto 0);	
+	signal addr_decoded4 : std_logic_vector(15 downto 0);	
+	signal addr_decoded5 : std_logic_vector(31 downto 0);	
 	signal CONFIG_ENABLE_REG : std_logic;
 	signal CONFIG_ENABLE_NEXT: std_logic;
 	
@@ -606,26 +607,26 @@ covox_off : if enable_covox=0 generate
 end generate covox_off;
 
 covox_on : if enable_covox=1 generate 
-process(addr_decoded,SAMPLE_CH1_REG,SAMPLE_CH2_REG,SAMPLE_CH3_REG,SAMPLE_CH4_REG)
+process(addr_decoded5,SAMPLE_CH1_REG,SAMPLE_CH2_REG,SAMPLE_CH3_REG,SAMPLE_CH4_REG)
 begin
-	if (addr_decoded(0)='1') then
+	if (addr_decoded5(0)='1') then
 		SAMPLE_DO <= SAMPLE_CH1_REG;
 	end if;
 
-	if (addr_decoded(1)='1') then
+	if (addr_decoded5(1)='1') then
 		SAMPLE_DO <= SAMPLE_CH2_REG;
 	end if;
 
-	if (addr_decoded(2)='1') then
+	if (addr_decoded5(2)='1') then
 		SAMPLE_DO <= SAMPLE_CH3_REG;
 	end if;
 
-	if (addr_decoded(3)='1') then
+	if (addr_decoded5(3)='1') then
 		SAMPLE_DO <= SAMPLE_CH4_REG;
 	end if;
 end process;
 
-process(ADDR_IN, SAMPLE_WRITE_ENABLE,
+process(addr_decoded5, SAMPLE_WRITE_ENABLE,
 SAMPLE_CH1_REG,SAMPLE_CH2_REG,SAMPLE_CH3_REG,SAMPLE_CH4_REG,WRITE_DATA)
 begin
 	SAMPLE_CH1_NEXT <= SAMPLE_CH1_REG;
@@ -634,16 +635,16 @@ begin
 	SAMPLE_CH4_NEXT <= SAMPLE_CH4_REG;
 
 	if (SAMPLE_WRITE_ENABLE='1') then
-		if (addr_decoded(0)='1') then
+		if (addr_decoded5(0)='1') then
 			SAMPLE_CH1_NEXT <= WRITE_DATA;
 		end if;
-		if (addr_decoded(1)='1') then
+		if (addr_decoded5(1)='1') then
 			SAMPLE_CH2_NEXT <= WRITE_DATA;
 		end if;
-		if (addr_decoded(2)='1') then
+		if (addr_decoded5(2)='1') then
 			SAMPLE_CH3_NEXT <= WRITE_DATA;
 		end if;
-		if (addr_decoded(3)='1') then
+		if (addr_decoded5(3)='1') then
 			SAMPLE_CH4_NEXT <= WRITE_DATA;
 		end if;
 	end if;
@@ -682,7 +683,7 @@ end generate covox_on;
 -- d2b0 - ym2
 -- d2f0 - config (write 0x3f to d21c to map it in d210, for low bit devices)
 
-process(CONFIG_ENABLE_REG,ADDR_IN,addr_decoded,FANCY_ENABLE)
+process(CONFIG_ENABLE_REG,ADDR_IN,addr_decoded4,FANCY_ENABLE)
 	variable addr_bits : std_logic_vector(3 downto 0);
 begin
 	-- choose which bank
@@ -693,7 +694,7 @@ begin
 		addr_bits := (others=>'0');
 	end if;
 		
-	if ((config_enable_reg='1' and addr_bits="0001") or (addr_bits(3 downto 2) = "00" and addr_decoded(12)='1')) then
+	if ((config_enable_reg='1' and addr_bits="0001") or (addr_bits(3 downto 2) = "00" and addr_decoded4(12)='1')) then
 		addr_bits := x"f";
 	end if;
 	
@@ -789,10 +790,14 @@ end process;
 gen_config : if enable_config=1 generate
 
 decode_addr1 : entity work.complete_address_decoder
+	generic map(width=>4)
+	port map (addr_in=>ADDR_IN(3 downto 0), addr_decoded=>addr_decoded4);
+
+decode_addr2 : entity work.complete_address_decoder
 	generic map(width=>5)
-	port map (addr_in=>ADDR_IN(4 downto 0), addr_decoded=>addr_decoded);
+	port map (addr_in=>ADDR_IN(4 downto 0), addr_decoded=>addr_decoded5);
 	
-process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded,
+process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
 	SATURATE_REG,CHANNEL_MODE_REG,
 	CONFIG_ENABLE_REG,
 	POST_DIVIDE_REG,
@@ -812,24 +817,24 @@ begin
 	VERSION_LOC_NEXT <= VERSION_LOC_REG;
 	
 	if (CONFIG_WRITE_ENABLE='1') then
-		if (addr_decoded(0)='1') then
+		if (addr_decoded4(0)='1') then
 			SATURATE_NEXT <= WRITE_DATA(0);
 			CHANNEL_MODE_NEXT <= WRITE_DATA(2);
 		end if;
 		
-		if (addr_decoded(2)='1') then
+		if (addr_decoded4(2)='1') then
 			POST_DIVIDE_NEXT <= WRITE_DATA;
 		end if;
 				
-		if (addr_decoded(3)='1') then			
+		if (addr_decoded4(3)='1') then			
 			GTIA_ENABLE_NEXT <= WRITE_DATA(3 downto 0);
 		end if;		
 
-		if (addr_decoded(4)='1') then
+		if (addr_decoded4(4)='1') then
 			VERSION_LOC_NEXT <= WRITE_DATA(2 downto 0);
 		end if;
 		
-		if (addr_decoded(12)='1') then
+		if (addr_decoded4(12)='1') then
 			if (WRITE_DATA=x"3F") then
 				CONFIG_ENABLE_NEXT <= '1';
 			else
@@ -839,19 +844,19 @@ begin
 	end if;	
 end process;
 
-process(addr_decoded,VERSION_LOC_REG,
+process(addr_decoded4,VERSION_LOC_REG,
 SATURATE_REG,CHANNEL_MODE_REG, 
 POST_DIVIDE_REG, GTIA_ENABLE_REG)
 begin
 	CONFIG_DO <= (others=>'1');
 	
-	if (addr_decoded(0)='1') then
+	if (addr_decoded4(0)='1') then
 			CONFIG_DO <= (others=>'0');
 			CONFIG_DO(0) <= SATURATE_REG;
 			CONFIG_DO(2) <= CHANNEL_MODE_REG;
 	end if;	
 	
-	if (addr_decoded(1)='1') then
+	if (addr_decoded4(1)='1') then
 		CONFIG_DO <= (others=>'0');
 		if (pokeys=1) then
 			CONFIG_DO(1 downto 0) <= "00";
@@ -882,17 +887,17 @@ begin
 		end if;					
 	end if;
 	
-	if (addr_decoded(2)='1') then
+	if (addr_decoded4(2)='1') then
 		CONFIG_DO <= POST_DIVIDE_REG;
 	end if;	
 	
-	if (addr_decoded(3)='1') then
+	if (addr_decoded4(3)='1') then
 		CONFIG_DO <= (others=>'0');
 		CONFIG_DO(3 downto 0) <= GTIA_ENABLE_REG;
 		--CONFIG_DO(7 downto 4) <= SIO_ENABLE_REG; -- if we implement
 	end if;
 	
-	if (addr_decoded(4)='1') then
+	if (addr_decoded4(4)='1') then
 		-- version
 		case VERSION_LOC_REG(2 downto 0) is			
 			when "000" => 
@@ -915,7 +920,7 @@ begin
 		end case;		
 	end if;
 	
-	if (addr_decoded(12)='1') then
+	if (addr_decoded4(12)='1') then
 		CONFIG_DO <= x"01";
 	end if;		
 	
