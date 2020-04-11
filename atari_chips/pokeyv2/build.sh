@@ -8,6 +8,8 @@ my $name="eclaireXL";
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
+my $version = "110";
+
 my %variants = 
 (
 #		enable_auto_stereo : integer := 0;   -- 1=auto detect a4 => not toggling => mono
@@ -31,16 +33,16 @@ my %variants =
 
 
 
-	"10M02_mono" =>
-	{
-		"pokeys" => 1,
-		"fpga" => "10M02SCU169C8G",
-		"enable_auto_stereo" => 1,
-		"gtia_audio_bit" => 2,
-		"a4_bit" => 1, #to access config!
-		"fancy_switch_bit" => 0,
-		"version" => "XXXM02MO"
-	},
+#	"10M02_mono" =>
+#	{
+#		"pokeys" => 1,
+#		"fpga" => "10M02SCU169C8G",
+#		"enable_auto_stereo" => 1,
+#		"gtia_audio_bit" => 3,
+#		"a4_bit" => 1, #to access config!
+#		"fancy_switch_bit" => 0,
+#		"version" => $version + "M02MO"
+#	},
 	"10M02_stereo_u1mb_auto" =>
 	{
 		"pokeys" => 2,
@@ -49,7 +51,7 @@ my %variants =
 		"fancy_switch_bit" => 2,
 		"gtia_audio_bit" => 3,
 		"fpga" => "10M02SCU169C8G",
-		"version" => "XXXM02SU"
+		"version" => $version + "M02SU"
 	},
 	"10M02_stereo_covox_auto" =>
 	{
@@ -60,7 +62,7 @@ my %variants =
 		"a7_bit" => 2,
 		"gtia_audio_bit" => 3, 
 		"fpga" => "10M02SCU169C8G",
-		"version" => "XXXM02SC"
+		"version" =>  $version+"M02SC"
 	},
 	"10M04_quad_auto" =>
 	{
@@ -68,9 +70,20 @@ my %variants =
 		"enable_auto_stereo" => 1,
 		"a4_bit" => 1,
 		"a5_bit" => 2,
-		"a6_bit" => 3,
+		"gtia_audio_bit" => 3, 
 		"fpga" => "10M04SCU169C8G",
-		"version" => "XXXM04QA"
+		"version" => $version + "M04QA"
+	},
+	"10M04_quad_covox_auto" =>
+	{
+		"pokeys" => 4,
+		"enable_auto_stereo" => 1,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a7_bit" => 3, 
+		"enable_covox" => 1,
+		"fpga" => "10M04SCU169C8G",
+		"version" => $version + "M04QC"
 	},
 	"10M08_quad_auto" =>
 	{
@@ -78,28 +91,39 @@ my %variants =
 		"enable_auto_stereo" => 1,
 		"a4_bit" => 1,
 		"a5_bit" => 2,
-		"a6_bit" => 3,
+		"gtia_audio_bit" => 3, 
 		"fpga" => "10M08SCU169C8G",
-		"version" => "XXXM04QA"
+		"version" => $version + "M08QA"
 	},
-	"10M08_full" => 
+	"10M08_quad_covox_auto" =>
 	{
-		"board" => 3,
-		"ext_bits"=> 11,
 		"pokeys" => 4,
 		"enable_auto_stereo" => 1,
-		"fancy_switch_bit" => 1,
-		"gtia_audio_bit" => 2,
-		"a4_bit" => 3,
-		"a5_bit" => 4,
-		"a6_bit" => 5,
-		"a7_bit" => 6,
-		"enable_sid" => 1,
-		"enable_ym" => 1,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a7_bit" => 3, 
 		"enable_covox" => 1,
-		"enable_sample" => 1,
-		"fpga" => "10M08SCU169C8G"
-	}
+		"fpga" => "10M08SCU169C8G",
+		"version" => $version + "M08QC"
+	},
+#	"10M08_full" => 
+#	{
+#		"board" => 3,
+#		"ext_bits"=> 11,
+#		"pokeys" => 4,
+#		"enable_auto_stereo" => 1,
+#		"fancy_switch_bit" => 1,
+#		"gtia_audio_bit" => 2,
+#		"a4_bit" => 3,
+#		"a5_bit" => 4,
+#		"a6_bit" => 5,
+#		"a7_bit" => 6,
+#		"enable_sid" => 1,
+#		"enable_ym" => 1,
+#		"enable_covox" => 1,
+#		"enable_sample" => 1,
+#		"fpga" => "10M08SCU169C8G"
+#	}
 );
 
 #if (not defined $wanted_variant or (not exists $variants{$wanted_variant} and $wanted_variant ne "ALL"))
