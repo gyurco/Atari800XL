@@ -242,15 +242,19 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal VERSION_LOC_NEXT : std_logic_vector(2 downto 0);
 	
 		--config infra
-	signal config_addr_decoded : std_logic_vector(15 downto 0);	
+	signal addr_decoded : std_logic_vector(31 downto 0);	
 	signal CONFIG_ENABLE_REG : std_logic;
 	signal CONFIG_ENABLE_NEXT: std_logic;
 	
 	-- SAMPLE/COVOX
-	signal SAMPLE_R_REG : std_logic_vector(7 downto 0);
-	signal SAMPLE_L_REG : std_logic_vector(7 downto 0);
-	signal SAMPLE_R_NEXT : std_logic_vector(7 downto 0);
-	signal SAMPLE_L_NEXT : std_logic_vector(7 downto 0);
+	signal SAMPLE_CH2_REG : std_logic_vector(7 downto 0);
+	signal SAMPLE_CH1_REG : std_logic_vector(7 downto 0);
+	signal SAMPLE_CH2_NEXT : std_logic_vector(7 downto 0);
+	signal SAMPLE_CH1_NEXT : std_logic_vector(7 downto 0);
+	signal SAMPLE_CH4_REG : std_logic_vector(7 downto 0);
+	signal SAMPLE_CH3_REG : std_logic_vector(7 downto 0);
+	signal SAMPLE_CH4_NEXT : std_logic_vector(7 downto 0);
+	signal SAMPLE_CH3_NEXT : std_logic_vector(7 downto 0);
 
 	function getByte(a : string; x : integer) return std_logic_vector is
    		 variable ret : std_logic_vector(7 downto 0);
@@ -592,32 +596,53 @@ end generate ym_on;
 -- COVOX
 --------------------------------------------------------
 covox_off : if enable_covox=0 generate 
-	SAMPLE_L_REG <= (others=>'0');
-	SAMPLE_R_REG <= (others=>'0');
+	SAMPLE_CH1_REG <= (others=>'0');
+	SAMPLE_CH2_REG <= (others=>'0');
+	SAMPLE_CH3_REG <= (others=>'0');
+	SAMPLE_CH4_REG <= (others=>'0');
 	SAMPLE_DO <= (others=>'0');
 end generate covox_off;
 
 covox_on : if enable_covox=1 generate 
-process(ADDR_IN,SAMPLE_L_REG,SAMPLE_R_REG)
+process(addr_decoded,SAMPLE_CH1_REG,SAMPLE_CH2_REG,SAMPLE_CH3_REG,SAMPLE_CH4_REG)
 begin
-	if (ADDR_IN(0)='1') then
-		SAMPLE_DO <= SAMPLE_L_REG;
-	else
-		SAMPLE_DO <= SAMPLE_R_REG;
+	if (addr_decoded(0)='1') then
+		SAMPLE_DO <= SAMPLE_CH1_REG;
+	end if;
+
+	if (addr_decoded(1)='1') then
+		SAMPLE_DO <= SAMPLE_CH2_REG;
+	end if;
+
+	if (addr_decoded(2)='1') then
+		SAMPLE_DO <= SAMPLE_CH3_REG;
+	end if;
+
+	if (addr_decoded(3)='1') then
+		SAMPLE_DO <= SAMPLE_CH4_REG;
 	end if;
 end process;
 
 process(ADDR_IN, SAMPLE_WRITE_ENABLE,
-SAMPLE_L_REG,SAMPLE_R_REG,WRITE_DATA)
+SAMPLE_CH1_REG,SAMPLE_CH2_REG,SAMPLE_CH3_REG,SAMPLE_CH4_REG,WRITE_DATA)
 begin
-	SAMPLE_L_NEXT <= SAMPLE_L_REG;
-	SAMPLE_R_NEXT <= SAMPLE_R_REG;
+	SAMPLE_CH1_NEXT <= SAMPLE_CH1_REG;
+	SAMPLE_CH2_NEXT <= SAMPLE_CH2_REG;
+	SAMPLE_CH3_NEXT <= SAMPLE_CH3_REG;
+	SAMPLE_CH4_NEXT <= SAMPLE_CH4_REG;
 
 	if (SAMPLE_WRITE_ENABLE='1') then
-		if (ADDR_IN(0)='1') then
-			SAMPLE_L_NEXT <= WRITE_DATA;
-		else
-			SAMPLE_R_NEXT <= WRITE_DATA;
+		if (addr_decoded(0)='1') then
+			SAMPLE_CH1_NEXT <= WRITE_DATA;
+		end if;
+		if (addr_decoded(1)='1') then
+			SAMPLE_CH2_NEXT <= WRITE_DATA;
+		end if;
+		if (addr_decoded(2)='1') then
+			SAMPLE_CH3_NEXT <= WRITE_DATA;
+		end if;
+		if (addr_decoded(3)='1') then
+			SAMPLE_CH4_NEXT <= WRITE_DATA;
 		end if;
 	end if;
 end process;
@@ -625,11 +650,15 @@ end process;
 process(clk,reset_n)
 begin
 	if (reset_n='0') then
-		SAMPLE_L_REG <= (others=>'0');
-		SAMPLE_R_REG <= (others=>'0');
+		SAMPLE_CH1_REG <= (others=>'0');
+		SAMPLE_CH2_REG <= (others=>'0');
+		SAMPLE_CH3_REG <= (others=>'0');
+		SAMPLE_CH4_REG <= (others=>'0');
 	elsif (clk'event and clk='1') then
-		SAMPLE_L_REG <= SAMPLE_L_NEXT;
-		SAMPLE_R_REG <= SAMPLE_R_NEXT;
+		SAMPLE_CH1_REG <= SAMPLE_CH1_NEXT;
+		SAMPLE_CH2_REG <= SAMPLE_CH2_NEXT;
+		SAMPLE_CH3_REG <= SAMPLE_CH3_NEXT;
+		SAMPLE_CH4_REG <= SAMPLE_CH4_NEXT;
 	end if;
 end process;
 
@@ -651,7 +680,7 @@ end generate covox_on;
 -- d2b0 - ym2
 -- d2f0 - config (write 0x3f to d21c to map it in d210, for low bit devices)
 
-process(CONFIG_ENABLE_REG,ADDR_IN,config_addr_decoded,FANCY_ENABLE)
+process(CONFIG_ENABLE_REG,ADDR_IN,addr_decoded,FANCY_ENABLE)
 	variable addr_bits : std_logic_vector(3 downto 0);
 begin
 	-- choose which bank
@@ -662,7 +691,7 @@ begin
 		addr_bits := (others=>'0');
 	end if;
 		
-	if ((config_enable_reg='1' and addr_bits="0001") or (addr_bits(3 downto 2) = "00" and config_addr_decoded(12)='1')) then
+	if ((config_enable_reg='1' and addr_bits="0001") or (addr_bits(3 downto 2) = "00" and addr_decoded(12)='1')) then
 		addr_bits := x"f";
 	end if;
 	
@@ -758,10 +787,10 @@ end process;
 gen_config : if enable_config=1 generate
 
 decode_addr1 : entity work.complete_address_decoder
-	generic map(width=>4)
-	port map (addr_in=>ADDR_IN(3 downto 0), addr_decoded=>config_addr_decoded);
+	generic map(width=>5)
+	port map (addr_in=>ADDR_IN(4 downto 0), addr_decoded=>addr_decoded);
 	
-process(CONFIG_WRITE_ENABLE, WRITE_DATA, config_addr_decoded,
+process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded,
 	SATURATE_REG,CHANNEL_MODE_REG,
 	CONFIG_ENABLE_REG,
 	POST_DIVIDE_REG,
@@ -781,24 +810,24 @@ begin
 	VERSION_LOC_NEXT <= VERSION_LOC_REG;
 	
 	if (CONFIG_WRITE_ENABLE='1') then
-		if (config_addr_decoded(0)='1') then
+		if (addr_decoded(0)='1') then
 			SATURATE_NEXT <= WRITE_DATA(0);
 			CHANNEL_MODE_NEXT <= WRITE_DATA(2);
 		end if;
 		
-		if (config_addr_decoded(2)='1') then
+		if (addr_decoded(2)='1') then
 			POST_DIVIDE_NEXT <= WRITE_DATA;
 		end if;
 				
-		if (config_addr_decoded(3)='1') then			
+		if (addr_decoded(3)='1') then			
 			GTIA_ENABLE_NEXT <= WRITE_DATA(3 downto 0);
 		end if;		
 
-		if (config_addr_decoded(4)='1') then
+		if (addr_decoded(4)='1') then
 			VERSION_LOC_NEXT <= WRITE_DATA(2 downto 0);
 		end if;
 		
-		if (config_addr_decoded(12)='1') then
+		if (addr_decoded(12)='1') then
 			if (WRITE_DATA=x"3F") then
 				CONFIG_ENABLE_NEXT <= '1';
 			else
@@ -808,19 +837,19 @@ begin
 	end if;	
 end process;
 
-process(config_addr_decoded,VERSION_LOC_REG,
+process(addr_decoded,VERSION_LOC_REG,
 SATURATE_REG,CHANNEL_MODE_REG, 
 POST_DIVIDE_REG, GTIA_ENABLE_REG)
 begin
 	CONFIG_DO <= (others=>'1');
 	
-	if (config_addr_decoded(0)='1') then
+	if (addr_decoded(0)='1') then
 			CONFIG_DO <= (others=>'0');
 			CONFIG_DO(0) <= SATURATE_REG;
 			CONFIG_DO(2) <= CHANNEL_MODE_REG;
 	end if;	
 	
-	if (config_addr_decoded(1)='1') then
+	if (addr_decoded(1)='1') then
 		CONFIG_DO <= (others=>'0');
 		if (pokeys=1) then
 			CONFIG_DO(1 downto 0) <= "00";
@@ -851,17 +880,17 @@ begin
 		end if;					
 	end if;
 	
-	if (config_addr_decoded(2)='1') then
+	if (addr_decoded(2)='1') then
 		CONFIG_DO <= POST_DIVIDE_REG;
 	end if;	
 	
-	if (config_addr_decoded(3)='1') then
+	if (addr_decoded(3)='1') then
 		CONFIG_DO <= (others=>'0');
 		CONFIG_DO(3 downto 0) <= GTIA_ENABLE_REG;
 		--CONFIG_DO(7 downto 4) <= SIO_ENABLE_REG; -- if we implement
 	end if;
 	
-	if (config_addr_decoded(4)='1') then
+	if (addr_decoded(4)='1') then
 		-- version
 		case VERSION_LOC_REG(2 downto 0) is			
 			when "000" => 
@@ -884,7 +913,7 @@ begin
 		end case;		
 	end if;
 	
-	if (config_addr_decoded(12)='1') then
+	if (addr_decoded(12)='1') then
 		CONFIG_DO <= x"01";
 	end if;		
 	
@@ -934,7 +963,7 @@ end generate;
 -- AUDIO mixing
 process(POST_DIVIDE_REG,
 	POKEY_AUDIO_0,POKEY_AUDIO_1,POKEY_AUDIO_2,POKEY_AUDIO_3, --signed
-	SAMPLE_L_REG, SAMPLE_R_REG,
+	SAMPLE_CH1_REG, SAMPLE_CH2_REG, SAMPLE_CH3_REG, SAMPLE_CH4_REG,
 	SID_AUDIO,
 	YM2149_AUDIO,
 	GTIA_AUDIO,GTIA_ENABLE_REG,
@@ -958,6 +987,7 @@ process(POST_DIVIDE_REG,
 	variable sidu: unsigned(19 downto 0);
 	variable ymu: unsigned(19 downto 0);
 	variable samu: unsigned(19 downto 0);
+	variable samu2: unsigned(19 downto 0);
 begin
 -- 
 --  0: pokey0,pokey2, pokeych1, sid0,ym0,covox0,sample0, gtia, sio in
@@ -984,14 +1014,16 @@ begin
 
 	sidu := resize(unsigned(sid_audio(0)),20);
 	ymu := resize(unsigned(ym2149_audio(0)),12)&"00000000";
-	samu := resize(unsigned(sample_l_reg),12)&"00000000";
-	a0u := p0u + p2u + sidu + ymu + samu;
+	samu := resize(unsigned(sample_ch1_reg),12)&"00000000";
+	samu2 := resize(unsigned(sample_ch3_reg),12)&"00000000";
+	a0u := p0u + p2u + sidu + ymu + samu + samu2;
 
 	sidu := resize(unsigned(sid_audio(1)),20);
 	ymu := resize(unsigned(ym2149_audio(1)),12)&"00000000";
-	samu := resize(unsigned(sample_r_reg),12)&"00000000";
+	samu := resize(unsigned(sample_ch2_reg),12)&"00000000";
+	samu2 := resize(unsigned(sample_ch4_reg),12)&"00000000";
 	if (FANCY_ENABLE='1') then
-		a1u := p1u + p3u + sidu + ymu + samu;
+		a1u := p1u + p3u + sidu + ymu + samu + samu2;
 	else
 		a1u := a0u;
 	end if;
