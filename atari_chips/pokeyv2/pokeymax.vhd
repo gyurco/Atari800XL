@@ -257,6 +257,9 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal SAMPLE_CH4_NEXT : std_logic_vector(7 downto 0);
 	signal SAMPLE_CH3_NEXT : std_logic_vector(7 downto 0);
 
+	type SAMPLE_AUDIO_TYPE is array(NATURAL range<>) of std_logic_vector(15 downto 0);
+	signal SAMPLE_AUDIO : SAMPLE_AUDIO_TYPE(1 downto 0);
+
 	function getByte(a : string; x : integer) return std_logic_vector is
    		 variable ret : std_logic_vector(7 downto 0);
 	begin
@@ -628,11 +631,18 @@ end process;
 
 process(addr_decoded5, SAMPLE_WRITE_ENABLE,
 SAMPLE_CH1_REG,SAMPLE_CH2_REG,SAMPLE_CH3_REG,SAMPLE_CH4_REG,WRITE_DATA)
+	variable l : unsigned(8 downto 0);
+	variable r : unsigned(8 downto 0);
 begin
 	SAMPLE_CH1_NEXT <= SAMPLE_CH1_REG;
 	SAMPLE_CH2_NEXT <= SAMPLE_CH2_REG;
 	SAMPLE_CH3_NEXT <= SAMPLE_CH3_REG;
 	SAMPLE_CH4_NEXT <= SAMPLE_CH4_REG;
+
+	l := resize(unsigned(SAMPLE_CH1_REG),9) + resize(unsigned(SAMPLE_CH4_REG),9);
+	r := resize(unsigned(SAMPLE_CH2_REG),9) + resize(unsigned(SAMPLE_CH3_REG),9);
+	SAMPLE_AUDIO(0) <= std_logic_vector(l)&"0000000";
+	SAMPLE_AUDIO(1) <= std_logic_vector(r)&"0000000";
 
 	if (SAMPLE_WRITE_ENABLE='1') then
 		if (addr_decoded5(0)='1') then
@@ -970,7 +980,7 @@ end generate;
 -- AUDIO mixing
 process(POST_DIVIDE_REG,
 	POKEY_AUDIO_0,POKEY_AUDIO_1,POKEY_AUDIO_2,POKEY_AUDIO_3, --signed
-	SAMPLE_CH1_REG, SAMPLE_CH2_REG, SAMPLE_CH3_REG, SAMPLE_CH4_REG,
+	SAMPLE_AUDIO,
 	SID_AUDIO,
 	YM2149_AUDIO,
 	GTIA_AUDIO,GTIA_ENABLE_REG,
@@ -994,7 +1004,6 @@ process(POST_DIVIDE_REG,
 	variable sidu: unsigned(19 downto 0);
 	variable ymu: unsigned(19 downto 0);
 	variable samu: unsigned(19 downto 0);
-	variable samu2: unsigned(19 downto 0);
 begin
 -- 
 --  0: pokey0,pokey2, pokeych1, sid0,ym0,covox0,sample0, gtia, sio in
@@ -1021,16 +1030,14 @@ begin
 
 	sidu := resize(unsigned(sid_audio(0)),20);
 	ymu := resize(unsigned(ym2149_audio(0)),12)&"00000000";
-	samu := resize(unsigned(sample_ch1_reg),12)&"00000000";
-	samu2 := resize(unsigned(sample_ch3_reg),12)&"00000000";
-	a0u := p0u + p2u + sidu + ymu + samu + samu2;
+	samu := resize(unsigned(sample_audio(0)),20);
+	a0u := p0u + p2u + sidu + ymu + samu;
 
 	sidu := resize(unsigned(sid_audio(1)),20);
 	ymu := resize(unsigned(ym2149_audio(1)),12)&"00000000";
-	samu := resize(unsigned(sample_ch2_reg),12)&"00000000";
-	samu2 := resize(unsigned(sample_ch4_reg),12)&"00000000";
+	samu := resize(unsigned(sample_audio(1)),20);
 	if (FANCY_ENABLE='1') then
-		a1u := p1u + p3u + sidu + ymu + samu + samu2;
+		a1u := p1u + p3u + sidu + ymu + samu;
 	else
 		a1u := a0u;
 	end if;
