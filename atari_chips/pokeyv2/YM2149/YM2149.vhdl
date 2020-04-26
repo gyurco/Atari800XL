@@ -448,8 +448,8 @@ decode_addr1 : entity work.complete_address_decoder
 		ENABLE => enable,
 		
 		COUNT_RESET => envelope_count_reset,
-		SHAPE => envelope_shape_reg,
-		PERIOD => envelope_period_reg,
+		SHAPE => shape_envelope_reg,
+		PERIOD => period_envelope_reg,
 
 		ENVELOPE => envelope_reg
 	);		
