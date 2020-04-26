@@ -161,6 +161,7 @@ set_global_assignment -name VHDL_FILE pokey.vhdl
 set_global_assignment -name VHDL_FILE phi_mult.vhdl
 set_global_assignment -name VHDL_FILE synchronizer.vhdl
 set_global_assignment -name VHDL_FILE pokeymax.vhd
+set_global_assignment -name VHDL_FILE YM2149/YM2149_envelope.vhdl
 set_global_assignment -name VHDL_FILE YM2149/YM2149_noise.vhdl
 set_global_assignment -name VHDL_FILE YM2149/YM2149.vhdl
 set_global_assignment -name VHDL_FILE YM2149/YM2149_freqdiv.vhdl

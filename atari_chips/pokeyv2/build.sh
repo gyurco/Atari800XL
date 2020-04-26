@@ -8,7 +8,7 @@ my $name="eclaireXL";
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
-my $version = "110";
+my $version = "111";
 
 my %variants = 
 (
@@ -33,16 +33,15 @@ my %variants =
 
 
 
-#	"10M02_mono" =>
-#	{
-#		"pokeys" => 1,
-#		"fpga" => "10M02SCU169C8G",
-#		"enable_auto_stereo" => 1,
-#		"gtia_audio_bit" => 3,
-#		"a4_bit" => 1, #to access config!
-#		"fancy_switch_bit" => 0,
-#		"version" => $version + "M02MO"
-#	},
+	"10M02_mono" =>
+	{
+		"pokeys" => 1,
+		"fpga" => "10M02SCU169C8G",
+		"enable_auto_stereo" => 1,
+		"gtia_audio_bit" => 3,
+		"a4_bit" => 1, #to access config!
+		"version" => $version . "M02MO"
+	},
 	"10M02_stereo_u1mb_auto" =>
 	{
 		"pokeys" => 2,

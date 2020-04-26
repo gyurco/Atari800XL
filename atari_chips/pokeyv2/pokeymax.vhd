@@ -229,12 +229,14 @@ ARCHITECTURE vhdl OF pokeymax IS
 	
 	-- config
 		--config regs
+	signal IRQ_EN_REG : std_logic;
 	signal CHANNEL_MODE_REG : std_logic;
 	signal SATURATE_REG : std_logic;
 	signal POST_DIVIDE_REG : std_logic_vector(7 downto 0);	
 	signal GTIA_ENABLE_REG : std_logic_vector(3 downto 0);
 	signal VERSION_LOC_REG : std_logic_vector(2 downto 0);
 	
+	signal IRQ_EN_NEXT : std_logic;
 	signal CHANNEL_MODE_NEXT : std_logic;
 	signal SATURATE_NEXT : std_logic;
 	signal POST_DIVIDE_NEXT : std_logic_vector(7 downto 0);
@@ -779,6 +781,7 @@ end process;
 process(clk,reset_n)
 begin
 	if (reset_n='0') then
+		IRQ_EN_REG <= '0';
 		CHANNEL_MODE_REG <= '0';
 		SATURATE_REG <= '1';
 		POST_DIVIDE_REG <= "10100000"; -- 1/2 5v, 3/4 1v
@@ -786,6 +789,7 @@ begin
 		CONFIG_ENABLE_REG <= '0';
 		VERSION_LOC_REG <= (others=>'0');
 	elsif (clk'event and clk='1') then
+		IRQ_EN_REG <= IRQ_EN_NEXT;
 		CHANNEL_MODE_REG <= CHANNEL_MODE_NEXT;
 		SATURATE_REG <= SATURATE_NEXT;
 		POST_DIVIDE_REG <= POST_DIVIDE_NEXT;
@@ -808,7 +812,7 @@ decode_addr2 : entity work.complete_address_decoder
 	port map (addr_in=>ADDR_IN(4 downto 0), addr_decoded=>addr_decoded5);
 	
 process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
-	SATURATE_REG,CHANNEL_MODE_REG,
+	SATURATE_REG,CHANNEL_MODE_REG,IRQ_EN_REG,
 	CONFIG_ENABLE_REG,
 	POST_DIVIDE_REG,
 	GTIA_ENABLE_REG,
@@ -817,6 +821,7 @@ process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
 begin
 	SATURATE_NEXT <= SATURATE_REG;
 	CHANNEL_MODE_NEXT <= CHANNEL_MODE_REG;
+	IRQ_EN_NEXT <= IRQ_EN_REG;
 
 	POST_DIVIDE_NEXT <= POST_DIVIDE_REG;
 	
@@ -830,6 +835,7 @@ begin
 		if (addr_decoded4(0)='1') then
 			SATURATE_NEXT <= WRITE_DATA(0);
 			CHANNEL_MODE_NEXT <= WRITE_DATA(2);
+			IRQ_EN_NEXT <= WRITE_DATA(3);
 		end if;
 		
 		if (addr_decoded4(2)='1') then
@@ -855,7 +861,7 @@ begin
 end process;
 
 process(addr_decoded4,VERSION_LOC_REG,
-SATURATE_REG,CHANNEL_MODE_REG, 
+SATURATE_REG,CHANNEL_MODE_REG,IRQ_EN_REG,
 POST_DIVIDE_REG, GTIA_ENABLE_REG)
 begin
 	CONFIG_DO <= (others=>'1');
@@ -864,6 +870,7 @@ begin
 			CONFIG_DO <= (others=>'0');
 			CONFIG_DO(0) <= SATURATE_REG;
 			CONFIG_DO(2) <= CHANNEL_MODE_REG;
+			CONFIG_DO(3) <= IRQ_EN_REG;
 	end if;	
 	
 	if (addr_decoded4(1)='1') then
@@ -1232,7 +1239,7 @@ AUD(2) <= AUDIO_1_SIGMADELTA;
 AUD(3) <= AUDIO_2_SIGMADELTA;
 AUD(4) <= AUDIO_3_SIGMADELTA;
 
-IRQ <= '0' when (and_reduce(POKEY_IRQ))='0' else 'Z';
+IRQ <= '0' when (IRQ_EN_REG='1' and (and_reduce(POKEY_IRQ)='0')) or (IRQ_EN_REG='0' and POKEY_IRQ(0)='0')  else 'Z';
 
 D <= BUS_DATA when BUS_OE='1' else (others=>'Z');
 
