@@ -41,15 +41,15 @@ ENTITY YM2149 IS
 END YM2149;		
 		
 ARCHITECTURE vhdl OF YM2149 IS
-	signal freq_channel_a_reg : std_logic_vector(11 downto 0);
-	signal freq_channel_a_next : std_logic_vector(11 downto 0);
-	signal freq_channel_b_reg : std_logic_vector(11 downto 0);
-	signal freq_channel_b_next : std_logic_vector(11 downto 0);
-	signal freq_channel_c_reg : std_logic_vector(11 downto 0);
-	signal freq_channel_c_next : std_logic_vector(11 downto 0);
+	signal period_channel_a_reg : std_logic_vector(11 downto 0);
+	signal period_channel_a_next : std_logic_vector(11 downto 0);
+	signal period_channel_b_reg : std_logic_vector(11 downto 0);
+	signal period_channel_b_next : std_logic_vector(11 downto 0);
+	signal period_channel_c_reg : std_logic_vector(11 downto 0);
+	signal period_channel_c_next : std_logic_vector(11 downto 0);
 	
-	signal freq_noise_reg : std_logic_vector(4 downto 0);
-	signal freq_noise_next : std_logic_vector(4 downto 0);	
+	signal period_noise_reg : std_logic_vector(4 downto 0);
+	signal period_noise_next : std_logic_vector(4 downto 0);	
 	
 	signal vol_channel_a_reg : std_logic_vector(4 downto 0);
 	signal vol_channel_a_next : std_logic_vector(4 downto 0);
@@ -58,8 +58,8 @@ ARCHITECTURE vhdl OF YM2149 IS
 	signal vol_channel_c_reg : std_logic_vector(4 downto 0);
 	signal vol_channel_c_next : std_logic_vector(4 downto 0);	
 	
-	signal freq_envelope_reg : std_logic_vector(15 downto 0);
-	signal freq_envelope_next : std_logic_vector(15 downto 0);	
+	signal period_envelope_reg : std_logic_vector(15 downto 0);
+	signal period_envelope_next : std_logic_vector(15 downto 0);	
 	
 	signal shape_envelope_reg : std_logic_vector(3 downto 0);
 	signal shape_envelope_next : std_logic_vector(3 downto 0);		
@@ -89,7 +89,8 @@ ARCHITECTURE vhdl OF YM2149 IS
 	signal channel_b_val : std_logic;
 	signal channel_c_val : std_logic;
 	
-	signal envelope_reg : std_logic_vector(3 downto 0); -- TODO
+	signal envelope_reg : std_logic_vector(3 downto 0); 
+	signal envelope_count_reset : std_logic;
 	
 	signal channel_a_vol : std_logic_vector(3 downto 0);
 	signal channel_b_vol : std_logic_vector(3 downto 0);
@@ -100,14 +101,14 @@ BEGIN
 	process(clk,reset_n)
 	begin
 		if (reset_n='0') then
-			freq_channel_a_reg <= (others=>'0');
-			freq_channel_b_reg <= (others=>'0');
-			freq_channel_c_reg <= (others=>'0');
-			freq_noise_reg <= (others=>'0');
+			period_channel_a_reg <= (others=>'0');
+			period_channel_b_reg <= (others=>'0');
+			period_channel_c_reg <= (others=>'0');
+			period_noise_reg <= (others=>'0');
 			vol_channel_a_reg <= (others=>'0');
 			vol_channel_b_reg <= (others=>'0');
 			vol_channel_c_reg <= (others=>'0');		
-			freq_envelope_reg <=	(others=>'0');
+			period_envelope_reg <=	(others=>'0');
 			shape_envelope_reg <= (others=>'0');
 			mixer_noise_reg <= (others=>'0');
 			mixer_tone_reg <= (others=>'0');
@@ -115,14 +116,14 @@ BEGIN
 			ioa_reg <= (others=>'0');
 			iob_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then
-			freq_channel_a_reg <= freq_channel_a_next;
-			freq_channel_b_reg <= freq_channel_b_next;
-			freq_channel_c_reg <= freq_channel_c_next;
-			freq_noise_reg <= freq_noise_next;
+			period_channel_a_reg <= period_channel_a_next;
+			period_channel_b_reg <= period_channel_b_next;
+			period_channel_c_reg <= period_channel_c_next;
+			period_noise_reg <= period_noise_next;
 			vol_channel_a_reg <= vol_channel_a_next;
 			vol_channel_b_reg <= vol_channel_b_next;
 			vol_channel_c_reg <= vol_channel_c_next;			
-			freq_envelope_reg <= freq_envelope_next;
+			period_envelope_reg <= period_envelope_next;
 			shape_envelope_reg <= shape_envelope_next; 
 			mixer_noise_reg <= mixer_noise_next;
 			mixer_tone_reg <= mixer_tone_next;
@@ -137,10 +138,10 @@ decode_addr1 : entity work.complete_address_decoder
 	port map (addr_in=>ADDR(3 downto 0), addr_decoded=>addr_decoded);	
 	
 	process(addr_decoded,write_enable,di,
-		freq_channel_a_reg,freq_channel_b_reg,freq_channel_c_reg,
-		freq_noise_reg,
+		period_channel_a_reg,period_channel_b_reg,period_channel_c_reg,
+		period_noise_reg,
 		vol_channel_a_reg,vol_channel_b_reg,vol_channel_c_reg,
-		freq_envelope_reg,
+		period_envelope_reg,
 		shape_envelope_reg,
 		mixer_noise_reg,
 		mixer_tone_reg,
@@ -149,45 +150,46 @@ decode_addr1 : entity work.complete_address_decoder
 		io_output_reg
 		)
 	begin
-		freq_channel_a_next <= freq_channel_a_reg;
-		freq_channel_b_next <= freq_channel_b_reg;
-		freq_channel_c_next <= freq_channel_c_reg;
-		freq_noise_next <= freq_noise_reg;
+		period_channel_a_next <= period_channel_a_reg;
+		period_channel_b_next <= period_channel_b_reg;
+		period_channel_c_next <= period_channel_c_reg;
+		period_noise_next <= period_noise_reg;
 		vol_channel_a_next <= vol_channel_a_reg;
 		vol_channel_b_next <= vol_channel_b_reg;
 		vol_channel_c_next <= vol_channel_c_reg;		
-		freq_envelope_next <= freq_envelope_reg;		
+		period_envelope_next <= period_envelope_reg;		
 		shape_envelope_next <= shape_envelope_reg;
 		mixer_noise_next <= mixer_noise_reg;
 		mixer_tone_next <= mixer_tone_reg;
 		io_output_next <= io_output_reg;
 		ioa_next <= ioa_reg;
 		iob_next <= iob_reg;
+		envelope_count_reset <= '0';
 	
 		if (write_enable='1') then
 			if (addr_decoded(0)='1') then
-				freq_channel_a_next(7 downto 0) <= di;
+				period_channel_a_next(7 downto 0) <= di;
 			end if;
 			if (addr_decoded(1)='1') then
-				freq_channel_a_next(11 downto 8) <= di(3 downto 0);
+				period_channel_a_next(11 downto 8) <= di(3 downto 0);
 			end if;
 			
 			if (addr_decoded(2)='1') then
-				freq_channel_b_next(7 downto 0) <= di;
+				period_channel_b_next(7 downto 0) <= di;
 			end if;
 			if (addr_decoded(3)='1') then
-				freq_channel_b_next(11 downto 8) <= di(3 downto 0);
+				period_channel_b_next(11 downto 8) <= di(3 downto 0);
 			end if;
 
 			if (addr_decoded(4)='1') then
-				freq_channel_c_next(7 downto 0) <= di;
+				period_channel_c_next(7 downto 0) <= di;
 			end if;
 			if (addr_decoded(5)='1') then
-				freq_channel_c_next(11 downto 8) <= di(3 downto 0);
+				period_channel_c_next(11 downto 8) <= di(3 downto 0);
 			end if;
 			
 			if (addr_decoded(6)='1') then
-				freq_noise_next <= di(4 downto 0);
+				period_noise_next <= di(4 downto 0);
 			end if;
 			
 			if (addr_decoded(7)='1') then
@@ -207,14 +209,15 @@ decode_addr1 : entity work.complete_address_decoder
 			end if;			
 			
 			if (addr_decoded(11)='1') then
-				freq_envelope_next(7 downto 0) <= di;
+				period_envelope_next(7 downto 0) <= di;
 			end if;
 			if (addr_decoded(12)='1') then
-				freq_envelope_next(15 downto 8) <= di;
+				period_envelope_next(15 downto 8) <= di;
 			end if;						
 
 			if (addr_decoded(13)='1') then
 				shape_envelope_next <= di(3 downto 0);
+				envelope_count_reset <= '1';
 			end if;			
 
 			if (addr_decoded(14)='1') then
@@ -229,10 +232,10 @@ decode_addr1 : entity work.complete_address_decoder
 	end process;
 	
 	process(addr_decoded,
-		freq_channel_a_reg,freq_channel_b_reg,freq_channel_c_reg,
-		freq_noise_reg,
+		period_channel_a_reg,period_channel_b_reg,period_channel_c_reg,
+		period_noise_reg,
 		vol_channel_a_reg,vol_channel_b_reg,vol_channel_c_reg,
-		freq_envelope_reg,
+		period_envelope_reg,
 		shape_envelope_reg,
 		mixer_noise_reg,
 		mixer_tone_reg,
@@ -245,28 +248,28 @@ decode_addr1 : entity work.complete_address_decoder
 	
 		if (write_enable='1') then
 			if (addr_decoded(0)='1') then
-				do <= freq_channel_a_reg(7 downto 0);
+				do <= period_channel_a_reg(7 downto 0);
 			end if;
 			if (addr_decoded(1)='1') then
-				do(3 downto 0) <= freq_channel_a_reg(11 downto 8);
+				do(3 downto 0) <= period_channel_a_reg(11 downto 8);
 			end if;
 			
 			if (addr_decoded(2)='1') then
-				do <= freq_channel_b_reg(7 downto 0);
+				do <= period_channel_b_reg(7 downto 0);
 			end if;
 			if (addr_decoded(3)='1') then
-				do(3 downto 0) <= freq_channel_b_reg(11 downto 8);
+				do(3 downto 0) <= period_channel_b_reg(11 downto 8);
 			end if;
 
 			if (addr_decoded(4)='1') then
-				do <= freq_channel_c_reg(7 downto 0);
+				do <= period_channel_c_reg(7 downto 0);
 			end if;
 			if (addr_decoded(5)='1') then
-				do(3 downto 0) <= freq_channel_c_reg(11 downto 8);
+				do(3 downto 0) <= period_channel_c_reg(11 downto 8);
 			end if;
 			
 			if (addr_decoded(6)='1') then
-				do(4 downto 0) <= freq_noise_reg;
+				do(4 downto 0) <= period_noise_reg;
 			end if;
 			
 			if (addr_decoded(7)='1') then
@@ -286,10 +289,10 @@ decode_addr1 : entity work.complete_address_decoder
 			end if;			
 			
 			if (addr_decoded(11)='1') then
-				do <= freq_envelope_reg(7 downto 0);
+				do <= period_envelope_reg(7 downto 0);
 			end if;
 			if (addr_decoded(12)='1') then
-				do <= freq_envelope_reg(15 downto 8);
+				do <= period_envelope_reg(15 downto 8);
 			end if;						
 
 			if (addr_decoded(13)='1') then
@@ -321,7 +324,7 @@ decode_addr1 : entity work.complete_address_decoder
 		
 		BIT_OUT => channel_a_tick,
 		
-		THRESHOLD => unsigned(freq_channel_a_reg&"0000")
+		THRESHOLD => unsigned(period_channel_a_reg&"0000")
 	);	
 	
 	channel_b_ticker : entity work.YM2149_freqdiv
@@ -337,7 +340,7 @@ decode_addr1 : entity work.complete_address_decoder
 		
 		BIT_OUT => channel_b_tick,
 		
-		THRESHOLD => unsigned(freq_channel_b_reg&"0000")
+		THRESHOLD => unsigned(period_channel_b_reg&"0000")
 	);
 	
 	channel_c_ticker : entity work.YM2149_freqdiv
@@ -353,7 +356,7 @@ decode_addr1 : entity work.complete_address_decoder
 		
 		BIT_OUT => channel_c_tick,
 		
-		THRESHOLD => unsigned(freq_channel_c_reg&"0000")
+		THRESHOLD => unsigned(period_channel_c_reg&"0000")
 	);	
 	
 	-- noise
@@ -374,7 +377,7 @@ decode_addr1 : entity work.complete_address_decoder
 		
 		BIT_OUT => noise_tick,
 		
-		THRESHOLD => unsigned(freq_noise_reg&"0000")
+		THRESHOLD => unsigned(period_noise_reg&"0000")
 	);
 	
 	noise : entity work.YM2149_noise
@@ -435,6 +438,21 @@ decode_addr1 : entity work.complete_address_decoder
 		
 		BIT_OUT => channel_c_val
 	);		
+
+	-- envelope
+	envelope : entity work.YM2149_envelope
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,		
+		ENABLE => enable,
+		
+		COUNT_RESET => envelope_count_reset,
+		SHAPE => envelope_shape_reg,
+		PERIOD => envelope_period_reg,
+
+		ENVELOPE => envelope_reg
+	);		
 	
 	-- volume
 	vol_a : entity work.YM2149_volume
@@ -478,9 +496,6 @@ decode_addr1 : entity work.complete_address_decoder
 		
 		VOL_OUT => channel_c_vol
 	);		
-	
-	-- envelope
-	envelope_reg <= (others=>'0'); -- TODO!
 	
 	-- combine channels/apply log volume curve
 	vol_profile : entity work.YM2149_volume_profile
