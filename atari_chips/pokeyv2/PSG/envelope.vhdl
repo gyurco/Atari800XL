@@ -9,7 +9,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-ENTITY YM2149_envelope IS
+ENTITY PSG_envelope IS
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
@@ -22,9 +22,9 @@ PORT
 	
 	ENVELOPE : OUT STD_LOGIC_VECTOR(3 downto 0)
 );
-END YM2149_envelope;
+END PSG_envelope;
 
-ARCHITECTURE vhdl OF YM2149_envelope IS
+ARCHITECTURE vhdl OF PSG_envelope IS
 	signal envelope_reg: unsigned(3 downto 0);
 	signal envelope_next: unsigned(3 downto 0);
 
@@ -47,7 +47,7 @@ BEGIN
 --		end if;
 --	end process;
 --
---	envelope_ticker : entity work.YM2149_freqdiv
+--	envelope_ticker : entity work.PSG_freqdiv
 --	GENERIC MAP
 --	(
 --		bits => 19

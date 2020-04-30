@@ -9,7 +9,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-ENTITY YM2149_volume_profile IS
+ENTITY PSG_volume_profile IS
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
@@ -22,9 +22,9 @@ PORT
 	
 	AUDIO_OUT : OUT STD_LOGIC_VECTOR(7 downto 0)
 );
-END YM2149_volume_profile;
+END PSG_volume_profile;
 
-ARCHITECTURE vhdl OF YM2149_volume_profile IS
+ARCHITECTURE vhdl OF PSG_volume_profile IS
 	signal vol_reg: unsigned(7 downto 0);
 	signal vol_next: unsigned(7 downto 0);
 

@@ -9,7 +9,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-ENTITY YM2149_freqdiv IS
+ENTITY PSG_freqdiv IS
 GENERIC
 (
 	bits : in integer
@@ -24,9 +24,9 @@ PORT
 	
 	THRESHOLD : IN UNSIGNED(bits-1 downto 0)
 );
-END YM2149_freqdiv;
+END PSG_freqdiv;
 
-ARCHITECTURE vhdl OF YM2149_freqdiv IS
+ARCHITECTURE vhdl OF PSG_freqdiv IS
 	signal count_reg: unsigned(bits-1 downto 0);
 	signal count_next: unsigned(bits-1 downto 0);
 BEGIN

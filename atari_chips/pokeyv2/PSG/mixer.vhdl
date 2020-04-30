@@ -9,7 +9,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-ENTITY YM2149_mixer IS
+ENTITY PSG_mixer IS
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
@@ -24,9 +24,9 @@ PORT
 	
 	BIT_OUT : OUT STD_LOGIC
 );
-END YM2149_mixer;
+END PSG_mixer;
 
-ARCHITECTURE vhdl OF YM2149_mixer IS
+ARCHITECTURE vhdl OF PSG_mixer IS
 	signal bit_reg: std_logic;
 	signal bit_next: std_logic;
 BEGIN

@@ -9,7 +9,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-ENTITY YM2149_noise IS
+ENTITY PSG_noise IS
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
@@ -18,9 +18,9 @@ PORT
 	
 	BIT_OUT : OUT STD_LOGIC
 );
-END YM2149_noise;
+END PSG_noise;
 
-ARCHITECTURE vhdl OF YM2149_noise IS
+ARCHITECTURE vhdl OF PSG_noise IS
 	signal shift_reg: std_logic_vector(16 downto 0);
 	signal shift_next: std_logic_vector(16 downto 0);
 BEGIN

@@ -15,7 +15,7 @@ use IEEE.STD_LOGIC_MISC.all;
 LIBRARY work;
 
 -- audio only, no need for io part
-ENTITY YM2149 IS 
+ENTITY PSG_top IS 
 	PORT
 	(
 		CLK : in std_logic;
@@ -38,9 +38,9 @@ ENTITY YM2149 IS
 		
 		AUDIO : out std_logic_vector(7 downto 0)
 	);
-END YM2149;		
+END PSG_top;		
 		
-ARCHITECTURE vhdl OF YM2149 IS
+ARCHITECTURE vhdl OF PSG_top IS
 	signal period_channel_a_reg : std_logic_vector(11 downto 0);
 	signal period_channel_a_next : std_logic_vector(11 downto 0);
 	signal period_channel_b_reg : std_logic_vector(11 downto 0);
@@ -311,7 +311,7 @@ decode_addr1 : entity work.complete_address_decoder
 	end process;	
 	
 	-- channels A-C, frequency divider
-	channel_a_ticker : entity work.YM2149_freqdiv
+	channel_a_ticker : entity work.PSG_freqdiv
 	GENERIC MAP
 	(
 		bits => 16
@@ -327,7 +327,7 @@ decode_addr1 : entity work.complete_address_decoder
 		THRESHOLD => unsigned(period_channel_a_reg&"0000")
 	);	
 	
-	channel_b_ticker : entity work.YM2149_freqdiv
+	channel_b_ticker : entity work.PSG_freqdiv
 	GENERIC MAP
 	(
 		bits => 16
@@ -343,7 +343,7 @@ decode_addr1 : entity work.complete_address_decoder
 		THRESHOLD => unsigned(period_channel_b_reg&"0000")
 	);
 	
-	channel_c_ticker : entity work.YM2149_freqdiv
+	channel_c_ticker : entity work.PSG_freqdiv
 	GENERIC MAP
 	(
 		bits => 16
@@ -364,7 +364,7 @@ decode_addr1 : entity work.complete_address_decoder
 	--ref:https://listengine.tuxfamily.org/lists.tuxfamily.org/hatari-devel/2012/09/msg00045.html	
 	
 	-- noise freq->noise_tick->noise_val
-	noise_ticker : entity work.YM2149_freqdiv
+	noise_ticker : entity work.PSG_freqdiv
 	GENERIC MAP
 	(
 		bits => 9
@@ -380,7 +380,7 @@ decode_addr1 : entity work.complete_address_decoder
 		THRESHOLD => unsigned(period_noise_reg&"0000")
 	);
 	
-	noise : entity work.YM2149_noise
+	noise : entity work.PSG_noise
 	PORT MAP
 	( 
 		CLK => clk,
@@ -391,7 +391,7 @@ decode_addr1 : entity work.complete_address_decoder
 	);
 	
 	-- mix noise and channel
-	mix_a : entity work.YM2149_mixer
+	mix_a : entity work.PSG_mixer
 	PORT MAP
 	( 
 		CLK => clk,
@@ -407,7 +407,7 @@ decode_addr1 : entity work.complete_address_decoder
 		BIT_OUT => channel_a_val
 	);
 	
-	mix_b : entity work.YM2149_mixer
+	mix_b : entity work.PSG_mixer
 	PORT MAP
 	( 
 		CLK => clk,
@@ -423,7 +423,7 @@ decode_addr1 : entity work.complete_address_decoder
 		BIT_OUT => channel_b_val
 	);	
 	
-	mix_c : entity work.YM2149_mixer
+	mix_c : entity work.PSG_mixer
 	PORT MAP
 	( 
 		CLK => clk,
@@ -440,7 +440,7 @@ decode_addr1 : entity work.complete_address_decoder
 	);		
 
 	-- envelope
-	envelope : entity work.YM2149_envelope
+	envelope : entity work.PSG_envelope
 	PORT MAP
 	( 
 		CLK => clk,
@@ -455,7 +455,7 @@ decode_addr1 : entity work.complete_address_decoder
 	);		
 	
 	-- volume
-	vol_a : entity work.YM2149_volume
+	vol_a : entity work.PSG_volume
 	PORT MAP
 	( 
 		CLK => clk,
@@ -469,7 +469,7 @@ decode_addr1 : entity work.complete_address_decoder
 		VOL_OUT => channel_a_vol
 	);		
 	
-	vol_b : entity work.YM2149_volume
+	vol_b : entity work.PSG_volume
 	PORT MAP
 	( 
 		CLK => clk,
@@ -483,7 +483,7 @@ decode_addr1 : entity work.complete_address_decoder
 		VOL_OUT => channel_b_vol
 	);		
 	
-	vol_c : entity work.YM2149_volume
+	vol_c : entity work.PSG_volume
 	PORT MAP
 	( 
 		CLK => clk,
@@ -498,7 +498,7 @@ decode_addr1 : entity work.complete_address_decoder
 	);		
 	
 	-- combine channels/apply log volume curve
-	vol_profile : entity work.YM2149_volume_profile
+	vol_profile : entity work.PSG_volume_profile
 	PORT MAP
 	( 
 		CLK => clk,

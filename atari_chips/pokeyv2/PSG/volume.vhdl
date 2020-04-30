@@ -9,7 +9,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-ENTITY YM2149_volume IS
+ENTITY PSG_volume IS
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
@@ -22,9 +22,9 @@ PORT
 	
 	VOL_OUT : OUT STD_LOGIC_VECTOR(3 downto 0)
 );
-END YM2149_volume;
+END PSG_volume;
 
-ARCHITECTURE vhdl OF YM2149_volume IS
+ARCHITECTURE vhdl OF PSG_volume IS
 	signal vol_reg: std_logic_vector(3 downto 0);
 	signal vol_next: std_logic_vector(3 downto 0);
 BEGIN
