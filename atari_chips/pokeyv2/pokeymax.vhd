@@ -120,8 +120,8 @@ ARCHITECTURE vhdl OF pokeymax IS
 	
 	SIGNAL SID_WRITE_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
 
-	SIGNAL YM2149_READ_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
-	SIGNAL YM2149_WRITE_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
+	SIGNAL PSG_READ_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
+	SIGNAL PSG_WRITE_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
 
 	SIGNAL SAMPLE_WRITE_ENABLE : STD_LOGIC;	
 	SIGNAL CONFIG_WRITE_ENABLE : STD_LOGIC;	
@@ -133,7 +133,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	
 	SIGNAL SID_DO : DO_TYPE(1 downto 0);
 	
-	SIGNAL YM2149_DO : DO_TYPE(1 DOWNTO 0);	
+	SIGNAL PSG_DO : DO_TYPE(1 DOWNTO 0);	
 	
 	SIGNAL SAMPLE_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
 	SIGNAL CONFIG_DO : STD_LOGIC_VECTOR(7 DOWNTO 0);	
@@ -192,10 +192,10 @@ ARCHITECTURE vhdl OF pokeymax IS
 	type SID_AUDIO_TYPE is array(NATURAL range<>) of std_logic_vector(15 downto 0);
 	signal SID_AUDIO : SID_AUDIO_TYPE(1 downto 0);
 	
-	-- YM2149
-	signal ENABLE_YM2149 : std_logic;
-	type YM2149_AUDIO_TYPE is array(NATURAL range<>) of std_logic_vector(7 downto 0);
-	signal YM2149_AUDIO : YM2149_AUDIO_TYPE(1 downto 0);	
+	-- PSG
+	signal ENABLE_PSG : std_logic;
+	type PSG_AUDIO_TYPE is array(NATURAL range<>) of std_logic_vector(7 downto 0);
+	signal PSG_AUDIO : PSG_AUDIO_TYPE(1 downto 0);	
 	
 	-- SUPPORT	
 	signal BUS_DATA : std_logic_vector(7 downto 0);
@@ -565,38 +565,38 @@ PORT MAP(
 );
 end generate sid_on;		
 --------------------------------------------------------
--- YM2149
+-- PSG
 --------------------------------------------------------
 ym_off : if enable_ym=0 generate 
-	YM2149_AUDIO(0) <= (others=>'0');
-	YM2149_AUDIO(1) <= (others=>'0');
-	YM2149_DO(0) <= (others=>'0');
-	YM2149_DO(1) <= (others=>'0');
+	PSG_AUDIO(0) <= (others=>'0');
+	PSG_AUDIO(1) <= (others=>'0');
+	PSG_DO(0) <= (others=>'0');
+	PSG_DO(1) <= (others=>'0');
 end generate ym_off;
 
 ym_on : if enable_ym=1 generate 
-YM2149_1 : entity work.YM2149
+PSG_1 : entity work.PSG
   port map(
 	clk=>clk,
 	reset_n=>reset_n,
 	enable=>'1', --TODO, frequency
 	addr=>addr_in(3 downto 0),
-	write_enable=>YM2149_WRITE_ENABLE(0),
+	write_enable=>PSG_WRITE_ENABLE(0),
 	di=>write_data,
-	do=>YM2149_DO(0),
-	audio=>YM2149_AUDIO(0)
+	do=>PSG_DO(0),
+	audio=>PSG_AUDIO(0)
 	);
 	
-YM2149_2 : entity work.YM2149
+PSG_2 : entity work.PSG
   port map(
 	clk=>clk,
 	reset_n=>reset_n,
 	enable=>'1', --TODO, frequency
 	addr=>addr_in(3 downto 0),
-	write_enable=>YM2149_WRITE_ENABLE(1),
+	write_enable=>PSG_WRITE_ENABLE(1),
 	di=>write_data,
-	do=>YM2149_DO(1),
-	audio=>YM2149_AUDIO(1)
+	do=>PSG_DO(1),
+	audio=>PSG_AUDIO(1)
 	);
 end generate ym_on;		
 	
@@ -717,7 +717,7 @@ process(
 	DEVICE_ADDR,
 	POKEY_DO,
 	SID_DO,
-	YM2149_DO,
+	PSG_DO,
 	SAMPLE_DO,
 	CONFIG_DO,
 	write_n,
@@ -731,8 +731,8 @@ begin
 	
 	POKEY_WRITE_ENABLE <= (others=>'0');
 	SID_WRITE_ENABLE <= (others=>'0');
-	YM2149_WRITE_ENABLE <= (others=>'0');
-	YM2149_READ_ENABLE <= (others=>'0');
+	PSG_WRITE_ENABLE <= (others=>'0');
+	PSG_READ_ENABLE <= (others=>'0');
 	SAMPLE_WRITE_ENABLE <= '0';
 	CONFIG_WRITE_ENABLE <= '0';
 	
@@ -761,13 +761,13 @@ begin
 			DO_MUX <= SAMPLE_DO;								
 			SAMPLE_WRITE_ENABLE <= writereq;			
 		when x"a" =>
-			DO_MUX <= YM2149_DO(0);
-			YM2149_WRITE_ENABLE(0) <= writereq;
-			YM2149_READ_ENABLE(0) <= readreq;
+			DO_MUX <= PSG_DO(0);
+			PSG_WRITE_ENABLE(0) <= writereq;
+			PSG_READ_ENABLE(0) <= readreq;
 		when x"b" =>
-			DO_MUX <= YM2149_DO(1);			
-			YM2149_WRITE_ENABLE(1) <= writereq;
-			YM2149_READ_ENABLE(1) <= readreq;
+			DO_MUX <= PSG_DO(1);			
+			PSG_WRITE_ENABLE(1) <= writereq;
+			PSG_READ_ENABLE(1) <= readreq;
 		when x"f" =>
 			DO_MUX <= CONFIG_DO;
 			CONFIG_WRITE_ENABLE <= writereq;
@@ -989,7 +989,7 @@ process(POST_DIVIDE_REG,
 	POKEY_AUDIO_0,POKEY_AUDIO_1,POKEY_AUDIO_2,POKEY_AUDIO_3, --signed
 	SAMPLE_AUDIO,
 	SID_AUDIO,
-	YM2149_AUDIO,
+	PSG_AUDIO,
 	GTIA_AUDIO,GTIA_ENABLE_REG,
 	FANCY_ENABLE
 	)
