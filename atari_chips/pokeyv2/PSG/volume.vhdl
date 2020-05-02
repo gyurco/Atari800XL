@@ -18,15 +18,15 @@ PORT
 	
 	CHANNEL : IN STD_LOGIC;
 	FIXED : IN STD_LOGIC_VECTOR(4 downto 0);
-	ENVELOPE : IN STD_LOGIC_VECTOR(3 downto 0);
+	ENVELOPE : IN STD_LOGIC_VECTOR(4 downto 0);
 	
-	VOL_OUT : OUT STD_LOGIC_VECTOR(3 downto 0)
+	VOL_OUT : OUT STD_LOGIC_VECTOR(4 downto 0)
 );
 END PSG_volume;
 
 ARCHITECTURE vhdl OF PSG_volume IS
-	signal vol_reg: std_logic_vector(3 downto 0);
-	signal vol_next: std_logic_vector(3 downto 0);
+	signal vol_reg: std_logic_vector(4 downto 0);
+	signal vol_next: std_logic_vector(4 downto 0);
 BEGIN
 	-- register
 	process(clk, reset_n)
@@ -39,15 +39,17 @@ BEGIN
 	end process;
 	
 	-- next state
-	process(vol_reg,enable,channel,fixed)
+	process(vol_reg,enable,channel,fixed,envelope)
+		variable channelext : std_logic_vector(4 downto 0);
 	begin
 		vol_next <= vol_reg;
 		
 		if (enable = '1') then
+			channelext := (others=>channel);
 			if (fixed(4)='0') then --fixed
-				vol_next <= fixed(3 downto 0);
+				vol_next <= fixed(3 downto 0)&fixed(0) and channelext;
 			else
-				vol_next <= envelope;
+				vol_next <= envelope and channelext;
 			end if;
 		end if;
 	end process;	

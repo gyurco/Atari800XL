@@ -22,6 +22,10 @@ ENTITY PSG_top IS
 		RESET_N : in std_logic;
 		
 		ENABLE : in std_logic;
+
+		ENVELOPE32 : in std_logic := '1'; -- 0=16 step,1=32 step
+		MASK1 : in std_logic_vector(2 downto 0) := "111"; -- Which channels to mix into output 1
+		MASK2 : in std_logic_vector(2 downto 0) := "000"; -- Which channels to mix into output 2
 		
 		ADDR : in std_logic_vector(3 downto 0); --TODO: Handy to address this way, but could use the original crappy way if people prefer!
 		WRITE_ENABLE : in std_logic;
@@ -36,7 +40,8 @@ ENTITY PSG_top IS
 		IOA_OE : out std_logic;
 		IOB_OE : out std_logic;
 		
-		AUDIO : out std_logic_vector(7 downto 0)
+		AUDIO1 : out std_logic_vector(15 downto 0);
+		AUDIO2 : out std_logic_vector(15 downto 0)
 	);
 END PSG_top;		
 		
@@ -79,6 +84,7 @@ ARCHITECTURE vhdl OF PSG_top IS
 	
 	signal addr_decoded : std_logic_vector(15 downto 0);
 	
+	signal core_tick : std_logic;
 	signal channel_a_tick : std_logic;
 	signal channel_b_tick : std_logic;
 	signal channel_c_tick : std_logic;
@@ -89,14 +95,15 @@ ARCHITECTURE vhdl OF PSG_top IS
 	signal channel_b_val : std_logic;
 	signal channel_c_val : std_logic;
 	
-	signal envelope_reg : std_logic_vector(3 downto 0); 
+	signal envelope_reg : std_logic_vector(4 downto 0); 
 	signal envelope_count_reset : std_logic;
 	
-	signal channel_a_vol : std_logic_vector(3 downto 0);
-	signal channel_b_vol : std_logic_vector(3 downto 0);
-	signal channel_c_vol : std_logic_vector(3 downto 0);
+	signal channel_a_vol : std_logic_vector(4 downto 0);
+	signal channel_b_vol : std_logic_vector(4 downto 0);
+	signal channel_c_vol : std_logic_vector(4 downto 0);
 
-	signal audio_reg: std_logic_vector(7 downto 0);
+	signal audio1_reg: std_logic_vector(15 downto 0);
+	signal audio2_reg: std_logic_vector(15 downto 0);
 BEGIN
 	process(clk,reset_n)
 	begin
@@ -309,54 +316,71 @@ decode_addr1 : entity work.complete_address_decoder
 			
 		end if;
 	end process;	
+
+	-- initial divide by 8
+	core_ticker : entity work.PSG_freqdiv
+	GENERIC MAP
+	(
+		bits => 4
+	)
+	PORT MAP
+	(
+		CLK => clk,
+		RESET_N => reset_n,
+		ENABLE => enable,
+		
+		BIT_OUT => core_tick,
+		
+		THRESHOLD => "1000"
+	);	
 	
 	-- channels A-C, frequency divider
 	channel_a_ticker : entity work.PSG_freqdiv
 	GENERIC MAP
 	(
-		bits => 16
+		bits => 12
 	)
 	PORT MAP
 	(
 		CLK => clk,
 		RESET_N => reset_n,
-		ENABLE => enable,
+		ENABLE => core_tick,
 		
 		BIT_OUT => channel_a_tick,
 		
-		THRESHOLD => unsigned(period_channel_a_reg&"0000")
+		THRESHOLD => unsigned(period_channel_a_reg)
 	);	
 	
 	channel_b_ticker : entity work.PSG_freqdiv
 	GENERIC MAP
 	(
-		bits => 16
+		bits => 12
 	)
 	PORT MAP
 	(
 		CLK => clk,
 		RESET_N => reset_n,
-		ENABLE => enable,
+		ENABLE => core_tick,
 		
 		BIT_OUT => channel_b_tick,
 		
-		THRESHOLD => unsigned(period_channel_b_reg&"0000")
+		THRESHOLD => unsigned(period_channel_b_reg)
 	);
 	
 	channel_c_ticker : entity work.PSG_freqdiv
 	GENERIC MAP
 	(
-		bits => 16
+		bits => 12
 	)
 	PORT MAP
 	(
 		CLK => clk,
 		RESET_N => reset_n,
-		ENABLE => enable,
+		ENABLE => core_tick,
 		
 		BIT_OUT => channel_c_tick,
 		
-		THRESHOLD => unsigned(period_channel_c_reg&"0000")
+		THRESHOLD => unsigned(period_channel_c_reg)
 	);	
 	
 	-- noise
@@ -367,17 +391,17 @@ decode_addr1 : entity work.complete_address_decoder
 	noise_ticker : entity work.PSG_freqdiv
 	GENERIC MAP
 	(
-		bits => 9
+		bits => 5
 	)	
 	PORT MAP
 	(
 		CLK => clk,
 		RESET_N => reset_n,
-		ENABLE => enable,
+		ENABLE => core_tick,
 		
 		BIT_OUT => noise_tick,
 		
-		THRESHOLD => unsigned(period_noise_reg&"0000")
+		THRESHOLD => unsigned(period_noise_reg)
 	);
 	
 	noise : entity work.PSG_noise
@@ -445,8 +469,9 @@ decode_addr1 : entity work.complete_address_decoder
 	( 
 		CLK => clk,
 		RESET_N => reset_n,		
-		ENABLE => enable,
+		ENABLE => core_tick,
 		
+		STEP32 => envelope32,
 		COUNT_RESET => envelope_count_reset,
 		SHAPE => shape_envelope_reg,
 		PERIOD => period_envelope_reg,
@@ -498,7 +523,7 @@ decode_addr1 : entity work.complete_address_decoder
 	);		
 	
 	-- combine channels/apply log volume curve
-	vol_profile : entity work.PSG_volume_profile
+	vol_profile1 : entity work.PSG_volume_profile
 	PORT MAP
 	( 
 		CLK => clk,
@@ -508,8 +533,26 @@ decode_addr1 : entity work.complete_address_decoder
 		CHANNEL_A => channel_a_vol,
 		CHANNEL_B => channel_b_vol,
 		CHANNEL_C => channel_c_vol,
+
+		CHANNEL_MASK => mask1,
 		
-		AUDIO_OUT => audio_reg
+		AUDIO_OUT => audio1_reg
+	);	
+
+	vol_profile2 : entity work.PSG_volume_profile
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,		
+		ENABLE => enable,
+		
+		CHANNEL_A => channel_a_vol,
+		CHANNEL_B => channel_b_vol,
+		CHANNEL_C => channel_c_vol,
+
+		CHANNEL_MASK => mask2,
+		
+		AUDIO_OUT => audio2_reg
 	);	
 	
 	-- outputs
@@ -518,7 +561,8 @@ decode_addr1 : entity work.complete_address_decoder
 	IOA_OE <= io_output_reg(0);
 	IOB_OE <= io_output_reg(1);
 	
-	AUDIO <= audio_reg;
+	AUDIO1 <= audio1_reg;
+	AUDIO2 <= audio2_reg;
 	
 end vhdl;
 
