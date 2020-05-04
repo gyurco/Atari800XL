@@ -253,68 +253,65 @@ decode_addr1 : entity work.complete_address_decoder
 	begin
 		do <= (others=>'0');
 	
-		if (write_enable='1') then
-			if (addr_decoded(0)='1') then
-				do <= period_channel_a_reg(7 downto 0);
-			end if;
-			if (addr_decoded(1)='1') then
-				do(3 downto 0) <= period_channel_a_reg(11 downto 8);
-			end if;
-			
-			if (addr_decoded(2)='1') then
-				do <= period_channel_b_reg(7 downto 0);
-			end if;
-			if (addr_decoded(3)='1') then
-				do(3 downto 0) <= period_channel_b_reg(11 downto 8);
-			end if;
-
-			if (addr_decoded(4)='1') then
-				do <= period_channel_c_reg(7 downto 0);
-			end if;
-			if (addr_decoded(5)='1') then
-				do(3 downto 0) <= period_channel_c_reg(11 downto 8);
-			end if;
-			
-			if (addr_decoded(6)='1') then
-				do(4 downto 0) <= period_noise_reg;
-			end if;
-			
-			if (addr_decoded(7)='1') then
-				do(7 downto 6) <= io_output_reg;
-				do(5 downto 3) <= mixer_noise_reg;
-				do(2 downto 0) <= mixer_tone_reg;
-			end if;			
-			
-			if (addr_decoded(8)='1') then
-				do(4 downto 0) <= vol_channel_a_reg;
-			end if;
-			if (addr_decoded(9)='1') then
-				do(4 downto 0) <= vol_channel_b_reg;
-			end if;
-			if (addr_decoded(10)='1') then
-				do(4 downto 0) <= vol_channel_c_reg;
-			end if;			
-			
-			if (addr_decoded(11)='1') then
-				do <= period_envelope_reg(7 downto 0);
-			end if;
-			if (addr_decoded(12)='1') then
-				do <= period_envelope_reg(15 downto 8);
-			end if;						
-
-			if (addr_decoded(13)='1') then
-				do(3 downto 0) <= shape_envelope_reg;
-			end if;								
-			
-			if (addr_decoded(14)='1') then
-				do <= ioa_in;
-			end if;	
-
-			if (addr_decoded(15)='1') then
-				do <= iob_in;
-			end if;				
-			
+		if (addr_decoded(0)='1') then
+			do <= period_channel_a_reg(7 downto 0);
 		end if;
+		if (addr_decoded(1)='1') then
+			do(3 downto 0) <= period_channel_a_reg(11 downto 8);
+		end if;
+		
+		if (addr_decoded(2)='1') then
+			do <= period_channel_b_reg(7 downto 0);
+		end if;
+		if (addr_decoded(3)='1') then
+			do(3 downto 0) <= period_channel_b_reg(11 downto 8);
+		end if;
+
+		if (addr_decoded(4)='1') then
+			do <= period_channel_c_reg(7 downto 0);
+		end if;
+		if (addr_decoded(5)='1') then
+			do(3 downto 0) <= period_channel_c_reg(11 downto 8);
+		end if;
+		
+		if (addr_decoded(6)='1') then
+			do(4 downto 0) <= period_noise_reg;
+		end if;
+		
+		if (addr_decoded(7)='1') then
+			do(7 downto 6) <= io_output_reg;
+			do(5 downto 3) <= mixer_noise_reg;
+			do(2 downto 0) <= mixer_tone_reg;
+		end if;			
+		
+		if (addr_decoded(8)='1') then
+			do(4 downto 0) <= vol_channel_a_reg;
+		end if;
+		if (addr_decoded(9)='1') then
+			do(4 downto 0) <= vol_channel_b_reg;
+		end if;
+		if (addr_decoded(10)='1') then
+			do(4 downto 0) <= vol_channel_c_reg;
+		end if;			
+		
+		if (addr_decoded(11)='1') then
+			do <= period_envelope_reg(7 downto 0);
+		end if;
+		if (addr_decoded(12)='1') then
+			do <= period_envelope_reg(15 downto 8);
+		end if;						
+
+		if (addr_decoded(13)='1') then
+			do(3 downto 0) <= shape_envelope_reg;
+		end if;								
+		
+		if (addr_decoded(14)='1') then
+			do <= ioa_in;
+		end if;	
+
+		if (addr_decoded(15)='1') then
+			do <= iob_in;
+		end if;				
 	end process;	
 
 	-- initial divide by 8
