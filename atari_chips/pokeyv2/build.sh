@@ -63,6 +63,27 @@ my %variants =
 		"fpga" => "10M02SCU169C8G",
 		"version" =>  $version."M02SC"
 	},
+	"10M04_stereo_u1mb_auto" =>
+	{
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"a4_bit" => 1,
+		"fancy_switch_bit" => 2,
+		"gtia_audio_bit" => 3,
+		"fpga" => "10M04SCU169C8G",
+		"version" => $version . "M04SU"
+	},
+	"10M04_stereo_covox_auto" =>
+	{
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"enable_covox" => 1,
+		"a4_bit" => 1,
+		"a7_bit" => 2,
+		"gtia_audio_bit" => 3, 
+		"fpga" => "10M04SCU169C8G",
+		"version" =>  $version."M04SC"
+	},
 	"10M04_quad_auto" =>
 	{
 		"pokeys" => 4,
