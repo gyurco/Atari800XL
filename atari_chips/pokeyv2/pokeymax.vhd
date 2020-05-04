@@ -32,7 +32,7 @@ ENTITY pokeymax IS
 
 		enable_config : integer := 1;
 		enable_sid : integer := 0;
-		enable_ym : integer := 0;
+		enable_psg : integer := 0;
 		enable_covox : integer := 0;
 		enable_sample : integer := 0;
 
@@ -193,9 +193,9 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal SID_AUDIO : SID_AUDIO_TYPE(1 downto 0);
 	
 	-- PSG
-	signal ENABLE_PSG : std_logic;
-	type PSG_AUDIO_TYPE is array(NATURAL range<>) of std_logic_vector(7 downto 0);
-	signal PSG_AUDIO : PSG_AUDIO_TYPE(1 downto 0);	
+	signal PSG_ENABLE : std_logic;
+	type PSG_AUDIO_TYPE is array(NATURAL range<>) of std_logic_vector(15 downto 0);
+	signal PSG_AUDIO : PSG_AUDIO_TYPE(3 downto 0);	
 	
 	-- SUPPORT	
 	signal BUS_DATA : std_logic_vector(7 downto 0);
@@ -567,38 +567,46 @@ end generate sid_on;
 --------------------------------------------------------
 -- PSG
 --------------------------------------------------------
-ym_off : if enable_ym=0 generate 
+psg_off : if enable_psg=0 generate 
 	PSG_AUDIO(0) <= (others=>'0');
 	PSG_AUDIO(1) <= (others=>'0');
 	PSG_DO(0) <= (others=>'0');
 	PSG_DO(1) <= (others=>'0');
-end generate ym_off;
+end generate psg_off;
 
-ym_on : if enable_ym=1 generate 
-PSG_1 : entity work.PSG
+psg_on : if enable_psg=1 generate 
+enable_psg_div : entity work.syncreset_enable_divider
+  generic map (COUNT=>28,RESETCOUNT=>6) -- 28-22
+  port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>PSG_ENABLE);
+-- approx 2Mhz
+-- we should support 1MHz, pokey frequency and ... maybe ... spectrum frequency?!
+
+PSG_1 : entity work.PSG_top
   port map(
 	clk=>clk,
 	reset_n=>reset_n,
-	enable=>'1', --TODO, frequency
+	enable=>psg_enable,
 	addr=>addr_in(3 downto 0),
 	write_enable=>PSG_WRITE_ENABLE(0),
 	di=>write_data,
 	do=>PSG_DO(0),
-	audio=>PSG_AUDIO(0)
+	audio1=>PSG_AUDIO(0),
+	audio2=>PSG_AUDIO(1)
 	);
 	
-PSG_2 : entity work.PSG
+PSG_2 : entity work.PSG_top
   port map(
 	clk=>clk,
 	reset_n=>reset_n,
-	enable=>'1', --TODO, frequency
+	enable=>psg_enable, 
 	addr=>addr_in(3 downto 0),
 	write_enable=>PSG_WRITE_ENABLE(1),
 	di=>write_data,
 	do=>PSG_DO(1),
-	audio=>PSG_AUDIO(1)
+	audio1=>PSG_AUDIO(2),
+	audio2=>PSG_AUDIO(3)
 	);
-end generate ym_on;		
+end generate psg_on;		
 	
 --------------------------------------------------------
 -- COVOX
@@ -614,6 +622,8 @@ end generate covox_off;
 covox_on : if enable_covox=1 generate 
 process(addr_decoded5,SAMPLE_CH1_REG,SAMPLE_CH2_REG,SAMPLE_CH3_REG,SAMPLE_CH4_REG)
 begin
+	SAMPLE_DO <= (others=>'0');
+
 	if (addr_decoded5(0)='1') then
 		SAMPLE_DO <= SAMPLE_CH1_REG;
 	end if;
@@ -887,7 +897,7 @@ begin
 		else
 			CONFIG_DO(2) <= '0';
 		end if;
-		if (enable_ym=1) then
+		if (enable_psg=1) then
 			CONFIG_DO(3) <= '1';
 		else
 			CONFIG_DO(3) <= '0';
@@ -945,44 +955,6 @@ end process;
 
 end generate;
 
-
--- d20c 
--- r:1 -> pokeymax (confirm original...)
--- w:003f -> config mode?
----- + SIO fifo regs (compatible?) TODO
-----0xxxxxxx - initialization (FIFO cache cleaning)
-----10aaaaaa - set temporary border value (as AUDF3 content, $00...$3F)
-----11aaaaaa - set default border value 
-
--- when in config mode pokey regs replaced with
--- d000: audio Mode W
---          10: pre_divide   (00=1,01=2,10=4)
---        32  : saturate     (00=off,01=pokey,10/11 reserved -> user configurable curve?)
---      54    : channel mode (00(mono)=TTTT, 01(stereo)=TTLR (Mix,Mix,L=0+2,R=1+3), 10(split)=0123 (0=sum(channel0),1=sum(channel1) etc), 11(stereoNoMix)=TTLR (L=0+2,R=1+3,L,R)
---    76      : gtia volume  (0=0,1=16,2=32,3=64 - volume)
--- d001: saturate curve data shift ref (future core)
--- d002: bank R/W
---          10: pokeys       (00=1 pokey,01=2 pokeys,11=4 pokeys)               ;   d000-d03f
---        32  : others       (00=off,01=dual sid,10=dual ym2149,11=covox/sample);   d040-d07f;
---      54    : others       (00=off,01=dual sid,10=dual ym2149,11=covox/sample);   d080-d0bf; (future hardware)
---    76      : others       (00=off,01=dual sid,10=dual ym2149,11=covox/sample);   d0c0-d0ff; (future hardware)
--- d003: capability R
---          10: pokeys       (00=1,01=2,10=4);
---         2  : sid          (0=0,1=dual sid);
---        3   : ym2149       (0=0,1=dual ym2149);
---       4    : covox        (0=0,1=covox);
---      5     : sample       (0=0,1=sample);
--- d004: post_divide W
---          10: 00=0,01=2,10=4 channel 0 (default 0 - 0-5v)
---        32  : 00=0,01=2,10=4 channel 1 (default 4 - 0-1.25v)
---      54    : 00=0,01=2,10=4 channel 2 (default 4 - 0-1.25v)
---    76      : 00=0,01=2,10=4 channel 3 (default 4 - 0-1.25v)
--- d005: post mix/gtia en W
---           0: 0=direct, 1=TTLR (after saturation/divide)
---    7654    : gtia on/off per channel: 7=channel3,6=channel2 etc
--- d006: chip id   (W(which bytes to read, i.e. 4-bit address, also used for copyright), R:read the max10 64-bit id) d000-d03f;
--- d007: copyright (R: read a short message, byte at a time!)
-
 -------------------------------------------------------
 -- AUDIO mixing
 process(POST_DIVIDE_REG,
@@ -1009,7 +981,8 @@ process(POST_DIVIDE_REG,
 	variable gtia3u: unsigned(19 downto 0);
 
 	variable sidu: unsigned(19 downto 0);
-	variable ymu: unsigned(19 downto 0);
+	variable psgu1: unsigned(19 downto 0);
+	variable psgu2: unsigned(19 downto 0);
 	variable samu: unsigned(19 downto 0);
 begin
 -- 
@@ -1036,15 +1009,17 @@ begin
 	p3u(15) := not(POKEY_AUDIO_3(15));	
 
 	sidu := resize(unsigned(sid_audio(0)),20);
-	ymu := resize(unsigned(ym2149_audio(0)),12)&"00000000";
+	psgu1 := resize(unsigned(psg_audio(0)),12)&"00000000";
+	psgu2 := resize(unsigned(psg_audio(2)),12)&"00000000";
 	samu := resize(unsigned(sample_audio(0)),20);
-	a0u := p0u + p2u + sidu + ymu + samu;
+	a0u := p0u + p2u + sidu + psgu1 + psgu2 + samu;
 
 	sidu := resize(unsigned(sid_audio(1)),20);
-	ymu := resize(unsigned(ym2149_audio(1)),12)&"00000000";
+	psgu1 := resize(unsigned(psg_audio(1)),12)&"00000000";
+	psgu2 := resize(unsigned(psg_audio(3)),12)&"00000000";
 	samu := resize(unsigned(sample_audio(1)),20);
 	if (FANCY_ENABLE='1') then
-		a1u := p1u + p3u + sidu + ymu + samu;
+		a1u := p1u + p3u + sidu + psgu1 + psgu2 + samu;
 	else
 		a1u := a0u;
 	end if;
