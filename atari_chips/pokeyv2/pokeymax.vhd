@@ -429,7 +429,6 @@ end process;
 	
 pokey_mixer_both : entity work.pokey_mixer_mux
 PORT MAP(CLK => CLK,
-		 ENABLE_179 => ENABLE_CYCLE,
 		 CHANNEL_0 => CHANNEL0SUM_REG,
 		 CHANNEL_1 => CHANNEL1SUM_REG,
 		 CHANNEL_2 => CHANNEL2SUM_REG,

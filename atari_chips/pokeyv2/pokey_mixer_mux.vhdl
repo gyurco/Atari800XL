@@ -15,8 +15,6 @@ PORT
 ( 
 	CLK : IN STD_LOGIC;
 
-	ENABLE_179 : IN STD_LOGIC;
-
 	CHANNEL_0 : IN unsigned(5 downto 0);
 	CHANNEL_1 : IN unsigned(5 downto 0);
 	CHANNEL_2 : IN unsigned(5 downto 0);
