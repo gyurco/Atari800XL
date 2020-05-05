@@ -35,6 +35,7 @@ ENTITY pokeymax IS
 		enable_psg : integer := 0;
 		enable_covox : integer := 0;
 		enable_sample : integer := 0;
+		enable_flash : integer := 0;
 
    		version : STRING  := "DEVELOPR" -- 8 char string atascii
 	);
@@ -82,8 +83,29 @@ ARCHITECTURE vhdl OF pokeymax IS
 		port (
 			inclk0   : in  std_logic := '0';
 			c0 : out std_logic;
+			c1 : out std_logic;
 			locked   : out std_logic
 		);
+	end component;
+
+	component flash is
+	port (
+		clock                   : in  std_logic                     := '0';             --    clk.clk
+		avmm_csr_addr           : in  std_logic                     := '0';             --    csr.address
+		avmm_csr_read           : in  std_logic                     := '0';             --       .read
+		avmm_csr_writedata      : in  std_logic_vector(31 downto 0) := (others => '0'); --       .writedata
+		avmm_csr_write          : in  std_logic                     := '0';             --       .write
+		avmm_csr_readdata       : out std_logic_vector(31 downto 0);                    --       .readdata
+		avmm_data_addr          : in  std_logic_vector(12 downto 0) := (others => '0'); --   data.address
+		avmm_data_read          : in  std_logic                     := '0';             --       .read
+		avmm_data_writedata     : in  std_logic_vector(31 downto 0) := (others => '0'); --       .writedata
+		avmm_data_write         : in  std_logic                     := '0';             --       .write
+		avmm_data_readdata      : out std_logic_vector(31 downto 0);                    --       .readdata
+		avmm_data_waitrequest   : out std_logic;                                        --       .waitrequest
+		avmm_data_readdatavalid : out std_logic;                                        --       .readdatavalid
+		avmm_data_burstcount    : in  std_logic_vector(7 downto 0)  := (others => '0'); --       .burstcount
+		reset_n                 : in  std_logic                     := '0'              -- nreset.reset_n
+	);
 	end component;
 
 	component sid8580 IS
@@ -106,11 +128,10 @@ ARCHITECTURE vhdl OF pokeymax IS
 	);
 	END component;
 		
-
-	signal OSC_CLK : std_logic;
-	signal PHI2_6X : std_logic;
+	signal OSC_CLK : std_logic; -- about 82MHz! Always?? Massive range on data sheet
 
 	signal CLK : std_logic;
+	signal CLK116 : std_logic;
 	signal RESET_N : std_logic;
 
 	signal ENABLE_CYCLE : std_logic;
@@ -262,6 +283,27 @@ ARCHITECTURE vhdl OF pokeymax IS
 	type SAMPLE_AUDIO_TYPE is array(NATURAL range<>) of std_logic_vector(15 downto 0);
 	signal SAMPLE_AUDIO : SAMPLE_AUDIO_TYPE(1 downto 0);
 
+	-- FLASH
+	signal flash_config_addr : std_logic;
+	signal flash_config_read : std_logic;
+	signal flash_config_di : std_logic_vector(31 downto 0);
+
+	signal flash_config_write : std_logic;
+	signal flash_conig_do : std_logic_vector(31 downto 0);
+
+	signal flash_data_addr : std_logic_vector(12 downto 0);
+	signal flash_data_read : std_logic;
+	signal flash_data_di : std_logic_vector(31 downto 0);
+
+	signal flash_data_write : std_logic;
+	signal flash_data_do : std_logic_vector(31 downto 0);
+
+	signal flash_data_waitrequest : std_logic;
+
+	signal flash_data_readvalid : std_logic;
+
+	signal flash_data_burstcount : std_logic_vector(7 downto 0);
+
 	function getByte(a : string; x : integer) return std_logic_vector is
    		 variable ret : std_logic_vector(7 downto 0);
 	begin
@@ -282,6 +324,35 @@ BEGIN
 		oscena => '1'
 	);
 
+flash_on : if enable_flash=1 generate 
+	flash1 : flash
+	port map
+       	(
+		clock                   => clk116,
+		avmm_csr_addr           => flash_config_addr,
+		avmm_csr_read           => flash_config_read,
+		avmm_csr_writedata      => flash_config_di,
+
+		avmm_csr_write          => flash_config_write,
+		avmm_csr_readdata       => flash_conig_do,
+
+		avmm_data_addr          => flash_data_addr,
+		avmm_data_read          => flash_data_read,
+		avmm_data_writedata     => flash_data_di,
+
+		avmm_data_write         => flash_data_write,
+		avmm_data_readdata      => flash_data_do,
+
+		avmm_data_waitrequest   => flash_data_waitrequest,
+
+		avmm_data_readdatavalid => flash_data_readvalid,
+
+		avmm_data_burstcount    => flash_data_burstcount,
+
+		reset_n                 => reset_n
+	);
+end generate;
+
 	EXT_INT(0) <= '0';  --force to 0
 	EXT_INT(20 downto ext_bits+1) <= (others=>'1');
 	EXT_INT(ext_bits downto 1) <= EXT;
@@ -293,19 +364,12 @@ BEGIN
 
 	--assert address_bits<7 report "EXT3 already used for A6";
 
-	--phi_multiplier : entity work.phi_mult
-	--port map 
-	--(
-	--	clkin => OSC_CLK,
-	--	phi2 => PHI2,
-	--	clkout => PHI2_6X -- 6x phi2, aligned!
-	--);
-	
-	PHI2_6X <= OSC_CLK;
+	CLK_OUT <= OSC_CLK;
 
 	pll_inst : pll
 	PORT MAP(inclk0 => CLK_SLOW,
-			 c0 => CLK, -- 27MHz 
+			 c0 => CLK, --56 ish
+			 c1 => CLK116,  --113ish
 			 locked => RESET_N);
 
 
@@ -1195,8 +1259,6 @@ port map
 	);
 
 -- Wire up pins
-CLK_OUT <= PHI2_6X;
-
 ACLK <= SIO_CLOCKOUT;
 BCLK <= '0' when (SIO_CLOCKIN_OE='1' and SIO_CLOCKIN_OUT='0') else 'Z';
 SIO_CLOCKIN_IN <= BCLK;
