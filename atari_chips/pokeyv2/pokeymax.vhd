@@ -1072,14 +1072,14 @@ begin
 	p3u(15) := not(POKEY_AUDIO_3(15));	
 
 	sidu := resize(unsigned(sid_audio(0)),20);
-	psgu1 := resize(unsigned(psg_audio(0)),12)&"00000000";
-	psgu2 := resize(unsigned(psg_audio(2)),12)&"00000000";
+	psgu1 := resize(unsigned(psg_audio(0)),20);
+	psgu2 := resize(unsigned(psg_audio(2)),20);
 	samu := resize(unsigned(sample_audio(0)),20);
 	a0u := p0u + p2u + sidu + psgu1 + psgu2 + samu;
 
 	sidu := resize(unsigned(sid_audio(1)),20);
-	psgu1 := resize(unsigned(psg_audio(1)),12)&"00000000";
-	psgu2 := resize(unsigned(psg_audio(3)),12)&"00000000";
+	psgu1 := resize(unsigned(psg_audio(1)),20);
+	psgu2 := resize(unsigned(psg_audio(3)),20);
 	samu := resize(unsigned(sample_audio(1)),20);
 	if (FANCY_ENABLE='1') then
 		a1u := p1u + p3u + sidu + psgu1 + psgu2 + samu;
