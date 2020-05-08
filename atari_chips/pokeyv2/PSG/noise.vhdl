@@ -44,6 +44,6 @@ BEGIN
 	end process;
 	
 	-- output
-	bit_out <= shift_reg(0) and enable;
+	bit_out <= shift_reg(0);
 		
 END vhdl;

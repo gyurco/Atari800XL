@@ -90,6 +90,7 @@ ARCHITECTURE vhdl OF PSG_top IS
 	signal channel_c_tick : std_logic;
 	signal noise_tick : std_logic;
 	signal noise_lfsr_tick : std_logic;
+	signal noise_lfsr_val : std_logic;
 	
 	signal channel_a_val : std_logic;
 	signal channel_b_val : std_logic;
@@ -406,10 +407,12 @@ decode_addr1 : entity work.complete_address_decoder
 	( 
 		CLK => clk,
 		RESET_N => reset_n,
-		ENABLE => noise_tick,
+		ENABLE => enable,
 		
-		BIT_OUT => noise_lfsr_tick
+		BIT_OUT => noise_lfsr_val
 	);
+
+	noise_lfsr_tick <= noise_lfsr_val and noise_tick;
 	
 	-- mix noise and channel
 	mix_a : entity work.PSG_mixer
