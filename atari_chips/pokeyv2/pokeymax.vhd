@@ -592,7 +592,7 @@ end generate sid_off;
 
 sid_on : if enable_sid=1 generate 
 	enable_sid_div : entity work.syncreset_enable_divider
-          generic map (COUNT=>56,RESETCOUNT=>6) -- 28-22
+          generic map (COUNT=>58,RESETCOUNT=>6) -- 28-22
           port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>SID_CLK_ENABLE);
 
 sid1 : sid8580
@@ -639,7 +639,7 @@ end generate psg_off;
 
 psg_on : if enable_psg=1 generate 
 enable_psg_div : entity work.syncreset_enable_divider
-  generic map (COUNT=>28,RESETCOUNT=>6) -- 28-22
+  generic map (COUNT=>29,RESETCOUNT=>6) -- 28-22
   port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>PSG_ENABLE);
 -- approx 2Mhz
 -- we should support 1MHz, pokey frequency and ... maybe ... spectrum frequency?!
