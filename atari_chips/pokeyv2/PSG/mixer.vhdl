@@ -49,12 +49,13 @@ BEGIN
 	end process;
 	
 	-- next state
-	process(tone_reg,noise_reg,enable,noise,channel,noise_off,tone_off)
+	process(tone_reg,noise_reg,bit_reg,enable,noise,channel,noise_off,tone_off)
 		variable tone_comp : std_logic;
 		variable noise_comp : std_logic;
 	begin
 		tone_next <= tone_reg;
 		noise_next <= noise_reg;
+		bit_next <= bit_reg;
 		
 		if (enable = '1') then
 			tone_comp := tone_reg xor channel;
