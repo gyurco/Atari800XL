@@ -56,6 +56,8 @@ BEGIN
 		CLK => clk,
 		RESET_N => reset_n,
 		ENABLE => enable,
+
+		SYNC_RESET => count_reset,
 		
 		BIT_OUT => envelope_tick,
 		

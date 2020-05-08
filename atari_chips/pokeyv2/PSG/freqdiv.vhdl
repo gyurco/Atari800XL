@@ -19,6 +19,8 @@ PORT
 	CLK : IN STD_LOGIC;
 	RESET_N : IN STD_LOGIC;
 	ENABLE : IN STD_LOGIC;
+
+	SYNC_RESET : IN STD_LOGIC := '0';
 	
 	BIT_OUT : OUT STD_LOGIC;
 	
@@ -41,7 +43,7 @@ BEGIN
 	end process;
 	
 	-- next state
-	process(count_reg,enable,threshold)
+	process(count_reg,enable,threshold,sync_reset)
 		variable count_inc : unsigned(bits-1 downto 0);
 	begin
 		count_next <= count_reg;
@@ -54,6 +56,10 @@ BEGIN
 			else
 				count_next <= count_inc;
 			end if;
+		end if;
+
+		if (sync_reset='1') then
+			count_next <= (others=>'0');
 		end if;
 	end process;	
 		
