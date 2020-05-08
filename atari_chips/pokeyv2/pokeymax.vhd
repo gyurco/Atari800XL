@@ -214,9 +214,26 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal SID_AUDIO : SID_AUDIO_TYPE(1 downto 0);
 	
 	-- PSG
+	signal PSG_ENABLE_2Mhz : std_logic;
+	signal PSG_ENABLE_1Mhz : std_logic;
+	signal PSG_ENABLE_1_7Mhz : std_logic;
 	signal PSG_ENABLE : std_logic;
 	type PSG_AUDIO_TYPE is array(NATURAL range<>) of std_logic_vector(15 downto 0);
 	signal PSG_AUDIO : PSG_AUDIO_TYPE(3 downto 0);	
+
+	signal PSG_FREQ_REG : std_logic_vector(1 downto 0);
+	signal PSG_FREQ_NEXT : std_logic_vector(1 downto 0);
+
+	signal PSG_STEREOMODE_REG : std_logic_vector(1 downto 0);
+	signal PSG_STEREOMODE_NEXT : std_logic_vector(1 downto 0);
+
+	signal PSG_ENVELOPE16_REG : std_logic;
+	signal PSG_ENVELOPE16_NEXT : std_logic;
+
+	signal PSG_MIX11 : std_logic_vector(2 downto 0);
+	signal PSG_MIX12 : std_logic_vector(2 downto 0);
+	signal PSG_MIX21 : std_logic_vector(2 downto 0);
+	signal PSG_MIX22 : std_logic_vector(2 downto 0);
 	
 	-- SUPPORT	
 	signal BUS_DATA : std_logic_vector(7 downto 0);
@@ -637,12 +654,64 @@ psg_off : if enable_psg=0 generate
 	PSG_DO(1) <= (others=>'0');
 end generate psg_off;
 
+-- VERY approx (for now) PSG master clock!
 psg_on : if enable_psg=1 generate 
-enable_psg_div : entity work.syncreset_enable_divider
+enable_psg_div2 : entity work.syncreset_enable_divider
   generic map (COUNT=>29,RESETCOUNT=>6) -- 28-22
-  port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>PSG_ENABLE);
--- approx 2Mhz
--- we should support 1MHz, pokey frequency and ... maybe ... spectrum frequency?!
+  port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>PSG_ENABLE_2MHz);
+
+enable_psg_div1 : entity work.syncreset_enable_divider
+  generic map (COUNT=>58,RESETCOUNT=>6) -- 28-22
+  port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>PSG_ENABLE_1MHz);
+
+enable_psg_div_1_7 : entity work.syncreset_enable_divider
+  generic map (COUNT=>33,RESETCOUNT=>6) -- 28-22
+  port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>PSG_ENABLE_1_7MHz);
+
+process(PSG_FREQ_REG,PSG_ENABLE_2MHz,PSG_ENABLE_1MHz,PSG_ENABLE_1_7MHz,ENABLE_CYCLE)
+begin
+	PSG_ENABLE <= '0';
+
+	case PSG_FREQ_REG is
+		when "00"=>
+			PSG_ENABLE <= PSG_ENABLE_2MHz;
+		when "01"=>
+			PSG_ENABLE <= PSG_ENABLE_1MHz;
+		when "10"=>
+			PSG_ENABLE <= PSG_ENABLE_1_7Mhz;
+		when others=>
+			PSG_ENABLE <= PSG_ENABLE_2MHz;
+	end case;
+end process;
+
+process(PSG_STEREOMODE_REG)
+begin
+	PSG_MIX11 <= (others=>'0');
+	PSG_MIX12 <= (others=>'0');
+	PSG_MIX21 <= (others=>'0');
+	PSG_MIX22 <= (others=>'0');
+
+	case PSG_STEREOMODE_REG is
+		when "00"=>
+			PSG_MIX11 <= "111";
+			PSG_MIX12 <= "111";
+			PSG_MIX21 <= "111";
+			PSG_MIX22 <= "111";
+		when "01"=>
+			PSG_MIX11 <= "110";
+			PSG_MIX12 <= "011";
+			PSG_MIX21 <= "110";
+			PSG_MIX22 <= "011";
+		when "10"=>
+			PSG_MIX11 <= "101";
+			PSG_MIX12 <= "011";
+			PSG_MIX21 <= "101";
+			PSG_MIX22 <= "011";
+		when others=>
+			PSG_MIX11 <= "111";
+			PSG_MIX22 <= "111";
+	end case;
+end process;
 
 PSG_1 : entity work.PSG_top
   port map(
@@ -651,6 +720,9 @@ PSG_1 : entity work.PSG_top
 	enable=>psg_enable,
 	addr=>addr_in(3 downto 0),
 	write_enable=>PSG_WRITE_ENABLE(0),
+	ENVELOPE32=>not(PSG_ENVELOPE16_REG),
+	MASK1=>PSG_MIX11,
+	MASK2=>PSG_MIX12,
 	di=>write_data,
 	do=>PSG_DO(0),
 	audio1=>PSG_AUDIO(0),
@@ -664,6 +736,9 @@ PSG_2 : entity work.PSG_top
 	enable=>psg_enable, 
 	addr=>addr_in(3 downto 0),
 	write_enable=>PSG_WRITE_ENABLE(1),
+	ENVELOPE32=>not(PSG_ENVELOPE16_REG),
+	MASK1=>PSG_MIX21,
+	MASK2=>PSG_MIX22,
 	di=>write_data,
 	do=>PSG_DO(1),
 	audio1=>PSG_AUDIO(2),
@@ -861,6 +936,9 @@ begin
 		GTIA_ENABLE_REG <= "1100"; -- external only
 		CONFIG_ENABLE_REG <= '0';
 		VERSION_LOC_REG <= (others=>'0');
+		PSG_FREQ_REG <= "00"; --2MHz
+		PSG_STEREOMODE_REG <= "01"; --Polish
+		PSG_ENVELOPE16_REG <= '0'; --32 step
 	elsif (clk'event and clk='1') then
 		IRQ_EN_REG <= IRQ_EN_NEXT;
 		CHANNEL_MODE_REG <= CHANNEL_MODE_NEXT;
@@ -869,6 +947,9 @@ begin
 		GTIA_ENABLE_REG <= GTIA_ENABLE_NEXT;
 		CONFIG_ENABLE_REG <= CONFIG_ENABLE_NEXT;
 		VERSION_LOC_REG <= VERSION_LOC_NEXT;
+		PSG_FREQ_REG <= PSG_FREQ_NEXT;
+		PSG_STEREOMODE_REG <= PSG_STEREOMODE_NEXT;
+		PSG_ENVELOPE16_REG <= PSG_ENVELOPE16_NEXT;
 	end if;
 end process;
 
@@ -889,7 +970,10 @@ process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
 	CONFIG_ENABLE_REG,
 	POST_DIVIDE_REG,
 	GTIA_ENABLE_REG,
-	VERSION_LOC_REG
+	VERSION_LOC_REG,
+	PSG_FREQ_REG,
+	PSG_STEREOMODE_REG,
+	PSG_ENVELOPE16_REG
 )
 begin
 	SATURATE_NEXT <= SATURATE_REG;
@@ -903,6 +987,10 @@ begin
 	CONFIG_ENABLE_NEXT <= CONFIG_ENABLE_REG;
 	
 	VERSION_LOC_NEXT <= VERSION_LOC_REG;
+
+	PSG_FREQ_NEXT <= PSG_FREQ_REG;
+	PSG_STEREOMODE_NEXT <= PSG_STEREOMODE_REG;
+	PSG_ENVELOPE16_NEXT <= PSG_ENVELOPE16_REG;
 	
 	if (CONFIG_WRITE_ENABLE='1') then
 		if (addr_decoded4(0)='1') then
@@ -923,6 +1011,12 @@ begin
 			VERSION_LOC_NEXT <= WRITE_DATA(2 downto 0);
 		end if;
 		
+		if (addr_decoded4(5)='1') then
+			PSG_FREQ_NEXT <= WRITE_DATA(1 downto 0);
+			PSG_STEREOMODE_NEXT <= WRITE_DATA(3 downto 2);
+			PSG_ENVELOPE16_NEXT <= WRITE_DATA(4);
+		end if;
+		
 		if (addr_decoded4(12)='1') then
 			if (WRITE_DATA=x"3F") then
 				CONFIG_ENABLE_NEXT <= '1';
@@ -935,7 +1029,8 @@ end process;
 
 process(addr_decoded4,VERSION_LOC_REG,
 SATURATE_REG,CHANNEL_MODE_REG,IRQ_EN_REG,
-POST_DIVIDE_REG, GTIA_ENABLE_REG)
+POST_DIVIDE_REG, GTIA_ENABLE_REG,
+PSG_FREQ_REG, PSG_STEREOMODE_REG, PSG_ENVELOPE16_REG)
 begin
 	CONFIG_DO <= (others=>'1');
 	
@@ -1008,6 +1103,12 @@ begin
 				CONFIG_DO <= getByte(version,8);
 			when others =>
 		end case;		
+	end if;
+
+	if (addr_decoded4(5)='1') then
+		CONFIG_DO(1 downto 0) <= PSG_FREQ_REG;
+		CONFIG_DO(3 downto 2) <= PSG_STEREOMODE_REG;
+		CONFIG_DO(4) <= PSG_ENVELOPE16_REG;
 	end if;
 	
 	if (addr_decoded4(12)='1') then
