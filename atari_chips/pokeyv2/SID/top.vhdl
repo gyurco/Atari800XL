@@ -120,6 +120,14 @@ ARCHITECTURE vhdl OF SID_top IS
 	signal addr_decoded : std_logic_vector(31 downto 0);
 	
 	signal audio_reg: std_logic_vector(15 downto 0);
+
+	-- osc regs
+	signal osc_a_reg : std_logic_vector(11 downto 0);
+	signal osc_b_reg : std_logic_vector(11 downto 0);
+	signal osc_b_reg : std_logic_vector(11 downto 0);
+	signal osc_a_lfsr_enable : std_logic;
+	signal osc_b_lfsr_enable : std_logic;
+	signal osc_c_lfsr_enable : std_logic;
 BEGIN
 	process(clk,reset_n)
 	begin
@@ -383,6 +391,8 @@ decode_addr1 : entity work.complete_address_decoder
 		RESET_N => reset_n,
 		ENABLE => enable,
 		
+		TEST => control_a_reg(3),
+		LFSR_ENABLE = >osc_a_lfsr_enable,
 		BITS_OUT => osc_a_reg,
 
 		SYNC_IN => sync_a,
@@ -400,6 +410,8 @@ decode_addr1 : entity work.complete_address_decoder
 		RESET_N => reset_n,
 		ENABLE => enable,
 		
+		TEST => control_b_reg(3),
+		LFSR_ENABLE = >osc_b_lfsr_enable,
 		BITS_OUT => osc_b_reg,
 
 		SYNC_IN => sync_b,
@@ -417,6 +429,8 @@ decode_addr1 : entity work.complete_address_decoder
 		RESET_N => reset_n,
 		ENABLE => enable,
 		
+		TEST => control_c_reg(3),
+		LFSR_ENABLE = >osc_c_lfsr_enable,
 		BITS_OUT => osc_c_reg,
 
 		SYNC_IN => sync_c,
@@ -426,24 +440,65 @@ decode_addr1 : entity work.complete_address_decoder
 	);
 	sync_c <= control_c_reg(1) and osc_b_sync_out;
 
-	--wave generator mux
-	wavegen : entity work.SID_wavegen_mux
+	--wave generator
+	wavegen_a : entity work.SID_wavegen
 	PORT MAP
 	(
 		CLK => clk,
 		RESET_N => reset_n,
 
-		OSCA_IN => osc_a_reg,
-		OSCB_IN => osc_b_reg,
-		OSCC_IN => osc_c_reg,
+		RINGMOD => control_a_reg(2),
+		RINGMOD_OSC_MSB => osc_c_reg(11),
+		TEST => control_a_reg(3),
+		LFSR_ENABLE => osc_a_lfsr_enable,
+		OSC_IN => osc_a_reg,
 
-		WAVESELECT_A_IN => waveselect_a_reg,
-		WAVESELECT_B_IN => waveselect_b_reg,
-		WAVESELECT_C_IN => waveselect_c_reg,
+		WAVESELECT_IN => waveselect_a_reg,
 
-		WAVE_DATA_REQUEST => wave_data_request,
-		WAVE_DATA_REPLY => wave_data_reply
+		WAVE_OUT => wave_a
 	);
+	wavegen_b : entity work.SID_wavegen
+	PORT MAP
+	(
+		CLK => clk,
+		RESET_N => reset_n,
+
+		RINGMOD => control_b_reg(2),
+		RINGMOD_OSC_MSB => osc_a_reg(11),
+		TEST => control_b_reg(3),
+		LFSR_ENABLE => osc_b_lfsr_enable,
+		OSC_IN => osc_b_reg,
+
+		WAVESELECT_IN => waveselect_b_reg,
+
+		WAVE_OUT => wave_b
+	);
+	wavegen_c : entity work.SID_wavegen
+	PORT MAP
+	(
+		CLK => clk,
+		RESET_N => reset_n,
+
+		RINGMOD => control_c_reg(2),
+		RINGMOD_OSC_MSB => osc_b_reg(11),
+		TEST => control_c_reg(3),
+		LFSR_ENABLE => osc_c_lfsr_enable,
+		OSC_IN => osc_c_reg,
+
+		WAVESELECT_IN => waveselect_c_reg,
+
+		WAVE_OUT => wave_c
+	);
+
+	--------------------------------
+	-- Up to here, below is PSG leftover
+	-- TODO
+	-- 1) check above works!
+	-- 2) wave combinations need to read flash
+	-- 3) envelope/gate
+	-- 4) volume
+	-- 5) filter (state variable as per info found)
+	--------------------------------
 	
 	-- noise
 	--17-bit LFSR with taps at bits 17 and 14

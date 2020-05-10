@@ -18,8 +18,10 @@ PORT
 	
 	BITS_OUT : OUT STD_LOGIC_VECTOR(11 downto 0);
 	
+	TEST : IN STD_LOGIC;
 	SYNC_IN : IN STD_LOGIC;
 	SYNC_OUT : OUT STD_LOGIC;
+	LFSR_ENABLE : OUT STD_LOGIC;
 
 	ADJ : IN STD_LOGIC_VECTOR(15 downto 0);
 END SID_oscillator;
@@ -44,13 +46,15 @@ BEGIN
 	begin
 		count_next <= count_reg;
 		sync_out <= '0';
+		lfsr_enable <= '0';
 
 		if (enable = '1') then
-			count_inc := count_reg+unsigned(adj);
+			count_inc := count_reg+resize(unsigned(adj),24);
 
-			sync_out <= count_inc(23) xor count_reg(23);
+			sync_out <= count_inc(23) and not(count_reg(23));
+			lfsr_enable <= count_inc(19) and not(count_reg(19));
 
-			if (sync_in='1') then
+			if (sync_in='1' or test='1') then
 				count_next <= (others=>'0');
 			else
 				count_next <= count_inc;
