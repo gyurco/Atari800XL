@@ -31,8 +31,6 @@ ARCHITECTURE vhdl OF PSG_mixer IS
 	signal bit_next: std_logic;
 	signal tone_reg: std_logic;
 	signal tone_next: std_logic;
-	signal noise_reg: std_logic;
-	signal noise_next: std_logic;
 BEGIN
 	-- register
 	process(clk, reset_n)
@@ -40,31 +38,25 @@ BEGIN
 		if (reset_n = '0') then
 			bit_reg <= '0';
 			tone_reg <= '0';
-			noise_reg <= '0';
 		elsif (clk'event and clk='1') then
 			bit_reg <= bit_next;
 			tone_reg <= tone_next;
-			noise_reg <= noise_next;
 		end if;
 	end process;
 	
 	-- next state
-	process(tone_reg,noise_reg,bit_reg,enable,noise,channel,noise_off,tone_off)
+	process(tone_reg,bit_reg,enable,noise,channel,noise_off,tone_off)
 		variable tone_comp : std_logic;
-		variable noise_comp : std_logic;
 	begin
 		tone_next <= tone_reg;
-		noise_next <= noise_reg;
 		bit_next <= bit_reg;
 		
 		if (enable = '1') then
 			tone_comp := tone_reg xor channel;
-			noise_comp := noise_reg xor noise;
 
 			tone_next <= tone_comp;
-			noise_next <= noise_comp;
 
-			bit_next <= (tone_comp and not(tone_off)) xnor (noise_comp and not(noise_off));
+			bit_next <= (noise or noise_off) and (tone_reg or tone_off);
 		end if;
 	end process;	
 		
