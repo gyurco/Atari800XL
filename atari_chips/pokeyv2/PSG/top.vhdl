@@ -89,8 +89,7 @@ ARCHITECTURE vhdl OF PSG_top IS
 	signal channel_b_tick : std_logic;
 	signal channel_c_tick : std_logic;
 	signal noise_tick : std_logic;
-	signal noise_lfsr_tick : std_logic;
-	signal noise_lfsr_val : std_logic;
+	signal noise_val : std_logic;
 	
 	signal channel_a_val : std_logic;
 	signal channel_b_val : std_logic;
@@ -389,17 +388,17 @@ decode_addr1 : entity work.complete_address_decoder
 	noise_ticker : entity work.PSG_freqdiv
 	GENERIC MAP
 	(
-		bits => 5
+		bits => 7
 	)	
 	PORT MAP
 	(
 		CLK => clk,
 		RESET_N => reset_n,
-		ENABLE => core_tick,
+		ENABLE => enable,
 		
 		BIT_OUT => noise_tick,
 		
-		THRESHOLD => unsigned(period_noise_reg)
+		THRESHOLD => unsigned(period_noise_reg)&"00"
 	);
 	
 	noise : entity work.PSG_noise
@@ -408,12 +407,11 @@ decode_addr1 : entity work.complete_address_decoder
 		CLK => clk,
 		RESET_N => reset_n,
 		ENABLE => enable,
+		TICK => noise_tick,
 		
-		BIT_OUT => noise_lfsr_val
+		BIT_OUT => noise_val
 	);
 
-	noise_lfsr_tick <= noise_lfsr_val and noise_tick;
-	
 	-- mix noise and channel
 	mix_a : entity work.PSG_mixer
 	PORT MAP
@@ -422,7 +420,7 @@ decode_addr1 : entity work.complete_address_decoder
 		RESET_N => reset_n,		
 		ENABLE => enable,
 		
-		NOISE => noise_lfsr_tick,
+		NOISE => noise_val,
 		CHANNEL => channel_a_tick,
 		
 		NOISE_OFF => mixer_noise_reg(0),
@@ -438,7 +436,7 @@ decode_addr1 : entity work.complete_address_decoder
 		RESET_N => reset_n,		
 		ENABLE => enable,
 		
-		NOISE => noise_lfsr_tick,
+		NOISE => noise_val,
 		CHANNEL => channel_b_tick,
 		
 		NOISE_OFF => mixer_noise_reg(1),
@@ -454,7 +452,7 @@ decode_addr1 : entity work.complete_address_decoder
 		RESET_N => reset_n,		
 		ENABLE => enable,
 		
-		NOISE => noise_lfsr_tick,
+		NOISE => noise_val,
 		CHANNEL => channel_c_tick,
 		
 		NOISE_OFF => mixer_noise_reg(2),
