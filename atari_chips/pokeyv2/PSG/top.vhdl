@@ -389,7 +389,7 @@ decode_addr1 : entity work.complete_address_decoder
 	noise_preticker : entity work.PSG_freqdiv
 	GENERIC MAP
 	(
-		bits => 1
+		bits => 2
 	)	
 	PORT MAP
 	(
@@ -399,7 +399,7 @@ decode_addr1 : entity work.complete_address_decoder
 		
 		BIT_OUT => core_tick_half,
 		
-		THRESHOLD => (others=>'1')
+		THRESHOLD => "10"
 	);
 
 	noise_ticker : entity work.PSG_freqdiv
