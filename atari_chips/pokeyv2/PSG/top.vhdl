@@ -85,6 +85,7 @@ ARCHITECTURE vhdl OF PSG_top IS
 	signal addr_decoded : std_logic_vector(15 downto 0);
 	
 	signal core_tick : std_logic;
+	signal core_tick_half : std_logic;
 	signal channel_a_tick : std_logic;
 	signal channel_b_tick : std_logic;
 	signal channel_c_tick : std_logic;
@@ -385,20 +386,36 @@ decode_addr1 : entity work.complete_address_decoder
 	--ref:https://listengine.tuxfamily.org/lists.tuxfamily.org/hatari-devel/2012/09/msg00045.html	
 	
 	-- noise freq->noise_tick->noise_val
-	noise_ticker : entity work.PSG_freqdiv
+	noise_preticker : entity work.PSG_freqdiv
 	GENERIC MAP
 	(
-		bits => 7
+		bits => 1
 	)	
 	PORT MAP
 	(
 		CLK => clk,
 		RESET_N => reset_n,
-		ENABLE => enable,
+		ENABLE => core_tick,
+		
+		BIT_OUT => core_tick_half,
+		
+		THRESHOLD => (others=>'1')
+	);
+
+	noise_ticker : entity work.PSG_freqdiv
+	GENERIC MAP
+	(
+		bits => 5
+	)	
+	PORT MAP
+	(
+		CLK => clk,
+		RESET_N => reset_n,
+		ENABLE => core_tick_half,
 		
 		BIT_OUT => noise_tick,
 		
-		THRESHOLD => unsigned(period_noise_reg)&"00"
+		THRESHOLD => unsigned(period_noise_reg)
 	);
 	
 	noise : entity work.PSG_noise
@@ -406,7 +423,7 @@ decode_addr1 : entity work.complete_address_decoder
 	( 
 		CLK => clk,
 		RESET_N => reset_n,
-		ENABLE => enable,
+		ENABLE => noise_tick,
 		TICK => noise_tick,
 		
 		BIT_OUT => noise_val
