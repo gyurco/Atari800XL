@@ -9,7 +9,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-ENTITY PSG_envelope IS
+ENTITY SID_envelope IS
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
@@ -25,9 +25,9 @@ PORT
 	
 	ENVELOPE : OUT STD_LOGIC_VECTOR(7 downto 0)
 );
-END PSG_envelope;
+END SID_envelope;
 
-ARCHITECTURE vhdl OF PSG_envelope IS
+ARCHITECTURE vhdl OF SID_envelope IS
 	signal envelope_reg: unsigned(7 downto 0);
 	signal envelope_next:unsigned(7 downto 0);
 

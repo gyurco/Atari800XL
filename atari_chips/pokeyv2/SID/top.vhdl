@@ -15,12 +15,16 @@ use IEEE.STD_LOGIC_MISC.all;
 LIBRARY work;
 
 ENTITY SID_top IS 
+	GENERIC
+	(
+		CLKSPEED : integer -- Need to know CLK frequency for the filtering
+	)
 	PORT
 	(
-		CLK : in std_logic;
+		CLK : in std_logic; -- >1MHz, ideally higher for more accurate filter (as long as timing met)
 		RESET_N : in std_logic;
 		
-		ENABLE : in std_logic;
+		ENABLE : in std_logic; -- Typically ~1MHz
 
 		ADDR : in std_logic_vector(4 downto 0); 
 		WRITE_ENABLE : in std_logic;
@@ -108,7 +112,7 @@ ARCHITECTURE vhdl OF SID_top IS
 	signal filter_sel_reg : std_logic_vector(2 downto 0); --hp/bp/lp
 	signal filter_sel_next : std_logic_vector(2 downto 0);
 
-	-- allow ch3 to be silent, if using it for modulation
+	-- allow ch3 to be silent (direct audio path), if using it for modulation
 	signal ch3silent_reg : std_logic;
 	signal ch3silent_next : std_logic;
 
@@ -543,7 +547,7 @@ decode_addr1 : entity work.complete_address_decoder
 	);		
 
 	-- volume
-	vol_a : entity work.SID_volume
+	vol_a : entity work.SID_amplitudeModulator
 	PORT MAP
 	( 
 		CLK => clk,
@@ -552,12 +556,11 @@ decode_addr1 : entity work.complete_address_decoder
 		
 		WAVE => wave_a_reg,
 		ENVELOPE => envelope_a_reg,
-		VOLUME => vol_reg,
 		
-		VOL_OUT => channel_a_prefilter
+		MODULATED => channel_a_prefilter
 	);		
 
-	vol_b : entity work.SID_volume
+	vol_b : entity work.SID_amplitudeModulator
 	PORT MAP
 	( 
 		CLK => clk,
@@ -566,12 +569,11 @@ decode_addr1 : entity work.complete_address_decoder
 		
 		WAVE => wave_b_reg,
 		ENVELOPE => envelope_b_reg,
-		VOLUME => vol_reg,
 		
-		VOL_OUT => channel_b_prefilter
+		MODULATED => channel_b_prefilter
 	);		
 
-	vol_c : entity work.SID_volume
+	vol_c : entity work.SID_amplitudeModulator
 	PORT MAP
 	( 
 		CLK => clk,
@@ -580,10 +582,51 @@ decode_addr1 : entity work.complete_address_decoder
 		
 		WAVE => wave_c_reg,
 		ENVELOPE => envelope_c_reg,
-		VOLUME => vol_reg,
 		
-		VOL_OUT => channel_c_prefilter
+		MODULATED => channel_c_prefilter
 	);		
+
+	entity work.SID_filterglue
+	PORT MAP
+	(
+		CLK => clk,
+		RESET_N => reset_n,		
+		ENABLE => enable,
+
+		-- pre -> sum up channels
+		CHANNEL_A => channel_a_prefilter,
+		CHANNEL_B => channel_b_prefilter,
+		CHANNEL_C => channel_c_prefilter,
+		FILTER_EN => filter_en_reg,
+		
+		-- post -> sum up outputs!
+		FILTER_LP => filter_lp,
+		FILTER_BP => filter_bp,
+		FILTER_HP => filter_hp,
+		FILTER_SEL => filter_sel_reg,
+	);
+
+	variable_state_filter : entity work.SID_filter
+	GENERIC MAP
+	(
+		CLKSPEED => CLKSPEED,
+		FMIN => 30,
+		FMAX => 10000,
+		QMULT => 1,
+		QOFF => 0
+	)
+	PORT MAP
+	(
+		CLK => clk,
+		RESET_N => reset_n,
+
+		CUTOFF_FREQUENCY => statevariable_fcutoff_reg,
+		Q => statevariable_Q_reg
+	);
+
+	--TODO: 6581! buggy_variable_state_filter : entity work.SID_filter
+
+
 
 	--------------------------------
 	-- Up to here, below is PSG leftover
@@ -591,8 +634,10 @@ decode_addr1 : entity work.complete_address_decoder
 	-- 1) check above works!
 	-- 2) wave combinations need to read flash
 	-- 3) DONE:envelope/gate
-	-- 4) volume
+	-- 4) DONE:amplitude modulation
+	-- 5) filter on/off
 	-- 5) filter (state variable as per info found)
+	-- 6) volume
 	--------------------------------
 	
 	-- noise
