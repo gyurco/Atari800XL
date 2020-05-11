@@ -455,7 +455,7 @@ decode_addr1 : entity work.complete_address_decoder
 
 		WAVESELECT_IN => waveselect_a_reg,
 
-		WAVE_OUT => wave_a
+		WAVE_OUT => wave_a_reg
 	);
 	wavegen_b : entity work.SID_wavegen
 	PORT MAP
@@ -471,7 +471,7 @@ decode_addr1 : entity work.complete_address_decoder
 
 		WAVESELECT_IN => waveselect_b_reg,
 
-		WAVE_OUT => wave_b
+		WAVE_OUT => wave_b_reg
 	);
 	wavegen_c : entity work.SID_wavegen
 	PORT MAP
@@ -487,115 +487,61 @@ decode_addr1 : entity work.complete_address_decoder
 
 		WAVESELECT_IN => waveselect_c_reg,
 
-		WAVE_OUT => wave_c
+		WAVE_OUT => wave_c_reg
 	);
-
-	--------------------------------
-	-- Up to here, below is PSG leftover
-	-- TODO
-	-- 1) check above works!
-	-- 2) wave combinations need to read flash
-	-- 3) envelope/gate
-	-- 4) volume
-	-- 5) filter (state variable as per info found)
-	--------------------------------
-	
-	-- noise
-	--17-bit LFSR with taps at bits 17 and 14
-	--ref:https://listengine.tuxfamily.org/lists.tuxfamily.org/hatari-devel/2012/09/msg00045.html	
-	
-	-- noise freq->noise_tick->noise_val
-	noise_ticker : entity work.SID_freqdiv
-	GENERIC MAP
-	(
-		bits => 5
-	)	
-	PORT MAP
-	(
-		CLK => clk,
-		RESET_N => reset_n,
-		ENABLE => core_tick,
-		
-		BIT_OUT => noise_tick,
-		
-		THRESHOLD => unsigned(period_noise_reg)
-	);
-	
-	noise : entity work.SID_noise
-	PORT MAP
-	( 
-		CLK => clk,
-		RESET_N => reset_n,
-		ENABLE => noise_tick,
-		
-		BIT_OUT => noise_lfsr_tick
-	);
-	
-	-- mix noise and channel
-	mix_a : entity work.SID_mixer
-	PORT MAP
-	( 
-		CLK => clk,
-		RESET_N => reset_n,		
-		ENABLE => enable,
-		
-		NOISE => noise_lfsr_tick,
-		CHANNEL => channel_a_tick,
-		
-		NOISE_OFF => mixer_noise_reg(0),
-		TONE_OFF => mixer_tone_reg(0),
-		
-		BIT_OUT => channel_a_val
-	);
-	
-	mix_b : entity work.SID_mixer
-	PORT MAP
-	( 
-		CLK => clk,
-		RESET_N => reset_n,		
-		ENABLE => enable,
-		
-		NOISE => noise_lfsr_tick,
-		CHANNEL => channel_b_tick,
-		
-		NOISE_OFF => mixer_noise_reg(1),
-		TONE_OFF => mixer_tone_reg(1),		
-		
-		BIT_OUT => channel_b_val
-	);	
-	
-	mix_c : entity work.SID_mixer
-	PORT MAP
-	( 
-		CLK => clk,
-		RESET_N => reset_n,		
-		ENABLE => enable,
-		
-		NOISE => noise_lfsr_tick,
-		CHANNEL => channel_c_tick,
-		
-		NOISE_OFF => mixer_noise_reg(2),
-		TONE_OFF => mixer_tone_reg(2),		
-		
-		BIT_OUT => channel_c_val
-	);		
 
 	-- envelope
-	envelope : entity work.SID_envelope
+	envelope_a : entity work.SID_envelope
 	PORT MAP
 	( 
 		CLK => clk,
 		RESET_N => reset_n,		
-		ENABLE => core_tick,
-		
-		STEP32 => envelope32,
-		COUNT_RESET => envelope_count_reset,
-		SHAPE => shape_envelope_reg,
-		PERIOD => period_envelope_reg,
+		ENABLE => enable,
 
-		ENVELOPE => envelope_reg
+		ATTACK => envelope_attack_a_reg,
+		SUSTAIN => envelope_sustain_a_reg,
+		DECAY => envelope_decay_a_reg,
+		RELEASE_IN => envelope_release_a_reg,
+
+		GATE => control_a_reg(0),
+		
+		ENVELOPE => envelope_a_reg
 	);		
-	
+
+	envelope_b : entity work.SID_envelope
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,		
+		ENABLE => enable,
+
+		ATTACK => envelope_attack_b_reg,
+		SUSTAIN => envelope_sustain_b_reg,
+		DECAY => envelope_decay_b_reg,
+		RELEASE_IN => envelope_release_b_reg,
+
+		GATE => control_b_reg(0),
+		
+		ENVELOPE => envelope_b_reg
+	);		
+
+	envelope_c : entity work.SID_envelope
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,		
+		ENABLE => enable,
+
+		ATTACK => envelope_attack_c_reg,
+		SUSTAIN => envelope_sustain_c_reg,
+		DECAY => envelope_decay_c_reg,
+		RELEASE_IN => envelope_release_c_reg,
+
+		GATE => control_c_reg(0),
+		
+		ENVELOPE => envelope_c_reg
+	);		
+
 	-- volume
 	vol_a : entity work.SID_volume
 	PORT MAP
@@ -604,13 +550,13 @@ decode_addr1 : entity work.complete_address_decoder
 		RESET_N => reset_n,		
 		ENABLE => enable,
 		
-		CHANNEL => channel_a_val,
-		FIXED => vol_channel_a_reg,
-		ENVELOPE => envelope_reg,
+		WAVE => wave_a_reg,
+		ENVELOPE => envelope_a_reg,
+		VOLUME => vol_reg,
 		
-		VOL_OUT => channel_a_vol
+		VOL_OUT => channel_a_prefilter
 	);		
-	
+
 	vol_b : entity work.SID_volume
 	PORT MAP
 	( 
@@ -618,13 +564,13 @@ decode_addr1 : entity work.complete_address_decoder
 		RESET_N => reset_n,		
 		ENABLE => enable,
 		
-		CHANNEL => channel_b_val,
-		FIXED => vol_channel_b_reg,
-		ENVELOPE => envelope_reg,
+		WAVE => wave_b_reg,
+		ENVELOPE => envelope_b_reg,
+		VOLUME => vol_reg,
 		
-		VOL_OUT => channel_b_vol
+		VOL_OUT => channel_b_prefilter
 	);		
-	
+
 	vol_c : entity work.SID_volume
 	PORT MAP
 	( 
@@ -632,12 +578,26 @@ decode_addr1 : entity work.complete_address_decoder
 		RESET_N => reset_n,		
 		ENABLE => enable,
 		
-		CHANNEL => channel_c_val,
-		FIXED => vol_channel_c_reg,
-		ENVELOPE => envelope_reg,
+		WAVE => wave_c_reg,
+		ENVELOPE => envelope_c_reg,
+		VOLUME => vol_reg,
 		
-		VOL_OUT => channel_c_vol
+		VOL_OUT => channel_c_prefilter
 	);		
+
+	--------------------------------
+	-- Up to here, below is PSG leftover
+	-- TODO
+	-- 1) check above works!
+	-- 2) wave combinations need to read flash
+	-- 3) DONE:envelope/gate
+	-- 4) volume
+	-- 5) filter (state variable as per info found)
+	--------------------------------
+	
+	-- noise
+	--17-bit LFSR with taps at bits 17 and 14
+	--ref:https://listengine.tuxfamily.org/lists.tuxfamily.org/hatari-devel/2012/09/msg00045.html	
 	
 	-- combine channels/apply log volume curve
 	vol_profile1 : entity work.SID_volume_profile
