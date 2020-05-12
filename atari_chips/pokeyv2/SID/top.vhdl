@@ -586,24 +586,21 @@ decode_addr1 : entity work.complete_address_decoder
 		MODULATED => channel_c_prefilter
 	);		
 
-	entity work.SID_filterglue
+	entity work.SID_preFilterSum
 	PORT MAP
 	(
 		CLK => clk,
 		RESET_N => reset_n,		
 		ENABLE => enable,
 
-		-- pre -> sum up channels
 		CHANNEL_A => channel_a_prefilter,
 		CHANNEL_B => channel_b_prefilter,
 		CHANNEL_C => channel_c_prefilter,
+		CHANNEL_C_CUTDIRECT => ch3silence_reg,
 		FILTER_EN => filter_en_reg,
-		
-		-- post -> sum up outputs!
-		FILTER_LP => filter_lp,
-		FILTER_BP => filter_bp,
-		FILTER_HP => filter_hp,
-		FILTER_SEL => filter_sel_reg,
+
+		PREFILTER_OUT => channel_prefilter,
+		DIRECT_OUT => channel_directsum
 	);
 
 	variable_state_filter : entity work.SID_filter
@@ -620,8 +617,32 @@ decode_addr1 : entity work.complete_address_decoder
 		CLK => clk,
 		RESET_N => reset_n,
 
+		INPUT => channel_prefilter;
+
+		LOWPASS => filter_lp,
+		BANDPASS => filter_bp,
+		HIGHPASS => filter_hp,
+
 		CUTOFF_FREQUENCY => statevariable_fcutoff_reg,
 		Q => statevariable_Q_reg
+	);
+
+	entity work.SID_postFilterSum
+	PORT MAP
+	(
+		CLK => clk,
+		RESET_N => reset_n,		
+
+		DIRECT => channel_directsum,
+
+		FILTER_LP => filter_lp,
+		FILTER_BP => filter_bp,
+		FILTER_HP => filter_hp,
+		FILTER_SEL => filter_sel_reg,
+
+		VOLUME => volume_reg,
+
+		CHANNEL_OUT => audio
 	);
 
 	--TODO: 6581! buggy_variable_state_filter : entity work.SID_filter
