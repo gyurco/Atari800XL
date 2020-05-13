@@ -642,64 +642,26 @@ decode_addr1 : entity work.complete_address_decoder
 
 		VOLUME => volume_reg,
 
-		CHANNEL_OUT => audio
+		CHANNEL_OUT => audio_reg
 	);
 
 	--TODO: 6581! buggy_variable_state_filter : entity work.SID_filter
-
-
-
+	--ref: https://bel.fi/alankila/c64-sw/index-cpp.html
+	-- see distortion section
+	
 	--------------------------------
-	-- Up to here, below is PSG leftover
 	-- TODO
 	-- 1) check above works!
 	-- 2) wave combinations need to read flash
 	-- 3) DONE:envelope/gate
 	-- 4) DONE:amplitude modulation
-	-- 5) filter on/off
-	-- 5) filter (state variable as per info found)
-	-- 6) volume
+	-- 5) DONE:filter on/off
+	-- 5) DONE:filter (state variable as per info found)
+	-- 6) DONE:volume
+	-- 7) read registers: pot, osc3 etc
 	--------------------------------
 	
-	-- noise
-	--17-bit LFSR with taps at bits 17 and 14
-	--ref:https://listengine.tuxfamily.org/lists.tuxfamily.org/hatari-devel/2012/09/msg00045.html	
-	
-	-- combine channels/apply log volume curve
-	vol_profile1 : entity work.SID_volume_profile
-	PORT MAP
-	( 
-		CLK => clk,
-		RESET_N => reset_n,		
-		ENABLE => enable,
-		
-		CHANNEL_A => channel_a_vol,
-		CHANNEL_B => channel_b_vol,
-		CHANNEL_C => channel_c_vol,
-
-		CHANNEL_MASK => mask1,
-		
-		AUDIO_OUT => audio1_reg
-	);	
-
-	vol_profile2 : entity work.SID_volume_profile
-	PORT MAP
-	( 
-		CLK => clk,
-		RESET_N => reset_n,		
-		ENABLE => enable,
-		
-		CHANNEL_A => channel_a_vol,
-		CHANNEL_B => channel_b_vol,
-		CHANNEL_C => channel_c_vol,
-
-		CHANNEL_MASK => mask2,
-		
-		AUDIO_OUT => audio2_reg
-	);	
-
 	--outputs
-	
 	AUDIO <= audio_reg;
 	
 end vhdl;
