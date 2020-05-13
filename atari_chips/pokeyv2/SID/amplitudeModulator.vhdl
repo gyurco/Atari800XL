@@ -39,13 +39,13 @@ BEGIN
 	
 	-- next state
 	process(mod_reg,enable,wave,envelope)
-		multres : unsigned(35 downto 0);
+		variable multres : unsigned(35 downto 0);
 	begin
 		mod_next <= mod_reg;
 		
 		if (enable = '1') then
 			multres := resize(unsigned(envelope),18)*resize(unsigned(wave),18);
-			mod_next <= multres(19 downto 4);
+			mod_next <= std_logic_vector(multres(19 downto 4));
 		end if;
 	end process;	
 		

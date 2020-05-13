@@ -23,7 +23,8 @@ PORT
 	SYNC_OUT : OUT STD_LOGIC;
 	LFSR_ENABLE : OUT STD_LOGIC;
 
-	ADJ : IN STD_LOGIC_VECTOR(15 downto 0);
+	ADJ : IN STD_LOGIC_VECTOR(15 downto 0)
+);
 END SID_oscillator;
 
 ARCHITECTURE vhdl OF SID_oscillator IS
@@ -42,7 +43,7 @@ BEGIN
 	
 	-- next state
 	process(count_reg,enable,adj,sync_in)
-		variable count_inc : std_logic_vector(23 downto 0);
+		variable count_inc : unsigned(23 downto 0);
 	begin
 		count_next <= count_reg;
 		sync_out <= '0';
@@ -63,6 +64,6 @@ BEGIN
 	end process;	
 
 	--output
-	bits_out <= count_reg(23 downto 12);
+	bits_out <= std_logic_vector(count_reg(23 downto 12));
 		
 END vhdl;

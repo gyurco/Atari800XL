@@ -8,6 +8,7 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use IEEE.STD_LOGIC_MISC.all;
 
 ENTITY SID_envelope IS
 PORT 
@@ -37,10 +38,14 @@ ARCHITECTURE vhdl OF SID_envelope IS
 	signal expdelay_lfsr_reg : std_logic_vector(4 downto 0);
 	signal expdelay_lfsr_next : std_logic_vector(4 downto 0);
 
+	signal exptapmatch_reg : std_logic_vector(2 downto 0);
+	signal exptapmatch_next : std_logic_vector(2 downto 0);
+
 	signal delay_lfsr_reset : std_logic;
 	signal expdelay_lfsr_reset : std_logic;
 	signal envelope_inc : std_logic;
 	signal envelope_dec : std_logic;
+	signal envelope_decremented : std_logic;
 
 	signal tap : std_logic_vector(3 downto 0);
 	signal exptap : std_logic_vector(2 downto 0);
@@ -59,11 +64,13 @@ BEGIN
 			envelope_reg <= (others=>'0');
 			delay_lfsr_reg <= (others=>'1');
 			expdelay_lfsr_reg <= (others=>'1');
+			exptapmatch_reg <= (others=>'0');
 			state_reg <= state_release;
 		elsif (clk'event and clk='1') then
 			envelope_reg <= envelope_next;
 			delay_lfsr_reg <= delay_lfsr_next;
 			expdelay_lfsr_reg <= expdelay_lfsr_next;
+			exptapmatch_reg <= exptapmatch_next;
 			state_reg <= state_next;
 		end if;
 	end process;
@@ -106,10 +113,10 @@ BEGIN
 				envelope_next <= envelope_reg+1;
 			end if;
 			if (envelope_dec='1') then
-				if (exptapmatch = exptap) then
+				if (exptapmatch_reg = exptap) then
 					envelope_next <= envelope_reg-1;
 					envelope_decremented <= '1';
-				end if
+				end if;
 			end if;
 
 			case envelope_reg is
@@ -129,21 +136,28 @@ BEGIN
 		end if;
 	end process;
 
-	process(state_reg,gate,tap,attack)
+	process(state_reg,envelope_reg,gate,tap,attack)
+		variable envelope_over_sustain : std_logic;
 	begin
 		state_next <= state_reg;
 		delay_lfsr_reset <= '0';
 		expdelay_lfsr_reset <= '0';
 		envelope_inc <= '0';
 		envelope_dec <= '0';
+
+		envelope_over_sustain := '0';
+		if (unsigned(envelope_reg) >= unsigned(sustain&sustain)) then
+			envelope_over_sustain := '1';
+		end if;
+
 		if (enable='1') then
 			case state_reg is
 				when state_attack =>
-					if (tap = attack)
+					if (tap = attack) then
 						envelope_inc <= '1';
 						delay_lfsr_reset <= '1';
 					end if;
-					if (and_reduce(envelope_reg)='1') then
+					if (and_reduce(std_logic_vector(envelope_reg))='1') then
 						state_next <= state_decay;
 						delay_lfsr_reset <= '1';
 					end if;
@@ -153,7 +167,7 @@ BEGIN
 						expdelay_lfsr_reset <= '1';
 					end if;
 				when state_decay =>
-					if (tap = decay and envelope_reg>=sustain&sustain)
+					if (tap = decay and envelope_over_sustain='1') then
 						envelope_dec <= '1';
 					end if;
 					if (gate='0') then
@@ -162,7 +176,7 @@ BEGIN
 						expdelay_lfsr_reset <= '1';
 					end if;
 				when state_release =>
-					if (tap = decay and or_reduce(envelope_reg)='1')
+					if (tap = decay and or_reduce(std_logic_vector(envelope_reg))='1') then
 						envelope_dec <= '1';
 						delay_lfsr_reset <= '1';
 					end if;
@@ -228,7 +242,7 @@ BEGIN
 			tap <= "1111";
 		when others=>
 		end case;
-	end
+	end process;
 
 	process(expdelay_lfsr_reg,envelope_decremented,expdelay_lfsr_reset,enable)
 	begin
@@ -261,10 +275,10 @@ BEGIN
 		when others=>
 			exptap <= "000";
 		end case;
-	end
+	end process;
 
 		
 	-- output
-	envelope <= envelope_reg;
+	envelope <= std_logic_vector(envelope_reg);
 		
 END vhdl;

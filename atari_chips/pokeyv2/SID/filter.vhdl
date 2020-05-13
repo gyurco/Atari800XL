@@ -8,6 +8,7 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.math_real.all;
 
 -- Fixed point implementation of a variable state filter
 -- A handy filter 3 op amps that can do low pass, band pass and high pass at once
@@ -21,9 +22,9 @@ GENERIC
 	CLKSPEED : IN integer; --In Hz
 	FMIN : IN integer;   --In Hz
 	FMAX : IN integer;   --In Hz
-	QMULT : IN integer;  --Scale Q
-	QOFF : IN integer    --Offset for Q
-)
+	QMULT : IN real;  --Scale Q
+	QOFF : IN real    --Offset for Q
+);
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
@@ -37,7 +38,7 @@ PORT
 
 	CUTOFF_FREQUENCY : IN STD_LOGIC_VECTOR(10 downto 0);
 	Q : IN STD_LOGIC_VECTOR(3 downto 0)
-)
+);
 END SID_filter;
 
 -- matlab pseudocode...
@@ -97,36 +98,36 @@ END SID_filter;
 --    res = res*2;
 
 ARCHITECTURE vhdl OF SID_filter IS
-	multq_reg : signed(53 downto 0);
-	multq_next : signed(53 downto 0);
+	signal multq_reg : signed(53 downto 0);
+	signal multq_next : signed(53 downto 0);
 
-	mult1_reg : signed(53 downto 0);
-	mult1_next : signed(53 downto 0);
+	signal mult1_reg : signed(53 downto 0);
+	signal mult1_next : signed(53 downto 0);
 
-	mult2_reg : signed(53 downto 0);
-	mult2_next : signed(53 downto 0);
+	signal mult2_reg : signed(53 downto 0);
+	signal mult2_next : signed(53 downto 0);
 
-	f_reg : unsigned(17 downto 0);
-	f_next :  unsigned(17 downto 0);
+	signal f_reg : unsigned(17 downto 0);
+	signal f_next :  unsigned(17 downto 0);
 
-	q_reg : unsigned(17 downto 0);
-	q_next :  unsigned(17 downto 0);
+	signal q_reg : unsigned(17 downto 0);
+	signal q_next :  unsigned(17 downto 0);
 
-	lp_reg : signed(15 downto 0);
-	lp_next : signed(15 downto 0);
+	signal lp_reg : signed(15 downto 0);
+	signal lp_next : signed(15 downto 0);
 
-	bp_reg : signed(15 downto 0);
-	bp_next : signed(15 downto 0);
+	signal bp_reg : signed(15 downto 0);
+	signal bp_next : signed(15 downto 0);
 
-	hp_reg : signed(15 downto 0);
-	hp_next : signed(15 downto 0);
+	signal hp_reg : signed(15 downto 0);
+	signal hp_next : signed(15 downto 0);
 
 	--    q = 1.0 / Q;
 	--    q = int64(round(q*65536));%2.16u
 	function compute_q(Qval : integer) return unsigned is
    		 variable ret : unsigned(17 downto 0);
 	begin
-		ret := to_unsigned(integer(65536.0/(real(Qval)*QMULT + QOFF))),18);
+		ret := to_unsigned(integer(65536.0/(real(Qval)*QMULT + QOFF)),18);
 		return ret;
 	end function compute_q;
 BEGIN
@@ -160,7 +161,7 @@ BEGIN
 		q_next <= (others=>'0');
 
 		for I in 0 to 15 loop
-			if (Q = I) then
+			if (to_integer(unsigned(Q)) = I) then
 				q_next <= compute_q(I);
 			end if;
 		end loop;
@@ -179,11 +180,12 @@ BEGIN
 		--FMIN : IN integer;   --In Hz
 		--FMAX : IN integer;   --In Hz
 
-		f_min := 2*sin(pi*FMIN/CLKSPEED);
-		f_max := 2*sin(pi*FMAX/CLKSPEED);
-		f_offset := integer(f_min*2^21);
-		f_scale  := integer(2^21*((f_max-f_min)/2^11));
+		f_min := 2.0*sin(MATH_PI*real(FMIN)/real(CLKSPEED));
+		f_max := 2.0*sin(MATH_PI*real(FMAX)/real(CLKSPEED));
+		f_offset := to_unsigned(integer(f_min*2.0**21.0),18);
+		f_scale  := to_unsigned(integer(2.0**21.0*((f_max-f_min)/2.0**11.0)),18);
 
+		-- TODO: Could use a real curve captured from a chip? Lets start with it correctly then...
 		f_next <= f_scale * resize(unsigned(CUTOFF_FREQUENCY),18) + f_offset;
 	end process;
 
@@ -211,7 +213,7 @@ BEGIN
 		mult1 := resize(mult1_reg(51 downto 15),42);
 		sum2 := mult1 + sum2; --all 18.24s
 
-		mult2_next = f_reg * sum2(41 downto 6); -- 0.21u * 18.18s
+		mult2_next <= f_reg * sum2(41 downto 6); -- 0.21u * 18.18s
 		--mult2: 15.39s
 		--mult2->18.24s
 		mult2 := resize(mult2_reg(51 downto 15),42);

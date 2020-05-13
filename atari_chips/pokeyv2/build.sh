@@ -63,6 +63,16 @@ my %variants =
 		"fpga" => "10M02SCU169C8G",
 		"version" =>  $version."M02SC"
 	},
+	"10M08_stereo_covox_auto" =>
+	{
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"enable_covox" => 1,
+		"a4_bit" => 1,
+		"a7_bit" => 2,
+		"gtia_audio_bit" => 3, 
+		"fpga" => "10M08SCU169C8G",
+	},
 	"10M04_stereo_u1mb_auto" =>
 	{
 		"pokeys" => 2,
@@ -137,6 +147,18 @@ my %variants =
 		"fpga" => "10M08SCU169C8G"
 	#	"version" => $version . "M08QS"
 	},
+	"10M04_quad_psg_covox" =>
+	{
+		"pokeys" => 4,
+		"enable_auto_stereo" => 1,
+		"enable_psg" => 1,
+		"enable_covox" => 1,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a7_bit" => 3,
+		"fpga" => "10M04SCU169C8G"
+	#	"version" => $version . "M08QS"
+	},
 	"10M08_quad_psg_covox" =>
 	{
 		"pokeys" => 4,
@@ -192,7 +214,7 @@ foreach my $variant (sort keys %variants)
 	`cp -r pll* $dir`;
 	`cp -r flash* $dir`;
 	`cp -r PSG $dir`;
-	`cp -r ../../common/a8core/sid8580 $dir`;
+	`cp -r SID $dir`;
 
 	chdir $dir;
 

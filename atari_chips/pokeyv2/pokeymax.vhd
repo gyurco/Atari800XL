@@ -108,26 +108,6 @@ ARCHITECTURE vhdl OF pokeymax IS
 	);
 	end component;
 
-	component sid8580 IS
-	PORT
-	(
-	        RESET : IN STD_LOGIC;
-	        CLK : IN STD_LOGIC;
-	        CE_1M : IN STD_LOGIC;
-	
-	        WE : IN STD_LOGIC;
-	        ADDR : IN STD_LOGIC_VECTOR(4 downto 0);
-	        DATA_IN : IN STD_LOGIC_VECTOR(7 downto 0);
-	        DATA_OUT : OUT STD_LOGIC_VECTOR(7 downto 0);
-	
-	        POT_X : IN STD_LOGIC_VECTOR(7 downto 0);
-	        POT_Y : IN STD_LOGIC_VECTOR(7 downto 0);
-	
-	        EXTFILTER_EN : IN STD_LOGIC;
-	        AUDIO_DATA : OUT STD_LOGIC_VECTOR(17 downto 0)
-	);
-	END component;
-		
 	signal OSC_CLK : std_logic; -- about 82MHz! Always?? Massive range on data sheet
 
 	signal CLK : std_logic;
@@ -612,36 +592,44 @@ sid_on : if enable_sid=1 generate
           generic map (COUNT=>58,RESETCOUNT=>6) -- 28-22
           port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>SID_CLK_ENABLE);
 
-sid1 : sid8580
+sid1 : entity work.SID_top
+GENERIC MAP
+(
+	CLKSPEED => 58333333 --TODO
+)
 PORT MAP(
-	RESET => NOT(RESET_N),
 	CLK => CLK,
-	CE_1M => SID_CLK_ENABLE, --1MHz
-	WE => SID_WRITE_ENABLE(0),
+	RESET_N => RESET_N,
+	ENABLE => SID_CLK_ENABLE, --1MHz
+
+	WRITE_ENABLE => SID_WRITE_ENABLE(0),
 	ADDR => ADDR_IN(4 downto 0),
-	DATA_IN => WRITE_DATA(7 downto 0),
-	DATA_OUT => SID_DO(0),
-	POT_X => (others=>'0'),
-	POT_Y => (others=>'0'),
-	EXTFILTER_EN => '0',
-	AUDIO_DATA(17 downto 2) => SID_AUDIO(0), --TODO: review volume, can't really be 17 bits!!
-	AUDIO_DATA(1 downto 0) => open
+	DI => WRITE_DATA(7 downto 0),
+	DO => SID_DO(0),
+	--POT_X => (others=>'0'),
+	--POT_Y => (others=>'0'),
+	--EXTFILTER_EN => '0',
+	AUDIO => SID_AUDIO(0) --TODO: review volume, can't really be 17 bits!!
 );
 
-sid2 : sid8580
+sid2 : entity work.SID_top
+GENERIC MAP
+(
+	CLKSPEED => 58333333 --TODO
+)
 PORT MAP(
-	RESET => NOT(RESET_N),
 	CLK => CLK,
-	CE_1M => SID_CLK_ENABLE, --1MHz
-	WE => SID_WRITE_ENABLE(1),
+	RESET_N => RESET_N,
+	ENABLE => SID_CLK_ENABLE, --1MHz
+
+	WRITE_ENABLE => SID_WRITE_ENABLE(1),
 	ADDR => ADDR_IN(4 downto 0),
-	DATA_IN => WRITE_DATA(7 downto 0),
-	DATA_OUT => SID_DO(1),
-	POT_X => (others=>'0'),
-	POT_Y => (others=>'0'),
-	EXTFILTER_EN => '0',
-	AUDIO_DATA(17 downto 2) => SID_AUDIO(1),
-	AUDIO_DATA(1 downto 0) => open
+	DI => WRITE_DATA(7 downto 0),
+	DO => SID_DO(1),
+	--POT_X => (others=>'0'),
+	--POT_Y => (others=>'0'),
+	--EXTFILTER_EN => '0',
+	AUDIO => SID_AUDIO(1)
 );
 end generate sid_on;		
 --------------------------------------------------------

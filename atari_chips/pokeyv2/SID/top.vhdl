@@ -18,7 +18,7 @@ ENTITY SID_top IS
 	GENERIC
 	(
 		CLKSPEED : integer -- Need to know CLK frequency for the filtering
-	)
+	);
 	PORT
 	(
 		CLK : in std_logic; -- >1MHz, ideally higher for more accurate filter (as long as timing met)
@@ -32,7 +32,7 @@ ENTITY SID_top IS
 		DI : in std_logic_vector(7 downto 0);
 		DO : out std_logic_vector(7 downto 0);
 		
-		AUDIO : out std_logic_vector(15 downto 0);
+		AUDIO : out std_logic_vector(15 downto 0)
 	);
 END SID_top;		
 		
@@ -128,10 +128,40 @@ ARCHITECTURE vhdl OF SID_top IS
 	-- osc regs
 	signal osc_a_reg : std_logic_vector(11 downto 0);
 	signal osc_b_reg : std_logic_vector(11 downto 0);
-	signal osc_b_reg : std_logic_vector(11 downto 0);
+	signal osc_c_reg : std_logic_vector(11 downto 0);
 	signal osc_a_lfsr_enable : std_logic;
 	signal osc_b_lfsr_enable : std_logic;
 	signal osc_c_lfsr_enable : std_logic;
+	signal sync_a : std_logic;
+	signal sync_b : std_logic;
+	signal sync_c : std_logic;
+	signal osc_a_sync_out : std_logic;
+	signal osc_b_sync_out : std_logic;
+	signal osc_c_sync_out : std_logic;
+
+	-- wavegen regs
+	signal wave_a_reg : std_logic_vector(11 downto 0);
+	signal wave_b_reg : std_logic_vector(11 downto 0);
+	signal wave_c_reg : std_logic_vector(11 downto 0);
+
+	-- envelope regs
+	signal envelope_a_reg : std_logic_vector(7 downto 0);
+	signal envelope_b_reg : std_logic_vector(7 downto 0);
+	signal envelope_c_reg : std_logic_vector(7 downto 0);
+
+	-- amplitude modulator
+	signal channel_a_modulated : std_logic_vector(15 downto 0);
+	signal channel_b_modulated : std_logic_vector(15 downto 0);
+	signal channel_c_modulated : std_logic_vector(15 downto 0);
+
+	-- prefilter
+	signal channel_prefilter : std_logic_vector(15 downto 0);
+	signal channel_directsum : std_logic_vector(15 downto 0);
+
+	-- filter
+	signal filter_lp : std_logic_vector(15 downto 0);
+	signal filter_bp : std_logic_vector(15 downto 0);
+	signal filter_hp : std_logic_vector(15 downto 0);
 BEGIN
 	process(clk,reset_n)
 	begin
@@ -164,7 +194,7 @@ BEGIN
 			statevariable_Q_Reg <= (others=>'0');
 			filter_en_reg <= (others=>'0');
 			filter_sel_reg <= (others=>'0');
-			ch3silent_reg <= (others=>'0');
+			ch3silent_reg <= '0';
 			vol_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then
 			freq_adj_channel_a_reg <= freq_adj_channel_a_next;
@@ -359,7 +389,7 @@ decode_addr1 : entity work.complete_address_decoder
 				filter_en_next <= di(3 downto 0);
 			end if;
 			if (addr_decoded(24)='1') then
-				ch3silence_next <= di(7);
+				ch3silent_next <= di(7);
 				filter_sel_next <= di(6 downto 4);
 				vol_next <= di(3 downto 0);
 			end if;
@@ -396,7 +426,7 @@ decode_addr1 : entity work.complete_address_decoder
 		ENABLE => enable,
 		
 		TEST => control_a_reg(3),
-		LFSR_ENABLE = >osc_a_lfsr_enable,
+		LFSR_ENABLE => osc_a_lfsr_enable,
 		BITS_OUT => osc_a_reg,
 
 		SYNC_IN => sync_a,
@@ -415,7 +445,7 @@ decode_addr1 : entity work.complete_address_decoder
 		ENABLE => enable,
 		
 		TEST => control_b_reg(3),
-		LFSR_ENABLE = >osc_b_lfsr_enable,
+		LFSR_ENABLE => osc_b_lfsr_enable,
 		BITS_OUT => osc_b_reg,
 
 		SYNC_IN => sync_b,
@@ -434,7 +464,7 @@ decode_addr1 : entity work.complete_address_decoder
 		ENABLE => enable,
 		
 		TEST => control_c_reg(3),
-		LFSR_ENABLE = >osc_c_lfsr_enable,
+		LFSR_ENABLE => osc_c_lfsr_enable,
 		BITS_OUT => osc_c_reg,
 
 		SYNC_IN => sync_c,
@@ -456,6 +486,7 @@ decode_addr1 : entity work.complete_address_decoder
 		TEST => control_a_reg(3),
 		LFSR_ENABLE => osc_a_lfsr_enable,
 		OSC_IN => osc_a_reg,
+		PULSE_WIDTH_IN => pulse_width_channel_a_reg,
 
 		WAVESELECT_IN => waveselect_a_reg,
 
@@ -472,6 +503,7 @@ decode_addr1 : entity work.complete_address_decoder
 		TEST => control_b_reg(3),
 		LFSR_ENABLE => osc_b_lfsr_enable,
 		OSC_IN => osc_b_reg,
+		PULSE_WIDTH_IN => pulse_width_channel_b_reg,
 
 		WAVESELECT_IN => waveselect_b_reg,
 
@@ -488,6 +520,7 @@ decode_addr1 : entity work.complete_address_decoder
 		TEST => control_c_reg(3),
 		LFSR_ENABLE => osc_c_lfsr_enable,
 		OSC_IN => osc_c_reg,
+		PULSE_WIDTH_IN => pulse_width_channel_c_reg,
 
 		WAVESELECT_IN => waveselect_c_reg,
 
@@ -557,7 +590,7 @@ decode_addr1 : entity work.complete_address_decoder
 		WAVE => wave_a_reg,
 		ENVELOPE => envelope_a_reg,
 		
-		MODULATED => channel_a_prefilter
+		MODULATED => channel_a_modulated
 	);		
 
 	vol_b : entity work.SID_amplitudeModulator
@@ -570,7 +603,7 @@ decode_addr1 : entity work.complete_address_decoder
 		WAVE => wave_b_reg,
 		ENVELOPE => envelope_b_reg,
 		
-		MODULATED => channel_b_prefilter
+		MODULATED => channel_b_modulated
 	);		
 
 	vol_c : entity work.SID_amplitudeModulator
@@ -583,20 +616,20 @@ decode_addr1 : entity work.complete_address_decoder
 		WAVE => wave_c_reg,
 		ENVELOPE => envelope_c_reg,
 		
-		MODULATED => channel_c_prefilter
+		MODULATED => channel_c_modulated
 	);		
 
-	entity work.SID_preFilterSum
+	prefilter: entity work.SID_preFilterSum
 	PORT MAP
 	(
 		CLK => clk,
 		RESET_N => reset_n,		
 		ENABLE => enable,
 
-		CHANNEL_A => channel_a_prefilter,
-		CHANNEL_B => channel_b_prefilter,
-		CHANNEL_C => channel_c_prefilter,
-		CHANNEL_C_CUTDIRECT => ch3silence_reg,
+		CHANNEL_A => channel_a_modulated,
+		CHANNEL_B => channel_b_modulated,
+		CHANNEL_C => channel_c_modulated,
+		CHANNEL_C_CUTDIRECT => ch3silent_reg,
 		FILTER_EN => filter_en_reg,
 
 		PREFILTER_OUT => channel_prefilter,
@@ -609,15 +642,15 @@ decode_addr1 : entity work.complete_address_decoder
 		CLKSPEED => CLKSPEED,
 		FMIN => 30,
 		FMAX => 10000,
-		QMULT => 1,
-		QOFF => 0
+		QMULT => 1.0,
+		QOFF => 0.0
 	)
 	PORT MAP
 	(
 		CLK => clk,
 		RESET_N => reset_n,
 
-		INPUT => channel_prefilter;
+		INPUT => channel_prefilter,
 
 		LOWPASS => filter_lp,
 		BANDPASS => filter_bp,
@@ -627,7 +660,7 @@ decode_addr1 : entity work.complete_address_decoder
 		Q => statevariable_Q_reg
 	);
 
-	entity work.SID_postFilterSum
+	postfilter: entity work.SID_postFilterSum
 	PORT MAP
 	(
 		CLK => clk,
@@ -640,7 +673,7 @@ decode_addr1 : entity work.complete_address_decoder
 		FILTER_HP => filter_hp,
 		FILTER_SEL => filter_sel_reg,
 
-		VOLUME => volume_reg,
+		VOLUME => vol_reg,
 
 		CHANNEL_OUT => audio_reg
 	);

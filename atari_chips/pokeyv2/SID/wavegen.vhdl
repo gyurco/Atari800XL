@@ -11,6 +11,7 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use IEEE.STD_LOGIC_MISC.all;
 
 ENTITY SID_wavegen IS
 PORT 
@@ -27,14 +28,15 @@ PORT
 	
 	WAVESELECT_IN : IN STD_LOGIC_VECTOR(3 downto 0);
 
-	WAVE_OUT : OUT STD_LOGIC_VECTOR(11 downto 0);
+	WAVE_OUT : OUT STD_LOGIC_VECTOR(11 downto 0)
+);
 END SID_wavegen;
 
 ARCHITECTURE vhdl OF SID_wavegen IS
-	wave_reg : std_logic_vector(11 downto 0);
-	wave_next : std_logic_vector(11 downto 0);
-	lfsr_reg : std_logic_vector(22 downto 0);
-	lfsr_next : std_logic_vector(22 downto 0);
+	signal wave_reg : std_logic_vector(11 downto 0);
+	signal wave_next : std_logic_vector(11 downto 0);
+	signal lfsr_reg : std_logic_vector(22 downto 0);
+	signal lfsr_next : std_logic_vector(22 downto 0);
 BEGIN
 	-- register
 	process(clk, reset_n)
@@ -67,13 +69,15 @@ BEGIN
 	end process;
 	
 	-- next state - wave
-	process(osc_in,waveselect_in,pulse_width_in,lfsr_in,test,ringmod,ringmod_osc_msb)
+	process(osc_in,waveselect_in,pulse_width_in,lfsr_reg,test,ringmod,ringmod_osc_msb)
 		variable noise : std_logic_vector(11 downto 0);
 		variable pulse : std_logic_vector(11 downto 0);
 		variable triangle : std_logic_vector(11 downto 0);
 		variable sawtooth : std_logic_vector(11 downto 0);
 
-		variable trixor : std_logic;
+		variable pulse_comparator : std_logic;
+		variable triangle_xor : std_logic;
+		variable osc_xored : std_logic_vector(10 downto 0);
 	begin
 		wave_next <= (others=>'0');
 		noise:= (others=>'1');
@@ -82,26 +86,30 @@ BEGIN
 		sawtooth:= (others=>'1');
 
 		if (waveselect_in(3)='1') then
-			noise(11 downto 4): <= lfsr_reg(20)&lfsr_reg(18)&lfsr_reg(14)&lfsr_reg(11)&lfsr_reg(9)&lfsr_reg(5)&lfsr_reg(2)&lfsr_reg(0);
+			noise(11 downto 4):= lfsr_reg(20)&lfsr_reg(18)&lfsr_reg(14)&lfsr_reg(11)&lfsr_reg(9)&lfsr_reg(5)&lfsr_reg(2)&lfsr_reg(0);
 			noise(3 downto 0):= (others=>'0');
 		end if;
 
+		pulse_comparator := '0';
+		if (unsigned(osc_in)>unsigned(pulse_width_in)) then
+			pulse_comparator := '1';
+		end if;
 		if (waveselect_in(2)='1') then
-			pulse := others=>(osc_in>pulse_width_in or test);
+			pulse := (others=>(pulse_comparator or test));
 		end if;
 
 		--ref: https://sourceforge.net/p/sidplay-residfp/wiki/SID%20internals%20-%20Triangle%20Waveform/
-		trixor := not(waveselect_in(1)) and                    -- sawtooth on->disable invert
-			((not(ringmod) and osc(11)) or                 -- not ringmod ->msb makes it invert
-			(ringmod and (osc(11) xnor ringmod_osc_msb))); -- ringmod -> both 0 or 1 -> invert
-		oscxored:= osc(10 downto 0) xor (others=>trixor);
+		triangle_xor := not(waveselect_in(1)) and                    -- sawtooth on->disable invert
+			((not(ringmod) and osc_in(11)) or                 -- not ringmod ->msb makes it invert
+			(ringmod and (osc_in(11) xnor ringmod_osc_msb))); -- ringmod -> both 0 or 1 -> invert
+		osc_xored:= osc_in(10 downto 0) xor (others=>triangle_xor);
 
 		if (waveselect_in(1)='1') then
-			sawtooth := osc_in(11) & oscxored(10 downto 0);
+			sawtooth := osc_in(11) & osc_xored(10 downto 0);
 		end if;
 
 		if (waveselect_in(0)='1') then
-			triangle(11 downto 1) := oscxored(10 downto 0);
+			triangle(11 downto 1) := osc_xored(10 downto 0);
 			triangle(0) := '0';
 		end if;
 

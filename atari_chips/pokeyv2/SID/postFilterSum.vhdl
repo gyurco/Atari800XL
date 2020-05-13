@@ -43,17 +43,17 @@ BEGIN
 	
 	-- next state
 	process(channel_a,channel_b,channel_c,volume)
-		variable sum_4 : unsigned(17 downto 0)
-		variable sum_2 : unsigned(17 downto 0)
-		variable sum_1 : unsigned(17 downto 0)
-		variable sum_total : unsigned(17 downto 0)
-		variable post_volume : unsigned(35 downto 0)
+		variable sum_4 : unsigned(17 downto 0);
+		variable sum_2 : unsigned(17 downto 0);
+		variable sum_1 : unsigned(17 downto 0);
+		variable sum_total : unsigned(17 downto 0);
+		variable post_volume : unsigned(35 downto 0);
 	begin
 		sum_1 := 
-			   resize((unsigned(filter_lp) and others=>(filter_sel(0))),18) + 
-			   resize((unsigned(filter_bp) and others=>(filter_sel(1))),18) + 
-			   resize((unsigned(filter_hp) and others=>(filter_sel(2))),18);
-			   resize((unsigned(direct) and others=>(filter_en(2))),18);
+			   resize((unsigned(filter_lp) and (others=>(filter_sel(0)))),18) + 
+			   resize((unsigned(filter_bp) and (others=>(filter_sel(1)))),18) + 
+			   resize((unsigned(filter_hp) and (others=>(filter_sel(2)))),18) +
+			   resize(unsigned(direct),18);
 
 		--filter_lp -> up to 75%
 		--filter_lp -> up to 75%
