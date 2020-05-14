@@ -51,6 +51,16 @@ my %variants =
 		"fpga" => "10M02SCU169C8G",
 		"version" => $version . "M02SU"
 	},
+	"10M02_stereo_xel_auto" =>
+	{
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"a4_bit" => 1,
+		"xel_mode" => 1,
+		"gtia_audio_bit" => 3,
+		"fpga" => "10M02SCU169C8G",
+		"version" => $version . "M02SU"
+	},
 	"10M02_stereo_u1mb_auto" =>
 	{
 		"pokeys" => 2,

@@ -23,6 +23,7 @@ ENTITY pokeymax IS
 
 		fancy_switch_bit : integer := 20; -- 0=ext is low => mono
 		gtia_audio_bit : integer := 0;    -- 0=no gtia on l/r,1=gtia mixed on l/r
+		xel_mode : integer := 0;    -- 1=ignore CS1
 		a4_bit : integer := 0;
 		a5_bit : integer := 0;
 		a6_bit : integer := 0;
@@ -244,6 +245,13 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal GTIA_AUDIO : std_logic;
 
 	signal EXT_INT : std_logic_vector(20 downto 0);
+
+	-- DETECT RIGHT PLAYING
+	signal RIGHT_PLAYING_RECENTLY : std_logic;
+	signal RIGHT_NEXT : unsigned(5 downto 0);
+	signal RIGHT_REG : unsigned(5 downto 0);
+	signal RIGHT_PLAYING_COUNT_NEXT : unsigned(23 downto 0);
+	signal RIGHT_PLAYING_COUNT_REG : unsigned(23 downto 0);
 	
 	-- config
 		--config regs
@@ -312,7 +320,13 @@ BEGIN
 	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
 	EXT <= (others=>'Z');
 
+xel_mode : if xel_mode=1 generate 
+	CS_COMB <= not(CS0_N);
+end generate
+
+normal_mode : if xel_mode=0 generate 
 	CS_COMB <= CS1 and not(CS0_N);
+end generate
 
 	oscillator : int_osc
 	port map 
@@ -1107,6 +1121,37 @@ end process;
 
 end generate;
 
+-- DETECT IF RIGHT CHANNEL PLAYING
+-- TODO: into another entity
+process(clk,reset_n)
+begin
+	if (reset_n='0') then
+		RIGHT_REG <= (others=>'0');
+		RIGHT_PLAYING_COUNT_REG <= (others=>'0');
+	elsif (clk'event and clk='1') then
+		RIGHT_REG <= RIGHT_NEXT;
+		RIGHT_PLAYING_COUNT_REG <= RIGHT_PLAYING_COUNT_NEXT;
+	end if;
+end process;
+
+process(RIGHT_NEXT,RIGHT_REG,ENABLE_CYCLE,RIGHT_PLAYING_RECENTLY,RIGHT_PLAYING_COUNT_REG)
+	variable RIGHT_PLAYING_NOW : std_logic;
+begin
+	RIGHT_PLAYING_NOW <= '0';
+	RIGHT_PLAYING_COUNT_NEXT <= RIGHT_PLAYING_COUNT_REG;
+
+	if (ENABLE_CYCLE='1' and RIGHT_PLAYING_RECENTLY='1') then
+		RIGHT_PLAYING_COUNT_NEXT <= RIGHT_PLAYING_COUNT_REG-1;
+	end if
+
+	if (not(RIGHT_NEXT=RIGHT_REG)) then
+		RIGHT_PLAYING_NOW <= '1';
+		RIGHT_PLAYING_COUNT_NEXT <= (others=>'1');
+	end if;
+
+	RIGHT_PLAYING_RECENTLY <= or_reduce(RIGHT_PLAYING_COUNT_REG);
+end process;
+
 -------------------------------------------------------
 -- AUDIO mixing
 process(POST_DIVIDE_REG,
@@ -1115,7 +1160,8 @@ process(POST_DIVIDE_REG,
 	SID_AUDIO,
 	PSG_AUDIO,
 	GTIA_AUDIO,GTIA_ENABLE_REG,
-	FANCY_ENABLE
+	FANCY_ENABLE,
+	RIGHT_PLAYING_RECENTLY
 	)
 	variable p0u : unsigned(15 downto 0);
 	variable p1u : unsigned(15 downto 0);
@@ -1170,9 +1216,10 @@ begin
 	psgu1 := resize(unsigned(psg_audio(1)),20);
 	psgu2 := resize(unsigned(psg_audio(3)),20);
 	samu := resize(unsigned(sample_audio(1)),20);
-	if (FANCY_ENABLE='1') then
-		a1u := p1u + p3u + sidu + psgu1 + psgu2 + samu;
-	else
+
+	a1u := p1u + p3u + sidu + psgu1 + psgu2 + samu;
+	RIGHT_NEXT <= a1u(5 downto 0);
+	if (not(FANCY_ENABLE='1' and RIGHT_PLAYING_RECENTLY=1)) then
 		a1u := a0u;
 	end if;
 	a2u := a0u;
