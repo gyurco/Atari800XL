@@ -65,7 +65,7 @@ BEGIN
 	);	
 	
 	-- next state
-	process(count_reg,envelope_reg,envelope_tick,count_reset)
+	process(count_reg,shape,envelope_reg,envelope_tick,count_reset)
 		variable continue : std_logic;
 		variable attack : std_logic;
 		variable alternate : std_logic;
