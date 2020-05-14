@@ -56,7 +56,6 @@ END PROCESS;
 		else
 -- saturation off
 			lookup := (x"8000",x"8865",x"90CC",x"9932",x"A199",x"A9FF",x"B265",x"BACC",x"C332",x"CB99",x"D3FF",x"DC65",x"E4CC",x"ED32",x"F598",x"FDFF",x"0665",x"0ECC",x"1732",x"1F99",x"27FF",x"3065",x"38CC",x"4132",x"4999",x"51FF",x"5A65",x"62CC",x"6B32",x"7399",x"7BFF",x"7FFF",x"7FFF");
->>
 		end if;
 
 		y1 <= lookup(to_integer(sum(5 downto 1)));
