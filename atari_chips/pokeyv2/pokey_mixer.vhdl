@@ -52,10 +52,11 @@ END PROCESS;
 
 -- saturation on
 		if (saturate='1') then
-			lookup := (x"86E8" ,x"9E40" ,x"B3E3" ,x"C7E3" ,x"DA52" ,x"EB42" ,x"FAC5" ,x"08ED" ,x"15CB" ,x"2172" ,x"2BF4" ,x"3562" ,x"3DCE" ,x"454B" ,x"4BEA" ,x"51BD" ,x"56D6" ,x"5B47" ,x"5F22" ,x"6278" ,x"655C" ,x"67E0" ,x"6A15" ,x"6C0D" ,x"6DDB" ,x"6F90" ,x"713E" ,x"72F7" ,x"74CD" ,x"76D2" ,x"7918" ,x"7BB0" ,x"7EAD");
+			lookup := (x"8000",x"921F",x"A58F",x"BA47",x"CF8E",x"E494",x"F8AE",x"0B67",x"1C84",x"2BF2",x"39B9",x"45ED",x"50A5",x"59F4",x"61E7",x"688B",x"6DEF",x"7227",x"7551",x"7793",x"791D",x"7A20",x"7ACF",x"7B54",x"7BCE",x"7C4E",x"7CD7",x"7D67",x"7DFE",x"7EA6",x"7F7E",x"7FFF",x"7FFF");
 		else
 -- saturation off
-			lookup := (x"8000", x"87FF", x"8FFF", x"97FF", x"9FFF", x"A7FF", x"AFFF", x"B7FF", x"BFFF", x"C7FF", x"CFFF", x"D7FF", x"DFFF", x"E7FF", x"EFFF", x"F7FF", x"FFFE", x"07FF", x"0FFF", x"17FF", x"1FFF", x"27FF", x"2FFF", x"37FF", x"3FFF", x"47FF", x"4FFF", x"57FF", x"5FFF", x"67FF", x"6FFF", x"77FF", x"7FFF");
+			lookup := (x"8000",x"8865",x"90CC",x"9932",x"A199",x"A9FF",x"B265",x"BACC",x"C332",x"CB99",x"D3FF",x"DC65",x"E4CC",x"ED32",x"F598",x"FDFF",x"0665",x"0ECC",x"1732",x"1F99",x"27FF",x"3065",x"38CC",x"4132",x"4999",x"51FF",x"5A65",x"62CC",x"6B32",x"7399",x"7BFF",x"7FFF",x"7FFF");
+>>
 		end if;
 
 		y1 <= lookup(to_integer(sum(5 downto 1)));
