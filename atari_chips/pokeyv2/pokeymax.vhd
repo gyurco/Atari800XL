@@ -322,11 +322,11 @@ BEGIN
 
 xel_mode : if xel_mode=1 generate 
 	CS_COMB <= not(CS0_N);
-end generate
+end generate;
 
 normal_mode : if xel_mode=0 generate 
 	CS_COMB <= CS1 and not(CS0_N);
-end generate
+end generate;
 
 	oscillator : int_osc
 	port map 
