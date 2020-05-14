@@ -292,7 +292,7 @@ decode_addr1 : entity work.complete_address_decoder
 		envelope_release_b_next <= envelope_release_b_reg;
 		envelope_release_c_next <= envelope_release_c_reg;
 		statevariable_fcutoff_next <= statevariable_fcutoff_reg;
-		statevariable_Q_Reg <= statevariable_Q_reg;
+		statevariable_Q_next <= statevariable_Q_reg;
 		filter_en_next <= filter_en_reg;
 		filter_sel_next <= filter_sel_reg;
 		ch3silent_next <= ch3silent_reg;
@@ -386,7 +386,7 @@ decode_addr1 : entity work.complete_address_decoder
 			end if;
 			if (addr_decoded(23)='1') then
 				statevariable_Q_next <= di(7 downto 4);
-				filter_en_next <= di(3 downto 0);
+				filter_en_next <= di(2 downto 0);
 			end if;
 			if (addr_decoded(24)='1') then
 				ch3silent_next <= di(7);
@@ -642,8 +642,8 @@ decode_addr1 : entity work.complete_address_decoder
 		CLKSPEED => CLKSPEED,
 		FMIN => 30,
 		FMAX => 10000,
-		QMULT => 1.0,
-		QOFF => 0.0
+		QMULT => 0.5,
+		QOFF => 0.5
 	)
 	PORT MAP
 	(

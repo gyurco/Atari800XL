@@ -77,6 +77,7 @@ BEGIN
 
 		variable pulse_comparator : std_logic;
 		variable triangle_xor : std_logic;
+		variable triangle_xor_ext : std_logic_vector(10 downto 0);
 		variable osc_xored : std_logic_vector(10 downto 0);
 	begin
 		wave_next <= (others=>'0');
@@ -102,7 +103,8 @@ BEGIN
 		triangle_xor := not(waveselect_in(1)) and                    -- sawtooth on->disable invert
 			((not(ringmod) and osc_in(11)) or                 -- not ringmod ->msb makes it invert
 			(ringmod and (osc_in(11) xnor ringmod_osc_msb))); -- ringmod -> both 0 or 1 -> invert
-		osc_xored:= osc_in(10 downto 0) xor (others=>triangle_xor);
+		triangle_xor_ext := (others=>triangle_xor);
+		osc_xored:= osc_in(10 downto 0) xor triangle_xor_ext;
 
 		if (waveselect_in(1)='1') then
 			sawtooth := osc_in(11) & osc_xored(10 downto 0);

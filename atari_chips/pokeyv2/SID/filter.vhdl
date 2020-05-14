@@ -107,27 +107,34 @@ ARCHITECTURE vhdl OF SID_filter IS
 	signal mult2_reg : signed(53 downto 0);
 	signal mult2_next : signed(53 downto 0);
 
+	signal sum1_reg : signed(41 downto 0);
+	signal sum2_reg : signed(41 downto 0);
+	signal sum3_reg : signed(41 downto 0);
+	signal sum1_next : signed(41 downto 0);
+	signal sum2_next : signed(41 downto 0);
+	signal sum3_next : signed(41 downto 0);
+
 	signal f_reg : unsigned(17 downto 0);
 	signal f_next :  unsigned(17 downto 0);
 
-	signal q_reg : unsigned(17 downto 0);
-	signal q_next :  unsigned(17 downto 0);
+	signal q_reg : signed(17 downto 0);
+	signal q_next :  signed(17 downto 0);
 
-	signal lp_reg : signed(15 downto 0);
-	signal lp_next : signed(15 downto 0);
+	signal lp_reg : unsigned(15 downto 0);
+	signal lp_next : unsigned(15 downto 0);
 
-	signal bp_reg : signed(15 downto 0);
-	signal bp_next : signed(15 downto 0);
+	signal bp_reg : unsigned(15 downto 0);
+	signal bp_next : unsigned(15 downto 0);
 
-	signal hp_reg : signed(15 downto 0);
-	signal hp_next : signed(15 downto 0);
+	signal hp_reg : unsigned(15 downto 0);
+	signal hp_next : unsigned(15 downto 0);
 
 	--    q = 1.0 / Q;
-	--    q = int64(round(q*65536));%2.16u
-	function compute_q(Qval : integer) return unsigned is
-   		 variable ret : unsigned(17 downto 0);
+	--    q = int64(round(q*32768));%3.15u
+	function compute_q(Qval : integer) return signed is
+   		 variable ret : signed(17 downto 0);
 	begin
-		ret := to_unsigned(integer(65536.0/(real(Qval)*QMULT + QOFF)),18);
+		ret := to_signed(integer(32768.0/(real(Qval)*QMULT + QOFF)),18);
 		return ret;
 	end function compute_q;
 BEGIN
@@ -140,6 +147,9 @@ BEGIN
 			multq_reg <= (others=>'0');
 			mult1_reg <= (others=>'0');
 			mult2_reg <= (others=>'0');
+			sum1_reg <= (others=>'0');
+			sum2_reg <= (others=>'0');
+			sum3_reg <= (others=>'0');
 			lp_reg <= (others=>'0');
 			bp_reg <= (others=>'0');
 			hp_reg <= (others=>'0');
@@ -149,6 +159,9 @@ BEGIN
 			multq_reg <= multq_next;
 			mult1_reg <= mult1_next;
 			mult2_reg <= mult2_next;
+			sum1_reg <= sum1_next;
+			sum2_reg <= sum2_next;
+			sum3_reg <= sum3_next;
 			lp_reg <= lp_next;
 			bp_reg <= bp_next;
 			hp_reg <= hp_next;
@@ -168,11 +181,13 @@ BEGIN
 	end process;
 
 	process(CUTOFF_FREQUENCY)
-		variable f_min : real;
-		variable f_max : real;
+		constant f_min : real := 2.0*sin(MATH_PI*real(FMIN)/real(CLKSPEED));
+		constant f_max : real := 2.0*sin(MATH_PI*real(FMAX)/real(CLKSPEED));
 
 		variable f_offset : unsigned(17 downto 0); --0.21(000,18)
 		variable f_scale : unsigned(17 downto 0); --0.21(000,18)
+
+		variable F_MULT : UNSIGNED(35 DOWNTO 0);
 	begin
 		--f = 2*sin(pi*10000/inrate);
 		--CUTOFF_FREQUENCY : IN STD_LOGIC_VECTOR(10 downto 0);
@@ -180,53 +195,55 @@ BEGIN
 		--FMIN : IN integer;   --In Hz
 		--FMAX : IN integer;   --In Hz
 
-		f_min := 2.0*sin(MATH_PI*real(FMIN)/real(CLKSPEED));
-		f_max := 2.0*sin(MATH_PI*real(FMAX)/real(CLKSPEED));
 		f_offset := to_unsigned(integer(f_min*2.0**21.0),18);
 		f_scale  := to_unsigned(integer(2.0**21.0*((f_max-f_min)/2.0**11.0)),18);
 
 		-- TODO: Could use a real curve captured from a chip? Lets start with it correctly then...
-		f_next <= f_scale * resize(unsigned(CUTOFF_FREQUENCY),18) + f_offset;
+		f_mult := f_scale * resize(unsigned(CUTOFF_FREQUENCY),18);
+	       	f_next <= f_mult(17 downto 0) + f_offset;
 	end process;
 
-	process(input,q_reg,f_reg,multq_reg,mult1_reg,mult2_reg)
-		variable sum1 : signed(41 downto 0);
-		variable sum2 : signed(41 downto 0);
-		variable sum3 : signed(41 downto 0);
-
+	process(input,q_reg,f_reg,multq_reg,mult1_reg,mult2_reg,sum1_reg,sum2_reg,sum3_reg)
 		variable multq : signed(41 downto 0);
 		variable mult1 : signed(41 downto 0);
 		variable mult2 : signed(41 downto 0);
 		variable inputadj : signed(41 downto 0);
-	begin
-		multq_next <= sum2(41 downto 6) * q_reg; --18.18s * 2.16u
-		--multq: 20.34s
-		--multq->18.24s
-		multq := multq_reg(51 downto 10);
-		inputadj(23 downto 0) := 0;
-		inputadj(41 downto 24) := resize(input,18) - 32768; -- to signed
-		sum1 := inputadj + (-multq) + (-sum3); --all 18.24s
 
-		mult1_next <= f_reg * sum1(41 downto 6); --0.21u * 18.18s
+		variable multqtmp : signed(53 downto 0);
+		variable mult1tmp : signed(54 downto 0);
+		variable mult2tmp : signed(54 downto 0);
+	begin
+		multqtmp := sum2_reg(41 downto 6) * q_reg; --18.18s * 3.15u
+		multq_next <= multqtmp(53 downto 0);
+		--multq: 21.33s
+		--multq->18.24s
+		multq := multq_reg(50 downto 9);
+		inputadj(23 downto 0) := (others=>'0');
+		inputadj(41 downto 24) := signed(resize(unsigned(input),18)) - 32768; -- to signed
+		sum1_next <= inputadj + (-multq) + (-sum3_reg); --all 18.24s
+
+		mult1tmp := signed('0'&f_reg) * sum1_reg(41 downto 6); --0.21u * 18.18s
+		mult1_next <= mult1tmp(53 downto 0);
 		--mult1: 15.39s
 		--mult1->18.24s
 		mult1 := resize(mult1_reg(51 downto 15),42);
-		sum2 := mult1 + sum2; --all 18.24s
+		sum2_next <= mult1 + sum2_reg; --all 18.24s
 
-		mult2_next <= f_reg * sum2(41 downto 6); -- 0.21u * 18.18s
+		mult2tmp := signed('0'&f_reg) * sum2_reg(41 downto 6); -- 0.21u * 18.18s
+		mult2_next <= mult2tmp(53 downto 0);
 		--mult2: 15.39s
 		--mult2->18.24s
 		mult2 := resize(mult2_reg(51 downto 15),42);
-		sum3 := mult2 + sum3; --all 18.24s
+		sum3_next <= mult2 + sum3_reg; --all 18.24s
 		
-		lp_next <= sum3(41 downto 24) + 32768;
-		bp_next <= sum2(41 downto 24) + 32768;
-		hp_next <= sum1(41 downto 24) + 32768;
+		lp_next <= unsigned(sum3_reg(41 downto 24) + 32768)(15 downto 0);
+		bp_next <= unsigned(sum2_reg(41 downto 24) + 32768)(15 downto 0);
+		hp_next <= unsigned(sum1_reg(41 downto 24) + 32768)(15 downto 0);
 	end process;	
 
 	--output
-	lowpass <= lp_reg;
-	bandpass <= bp_reg;
-	highpass <= hp_reg;
+	lowpass <= std_logic_vector(lp_reg);
+	bandpass <= std_logic_vector(bp_reg);
+	highpass <= std_logic_vector(hp_reg);
 		
 END vhdl;

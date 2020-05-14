@@ -46,23 +46,33 @@ BEGIN
 	end process;
 	
 	-- next state
-	process(prefilter_reg,direct_reg,enable,channel_a,channel_b,channel_c,channel_c_cutdirect)
+	process(prefilter_reg,direct_reg,enable,channel_a,channel_b,channel_c,channel_c_cutdirect,filter_en)
 		variable sum_tmp : unsigned(17 downto 0);
+
+		variable filter_en0_ext : std_logic_vector(17 downto 0);
+		variable filter_en1_ext : std_logic_vector(17 downto 0);
+		variable filter_en2_ext : std_logic_vector(17 downto 0);
+		variable filter_en2cd_ext : std_logic_vector(17 downto 0);
 	begin
 		prefilter_next <= prefilter_reg;
 		direct_next <= direct_reg;
+
+		filter_en0_ext := (others=>filter_en(0));
+		filter_en1_ext := (others=>filter_en(1));
+		filter_en2_ext := (others=>filter_en(2));
+		filter_en2cd_ext := (others=>filter_en(2) or channel_c_cutdirect);
 		
 		if (enable = '1') then
 			sum_tmp := 
-				   resize((unsigned(channel_a) and (others=>(filter_en(0)))),18) + 
-				   resize((unsigned(channel_b) and (others=>(filter_en(1)))),18) + 
-				   resize((unsigned(channel_c) and (others=>(filter_en(2)))),18);
+				   resize(unsigned(channel_a and filter_en0_ext),18) + 
+				   resize(unsigned(channel_b and filter_en1_ext),18) + 
+				   resize(unsigned(channel_c and filter_en2_ext),18);
 			prefilter_next <= std_logic_vector(sum_tmp(17 downto 2));
 
 			sum_tmp := 
-				   resize((unsigned(channel_a) and (others=>(not(filter_en(0))))),18) + 
-				   resize((unsigned(channel_b) and (others=>(not(filter_en(1))))),18) + 
-				   resize((unsigned(channel_c) and (others=>(not(channel_c_cutdirect) and not(filter_en(2))))),18);
+				   resize(unsigned(channel_a and not(filter_en0_ext)),18) + 
+				   resize(unsigned(channel_b and not(filter_en1_ext)),18) +
+				   resize(unsigned(channel_c and not(filter_en2cd_ext)),18);
 			direct_next <= std_logic_vector(sum_tmp(17 downto 2));
 		end if;
 	end process;	

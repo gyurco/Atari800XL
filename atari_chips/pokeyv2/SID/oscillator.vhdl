@@ -42,7 +42,7 @@ BEGIN
 	end process;
 	
 	-- next state
-	process(count_reg,enable,adj,sync_in)
+	process(count_reg,enable,adj,sync_in,test)
 		variable count_inc : unsigned(23 downto 0);
 	begin
 		count_next <= count_reg;

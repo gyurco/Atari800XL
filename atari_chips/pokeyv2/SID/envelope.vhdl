@@ -132,11 +132,12 @@ BEGIN
 					exptapmatch_next  <= "001";
 				when x"ff" => 
 					exptapmatch_next  <= "000";
+				when others =>
 			end case;
 		end if;
 	end process;
 
-	process(state_reg,envelope_reg,gate,tap,attack)
+	process(enable,state_reg,envelope_reg,gate,tap,attack,sustain,decay)
 		variable envelope_over_sustain : std_logic;
 	begin
 		state_next <= state_reg;
@@ -232,7 +233,7 @@ BEGIN
 			tap <= "1010";
 		when "101100110111000" => --3125
 			tap <= "1011";
-		when "101100110111000" => --3906
+		when "011100001000000" => --3906
 			tap <= "1100";
 		when "111011111100010" => --11719
 			tap <= "1101";
@@ -270,7 +271,7 @@ BEGIN
 			exptap <= "011";
 		when "01000" => --16
 			exptap <= "100";
-		when "0111" =>  --30
+		when "01111" =>  --30
 			exptap <= "101";
 		when others=>
 			exptap <= "000";
