@@ -1144,7 +1144,7 @@ begin
 		RIGHT_PLAYING_COUNT_NEXT <= RIGHT_PLAYING_COUNT_REG-1;
 	end if
 
-	if (not(RIGHT_NEXT=RIGHT_REG)) then
+	if ((RIGHT_NEXT=RIGHT_REG)='0') then
 		RIGHT_PLAYING_NOW <= '1';
 		RIGHT_PLAYING_COUNT_NEXT <= (others=>'1');
 	end if;
