@@ -212,6 +212,10 @@ BEGIN
 		variable multqtmp : signed(53 downto 0);
 		variable mult1tmp : signed(54 downto 0);
 		variable mult2tmp : signed(54 downto 0);
+
+		variable lp_tmp : unsigned(17 downto 0);
+		variable bp_tmp : unsigned(17 downto 0);
+		variable hp_tmp : unsigned(17 downto 0);
 	begin
 		multqtmp := sum2_reg(41 downto 6) * q_reg; --18.18s * 3.15u
 		multq_next <= multqtmp(53 downto 0);
@@ -236,9 +240,12 @@ BEGIN
 		mult2 := resize(mult2_reg(51 downto 15),42);
 		sum3_next <= mult2 + sum3_reg; --all 18.24s
 		
-		lp_next <= unsigned(sum3_reg(41 downto 24) + 32768)(15 downto 0);
-		bp_next <= unsigned(sum2_reg(41 downto 24) + 32768)(15 downto 0);
-		hp_next <= unsigned(sum1_reg(41 downto 24) + 32768)(15 downto 0);
+		lp_tmp := unsigned(sum3_reg(41 downto 24) + 32768);
+		bp_tmp := unsigned(sum2_reg(41 downto 24) + 32768);
+		hp_tmp := unsigned(sum1_reg(41 downto 24) + 32768);
+		lp_next <= lp_tmp(15 downto 0);
+		bp_next <= bp_tmp(15 downto 0);
+		hp_next <= hp_tmp(15 downto 0);
 	end process;	
 
 	--output

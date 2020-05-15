@@ -28,6 +28,9 @@ ENTITY SID_top IS
 
 		ADDR : in std_logic_vector(4 downto 0); 
 		WRITE_ENABLE : in std_logic;
+
+		POTX : in std_logic_vector(7 downto 0) := (others=> '1');
+		POTY : in std_logic_vector(7 downto 0) := (others=> '1');
 		
 		DI : in std_logic_vector(7 downto 0);
 		DO : out std_logic_vector(7 downto 0);
@@ -398,17 +401,19 @@ decode_addr1 : entity work.complete_address_decoder
 	
 	process(addr_decoded,
 		wave_c_reg,
-		envelope_c_reg
+		envelope_c_reg,
+		potx,
+		poty
 		)
 	begin
 		do <= (others=>'0');
 	
-		--if (addr_decoded(25)='1') then
-		--	do <= potx_reg;
-		--end if;
-		--if (addr_decoded(26)='1') then
-		--	do <= poty_reg;
-		--end if;
+		if (addr_decoded(25)='1') then
+			do <= potx;
+		end if;
+		if (addr_decoded(26)='1') then
+			do <= poty;
+		end if;
 		if (addr_decoded(27)='1') then
 			do <= wave_c_reg(7 downto 0);
 		end if;
@@ -684,14 +689,14 @@ decode_addr1 : entity work.complete_address_decoder
 	
 	--------------------------------
 	-- TODO
-	-- 1) check above works!
+	-- 1) DONE:check above works!
 	-- 2) wave combinations need to read flash
 	-- 3) DONE:envelope/gate
 	-- 4) DONE:amplitude modulation
 	-- 5) DONE:filter on/off
 	-- 5) DONE:filter (state variable as per info found)
 	-- 6) DONE:volume
-	-- 7) read registers: pot, osc3 etc
+	-- 7) DONE: read registers: pot, osc3 etc
 	--------------------------------
 	
 	--outputs

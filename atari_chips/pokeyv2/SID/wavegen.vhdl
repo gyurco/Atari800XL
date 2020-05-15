@@ -37,6 +37,8 @@ ARCHITECTURE vhdl OF SID_wavegen IS
 	signal wave_next : std_logic_vector(11 downto 0);
 	signal lfsr_reg : std_logic_vector(22 downto 0);
 	signal lfsr_next : std_logic_vector(22 downto 0);
+	signal pulse_comparator_reg : std_logic;
+	signal pulse_comparator_next : std_logic;
 BEGIN
 	-- register
 	process(clk, reset_n)
@@ -44,9 +46,11 @@ BEGIN
 		if (reset_n = '0') then
 			wave_reg <= (others=>'0');
 			lfsr_reg <= (others=>'1');
+			pulse_comparator_reg <= '0';
 		elsif (clk'event and clk='1') then
 			wave_reg <= wave_next;
 			lfsr_reg <= lfsr_next;
+			pulse_comparator_reg <= pulse_comparator_next;
 		end if;
 	end process;
 
@@ -69,7 +73,7 @@ BEGIN
 	end process;
 	
 	-- next state - wave
-	process(osc_in,waveselect_in,pulse_width_in,lfsr_reg,test,ringmod,ringmod_osc_msb)
+	process(osc_in,waveselect_in,pulse_width_in,lfsr_reg,test,ringmod,ringmod_osc_msb,pulse_comparator_reg)
 		variable noise : std_logic_vector(11 downto 0);
 		variable pulse : std_logic_vector(11 downto 0);
 		variable triangle : std_logic_vector(11 downto 0);
@@ -91,12 +95,12 @@ BEGIN
 			noise(3 downto 0):= (others=>'0');
 		end if;
 
-		pulse_comparator := '0';
+		pulse_comparator_next <= '0';
 		if (unsigned(osc_in)>unsigned(pulse_width_in)) then
-			pulse_comparator := '1';
+			pulse_comparator_next <= '1'; --1 cycle delay
 		end if;
 		if (waveselect_in(2)='1') then
-			pulse := (others=>(pulse_comparator or test));
+			pulse := (others=>(pulse_comparator_reg or test));
 		end if;
 
 		--ref: https://sourceforge.net/p/sidplay-residfp/wiki/SID%20internals%20-%20Triangle%20Waveform/

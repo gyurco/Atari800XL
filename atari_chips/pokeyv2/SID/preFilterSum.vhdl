@@ -49,10 +49,10 @@ BEGIN
 	process(prefilter_reg,direct_reg,enable,channel_a,channel_b,channel_c,channel_c_cutdirect,filter_en)
 		variable sum_tmp : unsigned(17 downto 0);
 
-		variable filter_en0_ext : std_logic_vector(17 downto 0);
-		variable filter_en1_ext : std_logic_vector(17 downto 0);
-		variable filter_en2_ext : std_logic_vector(17 downto 0);
-		variable filter_en2cd_ext : std_logic_vector(17 downto 0);
+		variable filter_en0_ext : std_logic_vector(15 downto 0);
+		variable filter_en1_ext : std_logic_vector(15 downto 0);
+		variable filter_en2_ext : std_logic_vector(15 downto 0);
+		variable filter_en2cd_ext : std_logic_vector(15 downto 0);
 	begin
 		prefilter_next <= prefilter_reg;
 		direct_next <= direct_reg;

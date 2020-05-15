@@ -47,7 +47,9 @@ ARCHITECTURE vhdl OF SID_envelope IS
 	signal envelope_dec : std_logic;
 	signal envelope_decremented : std_logic;
 
-	signal tap : std_logic_vector(3 downto 0);
+	signal tapkey : std_logic_vector(3 downto 0);
+	signal tapmatch : std_logic;
+
 	signal exptap : std_logic_vector(2 downto 0);
 
 	signal state_reg : std_logic_vector(1 downto 0);
@@ -137,7 +139,7 @@ BEGIN
 		end if;
 	end process;
 
-	process(enable,state_reg,envelope_reg,gate,tap,attack,sustain,decay)
+	process(enable,state_reg,envelope_reg,gate,tapmatch,attack,sustain,decay)
 		variable envelope_over_sustain : std_logic;
 	begin
 		state_next <= state_reg;
@@ -145,16 +147,18 @@ BEGIN
 		expdelay_lfsr_reset <= '0';
 		envelope_inc <= '0';
 		envelope_dec <= '0';
+		tapkey <= (others=>'0');
 
 		envelope_over_sustain := '0';
-		if (unsigned(envelope_reg) >= unsigned(sustain&sustain)) then
+		if (unsigned(envelope_reg) > unsigned(sustain&sustain)) then
 			envelope_over_sustain := '1';
 		end if;
 
 		if (enable='1') then
 			case state_reg is
 				when state_attack =>
-					if (tap = attack) then
+					tapkey <= attack;
+					if (tapmatch='1') then
 						envelope_inc <= '1';
 						delay_lfsr_reset <= '1';
 					end if;
@@ -168,8 +172,10 @@ BEGIN
 						expdelay_lfsr_reset <= '1';
 					end if;
 				when state_decay =>
-					if (tap = decay and envelope_over_sustain='1') then
+					tapkey <= decay;
+					if (tapmatch='1' and envelope_over_sustain='1') then
 						envelope_dec <= '1';
+						delay_lfsr_reset <= '1';
 					end if;
 					if (gate='0') then
 						state_next <= state_release;
@@ -177,7 +183,8 @@ BEGIN
 						expdelay_lfsr_reset <= '1';
 					end if;
 				when state_release =>
-					if (tap = decay and or_reduce(std_logic_vector(envelope_reg))='1') then
+					tapkey <= release_in;
+					if (tapmatch='1' and or_reduce(std_logic_vector(envelope_reg))='1') then
 						envelope_dec <= '1';
 						delay_lfsr_reset <= '1';
 					end if;
@@ -204,56 +211,65 @@ BEGIN
 		end if;
 	end process;
 
-	process(delay_lfsr_reg)
+	process(tapkey, delay_lfsr_reg)
+		variable tomatch : std_logic_Vector(14 downto 0);
 	begin
-		tap <= (others=>'0');
+		tapmatch <= '0';
+		tomatch := (others=>'0');
 
-		case delay_lfsr_reg is
-		when "111111100000000" => --8
-			tap <= "0000";
-		when "000000000000110" => --31
-			tap <= "0001";
-		when "000000000111100" => --62
-			tap <= "0010";
-		when "000001100110000" => --94
-			tap <= "0011";
-		when "010000011000000" => --148
-			tap <= "0100";
-		when "110011101010101" => --219
-			tap <= "0101";
-		when "011100000000000" => --266
-			tap <= "0110";
-		when "101000000001110" => --312
-			tap <= "0111";
-		when "001001000010010" => --391
-			tap <= "1000";
-		when "000001000100010" => --976
-			tap <= "1001";
-		when "001100001001000" => --1953
-			tap <= "1010";
-		when "101100110111000" => --3125
-			tap <= "1011";
-		when "011100001000000" => --3906
-			tap <= "1100";
-		when "111011111100010" => --11719
-			tap <= "1101";
-		when "111011000100101" => --19531
-			tap <= "1110";
-		when "000101010010011" => --31250
-			tap <= "1111";
+		case tapkey is
+		when "0000" =>
+			tomatch := "111111100000000"; --8
+		when "0001" =>
+			tomatch := "000000000000110"; --31
+		when "0010" =>
+			tomatch := "000000000111100"; --62
+		when "0011" =>
+			tomatch := "000001100110000"; --94
+		when "0100" => 
+			tomatch := "010000011000000"; --148
+		when "0101" =>
+			tomatch := "110011101010101"; --219
+		when "0110" =>
+			tomatch := "011100000000000"; --266
+		when "0111" =>
+			tomatch := "101000000001110"; --312
+		when "1000" => 
+			tomatch := "001001000010010"; --391
+		when "1001" =>
+			tomatch := "000001000100010"; --976
+		when "1010" =>
+			tomatch := "001100001001000"; --1953
+		when "1011" =>
+			tomatch := "101100110111000"; --3125
+		when "1100" =>
+			tomatch := "011100001000000"; --3906
+		when "1101" =>
+			tomatch := "111011111100010"; --11719
+		when "1110" =>
+			tomatch := "111011000100101"; --19531
+		when "1111" =>
+			tomatch := "000101010010011"; --31250
 		when others=>
 		end case;
+
+		
+		if (tomatch = delay_lfsr_reg) then
+			tapmatch <= '1';
+		end if;
 	end process;
 
-	process(expdelay_lfsr_reg,envelope_decremented,expdelay_lfsr_reset,enable)
+	process(expdelay_lfsr_reg,envelope_dec,envelope_decremented,expdelay_lfsr_reset,enable)
 	begin
 		expdelay_lfsr_next <= expdelay_lfsr_reg;
 		if (enable='1') then
 			if (expdelay_lfsr_reset='1' or envelope_decremented='1') then
-				expdelay_lfsr_next <= (others=>'1');
+				expdelay_lfsr_next <= "11110";
 			else
-				expdelay_lfsr_next(0) <= expdelay_lfsr_reg(4) xor expdelay_lfsr_reg(2);
-				expdelay_lfsr_next(4 downto 1) <= expdelay_lfsr_reg(3 downto 0);
+				if (envelope_dec='1') then
+					expdelay_lfsr_next(0) <= expdelay_lfsr_reg(4) xor expdelay_lfsr_reg(2);
+					expdelay_lfsr_next(4 downto 1) <= expdelay_lfsr_reg(3 downto 0);
+				end if;
 			end if;
 		end if;
 	end process;

@@ -50,7 +50,7 @@ BEGIN
 		variable filter_sel1ext : unsigned(15 downto 0);
 		variable filter_sel2ext : unsigned(15 downto 0);
 
-		variable volume_adj : unsigned(5 downto 0);
+		variable volume_adj : unsigned(6 downto 0);
 	begin
 		filter_sel0ext := (others=>filter_sel(0));
 		filter_sel1ext := (others=>filter_sel(1));
@@ -68,7 +68,7 @@ BEGIN
 		--direct -> up to 75%
 		-- therefore: total 3*, though if max filter level then diect=0, so total 2.25
 		-- so *1.75 to get back up to full range...
-		volume_adj:= unsigned("00"&volume) + unsigned("0"&volume&"0") + unsigned(volume&"00");
+		volume_adj:= unsigned("000"&volume) + unsigned("00"&volume&"0") + unsigned("0"&volume&"00");
 
 		-- Then apply volume
 		mult_next <= sum * resize(unsigned(volume_adj),9);
