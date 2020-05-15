@@ -320,11 +320,11 @@ BEGIN
 	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
 	EXT <= (others=>'Z');
 
-xel_mode : if xel_mode=1 generate 
+xel_mode_on : if xel_mode=1 generate 
 	CS_COMB <= not(CS0_N);
 end generate;
 
-normal_mode : if xel_mode=0 generate 
+xel_mode_off : if xel_mode=0 generate 
 	CS_COMB <= CS1 and not(CS0_N);
 end generate;
 
@@ -1135,22 +1135,18 @@ begin
 end process;
 
 process(RIGHT_NEXT,RIGHT_REG,ENABLE_CYCLE,RIGHT_PLAYING_RECENTLY,RIGHT_PLAYING_COUNT_REG)
-	variable RIGHT_PLAYING_NOW : std_logic;
 begin
-	RIGHT_PLAYING_NOW <= '0';
 	RIGHT_PLAYING_COUNT_NEXT <= RIGHT_PLAYING_COUNT_REG;
 
 	if (ENABLE_CYCLE='1' and RIGHT_PLAYING_RECENTLY='1') then
 		RIGHT_PLAYING_COUNT_NEXT <= RIGHT_PLAYING_COUNT_REG-1;
-	end if
-
-	if ((RIGHT_NEXT=RIGHT_REG)='0') then
-		RIGHT_PLAYING_NOW <= '1';
-		RIGHT_PLAYING_COUNT_NEXT <= (others=>'1');
 	end if;
 
-	RIGHT_PLAYING_RECENTLY <= or_reduce(RIGHT_PLAYING_COUNT_REG);
+	if (RIGHT_NEXT/=RIGHT_REG) then
+		RIGHT_PLAYING_COUNT_NEXT <= (others=>'1');
+	end if;
 end process;
+RIGHT_PLAYING_RECENTLY <= or_reduce(std_logic_vector(RIGHT_PLAYING_COUNT_REG));
 
 -------------------------------------------------------
 -- AUDIO mixing
@@ -1219,7 +1215,7 @@ begin
 
 	a1u := p1u + p3u + sidu + psgu1 + psgu2 + samu;
 	RIGHT_NEXT <= a1u(5 downto 0);
-	if (not(FANCY_ENABLE='1' and RIGHT_PLAYING_RECENTLY=1)) then
+	if (FANCY_ENABLE='0' or RIGHT_PLAYING_RECENTLY='0') then
 		a1u := a0u;
 	end if;
 	a2u := a0u;
