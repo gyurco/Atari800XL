@@ -39,7 +39,7 @@ BEGIN
 	
 	-- next state
 	process(mod_reg,enable,wave,envelope)
-		variable multres : signed(27 downto 0);
+		variable multres : signed(26 downto 0);
 	begin
 		mod_next <= mod_reg;
 		
