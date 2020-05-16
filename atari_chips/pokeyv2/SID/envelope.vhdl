@@ -164,12 +164,12 @@ BEGIN
 					end if;
 					if (and_reduce(std_logic_vector(envelope_reg))='1') then
 						state_next <= state_decay;
-						delay_lfsr_reset <= '1';
+						--delay_lfsr_reset <= '1';
 					end if;
 					if (gate='0') then
 						state_next <= state_release;
-						delay_lfsr_reset <= '1';
-						expdelay_lfsr_reset <= '1';
+						--delay_lfsr_reset <= '1';
+						--expdelay_lfsr_reset <= '1';
 					end if;
 				when state_decay =>
 					tapkey <= decay;
@@ -179,8 +179,8 @@ BEGIN
 					end if;
 					if (gate='0') then
 						state_next <= state_release;
-						delay_lfsr_reset <= '1';
-						expdelay_lfsr_reset <= '1';
+						--delay_lfsr_reset <= '1';
+						--expdelay_lfsr_reset <= '1';
 					end if;
 				when state_release =>
 					tapkey <= release_in;
@@ -190,7 +190,7 @@ BEGIN
 					end if;
 					if (gate='1') then
 						state_next <= state_attack;
-						delay_lfsr_reset <= '1';
+						--delay_lfsr_reset <= '1';
 					end if;
 				when others=>
 					state_next <= state_release;
