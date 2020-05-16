@@ -19,13 +19,13 @@ PORT
 	WAVE : IN STD_LOGIC_VECTOR(11 downto 0);
 	ENVELOPE : IN STD_LOGIC_VECTOR(7 downto 0);
 	
-	MODULATED : OUT STD_LOGIC_VECTOR(15 downto 0)
+	MODULATED : OUT SIGNED(15 downto 0)
 );
 END SID_amplitudeModulator;
 
 ARCHITECTURE vhdl OF SID_amplitudeModulator IS
-	signal mod_reg: std_logic_vector(15 downto 0);
-	signal mod_next: std_logic_vector(15 downto 0);
+	signal mod_reg: signed(15 downto 0);
+	signal mod_next: signed(15 downto 0);
 BEGIN
 	-- register
 	process(clk, reset_n)
@@ -39,13 +39,13 @@ BEGIN
 	
 	-- next state
 	process(mod_reg,enable,wave,envelope)
-		variable multres : unsigned(35 downto 0);
+		variable multres : signed(27 downto 0);
 	begin
 		mod_next <= mod_reg;
 		
 		if (enable = '1') then
-			multres := resize(unsigned(envelope),18)*resize(unsigned(wave),18);
-			mod_next <= std_logic_vector(multres(19 downto 4));
+			multres := signed("0"&envelope)*(signed(resize(unsigned(wave),18))-2048);
+			mod_next <= multres(19 downto 4);
 		end if;
 	end process;	
 		

@@ -35,7 +35,11 @@ ENTITY SID_top IS
 		DI : in std_logic_vector(7 downto 0);
 		DO : out std_logic_vector(7 downto 0);
 		
-		AUDIO : out std_logic_vector(15 downto 0)
+		AUDIO : out std_logic_vector(15 downto 0);
+
+		DEBUG_WV1 : out unsigned(11 downto 0);
+		DEBUG_EV1 : out unsigned(7 downto 0);
+		DEBUG_AM1 : out signed(15 downto 0)
 	);
 END SID_top;		
 		
@@ -153,18 +157,18 @@ ARCHITECTURE vhdl OF SID_top IS
 	signal envelope_c_reg : std_logic_vector(7 downto 0);
 
 	-- amplitude modulator
-	signal channel_a_modulated : std_logic_vector(15 downto 0);
-	signal channel_b_modulated : std_logic_vector(15 downto 0);
-	signal channel_c_modulated : std_logic_vector(15 downto 0);
+	signal channel_a_modulated : signed(15 downto 0);
+	signal channel_b_modulated : signed(15 downto 0);
+	signal channel_c_modulated : signed(15 downto 0);
 
 	-- prefilter
-	signal channel_prefilter : std_logic_vector(15 downto 0);
-	signal channel_directsum : std_logic_vector(15 downto 0);
+	signal channel_prefilter : signed(15 downto 0);
+	signal channel_directsum : signed(15 downto 0);
 
 	-- filter
-	signal filter_lp : std_logic_vector(15 downto 0);
-	signal filter_bp : std_logic_vector(15 downto 0);
-	signal filter_hp : std_logic_vector(15 downto 0);
+	signal filter_lp : signed(15 downto 0);
+	signal filter_bp : signed(15 downto 0);
+	signal filter_hp : signed(15 downto 0);
 BEGIN
 	process(clk,reset_n)
 	begin
@@ -701,6 +705,10 @@ decode_addr1 : entity work.complete_address_decoder
 	
 	--outputs
 	AUDIO <= audio_reg;
+
+	DEBUG_EV1 <= unsigned(envelope_a_reg);
+	DEBUG_WV1 <= unsigned(wave_a_reg);
+	DEBUG_AM1 <= channel_a_modulated;
 	
 end vhdl;
 

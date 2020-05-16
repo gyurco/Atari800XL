@@ -16,22 +16,22 @@ PORT
 	RESET_N : IN STD_LOGIC;
 	ENABLE : IN STD_LOGIC;
 	
-	CHANNEL_A : IN STD_LOGIC_VECTOR(15 downto 0);
-	CHANNEL_B : IN STD_LOGIC_VECTOR(15 downto 0);
-	CHANNEL_C : IN STD_LOGIC_VECTOR(15 downto 0);
+	CHANNEL_A : IN SIGNED(15 downto 0);
+	CHANNEL_B : IN SIGNED(15 downto 0);
+	CHANNEL_C : IN SIGNED(15 downto 0);
 	CHANNEL_C_CUTDIRECT : IN STD_LOGIC;
 	FILTER_EN : IN STD_LOGIC_VECTOR(2 downto 0);
 
-	PREFILTER_OUT : OUT STD_LOGIC_VECTOR(15 downto 0); 
-	DIRECT_OUT : OUT STD_LOGIC_VECTOR(15 downto 0)     -- Only chdis/4 amplitude
+	PREFILTER_OUT : OUT SIGNED(15 downto 0); 
+	DIRECT_OUT : OUT SIGNED(15 downto 0)     -- Only chdis/4 amplitude
 );
 END SID_preFilterSum;
 
 ARCHITECTURE vhdl OF SID_preFilterSum IS
-	signal prefilter_reg: std_logic_vector(15 downto 0);
-	signal prefilter_next: std_logic_vector(15 downto 0);
-	signal direct_reg: std_logic_vector(15 downto 0);
-	signal direct_next: std_logic_vector(15 downto 0);
+	signal prefilter_reg: signed(15 downto 0);
+	signal prefilter_next: signed(15 downto 0);
+	signal direct_reg: signed(15 downto 0);
+	signal direct_next: signed(15 downto 0);
 BEGIN
 	-- register
 	process(clk, reset_n)
@@ -47,12 +47,12 @@ BEGIN
 	
 	-- next state
 	process(prefilter_reg,direct_reg,enable,channel_a,channel_b,channel_c,channel_c_cutdirect,filter_en)
-		variable sum_tmp : unsigned(17 downto 0);
+		variable sum_tmp : signed(17 downto 0);
 
-		variable filter_en0_ext : std_logic_vector(15 downto 0);
-		variable filter_en1_ext : std_logic_vector(15 downto 0);
-		variable filter_en2_ext : std_logic_vector(15 downto 0);
-		variable filter_en2cd_ext : std_logic_vector(15 downto 0);
+		variable filter_en0_ext : signed(15 downto 0);
+		variable filter_en1_ext : signed(15 downto 0);
+		variable filter_en2_ext : signed(15 downto 0);
+		variable filter_en2cd_ext : signed(15 downto 0);
 	begin
 		prefilter_next <= prefilter_reg;
 		direct_next <= direct_reg;
@@ -64,16 +64,16 @@ BEGIN
 		
 		if (enable = '1') then
 			sum_tmp := 
-				   resize(unsigned(channel_a and filter_en0_ext),18) + 
-				   resize(unsigned(channel_b and filter_en1_ext),18) + 
-				   resize(unsigned(channel_c and filter_en2_ext),18);
-			prefilter_next <= std_logic_vector(sum_tmp(17 downto 2));
+				   resize(signed(channel_a and filter_en0_ext),18) + 
+				   resize(signed(channel_b and filter_en1_ext),18) + 
+				   resize(signed(channel_c and filter_en2_ext),18);
+			prefilter_next <= signed(sum_tmp(17 downto 2));
 
 			sum_tmp := 
-				   resize(unsigned(channel_a and not(filter_en0_ext)),18) + 
-				   resize(unsigned(channel_b and not(filter_en1_ext)),18) +
-				   resize(unsigned(channel_c and not(filter_en2cd_ext)),18);
-			direct_next <= std_logic_vector(sum_tmp(17 downto 2));
+				   resize(signed(channel_a and not(filter_en0_ext)),18) + 
+				   resize(signed(channel_b and not(filter_en1_ext)),18) +
+				   resize(signed(channel_c and not(filter_en2cd_ext)),18);
+			direct_next <= signed(sum_tmp(17 downto 2));
 		end if;
 	end process;	
 		
