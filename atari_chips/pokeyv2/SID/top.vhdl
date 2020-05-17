@@ -650,9 +650,7 @@ decode_addr1 : entity work.complete_address_decoder
 	(
 		CLKSPEED => CLKSPEED,
 		FMIN => 30,
-		FMAX => 10000,
-		QMULT => 0.5,
-		QOFF => 0.5
+		FMAX => 12500 -- different on 6581 (10k)
 	)
 	PORT MAP
 	(

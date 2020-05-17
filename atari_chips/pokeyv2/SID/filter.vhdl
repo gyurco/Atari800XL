@@ -21,9 +21,7 @@ GENERIC
 (
 	CLKSPEED : IN integer; --In Hz
 	FMIN : IN integer;   --In Hz
-	FMAX : IN integer;   --In Hz
-	QMULT : IN real;  --Scale Q
-	QOFF : IN real    --Offset for Q
+	FMAX : IN integer   --In Hz
 );
 PORT 
 ( 
@@ -132,9 +130,11 @@ ARCHITECTURE vhdl OF SID_filter IS
 	--    q = 1.0 / Q;
 	--    q = int64(round(q*32768));%3.15u
 	function compute_q(Qval : integer) return signed is
+		 variable Q : real;
    		 variable ret : signed(17 downto 0);
 	begin
-		ret := to_signed(integer(32768.0/(real(Qval)*QMULT + QOFF)),18);
+		Q := 1.0/(2.0**((4-real(Qval))/8));
+		ret := to_signed(integer(32768.0/Q),18);
 		return ret;
 	end function compute_q;
 BEGIN
