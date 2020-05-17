@@ -41,10 +41,7 @@ ARCHITECTURE vhdl OF SID_envelope IS
 	signal exptapmatch_reg : std_logic_vector(2 downto 0);
 	signal exptapmatch_next : std_logic_vector(2 downto 0);
 
-	signal delay_lfsr_reset : std_logic;
 	signal expdelay_lfsr_reset : std_logic;
-	signal envelope_inc : std_logic;
-	signal envelope_dec : std_logic;
 	signal envelope_decremented : std_logic;
 
 	signal tapkey : std_logic_vector(3 downto 0);
@@ -58,6 +55,15 @@ ARCHITECTURE vhdl OF SID_envelope IS
 	constant state_decay : std_logic_vector(1 downto 0) := "10";
 	constant state_release : std_logic_vector(1 downto 0) := "11";
 
+	signal count_state_reg : std_logic_vector(1 downto 0);
+	signal count_state_next : std_logic_vector(1 downto 0);
+	constant count_state_up : std_logic_vector(1 downto 0) := "00";
+	constant count_state_down : std_logic_vector(1 downto 0) := "10";
+	constant count_state_stopped : std_logic_vector(1 downto 0) := "11";
+
+	signal gate_changed : std_logic;
+	signal hold_counter : std_logic;
+
 BEGIN
 	-- register
 	process(clk, reset_n)
@@ -68,12 +74,14 @@ BEGIN
 			expdelay_lfsr_reg <= (others=>'1');
 			exptapmatch_reg <= (others=>'0');
 			state_reg <= state_release;
+			count_state_reg <= count_state_stopped;
 		elsif (clk'event and clk='1') then
 			envelope_reg <= envelope_next;
 			delay_lfsr_reg <= delay_lfsr_next;
 			expdelay_lfsr_reg <= expdelay_lfsr_next;
 			exptapmatch_reg <= exptapmatch_next;
 			state_reg <= state_next;
+			count_state_reg <= count_state_next;
 		end if;
 	end process;
 
@@ -103,21 +111,42 @@ BEGIN
 	--ref1: https://www.codebase64.org/doku.php?id=base:classic_hard-restart_and_about_adsr_in_generally
 	--ref2: https://sourceforge.net/p/sidplay-residfp/wiki/SID%20internals%20-%20Envelope%20Overview/
 	-- up:linear, down: exponential approx
-	process(envelope_reg,enable,envelope_inc,envelope_dec,exptapmatch_reg,exptap)
+	process(envelope_reg,enable,tapmatch,count_state_reg,exptapmatch_reg,exptap,gate,gate_changed,hold_counter)
+		variable count_now : std_logic; 
 	begin
+		count_state_next <= count_state_reg;
 		envelope_next <= envelope_reg;
 		exptapmatch_next <= exptapmatch_reg;
 
 		envelope_decremented <= '0';
 
+		count_now := tapmatch and not(hold_counter);
+
 		if (enable='1') then
-			if (envelope_inc='1') then
-				envelope_next <= envelope_reg+1;
-			end if;
-			if (envelope_dec='1') then
-				if (exptapmatch_reg = exptap) then
-					envelope_next <= envelope_reg-1;
-					envelope_decremented <= '1';
+			case count_state_reg is
+				when count_state_up =>
+					if (count_now='1') then
+						envelope_next <= envelope_reg+1;
+						if (envelope_reg=x"fe") then
+							count_state_next <= count_state_down;
+						end if;
+					end if;
+				when count_state_down =>
+					if (exptapmatch_reg = exptap and count_now='1') then
+						envelope_next <= envelope_reg-1;
+						if (envelope_reg=x"01") then
+							count_state_next <= count_state_stopped;
+						end if;
+						envelope_decremented <= '1';
+					end if;
+				when others=>
+			end case;
+
+			if (gate_changed='1') then
+				if (gate='1') then
+					count_state_next <= count_state_up;
+				else
+					count_state_next <= count_state_down;
 				end if;
 			end if;
 
@@ -143,11 +172,10 @@ BEGIN
 		variable envelope_over_sustain : std_logic;
 	begin
 		state_next <= state_reg;
-		delay_lfsr_reset <= '0';
 		expdelay_lfsr_reset <= '0';
-		envelope_inc <= '0';
-		envelope_dec <= '0';
 		tapkey <= (others=>'0');
+		gate_changed <= '0';
+		hold_counter <= '0';
 
 		envelope_over_sustain := '0';
 		if (unsigned(envelope_reg) > unsigned(sustain&sustain)) then
@@ -158,39 +186,27 @@ BEGIN
 			case state_reg is
 				when state_attack =>
 					tapkey <= attack;
-					if (tapmatch='1') then
-						envelope_inc <= '1';
-						delay_lfsr_reset <= '1';
-					end if;
 					if (and_reduce(std_logic_vector(envelope_reg))='1') then
 						state_next <= state_decay;
-						--delay_lfsr_reset <= '1';
 					end if;
 					if (gate='0') then
 						state_next <= state_release;
-						--delay_lfsr_reset <= '1';
-						--expdelay_lfsr_reset <= '1';
+						gate_changed <= '1';
 					end if;
 				when state_decay =>
 					tapkey <= decay;
-					if (tapmatch='1' and envelope_over_sustain='1') then
-						envelope_dec <= '1';
-						delay_lfsr_reset <= '1';
+					if (envelope_over_sustain='0') then
+						hold_counter <= '1';
 					end if;
 					if (gate='0') then
 						state_next <= state_release;
-						--delay_lfsr_reset <= '1';
-						--expdelay_lfsr_reset <= '1';
+						gate_changed <= '1';
 					end if;
 				when state_release =>
 					tapkey <= release_in;
-					if (tapmatch='1' and or_reduce(std_logic_vector(envelope_reg))='1') then
-						envelope_dec <= '1';
-						delay_lfsr_reset <= '1';
-					end if;
 					if (gate='1') then
 						state_next <= state_attack;
-						--delay_lfsr_reset <= '1';
+						gate_changed <= '1';
 					end if;
 				when others=>
 					state_next <= state_release;
@@ -198,11 +214,11 @@ BEGIN
 		end if;
 	end process;
 
-	process(delay_lfsr_reg,delay_lfsr_reset,enable)
+	process(delay_lfsr_reg,tapmatch,enable)
 	begin
 		delay_lfsr_next <= delay_lfsr_reg;
 		if (enable='1') then
-			if (delay_lfsr_reset='1') then
+			if (tapmatch='1') then
 				delay_lfsr_next <= (others=>'1');
 			else
 				delay_lfsr_next(0) <= delay_lfsr_reg(14) xor delay_lfsr_reg(13);
@@ -259,14 +275,14 @@ BEGIN
 		end if;
 	end process;
 
-	process(expdelay_lfsr_reg,envelope_dec,envelope_decremented,expdelay_lfsr_reset,enable)
+	process(expdelay_lfsr_reg,tapmatch,envelope_decremented,expdelay_lfsr_reset,enable)
 	begin
 		expdelay_lfsr_next <= expdelay_lfsr_reg;
 		if (enable='1') then
 			if (expdelay_lfsr_reset='1' or envelope_decremented='1') then
 				expdelay_lfsr_next <= "11110";
 			else
-				if (envelope_dec='1') then
+				if (tapmatch='1') then
 					expdelay_lfsr_next(0) <= expdelay_lfsr_reg(4) xor expdelay_lfsr_reg(2);
 					expdelay_lfsr_next(4 downto 1) <= expdelay_lfsr_reg(3 downto 0);
 				end if;
