@@ -30,9 +30,9 @@ PORT
 
 	INPUT : IN SIGNED(15 downto 0);
 
-	LOWPASS : OUT SIGNED(15 downto 0);
-	BANDPASS : OUT SIGNED(15 downto 0);
-	HIGHPASS : OUT SIGNED(15 downto 0);
+	LOWPASS : OUT SIGNED(17 downto 0);
+	BANDPASS : OUT SIGNED(17 downto 0);
+	HIGHPASS : OUT SIGNED(17 downto 0);
 
 	CUTOFF_FREQUENCY : IN STD_LOGIC_VECTOR(10 downto 0);
 	Q : IN STD_LOGIC_VECTOR(3 downto 0)
@@ -105,12 +105,12 @@ ARCHITECTURE vhdl OF SID_filter IS
 	signal mult2_reg : signed(53 downto 0);
 	signal mult2_next : signed(53 downto 0);
 
-	signal sum1_reg : signed(41 downto 0);
-	signal sum2_reg : signed(41 downto 0);
-	signal sum3_reg : signed(41 downto 0);
-	signal sum1_next : signed(41 downto 0);
-	signal sum2_next : signed(41 downto 0);
-	signal sum3_next : signed(41 downto 0);
+	signal highpass_reg : signed(41 downto 0);
+	signal bandpass_reg : signed(41 downto 0);
+	signal lowpass_reg : signed(41 downto 0);
+	signal highpass_next : signed(41 downto 0);
+	signal bandpass_next : signed(41 downto 0);
+	signal lowpass_next : signed(41 downto 0);
 
 	signal f_reg : unsigned(17 downto 0);
 	signal f_next :  unsigned(17 downto 0);
@@ -118,22 +118,13 @@ ARCHITECTURE vhdl OF SID_filter IS
 	signal q_reg : signed(17 downto 0);
 	signal q_next :  signed(17 downto 0);
 
-	signal lp_reg : signed(15 downto 0);
-	signal lp_next : signed(15 downto 0);
-
-	signal bp_reg : signed(15 downto 0);
-	signal bp_next : signed(15 downto 0);
-
-	signal hp_reg : signed(15 downto 0);
-	signal hp_next : signed(15 downto 0);
-
 	--    q = 1.0 / Q;
 	--    q = int64(round(q*32768));%3.15u
 	function compute_q(Qval : integer) return signed is
 		 variable Q : real;
    		 variable ret : signed(17 downto 0);
 	begin
-		Q := 1.0/(2.0**((4-real(Qval))/8));
+		Q := 1.0/(2.0**((4.0-real(Qval))/8.0));
 		ret := to_signed(integer(32768.0/Q),18);
 		return ret;
 	end function compute_q;
@@ -147,24 +138,18 @@ BEGIN
 			multq_reg <= (others=>'0');
 			mult1_reg <= (others=>'0');
 			mult2_reg <= (others=>'0');
-			sum1_reg <= (others=>'0');
-			sum2_reg <= (others=>'0');
-			sum3_reg <= (others=>'0');
-			lp_reg <= (others=>'0');
-			bp_reg <= (others=>'0');
-			hp_reg <= (others=>'0');
+			highpass_reg <= (others=>'0');
+			bandpass_reg <= (others=>'0');
+			lowpass_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then
 			f_reg <= f_next;
 			q_reg <= q_next;
 			multq_reg <= multq_next;
 			mult1_reg <= mult1_next;
 			mult2_reg <= mult2_next;
-			sum1_reg <= sum1_next;
-			sum2_reg <= sum2_next;
-			sum3_reg <= sum3_next;
-			lp_reg <= lp_next;
-			bp_reg <= bp_next;
-			hp_reg <= hp_next;
+			highpass_reg <= highpass_next;
+			bandpass_reg <= bandpass_next;
+			lowpass_reg <= lowpass_next;
 		end if;
 	end process;
 
@@ -203,7 +188,7 @@ BEGIN
 	       	f_next <= f_mult(17 downto 0) + f_offset;
 	end process;
 
-	process(input,q_reg,f_reg,multq_reg,mult1_reg,mult2_reg,sum1_reg,sum2_reg,sum3_reg)
+	process(input,q_reg,f_reg,multq_reg,mult1_reg,mult2_reg,highpass_reg,bandpass_reg,lowpass_reg)
 		variable multq : signed(41 downto 0);
 		variable mult1 : signed(41 downto 0);
 		variable mult2 : signed(41 downto 0);
@@ -212,48 +197,34 @@ BEGIN
 		variable multqtmp : signed(53 downto 0);
 		variable mult1tmp : signed(54 downto 0);
 		variable mult2tmp : signed(54 downto 0);
-
-		variable lp_tmp : unsigned(17 downto 0);
-		variable bp_tmp : unsigned(17 downto 0);
-		variable hp_tmp : unsigned(17 downto 0);
 	begin
-		multqtmp := sum2_reg(41 downto 6) * q_reg; --18.18s * 3.15u
+		multqtmp := bandpass_reg(41 downto 6) * q_reg; --18.18s * 3.15u
 		multq_next <= multqtmp(53 downto 0);
 		--multq: 21.33s
 		--multq->18.24s
 		multq := multq_reg(50 downto 9);
 		inputadj(23 downto 0) := (others=>'0');
 		inputadj(41 downto 24) := resize(input,18);
-		sum1_next <= inputadj + (-multq) + (-sum3_reg); --all 18.24s
+		highpass_next <= inputadj + (-multq) + (-lowpass_reg); --all 18.24s
 
-		mult1tmp := signed('0'&f_reg) * sum1_reg(41 downto 6); --0.21u * 18.18s
+		mult1tmp := signed('0'&f_reg) * highpass_reg(41 downto 6); --0.21u * 18.18s
 		mult1_next <= mult1tmp(53 downto 0);
 		--mult1: 15.39s
 		--mult1->18.24s
 		mult1 := resize(mult1_reg(51 downto 15),42);
-		sum2_next <= mult1 + sum2_reg; --all 18.24s
+		bandpass_next <= mult1 + bandpass_reg; --all 18.24s
 
-		mult2tmp := signed('0'&f_reg) * sum2_reg(41 downto 6); -- 0.21u * 18.18s
+		mult2tmp := signed('0'&f_reg) * bandpass_reg(41 downto 6); -- 0.21u * 18.18s
 		mult2_next <= mult2tmp(53 downto 0);
 		--mult2: 15.39s
 		--mult2->18.24s
 		mult2 := resize(mult2_reg(51 downto 15),42);
-		sum3_next <= mult2 + sum3_reg; --all 18.24s
-		
-		--lp_tmp := unsigned(sum3_reg(41 downto 24) + 32768);
-		--bp_tmp := unsigned(sum2_reg(41 downto 24) + 32768);
-		--hp_tmp := unsigned(sum1_reg(41 downto 24) + 32768);
-		--lp_next <= lp_tmp(15 downto 0);
-		--bp_next <= bp_tmp(15 downto 0);
-		--hp_next <= hp_tmp(15 downto 0);
-		lp_next <= sum3_reg(39 downto 24);
-		bp_next <= sum2_reg(39 downto 24);
-		hp_next <= sum1_reg(39 downto 24);
+		lowpass_next <= mult2 + lowpass_reg; --all 18.24s	
 	end process;	
 
 	--output
-	lowpass <= lp_reg;
-	bandpass <= bp_reg;
-	highpass <= hp_reg;
+	lowpass <= lowpass_reg(41 downto 24);
+	bandpass <= bandpass_reg(41 downto 24);
+	highpass <= highpass_reg(41 downto 24);
 		
 END vhdl;

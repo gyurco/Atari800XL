@@ -166,9 +166,9 @@ ARCHITECTURE vhdl OF SID_top IS
 	signal channel_directsum : signed(15 downto 0);
 
 	-- filter
-	signal filter_lp : signed(15 downto 0);
-	signal filter_bp : signed(15 downto 0);
-	signal filter_hp : signed(15 downto 0);
+	signal filter_lp : signed(17 downto 0); -- extra bit due to Jammer causing filter to clip
+	signal filter_bp : signed(17 downto 0);
+	signal filter_hp : signed(17 downto 0);
 BEGIN
 	process(clk,reset_n)
 	begin

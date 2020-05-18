@@ -16,9 +16,9 @@ PORT
 	RESET_N : IN STD_LOGIC;
 	
 	DIRECT : IN SIGNED(15 downto 0);
-	FILTER_LP : IN SIGNED(15 downto 0);
-	FILTER_BP : IN SIGNED(15 downto 0);
-	FILTER_HP : IN SIGNED(15 downto 0);
+	FILTER_LP : IN SIGNED(17 downto 0);
+	FILTER_BP : IN SIGNED(17 downto 0);
+	FILTER_HP : IN SIGNED(17 downto 0);
 	FILTER_SEL : IN STD_LOGIC_VECTOR(2 downto 0);
 
 	VOLUME : IN STD_LOGIC_VECTOR(3 downto 0);
@@ -29,7 +29,20 @@ END SID_postFilterSum;
 
 ARCHITECTURE vhdl OF SID_postFilterSum IS
 	signal out_reg: std_logic_vector(15 downto 0);
-	signal out_next: std_logic_vector(15 downto 0);
+	signal out_next: std_logic_vector(15 downto 0);	
+	
+	function saturate(input : signed(16 downto 0)) return signed is
+   		 variable ret : signed(15 downto 0);
+	begin
+		if (input(15) = input(16)) then
+			ret := input(15 downto 0);
+		else
+			ret(15) := input(16);
+			ret(14 downto 0) := (others=>not(input(16)));
+		end if;
+			
+		return ret;
+	end function saturate;		
 BEGIN
 	-- register
 	process(clk, reset_n)
@@ -46,14 +59,14 @@ BEGIN
 		variable sum : signed(17 downto 0);
 		variable post_volume : unsigned(35 downto 0);
 
-		variable filter_sel0ext : signed(15 downto 0);
-		variable filter_sel1ext : signed(15 downto 0);
-		variable filter_sel2ext : signed(15 downto 0);
+		variable filter_sel0ext : signed(17 downto 0);
+		variable filter_sel1ext : signed(17 downto 0);
+		variable filter_sel2ext : signed(17 downto 0);
 
 		variable volume_adj : signed(7 downto 0);
 
 		variable mult_res : signed(26 downto 0);
-		variable mult_res_un : unsigned(26 downto 8);
+		variable mult_res_un : unsigned(23 downto 8);
 	begin
 		filter_sel0ext := (others=>filter_sel(0));
 		filter_sel1ext := (others=>filter_sel(1));
@@ -71,11 +84,11 @@ BEGIN
 		--direct -> up to 75%
 		-- therefore: total 3*, though if max filter level then diect=0, so total 2.25
 		-- so *1.75 to get back up to full range...
-		volume_adj:= signed("0000"&volume) + signed("000"&volume&"0") + signed("00"&volume&"00");
+		volume_adj:= signed("0"&volume&"000") - signed("0000"&volume);
 
 		-- Then apply volume
 		mult_res := sum * resize(volume_adj,9);
-		mult_res_un := unsigned(mult_res(26 downto 8) + 32768);
+		mult_res_un := unsigned(saturate(mult_res(24 downto 8)) + 32768);
 		out_next <= std_logic_vector(mult_res_un(23 downto 8));
 	end process;	
 
