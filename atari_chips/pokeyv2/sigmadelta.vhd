@@ -6,8 +6,6 @@
 -- This applies for source and binary form and derived works.
 ---------------------------------------------------------------------------
 --
--- Simple sigma delta based on https://aip.scitation.org/doi/pdf/10.1063/1.3526240
---
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -25,40 +23,45 @@ PORT
 END sigmadelta;
 
 ARCHITECTURE vhdl OF sigmadelta IS	
-	signal sigma_latch_next : unsigned(17 downto 0);
-	signal sigma_latch_reg : unsigned(17 downto 0);		
+	signal ttl1_next : signed(19 downto 0);
+	signal ttl1_reg : signed(19 downto 0);
+	signal ttl2_next : signed(19 downto 0);		
+	signal ttl2_reg : signed(19 downto 0);		
 	
-	signal out_next : std_logic;	
-	signal out_reg : std_logic;		
+	signal out_next : std_logic;
+	signal out_reg : std_logic;
 BEGIN
 
 	process(clk,reset_n)
 	begin
 		if (reset_n='0') then
-			sigma_latch_reg <= (others=>'0');
+			ttl1_reg <= (others=>'0');
+			ttl2_reg <= (others=>'0');
 			out_reg <= '0';
 		elsif (clk'event and clk='1')  then
-			sigma_latch_reg <= sigma_latch_next;
+			ttl1_reg <= ttl1_next;
+			ttl2_reg <= ttl2_next;
 			out_reg <= out_next;
 		end if;
 	end process;
 
 
-	process(audin,sigma_latch_reg)
-		variable deltab : unsigned(17 downto 0);	
-		variable delta_adder_tmp : unsigned(17 downto 0);	
-		variable sigma_adder_tmp : unsigned(17 downto 0);	
+	process(audin,ttl1_reg,ttl2_reg)
+		variable fb : signed(19 downto 0);
+		variable ttl1_tmp : signed(19 downto 0);
 	begin
-		deltab:= (others=>'0');
-		deltab(17) := sigma_latch_reg(17);
-		deltab(16) := sigma_latch_reg(17); -- not a typo
-		delta_adder_tmp := audin + deltab;
+		if (ttl2_reg(19) = '1') then
+			fb := to_signed(0,20);
+		else			
+			fb := to_signed(65536,20);
+		end if;
+	
+		ttl1_tmp := ttl1_reg + signed("0000"&audin) - fb;
+		ttl1_next <= ttl1_tmp;
+
+		ttl2_next <= ttl2_reg + ttl1_next - fb;	
 		
-		sigma_adder_tmp := delta_adder_tmp + sigma_latch_reg;
-		
-		sigma_latch_next <= sigma_adder_tmp;
-		
-		out_next <= sigma_latch_reg(17);
+		out_next <= not(ttl2_reg(19));
 	end process;
 
 	audout <= out_reg;
