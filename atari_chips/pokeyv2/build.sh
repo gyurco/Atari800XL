@@ -166,18 +166,6 @@ my %variants =
 		"fpga" => "10M08SCU169C8G"
 	#	"version" => $version . "M08QS"
 	},
-	"10M04_quad_psg_covox" =>
-	{
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"enable_psg" => 1,
-		"enable_covox" => 1,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a7_bit" => 3,
-		"fpga" => "10M04SCU169C8G"
-	#	"version" => $version . "M08QS"
-	},
 	"10M08_quad_psg_covox" =>
 	{
 		"pokeys" => 4,
