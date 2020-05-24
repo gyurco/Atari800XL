@@ -1295,6 +1295,7 @@ end process;
 dac_0 : entity work.filtered_sigmadelta  --pin37
 GENERIC MAP
 (
+	IMPLEMENTATION => 2,
 	LOWPASS => lowpass
 )
 port map
@@ -1309,6 +1310,7 @@ port map
 dac_1 : entity work.filtered_sigmadelta
 GENERIC MAP
 (
+	IMPLEMENTATION => 2,
 	LOWPASS => lowpass
 )
 port map
@@ -1323,6 +1325,7 @@ port map
 dac_2 : entity work.filtered_sigmadelta
 GENERIC MAP
 (
+	IMPLEMENTATION => 2,
 	LOWPASS => lowpass
 )
 port map
@@ -1337,6 +1340,7 @@ port map
 dac_3 : entity work.filtered_sigmadelta
 GENERIC MAP
 (
+	IMPLEMENTATION => 2,
 	LOWPASS => lowpass
 )
 port map

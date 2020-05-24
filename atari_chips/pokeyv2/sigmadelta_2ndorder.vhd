@@ -6,14 +6,14 @@
 -- This applies for source and binary form and derived works.
 ---------------------------------------------------------------------------
 --
--- Simple sigma delta based on https://aip.scitation.org/doi/pdf/10.1063/1.3526240
+-- Simple sigma delta based on https://aip.scitation.org/doi/pdf/10.1063/1.3530300
 --
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use IEEE.STD_LOGIC_MISC.all;
 
-ENTITY sigmadelta IS
+ENTITY sigmadelta_2ndorder IS
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
@@ -22,13 +22,13 @@ PORT
 	AUDIN : IN UNSIGNED(15 downto 0);
 	AUDOUT : OUT std_logic
 );
-END sigmadelta;
+END sigmadelta_2ndorder;
 
-ARCHITECTURE vhdl OF sigmadelta IS	
-	signal ttl1_next : signed(21 downto 0);
-	signal ttl1_reg : signed(21 downto 0);
-	signal ttl2_next : signed(21 downto 0);		
-	signal ttl2_reg : signed(21 downto 0);		
+ARCHITECTURE vhdl OF sigmadelta_2ndorder IS	
+	signal ttl1_next : signed(30 downto 0);
+	signal ttl1_reg : signed(30 downto 0);
+	signal ttl2_next : signed(30 downto 0);		
+	signal ttl2_reg : signed(30 downto 0);		
 	
 	signal out_next : std_logic;
 	signal out_reg : std_logic;
@@ -48,22 +48,28 @@ BEGIN
 	end process;
 
 
+--a1=	-2.00000;
+--a2=	-10.00000;
+--b1=	2.00000;
+--c1=	2.00000;
+--c2=	1.00000;
 	process(audin,ttl1_reg,ttl2_reg)
-		variable fb : signed(21 downto 0);
-		variable ttl1_tmp : signed(21 downto 0);
+		variable fb : signed(30 downto 0);
+		variable ttl1_tmp : signed(30 downto 0);		
 	begin
-		if (ttl2_reg(21) = '1') then
-			fb := to_signed(0,22);
+		fb:=(others=>'0');
+		if ((not(ttl2_reg(30)) and or_reduce(std_logic_vector(ttl2_reg(30-1 downto 16))))='1') then
+			fb(16) := '1';
 		else			
-			fb := to_signed(65536,22);
+			fb(16) := '0';
 		end if;
 	
-		ttl1_tmp := ttl1_reg + signed("0000"&audin) - fb;
+		ttl1_tmp := ttl1_reg + signed("000"&audin&"0") - (fb(30-1 downto 0)&"0");
 		ttl1_next <= ttl1_tmp;
 
-		ttl2_next <= ttl2_reg + ttl1_next - fb;	
+		ttl2_next <= ttl2_reg + (ttl1_tmp(30-1 downto 0)&"0") - ((fb(30-1 downto 0)&"0")+(fb(30-3 downto 0)&"000"));	
 		
-		out_next <= not(ttl2_reg(21));
+		out_next <= fb(16);	
 	end process;
 
 	audout <= out_reg;
