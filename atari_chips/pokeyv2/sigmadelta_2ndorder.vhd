@@ -27,13 +27,10 @@ PORT
 END sigmadelta_2ndorder;
 
 ARCHITECTURE vhdl OF sigmadelta_2ndorder IS	
-	signal audin_next : unsigned(15 downto 0);
-	signal audin_reg : unsigned(15 downto 0);
-
 	signal ttl1_next : signed(21 downto 1);
 	signal ttl1_reg : signed(21 downto 1);
-	signal ttl2_next : signed(33 downto 0);		
-	signal ttl2_reg : signed(33 downto 0);		
+	signal ttl2_next : signed(33 downto 1);		
+	signal ttl2_reg : signed(33 downto 1);		
 	
 	signal out_next : std_logic;
 	signal out_reg : std_logic;
@@ -45,12 +42,10 @@ BEGIN
 			ttl1_reg <= (others=>'0');
 			ttl2_reg <= (others=>'0');
 			out_reg <= '0';
-			audin_reg <= (others=>'0');
 		elsif (clk'event and clk='1')  then
 			ttl1_reg <= ttl1_next;
 			ttl2_reg <= ttl2_next;
 			out_reg <= out_next;
-			audin_reg <= audin_next;
 		end if;
 	end process;
 
@@ -60,8 +55,7 @@ BEGIN
 --b1=	2.00000;
 --c1=	2.00000;
 --c2=	1.00000;
-	audin_next <= audin;
-	process(audin_reg,out_reg,ttl1_reg,ttl2_reg,enable)
+	process(audin,out_reg,ttl1_reg,ttl2_reg,enable)
 		variable fb : signed(21 downto 0);	
 	begin
 		out_next <= out_reg;
@@ -76,9 +70,9 @@ BEGIN
 				fb(16) := '0';
 			end if;
 		
-			ttl1_next <= ttl1_reg + resize(signed("0"&audin_reg),22-1) - (fb(21-1 downto 0));
+			ttl1_next <= ttl1_reg + resize(signed("0"&audin),22-1) - (fb(21-1 downto 0));
 
-			ttl2_next <= ttl2_reg + resize(((ttl1_reg(21-1 downto 1)&"00") - ((fb(21-1 downto 0)&"0")+(fb(21-3 downto 0)&"000"))),34);	
+			ttl2_next <= ttl2_reg + resize(((ttl1_reg(21-1 downto 1)&"0") - ((fb(21-1 downto 0))+(fb(21-3 downto 0)&"00"))),33);	
 			
 			out_next <= fb(16);	
 		end if;
