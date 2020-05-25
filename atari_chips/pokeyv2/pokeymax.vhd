@@ -1302,6 +1302,7 @@ port map
 (
   reset_n => reset_n,
   clk => clk,
+  clk2 => CLK116,
   ENABLE_179 => ENABLE_CYCLE,
   audin => AUDIO_0_UNSIGNED,
   AUDOUT => AUDIO_0_SIGMADELTA
@@ -1317,6 +1318,7 @@ port map
 (
   reset_n => reset_n,
   clk => clk,
+  clk2 => CLK116,
   ENABLE_179 => ENABLE_CYCLE,
   audin => AUDIO_1_UNSIGNED,
   AUDOUT => AUDIO_1_SIGMADELTA
@@ -1332,6 +1334,7 @@ port map
 (
   reset_n => reset_n,
   clk => clk,
+  clk2 => CLK116,
   ENABLE_179 => ENABLE_CYCLE,
   audin => AUDIO_2_UNSIGNED,
   AUDOUT => AUDIO_2_SIGMADELTA
@@ -1347,6 +1350,7 @@ port map
 (
   reset_n => reset_n,
   clk => clk,
+  clk2 => CLK116,
   ENABLE_179 => ENABLE_CYCLE,
   audin => AUDIO_3_UNSIGNED,
   AUDOUT => AUDIO_3_SIGMADELTA

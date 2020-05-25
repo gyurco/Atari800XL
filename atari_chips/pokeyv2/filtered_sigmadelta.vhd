@@ -19,6 +19,7 @@ GENERIC
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
+	CLK2 : IN STD_LOGIC;
 	RESET_N : IN STD_LOGIC;
 
 	ENABLE_179 : IN STD_LOGIC;
@@ -74,11 +75,12 @@ port map
 end generate;
 	
 gen_2ndorder_on : if implementation=2 generate	
+
 dac_2nd : entity work.sigmadelta_2ndorder
 port map
 (
   reset_n => reset_n,
-  clk => clk,
+  clk => clk2,
   audin => AUDIO_FILTERED,
   AUDOUT => AUDOUT
 );
