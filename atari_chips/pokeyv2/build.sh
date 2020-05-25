@@ -163,7 +163,7 @@ my %variants =
 		"a4_bit" => 1,
 		"a5_bit" => 2,
 		"a6_bit" => 3,
-		"fpga" => "10M08SCU169C8G"
+		"fpga" => "10M08SCU169C8G",
 		"version" => $version . "M08QS"
 	},
 	"10M08_quad_psg_covox" =>
@@ -175,7 +175,7 @@ my %variants =
 		"a4_bit" => 1,
 		"a5_bit" => 2,
 		"a7_bit" => 3,
-		"fpga" => "10M08SCU169C8G"
+		"fpga" => "10M08SCU169C8G",
 		"version" => $version . "M08QP"
 	}
 #	"10M08_full" => 
