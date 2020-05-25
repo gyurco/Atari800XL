@@ -57,6 +57,7 @@ BEGIN
 --c2=	1.00000;
 	process(audin,out_reg,ttl1_reg,ttl2_reg,enable)
 		variable fb : signed(21 downto 0);	
+		variable ttl1_tmp : signed(21 downto 1);
 	begin
 		out_next <= out_reg;
 		ttl1_next <= ttl1_reg;
@@ -70,9 +71,10 @@ BEGIN
 				fb(16) := '0';
 			end if;
 		
-			ttl1_next <= ttl1_reg + resize(signed("0"&audin),22-1) - (fb(21-1 downto 0));
+			ttl1_tmp := ttl1_reg + resize(signed("0"&audin),22-1) - (fb(21-1 downto 0));
+			ttl1_next <= ttl1_tmp;
 
-			ttl2_next <= ttl2_reg + resize(((ttl1_reg(21-1 downto 1)&"0") - ((fb(21-1 downto 0))+(fb(21-3 downto 0)&"00"))),33);	
+			ttl2_next <= ttl2_reg + resize(((ttl1_tmp(21-1 downto 1)&"0") - ((fb(21-1 downto 0))+(fb(21-3 downto 0)&"00"))),33);	
 			
 			out_next <= fb(16);	
 		end if;
