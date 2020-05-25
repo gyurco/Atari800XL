@@ -59,7 +59,7 @@ my %variants =
 		"xel_mode" => 1,
 		"gtia_audio_bit" => 3,
 		"fpga" => "10M02SCU169C8G",
-		"version" => $version . "M02SU"
+		"version" => $version . "M02SX"
 	},
 	"10M02_stereo_u1mb_auto" =>
 	{
@@ -164,7 +164,7 @@ my %variants =
 		"a5_bit" => 2,
 		"a6_bit" => 3,
 		"fpga" => "10M08SCU169C8G"
-	#	"version" => $version . "M08QS"
+		"version" => $version . "M08QS"
 	},
 	"10M08_quad_psg_covox" =>
 	{
@@ -176,7 +176,7 @@ my %variants =
 		"a5_bit" => 2,
 		"a7_bit" => 3,
 		"fpga" => "10M08SCU169C8G"
-	#	"version" => $version . "M08QS"
+		"version" => $version . "M08QP"
 	}
 #	"10M08_full" => 
 #	{
