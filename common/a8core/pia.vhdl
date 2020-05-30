@@ -284,7 +284,7 @@ begin
 			irqa_next(0) <= not(ca2_edge_reg);
 		end if;	
 		
-		ca1_edge_next <= porta_control_next(0); -- delay 1 cycle, so I am still set to detect falling edge on the rising edge
+		ca1_edge_next <= porta_control_next(1); -- delay 1 cycle, so I am still set to detect falling edge on the rising edge
 		ca2_edge_next <= porta_control_next(4); -- delay 1 cycle, so I am still set to detect falling edge on the rising edge
 		
 		if (porta_control_next(5) = '0') then -- CA2 is an input					
@@ -339,7 +339,7 @@ begin
 			irqb_next(0) <= not(cb2_edge_reg);
 		end if;	
 		
-		cb1_edge_next <= portb_control_next(0); -- delay 1 cycle, so I am still set to detect falling edge on the rising edge
+		cb1_edge_next <= portb_control_next(1); -- delay 1 cycle, so I am still set to detect falling edge on the rising edge
 		cb2_edge_next <= portb_control_next(4); -- delay 1 cycle, so I am still set to detect falling edge on the rising edge
 		
 		if (portb_control_next(5) = '0') then -- CB2 is an input					
@@ -398,8 +398,8 @@ begin
 	portb_dir_out <= portb_direction_reg;
 	portb_input_next <= portb_in;
 	
-	irqa_n <= not(((irqa_reg(1) and porta_control_reg(0)) or (irqa_reg(0) and porta_control_reg(3))) and not(porta_control_reg(5)));
-	irqb_n <= not(((irqb_reg(1) and portb_control_reg(0)) or (irqb_reg(0) and portb_control_reg(3))) and not(portb_control_reg(5)));
+	irqa_n <= not((irqa_reg(1) and porta_control_reg(0)) or (irqa_reg(0) and porta_control_reg(3) and not(porta_control_reg(5))));
+	irqb_n <= not((irqb_reg(1) and portb_control_reg(0)) or (irqb_reg(0) and portb_control_reg(3) and not(portb_control_reg(5))));
 	
 end vhdl;
 
