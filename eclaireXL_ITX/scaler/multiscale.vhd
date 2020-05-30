@@ -51,8 +51,8 @@ ENTITY multiscale IS
     -- to set up params
     scl_in           : in std_logic;
     sda_in           : in std_logic;
-	 scl_wen          : out std_logic;
-	 sda_wen          : out std_logic 
+    scl_wen          : out std_logic;
+    sda_wen          : out std_logic 
   );
 END multiscale;
 
@@ -77,6 +77,11 @@ ARCHITECTURE vhdl OF multiscale IS
 		signal area_next_x : STD_LOGIC;
 		signal area_next_x_size : std_logic_vector(1 downto 0);
 		signal area_next_y : STD_LOGIC;	 		
+
+		signal scl_area_wen : std_logic;
+		signal sda_area_wen : std_logic;
+		signal scl_poly_wen : std_logic;
+		signal sda_poly_wen : std_logic;
 		
 BEGIN
 	
@@ -109,8 +114,8 @@ polyphasicscale_impl : entity work.polyphasicscale
 				
 		scl_in => scl_in,
 		sda_in => sda_in,		
-		scl_wen => scl_wen,
-		sda_wen => sda_wen
+		scl_wen => scl_poly_wen,
+		sda_wen => sda_poly_wen
 	);
 end generate gen_polyphasic_on;	
 	
@@ -142,8 +147,8 @@ areascale_impl : entity work.areascale
 		
 		scl_in => scl_in,
 		sda_in => sda_in,
-		scl_wen => scl_wen,
-		sda_wen => sda_wen
+		scl_wen => scl_area_wen,
+		sda_wen => sda_area_wen
 	);
 end generate gen_area_on;	
 	
@@ -180,6 +185,9 @@ gen_select_on : if enable_area=1 and enable_polyphasic=1 generate
 			next_x_size <= poly_next_x_size;				
 		end if;
 	end process;
+
+	scl_wen <= scl_area_wen or scl_poly_wen;
+	sda_wen <= sda_area_wen or sda_poly_wen;
 end generate gen_select_on;
 
 gen_fixed_area : if enable_area=1 and enable_polyphasic=0 generate	
@@ -193,6 +201,10 @@ gen_fixed_area : if enable_area=1 and enable_polyphasic=0 generate
 			next_x <= area_next_x;
 			next_y <= area_next_y;
 			next_x_size <= area_next_x_size;		
+
+ 
+			scl_wen <= scl_area_wen;
+			sda_wen <= sda_area_wen;
 end generate gen_fixed_area;
 
 gen_fixed_poly : if enable_area=0 and enable_polyphasic=1 generate	
@@ -206,6 +218,9 @@ gen_fixed_poly : if enable_area=0 and enable_polyphasic=1 generate
 			next_x <= poly_next_x;
 			next_y <= poly_next_y;
 			next_x_size <= poly_next_x_size;		
+
+			scl_wen <= scl_poly_wen;
+			sda_wen <= sda_poly_wen;
 end generate gen_fixed_poly;
 
 gen_none : if enable_area=0 and enable_polyphasic=0 generate	
