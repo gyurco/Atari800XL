@@ -95,6 +95,11 @@ ARCHITECTURE vhdl OF pia IS
 	signal irqa_reg : std_logic_vector(1 downto 0);
 	signal irqb_next : std_logic_vector(1 downto 0);
 	signal irqb_reg : std_logic_vector(1 downto 0);
+
+	signal CA1_SYNC : std_logic;
+	signal CA2_IN_SYNC : std_logic;
+	signal CB1_SYNC : std_logic;
+	signal CB2_IN_SYNC : std_logic;
 	
 	signal CA1_reg : std_logic;
 	signal CA2_reg : std_logic;
