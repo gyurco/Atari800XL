@@ -275,11 +275,11 @@ begin
 			end if;
 
 			if (addr_decoded(2) = '1') then			
-				data_out <= (irqa_reg(1)&irqa_reg(0) and not(porta_control_reg(5))&not(porta_control_reg(5)))&porta_control_reg;
+				data_out <= irqa_reg(1)&(irqa_reg(0) and not(porta_control_reg(5)))&porta_control_reg;
 			end if;
 
 			if (addr_decoded(3) = '1') then			
-				data_out <= (irqb_reg(1)&irqb_reg(0) and not(portb_control_reg(5))&not(portb_control_reg(5)))&portb_control_reg;
+				data_out <= irqb_reg(1)&(irqb_reg(0) and not(portb_control_reg(5)))&portb_control_reg;
 			end if;
 		end if;
 		
