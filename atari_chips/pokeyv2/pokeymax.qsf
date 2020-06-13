@@ -136,6 +136,7 @@ set_global_assignment -name USE_SIGNALTAP_FILE output_files/stp1.stp
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MINIMUM CURRENT" -to CLK_OUT
 
 set_global_assignment -name OPTIMIZATION_MODE BALANCED
+set_global_assignment -name VHDL_FILE flash_controller.vhd
 set_global_assignment -name VHDL_FILE stereo_detect.vhd
 set_global_assignment -name VHDL_FILE iox_glue.vhdl
 set_global_assignment -name VHDL_FILE i2c_master.vhd

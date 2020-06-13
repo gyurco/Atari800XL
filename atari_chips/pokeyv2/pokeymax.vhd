@@ -89,26 +89,6 @@ ARCHITECTURE vhdl OF pokeymax IS
 		);
 	end component;
 
-	component flash is
-	port (
-		clock                   : in  std_logic                     := '0';             --    clk.clk
-		avmm_csr_addr           : in  std_logic                     := '0';             --    csr.address
-		avmm_csr_read           : in  std_logic                     := '0';             --       .read
-		avmm_csr_writedata      : in  std_logic_vector(31 downto 0) := (others => '0'); --       .writedata
-		avmm_csr_write          : in  std_logic                     := '0';             --       .write
-		avmm_csr_readdata       : out std_logic_vector(31 downto 0);                    --       .readdata
-		avmm_data_addr          : in  std_logic_vector(12 downto 0) := (others => '0'); --   data.address
-		avmm_data_read          : in  std_logic                     := '0';             --       .read
-		avmm_data_writedata     : in  std_logic_vector(31 downto 0) := (others => '0'); --       .writedata
-		avmm_data_write         : in  std_logic                     := '0';             --       .write
-		avmm_data_readdata      : out std_logic_vector(31 downto 0);                    --       .readdata
-		avmm_data_waitrequest   : out std_logic;                                        --       .waitrequest
-		avmm_data_readdatavalid : out std_logic;                                        --       .readdatavalid
-		avmm_data_burstcount    : in  std_logic_vector(7 downto 0)  := (others => '0'); --       .burstcount
-		reset_n                 : in  std_logic                     := '0'              -- nreset.reset_n
-	);
-	end component;
-
 	signal OSC_CLK : std_logic; -- about 82MHz! Always?? Massive range on data sheet
 
 	signal CLK : std_logic;
@@ -289,25 +269,25 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal SAMPLE_AUDIO : SAMPLE_AUDIO_TYPE(1 downto 0);
 
 	-- FLASH
-	signal flash_config_addr : std_logic;
-	signal flash_config_read : std_logic;
-	signal flash_config_di : std_logic_vector(31 downto 0);
+	signal flash_req2_addr : std_logic_vector(12 downto 0);
+	signal flash_req2_request : std_logic;
+	signal flash_req2_complete : std_logic;
+	 
+	signal flash_req3_addr : std_logic_vector(12 downto 0);
+	signal flash_req3_request : std_logic;
+	signal flash_req3_complete : std_logic;
 
-	signal flash_config_write : std_logic;
-	signal flash_conig_do : std_logic_vector(31 downto 0);
+	signal flash_do : std_logic_vector(31 downto 0);
 
-	signal flash_data_addr : std_logic_vector(12 downto 0);
-	signal flash_data_read : std_logic;
-	signal flash_data_di : std_logic_vector(31 downto 0);
-
-	signal flash_data_write : std_logic;
-	signal flash_data_do : std_logic_vector(31 downto 0);
-
-	signal flash_data_waitrequest : std_logic;
-
-	signal flash_data_readvalid : std_logic;
-
-	signal flash_data_burstcount : std_logic_vector(7 downto 0);
+	signal CPU_FLASH_REQUEST_NEXT : std_logic;
+	signal CPU_FLASH_REQUEST_REG : std_logic;
+	signal CPU_FLASH_WRITE_N_NEXT : std_logic;
+	signal CPU_FLASH_WRITE_N_REG : std_logic;
+	signal CPU_FLASH_ADDR_NEXT : std_logic_vector(15 downto 0);
+	signal CPU_FLASH_ADDR_REG : std_logic_vector(15 downto 0);
+	signal CPU_FLASH_DATA_NEXT : std_logic_vector(31 downto 0);
+	signal CPU_FLASH_DATA_REG : std_logic_vector(31 downto 0);
+	signal CPU_FLASH_COMPLETE : std_logic;
 
 	function getByte(a : string; x : integer) return std_logic_vector is
    		 variable ret : std_logic_vector(7 downto 0);
@@ -336,31 +316,55 @@ end generate;
 	);
 
 flash_on : if enable_flash=1 generate 
-	flash1 : flash
+
+	flash_req2_request <= '0';
+	flash_req2_addr <= (others=>'0');
+	flash_req3_request <= '0';
+	flash_req3_addr <= (others=>'0');
+
+	process(CLK116,RESET_N)
+	begin
+		if (RESET_N='1') then
+			CPU_FLASH_REQUEST_REG <= '0';
+			CPU_FLASH_WRITE_N_REG <= '1';
+			CPU_FLASH_ADDR_REG <= (others=>'0');
+			CPU_FLASH_DATA_REG <= (others=>'0');
+		elsif (CLK116'event and CLK116='1') then
+			CPU_FLASH_REQUEST_REG <= CPU_FLASH_REQUEST_NEXT;
+			CPU_FLASH_WRITE_N_REG <= CPU_FLASH_WRITE_N_NEXT;
+			CPU_FLASH_ADDR_REG <= CPU_FLASH_ADDR_NEXT;
+			CPU_FLASH_DATA_REG <= CPU_FLASH_DATA_NEXT;
+		end if;
+	end process;
+
+	-- TODO:req2 initially reads some data for the config regs
+	-- then the state machine fills the entirely of block ram
+	-- say it takes 10 cycles for 32-bits, this will take... 0.7ms, should be ok... 44MB/s!
+	flash_controller_inst : entity work.flash_controller
 	port map
-       	(
-		clock                   => clk116,
-		avmm_csr_addr           => flash_config_addr,
-		avmm_csr_read           => flash_config_read,
-		avmm_csr_writedata      => flash_config_di,
+	(
+		CLK => CLK116,
+		RESET_N => RESET_N,
 
-		avmm_csr_write          => flash_config_write,
-		avmm_csr_readdata       => flash_conig_do,
+		-- Request from device 1 (cpu)
+		flash_req1_addr_config => CPU_FLASH_ADDR_REG(15),
+		flash_req1_addr => CPU_FLASH_ADDR_REG(14 downto 2),
+		flash_req1_data_in => CPU_FLASH_DATA_REG,
+		flash_req1_request => CPU_FLASH_REQUEST_REG,
+		flash_req1_write_n => CPU_FLASH_WRITE_N_REG,
+		flash_req1_complete => CPU_FLASH_COMPLETE,
 
-		avmm_data_addr          => flash_data_addr,
-		avmm_data_read          => flash_data_read,
-		avmm_data_writedata     => flash_data_di,
+		-- Request from device 2 (init controller - init block ram or registers)
+		flash_req2_addr => flash_req2_addr,
+		flash_req2_request => flash_req2_request,
+		flash_req2_complete => flash_req2_complete,
 
-		avmm_data_write         => flash_data_write,
-		avmm_data_readdata      => flash_data_do,
+		-- Request from device 3 (read sid tables)
+		flash_req3_addr => flash_req3_addr,
+		flash_req3_request => flash_req3_request,
+		flash_req3_complete => flash_req3_complete,
 
-		avmm_data_waitrequest   => flash_data_waitrequest,
-
-		avmm_data_readdatavalid => flash_data_readvalid,
-
-		avmm_data_burstcount    => flash_data_burstcount,
-
-		reset_n                 => reset_n
+		flash_data_out => flash_do
 	);
 end generate;
 
@@ -757,6 +761,8 @@ covox_off : if enable_covox=0 generate
 	SAMPLE_CH3_REG <= (others=>'0');
 	SAMPLE_CH4_REG <= (others=>'0');
 	SAMPLE_DO <= (others=>'0');
+	SAMPLE_AUDIO(0) <= (others=>'0');
+	SAMPLE_AUDIO(1) <= (others=>'0');
 end generate covox_off;
 
 covox_on : if enable_covox=1 generate 
@@ -854,6 +860,10 @@ begin
 	
 	if (fancy_enable='0') then
 		addr_bits := (others=>'0');
+	end if;
+
+	if (addr_in(7 downto 40)=x"f") then -- TODO: tweak...
+		addr_bits := x"0"; --disable config access here
 	end if;
 		
 	if ((config_enable_reg='1' and addr_bits="0001") or (addr_bits(3 downto 2) = "00" and addr_decoded4(12)='1')) then
@@ -975,7 +985,9 @@ process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
 	VERSION_LOC_REG,
 	PSG_FREQ_REG,
 	PSG_STEREOMODE_REG,
-	PSG_ENVELOPE16_REG
+	PSG_ENVELOPE16_REG,
+	CPU_FLASH_REQUEST_REG,CPU_FLASH_WRITE_N_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
+	CPU_FLASH_COMPLETE,flash_do
 )
 begin
 	SATURATE_NEXT <= SATURATE_REG;
@@ -993,6 +1005,17 @@ begin
 	PSG_FREQ_NEXT <= PSG_FREQ_REG;
 	PSG_STEREOMODE_NEXT <= PSG_STEREOMODE_REG;
 	PSG_ENVELOPE16_NEXT <= PSG_ENVELOPE16_REG;
+
+	CPU_FLASH_REQUEST_NEXT <= CPU_FLASH_REQUEST_REG;
+	CPU_FLASH_WRITE_N_NEXT <= CPU_FLASH_WRITE_N_REG;
+	CPU_FLASH_ADDR_NEXT <= CPU_FLASH_ADDR_REG;
+	CPU_FLASH_DATA_NEXT <= CPU_FLASH_DATA_REG;
+
+
+	if (CPU_FLASH_COMPLETE='1') then
+		CPU_FLASH_DATA_NEXT <= flash_do;
+		CPU_FLASH_REQUEST_NEXT <= '0';
+	end if;
 	
 	if (CONFIG_WRITE_ENABLE='1') then
 		if (addr_decoded4(0)='1') then
@@ -1026,13 +1049,44 @@ begin
 				CONFIG_ENABLE_NEXT <= '0';
 			end if;
 		end if;		
+
+		if enable_flash=1 then 
+			if (addr_decoded4(11)='1') then
+				CPU_FLASH_REQUEST_NEXT <= '1';
+				CPU_FLASH_WRITE_N_NEXT <= WRITE_DATA(0);
+			end if;
+
+			if (addr_decoded4(13)='1') then
+				CPU_FLASH_ADDR_NEXT(7 downto 0) <= WRITE_DATA;
+			end if;
+
+			if (addr_decoded4(14)='1') then
+				CPU_FLASH_ADDR_NEXT(15 downto 8) <= WRITE_DATA;
+			end if;
+
+			if (addr_decoded4(15)='1') then
+				case CPU_FLASH_ADDR_REG(1 downto 0) is
+				when "00" =>
+					CPU_FLASH_DATA_NEXT(7 downto 0) <= WRITE_DATA;
+				when "01" =>
+					CPU_FLASH_DATA_NEXT(15 downto 8) <= WRITE_DATA;
+				when "10" =>
+					CPU_FLASH_DATA_NEXT(23 downto 16) <= WRITE_DATA;
+				when others =>
+					CPU_FLASH_DATA_NEXT(31 downto 24) <= WRITE_DATA;
+				end case;
+			end if;
+		end if;
 	end if;	
 end process;
 
 process(addr_decoded4,VERSION_LOC_REG,
 SATURATE_REG,CHANNEL_MODE_REG,IRQ_EN_REG,
 POST_DIVIDE_REG, GTIA_ENABLE_REG,
-PSG_FREQ_REG, PSG_STEREOMODE_REG, PSG_ENVELOPE16_REG)
+PSG_FREQ_REG, PSG_STEREOMODE_REG, PSG_ENVELOPE16_REG,
+CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
+CPU_FLASH_REQUEST_REG, CPU_FLASH_WRITE_N_REG
+)
 begin
 	CONFIG_DO <= (others=>'1');
 	
@@ -1112,10 +1166,38 @@ begin
 		CONFIG_DO(3 downto 2) <= PSG_STEREOMODE_REG;
 		CONFIG_DO(4) <= PSG_ENVELOPE16_REG;
 	end if;
-	
+
 	if (addr_decoded4(12)='1') then
 		CONFIG_DO <= x"01";
 	end if;		
+
+	if enable_flash=1 then 
+		if (addr_decoded4(11)='1') then
+			CONFIG_DO(1) <= CPU_FLASH_REQUEST_REG;
+			CONFIG_DO(0) <= CPU_FLASH_WRITE_N_REG;
+		end if;
+	
+		if (addr_decoded4(13)='1') then
+			CONFIG_DO <= CPU_FLASH_ADDR_REG(7 downto 0);
+		end if;
+	
+		if (addr_decoded4(14)='1') then
+			CONFIG_DO <= CPU_FLASH_ADDR_REG(15 downto 8);
+		end if;
+	
+		if (addr_decoded4(15)='1') then
+			case CPU_FLASH_ADDR_REG(1 downto 0) is
+			when "00" =>
+				CONFIG_DO <= CPU_FLASH_DATA_REG(7 downto 0);
+			when "01" =>
+				CONFIG_DO <= CPU_FLASH_DATA_REG(15 downto 8);
+			when "10" =>
+				CONFIG_DO <= CPU_FLASH_DATA_REG(23 downto 16);
+			when others =>
+				CONFIG_DO <= CPU_FLASH_DATA_REG(31 downto 24);
+			end case;
+		end if;
+	end if;
 	
 end process;
 
