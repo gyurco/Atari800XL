@@ -168,7 +168,7 @@ BEGIN
 		end if;
 	end process;
 
-	process(enable,state_reg,envelope_reg,gate,tapmatch,attack,sustain,decay)
+	process(enable,state_reg,envelope_reg,gate,tapmatch,attack,sustain,decay,release_in)
 		variable envelope_over_sustain : std_logic;
 	begin
 		state_next <= state_reg;
