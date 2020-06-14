@@ -235,6 +235,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	
 	-- config
 		--config regs
+	signal DETECT_RIGHT_REG : std_logic;
 	signal IRQ_EN_REG : std_logic;
 	signal CHANNEL_MODE_REG : std_logic;
 	signal SATURATE_REG : std_logic;
@@ -242,6 +243,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal GTIA_ENABLE_REG : std_logic_vector(3 downto 0);
 	signal VERSION_LOC_REG : std_logic_vector(2 downto 0);
 	
+	signal DETECT_RIGHT_NEXT : std_logic;
 	signal IRQ_EN_NEXT : std_logic;
 	signal CHANNEL_MODE_NEXT : std_logic;
 	signal SATURATE_NEXT : std_logic;
@@ -269,9 +271,6 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal SAMPLE_AUDIO : SAMPLE_AUDIO_TYPE(1 downto 0);
 
 	-- FLASH
-	signal flash_req2_addr : std_logic_vector(12 downto 0);
-	signal flash_req3_addr : std_logic_vector(12 downto 0);
-
 	signal flash_do : std_logic_vector(31 downto 0);
 
 	signal CPU_FLASH_REQUEST_NEXT : std_logic;
@@ -283,6 +282,15 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal CPU_FLASH_DATA_NEXT : std_logic_vector(31 downto 0);
 	signal CPU_FLASH_DATA_REG : std_logic_vector(31 downto 0);
 	signal CPU_FLASH_COMPLETE : std_logic;
+
+	signal CONFIG_FLASH_STATE_REG : std_logic_vector(1 downto 0);
+	signal CONFIG_FLASH_STATE_NEXT : std_logic_vector(1 downto 0);
+	constant CONFIG_FLASH_STATE_ADDR1 : std_logic_vector(1 downto 0) := "00";
+	constant CONFIG_FLASH_STATE_ADDR2 : std_logic_vector(1 downto 0) := "01";
+	constant CONFIG_FLASH_STATE_DONE : std_logic_vector(1 downto 0) := "10";
+	signal CONFIG_FLASH_REQUEST : std_logic;
+	signal CONFIG_FLASH_COMPLETE : std_logic;
+	signal CONFIG_FLASH_ADDR : std_logic_vector(0 downto 0);
 
 	function getByte(a : string; x : integer) return std_logic_vector is
    		 variable ret : std_logic_vector(7 downto 0);
@@ -312,9 +320,6 @@ end generate;
 
 flash_on : if enable_flash=1 generate 
 
-	flash_req2_addr <= (others=>'0');
-	flash_req3_addr <= (others=>'0');
-
 	process(CLK116,RESET_N)
 	begin
 		if (RESET_N='1') then
@@ -322,11 +327,13 @@ flash_on : if enable_flash=1 generate
 			CPU_FLASH_WRITE_N_REG <= '1';
 			CPU_FLASH_ADDR_REG <= (others=>'0');
 			CPU_FLASH_DATA_REG <= (others=>'0');
+			CONFIG_FLASH_STATE_REG <= CONFIG_FLASH_STATE_ADDR1;
 		elsif (CLK116'event and CLK116='1') then
 			CPU_FLASH_REQUEST_REG <= CPU_FLASH_REQUEST_NEXT;
 			CPU_FLASH_WRITE_N_REG <= CPU_FLASH_WRITE_N_NEXT;
 			CPU_FLASH_ADDR_REG <= CPU_FLASH_ADDR_NEXT;
 			CPU_FLASH_DATA_REG <= CPU_FLASH_DATA_NEXT;
+			CONFIG_FLASH_STATE_REG <= CONFIG_FLASH_STATE_NEXT;
 		end if;
 	end process;
 
@@ -345,13 +352,15 @@ flash_on : if enable_flash=1 generate
 		flash_req1_data_in => CPU_FLASH_DATA_REG,
 		flash_req1_write_n => CPU_FLASH_WRITE_N_REG,
 
-		flash_req2_addr => flash_req2_addr,
-		flash_req3_addr => flash_req3_addr,
+		flash_req2_addr(12 downto 1) => (others=>'0'),   -- first 2 32-bit words are config!
+		flash_req2_addr(0 downto 0) => CONFIG_FLASH_ADDR(0 downto 0),
 
 		flash_req_request(0) => CPU_FLASH_REQUEST_REG,
-		flash_req_request(7 downto 1) => (others=>'0'),
+		flash_req_request(1) => CONFIG_FLASH_REQUEST,
+		flash_req_request(7 downto 2) => (others=>'0'),
 		flash_req_complete(0) => CPU_FLASH_COMPLETE,
-		flash_req_complete(7 downto 1) => open,
+		flash_req_complete(1) => CONFIG_FLASH_COMPLETE,
+		flash_req_complete(7 downto 2) => open,
 
 		flash_data_out => flash_do
 	);
@@ -361,8 +370,33 @@ flash_on : if enable_flash=1 generate
 	-- flash memory map
 	-- 32KB
 	-- 0x0000-0x07ff - 2k configuration (regs, psg vol curve, pokey mixing curve, sid filter piecewise linear?)
+	-- 	first 64 bits - config regs 
 	-- 0x0800-0x3fff - 14k sid tables
-	-- 0x4000-0x7fff - 16k fixed samples
+	-- 0x4000-0x7fff - 16k fixed samples?
+
+	-- reg init
+	process(CONFIG_FLASH_STATE_REG, CONFIG_FLASH_COMPLETE)
+	begin
+		CONFIG_FLASH_REQUEST <= '0';
+		CONFIG_FLASH_STATE_NEXT <= CONFIG_FLASH_STATE_REG;
+		CONFIG_FLASH_ADDR <= "0";
+
+		case CONFIG_FLASH_STATE_REG is
+			when CONFIG_FLASH_STATE_ADDR1 =>
+				CONFIG_FLASH_REQUEST <= '1';
+				CONFIG_FLASH_ADDR <= "0";
+				if (CONFIG_FLASH_COMPLETE='1') then
+					CONFIG_FLASH_STATE_NEXT <= CONFIG_FLASH_STATE_ADDR2;
+				end if;
+			when CONFIG_FLASH_STATE_ADDR2 =>
+				CONFIG_FLASH_REQUEST <= '1';
+				CONFIG_FLASH_ADDR <= "1";
+				if (CONFIG_FLASH_COMPLETE='1') then
+					CONFIG_FLASH_STATE_NEXT <= CONFIG_FLASH_STATE_DONE;
+				end if;
+			when others=>
+		end case;
+	end process;
 end generate;
 
 	EXT_INT(0) <= '0';  --force to 0
@@ -938,6 +972,7 @@ end process;
 process(clk,reset_n)
 begin
 	if (reset_n='0') then
+		DETECT_RIGHT_REG <= '1';
 		IRQ_EN_REG <= '0';
 		CHANNEL_MODE_REG <= '0';
 		SATURATE_REG <= '1';
@@ -949,6 +984,7 @@ begin
 		PSG_STEREOMODE_REG <= "01"; --Polish
 		PSG_ENVELOPE16_REG <= '0'; --32 step
 	elsif (clk'event and clk='1') then
+		DETECT_RIGHT_REG <= DETECT_RIGHT_NEXT;
 		IRQ_EN_REG <= IRQ_EN_NEXT;
 		CHANNEL_MODE_REG <= CHANNEL_MODE_NEXT;
 		SATURATE_REG <= SATURATE_NEXT;
@@ -975,7 +1011,7 @@ decode_addr2 : entity work.complete_address_decoder
 	port map (addr_in=>ADDR_IN(4 downto 0), addr_decoded=>addr_decoded5);
 	
 process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
-	SATURATE_REG,CHANNEL_MODE_REG,IRQ_EN_REG,
+	SATURATE_REG,CHANNEL_MODE_REG,IRQ_EN_REG,DETECT_RIGHT_REG,
 	CONFIG_ENABLE_REG,
 	POST_DIVIDE_REG,
 	GTIA_ENABLE_REG,
@@ -984,12 +1020,13 @@ process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
 	PSG_STEREOMODE_REG,
 	PSG_ENVELOPE16_REG,
 	CPU_FLASH_REQUEST_REG,CPU_FLASH_WRITE_N_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
-	CPU_FLASH_COMPLETE,flash_do
+	CPU_FLASH_COMPLETE,CONFIG_FLASH_COMPLETE,CONFIG_FLASH_ADDR,flash_do
 )
 begin
 	SATURATE_NEXT <= SATURATE_REG;
 	CHANNEL_MODE_NEXT <= CHANNEL_MODE_REG;
 	IRQ_EN_NEXT <= IRQ_EN_REG;
+	DETECT_RIGHT_NEXT <= DETECT_RIGHT_REG;
 
 	POST_DIVIDE_NEXT <= POST_DIVIDE_REG;
 	
@@ -1013,12 +1050,32 @@ begin
 		CPU_FLASH_DATA_NEXT <= flash_do;
 		CPU_FLASH_REQUEST_NEXT <= '0';
 	end if;
-	
-	if (CONFIG_WRITE_ENABLE='1') then
+
+	if (enable_flash=1 and CONFIG_FLASH_COMPLETE='1') then
+		case CONFIG_FLASH_ADDR is
+			when "0"=>
+				SATURATE_NEXT <= flash_do(0);
+					-- 1 reserved...
+				CHANNEL_MODE_NEXT <= flash_do(2);
+				IRQ_EN_NEXT <= flash_do(3);
+				DETECT_RIGHT_NEXT <= flash_do(4);
+					-- 5-7 reserved
+				POST_DIVIDE_NEXT <= flash_do(15 downto 8);
+				GTIA_ENABLE_NEXT <= flash_do(19 downto 16);
+					-- 23 downto 20 reserved
+				PSG_FREQ_NEXT <= flash_do(25 downto 24);
+				PSG_STEREOMODE_NEXT <= flash_do(27 downto 26);
+				PSG_ENVELOPE16_NEXT <= flash_do(28);
+					-- 31 downto 29 reserved
+			when "1" =>
+			when others =>
+		end case;
+	elsif (CONFIG_WRITE_ENABLE='1') then
 		if (addr_decoded4(0)='1') then
 			SATURATE_NEXT <= WRITE_DATA(0);
 			CHANNEL_MODE_NEXT <= WRITE_DATA(2);
 			IRQ_EN_NEXT <= WRITE_DATA(3);
+			DETECT_RIGHT_NEXT <= WRITE_DATA(4);
 		end if;
 		
 		if (addr_decoded4(2)='1') then
@@ -1236,7 +1293,8 @@ process(POST_DIVIDE_REG,
 	PSG_AUDIO,
 	GTIA_AUDIO,GTIA_ENABLE_REG,
 	FANCY_ENABLE,
-	RIGHT_PLAYING_RECENTLY
+	RIGHT_PLAYING_RECENTLY,
+	DETECT_RIGHT_REG
 	)
 	variable p0u : unsigned(15 downto 0);
 	variable p1u : unsigned(15 downto 0);
@@ -1294,7 +1352,7 @@ begin
 
 	a1u := p1u + p3u + sidu + psgu1 + psgu2 + samu;
 	RIGHT_NEXT <= a1u(5 downto 0);
-	if (FANCY_ENABLE='0' or RIGHT_PLAYING_RECENTLY='0') then
+	if (FANCY_ENABLE='0' or (RIGHT_PLAYING_RECENTLY='0' AND DETECT_RIGHT_REG='1')) then
 		a1u := a0u;
 	end if;
 	a2u := a0u;
