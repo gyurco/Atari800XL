@@ -322,7 +322,7 @@ flash_on : if enable_flash=1 generate
 
 	process(CLK116,RESET_N)
 	begin
-		if (RESET_N='1') then
+		if (RESET_N='0') then
 			CPU_FLASH_REQUEST_REG <= '0';
 			CPU_FLASH_WRITE_N_REG <= '1';
 			CPU_FLASH_ADDR_REG <= (others=>'0');
@@ -1135,7 +1135,7 @@ begin
 end process;
 
 process(addr_decoded4,VERSION_LOC_REG,
-SATURATE_REG,CHANNEL_MODE_REG,IRQ_EN_REG,
+SATURATE_REG,CHANNEL_MODE_REG,IRQ_EN_REG,DETECT_RIGHT_REG,
 POST_DIVIDE_REG, GTIA_ENABLE_REG,
 PSG_FREQ_REG, PSG_STEREOMODE_REG, PSG_ENVELOPE16_REG,
 CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
@@ -1149,6 +1149,7 @@ begin
 			CONFIG_DO(0) <= SATURATE_REG;
 			CONFIG_DO(2) <= CHANNEL_MODE_REG;
 			CONFIG_DO(3) <= IRQ_EN_REG;
+			CONFIG_DO(4) <= DETECT_RIGHT_REG;
 	end if;	
 	
 	if (addr_decoded4(1)='1') then
