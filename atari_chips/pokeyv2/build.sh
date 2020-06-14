@@ -138,6 +138,7 @@ my %variants =
 	{
 		"pokeys" => 4,
 		"enable_auto_stereo" => 1,
+		"enable_flash" => 1,
 		"a4_bit" => 1,
 		"a5_bit" => 2,
 		"gtia_audio_bit" => 3, 
@@ -152,6 +153,7 @@ my %variants =
 		"a5_bit" => 2,
 		"a7_bit" => 3, 
 		"enable_covox" => 1,
+		"enable_flash" => 1,
 		"fpga" => "10M08SCU169C8G",
 		"version" => $version . "M08QC"
 	},
@@ -173,6 +175,7 @@ my %variants =
 		"enable_auto_stereo" => 1,
 		"enable_psg" => 1,
 		"enable_covox" => 1,
+		"enable_flash" => 1,
 		"a4_bit" => 1,
 		"a5_bit" => 2,
 		"a7_bit" => 3,
