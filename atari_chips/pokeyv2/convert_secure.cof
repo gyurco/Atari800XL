@@ -26,7 +26,8 @@
 		<isp_source>0</isp_source>
 		<verify_protect>1</verify_protect>
 		<epof>0</epof>
-		<ufm_source>0</ufm_source>
+ 		<ufm_source>2</ufm_source>
+		<ufm_filepath>../test.hex</ufm_filepath>		
 	</MAX10_device_options>
 	<advanced_options>
 		<ignore_epcs_id_check>1</ignore_epcs_id_check>

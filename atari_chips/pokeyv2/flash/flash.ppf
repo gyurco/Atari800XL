@@ -14,7 +14,7 @@
   <pin name="avmm_data_readdata[31..0]" direction="output" scope="external" />
   <pin name="avmm_data_waitrequest" direction="output" scope="external" />
   <pin name="avmm_data_readdatavalid" direction="output" scope="external" />
-  <pin name="avmm_data_burstcount[7..0]" direction="input" scope="external" />
+  <pin name="avmm_data_burstcount[1..0]" direction="input" scope="external" />
   <pin name="avmm_csr_addr" direction="input" scope="external" />
   <pin name="avmm_csr_read" direction="input" scope="external" />
   <pin name="avmm_csr_writedata[31..0]" direction="input" scope="external" />

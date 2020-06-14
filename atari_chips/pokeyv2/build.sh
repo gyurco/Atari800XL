@@ -160,6 +160,7 @@ my %variants =
 		"pokeys" => 4,
 		"enable_auto_stereo" => 1,
 		"enable_sid" => 1,
+		"enable_flash" => 1,
 		"a4_bit" => 1,
 		"a5_bit" => 2,
 		"a6_bit" => 3,
@@ -177,26 +178,26 @@ my %variants =
 		"a7_bit" => 3,
 		"fpga" => "10M08SCU169C8G",
 		"version" => $version . "M08QP"
+	},
+	"10M08_full" => 
+	{
+		"board" => 3,
+		"ext_bits"=> 11,
+		"pokeys" => 4,
+		"enable_auto_stereo" => 1,
+		"fancy_switch_bit" => 1,
+		"gtia_audio_bit" => 2,
+		"a4_bit" => 3,
+		"a5_bit" => 4,
+		"a6_bit" => 5,
+		"a7_bit" => 6,
+		"enable_sid" => 1,
+		"enable_psg" => 1,
+		"enable_covox" => 1,
+		"enable_sample" => 1,
+		"enable_flash" => 1,
+		"fpga" => "10M08SCU169C8G"
 	}
-#	"10M08_full" => 
-#	{
-#		"board" => 3,
-#		"ext_bits"=> 11,
-#		"pokeys" => 4,
-#		"enable_auto_stereo" => 1,
-#		"fancy_switch_bit" => 1,
-#		"gtia_audio_bit" => 2,
-#		"a4_bit" => 3,
-#		"a5_bit" => 4,
-#		"a6_bit" => 5,
-#		"a7_bit" => 6,
-#		"enable_sid" => 1,
-#		"enable_psg" => 1,
-#		"enable_covox" => 1,
-#		"enable_sample" => 1,
-#		"enable_flash" => 1,
-#		"fpga" => "10M08SCU169C8G"
-#	}
 );
 
 #if (not defined $wanted_variant or (not exists $variants{$wanted_variant} and $wanted_variant ne "ALL"))

@@ -14,6 +14,8 @@ use IEEE.STD_LOGIC_MISC.all;
 
 LIBRARY work;
 
+-- takes about 5-6 cycles per read (depending on family)
+-- So at 116MHz can service all 8 clients at >2MHz - if they all request at once
 ENTITY flash_controller IS 
 	PORT
 	(
@@ -22,21 +24,20 @@ ENTITY flash_controller IS
 
 		-- Request from device 1 (cpu)
 		flash_req1_addr_config : IN STD_LOGIC; -- 1 access config, 0 access main flash
-		flash_req1_addr : IN STD_LOGIC_VECTOR(12 downto 0);
 		flash_req1_data_in : IN STD_LOGIC_VECTOR(31 downto 0);
-		flash_req1_request : IN STD_LOGIC;
 		flash_req1_write_n: IN STD_LOGIC;
-		flash_req1_complete : OUT STD_LOGIC;
 
-		-- Request from device 2 (init controller - init block ram or registers)
-		flash_req2_addr : IN STD_LOGIC_VECTOR(12 downto 0);
-		flash_req2_request : IN STD_LOGIC;
-		flash_req2_complete : OUT STD_LOGIC;
+		flash_req_request : IN STD_LOGIC_VECTOR(7 downto 0);
+		flash_req_complete : OUT STD_LOGIC_VECTOR(7 downto 0);
 
-		-- Request from device 3 (read sid tables)
-		flash_req3_addr : IN STD_LOGIC_VECTOR(12 downto 0);
-		flash_req3_request : IN STD_LOGIC;
-		flash_req3_complete : OUT STD_LOGIC;
+		flash_req1_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
+		flash_req2_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
+		flash_req3_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
+		flash_req4_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
+		flash_req5_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
+		flash_req6_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
+		flash_req7_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
+		flash_req8_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
 
 		-- Output
 		flash_data_out : OUT STD_LOGIC_VECTOR(31 downto 0)
@@ -59,7 +60,7 @@ ARCHITECTURE vhdl OF flash_controller IS
 		avmm_data_readdata      : out std_logic_vector(31 downto 0);                    --       .readdata
 		avmm_data_waitrequest   : out std_logic;                                        --       .waitrequest
 		avmm_data_readdatavalid : out std_logic;                                        --       .readdatavalid
-		avmm_data_burstcount    : in  std_logic_vector(7 downto 0)  := (others => '0'); --       .burstcount
+		avmm_data_burstcount    : in  std_logic_vector(1 downto 0)  := (others => '0'); --       .burstcount
 		reset_n                 : in  std_logic                     := '0'              -- nreset.reset_n
 	);
 	end component;
@@ -82,7 +83,7 @@ ARCHITECTURE vhdl OF flash_controller IS
 
 	signal flash_data_readvalid : std_logic;
 
-	signal flash_data_burstcount : std_logic_vector(7 downto 0);
+	signal flash_data_burstcount : std_logic_vector(1 downto 0);
 
 	signal state_reg : std_logic_vector(2 downto 0);
 	signal state_next : std_logic_vector(2 downto 0);
@@ -90,7 +91,6 @@ ARCHITECTURE vhdl OF flash_controller IS
 	constant state_read : std_logic_vector(2 downto 0) := "001";
 	constant state_write : std_logic_vector(2 downto 0) := "010";
 	constant state_read_wait : std_logic_vector(2 downto 0) := "011";
-	constant state_write_wait : std_logic_vector(2 downto 0) := "100";
 
 	signal request_addr_reg : std_logic_vector(12 downto 0);
 	signal request_addr_next : std_logic_vector(12 downto 0);
@@ -98,8 +98,11 @@ ARCHITECTURE vhdl OF flash_controller IS
 	signal request_di_next : std_logic_vector(31 downto 0);
 	signal device_reg : std_logic;
 	signal device_next : std_logic;
-	signal output_reg : std_logic_vector(1 downto 0);
-	signal output_next : std_logic_vector(1 downto 0);
+	signal output_reg : std_logic_vector(7 downto 0);
+	signal output_next : std_logic_vector(7 downto 0);
+
+	signal robin_reg : std_logic_vector(7 downto 0);
+	signal robin_next : std_logic_vector(7 downto 0);
 
 	signal complete : std_logic;
 	signal flash_read : std_logic;
@@ -109,8 +112,6 @@ ARCHITECTURE vhdl OF flash_controller IS
 	signal flash_do : std_logic_vector(31 downto 0);
 
 BEGIN
-
-	flash_data_burstcount <= (others=>'0');
 
 	flash1 : flash
 	port map
@@ -134,7 +135,7 @@ BEGIN
 
 		avmm_data_readdatavalid => flash_data_readvalid,
 
-		avmm_data_burstcount    => flash_data_burstcount,
+		avmm_data_burstcount    => "01",
 
 		reset_n                 => reset_n
 	);
@@ -147,66 +148,82 @@ BEGIN
 			request_di_reg <= (others=>'0');
 			device_reg <= '0';
 			output_reg <= (others=>'0');
+			robin_reg <= "10000000";
 		elsif (clk'event and clk='1') then
 			state_reg <= state_next;
 			request_addr_reg <= request_addr_next;
 			request_di_reg <= request_di_next;
 			device_reg <= device_next;
 			output_reg <= output_next;
+			robin_reg <= robin_next;
 		end if;
 	end process;
 
 	-- state machine
-	-- We follow a priority strategy:
-	-- dev1, dev2, dev3
+	-- Requests handled round robin
 	-- TODO burst!
 	process(state_reg,request_addr_reg,request_di_reg,device_reg,output_reg,
-		flash_req1_request,flash_req2_request,flash_req3_request,
+		robin_reg,
+		flash_req_request,
 
 		flash_req1_addr, flash_req1_data_in, flash_req1_write_n, flash_req1_addr_config,
-		flash_req2_addr, 
-		flash_req3_addr,
+		flash_req2_addr, flash_req3_addr, flash_req4_addr,
+		flash_req5_addr, flash_req6_addr, flash_req7_addr, flash_req8_addr,
 
 		flash_readvalid, flash_waitrequest
 		)
+		variable addr : std_logic_vector(12 downto 0);
+		variable device : std_logic;
+		variable request: std_logic;
 	begin
 		state_next <= state_reg;
 		request_addr_next <= request_addr_reg;
 		request_di_next <= request_di_reg;
 		device_next <= device_reg;
 		output_next <= output_reg;
+		robin_next <= robin_reg(6 downto 0)&robin_reg(7);
 
 		complete <= '0';
 		flash_read <= '0';
 		flash_write <= '0';
 
+		device := '0';
+		addr := (others=>'0');
+		case robin_reg is
+		when x"01" =>
+			addr := flash_req1_addr;
+			device := flash_req1_addr_config;
+		when x"02" =>
+			addr := flash_req2_addr;
+		when x"04" =>
+			addr := flash_req3_addr;
+		when x"08" =>
+			addr := flash_req4_addr;
+		when x"10" =>
+			addr := flash_req5_addr;
+		when x"20" =>
+			addr := flash_req6_addr;
+		when x"40" =>
+			addr := flash_req7_addr;
+		when others =>
+			addr := flash_req8_addr;
+		end case;
+
 		case state_reg is
 		when state_idle=>
-			if (flash_req1_request='1') then
-				request_addr_next <= flash_req1_addr;
+			if (or_reduce(robin_reg and flash_req_request)='1') then
+				request_addr_next <= addr;
 				request_di_next <= flash_req1_data_in;
 
-				if (flash_req1_write_n='1') then --read
-					state_next <= state_read;
-				else
+				if (robin_reg(0)='1' and flash_req1_write_n='0') then --write
 					state_next <= state_write;
+				else
+					state_next <= state_read;
 				end if;
 
-				output_next <= "00";
+				output_next <= robin_reg;
 
-				device_next <= flash_req1_addr_config;
-			elsif (flash_req2_request='1') then
-				request_addr_next <= flash_req2_addr;
-
-				state_next <= state_read;
-				output_next <= "01";
-				device_next <= '0';
-			elsif (flash_req3_request='1') then
-				request_addr_next <= flash_req3_addr;
-
-				state_next <= state_read;
-				output_next <= "10";
-				device_next <= '0';
+				device_next <= device;
 			end if;
 		when state_read=>
 			flash_read <= '1';
@@ -218,9 +235,6 @@ BEGIN
 			end if;
 		when state_write=>
 			flash_write <= '1';
-			state_next <= state_write_wait;
-		when state_write_wait=>
-			flash_write <= flash_waitrequest;
 			complete <= not(flash_waitrequest);
 			if (flash_waitrequest='0') then
 				state_next <= state_idle;
@@ -259,22 +273,7 @@ BEGIN
 	end process;
 
 	-- mux on who requested
-	process(output_reg,complete)
-	begin
-		flash_req1_complete <= '0';
-		flash_req2_complete <= '0';
-		flash_req3_complete <= '0';
-
-		case (output_reg) is
-		when "00" =>
-			flash_req1_complete <= complete;
-		when "01" =>
-			flash_req2_complete <= complete;
-		when others =>
-			flash_req3_complete <= complete;
-		end case;
-
-	end process;
+	flash_req_complete <= output_reg and (complete&complete&complete&complete&complete&complete&complete&complete);
 
 	-- outputs
 	flash_data_out <= flash_do;

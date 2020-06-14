@@ -270,12 +270,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	-- FLASH
 	signal flash_req2_addr : std_logic_vector(12 downto 0);
-	signal flash_req2_request : std_logic;
-	signal flash_req2_complete : std_logic;
-	 
 	signal flash_req3_addr : std_logic_vector(12 downto 0);
-	signal flash_req3_request : std_logic;
-	signal flash_req3_complete : std_logic;
 
 	signal flash_do : std_logic_vector(31 downto 0);
 
@@ -317,9 +312,7 @@ end generate;
 
 flash_on : if enable_flash=1 generate 
 
-	flash_req2_request <= '0';
 	flash_req2_addr <= (others=>'0');
-	flash_req3_request <= '0';
 	flash_req3_addr <= (others=>'0');
 
 	process(CLK116,RESET_N)
@@ -350,22 +343,26 @@ flash_on : if enable_flash=1 generate
 		flash_req1_addr_config => CPU_FLASH_ADDR_REG(15),
 		flash_req1_addr => CPU_FLASH_ADDR_REG(14 downto 2),
 		flash_req1_data_in => CPU_FLASH_DATA_REG,
-		flash_req1_request => CPU_FLASH_REQUEST_REG,
 		flash_req1_write_n => CPU_FLASH_WRITE_N_REG,
-		flash_req1_complete => CPU_FLASH_COMPLETE,
 
-		-- Request from device 2 (init controller - init block ram or registers)
 		flash_req2_addr => flash_req2_addr,
-		flash_req2_request => flash_req2_request,
-		flash_req2_complete => flash_req2_complete,
-
-		-- Request from device 3 (read sid tables)
 		flash_req3_addr => flash_req3_addr,
-		flash_req3_request => flash_req3_request,
-		flash_req3_complete => flash_req3_complete,
+
+		flash_req_request(0) => CPU_FLASH_REQUEST_REG,
+		flash_req_request(7 downto 1) => (others=>'0'),
+		flash_req_complete(0) => CPU_FLASH_COMPLETE,
+		flash_req_complete(7 downto 1) => open,
 
 		flash_data_out => flash_do
 	);
+
+	-- initialize the registers from flash
+
+	-- flash memory map
+	-- 32KB
+	-- 0x0000-0x07ff - 2k configuration (regs, psg vol curve, pokey mixing curve, sid filter piecewise linear?)
+	-- 0x0800-0x3fff - 14k sid tables
+	-- 0x4000-0x7fff - 16k fixed samples
 end generate;
 
 	EXT_INT(0) <= '0';  --force to 0
