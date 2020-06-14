@@ -331,7 +331,8 @@ module altera_onchip_flash_avmm_data_controller (
     generate // generate combi based on read burst mode
         if (WRAPPING_BURST_MODE == 0) begin
             // incrementing read
-            assign flash_read_addr = (is_read_busy) ? flash_seq_read_ardin : avmm_addr;
+            //assign flash_read_addr = (is_read_busy) ? flash_seq_read_ardin : avmm_addr;
+            assign flash_read_addr = avmm_addr; // intel ufm read bug fix 'Is there a known issue with the MAX 10 On Chip Flash IP, for UFM read operations?'
             assign cur_e_addr = csr_sector_erase_addr;
             assign cur_a_addr = (valid_csr_erase) ? csr_page_erase_addr : flash_read_addr;
             assign flash_arclk_arshft_en_w = (~is_erase_busy && ~is_write_busy && ~is_read_busy && valid_command) || (is_read_busy && (read_state == READ_STATE_FINAL || read_state == READ_STATE_ADDR));
