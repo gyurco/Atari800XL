@@ -9,6 +9,7 @@ set_clock_groups -asynchronous \
   -group { CLK_SLOW } \
   -group { \
     pll_inst|altpll_component|auto_generated|pll1|clk[0] \
+    pll_inst|altpll_component|auto_generated|pll1|clk[1] \
   }
 
 #		IOX_RST : OUT STD_LOGIC;

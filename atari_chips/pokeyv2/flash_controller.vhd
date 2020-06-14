@@ -91,6 +91,7 @@ ARCHITECTURE vhdl OF flash_controller IS
 	constant state_read : std_logic_vector(2 downto 0) := "001";
 	constant state_write : std_logic_vector(2 downto 0) := "010";
 	constant state_read_wait : std_logic_vector(2 downto 0) := "011";
+	constant state_delay : std_logic_vector(2 downto 0) := "100";
 
 	signal request_addr_reg : std_logic_vector(12 downto 0);
 	signal request_addr_next : std_logic_vector(12 downto 0);
@@ -110,6 +111,11 @@ ARCHITECTURE vhdl OF flash_controller IS
 	signal flash_write : std_logic;
 	signal flash_waitrequest : std_logic;
 	signal flash_do : std_logic_vector(31 downto 0);
+	
+	signal flash_do_next : std_logic_vector(31 downto 0);
+	signal flash_do_reg : std_logic_vector(31 downto 0);
+	signal flash_complete_next : std_logic_vector(7 downto 0);
+	signal flash_complete_reg : std_logic_vector(7 downto 0);	
 
 BEGIN
 
@@ -149,6 +155,8 @@ BEGIN
 			device_reg <= '0';
 			output_reg <= (others=>'0');
 			robin_reg <= "10000000";
+			flash_do_reg <= (others=>'0');
+			flash_complete_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then
 			state_reg <= state_next;
 			request_addr_reg <= request_addr_next;
@@ -156,6 +164,8 @@ BEGIN
 			device_reg <= device_next;
 			output_reg <= output_next;
 			robin_reg <= robin_next;
+			flash_do_reg <= flash_do_next;
+			flash_complete_reg <= flash_complete_next;
 		end if;
 	end process;
 
@@ -231,14 +241,16 @@ BEGIN
 		when state_read_wait =>
 			complete <= flash_readvalid;
 			if (flash_readvalid = '1') then
-				state_next <= state_idle;
+				state_next <= state_delay;
 			end if;
 		when state_write=>
 			flash_write <= '1';
 			complete <= not(flash_waitrequest);
 			if (flash_waitrequest='0') then
-				state_next <= state_idle;
+				state_next <= state_delay;
 			end if;
+		when state_delay=>
+			state_next <= state_idle; -- client sees complete here, allow client to drop request line before we take next
 		when others=>
 			state_next <= state_idle;
 		end case;
@@ -272,10 +284,14 @@ BEGIN
 		end if;
 	end process;
 
+	-- register complete
+	flash_complete_next <= output_reg and (complete&complete&complete&complete&complete&complete&complete&complete);
+	flash_do_next <= flash_do;
+
 	-- mux on who requested
-	flash_req_complete <= output_reg and (complete&complete&complete&complete&complete&complete&complete&complete);
+	flash_req_complete <= flash_complete_reg;
 
 	-- outputs
-	flash_data_out <= flash_do;
+	flash_data_out <= flash_do_reg;
 
 end vhdl;	
