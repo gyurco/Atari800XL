@@ -30,7 +30,7 @@ ENTITY flash_controller IS
 		flash_req_request : IN STD_LOGIC_VECTOR(7 downto 0);
 		flash_req_complete : OUT STD_LOGIC_VECTOR(7 downto 0);
 
-		flash_req1_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
+		flash_req1_addr : IN STD_LOGIC_VECTOR(15 downto 0) := (others=>'0');
 		flash_req2_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
 		flash_req3_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
 		flash_req4_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
@@ -53,7 +53,7 @@ ARCHITECTURE vhdl OF flash_controller IS
 		avmm_csr_writedata      : in  std_logic_vector(31 downto 0) := (others => '0'); --       .writedata
 		avmm_csr_write          : in  std_logic                     := '0';             --       .write
 		avmm_csr_readdata       : out std_logic_vector(31 downto 0);                    --       .readdata
-		avmm_data_addr          : in  std_logic_vector(12 downto 0) := (others => '0'); --   data.address
+		avmm_data_addr          : in  std_logic_vector(15 downto 0) := (others => '0'); --   data.address
 		avmm_data_read          : in  std_logic                     := '0';             --       .read
 		avmm_data_writedata     : in  std_logic_vector(31 downto 0) := (others => '0'); --       .writedata
 		avmm_data_write         : in  std_logic                     := '0';             --       .write
@@ -72,7 +72,7 @@ ARCHITECTURE vhdl OF flash_controller IS
 	signal flash_config_write : std_logic;
 	signal flash_config_do : std_logic_vector(31 downto 0);
 
-	signal flash_data_addr : std_logic_vector(12 downto 0);
+	signal flash_data_addr : std_logic_vector(15 downto 0);
 	signal flash_data_read : std_logic;
 	signal flash_data_di : std_logic_vector(31 downto 0);
 
@@ -93,8 +93,8 @@ ARCHITECTURE vhdl OF flash_controller IS
 	constant state_read_wait : std_logic_vector(2 downto 0) := "011";
 	constant state_delay : std_logic_vector(2 downto 0) := "100";
 
-	signal request_addr_reg : std_logic_vector(12 downto 0);
-	signal request_addr_next : std_logic_vector(12 downto 0);
+	signal request_addr_reg : std_logic_vector(15 downto 0);
+	signal request_addr_next : std_logic_vector(15 downto 0);
 	signal request_di_reg : std_logic_vector(31 downto 0);
 	signal request_di_next : std_logic_vector(31 downto 0);
 	signal device_reg : std_logic;
@@ -182,7 +182,7 @@ BEGIN
 
 		flash_readvalid, flash_waitrequest
 		)
-		variable addr : std_logic_vector(12 downto 0);
+		variable addr : std_logic_vector(15 downto 0);
 		variable device : std_logic;
 		variable request: std_logic;
 	begin
@@ -204,19 +204,19 @@ BEGIN
 			addr := flash_req1_addr;
 			device := flash_req1_addr_config;
 		when x"02" =>
-			addr := flash_req2_addr;
+			addr(12 downto 0) := flash_req2_addr;
 		when x"04" =>
-			addr := flash_req3_addr;
+			addr(12 downto 0) := flash_req3_addr;
 		when x"08" =>
-			addr := flash_req4_addr;
+			addr(12 downto 0) := flash_req4_addr;
 		when x"10" =>
-			addr := flash_req5_addr;
+			addr(12 downto 0) := flash_req5_addr;
 		when x"20" =>
-			addr := flash_req6_addr;
+			addr(12 downto 0) := flash_req6_addr;
 		when x"40" =>
-			addr := flash_req7_addr;
+			addr(12 downto 0) := flash_req7_addr;
 		when others =>
-			addr := flash_req8_addr;
+			addr(12 downto 0) := flash_req8_addr;
 		end case;
 
 		case state_reg is

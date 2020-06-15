@@ -22,7 +22,7 @@ module flash (
 	input	[31:0]	avmm_csr_writedata;
 	input		avmm_csr_write;
 	output	[31:0]	avmm_csr_readdata;
-	input	[12:0]	avmm_data_addr;
+	input	[15:0]	avmm_data_addr;
 	input		avmm_data_read;
 	input	[31:0]	avmm_data_writedata;
 	input		avmm_data_write;

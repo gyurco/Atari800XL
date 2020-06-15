@@ -14,14 +14,14 @@ entity flash is
 		avmm_csr_writedata      : in  std_logic_vector(31 downto 0) := (others => '0'); --       .writedata
 		avmm_csr_write          : in  std_logic                     := '0';             --       .write
 		avmm_csr_readdata       : out std_logic_vector(31 downto 0);                    --       .readdata
-		avmm_data_addr          : in  std_logic_vector(12 downto 0) := (others => '0'); --   data.address
+		avmm_data_addr          : in  std_logic_vector(15 downto 0) := (others => '0'); --   data.address
 		avmm_data_read          : in  std_logic                     := '0';             --       .read
 		avmm_data_writedata     : in  std_logic_vector(31 downto 0) := (others => '0'); --       .writedata
 		avmm_data_write         : in  std_logic                     := '0';             --       .write
 		avmm_data_readdata      : out std_logic_vector(31 downto 0);                    --       .readdata
 		avmm_data_waitrequest   : out std_logic;                                        --       .waitrequest
 		avmm_data_readdatavalid : out std_logic;                                        --       .readdatavalid
-		avmm_data_burstcount    : in  std_logic_vector(7 downto 0)  := (others => '0'); --       .burstcount
+		avmm_data_burstcount    : in  std_logic_vector(1 downto 0)  := (others => '0'); --       .burstcount
 		reset_n                 : in  std_logic                     := '0'              -- nreset.reset_n
 	);
 end entity flash;
@@ -79,14 +79,14 @@ architecture rtl of flash is
 		port (
 			clock                   : in  std_logic                     := 'X';             -- clk
 			reset_n                 : in  std_logic                     := 'X';             -- reset_n
-			avmm_data_addr          : in  std_logic_vector(12 downto 0) := (others => 'X'); -- address
+			avmm_data_addr          : in  std_logic_vector(15 downto 0) := (others => 'X'); -- address
 			avmm_data_read          : in  std_logic                     := 'X';             -- read
 			avmm_data_writedata     : in  std_logic_vector(31 downto 0) := (others => 'X'); -- writedata
 			avmm_data_write         : in  std_logic                     := 'X';             -- write
 			avmm_data_readdata      : out std_logic_vector(31 downto 0);                    -- readdata
 			avmm_data_waitrequest   : out std_logic;                                        -- waitrequest
 			avmm_data_readdatavalid : out std_logic;                                        -- readdatavalid
-			avmm_data_burstcount    : in  std_logic_vector(7 downto 0)  := (others => 'X'); -- burstcount
+			avmm_data_burstcount    : in  std_logic_vector(1 downto 0)  := (others => 'X'); -- burstcount
 			avmm_csr_addr           : in  std_logic                     := 'X';             -- address
 			avmm_csr_read           : in  std_logic                     := 'X';             -- read
 			avmm_csr_writedata      : in  std_logic_vector(31 downto 0) := (others => 'X'); -- writedata
@@ -108,30 +108,30 @@ begin
 			SECTOR1_END_ADDR                    => 4095,
 			SECTOR2_START_ADDR                  => 4096,
 			SECTOR2_END_ADDR                    => 8191,
-			SECTOR3_START_ADDR                  => 0,
-			SECTOR3_END_ADDR                    => 0,
-			SECTOR4_START_ADDR                  => 0,
-			SECTOR4_END_ADDR                    => 0,
+			SECTOR3_START_ADDR                  => 8192,
+			SECTOR3_END_ADDR                    => 23039,
+			SECTOR4_START_ADDR                  => 23040,
+			SECTOR4_END_ADDR                    => 58879,
 			SECTOR5_START_ADDR                  => 0,
 			SECTOR5_END_ADDR                    => 0,
 			MIN_VALID_ADDR                      => 0,
-			MAX_VALID_ADDR                      => 8191,
+			MAX_VALID_ADDR                      => 58879,
 			MIN_UFM_VALID_ADDR                  => 0,
 			MAX_UFM_VALID_ADDR                  => 8191,
 			SECTOR1_MAP                         => 1,
 			SECTOR2_MAP                         => 2,
-			SECTOR3_MAP                         => 0,
-			SECTOR4_MAP                         => 0,
+			SECTOR3_MAP                         => 4,
+			SECTOR4_MAP                         => 5,
 			SECTOR5_MAP                         => 0,
 			ADDR_RANGE1_END_ADDR                => 8191,
-			ADDR_RANGE2_END_ADDR                => 8191,
+			ADDR_RANGE2_END_ADDR                => 58879,
 			ADDR_RANGE1_OFFSET                  => 512,
-			ADDR_RANGE2_OFFSET                  => 0,
+			ADDR_RANGE2_OFFSET                  => 21504,
 			ADDR_RANGE3_OFFSET                  => 0,
-			AVMM_DATA_ADDR_WIDTH                => 13,
+			AVMM_DATA_ADDR_WIDTH                => 16,
 			AVMM_DATA_DATA_WIDTH                => 32,
-			AVMM_DATA_BURSTCOUNT_WIDTH          => 8,
-			SECTOR_READ_PROTECTION_MODE         => 28,
+			AVMM_DATA_BURSTCOUNT_WIDTH          => 2,
+			SECTOR_READ_PROTECTION_MODE         => 16,
 			FLASH_SEQ_READ_DATA_COUNT           => 2,
 			FLASH_ADDR_ALIGNMENT_BITS           => 1,
 			FLASH_READ_CYCLE_MAX_INDEX          => 4,

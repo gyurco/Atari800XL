@@ -277,8 +277,10 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal CPU_FLASH_REQUEST_REG : std_logic;
 	signal CPU_FLASH_WRITE_N_NEXT : std_logic;
 	signal CPU_FLASH_WRITE_N_REG : std_logic;
-	signal CPU_FLASH_ADDR_NEXT : std_logic_vector(15 downto 0);
-	signal CPU_FLASH_ADDR_REG : std_logic_vector(15 downto 0);
+	signal CPU_FLASH_CFG_NEXT : std_logic;
+	signal CPU_FLASH_CFG_REG : std_logic;
+	signal CPU_FLASH_ADDR_NEXT : std_logic_vector(17 downto 0);
+	signal CPU_FLASH_ADDR_REG : std_logic_vector(17 downto 0);
 	signal CPU_FLASH_DATA_NEXT : std_logic_vector(31 downto 0);
 	signal CPU_FLASH_DATA_REG : std_logic_vector(31 downto 0);
 	signal CPU_FLASH_COMPLETE : std_logic;
@@ -325,12 +327,14 @@ flash_on : if enable_flash=1 generate
 		if (RESET_N='0') then
 			CPU_FLASH_REQUEST_REG <= '0';
 			CPU_FLASH_WRITE_N_REG <= '1';
+			CPU_FLASH_CFG_REG <= '0';
 			CPU_FLASH_ADDR_REG <= (others=>'0');
 			CPU_FLASH_DATA_REG <= (others=>'0');
 			CONFIG_FLASH_STATE_REG <= CONFIG_FLASH_STATE_ADDR1;
 		elsif (CLK116'event and CLK116='1') then
 			CPU_FLASH_REQUEST_REG <= CPU_FLASH_REQUEST_NEXT;
 			CPU_FLASH_WRITE_N_REG <= CPU_FLASH_WRITE_N_NEXT;
+			CPU_FLASH_CFG_REG <= CPU_FLASH_CFG_NEXT;
 			CPU_FLASH_ADDR_REG <= CPU_FLASH_ADDR_NEXT;
 			CPU_FLASH_DATA_REG <= CPU_FLASH_DATA_NEXT;
 			CONFIG_FLASH_STATE_REG <= CONFIG_FLASH_STATE_NEXT;
@@ -347,8 +351,8 @@ flash_on : if enable_flash=1 generate
 		RESET_N => RESET_N,
 
 		-- Request from device 1 (cpu)
-		flash_req1_addr_config => CPU_FLASH_ADDR_REG(15),
-		flash_req1_addr => CPU_FLASH_ADDR_REG(14 downto 2),
+		flash_req1_addr_config => CPU_FLASH_CFG_REG,
+		flash_req1_addr => CPU_FLASH_ADDR_REG(17 downto 2),
 		flash_req1_data_in => CPU_FLASH_DATA_REG,
 		flash_req1_write_n => CPU_FLASH_WRITE_N_REG,
 
@@ -1019,7 +1023,7 @@ process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
 	PSG_FREQ_REG,
 	PSG_STEREOMODE_REG,
 	PSG_ENVELOPE16_REG,
-	CPU_FLASH_REQUEST_REG,CPU_FLASH_WRITE_N_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
+	CPU_FLASH_REQUEST_REG,CPU_FLASH_WRITE_N_REG,CPU_FLASH_CFG_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
 	CPU_FLASH_COMPLETE,CONFIG_FLASH_COMPLETE,CONFIG_FLASH_ADDR,flash_do
 )
 begin
@@ -1042,6 +1046,7 @@ begin
 
 	CPU_FLASH_REQUEST_NEXT <= CPU_FLASH_REQUEST_REG;
 	CPU_FLASH_WRITE_N_NEXT <= CPU_FLASH_WRITE_N_REG;
+	CPU_FLASH_CFG_NEXT <= CPU_FLASH_CFG_REG;
 	CPU_FLASH_ADDR_NEXT <= CPU_FLASH_ADDR_REG;
 	CPU_FLASH_DATA_NEXT <= CPU_FLASH_DATA_REG;
 
@@ -1106,7 +1111,10 @@ begin
 
 		if enable_flash=1 then 
 			if (addr_decoded4(11)='1') then
-				CPU_FLASH_REQUEST_NEXT <= '1';
+				CPU_FLASH_ADDR_NEXT(17 downto 16) <= WRITE_DATA(4 downto 3);
+
+				CPU_FLASH_CFG_NEXT <= WRITE_DATA(2);
+				CPU_FLASH_REQUEST_NEXT <= WRITE_DATA(1);
 				CPU_FLASH_WRITE_N_NEXT <= WRITE_DATA(0);
 			end if;
 
@@ -1138,7 +1146,7 @@ process(addr_decoded4,VERSION_LOC_REG,
 SATURATE_REG,CHANNEL_MODE_REG,IRQ_EN_REG,DETECT_RIGHT_REG,
 POST_DIVIDE_REG, GTIA_ENABLE_REG,
 PSG_FREQ_REG, PSG_STEREOMODE_REG, PSG_ENVELOPE16_REG,
-CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
+CPU_FLASH_CFG_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
 CPU_FLASH_REQUEST_REG, CPU_FLASH_WRITE_N_REG
 )
 begin
@@ -1180,6 +1188,11 @@ begin
 			CONFIG_DO(5) <= '1';
 		else
 			CONFIG_DO(5) <= '0';
+		end if;					
+		if (enable_flash=1) then
+			CONFIG_DO(6) <= '1';
+		else
+			CONFIG_DO(6) <= '0';
 		end if;					
 	end if;
 	
@@ -1228,6 +1241,8 @@ begin
 
 	if enable_flash=1 then 
 		if (addr_decoded4(11)='1') then
+			CONFIG_DO(4 downto 3) <= CPU_FLASH_ADDR_REG(17 downto 16);
+			CONFIG_DO(2) <= CPU_FLASH_CFG_REG;
 			CONFIG_DO(1) <= CPU_FLASH_REQUEST_REG;
 			CONFIG_DO(0) <= CPU_FLASH_WRITE_N_REG;
 		end if;
