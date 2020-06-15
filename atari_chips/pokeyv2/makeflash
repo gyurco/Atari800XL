@@ -1,0 +1,4 @@
+./swapbits build_10M08_quad_sid/output_files/pokeymax.pof pokeymax.pofswap
+dd if=pokeymax.pofswap bs=1 skip=2216 count=32768 of=init2.bin
+dd if=pokeymax.pofswap bs=1 skip=118952 count=202752 of=core2.bin
+cat init2.bin core2.bin > flash2.bin
