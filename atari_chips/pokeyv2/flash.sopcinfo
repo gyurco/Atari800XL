@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EnsembleReport name="flash" kind="flash" version="1.0" fabric="QSYS">
  <!-- Format version 19.1 670 (Future versions may contain additional information.) -->
- <!-- 2020.06.13.17:57:37 -->
+ <!-- 2020.06.15.08:46:53 -->
  <!-- A collection of modules and connections -->
  <parameter name="AUTO_GENERATION_ID">
   <type>java.lang.Integer</type>
-  <value>1592063857</value>
+  <value>1592203613</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>false</visible>
@@ -136,27 +136,27 @@ the requested settings for a module instance. -->
   </assignment>
   <assignment>
    <name>embeddedsw.CMacro.SECTOR3_ENABLED</name>
-   <value>0</value>
+   <value>1</value>
   </assignment>
   <assignment>
    <name>embeddedsw.CMacro.SECTOR3_END_ADDR</name>
-   <value>-1</value>
+   <value>92159</value>
   </assignment>
   <assignment>
    <name>embeddedsw.CMacro.SECTOR3_START_ADDR</name>
-   <value>-1</value>
+   <value>32768</value>
   </assignment>
   <assignment>
    <name>embeddedsw.CMacro.SECTOR4_ENABLED</name>
-   <value>0</value>
+   <value>1</value>
   </assignment>
   <assignment>
    <name>embeddedsw.CMacro.SECTOR4_END_ADDR</name>
-   <value>-1</value>
+   <value>235519</value>
   </assignment>
   <assignment>
    <name>embeddedsw.CMacro.SECTOR4_START_ADDR</name>
-   <value>-1</value>
+   <value>92160</value>
   </assignment>
   <assignment>
    <name>embeddedsw.CMacro.SECTOR5_ENABLED</name>
@@ -268,7 +268,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="SECTOR_ID">
    <type>[Ljava.lang.String;</type>
-   <value>1,2,NA,NA,NA</value>
+   <value>1,2,NA,3,4</value>
    <derived>true</derived>
    <enabled>false</enabled>
    <visible>true</visible>
@@ -276,7 +276,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="SECTOR_ACCESS_MODE">
    <type>[Ljava.lang.String;</type>
-   <value>Read and write,Read and write,Read only,Hidden,Hidden</value>
+   <value>Read and write,Read and write,Read only,Read and write,Read and write</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>true</visible>
@@ -284,7 +284,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="SECTOR_ADDRESS_MAPPING">
    <type>[Ljava.lang.String;</type>
-   <value>0x00000 - 0x03fff,0x04000 - 0x07fff,NA,NA,NA</value>
+   <value>0x00000 - 0x03fff,0x04000 - 0x07fff,NA,0x08000 - 0x167ff,0x16800 - 0x397ff</value>
    <derived>true</derived>
    <enabled>false</enabled>
    <visible>true</visible>
@@ -425,33 +425,33 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="SECTOR3_START_ADDR">
    <type>int</type>
-   <value>0</value>
+   <value>8192</value>
    <derived>true</derived>
-   <enabled>false</enabled>
+   <enabled>true</enabled>
    <visible>false</visible>
    <valid>true</valid>
   </parameter>
   <parameter name="SECTOR3_END_ADDR">
    <type>int</type>
-   <value>0</value>
+   <value>23039</value>
    <derived>true</derived>
-   <enabled>false</enabled>
+   <enabled>true</enabled>
    <visible>false</visible>
    <valid>true</valid>
   </parameter>
   <parameter name="SECTOR4_START_ADDR">
    <type>int</type>
-   <value>0</value>
+   <value>23040</value>
    <derived>true</derived>
-   <enabled>false</enabled>
+   <enabled>true</enabled>
    <visible>false</visible>
    <valid>true</valid>
   </parameter>
   <parameter name="SECTOR4_END_ADDR">
    <type>int</type>
-   <value>0</value>
+   <value>58879</value>
    <derived>true</derived>
-   <enabled>false</enabled>
+   <enabled>true</enabled>
    <visible>false</visible>
    <valid>true</valid>
   </parameter>
@@ -481,7 +481,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="MAX_VALID_ADDR">
    <type>int</type>
-   <value>8191</value>
+   <value>58879</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -521,7 +521,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="SECTOR3_MAP">
    <type>int</type>
-   <value>0</value>
+   <value>4</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -529,7 +529,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="SECTOR4_MAP">
    <type>int</type>
-   <value>0</value>
+   <value>5</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -553,7 +553,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="ADDR_RANGE2_END_ADDR">
    <type>int</type>
-   <value>8191</value>
+   <value>58879</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -569,7 +569,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="ADDR_RANGE2_OFFSET">
    <type>int</type>
-   <value>0</value>
+   <value>21504</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -585,7 +585,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="AVMM_DATA_ADDR_WIDTH">
    <type>int</type>
-   <value>13</value>
+   <value>16</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -609,7 +609,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="SECTOR_READ_PROTECTION_MODE">
    <type>int</type>
-   <value>28</value>
+   <value>16</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -879,7 +879,7 @@ parameters are a RESULT of the module parameters. -->
    </parameter>
    <parameter name="addressSpan">
     <type>java.math.BigInteger</type>
-    <value>32768</value>
+    <value>235520</value>
     <derived>true</derived>
     <enabled>true</enabled>
     <visible>false</visible>
@@ -967,7 +967,7 @@ parameters are a RESULT of the module parameters. -->
    </parameter>
    <parameter name="explicitAddressSpan">
     <type>java.math.BigInteger</type>
-    <value>32768</value>
+    <value>235520</value>
     <derived>false</derived>
     <enabled>true</enabled>
     <visible>true</visible>
@@ -1178,7 +1178,7 @@ parameters are a RESULT of the module parameters. -->
    <port>
     <name>avmm_data_addr</name>
     <direction>Input</direction>
-    <width>13</width>
+    <width>16</width>
     <role>address</role>
    </port>
    <port>
