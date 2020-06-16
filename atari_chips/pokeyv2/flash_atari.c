@@ -1,9 +1,12 @@
-#include <stdio.h>
+#include <conio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
 
-extern const char text[];       /* In text.s */
+unsigned char * pokey = (unsigned char *) 0xd200;
+unsigned char * config = (unsigned char *) 0xd210;
 
-unsigned long readFlash(unsigned char * config, unsigned long addr, unsigned char cfgarea)
+unsigned long readFlash(unsigned long addr, unsigned char cfgarea)
 {
 	unsigned long res;
 	unsigned char al;
@@ -30,7 +33,7 @@ unsigned long readFlash(unsigned char * config, unsigned long addr, unsigned cha
 	return res;
 }
 
-void writeFlash(unsigned char * config, unsigned long addr, unsigned char cfgarea, unsigned long data)
+void writeFlash(unsigned long addr, unsigned char cfgarea, unsigned long data)
 {
 	unsigned char al;
 
@@ -54,34 +57,34 @@ void writeFlash(unsigned char * config, unsigned long addr, unsigned char cfgare
 	config[11] = (((addr>>16)&0x3)<<3)|cfgarea<<2|2|0;
 }
 
-void displayFlash(unsigned char * config)
-{
-	printf("%lx ",readFlash(config, 0x0, 0));
-	printf("%lx ",readFlash(config, 0x1, 0));
-	printf("%lx ",readFlash(config, 0x2, 0));
-	printf("%lx ",readFlash(config, 0x3, 0));
-	printf("\n");
-	printf("%lx ",readFlash(config, 0x2000, 0));
-	printf("%lx ",readFlash(config, 0x2001, 0));
-	printf("%lx ",readFlash(config, 0x2002, 0));
-	printf("%lx ",readFlash(config, 0x2003, 0));
-	printf("\n");
-	printf("%lx ",readFlash(config, 0x0, 1));
-	printf("%lx ",readFlash(config, 0x1, 1));
-	printf("\n");
-	printf("%lx ",readFlash(config, 0x4000, 0));
-	printf("%lx ",readFlash(config, 0x4001, 0));
-	printf("%lx ",readFlash(config, 0x4002, 0));
-	printf("%lx ",readFlash(config, 0x4003, 0));
-	printf("\n");
-	printf("%lx ",readFlash(config, 0x6000, 0));
-	printf("%lx ",readFlash(config, 0x6001, 0));
-	printf("%lx ",readFlash(config, 0x6002, 0));
-	printf("%lx ",readFlash(config, 0x6003, 0));
-	printf("\n");
-}
+//void displayFlash(
+//{
+//	cprintf("%lx ",readFlash(config, 0x0, 0));
+//	cprintf("%lx ",readFlash(config, 0x1, 0));
+//	cprintf("%lx ",eadFlash(config, 0x2, 0));
+//	cprintf("%lx ",readFlash(config, 0x3, 0));
+//	cprintf("\r\n");
+//	cprintf("%lx ",readFlash(config, 0x2000, 0));
+//	cprintf("%lx ",readFlash(config, 0x2001, 0));
+//	cprintf("%lx ",readFlash(config, 0x2002, 0));
+//	cprintf("%lx ",readFlash(config, 0x2003, 0));
+//	cprintf("\r\n");
+//	cprintf("%lx ",readFlash(config, 0x0, 1));
+//	cprintf("%lx ",readFlash(config, 0x1, 1));
+//	cprintf("\r\n");
+//	cprintf("%lx ",readFlash(config, 0x4000, 0));
+//	cprintf("%lx ",readFlash(config, 0x4001, 0));
+//	cprintf("%lx ",readFlash(config, 0x4002, 0));
+//	cprintf("%lx ",readFlash(config, 0x4003, 0));
+//	cprintf("\r\n");
+//	cprintf("%lx ",readFlash(config, 0x6000, 0));
+//	cprintf("%lx ",readFlash(config, 0x6001, 0));
+//	cprintf("%lx ",readFlash(config, 0x6002, 0));
+//	cprintf("%lx ",readFlash(config, 0x6003, 0));
+//	cprintf("\r\n");
+//}
 
-void writeFlashContentsToFile(unsigned char * config)
+void writeFlashContentsToFile()
 {
 	FILE * output;
 	unsigned int addr;
@@ -92,7 +95,7 @@ void writeFlashContentsToFile(unsigned char * config)
 	{
 		unsigned short i;
 		for (i=0;i!=256;++i)
-			buffer[i] = readFlash(config,addr+i,0);
+			buffer[i] = readFlash(addr+i,0);
 		fwrite(&buffer[0],1024,1,output);
 	}
 
@@ -101,25 +104,25 @@ void writeFlashContentsToFile(unsigned char * config)
 	free(buffer);
 }
 
-void writeProtect(unsigned char * config, unsigned char onoff)
+void writeProtect(unsigned char onoff)
 {
-	unsigned long data = readFlash(config, 1, 1);
+	unsigned long data = readFlash(1, 1);
 	unsigned long mask = 0x1f;
 	mask = mask << 23;
 	if (onoff)
 		data = data|mask;
 	else
 		data = data&~mask;
-	writeFlash(config,1,1,data);
+	writeFlash(1,1,data);
 }
 
-void flashContentsFromFile(unsigned char * config)
+void flashContentsFromFile()
 {
 	FILE * input;
 	unsigned int addr;
 	unsigned long * buffer = (unsigned long *)malloc(1024);
 
-	writeProtect(config,0);
+	writeProtect(0);
 
 	input = fopen("d3:flash.bin","r");
 	for (addr=0;addr!=0xe600;addr+=256)
@@ -127,162 +130,459 @@ void flashContentsFromFile(unsigned char * config)
 		unsigned short i;
 		fread(&buffer[0],1024,1,input);
 		for (i=0;i!=256;++i)
-			writeFlash(config,addr+i,0,buffer[i]);
+			writeFlash(addr+i,0,buffer[i]);
 	}
 
 	fclose(input);
 
-	writeProtect(config,1);
+	writeProtect(1);
 
 	free(buffer);
 }
 
-void erasePageContainingAddress(unsigned char * config, unsigned long addr)
+void erasePageContainingAddress(unsigned long addr)
 {
 	unsigned long data;
 	unsigned long sectormask = 0x7;
 	unsigned long pagemask = 0xfffff;
 	sectormask = sectormask << 20;
 
-	writeProtect(config,0);
+	writeProtect(0);
 	
-	data = readFlash(config,1,1);
+	data = readFlash(1,1);
 	data = data | sectormask;
 	data = data&~pagemask;
 	data = data|(addr>>11); //2k pages
-	writeFlash(config,1,1,data);
+	writeFlash(1,1,data);
 
-	writeProtect(config,1);
+	writeProtect(1);
 }
 
-void eraseSector(unsigned char * config, unsigned char sector)
+void eraseSector(unsigned char sector)
 {
 	unsigned long data;
 	unsigned long sectormask = 0x7;
 	unsigned long pagemask = 0xfffff;
 	sectormask = sectormask << 20;
 
-	writeProtect(config,0);
+	writeProtect(0);
 	
-	data = readFlash(config,1,1);
+	data = readFlash(1,1);
 	data = data | pagemask;
 	data = data&~sectormask;
 	data = data|(((unsigned long)sector)<<20);
-	writeFlash(config,1,1,data);
+	writeFlash(1,1,data);
 
-	writeProtect(config,1);
+	writeProtect(1);
+}
+
+void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, unsigned char col)
+{
+    unsigned char pokeys;
+    unsigned char val;
+    unsigned char i;
+    clrscr();
+    bgcolor(0);
+    bordercolor(0);
+    //textcolor(0xa);
+    chline(40);
+
+    cprintf("Pokeymax config v0.1 ");
+
+    cprintf(" Core:");
+    for (i=0;i!=8;++i)
+    {
+	    config[4] = i;
+	    cprintf("%c",config[4]);
+    }
+    cprintf("\r\n");
+    val = config[1];
+    pokeys = val&0x3;
+    switch (pokeys)
+    {
+	    case 0:
+		    pokeys = 1;
+		    break;
+	    case 1:
+		    pokeys = 2;
+		    break;
+	    case 2:
+		    pokeys = 4;
+		    break;
+    }
+    cprintf("Pokey:%d sid:%d psg:%d covox:%d sample:%d\r\n",pokeys,(val&4)==4 ? 2 : 0,(val&8)==8 ? 2 : 0,(val&16)==16 ? 4 : 0,(val&32)==32 ? 1 : 0);
+    chline(40);
+
+    val = (*flash1)&0xff;
+    revers(line==1);
+    cprintf("Mixing        : %s\r\n",((val&1)==1) ? "Non-linear" : "Linear");
+    revers(line==2);
+    cprintf("Channel mode  : %s\r\n",((val&4)==4) ? "On" : "Off");
+    revers(line==3);
+    cprintf("IRQ           : %s\r\n",((val&8)==8) ? "All pokey chips" : "Pokey 1");
+    revers(line==4);
+    cprintf("Mono support  : %s\r\n",((val&16)==16) ? "Play on both channels" : "Left only");
+    revers(line==5);
+    cprintf("Post divide   : ");
+    val = ((*flash1)>>8)&0xff;
+    for (i=0;i!=4;++i)
+    {
+	    unsigned char pd = (val&0x3);
+    		switch (pd)
+    		{
+    		        case 0:
+    		    	    pd = 1;
+    		    	    break;
+    		        case 1:
+    		    	    pd = 2;
+    		    	    break;
+    		        case 2:
+    		    	    pd = 4;
+    		    	    break;
+    		        case 3:
+    		    	    pd = 8;
+    		    	    break;
+    		}
+	    revers(line==5 && col==i);
+	    cprintf("%d=%d ",i+1,pd);
+	    val = val>>2;
+    }
+    cprintf("\r\n");
+
+    revers(line==6);
+    cprintf("GTIA mixing   : ");
+    val = ((*flash1)>>16)&0xff;
+    for (i=0;i!=4;++i)
+    {
+	    unsigned char pd = (val&0x1);
+	    revers(line==6 && col==i);
+	    cprintf("%d=%d ",i+1,pd);
+	    val = val>>1;
+    }
+    cprintf("\r\n");
+    val = ((*flash1)>>24)&0xff;
+    revers(line==7);
+    cprintf("PSG frequency : ");
+    switch (val&3)
+    {
+	case 0:
+		cprintf("2MHz");
+	    break;
+	case 1:
+		cprintf("1MHz");
+	    break;
+	case 2:
+		cprintf("PHI2");
+	    break;
+   }
+    cprintf("\r\n");
+    revers(line==8);
+    cprintf("PSG stereo    : ");
+    switch ((val&12)>>2)
+    {
+    case 0:
+	    cprintf("mono   (L:ABC R:ABC)");
+	    break;
+    case 1:
+	    cprintf("polish (L:AB  R:BC )");
+	    break;
+    case 2:
+	    cprintf("czech  (L:AC  R:BC )");
+	    break;
+    case 3:
+	    cprintf("l/r    (L:111 R:222)");
+	    break;
+    }
+    cprintf("\r\n");
+    revers(line==9);
+    cprintf("PSG envelope  : ");
+    if ((val&16)==16)
+	    cprintf("16 steps\r\n");
+    else
+	    cprintf("32 steps\r\n");
+
+    revers(0);
+    chline(40);
+
+    cprintf("Options:\r\n");
+    cprintf("  (S)tore config\r\n");
+    cprintf("  (U)pdate core\r\n");
+    cprintf("  (Q)uit\r\n");
+    cprintf("Use arrows and enter to change config");
+
+    *flash2; // silence warning
+}
+
+void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char line, unsigned char col)
+{
+    unsigned char shift;
+    unsigned char mask=1;
+    unsigned char max=1;
+
+    unsigned char val;
+    unsigned long tmp;
+
+    *flash2; // silence warning
+
+//	                                   SATURATE_NEXT <= flash_do(0);
+//                                        -- 1 reserved...
+//                                CHANNEL_MODE_NEXT <= flash_do(2);
+//                                IRQ_EN_NEXT <= flash_do(3);
+//                                DETECT_RIGHT_NEXT <= flash_do(4);
+//                                        -- 5-7 reserved
+//                                POST_DIVIDE_NEXT <= flash_do(15 downto 8);
+//                                GTIA_ENABLE_NEXT <= flash_do(19 downto 16);
+//                                        -- 23 downto 20 reserved
+//                                PSG_FREQ_NEXT <= flash_do(25 downto 24);
+//                                PSG_STEREOMODE_NEXT <= flash_do(27 downto 26);
+//                                PSG_ENVELOPE16_NEXT <= flash_do(28);
+//                                        -- 31 downto 29 reserved
+
+    switch(line)
+    {
+    case 1:
+	    shift = 0;
+	    break;
+    case 2:
+	    shift = 2;
+	    break;
+    case 3:
+	    shift = 3;
+	    break;
+    case 4:
+	    shift = 4;
+	    break;
+    case 5:
+	    shift = 8 + (col<<1);
+	    mask = 3;
+	    max = 3;
+	    break;
+    case 6:
+	    shift = 16 + col;
+	    break;
+    case 7:
+	    mask = 3;
+            shift = 24;
+	    max = 2;
+	    break;
+    case 8:
+	    mask = 3;
+            shift = 26;
+	    max = 3;
+	    break;
+    case 9:
+            shift = 28;
+	    break;
+    }
+
+    tmp = mask;
+    tmp = tmp<<shift;
+    val = ((*flash1)&tmp)>>shift;
+    *flash1 = (*flash1)&~tmp;
+    val = val+1;
+    if (val>max) val=0;
+    tmp = val;
+    tmp = tmp<<shift;
+    *flash1 |= tmp;
+}
+
+void saveConfig(unsigned long flash1, unsigned long flash2)
+{
+    clrscr();
+    bgcolor(0x46);
+    //textcolor(0xa);
+    chline(40);
+    cprintf("Saving config\r\n");
+    chline(40);
+
+    cprintf("Press Y to confirm\r\n");
+    while(!kbhit());
+    if (cgetc()=='y') 
+    {
+        unsigned long * buffer = (unsigned long *)malloc(2048);
+	unsigned short i = 0;
+
+	cprintf("Backing up page\r\n");
+	for (i=2;i!=512;++i)
+	{
+		buffer[i] = readFlash(i,0);
+	}
+	cprintf("Erasing page\r\n");
+	erasePageContainingAddress(0);
+	cprintf("Writing new page\r\n");
+	buffer[0] = flash1;
+	buffer[1] = flash2;
+	for (i=0;i!=512;++i)
+	{
+		writeFlash(i,0,buffer[i]);
+	}
+
+        free(buffer);
+    }
+
+    bgcolor(0x00);
+}
+
+void updateCore()
+{
+    unsigned long flash1 = readFlash(0,0);
+    unsigned long flash2 = readFlash(1,0); //unused for now
+
+    clrscr();
+    bgcolor(0x36);
+    //textcolor(0xa);
+    chline(40);
+    cprintf("Updating core\r\n");
+    chline(40);
+
+    cprintf("Press Y to confirm core update.\r\nPut core.bin in D4\r\n!");
+    while(!kbhit());
+    if (cgetc()=='y') 
+    {
+    	FILE * input = fopen("d4:core.bin","r");
+    	if (!input)
+    	{
+    		cprintf("Failed to open file\r\n!");
+    		sleep(5);
+    	}
+    	else
+    	{
+	    unsigned char version[8];
+	    unsigned char valid;
+	    unsigned char i;
+
+	    cprintf("File opened\r\n");
+	    fread(&version[0],8,1,input);
+	    // Veriy validity!
+	    valid = 0;
+  	    for (i=0;i!=8;++i)
+  	    {
+  	            config[4] = i;
+                    if (config[4]!=version[i])
+	            {
+	          	  cprintf("Invalid core");
+	          	  break;
+	            }
+		    valid = 1;
+  	    }
+	    if (valid)
+	    {
+	    	fseek(input,0,SEEK_SET);
+
+	    	cprintf("Erasing");
+	    	eraseSector(1);
+	    	cputc('.');
+	    	eraseSector(2);
+	    	cputc('.');
+	    	eraseSector(3);
+	    	cputc('.');
+	    	eraseSector(4);
+	    	cprintf(" Done\r\n");
+
+	    	{
+	    	    unsigned int addr;
+	    	    unsigned long * buffer = (unsigned long *)malloc(1024);
+		    unsigned char t=0;
+
+	    	    writeProtect(0);
+
+	    	    for (addr=0;addr!=0xe600;addr+=256)
+	    	    {
+	    	    	unsigned short i = 0; 
+			gotoxy(0,20);
+			cprintf("%c  %d/230      ",5 ? '/' : '\\',1+(addr>>8));
+			t = !t;
+
+	    	    	fread(&buffer[0],1024,1,input);
+	    	    	if (addr==0)
+	    	    	{
+				// keep our config...
+	    	    		buffer[0] = flash1;
+	    	    		buffer[1] = flash2;
+	    	    	}
+	    	    	for (;i!=256;++i)
+			{
+				bgcolor(i);
+	    	    		writeFlash(addr+i,0,buffer[i]);
+			}
+	    	    }
+
+	    	    writeProtect(1);
+
+	    	    free(buffer);
+	    	}
+	    }
+    	}
+    	fclose(input);
+    }
+    bgcolor(0x00);
 }
 
 int main (void)
 {
-    unsigned char * pokey = (unsigned char *) 0xd200;
-
-    printf("Pokeymax ");
-    if (pokey[12] == 1)
+    unsigned char line,col,quit;
+    unsigned long flash1;
+    unsigned long flash2;
+    if (pokey[12] != 1)
     {
-	    unsigned char * config = pokey+16;
-	    unsigned char val;
-	    unsigned char pokeys;
-	    unsigned char i;
+	    cprintf("Pokeymax not found!");
+	    sleep(5);
+	    return -1;
+    }
 
-	    printf("detected!");
+    pokey[12] = 0x3f; // select config area
 
-	    pokey[12] = 0x3f; // select config area
+    // We have just 8 bytes of data for config
+    flash1 = readFlash(0,0);
+    flash2 = readFlash(1,0); //unused for now
 
-	    printf("version:");
-	    for (i=0;i!=8;++i)
-	    {
-		    config[4] = i;
-		    printf("%c",config[4]);
-	    }
-	    printf("\n");
+    line = 1;
+    col = 0;
+    quit = 0;
 
-	    val = config[1];
-	    pokeys = val&0x3;
-	    switch (pokeys)
-            {
-		    case 0:
-			    pokeys = 1;
-			    break;
-		    case 1:
-			    pokeys = 2;
-			    break;
-		    case 2:
-			    pokeys = 4;
-			    break;
-	    }
-	    printf("Pokey:%d sid:%d psg:%d covox:%d sample:%d\n",pokeys,(val&4)==4 ? 2 : 0,(val&8)==8 ? 2 : 0,(val&16)==16 ? 4 : 0,(val&32)==32 ? 1 : 0);
-	    val = config[0];
-	    printf("%s\n",((val&0)==0) ? "Non-linear" : "Linear");
-	    printf("%s\n",((val&4)==4) ? "Per channel" : "Per pokey");
-	    printf("%s\n",((val&8)==8) ? "Multiple irq lines" : "Only pokey 1 has irq");
-	    printf("%s\n",((val&16)==16) ? "Play left on right, if right silent" : "Play left on left, right on right!");
-	    val = config[2];
-	    for (i=0;i!=4;++i)
-	    {
-		    unsigned char pd = (val&0x3);
-	    		switch (pd)
-            		{
-	    		        case 0:
-	    		    	    pd = 1;
-	    		    	    break;
-	    		        case 1:
-	    		    	    pd = 2;
-	    		    	    break;
-	    		        case 2:
-	    		    	    pd = 4;
-	    		    	    break;
-	    		        case 3:
-	    		    	    pd = 8;
-	    		    	    break;
-	    		}
-		    printf("channel %d uses 1/%d of the range per ic",i,pd);
-		    val = val>>2;
-		    printf("\n");
-	    }
-	    val = config[3];
-	    for (i=0;i!=4;++i)
-	    {
-		    unsigned char pd = (val&0x1);
-		    printf("channel %d %s gtia",i,pd ? "includes" : "excludes");
-		    val = val>>1;
-		    printf("\n");
-	    }
-	    val = config[5];	    
-	    printf("PSG:");
-	    switch (val&3)
-	    {
-		case 0:
-			printf(" 2MHz");
-		    break;
-		case 1:
-			printf(" 1MHz");
-		    break;
-		case 2:
-			printf(" PHI2");
-		    break;
-	   }
-	    switch ((val&12)>>2)
-	    {
-	    case 0:
-		    printf(" mono");
-		    break;
-	    case 1:
-		    printf(" polish");
-		    break;
-	    case 2:
-		    printf(" czech");
-		    break;
-	    case 3:
-		    printf(" l/r");
-		    break;
-	    }
-	    if ((val&16)==16)
-		    printf(" 16 step\n");
-	    else
-		    printf(" 32 step\n");
+    while (!quit)
+    {
+        render(&flash1,&flash2,line,col);
 
-	    displayFlash(config);
+	while (!kbhit());
+        switch (cgetc())
+	{
+        case CH_CURS_UP:
+		if (line>1)
+		    line = line-1;
+		col = 0;
+		break;
+        case CH_CURS_DOWN:
+		if (line<9)
+		    line = line+1;
+		col = 0;
+		break;
+        case CH_CURS_LEFT:
+		if (col>0)
+			col =col-1;
+		break;
+        case CH_CURS_RIGHT:
+		if (col<3)
+			col =col+1;
+		break;
+        case CH_ENTER:
+		changeValue(&flash1,&flash2,line,col);
+		break;
+        case 's':
+		// Save config
+		saveConfig(flash1,flash2);
+		break;
+        case 'u':
+		// Update core
+		updateCore();
+		break;
+        case 'q':
+		quit = 1;
+		break;
+        }
+    }
+
+/*	    displayFlash(config);
 	    //writeFlashContentsToFile(config);
 	    //erasePageContainingAddress(config,0x0);
 	    eraseSector(config,1);
@@ -291,14 +591,9 @@ int main (void)
 	    eraseSector(config,4);
 	    displayFlash(config);
 	    flashContentsFromFile(config);
-	    displayFlash(config);
-    }
-    else
-    {
-	    printf("not found");
-    }
+	    displayFlash(config);*/
 
-    for (;;);
+    pokey[12] = 0x0; // deselect config area
     return EXIT_SUCCESS;
 }
 
