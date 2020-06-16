@@ -7,6 +7,7 @@ unsigned long readFlash(unsigned char * config, unsigned long addr, unsigned cha
 {
 	unsigned long res;
 	unsigned char al;
+
 	addr = addr<<2;
 
 	al = addr&0xff;
@@ -14,12 +15,6 @@ unsigned long readFlash(unsigned char * config, unsigned long addr, unsigned cha
 	config[14] = (addr>>8)&0xff;
 
 	config[11] = (((addr>>16)&0x3)<<3)|cfgarea<<2|2|1;
-
-/*	CPU_FLASH_ADDR_NEXT(17 downto 15) <= WRITE_DATA(5 downto 3);
-
-       CPU_FLASH_CFG_NEXT <= WRITE_DATA(2);
-      CPU_FLASH_REQUEST_NEXT <= WRITE_DATA(1);
-     CPU_FLASH_WRITE_N_NEXT <= WRITE_DATA(0);*/
 
 	res = config[15];
 	config[13] = al|2;
@@ -35,12 +30,32 @@ unsigned long readFlash(unsigned char * config, unsigned long addr, unsigned cha
 	return res;
 }
 
-void dumpFlash(unsigned char * config)
+void writeFlash(unsigned char * config, unsigned long addr, unsigned char cfgarea, unsigned long data)
 {
-	FILE * output;
-	unsigned int addr;
-	unsigned long * buffer = (unsigned long *)malloc(1024);
+	unsigned char al;
 
+	addr = addr<<2;
+
+	al = addr&0xff;
+	config[13] = al|0;
+	config[14] = (addr>>8)&0xff;
+
+	config[15] = data&0xff;
+	config[13] = al|1;
+	data = data>>8;
+	config[15] = data&0xff;
+	config[13] = al|2;
+	data = data>>8;
+	config[15] = data&0xff;
+	config[13] = al|3;
+	data = data>>8;
+	config[15] = data;
+
+	config[11] = (((addr>>16)&0x3)<<3)|cfgarea<<2|2|0;
+}
+
+void displayFlash(unsigned char * config)
+{
 	printf("%lx ",readFlash(config, 0x0, 0));
 	printf("%lx ",readFlash(config, 0x1, 0));
 	printf("%lx ",readFlash(config, 0x2, 0));
@@ -64,6 +79,13 @@ void dumpFlash(unsigned char * config)
 	printf("%lx ",readFlash(config, 0x6002, 0));
 	printf("%lx ",readFlash(config, 0x6003, 0));
 	printf("\n");
+}
+
+void writeFlashContentsToFile(unsigned char * config)
+{
+	FILE * output;
+	unsigned int addr;
+	unsigned long * buffer = (unsigned long *)malloc(1024);
 
 	output = fopen("d3:flash.bin","w");
 	for (addr=0;addr!=0xe600;addr+=256)
@@ -77,6 +99,78 @@ void dumpFlash(unsigned char * config)
 	fclose(output);
 
 	free(buffer);
+}
+
+void writeProtect(unsigned char * config, unsigned char onoff)
+{
+	unsigned long data = readFlash(config, 1, 1);
+	unsigned long mask = 0x1f;
+	mask = mask << 23;
+	if (onoff)
+		data = data|mask;
+	else
+		data = data&~mask;
+	writeFlash(config,1,1,data);
+}
+
+void flashContentsFromFile(unsigned char * config)
+{
+	FILE * input;
+	unsigned int addr;
+	unsigned long * buffer = (unsigned long *)malloc(1024);
+
+	writeProtect(config,0);
+
+	input = fopen("d3:flash.bin","r");
+	for (addr=0;addr!=0xe600;addr+=256)
+	{
+		unsigned short i;
+		fread(&buffer[0],1024,1,input);
+		for (i=0;i!=256;++i)
+			writeFlash(config,addr+i,0,buffer[i]);
+	}
+
+	fclose(input);
+
+	writeProtect(config,1);
+
+	free(buffer);
+}
+
+void erasePageContainingAddress(unsigned char * config, unsigned long addr)
+{
+	unsigned long data;
+	unsigned long sectormask = 0x7;
+	unsigned long pagemask = 0xfffff;
+	sectormask = sectormask << 20;
+
+	writeProtect(config,0);
+	
+	data = readFlash(config,1,1);
+	data = data | sectormask;
+	data = data&~pagemask;
+	data = data|(addr>>11); //2k pages
+	writeFlash(config,1,1,data);
+
+	writeProtect(config,1);
+}
+
+void eraseSector(unsigned char * config, unsigned char sector)
+{
+	unsigned long data;
+	unsigned long sectormask = 0x7;
+	unsigned long pagemask = 0xfffff;
+	sectormask = sectormask << 20;
+
+	writeProtect(config,0);
+	
+	data = readFlash(config,1,1);
+	data = data | pagemask;
+	data = data&~sectormask;
+	data = data|(((unsigned long)sector)<<20);
+	writeFlash(config,1,1,data);
+
+	writeProtect(config,1);
 }
 
 int main (void)
@@ -188,7 +282,16 @@ int main (void)
 	    else
 		    printf(" 32 step\n");
 
-	    dumpFlash(config);
+	    displayFlash(config);
+	    //writeFlashContentsToFile(config);
+	    //erasePageContainingAddress(config,0x0);
+	    eraseSector(config,1);
+	    eraseSector(config,2);
+	    eraseSector(config,3);
+	    eraseSector(config,4);
+	    displayFlash(config);
+	    flashContentsFromFile(config);
+	    displayFlash(config);
     }
     else
     {
