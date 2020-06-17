@@ -1312,10 +1312,10 @@ process(POST_DIVIDE_REG,
 	RIGHT_PLAYING_RECENTLY,
 	DETECT_RIGHT_REG
 	)
-	variable p0u : unsigned(15 downto 0);
-	variable p1u : unsigned(15 downto 0);
-	variable p2u : unsigned(15 downto 0);
-	variable p3u : unsigned(15 downto 0);
+	variable p0u : unsigned(19 downto 0);
+	variable p1u : unsigned(19 downto 0);
+	variable p2u : unsigned(19 downto 0);
+	variable p3u : unsigned(19 downto 0);
 
 	variable a0u : unsigned(19 downto 0);
 	variable a1u : unsigned(19 downto 0);
@@ -1346,6 +1346,10 @@ begin
 	gtia3u:= (others=>'0');
 	gtia3u(15):= GTIA_AUDIO and GTIA_ENABLE_REG(3);
 
+	p0u(19 downto 0) := (others=>'0');
+	p1u(19 downto 0) := (others=>'0');
+	p2u(19 downto 0) := (others=>'0');
+	p3u(19 downto 0) := (others=>'0');
 	p0u(14 downto 0) := unsigned(POKEY_AUDIO_0(14 downto 0));
 	p1u(14 downto 0) := unsigned(POKEY_AUDIO_1(14 downto 0));
 	p2u(14 downto 0) := unsigned(POKEY_AUDIO_2(14 downto 0));
