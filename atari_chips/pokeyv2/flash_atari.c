@@ -6,6 +6,10 @@
 unsigned char * pokey = (unsigned char *) 0xd200;
 unsigned char * config = (unsigned char *) 0xd210;
 
+unsigned char has_flash()
+{
+	return ((config[1]&0x40) == 0x40);
+}
 unsigned long readFlash(unsigned long addr, unsigned char cfgarea)
 {
 	unsigned long res;
@@ -87,7 +91,7 @@ void writeFlash(unsigned long addr, unsigned char cfgarea, unsigned long data)
 void writeFlashContentsToFile()
 {
 	FILE * output;
-	unsigned int addr;
+	unsigned long addr;
 	unsigned long * buffer = (unsigned long *)malloc(1024);
 
 	output = fopen("d3:flash.bin","w");
@@ -145,17 +149,20 @@ void erasePageContainingAddress(unsigned long addr)
 	unsigned long data;
 	unsigned long sectormask = 0x7;
 	unsigned long pagemask = 0xfffff;
+	unsigned long status;
 	sectormask = sectormask << 20;
 
-	writeProtect(0);
-	
 	data = readFlash(1,1);
 	data = data | sectormask;
 	data = data&~pagemask;
 	data = data|(addr>>11); //2k pages
 	writeFlash(1,1,data);
 
-	writeProtect(1);
+	for(;;)
+	{
+		status = readFlash(0,1);
+		if ((status&0x3)==0) break;
+	}
 }
 
 void eraseSector(unsigned char sector)
@@ -163,17 +170,20 @@ void eraseSector(unsigned char sector)
 	unsigned long data;
 	unsigned long sectormask = 0x7;
 	unsigned long pagemask = 0xfffff;
+	unsigned long status;
 	sectormask = sectormask << 20;
 
-	writeProtect(0);
-	
 	data = readFlash(1,1);
 	data = data | pagemask;
 	data = data&~sectormask;
 	data = data|(((unsigned long)sector)<<20);
 	writeFlash(1,1,data);
 
-	writeProtect(1);
+	for(;;)
+	{
+		status = readFlash(0,1);
+		if ((status&0x3)==0) break;
+	}
 }
 
 void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, unsigned char col)
@@ -305,8 +315,12 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
     chline(40);
 
     cprintf("Options:\r\n");
-    cprintf("  (S)tore config\r\n");
-    cprintf("  (U)pdate core\r\n");
+    cprintf("  (A)pply config\r\n");
+    if (has_flash())
+    {
+	    cprintf("  (S)tore config\r\n");
+	    cprintf("  (U)pdate core\r\n");
+    }
     cprintf("  (Q)uit\r\n");
     cprintf("Use arrows and enter to change config");
 
@@ -323,20 +337,6 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char l
     unsigned long tmp;
 
     *flash2; // silence warning
-
-//	                                   SATURATE_NEXT <= flash_do(0);
-//                                        -- 1 reserved...
-//                                CHANNEL_MODE_NEXT <= flash_do(2);
-//                                IRQ_EN_NEXT <= flash_do(3);
-//                                DETECT_RIGHT_NEXT <= flash_do(4);
-//                                        -- 5-7 reserved
-//                                POST_DIVIDE_NEXT <= flash_do(15 downto 8);
-//                                GTIA_ENABLE_NEXT <= flash_do(19 downto 16);
-//                                        -- 23 downto 20 reserved
-//                                PSG_FREQ_NEXT <= flash_do(25 downto 24);
-//                                PSG_STEREOMODE_NEXT <= flash_do(27 downto 26);
-//                                PSG_ENVELOPE16_NEXT <= flash_do(28);
-//                                        -- 31 downto 29 reserved
 
     switch(line)
     {
@@ -386,6 +386,28 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char l
     *flash1 |= tmp;
 }
 
+void applyConfig(unsigned long flash1, unsigned long flash2)
+{
+	config[0] = flash1&0xff;
+	config[2] = (flash1>>8)&0xff;
+	config[3] = (flash1>>16)&0xff;
+	config[5] = (flash1>>24)&0xff;
+	flash2 ==0;
+//	                                   SATURATE_NEXT <= flash_do(0);
+//                                        -- 1 reserved...
+//                                CHANNEL_MODE_NEXT <= flash_do(2);
+//                                IRQ_EN_NEXT <= flash_do(3);
+//                                DETECT_RIGHT_NEXT <= flash_do(4);
+//                                        -- 5-7 reserved
+//                                POST_DIVIDE_NEXT <= flash_do(15 downto 8);
+//                                GTIA_ENABLE_NEXT <= flash_do(19 downto 16);
+//                                        -- 23 downto 20 reserved
+//                                PSG_FREQ_NEXT <= flash_do(25 downto 24);
+//                                PSG_STEREOMODE_NEXT <= flash_do(27 downto 26);
+//                                PSG_ENVELOPE16_NEXT <= flash_do(28);
+//                                        -- 31 downto 29 reserved
+}
+
 void saveConfig(unsigned long flash1, unsigned long flash2)
 {
     clrscr();
@@ -407,6 +429,7 @@ void saveConfig(unsigned long flash1, unsigned long flash2)
 	{
 		buffer[i] = readFlash(i,0);
 	}
+	writeProtect(0);
 	cprintf("Erasing page\r\n");
 	erasePageContainingAddress(0);
 	cprintf("Writing new page\r\n");
@@ -416,6 +439,7 @@ void saveConfig(unsigned long flash1, unsigned long flash2)
 	{
 		writeFlash(i,0,buffer[i]);
 	}
+	writeProtect(1);
 
         free(buffer);
     }
@@ -429,21 +453,22 @@ void updateCore()
     unsigned long flash2 = readFlash(1,0); //unused for now
 
     clrscr();
-    bgcolor(0x36);
+    bgcolor(0x34);
     //textcolor(0xa);
     chline(40);
     cprintf("Updating core\r\n");
     chline(40);
 
-    cprintf("Press Y to confirm core update.\r\nPut core.bin in D4\r\n!");
+    cprintf("Please insert core.bin into D4\r\n");
+    cprintf("Press Y to confirm core update\r\n");
     while(!kbhit());
     if (cgetc()=='y') 
     {
     	FILE * input = fopen("d4:core.bin","r");
     	if (!input)
     	{
-    		cprintf("Failed to open file\r\n!");
-    		sleep(5);
+    		cprintf("Failed to open file!\r\n");
+    		sleep(3);
     	}
     	else
     	{
@@ -451,23 +476,33 @@ void updateCore()
 	    unsigned char valid;
 	    unsigned char i;
 
+	    cprintf("\r\n");
+            chline(40);
+            cprintf("DO NOT TURN OFF THE COMPUTER\r\n");
+            chline(40);
+	    cprintf("\r\n");
+
 	    cprintf("File opened\r\n");
 	    fread(&version[0],8,1,input);
-	    // Veriy validity!
+	    // Verify validity!
 	    valid = 0;
-  	    for (i=0;i!=8;++i)
+  	    for (i=3;i!=8;++i)
   	    {
   	            config[4] = i;
                     if (config[4]!=version[i])
 	            {
 	          	  cprintf("Invalid core");
+			  sleep(3);
 	          	  break;
 	            }
 		    valid = 1;
   	    }
 	    if (valid)
 	    {
-	    	fseek(input,0,SEEK_SET);
+	    	//fseek(input,0,SEEK_SET);
+	        fclose(input);
+		input = fopen("d4:core.bin","r");
+	    	writeProtect(0);
 
 	    	cprintf("Erasing");
 	    	eraseSector(1);
@@ -479,18 +514,17 @@ void updateCore()
 	    	eraseSector(4);
 	    	cprintf(" Done\r\n");
 
+	    	cprintf("Flashing... please wait");
 	    	{
-	    	    unsigned int addr;
+	    	    unsigned long addr;
 	    	    unsigned long * buffer = (unsigned long *)malloc(1024);
 		    unsigned char t=0;
 
-	    	    writeProtect(0);
-
 	    	    for (addr=0;addr!=0xe600;addr+=256)
 	    	    {
-	    	    	unsigned short i = 0; 
+	    	    	unsigned long i;
 			gotoxy(0,20);
-			cprintf("%c  %d/230      ",5 ? '/' : '\\',1+(addr>>8));
+			cprintf("%c  %d/230      ",(t ? '/' : '\\'),(unsigned char)(1+(addr>>8)));
 			t = !t;
 
 	    	    	fread(&buffer[0],1024,1,input);
@@ -500,9 +534,9 @@ void updateCore()
 	    	    		buffer[0] = flash1;
 	    	    		buffer[1] = flash2;
 	    	    	}
-	    	    	for (;i!=256;++i)
+	    	    	for (i=0;i!=256;++i)
 			{
-				bgcolor(i);
+				bordercolor(i);
 	    	    		writeFlash(addr+i,0,buffer[i]);
 			}
 	    	    }
@@ -516,6 +550,9 @@ void updateCore()
     	fclose(input);
     }
     bgcolor(0x00);
+    bordercolor(0x00);
+
+    //writeFlashContentsToFile();
 }
 
 int main (void)
@@ -568,13 +605,17 @@ int main (void)
         case CH_ENTER:
 		changeValue(&flash1,&flash2,line,col);
 		break;
+        case 'a':
+		// Apply config
+		applyConfig(flash1,flash2);
+		break;
         case 's':
 		// Save config
-		saveConfig(flash1,flash2);
+                if (has_flash()) saveConfig(flash1,flash2);
 		break;
         case 'u':
 		// Update core
-		updateCore();
+                if (has_flash()) updateCore();
 		break;
         case 'q':
 		quit = 1;
