@@ -87,10 +87,12 @@ my %variants =
 		"pokeys" => 2,
 		"enable_auto_stereo" => 1,
 		"enable_covox" => 1,
+		"enable_flash" => 1,
 		"a4_bit" => 1,
 		"a7_bit" => 2,
 		"gtia_audio_bit" => 3, 
 		"fpga" => "10M08SCU169C8G",
+		"version" =>  $version."M08SC"
 	},
 	"10M04_stereo_u1mb_auto" =>
 	{
