@@ -8,7 +8,7 @@ my $name="eclaireXL";
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
-my $version = "114";
+my $version = "115";
 
 my %variants = 
 (
@@ -98,6 +98,7 @@ my %variants =
 	{
 		"pokeys" => 2,
 		"enable_auto_stereo" => 1,
+		"enable_flash" => 1,
 		"a4_bit" => 1,
 		"fancy_switch_bit" => 2,
 		"gtia_audio_bit" => 3,
@@ -109,6 +110,7 @@ my %variants =
 		"pokeys" => 2,
 		"enable_auto_stereo" => 1,
 		"enable_covox" => 1,
+		"enable_flash" => 1,
 		"a4_bit" => 1,
 		"a7_bit" => 2,
 		"gtia_audio_bit" => 3, 
@@ -119,6 +121,7 @@ my %variants =
 	{
 		"pokeys" => 4,
 		"enable_auto_stereo" => 1,
+		"enable_flash" => 1,
 		"a4_bit" => 1,
 		"a5_bit" => 2,
 		"gtia_audio_bit" => 3, 
@@ -129,6 +132,7 @@ my %variants =
 	{
 		"pokeys" => 4,
 		"enable_auto_stereo" => 1,
+		"enable_flash" => 1,
 		"a4_bit" => 1,
 		"a5_bit" => 2,
 		"a7_bit" => 3, 
@@ -216,16 +220,21 @@ foreach my $variant (sort keys %variants)
 	next unless ($variant =~ /$wanted_variant/);
 	print "Building $variant of $name\n";
 
+	my $versioncode = $variants{$variant}->{"version"};
+	my $flashver = $versioncode;
+	$flashver =~ s/...M(..).*/$1/;
+
 	my $dir = "build_$variant";
 	`rm -rf $dir`;
 	mkdir $dir;
 	`cp *.vhd* $dir`;
+	`cp swapbits $dir`;
 	`cp pokeymax*.sdc $dir`;
 	`cp pokeymax*.qpf $dir`;
 	`cp pokeymax*.qsf $dir`;
 	`cp -r int_osc* $dir`;
 	`cp -r pll* $dir`;
-	`cp -r flash* $dir`;
+	`cp -r flash_$flashver/flash* $dir`;
 	`cp -r PSG $dir`;
 	`cp -r SID $dir`;
 
@@ -243,8 +252,7 @@ foreach my $variant (sort keys %variants)
 
 	`quartus_sh --flow compile pokeymax > build.log 2> build.err`;
 	`quartus_cpf --convert ../convert_secure.cof`;
-	my $versioncode = $variants{$variant}->{"version"};
-	`../makeflash ./output_files/pokeymax.pof $versioncode output_files/core.bin`;
+	`../makeflash_$flashver ./output_files/pokeymax.pof $versioncode output_files/core.bin`;
 
 	chdir "..";
 }

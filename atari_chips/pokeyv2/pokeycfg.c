@@ -197,7 +197,7 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
     //textcolor(0xa);
     chline(40);
 
-    cprintf("Pokeymax config v0.1 ");
+    cprintf("Pokeymax config v0.2 ");
 
     cprintf(" Core:");
     for (i=0;i!=8;++i)
@@ -514,17 +514,23 @@ void updateCore()
 	    	eraseSector(4);
 	    	cprintf(" Done\r\n");
 
-	    	cprintf("Flashing... please wait");
+		config[4] = 5; //e.g 114M08QC 
+		               //    01234567
+
+	    	cprintf("Flashing M0%d... please wait",config[4]);
 	    	{
 	    	    unsigned long addr;
+	    	    unsigned long maxaddr;
 	    	    unsigned long * buffer = (unsigned long *)malloc(1024);
 		    unsigned char t=0;
 
-	    	    for (addr=0;addr!=0xe600;addr+=256)
+		    maxaddr = config[4]=='4' ? 0xd600 : 0xe600; // d600 for m04, e600 for m08. Default to 08 so DEVELPR works
+
+	    	    for (addr=0;addr!=maxaddr;addr+=256) 
 	    	    {
 	    	    	unsigned long i;
 			gotoxy(0,20);
-			cprintf("%c  %d/230      ",(t ? '/' : '\\'),(unsigned char)(1+(addr>>8)));
+			cprintf("%c  %d/%d      ",(t ? '/' : '\\'),(unsigned char)(1+(addr>>8)),(unsigned char)(maxaddr>>8));
 			t = !t;
 
 	    	    	fread(&buffer[0],1024,1,input);
