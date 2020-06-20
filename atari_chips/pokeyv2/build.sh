@@ -56,7 +56,7 @@ my %variants =
 		"pokeys" => 2,
 		"enable_auto_stereo" => 1,
 		"a4_bit" => 1,
-		"xel_mode" => 1,
+		"cs1_bit" => 20,
 		"gtia_audio_bit" => 3,
 		"fpga" => "10M02SCU169C8G",
 		"version" => $version . "M02SX"
@@ -187,26 +187,42 @@ my %variants =
 		"a7_bit" => 3,
 		"fpga" => "10M08SCU169C8G",
 		"version" => $version . "M08QP"
+	},
+	"10M08_fullv2" =>
+	{
+		"pokeys" => 4,
+		"enable_auto_stereo" => 1,
+		"enable_sid" => 1,
+		"enable_psg" => 1,
+		"enable_covox" => 1,
+		"enable_flash" => 1,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a6_bit" => 3,
+		"a7_bit" => 19,  #use CS1
+		"cs1_bit" => 20, #force high
+		"fpga" => "10M08SCU169C8G",
+		"version" => $version . "M08HK"
+	},
+	"10M08_full" => 
+	{
+		"board" => 3,
+		"ext_bits"=> 11,
+		"pokeys" => 4,
+		"enable_auto_stereo" => 1,
+		"fancy_switch_bit" => 1,
+		"gtia_audio_bit" => 2,
+		"a4_bit" => 3,
+		"a5_bit" => 4,
+		"a6_bit" => 5,
+		"a7_bit" => 6,
+		"enable_sid" => 1,
+		"enable_psg" => 1,
+		"enable_covox" => 1,
+		"enable_sample" => 1,
+		"enable_flash" => 1,
+		"fpga" => "10M08SCU169C8G"
 	}
-#	"10M08_full" => 
-#	{
-#		"board" => 3,
-#		"ext_bits"=> 11,
-#		"pokeys" => 4,
-#		"enable_auto_stereo" => 1,
-#		"fancy_switch_bit" => 1,
-#		"gtia_audio_bit" => 2,
-#		"a4_bit" => 3,
-#		"a5_bit" => 4,
-#		"a6_bit" => 5,
-#		"a7_bit" => 6,
-#		"enable_sid" => 1,
-#		"enable_psg" => 1,
-#		"enable_covox" => 1,
-#		"enable_sample" => 1,
-#		"enable_flash" => 1,
-#		"fpga" => "10M08SCU169C8G"
-#	}
 );
 
 #if (not defined $wanted_variant or (not exists $variants{$wanted_variant} and $wanted_variant ne "ALL"))
@@ -221,8 +237,13 @@ foreach my $variant (sort keys %variants)
 	print "Building $variant of $name\n";
 
 	my $versioncode = $variants{$variant}->{"version"};
-	my $flashver = $versioncode;
-	$flashver =~ s/...M(..).*/$1/;
+	if (not defined $versioncode)
+	{
+		$versioncode = "DEVELOPR";
+	}
+	my $fpga = $variants{$variant}->{"fpga"};
+	my $flashver = $fpga;
+	$flashver =~ s/..M(..).*/$1/;
 
 	my $dir = "build_$variant";
 	`rm -rf $dir`;
@@ -240,7 +261,6 @@ foreach my $variant (sort keys %variants)
 
 	chdir $dir;
 
-	my $fpga = $variants{$variant}->{"fpga"};
 	
 	`echo set_global_assignment -name DEVICE $fpga >> pokeymax.qsf`;
 
@@ -252,7 +272,12 @@ foreach my $variant (sort keys %variants)
 
 	`quartus_sh --flow compile pokeymax > build.log 2> build.err`;
 	`quartus_cpf --convert ../convert_secure.cof`;
+	`quartus_cpf -c -q 10MHz -g 3.3 -n p output_files/pokeymax.pof output_files/pokeymax.svf`;
 	`../makeflash_$flashver ./output_files/pokeymax.pof $versioncode output_files/core.bin`;
+	`touch UFM1 UFM0 CFM1 CFM0`;
+	`../openocd_flash/extractbinfromsvf.pl output_files/pokeymax.svf`;
+	`cat UFM1.bin UFM0.bin > UFMboth.bin`;
+	`cat CFM1.bin CFM0.bin > CFMboth.bin`;
 
 	chdir "..";
 }

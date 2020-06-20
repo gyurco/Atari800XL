@@ -23,11 +23,11 @@ ENTITY pokeymax IS
 
 		fancy_switch_bit : integer := 20; -- 0=ext is low => mono
 		gtia_audio_bit : integer := 0;    -- 0=no gtia on l/r,1=gtia mixed on l/r
-		xel_mode : integer := 0;    -- 1=ignore CS1
 		a4_bit : integer := 0;
 		a5_bit : integer := 0;
 		a6_bit : integer := 0;
 		a7_bit : integer := 0;
+		cs1_bit : integer := 19;
 
 		ext_bits : integer := 3; 
 
@@ -213,6 +213,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal i2c0_read_data : std_logic_vector(7 downto 0);
 	signal i2c0_error : std_logic;
 
+	signal CS1MOD : std_logic;
 	signal CS_COMB : std_logic;
 
 	signal AIN : std_logic_vector(7 downto 0);
@@ -305,13 +306,7 @@ BEGIN
 	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
 	EXT <= (others=>'Z');
 
-xel_mode_on : if xel_mode=1 generate 
-	CS_COMB <= not(CS0_N);
-end generate;
-
-xel_mode_off : if xel_mode=0 generate 
-	CS_COMB <= CS1 and not(CS0_N);
-end generate;
+	CS_COMB <= CS1MOD and not(CS0_N);
 
 	oscillator : int_osc
 	port map 
@@ -404,7 +399,9 @@ flash_on : if enable_flash=1 generate
 end generate;
 
 	EXT_INT(0) <= '0';  --force to 0
-	EXT_INT(20 downto ext_bits+1) <= (others=>'1');
+	EXT_INT(18 downto ext_bits+1) <= (others=>'1');
+	EXT_INT(19) <= CS1;
+	EXT_INT(20) <= '1';
 	EXT_INT(ext_bits downto 1) <= EXT;
 
         synchronizer_gtia_audio : entity work.synchronizer
@@ -428,6 +425,7 @@ end generate;
 	AIN(6) <= EXT_INT(a6_bit);
 	AIN(5) <= EXT_INT(a5_bit);
 	AIN(4) <= EXT_INT(a4_bit);
+	CS1MOD <= EXT_INT(cs1_bit);
 
 bus_adapt : entity work.slave_timing_6502
 	GENERIC MAP
