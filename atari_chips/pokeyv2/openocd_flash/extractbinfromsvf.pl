@@ -5,6 +5,7 @@ my $section;
 my $program = 0;
 my %bytype;
 my $type;
+my $pos = -1;
 while (<>)
 {
 	if (/Max 10 (.*)/)
@@ -16,11 +17,37 @@ while (<>)
 			$program = 1;
 			$type = $1;
 			$bytype{$type} = "";
+			$pos = -1;
 		}
 	}
 	if ($program and /SDR 32 TDI \(([A-F0-9]+)\);/)
 	{
 		$bytype{$type} = $bytype{$type}.$1;
+		$pos = $pos + length($1)/2;
+	}
+	if ($program and /SDR 23 TDI \((.*?)\);/)
+	{
+		my $count = $1;
+		my $count2 = unpack "H*", pack 'B*', unpack 'b*', pack("H*",$count);
+		$count2 =~ /(..)(..)(..)/;
+		$count2 = "$3$2$1";
+
+		my $count2dec = hex($count2)*2;
+		if ($pos<1)
+		{
+			$pos = $count2dec;
+		}
+		else
+		{
+			print "Pos:$pos ";
+			my $adj = $count2dec-$pos;
+			$pos = $pos+$adj;
+			my $skip = "F"x($adj*2);
+			$bytype{$type} = $bytype{$type}.$skip;
+
+			print " adj:$adj req:$count2dec\n";
+		}
+		print "$type seek to $count2($count2dec) -> $pos\n";
 	}
 }
 
