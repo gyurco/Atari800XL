@@ -895,7 +895,7 @@ begin
 		addr_bits := (others=>'0');
 	end if;
 
-	if (addr_in(7 downto 40)=x"f") then -- TODO: tweak...
+	if (addr_in(7 downto 4)=x"f") then -- TODO: tweak...
 		addr_bits := x"0"; --disable config access here
 	end if;
 		
