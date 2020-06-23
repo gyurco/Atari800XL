@@ -197,7 +197,7 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
     //textcolor(0xa);
     chline(40);
 
-    cprintf("Pokeymax config v0.2 ");
+    cprintf("Pokeymax config v0.3 ");
 
     cprintf(" Core:");
     for (i=0;i!=8;++i)
@@ -576,8 +576,14 @@ int main (void)
     pokey[12] = 0x3f; // select config area
 
     // We have just 8 bytes of data for config
-    flash1 = readFlash(0,0);
-    flash2 = readFlash(1,0); //unused for now
+    flash1 = 0; //readFlash(0,0);
+    flash2 = 0; //readFlash(1,0); //unused for now
+
+    flash1 = 
+	    (((unsigned long)config[5])<<24) |
+	    (((unsigned long)config[3])<<16) |
+	    (((unsigned long)config[2])<<8) |
+	    (((unsigned long)config[0]));
 
     line = 1;
     col = 0;
