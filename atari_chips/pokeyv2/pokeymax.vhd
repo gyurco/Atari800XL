@@ -229,8 +229,8 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	-- DETECT RIGHT PLAYING
 	signal RIGHT_PLAYING_RECENTLY : std_logic;
-	signal RIGHT_NEXT : unsigned(5 downto 0);
-	signal RIGHT_REG : unsigned(5 downto 0);
+	signal RIGHT_NEXT : std_logic;
+	signal RIGHT_REG : std_logic;
 	signal RIGHT_PLAYING_COUNT_NEXT : unsigned(23 downto 0);
 	signal RIGHT_PLAYING_COUNT_REG : unsigned(23 downto 0);
 	
@@ -1276,7 +1276,7 @@ end generate;
 process(clk,reset_n)
 begin
 	if (reset_n='0') then
-		RIGHT_REG <= (others=>'0');
+		RIGHT_REG <= '0';
 		RIGHT_PLAYING_COUNT_REG <= (others=>'0');
 	elsif (clk'event and clk='1') then
 		RIGHT_REG <= RIGHT_NEXT;
@@ -1369,7 +1369,7 @@ begin
 	samu := resize(unsigned(sample_audio(1)),20);
 
 	a1u := p1u + p3u + sidu + psgu1 + psgu2 + samu;
-	RIGHT_NEXT <= a1u(5 downto 0);
+	RIGHT_NEXT <= xor_reduce(std_logic_vector(a1u));
 	if (FANCY_ENABLE='0' or (RIGHT_PLAYING_RECENTLY='0' AND DETECT_RIGHT_REG='1')) then
 		a1u := a0u;
 	end if;
