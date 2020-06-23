@@ -1,12 +1,10 @@
 ---------------------------------------------------------------------------
--- (c) 2121 mark watson
+-- (c) 2020 mark watson
 -- I am happy for anyone to use this for non-commercial use.
 -- If my vhdl files are used commercially or otherwise sold,
 -- please contact me for explicit permission at scrameta (gmail).
 -- This applies for source and binary form and derived works.
 ---------------------------------------------------------------------------
---
--- Simple sigma delta based on https://aip.scitation.org/doi/pdf/10.1063/1.3533330
 --
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
@@ -29,8 +27,8 @@ END sigmadelta_2ndorder;
 ARCHITECTURE vhdl OF sigmadelta_2ndorder IS	
 	signal ttl1_next : signed(21 downto 1);
 	signal ttl1_reg : signed(21 downto 1);
-	signal ttl2_next : signed(33 downto 1);		
-	signal ttl2_reg : signed(33 downto 1);		
+	signal ttl2_next : signed(24 downto 1);		
+	signal ttl2_reg : signed(24 downto 1);		
 	
 	signal out_next : std_logic;
 	signal out_reg : std_logic;
@@ -55,7 +53,10 @@ BEGIN
 --b1=	2.00000;
 --c1=	2.00000;
 --c2=	1.00000;
+
+
 	process(audin,out_reg,ttl1_reg,ttl2_reg,enable)
+	   variable audinadj : unsigned(16 downto 0);
 		variable fb : signed(21 downto 0);	
 		variable ttl1_tmp : signed(21 downto 1);
 	begin
@@ -64,17 +65,19 @@ BEGIN
 		ttl2_next <= ttl2_reg;
 		
 		if (enable='1') then	
+			audinadj := resize(audin,17) + to_unsigned(4096,17) - resize(audin(15 downto 3) ,17);
+		
 			fb:=(others=>'0');
-			if (ttl2_reg(33 downto 16)>0) then
+			if (ttl2_reg(24 downto 16)>0) then
 				fb(16) := '1';
 			else			
 				fb(16) := '0';
 			end if;
 		
-			ttl1_tmp := ttl1_reg + resize(signed("0"&audin),22-1) - (fb(21-1 downto 0));
+			ttl1_tmp := ttl1_reg + resize(signed("0"&audinadj),22-1) - (fb(21-1 downto 0));
 			ttl1_next <= ttl1_tmp;
 
-			ttl2_next <= ttl2_reg + resize(((ttl1_tmp(21-1 downto 1)&"0") - ((fb(21-1 downto 0))+(fb(21-3 downto 0)&"00"))),33);	
+			ttl2_next <= ttl2_reg + resize(((ttl1_tmp(21-1 downto 1)&"0") - ((fb(21-1 downto 0))+(fb(21-3 downto 0)&"00"))),24);	
 			
 			out_next <= fb(16);	
 		end if;
