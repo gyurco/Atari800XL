@@ -102,7 +102,6 @@ ARCHITECTURE vhdl OF pokeymax IS
 	
 	SIGNAL SID_WRITE_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
 
-	SIGNAL PSG_READ_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
 	SIGNAL PSG_WRITE_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
 
 	SIGNAL SAMPLE_WRITE_ENABLE : STD_LOGIC;	
@@ -180,7 +179,10 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal PSG_ENABLE_1_7Mhz : std_logic;
 	signal PSG_ENABLE : std_logic;
 	type PSG_AUDIO_TYPE is array(NATURAL range<>) of std_logic_vector(15 downto 0);
-	signal PSG_AUDIO : PSG_AUDIO_TYPE(3 downto 0);	
+	signal PSG_AUDIO : PSG_AUDIO_TYPE(1 downto 0);	
+
+	type PSG_CHANNEL_TYPE is array(NATURAL range<>) of std_logic_vector(4 downto 0);
+	signal PSG_CHANNEL : PSG_CHANNEL_TYPE(5 downto 0);	
 
 	signal PSG_FREQ_REG : std_logic_vector(1 downto 0);
 	signal PSG_FREQ_NEXT : std_logic_vector(1 downto 0);
@@ -191,10 +193,8 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal PSG_ENVELOPE16_REG : std_logic;
 	signal PSG_ENVELOPE16_NEXT : std_logic;
 
-	signal PSG_MIX11 : std_logic_vector(2 downto 0);
-	signal PSG_MIX12 : std_logic_vector(2 downto 0);
-	signal PSG_MIX21 : std_logic_vector(2 downto 0);
-	signal PSG_MIX22 : std_logic_vector(2 downto 0);
+	signal PSG_MIX1 : std_logic_vector(5 downto 0);
+	signal PSG_MIX2 : std_logic_vector(5 downto 0);
 	
 	-- SUPPORT	
 	signal BUS_DATA : std_logic_vector(7 downto 0);
@@ -725,30 +725,22 @@ end process;
 
 process(PSG_STEREOMODE_REG)
 begin
-	PSG_MIX11 <= (others=>'0');
-	PSG_MIX12 <= (others=>'0');
-	PSG_MIX21 <= (others=>'0');
-	PSG_MIX22 <= (others=>'0');
+	PSG_MIX1 <= (others=>'0');
+	PSG_MIX2 <= (others=>'0');
 
 	case PSG_STEREOMODE_REG is
 		when "00"=>
-			PSG_MIX11 <= "111";
-			PSG_MIX12 <= "111";
-			PSG_MIX21 <= "111";
-			PSG_MIX22 <= "111";
+			PSG_MIX1 <= "111111";
+			PSG_MIX2 <= "111111";
 		when "01"=>
-			PSG_MIX11 <= "110";
-			PSG_MIX12 <= "011";
-			PSG_MIX21 <= "110";
-			PSG_MIX22 <= "011";
+			PSG_MIX1 <= "110110";
+			PSG_MIX2 <= "011011";
 		when "10"=>
-			PSG_MIX11 <= "101";
-			PSG_MIX12 <= "011";
-			PSG_MIX21 <= "101";
-			PSG_MIX22 <= "011";
+			PSG_MIX1 <= "101101";
+			PSG_MIX2 <= "011011";
 		when others=>
-			PSG_MIX11 <= "111";
-			PSG_MIX22 <= "111";
+			PSG_MIX1 <= "111000";
+			PSG_MIX2 <= "000111";
 	end case;
 end process;
 
@@ -760,12 +752,11 @@ PSG_1 : entity work.PSG_top
 	addr=>addr_in(3 downto 0),
 	write_enable=>PSG_WRITE_ENABLE(0),
 	ENVELOPE32=>not(PSG_ENVELOPE16_REG),
-	MASK1=>PSG_MIX11,
-	MASK2=>PSG_MIX12,
 	di=>write_data,
 	do=>PSG_DO(0),
-	audio1=>PSG_AUDIO(0),
-	audio2=>PSG_AUDIO(1)
+	channel_a_vol => PSG_CHANNEL(0),
+	channel_b_vol => PSG_CHANNEL(1),
+	channel_c_vol => PSG_CHANNEL(2)
 	);
 	
 PSG_2 : entity work.PSG_top
@@ -776,13 +767,33 @@ PSG_2 : entity work.PSG_top
 	addr=>addr_in(3 downto 0),
 	write_enable=>PSG_WRITE_ENABLE(1),
 	ENVELOPE32=>not(PSG_ENVELOPE16_REG),
-	MASK1=>PSG_MIX21,
-	MASK2=>PSG_MIX22,
 	di=>write_data,
 	do=>PSG_DO(1),
-	audio1=>PSG_AUDIO(2),
-	audio2=>PSG_AUDIO(3)
+	channel_a_vol => PSG_CHANNEL(3),
+	channel_b_vol => PSG_CHANNEL(4),
+	channel_c_vol => PSG_CHANNEL(5)
 	);
+
+	vol_profile1 : entity work.PSG_volume_profile
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,		
+		
+		CHANNEL_1A => PSG_CHANNEL(0),
+		CHANNEL_1B => PSG_CHANNEL(1),
+		CHANNEL_1C => PSG_CHANNEL(2),
+		CHANNEL_2A => PSG_CHANNEL(3),
+		CHANNEL_2B => PSG_CHANNEL(4),
+		CHANNEL_2C => PSG_CHANNEL(5),
+
+		CHANNEL_MASK_1=>PSG_MIX1, --LABC:RABC
+		CHANNEL_MASK_2=>PSG_MIX2,
+		
+		AUDIO_OUT_1 => PSG_AUDIO(0),
+		AUDIO_OUT_2 => PSG_AUDIO(1)
+	);	
+
 end generate psg_on;		
 	
 --------------------------------------------------------
@@ -917,15 +928,12 @@ process(
 	request
 	)
 	variable writereq : std_logic;
-	variable readreq : std_logic;
 begin
 	writereq := not(write_n) and request;
-	readreq := write_n and request;
 	
 	POKEY_WRITE_ENABLE <= (others=>'0');
 	SID_WRITE_ENABLE <= (others=>'0');
 	PSG_WRITE_ENABLE <= (others=>'0');
-	PSG_READ_ENABLE <= (others=>'0');
 	SAMPLE_WRITE_ENABLE <= '0';
 	CONFIG_WRITE_ENABLE <= '0';
 	
@@ -956,11 +964,9 @@ begin
 		when x"a" =>
 			DO_MUX <= PSG_DO(0);
 			PSG_WRITE_ENABLE(0) <= writereq;
-			PSG_READ_ENABLE(0) <= readreq;
 		when x"b" =>
 			DO_MUX <= PSG_DO(1);			
 			PSG_WRITE_ENABLE(1) <= writereq;
-			PSG_READ_ENABLE(1) <= readreq;
 		when x"f" =>
 			DO_MUX <= CONFIG_DO;
 			CONFIG_WRITE_ENABLE <= writereq;
@@ -1326,8 +1332,7 @@ process(POST_DIVIDE_REG,
 	variable gtia3u: unsigned(19 downto 0);
 
 	variable sidu: unsigned(19 downto 0);
-	variable psgu1: unsigned(19 downto 0);
-	variable psgu2: unsigned(19 downto 0);
+	variable psgu: unsigned(19 downto 0);
 	variable samu: unsigned(19 downto 0);
 begin
 -- 
@@ -1358,17 +1363,15 @@ begin
 	p3u(15) := not(POKEY_AUDIO_3(15));	
 
 	sidu := resize(unsigned(sid_audio(0)),20);
-	psgu1 := resize(unsigned(psg_audio(0)),20);
-	psgu2 := resize(unsigned(psg_audio(2)),20);
+	psgu := resize(unsigned(psg_audio(0)),20);
 	samu := resize(unsigned(sample_audio(0)),20);
-	a0u := p0u + p2u + sidu + psgu1 + psgu2 + samu;
+	a0u := p0u + p2u + sidu + psgu + samu;
 
 	sidu := resize(unsigned(sid_audio(1)),20);
-	psgu1 := resize(unsigned(psg_audio(1)),20);
-	psgu2 := resize(unsigned(psg_audio(3)),20);
+	psgu := resize(unsigned(psg_audio(1)),20);
 	samu := resize(unsigned(sample_audio(1)),20);
 
-	a1u := p1u + p3u + sidu + psgu1 + psgu2 + samu;
+	a1u := p1u + p3u + sidu + psgu + samu;
 	RIGHT_NEXT <= xor_reduce(std_logic_vector(a1u));
 	if (FANCY_ENABLE='0' or (RIGHT_PLAYING_RECENTLY='0' AND DETECT_RIGHT_REG='1')) then
 		a1u := a0u;

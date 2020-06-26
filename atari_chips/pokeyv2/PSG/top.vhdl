@@ -24,8 +24,6 @@ ENTITY PSG_top IS
 		ENABLE : in std_logic;
 
 		ENVELOPE32 : in std_logic := '1'; -- 0=16 step,1=32 step
-		MASK1 : in std_logic_vector(2 downto 0) := "111"; -- Which channels to mix into output 1
-		MASK2 : in std_logic_vector(2 downto 0) := "000"; -- Which channels to mix into output 2
 		
 		ADDR : in std_logic_vector(3 downto 0); --TODO: Handy to address this way, but could use the original crappy way if people prefer!
 		WRITE_ENABLE : in std_logic;
@@ -40,8 +38,9 @@ ENTITY PSG_top IS
 		IOA_OE : out std_logic;
 		IOB_OE : out std_logic;
 		
-		AUDIO1 : out std_logic_vector(15 downto 0);
-		AUDIO2 : out std_logic_vector(15 downto 0)
+		channel_a_vol : out std_logic_vector(4 downto 0);
+		channel_b_vol : out std_logic_vector(4 downto 0);
+		channel_c_vol : out std_logic_vector(4 downto 0)
 	);
 END PSG_top;		
 		
@@ -99,12 +98,6 @@ ARCHITECTURE vhdl OF PSG_top IS
 	signal envelope_reg : std_logic_vector(4 downto 0); 
 	signal envelope_count_reset : std_logic;
 	
-	signal channel_a_vol : std_logic_vector(4 downto 0);
-	signal channel_b_vol : std_logic_vector(4 downto 0);
-	signal channel_c_vol : std_logic_vector(4 downto 0);
-
-	signal audio1_reg: std_logic_vector(15 downto 0);
-	signal audio2_reg: std_logic_vector(15 downto 0);
 BEGIN
 	process(clk,reset_n)
 	begin
@@ -537,47 +530,11 @@ decode_addr1 : entity work.complete_address_decoder
 		VOL_OUT => channel_c_vol
 	);		
 	
-	-- combine channels/apply log volume curve
-	vol_profile1 : entity work.PSG_volume_profile
-	PORT MAP
-	( 
-		CLK => clk,
-		RESET_N => reset_n,		
-		ENABLE => enable,
-		
-		CHANNEL_A => channel_a_vol,
-		CHANNEL_B => channel_b_vol,
-		CHANNEL_C => channel_c_vol,
-
-		CHANNEL_MASK => mask1,
-		
-		AUDIO_OUT => audio1_reg
-	);	
-
-	vol_profile2 : entity work.PSG_volume_profile
-	PORT MAP
-	( 
-		CLK => clk,
-		RESET_N => reset_n,		
-		ENABLE => enable,
-		
-		CHANNEL_A => channel_a_vol,
-		CHANNEL_B => channel_b_vol,
-		CHANNEL_C => channel_c_vol,
-
-		CHANNEL_MASK => mask2,
-		
-		AUDIO_OUT => audio2_reg
-	);	
-	
 	-- outputs
 	IOA_OUT <= ioa_reg;
 	IOB_OUT <= iob_reg;
 	IOA_OE <= io_output_reg(0);
 	IOB_OE <= io_output_reg(1);
-	
-	AUDIO1 <= audio1_reg;
-	AUDIO2 <= audio2_reg;
 	
 end vhdl;
 
