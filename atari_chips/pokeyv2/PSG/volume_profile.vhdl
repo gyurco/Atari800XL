@@ -124,9 +124,9 @@ BEGIN
 		if (ready='1') then
 			if (channelsel_reg(5)='1') then				
 				if (inst_reg='1') then
-					vol_1_next <= acc_reg(17 downto 2);
-				else
 					vol_2_next <= acc_reg(17 downto 2);
+				else
+					vol_1_next <= acc_reg(17 downto 2);
 				end if;
 			else
 				current := acc_reg;
@@ -144,6 +144,8 @@ BEGIN
 
 			if (or_reduce(mask and channelsel_reg)='1') then
 				acc_next <= current + resize(volume,17);
+			else
+				acc_next <= current;
 			end if;
 
 			channelsel_next <= channelsel_reg(0)&channelsel_reg(5 downto 1);
@@ -179,6 +181,8 @@ BEGIN
 	process(channel_mux)
 	begin
 		volume <= logvolume(channel_mux);	
+		--volume <= (others=>'0');
+		--volume(4 downto 0) <= unsigned(channel_mux);
 		ready <= '1';
 	end process;
 		
