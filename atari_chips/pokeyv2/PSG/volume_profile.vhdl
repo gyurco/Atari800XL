@@ -25,6 +25,8 @@ PORT
 
 	CHANNEL_MASK_1 : IN STD_LOGIC_VECTOR(5 downto 0); --1ABC/2ABC
 	CHANNEL_MASK_2 : IN STD_LOGIC_VECTOR(5 downto 0); 
+
+	PROFILE_SELECT : IN STD_LOGIC_VECTOR(1 downto 0); 
 	
 	AUDIO_OUT_1 : OUT STD_LOGIC_VECTOR(15 downto 0);
 	AUDIO_OUT_2 : OUT STD_LOGIC_VECTOR(15 downto 0)
@@ -178,9 +180,16 @@ BEGIN
 	-- for now, lets use log of each channel then sum
 	-- + I'd like to review that table in octave to understand what is going on...
 	-- from octave based on datasheet only: sqrt(2)^i/sqrt(2)^15;
-	process(channel_mux)
+	process(channel_mux,profile_select)
+		variable tmp : std_logic_vector(10 downto 0);
 	begin
-		volume <= logvolume(channel_mux);	
+		case profile_select is
+			when "11"=>
+				tmp := (others=>'0');
+				volume <= unsigned(channel_mux&tmp);
+			when others =>
+				volume <= logvolume(channel_mux);	
+		end case;
 		--volume <= (others=>'0');
 		--volume(4 downto 0) <= unsigned(channel_mux);
 		ready <= '1';
