@@ -31,14 +31,14 @@ ARCHITECTURE vhdl OF SID_postFilterSum IS
 	signal out_reg: std_logic_vector(15 downto 0);
 	signal out_next: std_logic_vector(15 downto 0);	
 	
-	function saturate(input : signed(16 downto 0)) return signed is
+	function saturate(input : signed(17 downto 0)) return signed is
    		 variable ret : signed(15 downto 0);
 	begin
-		if (input(15) = input(16)) then
+		if (input(15) = input(16) and input(15) = input(17)) then
 			ret := input(15 downto 0);
 		else
-			ret(15) := input(16);
-			ret(14 downto 0) := (others=>not(input(16)));
+			ret(15) := input(17);
+			ret(14 downto 0) := (others=>not(input(17)));
 		end if;
 			
 		return ret;
@@ -85,7 +85,7 @@ BEGIN
 
 		-- Then apply volume
 		mult_res := sum * resize(volume_adj,9);
-		mult_res_un := unsigned(saturate(mult_res(22 downto 6)) + 32768);
+		mult_res_un := unsigned(saturate(mult_res(23 downto 6)) + 32768);
 		out_next <= std_logic_vector(mult_res_un(21 downto 6));
 	end process;	
 
