@@ -197,7 +197,7 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
     //textcolor(0xa);
     chline(40);
 
-    cprintf("Pokeymax config v0.3 ");
+    cprintf("Pokeymax config v0.4 ");
 
     cprintf(" Core:");
     for (i=0;i!=8;++i)
@@ -311,6 +311,14 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
     else
 	    cprintf("32 steps\r\n");
 
+    cprintf("\r\n");
+    revers(line==10);
+    cprintf("PSG volume  : ");
+    if ((val&80)==3)
+	    cprintf("Linear\r\n");
+    else
+	    cprintf("Log %d\r\n",(val>>5)&3);
+
     revers(0);
     chline(40);
 
@@ -372,6 +380,11 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char l
 	    break;
     case 9:
             shift = 28;
+	    break;
+    case 10:
+	    mask = 3;
+            shift = 29;
+	    max = 3;
 	    break;
     }
 
@@ -602,7 +615,7 @@ int main (void)
 		col = 0;
 		break;
         case CH_CURS_DOWN:
-		if (line<9)
+		if (line<10)
 		    line = line+1;
 		col = 0;
 		break;
