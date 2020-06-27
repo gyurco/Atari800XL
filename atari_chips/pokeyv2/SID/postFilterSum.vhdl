@@ -66,7 +66,7 @@ BEGIN
 		variable volume_adj : signed(7 downto 0);
 
 		variable mult_res : signed(26 downto 0);
-		variable mult_res_un : unsigned(23 downto 8);
+		variable mult_res_un : unsigned(21 downto 6);
 	begin
 		filter_sel0ext := (others=>filter_sel(0));
 		filter_sel1ext := (others=>filter_sel(1));
@@ -78,18 +78,15 @@ BEGIN
 			   resize(filter_hp and filter_sel2ext,18) +
 			   resize(direct,18);
 
-		--filter_lp -> up to 75%
-		--filter_lp -> up to 75%
-		--filter_lp -> up to 75%
+		--sum(filter_lp+filter+bp+filter_hp) -> up to 75%
 		--direct -> up to 75%
-		-- therefore: total 3*, though if max filter level then diect=0, so total 2.25
-		-- so *1.75 to get back up to full range...
-		volume_adj:= signed("0"&volume&"000") - signed("0000"&volume);
+	        -- not both at once, therefore should scale by 1.333
+		volume_adj:= signed("00"&volume&"00") + signed("0000"&volume);
 
 		-- Then apply volume
 		mult_res := sum * resize(volume_adj,9);
-		mult_res_un := unsigned(saturate(mult_res(24 downto 8)) + 32768);
-		out_next <= std_logic_vector(mult_res_un(23 downto 8));
+		mult_res_un := unsigned(saturate(mult_res(22 downto 6)) + 32768);
+		out_next <= std_logic_vector(mult_res_un(21 downto 6));
 	end process;	
 
 	-- output
