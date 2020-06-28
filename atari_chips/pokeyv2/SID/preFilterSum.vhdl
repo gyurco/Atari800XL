@@ -75,10 +75,12 @@ BEGIN
 		filter_en2_ext := (others=>filter_en(2));
 		filter_en2cd_ext := (others=>filter_en(2) or channel_c_cutdirect);		
 		
+		channel_sel <= (others=>'0');
+		
 		phase_next <= phase_reg+1;
 		
 		adder_result := acc_reg + channel_mux;	
-	   acc_next <= adder_result;
+	   acc_next <= adder_result;	
 		
 		case phase_reg is
 		when "000" =>
