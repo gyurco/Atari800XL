@@ -311,13 +311,13 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
     else
 	    cprintf("32 steps\r\n");
 
-    cprintf("\r\n");
     revers(line==10);
-    cprintf("PSG volume  : ");
-    if ((val&80)==3)
+    cprintf("PSG volume    : ");
+    if (((val&0x60)>>5)==3)
 	    cprintf("Linear\r\n");
     else
 	    cprintf("Log %d\r\n",(val>>5)&3);
+    cprintf("\r\n");
 
     revers(0);
     chline(40);
@@ -530,7 +530,7 @@ void updateCore()
 		config[4] = 5; //e.g 114M08QC 
 		               //    01234567
 
-	    	cprintf("Flashing M0%d... please wait",config[4]);
+	    	cprintf("Flashing M0%c... please wait",config[4]);
 	    	{
 	    	    unsigned long addr;
 	    	    unsigned long maxaddr;
