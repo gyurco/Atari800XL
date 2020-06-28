@@ -149,10 +149,10 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal WRITE_DATA : std_logic_vector(7 downto 0);
 	signal DEVICE_ADDR : std_logic_vector(3 downto 0);
 
-	signal POKEY_AUDIO_0 : signed(15 downto 0);
-	signal POKEY_AUDIO_1 : signed(15 downto 0);
-	signal POKEY_AUDIO_2 : signed(15 downto 0);
-	signal POKEY_AUDIO_3 : signed(15 downto 0);
+	signal POKEY_AUDIO_0 : unsigned(15 downto 0);
+	signal POKEY_AUDIO_1 : unsigned(15 downto 0);
+	signal POKEY_AUDIO_2 : unsigned(15 downto 0);
+	signal POKEY_AUDIO_3 : unsigned(15 downto 0);
 	
 	signal AUDIO_0_UNSIGNED : unsigned(15 downto 0);
 	signal AUDIO_1_UNSIGNED : unsigned(15 downto 0);

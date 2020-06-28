@@ -20,10 +20,10 @@ PORT
 	CHANNEL_2 : IN unsigned(5 downto 0);
 	CHANNEL_3 : IN unsigned(5 downto 0);
 	
-	VOLUME_OUT_0 : OUT SIGNED(15 downto 0);
-	VOLUME_OUT_1 : OUT SIGNED(15 downto 0);
-	VOLUME_OUT_2 : OUT SIGNED(15 downto 0);
-	VOLUME_OUT_3 : OUT SIGNED(15 downto 0);
+	VOLUME_OUT_0 : OUT unsigned(15 downto 0);
+	VOLUME_OUT_1 : OUT unsigned(15 downto 0);
+	VOLUME_OUT_2 : OUT unsigned(15 downto 0);
+	VOLUME_OUT_3 : OUT unsigned(15 downto 0);
 	
 	SATURATE : IN STD_LOGIC
 );
@@ -42,16 +42,16 @@ ARCHITECTURE vhdl OF pokey_mixer_mux IS
 	signal CHANNEL_2_SEL : STD_LOGIC_VECTOR(3 downto 0);
 	signal CHANNEL_3_SEL : STD_LOGIC_VECTOR(3 downto 0);
 
-	signal VOLUME_OUT_NEXT : signed(15 downto 0);
+	signal VOLUME_OUT_NEXT : unsigned(15 downto 0);
 
-	signal VOLUME_OUT_0_NEXT : signed(15 downto 0);
-	signal VOLUME_OUT_0_REG : signed(15 downto 0);
-	signal VOLUME_OUT_1_NEXT : signed(15 downto 0);
-	signal VOLUME_OUT_1_REG : signed(15 downto 0);
-	signal VOLUME_OUT_2_NEXT : signed(15 downto 0);
-	signal VOLUME_OUT_2_REG : signed(15 downto 0);
-	signal VOLUME_OUT_3_NEXT : signed(15 downto 0);
-	signal VOLUME_OUT_3_REG : signed(15 downto 0);
+	signal VOLUME_OUT_0_NEXT : unsigned(15 downto 0);
+	signal VOLUME_OUT_0_REG : unsigned(15 downto 0);
+	signal VOLUME_OUT_1_NEXT : unsigned(15 downto 0);
+	signal VOLUME_OUT_1_REG : unsigned(15 downto 0);
+	signal VOLUME_OUT_2_NEXT : unsigned(15 downto 0);
+	signal VOLUME_OUT_2_REG : unsigned(15 downto 0);
+	signal VOLUME_OUT_3_NEXT : unsigned(15 downto 0);
+	signal VOLUME_OUT_3_REG : unsigned(15 downto 0);
 
 	signal channel_sum_out : unsigned(5 downto 0);
 BEGIN
@@ -101,8 +101,6 @@ END PROCESS;
 shared_pokey_mixer : entity work.pokey_mixer
 	port map
 	(
-		CLK => CLK, -- takes 2 cycle...
-
 		sum => channel_sum_out,
 		
 		saturate => saturate,
@@ -125,11 +123,11 @@ BEGIN
 	VOLUME_OUT_3_NEXT <= VOLUME_OUT_3_REG;
 
 	case channel_reg is
-   when "0100" => -- 0
+   when "1000" => -- 0
 		VOLUME_OUT_0_NEXT <= VOLUME_OUT_NEXT;
-   when "0010" => -- 1
+   when "0100" => -- 1
 		VOLUME_OUT_1_NEXT <= VOLUME_OUT_NEXT;
-   when "0001" => -- 2
+   when "0010" => -- 2
 		VOLUME_OUT_2_NEXT <= VOLUME_OUT_NEXT;
    when others=>     -- 3
 		VOLUME_OUT_3_NEXT <= VOLUME_OUT_NEXT;		
@@ -137,10 +135,10 @@ BEGIN
 END PROCESS;
 
 -- output
-	VOLUME_OUT_0 <= signed(VOLUME_OUT_0_REG);
-	VOLUME_OUT_1 <= signed(VOLUME_OUT_1_REG);
-	VOLUME_OUT_2 <= signed(VOLUME_OUT_2_REG);
-	VOLUME_OUT_3 <= signed(VOLUME_OUT_3_REG);
+	VOLUME_OUT_0 <= VOLUME_OUT_0_REG;
+	VOLUME_OUT_1 <= VOLUME_OUT_1_REG;
+	VOLUME_OUT_2 <= VOLUME_OUT_2_REG;
+	VOLUME_OUT_3 <= VOLUME_OUT_3_REG;
 
 END vhdl;
 

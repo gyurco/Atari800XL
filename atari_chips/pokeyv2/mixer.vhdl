@@ -28,10 +28,10 @@ PORT
 	GTIA_ENABLE : IN STD_LOGIC_VECTOR(3 downto 0);
 	POST_DIVIDE : IN STD_LOGIC_VECTOR(7 downto 0);
 
-	POKEY_AUDIO_0 : IN SIGNED(15 downto 0);
-	POKEY_AUDIO_1 : IN SIGNED(15 downto 0);
-	POKEY_AUDIO_2 : IN SIGNED(15 downto 0);
-	POKEY_AUDIO_3 : IN SIGNED(15 downto 0);
+	POKEY_AUDIO_0 : IN UNSIGNED(15 downto 0);
+	POKEY_AUDIO_1 : IN UNSIGNED(15 downto 0);
+	POKEY_AUDIO_2 : IN UNSIGNED(15 downto 0);
+	POKEY_AUDIO_3 : IN UNSIGNED(15 downto 0);
 	SAMPLE_AUDIO : IN SAMPLE_AUDIO_TYPE(1 downto 0);
 	SID_AUDIO : IN SID_AUDIO_TYPE(1 downto 0);
 	PSG_AUDIO : IN PSG_AUDIO_TYPE(1 downto 0);
@@ -80,8 +80,6 @@ begin
 end process;
 RIGHT_PLAYING_RECENTLY <= or_reduce(std_logic_vector(RIGHT_PLAYING_COUNT_REG));
 
-
-
 process(POST_DIVIDE,
 	POKEY_AUDIO_0,POKEY_AUDIO_1,POKEY_AUDIO_2,POKEY_AUDIO_3, --signed
 	SAMPLE_AUDIO,
@@ -129,14 +127,10 @@ begin
 	p1u(19 downto 0) := (others=>'0');
 	p2u(19 downto 0) := (others=>'0');
 	p3u(19 downto 0) := (others=>'0');
-	p0u(14 downto 0) := unsigned(POKEY_AUDIO_0(14 downto 0));
-	p1u(14 downto 0) := unsigned(POKEY_AUDIO_1(14 downto 0));
-	p2u(14 downto 0) := unsigned(POKEY_AUDIO_2(14 downto 0));
-	p3u(14 downto 0) := unsigned(POKEY_AUDIO_3(14 downto 0));
-	p0u(15) := not(POKEY_AUDIO_0(15));
-	p1u(15) := not(POKEY_AUDIO_1(15));
-	p2u(15) := not(POKEY_AUDIO_2(15));	
-	p3u(15) := not(POKEY_AUDIO_3(15));	
+	p0u(15 downto 0) := POKEY_AUDIO_0(15 downto 0);
+	p1u(15 downto 0) := POKEY_AUDIO_1(15 downto 0);
+	p2u(15 downto 0) := POKEY_AUDIO_2(15 downto 0);
+	p3u(15 downto 0) := POKEY_AUDIO_3(15 downto 0);
 
 	sidu := resize(unsigned(sid_audio(0)),20);
 	psgu := resize(unsigned(psg_audio(0)),20);
