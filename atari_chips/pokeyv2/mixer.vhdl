@@ -277,7 +277,8 @@ RIGHT_PLAYING_RECENTLY <= or_reduce(std_logic_vector(RIGHT_PLAYING_COUNT_REG));
 
 	end process;		
 	
-	process(state_reg,channelsel
+	process(state_reg,channelsel,
+		ch0,ch1,ch2,ch3,ch4,ch5,ch6,ch7,ch8,ch9,cha
 		)
 	begin
 		volume <= (others=>'0');
