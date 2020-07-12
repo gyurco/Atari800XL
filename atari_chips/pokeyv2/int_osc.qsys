@@ -20,7 +20,7 @@
 }
 ]]></parameter>
  <parameter name="clockCrossingAdapter" value="HANDSHAKE" />
- <parameter name="device" value="10M02SCU169C8G" />
+ <parameter name="device" value="10M08SCU169C8G" />
  <parameter name="deviceFamily" value="MAX 10" />
  <parameter name="deviceSpeedGrade" value="8" />
  <parameter name="fabricMode" value="QSYS" />
@@ -47,14 +47,14 @@
  <module
    name="int_osc_0"
    kind="altera_int_osc"
-   version="18.0"
+   version="19.1"
    enabled="1"
    autoexport="1">
   <parameter name="CBX_AUTO_BLACKBOX" value="ALL" />
   <parameter name="CLOCK_FREQUENCY_1" value="116" />
   <parameter name="CLOCK_FREQUENCY_2" value="77" />
   <parameter name="DEVICE_FAMILY" value="MAX 10" />
-  <parameter name="PART_NAME" value="10M02SCU169C8G" />
+  <parameter name="PART_NAME" value="10M08SCU169C8G" />
  </module>
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
  <interconnectRequirement for="$system" name="qsys_mm.enableEccProtection" value="FALSE" />

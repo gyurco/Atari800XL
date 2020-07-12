@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EnsembleReport name="int_osc" kind="int_osc" version="1.0" fabric="QSYS">
- <!-- Format version 18.0 614 (Future versions may contain additional information.) -->
- <!-- 2018.07.02.22:05:50 -->
+ <!-- Format version 19.1 670 (Future versions may contain additional information.) -->
+ <!-- 2020.07.08.21:32:44 -->
  <!-- A collection of modules and connections -->
  <parameter name="AUTO_GENERATION_ID">
   <type>java.lang.Integer</type>
-  <value>1530561950</value>
+  <value>1594236764</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>false</visible>
@@ -32,7 +32,7 @@
  </parameter>
  <parameter name="AUTO_DEVICE">
   <type>java.lang.String</type>
-  <value>10M02SCU169C8G</value>
+  <value>10M08SCU169C8G</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>false</visible>
@@ -68,7 +68,7 @@
  <module
    name="int_osc_0"
    kind="altera_int_osc"
-   version="18.0"
+   version="19.1"
    path="int_osc_0">
   <!-- Describes a single module. Module parameters are
 the requested settings for a module instance. -->
@@ -91,7 +91,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="PART_NAME">
    <type>java.lang.String</type>
-   <value>10M02SCU169C8G</value>
+   <value>10M08SCU169C8G</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -100,7 +100,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="DEVICE_ID">
    <type>java.lang.String</type>
-   <value>02</value>
+   <value>08</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -154,7 +154,7 @@ the requested settings for a module instance. -->
    <visible>true</visible>
    <valid>true</valid>
   </parameter>
-  <interface name="oscena" kind="conduit_end" version="18.0">
+  <interface name="oscena" kind="conduit_end" version="19.1">
    <!-- The connection points exposed by a module instance for the
 particular module parameters. Connection points and their
 parameters are a RESULT of the module parameters. -->
@@ -203,7 +203,7 @@ parameters are a RESULT of the module parameters. -->
     <role>oscena</role>
    </port>
   </interface>
-  <interface name="clkout" kind="clock_source" version="18.0">
+  <interface name="clkout" kind="clock_source" version="19.1">
    <!-- The connection points exposed by a module instance for the
 particular module parameters. Connection points and their
 parameters are a RESULT of the module parameters. -->
@@ -283,7 +283,7 @@ parameters are a RESULT of the module parameters. -->
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IModule</subtype>
   <displayName>Internal Oscillator</displayName>
-  <version>18.0</version>
+  <version>19.1</version>
  </plugin>
  <plugin>
   <instanceCount>1</instanceCount>
@@ -291,7 +291,7 @@ parameters are a RESULT of the module parameters. -->
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
   <displayName>Conduit</displayName>
-  <version>18.0</version>
+  <version>19.1</version>
  </plugin>
  <plugin>
   <instanceCount>1</instanceCount>
@@ -299,8 +299,8 @@ parameters are a RESULT of the module parameters. -->
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
   <displayName>Clock Output</displayName>
-  <version>18.0</version>
+  <version>19.1</version>
  </plugin>
- <reportVersion>18.0 614</reportVersion>
+ <reportVersion>19.1 670</reportVersion>
  <uniqueIdentifier></uniqueIdentifier>
 </EnsembleReport>
