@@ -17,23 +17,28 @@ PORT
 	RESET_N : IN STD_LOGIC;
 	ENABLE : IN STD_LOGIC;
 
-	start_addr : IN std_logic_vector(7 downto 0);
+	syncreset : in std_logic;
+	start_addr : IN std_logic_vector(15 downto 0);
 	len : IN std_logic_vector(11 downto 0);
 	period : IN std_logic_vector(11 downto 0);
 	
-	addr : OUT STD_LOGIC_VECTOR(15 downto 0);
-	irq : OUT STD_LOGIC
+	twocycles : in std_logic;
+	firstcycle : out std_logic;
+	
+	addr : OUT STD_LOGIC_VECTOR(16 downto 0);
+	irq : OUT STD_LOGIC;
+	req : OUT STD_LOGIC
 );
 END sample_channel;
 
 ARCHITECTURE vhdl OF sample_channel IS
-	signal pointer_reg : unsigned(15 downto 0);
-	signal pointer_next : unsigned(15 downto 0);
+	signal pointer_reg : unsigned(16 downto 0);
+	signal pointer_next : unsigned(16 downto 0);
 	signal remaining_reg : unsigned(11 downto 0);
 	signal remaining_next : unsigned(11 downto 0);
 	signal periodpos_reg : unsigned(11 downto 0);
 	signal periodpos_next : unsigned(11 downto 0);
-
+	
 BEGIN
 	-- register
 	process(clk,reset_n)
@@ -51,28 +56,43 @@ BEGIN
 
 	process(start_addr, len, period,
 		pointer_reg, remaining_reg, periodpos_reg,
-		enable
+		enable,
+		syncreset
 		)
+	variable change : unsigned(16 downto 0);
 	begin
 		pointer_next <= pointer_reg;
 		remaining_next <= remaining_reg;
 		periodpos_next <= periodpos_reg;
 		irq <= '0';
+		req <= '0';
 	
 		if (enable='1') then
 			periodpos_next <= periodpos_reg-1;
 			if (or_reduce(std_logic_vector(periodpos_reg))='0') then
-				periodpos_next <= unsigned(period);
-				pointer_next <= pointer_reg+1;
-				remaining_next <= remaining_reg-1;
+				if (twocycles='1') then
+					change:=to_unsigned(1,17);
+				else
+					change:=to_unsigned(2,17);
+				end if;
+				pointer_next <= pointer_reg+change;				
+				remaining_next <= remaining_reg-1;				
+				periodpos_next <= unsigned(period);				
+				req <= '1';	
 				if (or_reduce(std_logic_vector(remaining_reg))='0') then
-					pointer_next(15 downto 8) <= unsigned(start_addr);
-					pointer_next(7 downto 0) <= (others=>'0');
+					pointer_next <= unsigned(start_addr)&'0';
 					remaining_next <= unsigned(len);
 	
 					irq <= '1';
 				end if;
 			end if;
+		end if;
+		
+		if (syncreset='1') then
+			pointer_next <= unsigned(start_addr)&'0';
+			remaining_next <= unsigned(len);
+			irq <= '0';
+			req <= '1';
 		end if;
 	end process;
 
