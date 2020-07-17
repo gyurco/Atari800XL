@@ -170,7 +170,6 @@ ARCHITECTURE vhdl OF sample_adpcm IS
 	signal dataneeded_mux : std_logic;
 	
 	signal update_mux : std_logic;
-	signal reset_mux : std_logic;
 BEGIN
 	-- register
 	process(clk,reset_n)
@@ -207,7 +206,8 @@ BEGIN
 	process(acc0_reg, acc1_reg, acc2_reg, acc3_reg,
 		decstep0_reg, decstep1_reg, decstep2_reg, decstep3_reg,
 		dataneeded0_reg, dataneeded1_reg, dataneeded2_reg, dataneeded3_reg,
-	       	update, acc_next, decstep_next, dataneeded_next, data_needed)
+	       	update, acc_next, decstep_next, dataneeded_next, data_needed,
+				syncreset)
 	begin
 		acc0_next <= acc0_reg;
 		acc1_next <= acc1_reg;
@@ -241,6 +241,18 @@ BEGIN
 			dataneeded3_next <= dataneeded_next;
 		when others =>
 		end case;
+		
+		case syncreset is
+		when "0001" =>
+			acc0_next <= (others=>'0');
+		when "0010" =>
+			acc1_next <= (others=>'0');
+		when "0100" =>
+			acc2_next <= (others=>'0');
+		when "1000" =>
+			acc3_next <= (others=>'0');
+		when others =>
+		end case;		
 	end process;
 
 	process(update,syncreset,
@@ -252,7 +264,6 @@ BEGIN
 		acc_mux <= (others=>'0');
 		decstep_mux <= (others=>'0');
 		update_mux <= '0';
-		reset_mux <= '0';
 		dataneeded_mux <= '0';
 		case update is
 		when "0001" =>
@@ -277,21 +288,9 @@ BEGIN
 			update_mux <= '1';
 		when others =>
 		end case;
-
-		case syncreset is
-		when "0001" =>
-			reset_mux <= syncreset(0);
-		when "0010" =>
-			reset_mux <= syncreset(1);
-		when "0100" =>
-			reset_mux <= syncreset(2);
-		when "1000" =>
-			reset_mux <= syncreset(3);
-		when others =>
-		end case;
 	end process;
 
-	process(acc_mux,decstep_mux,update_mux,reset_mux,dataneeded_mux,
+	process(acc_mux,decstep_mux,update_mux,dataneeded_mux,
 		data_in,data_nibble)
 
 		variable code : std_logic_vector(3 downto 0);
@@ -300,44 +299,39 @@ BEGIN
 		variable vlue : signed(17 downto 0);
 		variable decstepnext : signed(6 downto 0);
 	begin
-		acc_next <= (others=>'0');
-		decstep_next <= (others=>'0');
-		dataneeded_next <= '0';
+		acc_next <= acc_mux;
+		decstep_next <= decstep_mux;
+		dataneeded_next <= dataneeded_mux;
 
-		if (reset_mux='0') then
-			acc_next <= acc_mux;
-			decstep_next <= decstep_mux;
-			dataneeded_next <= dataneeded_mux;
-
-			if (update_mux='1' and dataneeded_mux='1') then
-				codeadj:= (others=>'0');
-				if (data_nibble='1') then
-					code:= data_in(7 downto 4);
-				else
-					code:= data_in(3 downto 0);
-				end if;
-				codeadj(4 downto 1) := signed('0'&code(2 downto 0));
-				codeadj(0):= '1';
-				
-				if (code(3)='1') then
-					codeadj:=-codeadj;
-				end if;
-				
-				stepsize := signed('0'&stepsize_fn(decstep_mux)); -- already /8
-
-				vlue :=codeadj*stepsize;
-					
-				acc_next <= acc_mux + vlue(11 downto 0);
-
-				decstepnext := stepadj_fn(code(2 downto 0)) + signed(resize(decstep_mux,7));
-				if (decstepnext>48) then
-					decstepnext := to_signed(48,7);
-				elsif (decstepnext<0) then
-					decstepnext := to_signed(0,7);
-				end if;
-				decstep_next <= unsigned(decstepnext(5 downto 0));
-				
+		if (update_mux='1' and dataneeded_mux='1') then
+			dataneeded_next <= '0';
+			codeadj:= (others=>'0');
+			if (data_nibble='0') then
+				code:= data_in(7 downto 4);
+			else
+				code:= data_in(3 downto 0);
 			end if;
+			codeadj(4 downto 1) := signed('0'&code(2 downto 0));
+			codeadj(0):= '1';
+			
+			if (code(3)='1') then
+				codeadj:=-codeadj;
+			end if;
+			
+			stepsize := signed('0'&stepsize_fn(decstep_mux)); -- already /8
+
+			vlue :=codeadj*stepsize;
+				
+			acc_next <= acc_mux + vlue(11 downto 0);
+
+			decstepnext := stepadj_fn(code(2 downto 0)) + signed(resize(decstep_mux,7));
+			if (decstepnext>48) then
+				decstepnext := to_signed(48,7);
+			elsif (decstepnext<0) then
+				decstepnext := to_signed(0,7);
+			end if;
+			decstep_next <= unsigned(decstepnext(5 downto 0));
+			
 		end if;
 	end process;
 

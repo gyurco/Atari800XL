@@ -181,6 +181,7 @@ set_global_assignment -name VHDL_FILE SID/preFilterSum.vhdl
 set_global_assignment -name VHDL_FILE SID/filter.vhdl
 set_global_assignment -name VHDL_FILE SID/postFilterSum.vhdl
 set_global_assignment -name VHDL_FILE sample/sample_channel.vhdl
+set_global_assignment -name VHDL_FILE sample/sample_adpcm.vhdl
 set_global_assignment -name QIP_FILE int_osc/synthesis/int_osc.qip
 set_global_assignment -name QIP_FILE pll.qip
 set_global_assignment -name QIP_FILE flash/synthesis/flash.qip
