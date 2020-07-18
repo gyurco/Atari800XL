@@ -1,4 +1,4 @@
----------------------------------------------------------------------------
+--------------------------------------------------------------------------
 -- (c) 2020 mark watson
 -- I am happy for anyone to use this for non-commercial use.
 -- If my vhdl files are used commercially or otherwise sold,
@@ -23,7 +23,6 @@ PORT
 	period : IN std_logic_vector(11 downto 0);
 	
 	twocycles : in std_logic;
-	firstcycle : out std_logic;
 	
 	addr : OUT STD_LOGIC_VECTOR(16 downto 0);
 	irq : OUT STD_LOGIC;
@@ -38,6 +37,12 @@ ARCHITECTURE vhdl OF sample_channel IS
 	signal remaining_next : unsigned(11 downto 0);
 	signal periodpos_reg : unsigned(11 downto 0);
 	signal periodpos_next : unsigned(11 downto 0);
+	signal req_reg : std_logic;
+	signal req_next : std_logic;
+	signal irq_reg : std_logic;
+	signal irq_next : std_logic;
+	signal resetpending_reg : std_logic;
+	signal resetpending_next : std_logic;
 	
 BEGIN
 	-- register
@@ -47,29 +52,46 @@ BEGIN
 			pointer_reg <= (others=>'0');
 			remaining_reg <= (others=>'0');
 			periodpos_reg <= (others=>'0');
+			req_reg <= '0';
+			irq_reg <= '0';
+			resetpending_reg <= '0';
 		elsif (clk'event and clk='1') then
 			pointer_reg <= pointer_next;
 			remaining_reg <= remaining_next;
 			periodpos_reg <= periodpos_next;
+			req_reg <= req_next;
+			irq_reg <= irq_next;
+			resetpending_reg <= resetpending_next;
 		end if;
 	end process;
 
 	process(start_addr, len, period,
-		pointer_reg, remaining_reg, periodpos_reg,
+		pointer_reg, remaining_reg, periodpos_reg, resetpending_reg,
 		enable,
 		syncreset
 		)
 	variable change : unsigned(16 downto 0);
+	variable endperiod : std_logic;
+	variable endsample : std_logic;
+	variable nextsample : std_logic;
 	begin
 		pointer_next <= pointer_reg;
 		remaining_next <= remaining_reg;
 		periodpos_next <= periodpos_reg;
-		irq <= '0';
-		req <= '0';
+		resetpending_next <= resetpending_reg or syncreset;
+		irq_next <= '0';
+		req_next <= '0';
+
+		nextsample := '0';
+
+		endperiod := not(or_reduce(std_logic_vector(periodpos_reg(periodpos_reg'left downto 1))));
+		endsample := not(or_reduce(std_logic_vector(remaining_reg(remaining_reg'left downto 1))));
 	
 		if (enable='1') then
 			periodpos_next <= periodpos_reg-1;
-			if (or_reduce(std_logic_vector(periodpos_reg))='0') then
+			resetpending_next <='0';
+
+			if (endperiod='1') then
 				if (twocycles='1') then
 					change:=to_unsigned(1,17);
 				else
@@ -78,25 +100,29 @@ BEGIN
 				pointer_next <= pointer_reg+change;				
 				remaining_next <= remaining_reg-1;				
 				periodpos_next <= unsigned(period);				
-				req <= '1';	
-				if (or_reduce(std_logic_vector(remaining_reg))='0') then
-					pointer_next <= unsigned(start_addr)&'0';
-					remaining_next <= unsigned(len);
-	
-					irq <= '1';
-				end if;
+				req_next <= '1';	
+
+				nextsample := endsample;
+				irq_next <= endsample;
 			end if;
-		end if;
-		
-		if (syncreset='1') then
-			pointer_next <= unsigned(start_addr)&'0';
-			remaining_next <= unsigned(len);
-			irq <= '0';
-			req <= '1';
+
+			if (resetpending_reg='1') then
+				nextsample := '1';
+			end if;
+
+			if (nextsample='1') then
+				pointer_next <= unsigned(start_addr)&'0';
+				remaining_next <= unsigned(len);
+				periodpos_next <= unsigned(period);
+				req_next <= '1';	
+			end if;
 		end if;
 	end process;
 
 	addr <= std_logic_vector(pointer_reg);
+
+	req <= req_reg;
+	irq <= irq_reg;
 	
 end vhdl;
 
