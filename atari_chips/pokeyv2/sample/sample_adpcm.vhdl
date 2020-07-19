@@ -17,6 +17,7 @@ PORT
 	RESET_N : IN STD_LOGIC;
 
 	SYNCRESET : IN STD_LOGIC_VECTOR(3 downto 0);
+
 	FETCH : IN STD_LOGIC_VECTOR(3 downto 0);
 	update : IN STD_LOGIC_VECTOR(3 downto 0);
 	data_nibble : IN STD_LOGIC_VECTOR(3 downto 0);	
@@ -160,6 +161,9 @@ ARCHITECTURE vhdl OF sample_adpcm IS
 	signal write_ch3 : std_logic;
 	
 	signal sel : std_logic_vector(3 downto 0);
+
+	signal syncreset_next : std_logic_vector(3 downto 0);
+	signal syncreset_reg : std_logic_vector(3 downto 0);
 	
 	signal data_nibble_mux: std_logic;
 BEGIN
@@ -175,6 +179,7 @@ BEGIN
 			decstep1_reg <= (others=>'0');
 			decstep2_reg <= (others=>'0');
 			decstep3_reg <= (others=>'0');
+			syncreset_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then
 			acc0_reg <= acc0_next;
 			acc1_reg <= acc1_next;
@@ -184,6 +189,7 @@ BEGIN
 			decstep1_reg <= decstep1_next;
 			decstep2_reg <= decstep2_next;
 			decstep3_reg <= decstep3_next;
+			syncreset_reg <= syncreset_next;
 		end if;
 	end process;
 
@@ -228,8 +234,8 @@ BEGIN
 	end process;
 
 	sel <= fetch or update;
-	
-	process(sel,syncreset,
+
+	process(sel,syncreset_reg, syncreset,
 		acc0_reg, acc1_reg, acc2_reg, acc3_reg, 
 		decstep0_reg, decstep1_reg, decstep2_reg, decstep3_reg,
 		data_nibble
@@ -238,6 +244,9 @@ BEGIN
 		acc_mux <= (others=>'0');
 		decstep_mux <= (others=>'0');
 		data_nibble_mux <= '0';
+
+		syncreset_next <= (syncreset or syncreset_reg) and not(update);
+
 		case sel is
 		when "0001" =>
 			acc_mux <= acc0_reg;
@@ -258,7 +267,7 @@ BEGIN
 		when others =>
 		end case;
 		
-		if (or_reduce(syncreset)='1') then
+		if (or_reduce(syncreset_reg or syncreset)='1') then
 			acc_mux <= (others=>'0');
 			decstep_mux <= (others=>'0');
 		end if;
