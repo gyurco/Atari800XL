@@ -97,8 +97,6 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal RESET_N : std_logic;
 
 	signal ENABLE_CYCLE : std_logic;
-	signal enable_cycle_shift_reg : std_logic_vector(4 downto 0);
-	signal enable_cycle_shift_next : std_logic_vector(4 downto 0);
 
 	-- WRITE ENABLES
 	SIGNAL POKEY_WRITE_ENABLE : STD_LOGIC_VECTOR(3 downto 0);		
@@ -254,15 +252,6 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal CONFIG_ENABLE_NEXT: std_logic;
 	
 	-- SAMPLE/COVOX
-	signal SAMPLE_CH1_REG : std_logic_vector(7 downto 0);
-	signal SAMPLE_CH0_REG : std_logic_vector(7 downto 0);
-	signal SAMPLE_CH1_NEXT : std_logic_vector(7 downto 0);
-	signal SAMPLE_CH0_NEXT : std_logic_vector(7 downto 0);
-	signal SAMPLE_CH3_REG : std_logic_vector(7 downto 0);
-	signal SAMPLE_CH2_REG : std_logic_vector(7 downto 0);
-	signal SAMPLE_CH3_NEXT : std_logic_vector(7 downto 0);
-	signal SAMPLE_CH2_NEXT : std_logic_vector(7 downto 0);
-
 	signal SAMPLE_AUDIO : SAMPLE_AUDIO_TYPE(1 downto 0);
 
 	-- FLASH
@@ -288,72 +277,6 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal CONFIG_FLASH_REQUEST : std_logic;
 	signal CONFIG_FLASH_COMPLETE : std_logic;
 	signal CONFIG_FLASH_ADDR : std_logic_vector(0 downto 0);
-
-	-- SAMPLE
-        signal sample_ram_cpu_addr_next : std_logic_vector(15 downto 0);
-        signal sample_ram_cpu_addr_reg : std_logic_vector(15 downto 0);
-        signal sample_ram_cpu_write_enable : std_logic;
-        signal sample_ram_cpu_do : std_logic_vector(7 downto 0);
-        signal sample_ram_player_addr : std_logic_vector(15 downto 0);
-        signal sample_ram_player_do : std_logic_vector(7 downto 0);
-
-	signal sample_ch0_start_addr_reg : std_logic_vector(15 downto 0);
-	signal sample_ch0_start_addr_next : std_logic_vector(15 downto 0);
-	signal sample_ch0_len_reg : std_logic_vector(11 downto 0);
-	signal sample_ch0_len_next : std_logic_vector(11 downto 0);
-	signal sample_ch0_period_reg : std_logic_vector(11 downto 0);
-	signal sample_ch0_period_next : std_logic_vector(11 downto 0);
-	signal sample_ch0_volume_reg : std_logic_vector(5 downto 0);
-	signal sample_ch0_volume_next : std_logic_vector(5 downto 0);
-
-	signal sample_ch1_start_addr_reg : std_logic_vector(15 downto 0);
-	signal sample_ch1_start_addr_next : std_logic_vector(15 downto 0);
-	signal sample_ch1_len_reg : std_logic_vector(11 downto 0);
-	signal sample_ch1_len_next : std_logic_vector(11 downto 0);
-	signal sample_ch1_period_reg : std_logic_vector(11 downto 0);
-	signal sample_ch1_period_next : std_logic_vector(11 downto 0);
-	signal sample_ch1_volume_reg : std_logic_vector(5 downto 0);
-	signal sample_ch1_volume_next : std_logic_vector(5 downto 0);
-
-	signal sample_ch2_start_addr_reg : std_logic_vector(15 downto 0);
-	signal sample_ch2_start_addr_next : std_logic_vector(15 downto 0);
-	signal sample_ch2_len_reg : std_logic_vector(11 downto 0);
-	signal sample_ch2_len_next : std_logic_vector(11 downto 0);
-	signal sample_ch2_period_reg : std_logic_vector(11 downto 0);
-	signal sample_ch2_period_next : std_logic_vector(11 downto 0);
-	signal sample_ch2_volume_reg : std_logic_vector(5 downto 0);
-	signal sample_ch2_volume_next : std_logic_vector(5 downto 0);
-
-	signal sample_ch3_start_addr_reg : std_logic_vector(15 downto 0);
-	signal sample_ch3_start_addr_next : std_logic_vector(15 downto 0);
-	signal sample_ch3_len_reg : std_logic_vector(11 downto 0);
-	signal sample_ch3_len_next : std_logic_vector(11 downto 0);
-	signal sample_ch3_period_reg : std_logic_vector(11 downto 0);
-	signal sample_ch3_period_next : std_logic_vector(11 downto 0);
-	signal sample_ch3_volume_reg : std_logic_vector(5 downto 0);
-	signal sample_ch3_volume_next : std_logic_vector(5 downto 0);
-	
-	signal sample_dma : std_logic_vector(3 downto 0);
-	signal sample_dma_on_reg : std_logic_vector(3 downto 0);
-	signal sample_dma_on_next : std_logic_vector(3 downto 0);
-	signal sample_channel_reg : std_logic_vector(1 downto 0);
-	signal sample_channel_next : std_logic_vector(1 downto 0);
-	signal sample_ch0_addr : std_logic_vector(16 downto 0);
-	signal sample_ch1_addr : std_logic_vector(16 downto 0);
-	signal sample_ch2_addr : std_logic_vector(16 downto 0);
-	signal sample_ch3_addr : std_logic_vector(16 downto 0);
-
-	signal sample_irq_en_reg : std_logic_vector(3 downto 0);
-	signal sample_irq_en_next : std_logic_vector(3 downto 0);
-	signal sample_irq_trigger : std_logic_vector(3 downto 0);
-	signal sample_data_request : std_logic_vector(3 downto 0);
-	signal sample_irq_clear_n : std_logic_vector(3 downto 0);
-	signal sample_irq_active_reg : std_logic_vector(3 downto 0);
-	signal sample_irq_active_next : std_logic_vector(3 downto 0);
-
-	signal sample_adpcm_decoded : std_logic_vector(7 downto 0);
-	signal sample_adpcm_reg : std_logic_vector(3 downto 0);
-	signal sample_adpcm_next : std_logic_vector(3 downto 0);
 
 	function getByte(a : string; x : integer) return std_logic_vector is
    		 variable ret : std_logic_vector(7 downto 0);
@@ -862,7 +785,7 @@ end generate psg_on;
 -- COVOX
 --------------------------------------------------------
 covox_off : if enable_covox=0 generate 
-	sample_irq_active_reg <= (others=>'0');
+	SAMPLE_IRQ <= '0';
 	SAMPLE_CH0_REG <= (others=>'0');
 	SAMPLE_CH1_REG <= (others=>'0');
 	SAMPLE_CH2_REG <= (others=>'0');
@@ -873,558 +796,62 @@ covox_off : if enable_covox=0 generate
 end generate covox_off;
 
 covox_on : if enable_covox=1 and enable_sample=0 generate 
-	sample_irq_active_reg <= (others=>'0');
-process(addr_decoded5,SAMPLE_CH0_REG,SAMPLE_CH1_REG,SAMPLE_CH2_REG,SAMPLE_CH3_REG)
-begin
-	SAMPLE_DO <= (others=>'0');
+	SAMPLE_IRQ <= '0';
 
-	if (addr_decoded5(0)='1') then
-		SAMPLE_DO <= SAMPLE_CH0_REG;
-	end if;
-
-	if (addr_decoded5(1)='1') then
-		SAMPLE_DO <= SAMPLE_CH1_REG;
-	end if;
-
-	if (addr_decoded5(2)='1') then
-		SAMPLE_DO <= SAMPLE_CH2_REG;
-	end if;
-
-	if (addr_decoded5(3)='1') then
-		SAMPLE_DO <= SAMPLE_CH3_REG;
-	end if;
-end process;
-
-process(addr_decoded5, SAMPLE_WRITE_ENABLE,
-SAMPLE_CH0_REG,SAMPLE_CH1_REG,SAMPLE_CH2_REG,SAMPLE_CH3_REG,WRITE_DATA)
-	variable l : unsigned(8 downto 0);
-	variable r : unsigned(8 downto 0);
-begin
-	SAMPLE_CH0_NEXT <= SAMPLE_CH0_REG;
-	SAMPLE_CH1_NEXT <= SAMPLE_CH1_REG;
-	SAMPLE_CH2_NEXT <= SAMPLE_CH2_REG;
-	SAMPLE_CH3_NEXT <= SAMPLE_CH3_REG;
+	covox1 : entity work.covox_top
+	PORT MAP(
+		CLK => CLK,
+		RESET_N => RESET_N,
 	
-	l := resize(unsigned(SAMPLE_CH0_REG),9) + resize(unsigned(SAMPLE_CH3_REG),9);
-	r := resize(unsigned(SAMPLE_CH1_REG),9) + resize(unsigned(SAMPLE_CH2_REG),9);
-	SAMPLE_AUDIO(0) <= std_logic_vector(l)&"0000000";
-	SAMPLE_AUDIO(1) <= std_logic_vector(r)&"0000000";
-
-	
-	if (SAMPLE_WRITE_ENABLE='1') then
-		if (addr_decoded5(0)='1') then
-			SAMPLE_CH0_NEXT <= WRITE_DATA;
-		end if;
-		if (addr_decoded5(1)='1') then
-			SAMPLE_CH1_NEXT <= WRITE_DATA;
-		end if;
-		if (addr_decoded5(2)='1') then
-			SAMPLE_CH2_NEXT <= WRITE_DATA;
-		end if;
-		if (addr_decoded5(3)='1') then
-			SAMPLE_CH3_NEXT <= WRITE_DATA;
-		end if;
-	end if;
-end process;
-
-process(clk,reset_n)
-begin
-	if (reset_n='0') then
-		SAMPLE_CH0_REG <= (others=>'0');
-		SAMPLE_CH1_REG <= (others=>'0');
-		SAMPLE_CH2_REG <= (others=>'0');
-		SAMPLE_CH3_REG <= (others=>'0');
-	elsif (clk'event and clk='1') then
-		SAMPLE_CH0_REG <= SAMPLE_CH0_NEXT;
-		SAMPLE_CH1_REG <= SAMPLE_CH1_NEXT;
-		SAMPLE_CH2_REG <= SAMPLE_CH2_NEXT;
-		SAMPLE_CH3_REG <= SAMPLE_CH3_NEXT;
-	end if;
-end process;
-
+		WRITE_ENABLE => SAMPLE_WRITE_ENABLE,
+		ADDR => ADDR_IN(1 downto 0),
+		DI => WRITE_DATA(7 downto 0),
+		DO => SAMPLE_DO,
+		AUDIO0 => SAMPLE_AUDIO(0),
+		AUDIO1 => SAMPLE_AUDIO(1) 
+	);
 end generate covox_on;
 
 ----------------------------------------
 
 sample_on : if enable_sample=1 generate 
 
-sample_ram_inst : entity work. sample_ram
-PORT MAP
-(
-        clock           => clk,
-        data_a          => write_data,
-	data_b          => (others=>'0'),
-        address_a       => sample_ram_cpu_addr_reg,
-        address_b       => sample_ram_player_addr,
-        wren_a          => sample_ram_cpu_write_enable,
-	wren_b          => open,
-        q_a             => sample_ram_cpu_do,
-        q_b             => sample_ram_player_do
-);
+	sample1 : entity work.sample_top
+	PORT MAP(
+		CLK => CLK,
+		RESET_N => RESET_N,
 
-process(addr_decoded5,SAMPLE_CH0_REG,SAMPLE_CH1_REG,SAMPLE_CH2_REG,SAMPLE_CH3_REG,
-	sample_ram_cpu_addr_reg, sample_ram_cpu_do, 
-	sample_irq_en_reg,sample_irq_active_reg
-	)
-begin
-	SAMPLE_DO <= (others=>'0');
-
-	if (addr_decoded5(0)='1') then
-		SAMPLE_DO <= SAMPLE_CH0_REG;
-	end if;
-
-	if (addr_decoded5(1)='1') then
-		SAMPLE_DO <= SAMPLE_CH1_REG;
-	end if;
-
-	if (addr_decoded5(2)='1') then
-		SAMPLE_DO <= SAMPLE_CH2_REG;
-	end if;
-
-	if (addr_decoded5(3)='1') then
-		SAMPLE_DO <= SAMPLE_CH3_REG;
-	end if;
-
-	if (addr_decoded5(4)='1') then
-		SAMPLE_DO <= sample_ram_cpu_addr_reg(7 downto 0);
-	end if;
-	if (addr_decoded5(5)='1') then
-		SAMPLE_DO <= sample_ram_cpu_addr_reg(15 downto 8);
-	end if;
-	if (addr_decoded5(6)='1') then --manual addr inc
-		SAMPLE_DO <= sample_ram_cpu_do;
-	end if;
-	if (addr_decoded5(17)='1') then
-		SAMPLE_DO(3 downto 0) <= sample_irq_en_reg;
-	end if;
-	if (addr_decoded5(18)='1') then
-		SAMPLE_DO(3 downto 0) <= sample_irq_active_reg;
-	end if;
-end process;
-
-adpcm_decoder : entity work.sample_adpcm
-	port map (clk=>clk,reset_n=>reset_n,syncreset=>sample_irq_trigger,fetch=>sample_dma,update=>sample_data_request,data_nibble=>sample_ch3_addr(0)&sample_ch2_addr(0)&sample_ch1_addr(0)&sample_ch0_addr(0),data_in=>sample_ram_player_do, data_out=>sample_adpcm_decoded);
-	-- TODO -> feed in data slower and each nibble
-
-process(addr_decoded5, SAMPLE_WRITE_ENABLE,
-SAMPLE_CH0_REG,SAMPLE_CH1_REG,SAMPLE_CH2_REG,SAMPLE_CH3_REG,WRITE_DATA,
-sample_ram_cpu_addr_reg,
-sample_ch0_start_addr_reg, sample_ch0_len_reg, sample_ch0_period_reg, sample_ch0_volume_reg,
-sample_ch1_start_addr_reg, sample_ch1_len_reg, sample_ch1_period_reg, sample_ch1_volume_reg,
-sample_ch2_start_addr_reg, sample_ch2_len_reg, sample_ch2_period_reg, sample_ch2_volume_reg,
-sample_ch3_start_addr_reg, sample_ch3_len_reg, sample_ch3_period_reg, sample_ch3_volume_reg,
-sample_dma_on_reg,sample_dma,sample_ram_player_do,
-sample_channel_reg,
-sample_irq_en_reg,sample_irq_active_reg,sample_irq_trigger,
-sample_adpcm_decoded,sample_adpcm_reg
-)
-	variable sample_ram_player_do_u : std_logic_vector(7 downto 0);
-begin
-	SAMPLE_CH0_NEXT <= SAMPLE_CH0_REG;
-	SAMPLE_CH1_NEXT <= SAMPLE_CH1_REG;
-	SAMPLE_CH2_NEXT <= SAMPLE_CH2_REG;
-	SAMPLE_CH3_NEXT <= SAMPLE_CH3_REG;
-
-	sample_ram_cpu_write_enable <= '0';
-	sample_ram_cpu_addr_next <= sample_ram_cpu_addr_reg;
-
-	sample_ch0_start_addr_next <= sample_ch0_start_addr_reg;
-	sample_ch0_len_next <= sample_ch0_len_reg;
-	sample_ch0_period_next <= sample_ch0_period_reg;
-	sample_ch0_volume_next <= sample_ch0_volume_reg;
-
-	sample_ch1_start_addr_next <= sample_ch1_start_addr_reg;
-	sample_ch1_len_next <= sample_ch1_len_reg;
-	sample_ch1_period_next <= sample_ch1_period_reg;
-	sample_ch1_volume_next <= sample_ch1_volume_reg;
-
-	sample_ch2_start_addr_next <= sample_ch2_start_addr_reg;
-	sample_ch2_len_next <= sample_ch2_len_reg;
-	sample_ch2_period_next <= sample_ch2_period_reg;
-	sample_ch2_volume_next <= sample_ch2_volume_reg;
-
-	sample_ch3_start_addr_next <= sample_ch3_start_addr_reg;
-	sample_ch3_len_next <= sample_ch3_len_reg;
-	sample_ch3_period_next <= sample_ch3_period_reg;
-	sample_ch3_volume_next <= sample_ch3_volume_reg;
-
-	sample_dma_on_next <= sample_dma_on_reg;
-
-	sample_channel_next <= sample_channel_reg;
-
-	sample_irq_clear_n <= (others=>'1');
-	sample_irq_en_next <= sample_irq_en_reg;
-	sample_irq_active_next <= (sample_irq_active_reg or sample_irq_trigger) and sample_irq_en_reg and sample_irq_clear_n;
-
-	sample_adpcm_next <= sample_adpcm_reg;
-
-	sample_ram_player_do_u(7) := NOT(sample_ram_player_do(7));
-	sample_ram_player_do_u(6 downto 0) := sample_ram_player_do(6 downto 0);
-
-	case sample_dma is
-	when "0001"=>
-		if (sample_adpcm_reg(0)='0') then
-			SAMPLE_CH0_NEXT <= sample_ram_player_do_u;
-		else
-			SAMPLE_CH0_NEXT <= sample_adpcm_decoded;
-		end if;
-	when "0010" =>
-		if (sample_adpcm_reg(1)='0') then
-			SAMPLE_CH1_NEXT <= sample_ram_player_do_u;
-		else
-			SAMPLE_CH1_NEXT <= sample_adpcm_decoded;
-		end if;
-	when "0100" =>
-		if (sample_adpcm_reg(2)='0') then
-			SAMPLE_CH2_NEXT <= sample_ram_player_do_u;
-		else
-			SAMPLE_CH2_NEXT <= sample_adpcm_decoded;
-		end if;
-	when "1000" => 
-		if (sample_adpcm_reg(3)='0') then
-			SAMPLE_CH3_NEXT <= sample_ram_player_do_u;
-		else
-			SAMPLE_CH3_NEXT <= sample_adpcm_decoded;
-		end if;
-	when others =>
-		if (sample_write_enable='1') then
-			if (addr_decoded5(0)='1') then
-				SAMPLE_CH0_NEXT <= WRITE_DATA;
-			end if;
-			if (addr_decoded5(1)='1') then
-				SAMPLE_CH1_NEXT <= WRITE_DATA;
-			end if;
-			if (addr_decoded5(2)='1') then
-				SAMPLE_CH2_NEXT <= WRITE_DATA;
-			end if;
-			if (addr_decoded5(3)='1') then
-				SAMPLE_CH3_NEXT <= WRITE_DATA;
-			end if;
-
-			if (addr_decoded5(4)='1') then
-				sample_ram_cpu_addr_next(7 downto 0) <= WRITE_DATA;
-			end if;
-			if (addr_decoded5(5)='1') then
-				sample_ram_cpu_addr_next(15 downto 8) <= WRITE_DATA;
-			end if;
-			if (addr_decoded5(6)='1') then --manual addr inc
-				sample_ram_cpu_write_enable <= '1';
-			end if;
-			if (addr_decoded5(7)='1') then --auto addr inc
-				sample_ram_cpu_write_enable <= '1';
-				sample_ram_cpu_addr_next <= sample_ram_cpu_addr_reg + 1;
-			end if;
-
-			if (addr_decoded5(8)='1') then
-				sample_channel_next(1 downto 0) <= WRITE_DATA(1 downto 0);
-			end if;
-
-			case sample_channel_reg is
-				when "00" =>
-					if (addr_decoded5(9)='1') then
-						sample_ch0_start_addr_next(7 downto 0) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(10)='1') then
-						sample_ch0_start_addr_next(15 downto 8) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(11)='1') then
-						sample_ch0_len_next(7 downto 0) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(12)='1') then
-						sample_ch0_len_next(11 downto 8) <= WRITE_DATA(3 downto 0);
-					end if;
-					if (addr_decoded5(13)='1') then
-						sample_ch0_period_next(7 downto 0) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(14)='1') then
-						sample_ch0_period_next(11 downto 8) <= WRITE_DATA(3 downto 0);
-					end if;
-					if (addr_decoded5(15)='1') then
-						sample_ch0_volume_next(5 downto 0) <= WRITE_DATA(5 downto 0);
-					end if;
-				when "01" =>
-					if (addr_decoded5(9)='1') then
-						sample_ch1_start_addr_next(7 downto 0) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(10)='1') then
-						sample_ch1_start_addr_next(15 downto 8) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(11)='1') then
-						sample_ch1_len_next(7 downto 0) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(12)='1') then
-						sample_ch1_len_next(11 downto 8) <= WRITE_DATA(3 downto 0);
-					end if;
-					if (addr_decoded5(13)='1') then
-						sample_ch1_period_next(7 downto 0) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(14)='1') then
-						sample_ch1_period_next(11 downto 8) <= WRITE_DATA(3 downto 0);
-					end if;
-					if (addr_decoded5(15)='1') then
-						sample_ch1_volume_next(5 downto 0) <= WRITE_DATA(5 downto 0);
-					end if;
-				when "10" =>
-					if (addr_decoded5(9)='1') then
-						sample_ch2_start_addr_next(7 downto 0) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(10)='1') then
-						sample_ch2_start_addr_next(15 downto 8) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(11)='1') then
-						sample_ch2_len_next(7 downto 0) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(12)='1') then
-						sample_ch2_len_next(11 downto 8) <= WRITE_DATA(3 downto 0);
-					end if;
-					if (addr_decoded5(13)='1') then
-						sample_ch2_period_next(7 downto 0) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(14)='1') then
-						sample_ch2_period_next(11 downto 8) <= WRITE_DATA(3 downto 0);
-					end if;
-					if (addr_decoded5(15)='1') then
-						sample_ch2_volume_next(5 downto 0) <= WRITE_DATA(5 downto 0);
-					end if;
-				when "11" =>
-					if (addr_decoded5(9)='1') then
-						sample_ch3_start_addr_next(7 downto 0) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(10)='1') then
-						sample_ch3_start_addr_next(15 downto 8) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(11)='1') then
-						sample_ch3_len_next(7 downto 0) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(12)='1') then
-						sample_ch3_len_next(11 downto 8) <= WRITE_DATA(3 downto 0);
-					end if;
-					if (addr_decoded5(13)='1') then
-						sample_ch3_period_next(7 downto 0) <= WRITE_DATA;
-					end if;
-					if (addr_decoded5(14)='1') then
-						sample_ch3_period_next(11 downto 8) <= WRITE_DATA(3 downto 0);
-					end if;
-					if (addr_decoded5(15)='1') then
-						sample_ch3_volume_next(5 downto 0) <= WRITE_DATA(5 downto 0);
-					end if;
-				when others =>
-			end case;
-			if (addr_decoded5(16)='1') then
-				sample_dma_on_next <= WRITE_DATA(3 downto 0);
-			end if;
-			if (addr_decoded5(17)='1') then
-				sample_irq_en_next <= WRITE_DATA(3 downto 0);
-			end if;
-			if (addr_decoded5(18)='1') then
-				sample_irq_clear_n <= WRITE_DATA(3 downto 0); --write 0 to disable
-			end if;
-			if (addr_decoded5(19)='1') then
-				sample_adpcm_next <= WRITE_DATA(3 downto 0); 
-			end if;
-		end if;
-	end case;
-end process;
-
-sample_ch0_inst: entity work.sample_channel
-PORT MAP
-( 
-	CLK => CLK,
-	RESET_N => RESET_N,
-	ENABLE => ENABLE_CYCLE_SHIFT_REG(0),
-
-	syncreset => (sample_dma_on_next(0) xor sample_dma_on_reg(0)),
-	start_addr => sample_ch0_start_addr_reg,
-	len => sample_ch0_len_reg,
-	period => sample_ch0_period_reg,
+		ENABLE => enable_cycle, -- TODO: 2x faster like Paula?
 	
-	twocycles => sample_adpcm_reg(0),
-	
-	addr => sample_ch0_addr,
-	irq => sample_irq_trigger(0),
-	req => sample_data_request(0)
-);
-
-sample_ch1_inst: entity work.sample_channel
-PORT MAP
-( 
-	CLK => CLK,
-	RESET_N => RESET_N,
-	ENABLE => ENABLE_CYCLE_SHIFT_REG(1),
-
-	syncreset => (sample_dma_on_next(1) xor sample_dma_on_reg(1)),
-	start_addr => sample_ch1_start_addr_reg,
-	len => sample_ch1_len_reg,
-	period => sample_ch1_period_reg,
-	
-	twocycles => sample_adpcm_reg(1),
-	
-	addr => sample_ch1_addr,
-	irq => sample_irq_trigger(1),
-	req => sample_data_request(1)
-);
-
-sample_ch2_inst: entity work.sample_channel
-PORT MAP
-( 
-	CLK => CLK,
-	RESET_N => RESET_N,
-	ENABLE => ENABLE_CYCLE_SHIFT_REG(2),
-
-	syncreset => (sample_dma_on_next(2) xor sample_dma_on_reg(2)),
-	start_addr => sample_ch2_start_addr_reg,
-	len => sample_ch2_len_reg,
-	period => sample_ch2_period_reg,
-	
-	twocycles => sample_adpcm_reg(2),
-	
-	addr => sample_ch2_addr,
-	irq => sample_irq_trigger(2),
-	req => sample_data_request(2)
-);
-
-sample_ch3_inst: entity work.sample_channel
-PORT MAP
-( 
-	CLK => CLK,
-	RESET_N => RESET_N,
-	ENABLE => ENABLE_CYCLE_SHIFT_REG(3),
-
-	syncreset => (sample_dma_on_next(3) xor sample_dma_on_reg(3)),
-	start_addr => sample_ch3_start_addr_reg,
-	len => sample_ch3_len_reg,
-	period => sample_ch3_period_reg,
-	
-	twocycles => sample_adpcm_reg(3),
-	
-	addr => sample_ch3_addr,
-	irq => sample_irq_trigger(3),
-	req => sample_data_request(3)
-);
-
-process (sample_ch0_reg,sample_ch1_reg,sample_ch2_reg,sample_ch3_reg,
-	sample_ch0_volume_reg,sample_ch1_volume_reg,sample_ch2_volume_reg,sample_ch3_volume_reg)
-	variable l : unsigned(17 downto 0);
-	variable r : unsigned(17 downto 0);
-begin
-	l :=     resize(unsigned(SAMPLE_CH0_REG),9)*resize(unsigned(sample_ch0_volume_reg),9);
-	l := l + resize(unsigned(SAMPLE_CH3_REG),9)*resize(unsigned(sample_ch3_volume_reg),9);
-	r :=     resize(unsigned(SAMPLE_CH1_REG),9)*resize(unsigned(sample_ch1_volume_reg),9);
-        r := r + resize(unsigned(SAMPLE_CH2_REG),9)*resize(unsigned(sample_ch2_volume_reg),9);
-	-- TODO: probably need to register here?
-	SAMPLE_AUDIO(0) <= std_logic_vector(l(15 downto 0));
-	SAMPLE_AUDIO(1) <= std_logic_vector(r(15 downto 0));
-
-	-- TODO: modulation
-	-- TODO: test ->BUG: OS clears volume during init so covox ch.0 no longer works!! Hmmm....
-	-- TODO: double speed of enable to match PAULA
-	-- TODO: samples from rom and put in voice samples after core?
-	-- TODO: 4 bit and 8-bit mode
-
-	-- options to set: per channel: modulate volume(4),modulate period(4),sample bits(4)
-end process;
-
-process(sample_ch0_addr,sample_ch1_addr,sample_ch2_addr,sample_ch3_addr,
-	enable_cycle_shift_reg,
-	sample_dma_on_reg)
-begin
-   sample_ram_player_addr <= (others=>'0');
-	sample_dma <= (others=>'0');
-
-	case (enable_cycle_shift_reg) is
-	when "00001" => 
-        	sample_ram_player_addr <= sample_ch0_addr(16 downto 1);			
-	when "00010" => 
-        	sample_ram_player_addr <= sample_ch1_addr(16 downto 1);
-			sample_dma(0) <= sample_dma_on_reg(0);
-	when "00100" => 
-        	sample_ram_player_addr <= sample_ch2_addr(16 downto 1);			
-			sample_dma(1) <= sample_dma_on_reg(1);
-	when "01000" => 
-        	sample_ram_player_addr <= sample_ch3_addr(16 downto 1);
-			sample_dma(2) <= sample_dma_on_reg(2);
-	when "10000" => 
-			sample_dma(3) <= sample_dma_on_reg(3);
-	when others =>
-	end case;
-end process;
-
-process(clk,reset_n)
-begin
-	if (reset_n='0') then
-		SAMPLE_CH0_REG <= (others=>'0');
-		SAMPLE_CH1_REG <= (others=>'0');
-		SAMPLE_CH2_REG <= (others=>'0');
-		SAMPLE_CH3_REG <= (others=>'0');
-		sample_ram_cpu_addr_reg <= (others=>'0');
-
-		sample_ch0_start_addr_reg <= (others=>'0');
-		sample_ch0_len_reg <= (others=>'0');
-		sample_ch0_period_reg <= (others=>'0');
-		sample_ch0_volume_reg <= (others=>'1');
-
-		sample_ch1_start_addr_reg <= (others=>'0');
-		sample_ch1_len_reg <= (others=>'0');
-		sample_ch1_period_reg <= (others=>'0');
-		sample_ch1_volume_reg <= (others=>'1');
-
-		sample_ch2_start_addr_reg <= (others=>'0');
-		sample_ch2_len_reg <= (others=>'0');
-		sample_ch2_period_reg <= (others=>'0');
-		sample_ch2_volume_reg <= (others=>'1');
-
-		sample_ch3_start_addr_reg <= (others=>'0');
-		sample_ch3_len_reg <= (others=>'0');
-		sample_ch3_period_reg <= (others=>'0');
-		sample_ch3_volume_reg <= (others=>'1');
-
-		sample_dma_on_reg <= (others=>'0');
-		sample_irq_en_reg <= (others=>'0');
-		sample_irq_active_reg <= (others=>'0');
-		sample_channel_reg <= (others=>'0');
+		WRITE_ENABLE => SAMPLE_WRITE_ENABLE,
+		ADDR => ADDR_IN(4 downto 0),
+		DI => WRITE_DATA(7 downto 0),
+		DO => SAMPLE_DO,
+		AUDIO0 => SAMPLE_AUDIO(0),
+		AUDIO1 => SAMPLE_AUDIO(1),
+		IRQ => SAMPLE_IRQ,
 		
-		sample_adpcm_reg <= (others=>'0');
+		RAM_ADDRESS => SAMPLE_RAM_ADDRESS,
+		RAM_WRITE_ENABLE => SAMPLE_RAM_WRITE_ENABLE,
+		RAM_DATA => SAMPLE_RAM_DATA
+	);
 
-		ENABLE_CYCLE_SHIFT_REG <= (others=>'0');
-	elsif (clk'event and clk='1') then
-		SAMPLE_CH0_REG <= SAMPLE_CH0_NEXT;
-		SAMPLE_CH1_REG <= SAMPLE_CH1_NEXT;
-		SAMPLE_CH2_REG <= SAMPLE_CH2_NEXT;
-		SAMPLE_CH3_REG <= SAMPLE_CH3_NEXT;
-		sample_ram_cpu_addr_reg <= sample_ram_cpu_addr_next;
-
-		sample_ch0_start_addr_reg <= sample_ch0_start_addr_next;
-		sample_ch0_len_reg <= sample_ch0_len_next;
-		sample_ch0_period_reg <= sample_ch0_period_next;
-		sample_ch0_volume_reg <= sample_ch0_volume_next;
-
-		sample_ch1_start_addr_reg <= sample_ch1_start_addr_next;
-		sample_ch1_len_reg <= sample_ch1_len_next;
-		sample_ch1_period_reg <= sample_ch1_period_next;
-		sample_ch1_volume_reg <= sample_ch1_volume_next;
-
-		sample_ch2_start_addr_reg <= sample_ch2_start_addr_next;
-		sample_ch2_len_reg <= sample_ch2_len_next;
-		sample_ch2_period_reg <= sample_ch2_period_next;
-		sample_ch2_volume_reg <= sample_ch2_volume_next;
-
-		sample_ch3_start_addr_reg <= sample_ch3_start_addr_next;
-		sample_ch3_len_reg <= sample_ch3_len_next;
-		sample_ch3_period_reg <= sample_ch3_period_next;
-		sample_ch3_volume_reg <= sample_ch3_volume_next;
-
-		sample_dma_on_reg <= sample_dma_on_next;
-		sample_irq_en_reg <= sample_irq_en_next;
-		sample_irq_active_reg <= sample_irq_active_next;
-		sample_channel_reg <= sample_channel_next;
-
-		sample_adpcm_reg <= sample_adpcm_next;
-
-		ENABLE_CYCLE_SHIFT_REG <= ENABLE_CYCLE_SHIFT_NEXT;
-	end if;
-end process;
-
-ENABLE_CYCLE_SHIFT_NEXT <= ENABLE_CYCLE_SHIFT_REG(3 downto 0)&ENABLE_CYCLE;
+	sample_ram_inst : entity work.generic_ram_infer
+	GENERIC MAP
+	(
+		ADDRESS_WIDTH := 16;
+		SPACE := 43008;
+		DATA_WIDTH := 8
+	);
+	PORT MAP
+	(
+	        clock => clk,
+		reset_n => reset_n,
+		data => write_data,
+		address => sample_ram_address,
+		we => sample_ram_write_enable,
+		q => sample_ram_data
+	);
 
 end generate sample_on;
 		
@@ -1991,7 +1418,7 @@ AUD(2) <= AUDIO_1_SIGMADELTA;
 AUD(3) <= AUDIO_2_SIGMADELTA;
 AUD(4) <= AUDIO_3_SIGMADELTA;
 
-IRQ <= '0' when (IRQ_EN_REG='1' and (and_reduce(POKEY_IRQ)='0')) or (IRQ_EN_REG='0' and POKEY_IRQ(0)='0') or (or_reduce(sample_irq_active_reg)='1')  else 'Z';
+IRQ <= '0' when (IRQ_EN_REG='1' and (and_reduce(POKEY_IRQ)='0')) or (IRQ_EN_REG='0' and POKEY_IRQ(0)='0') or (SAMPLE_IRQ='1')  else 'Z';
 
 D <= BUS_DATA when BUS_OE='1' else (others=>'Z');
 

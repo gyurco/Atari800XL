@@ -119,7 +119,7 @@ BEGIN
 		end if;
 	end process;
 
-	addr <= std_logic_vector(pointer_reg);
+	addr <= std_logic_vector(pointer_next);
 
 	req <= req_reg;
 	irq <= irq_reg;

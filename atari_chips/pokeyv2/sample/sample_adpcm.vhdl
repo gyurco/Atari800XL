@@ -53,61 +53,61 @@ ARCHITECTURE vhdl OF sample_adpcm IS
         function stepsize_fn(x: unsigned(5 downto 0)) return unsigned is
         begin
                 case x is
-        when "000000" => return to_unsigned(16/8,8);
-        when "000001" => return to_unsigned(17/8,8);
-        when "000010" => return to_unsigned(19/8,8);
-        when "000011" => return to_unsigned(21/8,8);
-        when "000100" => return to_unsigned(23/8,8);
-        when "000101" => return to_unsigned(25/8,8);
-        when "000110" => return to_unsigned(28/8,8);
-        when "000111" => return to_unsigned(31/8,8);
-        when "001000" => return to_unsigned(34/8,8);
-        when "001001" => return to_unsigned(37/8,8);
+        when "000000" => return to_unsigned(16,11);
+        when "000001" => return to_unsigned(17,11);
+        when "000010" => return to_unsigned(19,11);
+        when "000011" => return to_unsigned(21,11);
+        when "000100" => return to_unsigned(23,11);
+        when "000101" => return to_unsigned(25,11);
+        when "000110" => return to_unsigned(28,11);
+        when "000111" => return to_unsigned(31,11);
+        when "001000" => return to_unsigned(34,11);
+        when "001001" => return to_unsigned(37,11);
 
-        when "001010" => return to_unsigned(41/8,8);
-        when "001011" => return to_unsigned(45/8,8);
-        when "001100" => return to_unsigned(50/8,8);
-        when "001101" => return to_unsigned(55/8,8);
-        when "001110" => return to_unsigned(60/8,8);
-        when "001111" => return to_unsigned(66/8,8);
-        when "010000" => return to_unsigned(73/8,8);
-        when "010001" => return to_unsigned(80/8,8);
-        when "010010" => return to_unsigned(88/8,8);
-        when "010011" => return to_unsigned(97/8,8);
+        when "001010" => return to_unsigned(41,11);
+        when "001011" => return to_unsigned(45,11);
+        when "001100" => return to_unsigned(50,11);
+        when "001101" => return to_unsigned(55,11);
+        when "001110" => return to_unsigned(60,11);
+        when "001111" => return to_unsigned(66,11);
+        when "010000" => return to_unsigned(73,11);
+        when "010001" => return to_unsigned(80,11);
+        when "010010" => return to_unsigned(88,11);
+        when "010011" => return to_unsigned(97,11);
 
-        when "010100" => return to_unsigned(107/8,8);
-        when "010101" => return to_unsigned(118/8,8);
-        when "010110" => return to_unsigned(130/8,8);
-        when "010111" => return to_unsigned(143/8,8);
-        when "011000" => return to_unsigned(157/8,8);
-        when "011001" => return to_unsigned(173/8,8);
-        when "011010" => return to_unsigned(190/8,8);
-        when "011011" => return to_unsigned(209/8,8);
-        when "011100" => return to_unsigned(230/8,8);
-        when "011101" => return to_unsigned(253/8,8);
+        when "010100" => return to_unsigned(107,11);
+        when "010101" => return to_unsigned(118,11);
+        when "010110" => return to_unsigned(130,11);
+        when "010111" => return to_unsigned(143,11);
+        when "011000" => return to_unsigned(157,11);
+        when "011001" => return to_unsigned(173,11);
+        when "011010" => return to_unsigned(190,11);
+        when "011011" => return to_unsigned(209,11);
+        when "011100" => return to_unsigned(230,11);
+        when "011101" => return to_unsigned(253,11);
 		  
-        when "011110" => return to_unsigned(279/8,8);		  
-        when "011111" => return to_unsigned(307/8,8);	  
-        when "100000" => return to_unsigned(337/8,8);
-        when "100001" => return to_unsigned(371/8,8);
-        when "100010" => return to_unsigned(408/8,8);
-        when "100011" => return to_unsigned(449/8,8);
-        when "100100" => return to_unsigned(494/8,8);
-        when "100101" => return to_unsigned(544/8,8);
-        when "100110" => return to_unsigned(598/8,8);		  		  
-        when "100111" => return to_unsigned(658/8,8);
+        when "011110" => return to_unsigned(279,11);		  
+        when "011111" => return to_unsigned(307,11);	  
+        when "100000" => return to_unsigned(337,11);
+        when "100001" => return to_unsigned(371,11);
+        when "100010" => return to_unsigned(408,11);
+        when "100011" => return to_unsigned(449,11);
+        when "100100" => return to_unsigned(494,11);
+        when "100101" => return to_unsigned(544,11);
+        when "100110" => return to_unsigned(598,11);		  		  
+        when "100111" => return to_unsigned(658,11);
 		  
-        when "101000" => return to_unsigned(724/8,8);
-        when "101001" => return to_unsigned(796/8,8);
-        when "101010" => return to_unsigned(876/8,8);
-        when "101011" => return to_unsigned(963/8,8);
-        when "101100" => return to_unsigned(1060/8,8);
-        when "101101" => return to_unsigned(1166/8,8);
-        when "101110" => return to_unsigned(1282/8,8);
-        when "101111" => return to_unsigned(1411/8,8);		  
-        when "110000" => return to_unsigned(1552/8,8);	  
+        when "101000" => return to_unsigned(724,11);
+        when "101001" => return to_unsigned(796,11);
+        when "101010" => return to_unsigned(876,11);
+        when "101011" => return to_unsigned(963,11);
+        when "101100" => return to_unsigned(1060,11);
+        when "101101" => return to_unsigned(1166,11);
+        when "101110" => return to_unsigned(1282,11);
+        when "101111" => return to_unsigned(1411,11);		  
+        when "110000" => return to_unsigned(1552,11);	  
 		  when others =>
-			return to_unsigned(0/8,8);
+			return to_unsigned(0,11);
                 end case;
         end stepsize_fn;	
 
@@ -278,8 +278,8 @@ BEGIN
 
 		variable code : std_logic_vector(3 downto 0);
 		variable codeadj : signed(8 downto 0);
-		variable stepsize : signed(8 downto 0);
-		variable vlue : signed(17 downto 0);
+		variable stepsize : signed(17 downto 0);
+		variable vlue : signed(26 downto 0);
 		variable decstepnext : signed(6 downto 0);
 	begin
 		acc_next <= acc_mux;
@@ -298,11 +298,11 @@ BEGIN
 			codeadj:=-codeadj;
 		end if;
 		
-		stepsize := signed('0'&stepsize_fn(decstep_mux)); -- already /8
+		stepsize := resize(signed('0'&stepsize_fn(decstep_mux)),18);
 
 		vlue :=codeadj*stepsize;
 			
-		acc_next <= acc_mux + vlue(11 downto 0);
+		acc_next <= acc_mux + vlue(14 downto 3);
 
 		decstepnext := stepadj_fn(code(2 downto 0)) + signed(resize(decstep_mux,7));
 		if (decstepnext>48) then
