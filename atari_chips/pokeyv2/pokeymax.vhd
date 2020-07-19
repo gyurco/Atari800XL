@@ -295,7 +295,6 @@ ARCHITECTURE vhdl OF pokeymax IS
         signal sample_ram_cpu_write_enable : std_logic;
         signal sample_ram_cpu_do : std_logic_vector(7 downto 0);
         signal sample_ram_player_addr : std_logic_vector(15 downto 0);
-		  signal sample_nibble_addr : std_logic;
         signal sample_ram_player_do : std_logic_vector(7 downto 0);
 
 	signal sample_ch0_start_addr_reg : std_logic_vector(15 downto 0);
@@ -347,7 +346,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal sample_irq_en_reg : std_logic_vector(3 downto 0);
 	signal sample_irq_en_next : std_logic_vector(3 downto 0);
 	signal sample_irq_trigger : std_logic_vector(3 downto 0);
-	signal sample_data_needed : std_logic_vector(3 downto 0);
+	signal sample_data_request : std_logic_vector(3 downto 0);
 	signal sample_irq_clear_n : std_logic_vector(3 downto 0);
 	signal sample_irq_active_reg : std_logic_vector(3 downto 0);
 	signal sample_irq_active_next : std_logic_vector(3 downto 0);
@@ -1004,7 +1003,7 @@ begin
 end process;
 
 adpcm_decoder : entity work.sample_adpcm
-	port map (clk=>clk,reset_n=>reset_n,syncreset=>sample_irq_trigger,update=>sample_dma,data_needed=>sample_data_needed,data_nibble=>sample_nibble_addr,data_in=>sample_ram_player_do, data_out=>sample_adpcm_decoded);
+	port map (clk=>clk,reset_n=>reset_n,syncreset=>sample_irq_trigger,fetch=>sample_dma,update=>sample_data_request,data_nibble=>sample_ch3_addr(0)&sample_ch2_addr(0)&sample_ch1_addr(0)&sample_ch0_addr(0),data_in=>sample_ram_player_do, data_out=>sample_adpcm_decoded);
 	-- TODO -> feed in data slower and each nibble
 
 process(addr_decoded5, SAMPLE_WRITE_ENABLE,
@@ -1243,7 +1242,7 @@ PORT MAP
 	
 	addr => sample_ch0_addr,
 	irq => sample_irq_trigger(0),
-	req => sample_data_needed(0)
+	req => sample_data_request(0)
 );
 
 sample_ch1_inst: entity work.sample_channel
@@ -1262,7 +1261,7 @@ PORT MAP
 	
 	addr => sample_ch1_addr,
 	irq => sample_irq_trigger(1),
-	req => sample_data_needed(1)
+	req => sample_data_request(1)
 );
 
 sample_ch2_inst: entity work.sample_channel
@@ -1281,7 +1280,7 @@ PORT MAP
 	
 	addr => sample_ch2_addr,
 	irq => sample_irq_trigger(2),
-	req => sample_data_needed(2)
+	req => sample_data_request(2)
 );
 
 sample_ch3_inst: entity work.sample_channel
@@ -1300,7 +1299,7 @@ PORT MAP
 	
 	addr => sample_ch3_addr,
 	irq => sample_irq_trigger(3),
-	req => sample_data_needed(3)
+	req => sample_data_request(3)
 );
 
 process (sample_ch0_reg,sample_ch1_reg,sample_ch2_reg,sample_ch3_reg,
@@ -1330,27 +1329,22 @@ process(sample_ch0_addr,sample_ch1_addr,sample_ch2_addr,sample_ch3_addr,
 	sample_dma_on_reg)
 begin
    sample_ram_player_addr <= (others=>'0');
-	sample_nibble_addr <= '0';
 	sample_dma <= (others=>'0');
 
 	case (enable_cycle_shift_reg) is
 	when "00001" => 
-        	sample_ram_player_addr <= sample_ch0_addr(16 downto 1);
-			sample_nibble_addr <= sample_ch0_addr(0);
+        	sample_ram_player_addr <= sample_ch0_addr(16 downto 1);			
 	when "00010" => 
         	sample_ram_player_addr <= sample_ch1_addr(16 downto 1);
-			sample_nibble_addr <= sample_ch1_addr(0);
-		sample_dma(0) <= sample_dma_on_reg(0);
+			sample_dma(0) <= sample_dma_on_reg(0);
 	when "00100" => 
-        	sample_ram_player_addr <= sample_ch2_addr(16 downto 1);
-			sample_nibble_addr <= sample_ch2_addr(0);
-		sample_dma(1) <= sample_dma_on_reg(1);
+        	sample_ram_player_addr <= sample_ch2_addr(16 downto 1);			
+			sample_dma(1) <= sample_dma_on_reg(1);
 	when "01000" => 
         	sample_ram_player_addr <= sample_ch3_addr(16 downto 1);
-			sample_nibble_addr <= sample_ch3_addr(0);
-		sample_dma(2) <= sample_dma_on_reg(2);
+			sample_dma(2) <= sample_dma_on_reg(2);
 	when "10000" => 
-		sample_dma(3) <= sample_dma_on_reg(3);
+			sample_dma(3) <= sample_dma_on_reg(3);
 	when others =>
 	end case;
 end process;
@@ -1388,7 +1382,7 @@ begin
 		sample_irq_en_reg <= (others=>'0');
 		sample_irq_active_reg <= (others=>'0');
 		sample_channel_reg <= (others=>'0');
-
+		
 		sample_adpcm_reg <= (others=>'0');
 
 		ENABLE_CYCLE_SHIFT_REG <= (others=>'0');

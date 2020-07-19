@@ -17,10 +17,10 @@ PORT
 	RESET_N : IN STD_LOGIC;
 
 	SYNCRESET : IN STD_LOGIC_VECTOR(3 downto 0);
-	UPDATE : IN STD_LOGIC_VECTOR(3 downto 0);
-	data_needed : IN STD_LOGIC_VECTOR(3 downto 0);
+	FETCH : IN STD_LOGIC_VECTOR(3 downto 0);
+	update : IN STD_LOGIC_VECTOR(3 downto 0);
+	data_nibble : IN STD_LOGIC_VECTOR(3 downto 0);	
 	
-	data_nibble : IN STD_LOGIC;
 	data_in : IN std_logic_vector(7 downto 0);
 	data_out : OUT std_logic_vector(7 downto 0)
 );
@@ -154,22 +154,14 @@ ARCHITECTURE vhdl OF sample_adpcm IS
 	signal decstep_next : unsigned(5 downto 0);
 	signal decstep_mux : unsigned(5 downto 0);
 	
-	signal dataneeded0_reg : std_logic;
-	signal dataneeded0_next : std_logic;
+	signal write_ch0 : std_logic;
+	signal write_ch1 : std_logic;
+	signal write_ch2 : std_logic;
+	signal write_ch3 : std_logic;
 	
-	signal dataneeded1_reg : std_logic;
-	signal dataneeded1_next : std_logic;
-
-	signal dataneeded2_reg : std_logic;
-	signal dataneeded2_next : std_logic;
+	signal sel : std_logic_vector(3 downto 0);
 	
-	signal dataneeded3_reg : std_logic;
-	signal dataneeded3_next : std_logic;	
-	
-	signal dataneeded_next : std_logic;
-	signal dataneeded_mux : std_logic;
-	
-	signal update_mux : std_logic;
+	signal data_nibble_mux: std_logic;
 BEGIN
 	-- register
 	process(clk,reset_n)
@@ -183,10 +175,6 @@ BEGIN
 			decstep1_reg <= (others=>'0');
 			decstep2_reg <= (others=>'0');
 			decstep3_reg <= (others=>'0');
-			dataneeded0_reg <= '0';
-			dataneeded1_reg <= '0';
-			dataneeded2_reg <= '0';
-			dataneeded3_reg <= '0';
 		elsif (clk'event and clk='1') then
 			acc0_reg <= acc0_next;
 			acc1_reg <= acc1_next;
@@ -196,18 +184,18 @@ BEGIN
 			decstep1_reg <= decstep1_next;
 			decstep2_reg <= decstep2_next;
 			decstep3_reg <= decstep3_next;
-			dataneeded0_reg <= dataneeded0_next;
-			dataneeded1_reg <= dataneeded1_next;
-			dataneeded2_reg <= dataneeded2_next;
-			dataneeded3_reg <= dataneeded3_next;
 		end if;
 	end process;
 
+	write_ch0 <= update(0);
+	write_ch1 <= update(1);
+	write_ch2 <= update(2);
+	write_ch3 <= update(3);
+	
 	process(acc0_reg, acc1_reg, acc2_reg, acc3_reg,
 		decstep0_reg, decstep1_reg, decstep2_reg, decstep3_reg,
-		dataneeded0_reg, dataneeded1_reg, dataneeded2_reg, dataneeded3_reg,
-	       	update, acc_next, decstep_next, dataneeded_next, data_needed,
-				syncreset)
+	       	acc_next, decstep_next,
+				write_ch0,write_ch1,write_ch2,write_ch3)
 	begin
 		acc0_next <= acc0_reg;
 		acc1_next <= acc1_reg;
@@ -217,81 +205,67 @@ BEGIN
 		decstep1_next <= decstep1_reg;
 		decstep2_next <= decstep2_reg;
 		decstep3_next <= decstep3_reg;
-		dataneeded0_next <= dataneeded0_reg or data_needed(0);
-		dataneeded1_next <= dataneeded1_reg or data_needed(1);
-		dataneeded2_next <= dataneeded2_reg or data_needed(2);
-		dataneeded3_next <= dataneeded3_reg or data_needed(3);		
-
-		case update is
-		when "0001" =>
-			acc0_next <= acc_next;
-			decstep0_next <= decstep_next;
-			dataneeded0_next <= dataneeded_next;
-		when "0010" =>
-			acc1_next <= acc_next;
-			decstep1_next <= decstep_next;
-			dataneeded1_next <= dataneeded_next;
-		when "0100" =>
-			acc2_next <= acc_next;
-			decstep2_next <= decstep_next;
-			dataneeded2_next <= dataneeded_next;
-		when "1000" =>
-			acc3_next <= acc_next;
-			decstep3_next <= decstep_next;
-			dataneeded3_next <= dataneeded_next;
-		when others =>
-		end case;
+	
+	   if (write_ch0='1') then
+			acc0_next <= acc_next;			
+			decstep0_next <= decstep_next;			
+		end if;
 		
-		case syncreset is
-		when "0001" =>
-			acc0_next <= (others=>'0');
-		when "0010" =>
-			acc1_next <= (others=>'0');
-		when "0100" =>
-			acc2_next <= (others=>'0');
-		when "1000" =>
-			acc3_next <= (others=>'0');
-		when others =>
-		end case;		
+	   if (write_ch1='1') then
+			acc1_next <= acc_next;			
+			decstep1_next <= decstep_next;			
+		end if;
+
+	  if (write_ch2='1') then
+			acc2_next <= acc_next;			
+			decstep2_next <= decstep_next;			
+		end if;
+
+	   if (write_ch3='1') then
+			acc3_next <= acc_next;			
+			decstep3_next <= decstep_next;			
+		end if;		
 	end process;
 
-	process(update,syncreset,
+	sel <= fetch or update;
+	
+	process(sel,syncreset,
 		acc0_reg, acc1_reg, acc2_reg, acc3_reg, 
 		decstep0_reg, decstep1_reg, decstep2_reg, decstep3_reg,
-		dataneeded0_reg, dataneeded1_reg, dataneeded2_reg, dataneeded3_reg
+		data_nibble
 	)
 	begin
 		acc_mux <= (others=>'0');
 		decstep_mux <= (others=>'0');
-		update_mux <= '0';
-		dataneeded_mux <= '0';
-		case update is
+		data_nibble_mux <= '0';
+		case sel is
 		when "0001" =>
 			acc_mux <= acc0_reg;
 			decstep_mux <= decstep0_reg;
-			dataneeded_mux <= dataneeded0_reg;
-			update_mux <= '1';		
+			data_nibble_mux <= data_nibble(0);
 		when "0010" =>
 			acc_mux <= acc1_reg;
 			decstep_mux <= decstep1_reg;
-			dataneeded_mux <= dataneeded1_reg;
-			update_mux <= '1';
+			data_nibble_mux <= data_nibble(1);
 		when "0100" =>
 			acc_mux <= acc2_reg;
-			decstep_mux <= decstep2_reg;
-			dataneeded_mux <= dataneeded2_reg;
-			update_mux <= '1';
+			decstep_mux <= decstep2_reg;			
+			data_nibble_mux <= data_nibble(2);
 		when "1000" =>
 			acc_mux <= acc3_reg;
 			decstep_mux <= decstep3_reg;
-			dataneeded_mux <= dataneeded3_reg;
-			update_mux <= '1';
+			data_nibble_mux <= data_nibble(3);
 		when others =>
 		end case;
+		
+		if (or_reduce(syncreset)='1') then
+			acc_mux <= (others=>'0');
+			decstep_mux <= (others=>'0');
+		end if;
 	end process;
 
-	process(acc_mux,decstep_mux,update_mux,dataneeded_mux,
-		data_in,data_nibble)
+	process(acc_mux,decstep_mux,
+		data_in,data_nibble_mux)
 
 		variable code : std_logic_vector(3 downto 0);
 		variable codeadj : signed(8 downto 0);
@@ -301,42 +275,37 @@ BEGIN
 	begin
 		acc_next <= acc_mux;
 		decstep_next <= decstep_mux;
-		dataneeded_next <= dataneeded_mux;
-
-		if (update_mux='1' and dataneeded_mux='1') then
-			dataneeded_next <= '0';
-			codeadj:= (others=>'0');
-			if (data_nibble='0') then
-				code:= data_in(7 downto 4);
-			else
-				code:= data_in(3 downto 0);
-			end if;
-			codeadj(4 downto 1) := signed('0'&code(2 downto 0));
-			codeadj(0):= '1';
-			
-			if (code(3)='1') then
-				codeadj:=-codeadj;
-			end if;
-			
-			stepsize := signed('0'&stepsize_fn(decstep_mux)); -- already /8
-
-			vlue :=codeadj*stepsize;
-				
-			acc_next <= acc_mux + vlue(11 downto 0);
-
-			decstepnext := stepadj_fn(code(2 downto 0)) + signed(resize(decstep_mux,7));
-			if (decstepnext>48) then
-				decstepnext := to_signed(48,7);
-			elsif (decstepnext<0) then
-				decstepnext := to_signed(0,7);
-			end if;
-			decstep_next <= unsigned(decstepnext(5 downto 0));
-			
+		
+		codeadj:= (others=>'0');
+		if (data_nibble_mux='0') then
+			code:= data_in(7 downto 4);
+		else
+			code:= data_in(3 downto 0);
 		end if;
+		codeadj(4 downto 1) := signed('0'&code(2 downto 0));
+		codeadj(0):= '1';
+		
+		if (code(3)='1') then
+			codeadj:=-codeadj;
+		end if;
+		
+		stepsize := signed('0'&stepsize_fn(decstep_mux)); -- already /8
+
+		vlue :=codeadj*stepsize;
+			
+		acc_next <= acc_mux + vlue(11 downto 0);
+
+		decstepnext := stepadj_fn(code(2 downto 0)) + signed(resize(decstep_mux,7));
+		if (decstepnext>48) then
+			decstepnext := to_signed(48,7);
+		elsif (decstepnext<0) then
+			decstepnext := to_signed(0,7);
+		end if;
+		decstep_next <= unsigned(decstepnext(5 downto 0));			
 	end process;
 
-	data_out(7) <= not(acc_next(11));
-	data_out(6 downto 0) <= std_logic_vector(acc_next(10 downto 4));
+	data_out(7) <= not(acc_mux(11));
+	data_out(6 downto 0) <= std_logic_vector(acc_mux(10 downto 4));
 	
 end vhdl;
 
