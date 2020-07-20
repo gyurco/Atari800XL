@@ -26,12 +26,12 @@ ENTITY covox_top IS
 
 		DO : out std_logic_vector(7 downto 0);
 		AUDIO0 : out std_logic_vector(15 downto 0);
-		AUDIO1 : out std_logic_vector(15 downto 0);
+		AUDIO1 : out std_logic_vector(15 downto 0)
 	);
 END covox_top;		
 		
 ARCHITECTURE vhdl OF covox_top IS
-	signal address_decoded: std_logic_vector(1 downto 0);
+	signal addr_decoded: std_logic_vector(1 downto 0);
 	signal CH1_REG : std_logic_vector(7 downto 0);
 	signal CH0_REG : std_logic_vector(7 downto 0);
 	signal CH1_NEXT : std_logic_vector(7 downto 0);
@@ -65,10 +65,10 @@ BEGIN
 
 	decode_addr2 : entity work.complete_address_decoder
 		generic map(width=>2)
-		port map (addr_in=>ADDR_IN(1 downto 0), addr_decoded=>addr_decoded);
+		port map (addr_in=>ADDR(1 downto 0), addr_decoded=>addr_decoded);
 	
 	process(addr_decoded, WRITE_ENABLE,
-	CH0_REG,CH1_REG,CH2_REG,CH3_REG,WRITE_DATA)
+	CH0_REG,CH1_REG,CH2_REG,CH3_REG,DI)
 		variable l : unsigned(8 downto 0);
 		variable r : unsigned(8 downto 0);
 	begin
@@ -85,16 +85,16 @@ BEGIN
 		
 		if (WRITE_ENABLE='1') then
 			if (addr_decoded(0)='1') then
-				CH0_NEXT <= WRITE_DATA;
+				CH0_NEXT <= DI;
 			end if;
 			if (addr_decoded(1)='1') then
-				CH1_NEXT <= WRITE_DATA;
+				CH1_NEXT <= DI;
 			end if;
 			if (addr_decoded(2)='1') then
-				CH2_NEXT <= WRITE_DATA;
+				CH2_NEXT <= DI;
 			end if;
 			if (addr_decoded(3)='1') then
-				CH3_NEXT <= WRITE_DATA;
+				CH3_NEXT <= DI;
 			end if;
 		end if;
 	end process;

@@ -253,6 +253,10 @@ ARCHITECTURE vhdl OF pokeymax IS
 	
 	-- SAMPLE/COVOX
 	signal SAMPLE_AUDIO : SAMPLE_AUDIO_TYPE(1 downto 0);
+	signal SAMPLE_IRQ : std_logic;
+	signal SAMPLE_RAM_ADDRESS : std_logic_vector(15 downto 0);
+	signal SAMPLE_RAM_WRITE_ENABLE : std_logic;
+	signal SAMPLE_RAM_DATA : std_logic_vector(7 downto 0);
 
 	-- FLASH
 	signal flash_do : std_logic_vector(31 downto 0);
@@ -786,10 +790,6 @@ end generate psg_on;
 --------------------------------------------------------
 covox_off : if enable_covox=0 generate 
 	SAMPLE_IRQ <= '0';
-	SAMPLE_CH0_REG <= (others=>'0');
-	SAMPLE_CH1_REG <= (others=>'0');
-	SAMPLE_CH2_REG <= (others=>'0');
-	SAMPLE_CH3_REG <= (others=>'0');
 	SAMPLE_DO <= (others=>'0');
 	SAMPLE_AUDIO(0) <= (others=>'0');
 	SAMPLE_AUDIO(1) <= (others=>'0');
@@ -831,7 +831,7 @@ sample_on : if enable_sample=1 generate
 		AUDIO1 => SAMPLE_AUDIO(1),
 		IRQ => SAMPLE_IRQ,
 		
-		RAM_ADDRESS => SAMPLE_RAM_ADDRESS,
+		RAM_ADDR => SAMPLE_RAM_ADDRESS,
 		RAM_WRITE_ENABLE => SAMPLE_RAM_WRITE_ENABLE,
 		RAM_DATA => SAMPLE_RAM_DATA
 	);
@@ -839,10 +839,10 @@ sample_on : if enable_sample=1 generate
 	sample_ram_inst : entity work.generic_ram_infer
 	GENERIC MAP
 	(
-		ADDRESS_WIDTH := 16;
-		SPACE := 43008;
-		DATA_WIDTH := 8
-	);
+		ADDRESS_WIDTH => 16,
+		SPACE => 43008,
+		DATA_WIDTH => 8
+	)
 	PORT MAP
 	(
 	        clock => clk,
