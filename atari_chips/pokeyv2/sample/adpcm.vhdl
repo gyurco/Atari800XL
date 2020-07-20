@@ -50,78 +50,114 @@ END sample_adpcm;
 
 ARCHITECTURE vhdl OF sample_adpcm IS
 	
-        function stepsize_fn(x: unsigned(5 downto 0)) return unsigned is
+        function stepsize_fn(x: unsigned(6 downto 0)) return unsigned is
         begin
                 case x is
-        when "000000" => return to_unsigned(16,11);
-        when "000001" => return to_unsigned(17,11);
-        when "000010" => return to_unsigned(19,11);
-        when "000011" => return to_unsigned(21,11);
-        when "000100" => return to_unsigned(23,11);
-        when "000101" => return to_unsigned(25,11);
-        when "000110" => return to_unsigned(28,11);
-        when "000111" => return to_unsigned(31,11);
-        when "001000" => return to_unsigned(34,11);
-        when "001001" => return to_unsigned(37,11);
-
-        when "001010" => return to_unsigned(41,11);
-        when "001011" => return to_unsigned(45,11);
-        when "001100" => return to_unsigned(50,11);
-        when "001101" => return to_unsigned(55,11);
-        when "001110" => return to_unsigned(60,11);
-        when "001111" => return to_unsigned(66,11);
-        when "010000" => return to_unsigned(73,11);
-        when "010001" => return to_unsigned(80,11);
-        when "010010" => return to_unsigned(88,11);
-        when "010011" => return to_unsigned(97,11);
-
-        when "010100" => return to_unsigned(107,11);
-        when "010101" => return to_unsigned(118,11);
-        when "010110" => return to_unsigned(130,11);
-        when "010111" => return to_unsigned(143,11);
-        when "011000" => return to_unsigned(157,11);
-        when "011001" => return to_unsigned(173,11);
-        when "011010" => return to_unsigned(190,11);
-        when "011011" => return to_unsigned(209,11);
-        when "011100" => return to_unsigned(230,11);
-        when "011101" => return to_unsigned(253,11);
-		  
-        when "011110" => return to_unsigned(279,11);		  
-        when "011111" => return to_unsigned(307,11);	  
-        when "100000" => return to_unsigned(337,11);
-        when "100001" => return to_unsigned(371,11);
-        when "100010" => return to_unsigned(408,11);
-        when "100011" => return to_unsigned(449,11);
-        when "100100" => return to_unsigned(494,11);
-        when "100101" => return to_unsigned(544,11);
-        when "100110" => return to_unsigned(598,11);		  		  
-        when "100111" => return to_unsigned(658,11);
-		  
-        when "101000" => return to_unsigned(724,11);
-        when "101001" => return to_unsigned(796,11);
-        when "101010" => return to_unsigned(876,11);
-        when "101011" => return to_unsigned(963,11);
-        when "101100" => return to_unsigned(1060,11);
-        when "101101" => return to_unsigned(1166,11);
-        when "101110" => return to_unsigned(1282,11);
-        when "101111" => return to_unsigned(1411,11);		  
-        when "110000" => return to_unsigned(1552,11);	  
+when "0000000" => return to_unsigned(7,15);
+when "0000001" => return to_unsigned(8,15);
+when "0000010" => return to_unsigned(9,15);
+when "0000011" => return to_unsigned(10,15);
+when "0000100" => return to_unsigned(11,15);
+when "0000101" => return to_unsigned(12,15);
+when "0000110" => return to_unsigned(13,15);
+when "0000111" => return to_unsigned(14,15);
+when "0001000" => return to_unsigned(16,15);
+when "0001001" => return to_unsigned(17,15);
+when "0001010" => return to_unsigned(19,15);
+when "0001011" => return to_unsigned(21,15);
+when "0001100" => return to_unsigned(23,15);
+when "0001101" => return to_unsigned(25,15);
+when "0001110" => return to_unsigned(28,15);
+when "0001111" => return to_unsigned(31,15);
+when "0010000" => return to_unsigned(34,15);
+when "0010001" => return to_unsigned(37,15);
+when "0010010" => return to_unsigned(41,15);
+when "0010011" => return to_unsigned(45,15);
+when "0010100" => return to_unsigned(50,15);
+when "0010101" => return to_unsigned(55,15);
+when "0010110" => return to_unsigned(60,15);
+when "0010111" => return to_unsigned(66,15);
+when "0011000" => return to_unsigned(73,15);
+when "0011001" => return to_unsigned(80,15);
+when "0011010" => return to_unsigned(88,15);
+when "0011011" => return to_unsigned(97,15);
+when "0011100" => return to_unsigned(107,15);
+when "0011101" => return to_unsigned(118,15);
+when "0011110" => return to_unsigned(130,15);
+when "0011111" => return to_unsigned(143,15);
+when "0100000" => return to_unsigned(157,15);
+when "0100001" => return to_unsigned(173,15);
+when "0100010" => return to_unsigned(190,15);
+when "0100011" => return to_unsigned(209,15);
+when "0100100" => return to_unsigned(230,15);
+when "0100101" => return to_unsigned(253,15);
+when "0100110" => return to_unsigned(279,15);
+when "0100111" => return to_unsigned(307,15);
+when "0101000" => return to_unsigned(337,15);
+when "0101001" => return to_unsigned(371,15);
+when "0101010" => return to_unsigned(408,15);
+when "0101011" => return to_unsigned(449,15);
+when "0101100" => return to_unsigned(494,15);
+when "0101101" => return to_unsigned(544,15);
+when "0101110" => return to_unsigned(598,15);
+when "0101111" => return to_unsigned(658,15);
+when "0110000" => return to_unsigned(724,15);
+when "0110001" => return to_unsigned(796,15);
+when "0110010" => return to_unsigned(876,15);
+when "0110011" => return to_unsigned(963,15);
+when "0110100" => return to_unsigned(1060,15);
+when "0110101" => return to_unsigned(1166,15);
+when "0110110" => return to_unsigned(1282,15);
+when "0110111" => return to_unsigned(1411,15);
+when "0111000" => return to_unsigned(1552,15);
+when "0111001" => return to_unsigned(1707,15);
+when "0111010" => return to_unsigned(1878,15);
+when "0111011" => return to_unsigned(2066,15);
+when "0111100" => return to_unsigned(2272,15);
+when "0111101" => return to_unsigned(2499,15);
+when "0111110" => return to_unsigned(2749,15);
+when "0111111" => return to_unsigned(3024,15);
+when "1000000" => return to_unsigned(3327,15);
+when "1000001" => return to_unsigned(3660,15);
+when "1000010" => return to_unsigned(4026,15);
+when "1000011" => return to_unsigned(4428,15);
+when "1000100" => return to_unsigned(4871,15);
+when "1000101" => return to_unsigned(5358,15);
+when "1000110" => return to_unsigned(5894,15);
+when "1000111" => return to_unsigned(6484,15);
+when "1001000" => return to_unsigned(7132,15);
+when "1001001" => return to_unsigned(7845,15);
+when "1001010" => return to_unsigned(8630,15);
+when "1001011" => return to_unsigned(9493,15);
+when "1001100" => return to_unsigned(10442,15);
+when "1001101" => return to_unsigned(11487,15);
+when "1001110" => return to_unsigned(12635,15);
+when "1001111" => return to_unsigned(13899,15);
+when "1010000" => return to_unsigned(15289,15);
+when "1010001" => return to_unsigned(16818,15);
+when "1010010" => return to_unsigned(18500,15);
+when "1010011" => return to_unsigned(20350,15);
+when "1010100" => return to_unsigned(22385,15);
+when "1010101" => return to_unsigned(24623,15);
+when "1010110" => return to_unsigned(27086,15);
+when "1010111" => return to_unsigned(29794,15);
+when "1011000" => return to_unsigned(32767,15)	;		
 		  when others =>
-			return to_unsigned(0,11);
+			return to_unsigned(0,15);
                 end case;
         end stepsize_fn;	
 
         function stepadj_fn(x: std_logic_vector(2 downto 0)) return signed is
         begin
                 case x is
-						when "000" => return to_signed(-1,7);
-						when "001" => return to_signed(-1,7);
-						when "010" => return to_signed(-1,7);
-						when "011" => return to_signed(-1,7);
-						when "100" => return to_signed(2,7);
-						when "101" => return to_signed(5,7);
-						when "110" => return to_signed(7,7);
-						when "111" => return to_signed(9,7);
+when "000" => return to_signed(-1,5);
+when "001" => return to_signed(-1,5);
+when "010" => return to_signed(-1,5);
+when "011" => return to_signed(-1,5);
+when "100" => return to_signed(2,5);
+when "101" => return to_signed(4,5);
+when "110" => return to_signed(6,5);
+when "111" => return to_signed(8,5);
                 end case;
         end stepadj_fn;			  
 		  
@@ -140,20 +176,20 @@ ARCHITECTURE vhdl OF sample_adpcm IS
 	signal acc_next : signed(15 downto 0);
 	signal acc_mux : signed(15 downto 0);
 
-	signal decstep0_reg : unsigned(5 downto 0);
-	signal decstep0_next : unsigned(5 downto 0);
+	signal decstep0_reg : unsigned(6 downto 0);
+	signal decstep0_next : unsigned(6 downto 0);
 
-	signal decstep1_reg : unsigned(5 downto 0);
-	signal decstep1_next : unsigned(5 downto 0);
+	signal decstep1_reg : unsigned(6 downto 0);
+	signal decstep1_next : unsigned(6 downto 0);
 
-	signal decstep2_reg : unsigned(5 downto 0);
-	signal decstep2_next : unsigned(5 downto 0);
+	signal decstep2_reg : unsigned(6 downto 0);
+	signal decstep2_next : unsigned(6 downto 0);
 
-	signal decstep3_reg : unsigned(5 downto 0);
-	signal decstep3_next : unsigned(5 downto 0);
+	signal decstep3_reg : unsigned(6 downto 0);
+	signal decstep3_next : unsigned(6 downto 0);
 	
-	signal decstep_next : unsigned(5 downto 0);
-	signal decstep_mux : unsigned(5 downto 0);
+	signal decstep_next : unsigned(6 downto 0);
+	signal decstep_mux : unsigned(6 downto 0);
 	
 	signal write_ch0 : std_logic;
 	signal write_ch1 : std_logic;
@@ -280,7 +316,7 @@ BEGIN
 		variable codeadj : signed(8 downto 0);
 		variable stepsize : signed(17 downto 0);
 		variable vlue : signed(26 downto 0);
-		variable decstepnext : signed(6 downto 0);
+		variable decstepnext : signed(7 downto 0);
 	begin
 		acc_next <= acc_mux;
 		decstep_next <= decstep_mux;
@@ -291,26 +327,22 @@ BEGIN
 		else
 			code:= data_in(3 downto 0);
 		end if;
-		codeadj(4 downto 1) := signed('0'&code(2 downto 0));
-		codeadj(0):= '1';
-		
-		if (code(3)='1') then
-			codeadj:=-codeadj;
-		end if;
+
+		codeadj := resize(signed(code),8)&"1";
 		
 		stepsize := resize(signed('0'&stepsize_fn(decstep_mux)),18);
 
 		vlue :=codeadj*stepsize;
 			
-		acc_next <= acc_mux + vlue(14 downto 3);
+		acc_next <= acc_mux + vlue(18 downto 3);
 
-		decstepnext := stepadj_fn(code(2 downto 0)) + signed(resize(decstep_mux,7));
-		if (decstepnext>48) then
-			decstepnext := to_signed(48,7);
+		decstepnext := resize(stepadj_fn(code(2 downto 0)),8) + signed(resize(decstep_mux,8));
+		if (decstepnext>88) then
+			decstepnext := to_signed(88,8);
 		elsif (decstepnext<0) then
-			decstepnext := to_signed(0,7);
+			decstepnext := to_signed(0,8);
 		end if;
-		decstep_next <= unsigned(decstepnext(5 downto 0));			
+		decstep_next <= unsigned(decstepnext(6 downto 0));			
 	end process;
 
 	data_out(15) <= not(acc_mux(15));
