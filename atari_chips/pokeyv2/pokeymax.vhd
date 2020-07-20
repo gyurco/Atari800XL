@@ -97,6 +97,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal RESET_N : std_logic;
 
 	signal ENABLE_CYCLE : std_logic;
+	signal ENABLE_DOUBLE_CYCLE : std_logic;
 
 	-- WRITE ENABLES
 	SIGNAL POKEY_WRITE_ENABLE : STD_LOGIC_VECTOR(3 downto 0);		
@@ -443,6 +444,7 @@ bus_adapt : entity work.slave_timing_6502
 
 		-- end of cycle
 		ENABLE_CYCLE => ENABLE_CYCLE,
+		ENABLE_DOUBLE_CYCLE => ENABLE_DOUBLE_CYCLE,
 
 		DATA_OUT => DO_MUX
 	);
@@ -706,7 +708,7 @@ begin
 		when "10"=>
 			PSG_ENABLE <= PSG_ENABLE_1_7Mhz;
 		when others=>
-			PSG_ENABLE <= PSG_ENABLE_2MHz;
+			PSG_ENABLE <= ENABLE_CYCLE;
 	end case;
 end process;
 
@@ -821,7 +823,7 @@ sample_on : if enable_sample=1 generate
 		CLK => CLK,
 		RESET_N => RESET_N,
 
-		ENABLE => enable_cycle, -- TODO: 2x faster like Paula?
+		ENABLE => ENABLE_DOUBLE_CYCLE, 
 	
 		WRITE_ENABLE => SAMPLE_WRITE_ENABLE,
 		ADDR => ADDR_IN(4 downto 0),

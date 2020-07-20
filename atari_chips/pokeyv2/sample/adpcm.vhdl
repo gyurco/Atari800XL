@@ -23,7 +23,7 @@ PORT
 	data_nibble : IN STD_LOGIC_VECTOR(3 downto 0);	
 	
 	data_in : IN std_logic_vector(7 downto 0);
-	data_out : OUT std_logic_vector(7 downto 0)
+	data_out : OUT std_logic_vector(15 downto 0)
 );
 END sample_adpcm;
 
@@ -125,20 +125,20 @@ ARCHITECTURE vhdl OF sample_adpcm IS
                 end case;
         end stepadj_fn;			  
 		  
-	signal acc0_reg : signed(11 downto 0);
-	signal acc0_next : signed(11 downto 0);
+	signal acc0_reg : signed(15 downto 0);
+	signal acc0_next : signed(15 downto 0);
 
-	signal acc1_reg : signed(11 downto 0);
-	signal acc1_next : signed(11 downto 0);
+	signal acc1_reg : signed(15 downto 0);
+	signal acc1_next : signed(15 downto 0);
 
-	signal acc2_reg : signed(11 downto 0);
-	signal acc2_next : signed(11 downto 0);
+	signal acc2_reg : signed(15 downto 0);
+	signal acc2_next : signed(15 downto 0);
 
-	signal acc3_reg : signed(11 downto 0);
-	signal acc3_next : signed(11 downto 0);
+	signal acc3_reg : signed(15 downto 0);
+	signal acc3_next : signed(15 downto 0);
 	
-	signal acc_next : signed(11 downto 0);
-	signal acc_mux : signed(11 downto 0);
+	signal acc_next : signed(15 downto 0);
+	signal acc_mux : signed(15 downto 0);
 
 	signal decstep0_reg : unsigned(5 downto 0);
 	signal decstep0_next : unsigned(5 downto 0);
@@ -235,7 +235,7 @@ BEGIN
 
 	sel <= fetch or update;
 
-	process(sel,syncreset_reg, syncreset,
+	process(sel,syncreset_reg, syncreset, update,
 		acc0_reg, acc1_reg, acc2_reg, acc3_reg, 
 		decstep0_reg, decstep1_reg, decstep2_reg, decstep3_reg,
 		data_nibble
@@ -313,8 +313,8 @@ BEGIN
 		decstep_next <= unsigned(decstepnext(5 downto 0));			
 	end process;
 
-	data_out(7) <= not(acc_mux(11));
-	data_out(6 downto 0) <= std_logic_vector(acc_mux(10 downto 4));
+	data_out(15) <= not(acc_mux(15));
+	data_out(14 downto 0) <= std_logic_vector(acc_mux(14 downto 0));
 	
 end vhdl;
 

@@ -68,7 +68,8 @@ BEGIN
 	process(start_addr, len, period,
 		pointer_reg, remaining_reg, periodpos_reg, resetpending_reg,
 		enable,
-		syncreset
+		syncreset,
+		twocycles
 		)
 	variable change : unsigned(16 downto 0);
 	variable endperiod : std_logic;

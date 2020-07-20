@@ -30,6 +30,7 @@ ENTITY slave_timing_6502 IS
 				CS : out std_logic;
 
 				ENABLE_CYCLE : out std_logic;
+				ENABLE_DOUBLE_CYCLE : out std_logic;
 
 				DATA_OUT: in std_logic_vector(7 downto 0) -- read_data
 			);
@@ -61,6 +62,7 @@ ARCHITECTURE vhdl OF slave_timing_6502 IS
 	signal phi2_falling_edge : std_logic;
 	signal phi2_rising_edge : std_logic;
 	signal phi2_falling_edge_reg : std_logic;
+	signal phi2_either_edge_reg : std_logic;
 
 	signal phi_addr_reg : std_logic_vector(address_bits-1 downto 0);
 	signal phi_cs_reg : std_logic;
@@ -102,6 +104,7 @@ begin
 			registered_read_data_reg <= (others=>'0');
 
 			phi2_falling_edge_reg <= '0';
+			phi2_either_edge_reg <= '0';
 
 			state_reg <= state_wait_addrctl;
 		elsif (clk'event and clk='1') then
@@ -112,6 +115,7 @@ begin
 			registered_read_data_reg <= registered_read_data_next;
 
 			phi2_falling_edge_reg <= phi2_falling_edge;
+			phi2_either_edge_reg <= phi2_falling_edge or phi2_rising_edge;
 
 			state_reg <= state_next;
 		end if;
@@ -223,5 +227,6 @@ begin
 	CS <= phi_cs_reg;
 
 	enable_cycle <= phi2_falling_edge_reg;
+	enable_double_cycle <= phi2_either_edge_reg;
 
 end vhdl;

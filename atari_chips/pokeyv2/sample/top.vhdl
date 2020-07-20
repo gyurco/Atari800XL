@@ -38,14 +38,14 @@ ENTITY sample_top IS
 END sample_top;		
 		
 ARCHITECTURE vhdl OF sample_top IS
-	signal CH1_REG : std_logic_vector(7 downto 0);
-	signal CH0_REG : std_logic_vector(7 downto 0);
-	signal CH1_NEXT : std_logic_vector(7 downto 0);
-	signal CH0_NEXT : std_logic_vector(7 downto 0);
-	signal CH3_REG : std_logic_vector(7 downto 0);
-	signal CH2_REG : std_logic_vector(7 downto 0);
-	signal CH3_NEXT : std_logic_vector(7 downto 0);
-	signal CH2_NEXT : std_logic_vector(7 downto 0);
+	signal CH1_REG : std_logic_vector(15 downto 0);
+	signal CH0_REG : std_logic_vector(15 downto 0);
+	signal CH1_NEXT : std_logic_vector(15 downto 0);
+	signal CH0_NEXT : std_logic_vector(15 downto 0);
+	signal CH3_REG : std_logic_vector(15 downto 0);
+	signal CH2_REG : std_logic_vector(15 downto 0);
+	signal CH3_NEXT : std_logic_vector(15 downto 0);
+	signal CH2_NEXT : std_logic_vector(15 downto 0);
 
         signal ram_cpu_addr_next : std_logic_vector(15 downto 0);
         signal ram_cpu_addr_reg : std_logic_vector(15 downto 0);
@@ -91,8 +91,8 @@ ARCHITECTURE vhdl OF sample_top IS
 	signal dma : std_logic_vector(3 downto 0);
 	signal dma_on_reg : std_logic_vector(3 downto 0);
 	signal dma_on_next : std_logic_vector(3 downto 0);
-	signal channel_reg : std_logic_vector(1 downto 0);
-	signal channel_next : std_logic_vector(1 downto 0);
+	signal channel_reg : std_logic_vector(2 downto 0);
+	signal channel_next : std_logic_vector(2 downto 0);
 	signal ch0_addr : std_logic_vector(16 downto 0);
 	signal ch1_addr : std_logic_vector(16 downto 0);
 	signal ch2_addr : std_logic_vector(16 downto 0);
@@ -106,7 +106,7 @@ ARCHITECTURE vhdl OF sample_top IS
 	signal irq_active_reg : std_logic_vector(3 downto 0);
 	signal irq_active_next : std_logic_vector(3 downto 0);
 
-	signal adpcm_decoded : std_logic_vector(7 downto 0);
+	signal adpcm_decoded : std_logic_vector(15 downto 0);
 	signal adpcm_reg : std_logic_vector(3 downto 0);
 	signal adpcm_next : std_logic_vector(3 downto 0);
 
@@ -129,19 +129,19 @@ BEGIN
 		DO <= (others=>'0');
 	
 		if (addr_decoded5(0)='1') then
-			DO <= CH0_REG;
+			DO <= CH0_REG(15 downto 8);
 		end if;
 	
 		if (addr_decoded5(1)='1') then
-			DO <= CH1_REG;
+			DO <= CH1_REG(15 downto 8);
 		end if;
 	
 		if (addr_decoded5(2)='1') then
-			DO <= CH2_REG;
+			DO <= CH2_REG(15 downto 8);
 		end if;
 	
 		if (addr_decoded5(3)='1') then
-			DO <= CH3_REG;
+			DO <= CH3_REG(15 downto 8);
 		end if;
 	
 		if (addr_decoded5(4)='1') then
@@ -174,7 +174,7 @@ BEGIN
 	ch3_start_addr_reg, ch3_len_reg, ch3_period_reg, ch3_volume_reg,
 	dma_on_reg,dma,ram_data,
 	channel_reg,
-	irq_en_reg,irq_active_reg,irq_trigger,
+	irq_en_reg,irq_active_reg,irq_trigger,irq_clear_n,
 	adpcm_decoded,adpcm_reg
 	)
 		variable ram_player_do_u : std_logic_vector(7 downto 0);
@@ -223,41 +223,41 @@ BEGIN
 		case dma is
 		when "0001"=>
 			if (adpcm_reg(0)='0') then
-				CH0_NEXT <= ram_player_do_u;
+				CH0_NEXT <= ram_player_do_u&"00000000";
 			else
 				CH0_NEXT <= adpcm_decoded;
 			end if;
 		when "0010" =>
 			if (adpcm_reg(1)='0') then
-				CH1_NEXT <= ram_player_do_u;
+				CH1_NEXT <= ram_player_do_u&"00000000";
 			else
 				CH1_NEXT <= adpcm_decoded;
 			end if;
 		when "0100" =>
 			if (adpcm_reg(2)='0') then
-				CH2_NEXT <= ram_player_do_u;
+				CH2_NEXT <= ram_player_do_u&"00000000";
 			else
 				CH2_NEXT <= adpcm_decoded;
 			end if;
 		when "1000" => 
 			if (adpcm_reg(3)='0') then
-				CH3_NEXT <= ram_player_do_u;
+				CH3_NEXT <= ram_player_do_u&"00000000";
 			else
 				CH3_NEXT <= adpcm_decoded;
 			end if;
 		when others =>
 			if (write_enable='1') then
 				if (addr_decoded5(0)='1') then
-					CH0_NEXT <= DI;
+					CH0_NEXT(15 downto 8) <= DI;
 				end if;
 				if (addr_decoded5(1)='1') then
-					CH1_NEXT <= DI;
+					CH1_NEXT(15 downto 8) <= DI;
 				end if;
 				if (addr_decoded5(2)='1') then
-					CH2_NEXT <= DI;
+					CH2_NEXT(15 downto 8) <= DI;
 				end if;
 				if (addr_decoded5(3)='1') then
-					CH3_NEXT <= DI;
+					CH3_NEXT(15 downto 8) <= DI;
 				end if;
 	
 				if (addr_decoded5(4)='1') then
@@ -275,11 +275,11 @@ BEGIN
 				end if;
 	
 				if (addr_decoded5(8)='1') then
-					channel_next(1 downto 0) <= DI(1 downto 0);
+					channel_next(2 downto 0) <= DI(2 downto 0);
 				end if;
 	
 				case channel_reg is
-					when "00" =>
+					when "001" =>
 						if (addr_decoded5(9)='1') then
 							ch0_start_addr_next(7 downto 0) <= DI;
 						end if;
@@ -301,7 +301,7 @@ BEGIN
 						if (addr_decoded5(15)='1') then
 							ch0_volume_next(5 downto 0) <= DI(5 downto 0);
 						end if;
-					when "01" =>
+					when "010" =>
 						if (addr_decoded5(9)='1') then
 							ch1_start_addr_next(7 downto 0) <= DI;
 						end if;
@@ -323,7 +323,7 @@ BEGIN
 						if (addr_decoded5(15)='1') then
 							ch1_volume_next(5 downto 0) <= DI(5 downto 0);
 						end if;
-					when "10" =>
+					when "011" =>
 						if (addr_decoded5(9)='1') then
 							ch2_start_addr_next(7 downto 0) <= DI;
 						end if;
@@ -345,7 +345,7 @@ BEGIN
 						if (addr_decoded5(15)='1') then
 							ch2_volume_next(5 downto 0) <= DI(5 downto 0);
 						end if;
-					when "11" =>
+					when "100" =>
 						if (addr_decoded5(9)='1') then
 							ch3_start_addr_next(7 downto 0) <= DI;
 						end if;
@@ -463,22 +463,20 @@ BEGIN
 	
 	process (ch0_reg,ch1_reg,ch2_reg,ch3_reg,
 		ch0_volume_reg,ch1_volume_reg,ch2_volume_reg,ch3_volume_reg)
-		variable l : unsigned(17 downto 0);
-		variable r : unsigned(17 downto 0);
+		variable l : unsigned(26 downto 0);
+		variable r : unsigned(26 downto 0);
 	begin
-		l :=     resize(unsigned(CH0_REG),9)*resize(unsigned(ch0_volume_reg),9);
-		l := l + resize(unsigned(CH3_REG),9)*resize(unsigned(ch3_volume_reg),9);
-		r :=     resize(unsigned(CH1_REG),9)*resize(unsigned(ch1_volume_reg),9);
-	        r := r + resize(unsigned(CH2_REG),9)*resize(unsigned(ch2_volume_reg),9);
+		l :=     resize(unsigned(CH0_REG),18)*resize(unsigned(ch0_volume_reg),9);
+		l := l + resize(unsigned(CH3_REG),18)*resize(unsigned(ch3_volume_reg),9);
+		r :=     resize(unsigned(CH1_REG),18)*resize(unsigned(ch1_volume_reg),9);
+	        r := r + resize(unsigned(CH2_REG),18)*resize(unsigned(ch2_volume_reg),9);
 		-- TODO: probably need to register here?
-		AUDIO0 <= std_logic_vector(l(15 downto 0));
-		AUDIO1 <= std_logic_vector(r(15 downto 0));
+		AUDIO0 <= std_logic_vector(l(21 downto 6));
+		AUDIO1 <= std_logic_vector(r(21 downto 6));
 	
-		-- TODO: modulation
-		-- TODO: test ->BUG: OS clears volume during init so covox ch.0 no longer works!! Hmmm....
-		-- TODO: double speed of enable to match PAULA
+		-- TODO: modulation?
 		-- TODO: samples from rom and put in voice samples after core?
-		-- TODO: 4 bit and 8-bit mode
+		-- TODO: 4 bit mode?
 	
 		-- options to set: per channel: modulate volume(4),modulate period(4),sample bits(4)
 	end process;
