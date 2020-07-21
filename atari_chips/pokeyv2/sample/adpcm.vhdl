@@ -317,6 +317,8 @@ BEGIN
 		variable stepsize : signed(17 downto 0);
 		variable vlue : signed(26 downto 0);
 		variable decstepnext : signed(7 downto 0);
+		variable acc_sum : signed(16 downto 0);
+		variable oflow : boolean;
 	begin
 		acc_next <= acc_mux;
 		decstep_next <= decstep_mux;
@@ -334,7 +336,13 @@ BEGIN
 
 		vlue :=codeadj*stepsize;
 			
-		acc_next <= acc_mux + vlue(18 downto 3);
+		acc_sum := resize(acc_mux,17) + vlue(19 downto 3);
+		oflow := acc_sum(16)/=acc_sum(15);
+		if (oflow) then
+			acc_next <= resize(acc_sum(16 downto 16),16);
+		else
+			acc_next <= acc_sum(15 downto 0);
+		end if;
 
 		decstepnext := resize(stepadj_fn(code(2 downto 0)),8) + signed(resize(decstep_mux,8));
 		if (decstepnext>88) then
