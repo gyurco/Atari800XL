@@ -20,7 +20,8 @@ ENTITY sample_top IS
 		CLK : in std_logic;
 		RESET_N : in std_logic;
 
-		ENABLE : in std_logic;
+		ENABLE : in std_logic;  -- end of cycle
+		REQUEST : in std_logic; -- read request, provide data next cycle
 		
 		WRITE_ENABLE : in std_logic;
 		ADDR : in std_logic_vector(4 downto 0);
@@ -33,19 +34,24 @@ ENTITY sample_top IS
 
 		RAM_ADDR : out std_logic_vector(15 downto 0);
 		RAM_WRITE_ENABLE : out std_logic;
-		RAM_DATA : in std_logic_vector(7 downto 0) -- next cycle: TODO, what if we use rom?
+		RAM_DATA : in std_logic_vector(7 downto 0); -- next cycle: TODO, what if we use rom?
+
+		ADPCM_STEP_ADDR : out std_logic_vector(6 downto 0);
+		ADPCM_STEP_REQUEST : out std_logic;
+		ADPCM_STEP_READY : in std_logic;
+		ADPCM_STEP_VALUE : in std_logic_vector(15 downto 0)
 	);
 END sample_top;		
 		
 ARCHITECTURE vhdl OF sample_top IS
-	signal CH1_REG : std_logic_vector(15 downto 0);
-	signal CH0_REG : std_logic_vector(15 downto 0);
-	signal CH1_NEXT : std_logic_vector(15 downto 0);
-	signal CH0_NEXT : std_logic_vector(15 downto 0);
-	signal CH3_REG : std_logic_vector(15 downto 0);
-	signal CH2_REG : std_logic_vector(15 downto 0);
-	signal CH3_NEXT : std_logic_vector(15 downto 0);
-	signal CH2_NEXT : std_logic_vector(15 downto 0);
+	signal CH1_REG : std_logic_vector(12 downto 0);
+	signal CH0_REG : std_logic_vector(12 downto 0);
+	signal CH1_NEXT : std_logic_vector(12 downto 0);
+	signal CH0_NEXT : std_logic_vector(12 downto 0);
+	signal CH3_REG : std_logic_vector(12 downto 0);
+	signal CH2_REG : std_logic_vector(12 downto 0);
+	signal CH3_NEXT : std_logic_vector(12 downto 0);
+	signal CH2_NEXT : std_logic_vector(12 downto 0);
 
         signal ram_cpu_addr_next : std_logic_vector(15 downto 0);
         signal ram_cpu_addr_reg : std_logic_vector(15 downto 0);
@@ -88,9 +94,9 @@ ARCHITECTURE vhdl OF sample_top IS
 	signal ch3_volume_reg : std_logic_vector(5 downto 0);
 	signal ch3_volume_next : std_logic_vector(5 downto 0);
 	
-	signal dma : std_logic_vector(3 downto 0);
 	signal dma_on_reg : std_logic_vector(3 downto 0);
 	signal dma_on_next : std_logic_vector(3 downto 0);
+	signal dma_on : std_logic;
 	signal channel_reg : std_logic_vector(2 downto 0);
 	signal channel_next : std_logic_vector(2 downto 0);
 	signal ch0_addr : std_logic_vector(16 downto 0);
@@ -109,11 +115,20 @@ ARCHITECTURE vhdl OF sample_top IS
 	signal adpcm_decoded : std_logic_vector(15 downto 0);
 	signal adpcm_reg : std_logic_vector(3 downto 0);
 	signal adpcm_next : std_logic_vector(3 downto 0);
+	signal adpcm_data_request : std_logic;
+	signal adpcm_data_ready : std_logic;
+	signal adpcm_data_in : std_logic_vector(3 downto 0);
+	signal adpcm_on : std_logic;
+	signal adpcm_channel : std_logic_vector(1 downto 0);
+	signal adpcm_store : std_logic;
+
+	signal bits8_reg : std_logic_vector(3 downto 0);
+	signal bits8_next : std_logic_vector(3 downto 0);
+	signal bits8 : std_logic;
 
 	signal addr_decoded5 : std_logic_vector(31 downto 0);	
 
-	signal enable_cycle_shift_reg : std_logic_vector(4 downto 0);
-	signal enable_cycle_shift_next : std_logic_vector(4 downto 0);
+	signal data_nibble : std_logic;
 
 BEGIN
 
@@ -129,19 +144,19 @@ BEGIN
 		DO <= (others=>'0');
 	
 		if (addr_decoded5(0)='1') then
-			DO <= CH0_REG(15 downto 8);
+			DO <= CH0_REG(12 downto 5);
 		end if;
 	
 		if (addr_decoded5(1)='1') then
-			DO <= CH1_REG(15 downto 8);
+			DO <= CH1_REG(12 downto 5);
 		end if;
 	
 		if (addr_decoded5(2)='1') then
-			DO <= CH2_REG(15 downto 8);
+			DO <= CH2_REG(12 downto 5);
 		end if;
 	
 		if (addr_decoded5(3)='1') then
-			DO <= CH3_REG(15 downto 8);
+			DO <= CH3_REG(12 downto 5);
 		end if;
 	
 		if (addr_decoded5(4)='1') then
@@ -162,22 +177,53 @@ BEGIN
 	end process;
 	
 	adpcm_decoder : entity work.sample_adpcm
-		port map (clk=>clk,reset_n=>reset_n,syncreset=>irq_trigger,fetch=>dma,update=>data_request,data_nibble=>ch3_addr(0)&ch2_addr(0)&ch1_addr(0)&ch0_addr(0),data_in=>ram_data, data_out=>adpcm_decoded);
+		port map 
+		(
+			clk=>clk,
+			reset_n=>reset_n,
+			syncreset=>irq_trigger,
+
+			select_channel=>adpcm_channel,
+
+			store=>adpcm_store,
+
+			data_out=>adpcm_decoded,
+
+			dirty=>data_request,
+
+			data_request => adpcm_data_request,
+			data_ready => adpcm_data_ready,
+			data_in => adpcm_data_in,
+
+			step_addr => adpcm_step_addr,
+			step_request => adpcm_step_request,
+			step_ready => adpcm_step_ready,
+			step_value => adpcm_step_value
+		);
+		--data_in=>ram_data, 
+		--update=>data_request,
+		--fetch=>dma,
+		--data_nibble=>ch3_addr(0)&ch2_addr(0)&ch1_addr(0)&ch0_addr(0),
 		-- TODO -> feed in data slower and each nibble
+	adpcm_data_in <= ram_data(7 downto 4) when data_nibble='0' else ram_data(3 downto 0);
 	
-	process(addr_decoded5, WRITE_ENABLE,
+	process(ADDR, addr_decoded5, WRITE_ENABLE,
 	CH0_REG,CH1_REG,CH2_REG,CH3_REG,DI,
 	ram_cpu_addr_reg,
 	ch0_start_addr_reg, ch0_len_reg, ch0_period_reg, ch0_volume_reg,
 	ch1_start_addr_reg, ch1_len_reg, ch1_period_reg, ch1_volume_reg,
 	ch2_start_addr_reg, ch2_len_reg, ch2_period_reg, ch2_volume_reg,
 	ch3_start_addr_reg, ch3_len_reg, ch3_period_reg, ch3_volume_reg,
-	dma_on_reg,dma,ram_data,
+	dma_on_reg,dma_on,ram_data,
 	channel_reg,
 	irq_en_reg,irq_active_reg,irq_trigger,irq_clear_n,
-	adpcm_decoded,adpcm_reg
+	adpcm_decoded,adpcm_reg,adpcm_on,adpcm_channel,adpcm_store,
+	bits8_reg,bits8
 	)
-		variable ram_player_do_u : std_logic_vector(7 downto 0);
+		variable store_data : std_logic_vector(12 downto 0);
+		variable store_source : std_logic_vector(3 downto 0);
+		variable store_channel : std_logic_vector(1 downto 0);
+		variable store : std_logic;
 	begin
 		CH0_NEXT <= CH0_REG;
 		CH1_NEXT <= CH1_REG;
@@ -208,6 +254,7 @@ BEGIN
 		ch3_volume_next <= ch3_volume_reg;
 	
 		dma_on_next <= dma_on_reg;
+		bits8_next <= bits8_reg;
 	
 		channel_next <= channel_reg;
 	
@@ -216,173 +263,173 @@ BEGIN
 		irq_active_next <= (irq_active_reg or irq_trigger) and irq_en_reg and irq_clear_n;
 	
 		adpcm_next <= adpcm_reg;
-	
-		ram_player_do_u(7) := NOT(ram_data(7));
-		ram_player_do_u(6 downto 0) := ram_data(6 downto 0);
-	
-		case dma is
-		when "0001"=>
-			if (adpcm_reg(0)='0') then
-				CH0_NEXT <= ram_player_do_u&"00000000";
-			else
-				CH0_NEXT <= adpcm_decoded;
-			end if;
-		when "0010" =>
-			if (adpcm_reg(1)='0') then
-				CH1_NEXT <= ram_player_do_u&"00000000";
-			else
-				CH1_NEXT <= adpcm_decoded;
-			end if;
-		when "0100" =>
-			if (adpcm_reg(2)='0') then
-				CH2_NEXT <= ram_player_do_u&"00000000";
-			else
-				CH2_NEXT <= adpcm_decoded;
-			end if;
-		when "1000" => 
-			if (adpcm_reg(3)='0') then
-				CH3_NEXT <= ram_player_do_u&"00000000";
-			else
-				CH3_NEXT <= adpcm_decoded;
-			end if;
-		when others =>
-			if (write_enable='1') then
-				if (addr_decoded5(0)='1') then
-					CH0_NEXT(15 downto 8) <= DI;
+
+		store_channel := adpcm_channel when write_enable='0' else ADDR(1 downto 0);
+		store := adpcm_store when write_enable='0' else '1';
+		store_source(3) := bits8;
+		store_source(2) := dma_on;
+		store_source(1) := adpcm_on;
+		store_source(0) := write_enable;
+
+		store_data := (others=>'0');
+		case store_source is
+			when "0001"|"0011"|"0101"|"0111"|"1001"|"1011"|"1101"|"1111" =>
+				store_data(12 downto 5) := di;
+			when "0110"|"1110" =>
+				store_data := adpcm_decoded(15 downto 3);
+			when "1100" =>
+				store_data(12) := not(ram_data(7));
+				store_data(11 downto 5) := ram_data(6 downto 0);
+			when "0100" =>
+				if (data_nibble='0') then
+					store_data(12) := not(ram_data(7));
+					store_data(11 downto 9) := ram_data(6 downto 4);
+				else
+					store_data(12) := not(ram_data(4));
+					store_data(11 downto 9) := ram_data(2 downto 0);
 				end if;
-				if (addr_decoded5(1)='1') then
-					CH1_NEXT(15 downto 8) <= DI;
-				end if;
-				if (addr_decoded5(2)='1') then
-					CH2_NEXT(15 downto 8) <= DI;
-				end if;
-				if (addr_decoded5(3)='1') then
-					CH3_NEXT(15 downto 8) <= DI;
-				end if;
-	
-				if (addr_decoded5(4)='1') then
-					ram_cpu_addr_next(7 downto 0) <= DI;
-				end if;
-				if (addr_decoded5(5)='1') then
-					ram_cpu_addr_next(15 downto 8) <= DI;
-				end if;
-				if (addr_decoded5(6)='1') then --manual addr inc
-					ram_cpu_write_enable <= '1';
-				end if;
-				if (addr_decoded5(7)='1') then --auto addr inc
-					ram_cpu_write_enable <= '1';
-					ram_cpu_addr_next <= ram_cpu_addr_reg + 1;
-				end if;
-	
-				if (addr_decoded5(8)='1') then
-					channel_next(2 downto 0) <= DI(2 downto 0);
-				end if;
-	
-				case channel_reg is
-					when "001" =>
-						if (addr_decoded5(9)='1') then
-							ch0_start_addr_next(7 downto 0) <= DI;
-						end if;
-						if (addr_decoded5(10)='1') then
-							ch0_start_addr_next(15 downto 8) <= DI;
-						end if;
-						if (addr_decoded5(11)='1') then
-							ch0_len_next(7 downto 0) <= DI;
-						end if;
-						if (addr_decoded5(12)='1') then
-							ch0_len_next(11 downto 8) <= DI(3 downto 0);
-						end if;
-						if (addr_decoded5(13)='1') then
-							ch0_period_next(7 downto 0) <= DI;
-						end if;
-						if (addr_decoded5(14)='1') then
-							ch0_period_next(11 downto 8) <= DI(3 downto 0);
-						end if;
-						if (addr_decoded5(15)='1') then
-							ch0_volume_next(5 downto 0) <= DI(5 downto 0);
-						end if;
-					when "010" =>
-						if (addr_decoded5(9)='1') then
-							ch1_start_addr_next(7 downto 0) <= DI;
-						end if;
-						if (addr_decoded5(10)='1') then
-							ch1_start_addr_next(15 downto 8) <= DI;
-						end if;
-						if (addr_decoded5(11)='1') then
-							ch1_len_next(7 downto 0) <= DI;
-						end if;
-						if (addr_decoded5(12)='1') then
-							ch1_len_next(11 downto 8) <= DI(3 downto 0);
-						end if;
-						if (addr_decoded5(13)='1') then
-							ch1_period_next(7 downto 0) <= DI;
-						end if;
-						if (addr_decoded5(14)='1') then
-							ch1_period_next(11 downto 8) <= DI(3 downto 0);
-						end if;
-						if (addr_decoded5(15)='1') then
-							ch1_volume_next(5 downto 0) <= DI(5 downto 0);
-						end if;
-					when "011" =>
-						if (addr_decoded5(9)='1') then
-							ch2_start_addr_next(7 downto 0) <= DI;
-						end if;
-						if (addr_decoded5(10)='1') then
-							ch2_start_addr_next(15 downto 8) <= DI;
-						end if;
-						if (addr_decoded5(11)='1') then
-							ch2_len_next(7 downto 0) <= DI;
-						end if;
-						if (addr_decoded5(12)='1') then
-							ch2_len_next(11 downto 8) <= DI(3 downto 0);
-						end if;
-						if (addr_decoded5(13)='1') then
-							ch2_period_next(7 downto 0) <= DI;
-						end if;
-						if (addr_decoded5(14)='1') then
-							ch2_period_next(11 downto 8) <= DI(3 downto 0);
-						end if;
-						if (addr_decoded5(15)='1') then
-							ch2_volume_next(5 downto 0) <= DI(5 downto 0);
-						end if;
-					when "100" =>
-						if (addr_decoded5(9)='1') then
-							ch3_start_addr_next(7 downto 0) <= DI;
-						end if;
-						if (addr_decoded5(10)='1') then
-							ch3_start_addr_next(15 downto 8) <= DI;
-						end if;
-						if (addr_decoded5(11)='1') then
-							ch3_len_next(7 downto 0) <= DI;
-						end if;
-						if (addr_decoded5(12)='1') then
-							ch3_len_next(11 downto 8) <= DI(3 downto 0);
-						end if;
-						if (addr_decoded5(13)='1') then
-							ch3_period_next(7 downto 0) <= DI;
-						end if;
-						if (addr_decoded5(14)='1') then
-							ch3_period_next(11 downto 8) <= DI(3 downto 0);
-						end if;
-						if (addr_decoded5(15)='1') then
-							ch3_volume_next(5 downto 0) <= DI(5 downto 0);
-						end if;
-					when others =>
-				end case;
-				if (addr_decoded5(16)='1') then
-					dma_on_next <= DI(3 downto 0);
-				end if;
-				if (addr_decoded5(17)='1') then
-					irq_en_next <= DI(3 downto 0);
-				end if;
-				if (addr_decoded5(18)='1') then
-					irq_clear_n <= DI(3 downto 0); --write 0 to disable
-				end if;
-				if (addr_decoded5(19)='1') then
-					adpcm_next <= DI(3 downto 0); 
-				end if;
-			end if;
+
+			when others=>
 		end case;
+	
+		if (store='1') then
+			case store_channel is
+				when "00"=>
+					CH0_NEXT <= store_data;
+				when "01" =>
+					CH1_NEXT <= store_data;
+				when "10" =>
+					CH2_NEXT <= store_data;
+				when "11" => 
+					CH3_NEXT <= store_data;
+				when others =>
+			end case;
+		end if;
+
+		if (write_enable='1') then
+			if (addr_decoded5(4)='1') then
+				ram_cpu_addr_next(7 downto 0) <= DI;
+			end if;
+			if (addr_decoded5(5)='1') then
+				ram_cpu_addr_next(15 downto 8) <= DI;
+			end if;
+			if (addr_decoded5(6)='1') then --manual addr inc
+				ram_cpu_write_enable <= '1';
+			end if;
+			if (addr_decoded5(7)='1') then --auto addr inc
+				ram_cpu_write_enable <= '1';
+				ram_cpu_addr_next <= ram_cpu_addr_reg + 1;
+			end if;
+
+			if (addr_decoded5(8)='1') then
+				channel_next(2 downto 0) <= DI(2 downto 0);
+			end if;
+
+			case channel_reg is
+				when "001" =>
+					if (addr_decoded5(9)='1') then
+						ch0_start_addr_next(7 downto 0) <= DI;
+					end if;
+					if (addr_decoded5(10)='1') then
+						ch0_start_addr_next(15 downto 8) <= DI;
+					end if;
+					if (addr_decoded5(11)='1') then
+						ch0_len_next(7 downto 0) <= DI;
+					end if;
+					if (addr_decoded5(12)='1') then
+						ch0_len_next(11 downto 8) <= DI(3 downto 0);
+					end if;
+					if (addr_decoded5(13)='1') then
+						ch0_period_next(7 downto 0) <= DI;
+					end if;
+					if (addr_decoded5(14)='1') then
+						ch0_period_next(11 downto 8) <= DI(3 downto 0);
+					end if;
+					if (addr_decoded5(15)='1') then
+						ch0_volume_next(5 downto 0) <= DI(5 downto 0);
+					end if;
+				when "010" =>
+					if (addr_decoded5(9)='1') then
+						ch1_start_addr_next(7 downto 0) <= DI;
+					end if;
+					if (addr_decoded5(10)='1') then
+						ch1_start_addr_next(15 downto 8) <= DI;
+					end if;
+					if (addr_decoded5(11)='1') then
+						ch1_len_next(7 downto 0) <= DI;
+					end if;
+					if (addr_decoded5(12)='1') then
+						ch1_len_next(11 downto 8) <= DI(3 downto 0);
+					end if;
+					if (addr_decoded5(13)='1') then
+						ch1_period_next(7 downto 0) <= DI;
+					end if;
+					if (addr_decoded5(14)='1') then
+						ch1_period_next(11 downto 8) <= DI(3 downto 0);
+					end if;
+					if (addr_decoded5(15)='1') then
+						ch1_volume_next(5 downto 0) <= DI(5 downto 0);
+					end if;
+				when "011" =>
+					if (addr_decoded5(9)='1') then
+						ch2_start_addr_next(7 downto 0) <= DI;
+					end if;
+					if (addr_decoded5(10)='1') then
+						ch2_start_addr_next(15 downto 8) <= DI;
+					end if;
+					if (addr_decoded5(11)='1') then
+						ch2_len_next(7 downto 0) <= DI;
+					end if;
+					if (addr_decoded5(12)='1') then
+						ch2_len_next(11 downto 8) <= DI(3 downto 0);
+					end if;
+					if (addr_decoded5(13)='1') then
+						ch2_period_next(7 downto 0) <= DI;
+					end if;
+					if (addr_decoded5(14)='1') then
+						ch2_period_next(11 downto 8) <= DI(3 downto 0);
+					end if;
+					if (addr_decoded5(15)='1') then
+						ch2_volume_next(5 downto 0) <= DI(5 downto 0);
+					end if;
+				when "100" =>
+					if (addr_decoded5(9)='1') then
+						ch3_start_addr_next(7 downto 0) <= DI;
+					end if;
+					if (addr_decoded5(10)='1') then
+						ch3_start_addr_next(15 downto 8) <= DI;
+					end if;
+					if (addr_decoded5(11)='1') then
+						ch3_len_next(7 downto 0) <= DI;
+					end if;
+					if (addr_decoded5(12)='1') then
+						ch3_len_next(11 downto 8) <= DI(3 downto 0);
+					end if;
+					if (addr_decoded5(13)='1') then
+						ch3_period_next(7 downto 0) <= DI;
+					end if;
+					if (addr_decoded5(14)='1') then
+						ch3_period_next(11 downto 8) <= DI(3 downto 0);
+					end if;
+					if (addr_decoded5(15)='1') then
+						ch3_volume_next(5 downto 0) <= DI(5 downto 0);
+					end if;
+				when others =>
+			end case;
+			if (addr_decoded5(16)='1') then
+				dma_on_next <= DI(3 downto 0);
+			end if;
+			if (addr_decoded5(17)='1') then
+				irq_en_next <= DI(3 downto 0);
+			end if;
+			if (addr_decoded5(18)='1') then
+				irq_clear_n <= DI(3 downto 0); --write 0 to disable
+			end if;
+			if (addr_decoded5(19)='1') then
+				adpcm_next <= DI(3 downto 0); 
+				bits8_next <= DI(7 downto 4); 
+			end if;
+		end if;
 	end process;
 	
 	ch0_inst: entity work.sample_channel
@@ -390,14 +437,14 @@ BEGIN
 	( 
 		CLK => CLK,
 		RESET_N => RESET_N,
-		ENABLE => ENABLE_CYCLE_SHIFT_REG(0),
+		ENABLE => ENABLE,
 	
 		syncreset => (dma_on_next(0) xor dma_on_reg(0)),
 		start_addr => ch0_start_addr_reg,
 		len => ch0_len_reg,
 		period => ch0_period_reg,
 		
-		twocycles => adpcm_reg(0),
+		twocycles => adpcm_reg(0) or not(bits8_reg(0)),
 		
 		addr => ch0_addr,
 		irq => irq_trigger(0),
@@ -409,14 +456,14 @@ BEGIN
 	( 
 		CLK => CLK,
 		RESET_N => RESET_N,
-		ENABLE => ENABLE_CYCLE_SHIFT_REG(1),
+		ENABLE => ENABLE,
 	
 		syncreset => (dma_on_next(1) xor dma_on_reg(1)),
 		start_addr => ch1_start_addr_reg,
 		len => ch1_len_reg,
 		period => ch1_period_reg,
 		
-		twocycles => adpcm_reg(1),
+		twocycles => adpcm_reg(1) or not(bits8_reg(1)),
 		
 		addr => ch1_addr,
 		irq => irq_trigger(1),
@@ -428,14 +475,14 @@ BEGIN
 	( 
 		CLK => CLK,
 		RESET_N => RESET_N,
-		ENABLE => ENABLE_CYCLE_SHIFT_REG(2),
+		ENABLE => ENABLE,
 	
 		syncreset => (dma_on_next(2) xor dma_on_reg(2)),
 		start_addr => ch2_start_addr_reg,
 		len => ch2_len_reg,
 		period => ch2_period_reg,
 		
-		twocycles => adpcm_reg(2),
+		twocycles => adpcm_reg(2) or not(bits8_reg(2)),
 		
 		addr => ch2_addr,
 		irq => irq_trigger(2),
@@ -447,14 +494,14 @@ BEGIN
 	( 
 		CLK => CLK,
 		RESET_N => RESET_N,
-		ENABLE => ENABLE_CYCLE_SHIFT_REG(3),
+		ENABLE => ENABLE,
 	
 		syncreset => (dma_on_next(3) xor dma_on_reg(3)),
 		start_addr => ch3_start_addr_reg,
 		len => ch3_len_reg,
 		period => ch3_period_reg,
 		
-		twocycles => adpcm_reg(3),
+		twocycles => adpcm_reg(3) or not(bits8_reg(3)),
 		
 		addr => ch3_addr,
 		irq => irq_trigger(3),
@@ -471,8 +518,8 @@ BEGIN
 		r :=     resize(unsigned(CH1_REG),18)*resize(unsigned(ch1_volume_reg),9);
 	        r := r + resize(unsigned(CH2_REG),18)*resize(unsigned(ch2_volume_reg),9);
 		-- TODO: probably need to register here?
-		AUDIO0 <= std_logic_vector(l(21 downto 6));
-		AUDIO1 <= std_logic_vector(r(21 downto 6));
+		AUDIO0 <= std_logic_vector(l(18 downto 3));
+		AUDIO1 <= std_logic_vector(r(18 downto 3));
 	
 		-- TODO: modulation?
 		-- TODO: samples from rom and put in voice samples after core?
@@ -483,29 +530,49 @@ BEGIN
 	
 	process(ch0_addr,ch1_addr,ch2_addr,ch3_addr,
 		ram_cpu_addr_reg,
-		enable_cycle_shift_reg,
-		dma_on_reg)
+		adpcm_channel,
+		request,
+		dma_on_reg,
+		adpcm_reg,
+		bits8_reg)
 	begin
-		dma <= (others=>'0');
+		ram_addr <= (others=>'0');
+		data_nibble <= '0';
+		adpcm_on <= '0';
+		dma_on <= '0';
+		bits8 <= '0';
 
-		ram_addr <= ram_cpu_addr_reg;
-	
-		case (enable_cycle_shift_reg) is
-		when "00001" => 
-	        	ram_addr <= ch0_addr(16 downto 1);			
-		when "00010" => 
-	        	ram_addr <= ch1_addr(16 downto 1);
-				dma(0) <= dma_on_reg(0);
-		when "00100" => 
-	        	ram_addr <= ch2_addr(16 downto 1);			
-				dma(1) <= dma_on_reg(1);
-		when "01000" => 
-	        	ram_addr <= ch3_addr(16 downto 1);
-				dma(2) <= dma_on_reg(2);
-		when "10000" => 
-				dma(3) <= dma_on_reg(3);
-		when others =>
+		case adpcm_channel is
+			when "00" =>
+        			ram_addr <= ch0_addr(16 downto 1);			
+				data_nibble <= ch0_addr(0);
+				adpcm_on <= adpcm_reg(0);
+				dma_on <= dma_on_reg(0);
+				bits8 <= bits8_reg(0);
+			when "01" =>
+        			ram_addr <= ch1_addr(16 downto 1);			
+				data_nibble <= ch0_addr(1);
+				adpcm_on <= adpcm_reg(1);
+				dma_on <= dma_on_reg(1);
+				bits8 <= bits8_reg(1);
+			when "10" =>
+        			ram_addr <= ch2_addr(16 downto 1);			
+				data_nibble <= ch0_addr(2);
+				adpcm_on <= adpcm_reg(2);
+				dma_on <= dma_on_reg(2);
+				bits8 <= bits8_reg(2);
+			when "11" =>
+        			ram_addr <= ch3_addr(16 downto 1);			
+				data_nibble <= ch0_addr(3);
+				adpcm_on <= adpcm_reg(3);
+				dma_on <= dma_on_reg(3);
+				bits8 <= bits8_reg(3);
+			when others =>
 		end case;
+	
+		if (request='1') then
+			ram_addr <= ram_cpu_addr_reg;
+		end if;
 	end process;
 	
 	process(clk,reset_n)
@@ -544,7 +611,6 @@ BEGIN
 			
 			adpcm_reg <= (others=>'0');
 	
-			ENABLE_CYCLE_SHIFT_REG <= (others=>'0');
 		elsif (clk'event and clk='1') then
 			CH0_REG <= CH0_NEXT;
 			CH1_REG <= CH1_NEXT;
@@ -579,12 +645,9 @@ BEGIN
 	
 			adpcm_reg <= adpcm_next;
 	
-			ENABLE_CYCLE_SHIFT_REG <= ENABLE_CYCLE_SHIFT_NEXT;
 		end if;
 	end process;
 	
-	ENABLE_CYCLE_SHIFT_NEXT <= ENABLE_CYCLE_SHIFT_REG(3 downto 0)&ENABLE;
-
 	IRQ <= or_reduce(irq_active_reg);
 
 	RAM_WRITE_ENABLE <= RAM_CPU_WRITE_ENABLE;
