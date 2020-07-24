@@ -850,7 +850,7 @@ sample_on : if enable_sample=1 generate
 		ADPCM_STEP_ADDR => ADPCM_STEP_ADDR,
 		ADPCM_STEP_REQUEST => ADPCM_STEP_REQUEST,
 		ADPCM_STEP_READY => ADPCM_STEP_READY,
-		ADPCM_STEP_VALUE => FLASH_DO(15 downto 0)
+		ADPCM_STEP_VALUE => FLASH_DO(14 downto 0)
 	);
 
 	sample_ram_inst : entity work.generic_ram_infer
