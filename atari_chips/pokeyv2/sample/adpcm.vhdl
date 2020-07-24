@@ -32,7 +32,7 @@ PORT
 	STEP_ADDR : out std_logic_vector(6 downto 0);    -- ask for step value
 	STEP_REQUEST : out std_logic;
 	STEP_READY : in std_logic;
-	STEP_VALUE : in std_logic_vector(15 downto 0)
+	STEP_VALUE : in std_logic_vector(14 downto 0)
 );
 END sample_adpcm;
 
@@ -141,7 +141,7 @@ BEGIN
 		end if;
 	end process;
 
-	process(state_reg, dirty, dirty_reg, code_reg, data_in)
+	process(state_reg, dirty, dirty_reg, code_reg, data_in, data_ready, step_ready)
 	begin
 		code_next <= code_reg;
 		dirty_next <= dirty_reg or dirty;

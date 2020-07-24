@@ -39,7 +39,7 @@ ENTITY sample_top IS
 		ADPCM_STEP_ADDR : out std_logic_vector(6 downto 0);
 		ADPCM_STEP_REQUEST : out std_logic;
 		ADPCM_STEP_READY : in std_logic;
-		ADPCM_STEP_VALUE : in std_logic_vector(15 downto 0)
+		ADPCM_STEP_VALUE : in std_logic_vector(14 downto 0)
 	);
 END sample_top;		
 		
@@ -116,7 +116,8 @@ ARCHITECTURE vhdl OF sample_top IS
 	signal adpcm_reg : std_logic_vector(3 downto 0);
 	signal adpcm_next : std_logic_vector(3 downto 0);
 	signal adpcm_data_request : std_logic;
-	signal adpcm_data_ready : std_logic;
+	signal adpcm_data_ready_next : std_logic;
+	signal adpcm_data_ready_reg : std_logic;
 	signal adpcm_data_in : std_logic_vector(3 downto 0);
 	signal adpcm_on : std_logic;
 	signal adpcm_channel : std_logic_vector(1 downto 0);
@@ -192,7 +193,7 @@ BEGIN
 			dirty=>data_request,
 
 			data_request => adpcm_data_request,
-			data_ready => adpcm_data_ready,
+			data_ready => adpcm_data_ready_reg,
 			data_in => adpcm_data_in,
 
 			step_addr => adpcm_step_addr,
@@ -539,13 +540,16 @@ BEGIN
 		request,
 		dma_on_reg,
 		adpcm_reg,
-		bits8_reg)
+		bits8_reg,
+		adpcm_data_request)
 	begin
 		ram_addr <= (others=>'0');
 		data_nibble <= '0';
 		adpcm_on <= '0';
 		dma_on <= '0';
 		bits8 <= '0';
+
+		adpcm_data_ready_next <= adpcm_data_request;
 
 		case adpcm_channel is
 			when "00" =>
@@ -577,6 +581,7 @@ BEGIN
 	
 		if (request='1') then
 			ram_addr <= ram_cpu_addr_reg;
+			adpcm_data_ready_next <= '0';
 		end if;
 	end process;
 	
@@ -615,6 +620,7 @@ BEGIN
 			channel_reg <= (others=>'0');
 			
 			adpcm_reg <= (others=>'0');
+			adpcm_data_ready_reg <= '0';
 	
 		elsif (clk'event and clk='1') then
 			CH0_REG <= CH0_NEXT;
@@ -649,6 +655,7 @@ BEGIN
 			channel_reg <= channel_next;
 	
 			adpcm_reg <= adpcm_next;
+			adpcm_data_ready_reg <= adpcm_data_ready_next;
 	
 		end if;
 	end process;
