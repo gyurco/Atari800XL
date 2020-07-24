@@ -264,8 +264,13 @@ BEGIN
 	
 		adpcm_next <= adpcm_reg;
 
-		store_channel := adpcm_channel when write_enable='0' else ADDR(1 downto 0);
-		store := adpcm_store when write_enable='0' else '1';
+		if (write_enable='0') then
+			store_channel := adpcm_channel;
+			store := adpcm_store;
+	       	else
+			store_channel := ADDR(1 downto 0);
+			store := '1';
+		end if;
 		store_source(3) := bits8;
 		store_source(2) := dma_on;
 		store_source(1) := adpcm_on;

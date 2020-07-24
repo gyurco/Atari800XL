@@ -259,6 +259,10 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal SAMPLE_RAM_WRITE_ENABLE : std_logic;
 	signal SAMPLE_RAM_DATA : std_logic_vector(7 downto 0);
 
+	signal ADPCM_STEP_ADDR : std_logic_vector(6 downto 0);
+	signal ADPCM_STEP_REQUEST : std_logic;
+	signal ADPCM_STEP_READY : std_logic;
+
 	-- FLASH
 	signal flash_do : std_logic_vector(31 downto 0);
 
@@ -342,12 +346,17 @@ flash_on : if enable_flash=1 generate
 		flash_req2_addr(12 downto 1) => (others=>'0'),   -- first 2 32-bit words are config!
 		flash_req2_addr(0 downto 0) => CONFIG_FLASH_ADDR(0 downto 0),
 
+		flash_req3_addr(12 downto 8) => (others=>'0'),
+		flash_req3_addr(7 downto 0) => "1"&ADPCM_STEP_ADDR(6 downto 0),
+
 		flash_req_request(0) => CPU_FLASH_REQUEST_REG,
 		flash_req_request(1) => CONFIG_FLASH_REQUEST,
-		flash_req_request(7 downto 2) => (others=>'0'),
+		flash_req_request(2) => ADPCM_STEP_REQUEST,
+		flash_req_request(7 downto 3) => (others=>'0'),
 		flash_req_complete(0) => CPU_FLASH_COMPLETE,
 		flash_req_complete(1) => CONFIG_FLASH_COMPLETE,
-		flash_req_complete(7 downto 2) => open,
+		flash_req_complete(2) => ADPCM_STEP_READY,
+		flash_req_complete(7 downto 3) => open,
 
 		flash_data_out => flash_do
 	);
@@ -824,6 +833,7 @@ sample_on : if enable_sample=1 generate
 		RESET_N => RESET_N,
 
 		ENABLE => ENABLE_DOUBLE_CYCLE, 
+		REQUEST => REQUEST,
 	
 		WRITE_ENABLE => SAMPLE_WRITE_ENABLE,
 		ADDR => ADDR_IN(4 downto 0),
@@ -835,7 +845,12 @@ sample_on : if enable_sample=1 generate
 		
 		RAM_ADDR => SAMPLE_RAM_ADDRESS,
 		RAM_WRITE_ENABLE => SAMPLE_RAM_WRITE_ENABLE,
-		RAM_DATA => SAMPLE_RAM_DATA
+		RAM_DATA => SAMPLE_RAM_DATA,
+
+		ADPCM_STEP_ADDR => ADPCM_STEP_ADDR,
+		ADPCM_STEP_REQUEST => ADPCM_STEP_REQUEST,
+		ADPCM_STEP_READY => ADPCM_STEP_READY,
+		ADPCM_STEP_VALUE => FLASH_DO(15 downto 0)
 	);
 
 	sample_ram_inst : entity work.generic_ram_infer
