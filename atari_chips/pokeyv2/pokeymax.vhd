@@ -248,7 +248,6 @@ ARCHITECTURE vhdl OF pokeymax IS
 	
 		--config infra
 	signal addr_decoded4 : std_logic_vector(15 downto 0);	
-	signal addr_decoded5 : std_logic_vector(31 downto 0);	
 	signal CONFIG_ENABLE_REG : std_logic;
 	signal CONFIG_ENABLE_NEXT: std_logic;
 	
@@ -1009,10 +1008,6 @@ decode_addr1 : entity work.complete_address_decoder
 	generic map(width=>4)
 	port map (addr_in=>ADDR_IN(3 downto 0), addr_decoded=>addr_decoded4);
 
-decode_addr2 : entity work.complete_address_decoder
-	generic map(width=>5)
-	port map (addr_in=>ADDR_IN(4 downto 0), addr_decoded=>addr_decoded5);
-	
 process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
 	SATURATE_REG,CHANNEL_MODE_REG,IRQ_EN_REG,DETECT_RIGHT_REG,
 	CONFIG_ENABLE_REG,

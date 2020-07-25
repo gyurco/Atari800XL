@@ -56,7 +56,6 @@ ARCHITECTURE vhdl OF sample_top IS
         signal ram_cpu_addr_next : std_logic_vector(15 downto 0);
         signal ram_cpu_addr_reg : std_logic_vector(15 downto 0);
         signal ram_cpu_write_enable : std_logic;
-        signal ram_cpu_do : std_logic_vector(7 downto 0);
 
 	signal ch0_start_addr_reg : std_logic_vector(15 downto 0);
 	signal ch0_start_addr_next : std_logic_vector(15 downto 0);
@@ -143,7 +142,7 @@ BEGIN
 		port map (addr_in=>ADDR(4 downto 0), addr_decoded=>addr_decoded5);
 
 	process(addr_decoded5,CH0_REG,CH1_REG,CH2_REG,CH3_REG,
-		ram_cpu_addr_reg, ram_cpu_do, 
+		ram_cpu_addr_reg, ram_data, 
 		irq_en_reg,irq_active_reg
 		)
 	begin
@@ -172,7 +171,7 @@ BEGIN
 			DO <= ram_cpu_addr_reg(15 downto 8);
 		end if;
 		if (addr_decoded5(6)='1') then --manual addr inc
-			DO <= ram_cpu_do;
+			DO <= ram_data;
 		end if;
 		if (addr_decoded5(17)='1') then
 			DO(3 downto 0) <= irq_en_reg;
@@ -227,7 +226,7 @@ BEGIN
 	end process;
 
 	process( CH0_REG,CH1_REG,CH2_REG,CH3_REG,DI,
-	store,store_data
+	store,store_data,store_channel
 	)
 	begin
 		CH0_NEXT <= CH0_REG;

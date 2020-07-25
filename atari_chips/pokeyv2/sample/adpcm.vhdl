@@ -147,6 +147,7 @@ BEGIN
 		dirty_next <= dirty_reg or dirty;
 		state_next <= state_reg;
 
+		data_request <= '0';
 		step_request <= '0';
 		sel <= (others=>'0');
 		write_ch0 <= '0';
