@@ -193,7 +193,7 @@ BEGIN
 			store <= adpcm_store;
 	       	else
 			store_channel <= ADDR(1 downto 0);
-			store <= not(or_reduce(ADDR(5 downto 2)));
+			store <= not(or_reduce(ADDR(4 downto 2)));
 		end if;
 		store_source(3) <= bits8;
 		store_source(2) <= dma_on;
