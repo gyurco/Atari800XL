@@ -131,6 +131,11 @@ ARCHITECTURE vhdl OF sample_top IS
 
 	signal data_nibble : std_logic;
 
+	signal store_data : std_logic_vector(12 downto 0);
+	signal store_source : std_logic_vector(3 downto 0);
+	signal store_channel : std_logic_vector(1 downto 0);
+	signal store : std_logic;
+
 BEGIN
 
 	decode_addr2 : entity work.complete_address_decoder
@@ -176,6 +181,74 @@ BEGIN
 			DO(3 downto 0) <= irq_active_reg;
 		end if;
 	end process;
+
+	process(adpcm_channel,adpcm_store,addr,bits8,dma_on,adpcm_on,write_enable)
+	begin
+		store <= '0';
+		store_channel <= (others=>'0');
+		store_source <= (others=>'0');
+
+		if (write_enable='0') then
+			store_channel <= adpcm_channel;
+			store <= adpcm_store;
+	       	else
+			store_channel <= ADDR(1 downto 0);
+			store <= '1';
+		end if;
+		store_source(3) <= bits8;
+		store_source(2) <= dma_on;
+		store_source(1) <= adpcm_on;
+		store_source(0) <= write_enable;
+	end process;
+
+	process(store_source,data_nibble,
+		di,adpcm_decoded,ram_data)
+	begin
+		store_data <= (others=>'0');
+		case store_source is
+			when "0001"|"0011"|"0101"|"0111"|"1001"|"1011"|"1101"|"1111" =>
+				store_data(12 downto 5) <= di;
+			when "0110"|"1110" =>
+				store_data <= adpcm_decoded(15 downto 3);
+			when "1100" =>
+				store_data(12) <= not(ram_data(7));
+				store_data(11 downto 5) <= ram_data(6 downto 0);
+			when "0100" =>
+				if (data_nibble='0') then
+					store_data(12) <= not(ram_data(7));
+					store_data(11 downto 9) <= ram_data(6 downto 4);
+				else
+					store_data(12) <= not(ram_data(4));
+					store_data(11 downto 9) <= ram_data(2 downto 0);
+				end if;
+
+			when others=>
+		end case;
+	end process;
+
+	process( CH0_REG,CH1_REG,CH2_REG,CH3_REG,DI,
+	store,store_data
+	)
+	begin
+		CH0_NEXT <= CH0_REG;
+		CH1_NEXT <= CH1_REG;
+		CH2_NEXT <= CH2_REG;
+		CH3_NEXT <= CH3_REG;
+	
+		if (store='1') then
+			case store_channel is
+				when "00"=>
+					CH0_NEXT <= store_data;
+				when "01" =>
+					CH1_NEXT <= store_data;
+				when "10" =>
+					CH2_NEXT <= store_data;
+				when "11" => 
+					CH3_NEXT <= store_data;
+				when others =>
+			end case;
+		end if;
+	end process;
 	
 	adpcm_decoder : entity work.sample_adpcm
 		port map 
@@ -208,8 +281,7 @@ BEGIN
 		-- TODO -> feed in data slower and each nibble
 	adpcm_data_in <= ram_data(7 downto 4) when data_nibble='0' else ram_data(3 downto 0);
 	
-	process(ADDR, addr_decoded5, WRITE_ENABLE,
-	CH0_REG,CH1_REG,CH2_REG,CH3_REG,DI,
+	process(ADDR, addr_decoded5, WRITE_ENABLE, DI,
 	ram_cpu_addr_reg,
 	ch0_start_addr_reg, ch0_len_reg, ch0_period_reg, ch0_volume_reg,
 	ch1_start_addr_reg, ch1_len_reg, ch1_period_reg, ch1_volume_reg,
@@ -218,19 +290,9 @@ BEGIN
 	dma_on_reg,dma_on,ram_data,
 	channel_reg,
 	irq_en_reg,irq_active_reg,irq_trigger,irq_clear_n,
-	adpcm_decoded,adpcm_reg,adpcm_on,adpcm_channel,adpcm_store,
-	bits8_reg,bits8
+	adpcm_reg, bits8_reg
 	)
-		variable store_data : std_logic_vector(12 downto 0);
-		variable store_source : std_logic_vector(3 downto 0);
-		variable store_channel : std_logic_vector(1 downto 0);
-		variable store : std_logic;
 	begin
-		CH0_NEXT <= CH0_REG;
-		CH1_NEXT <= CH1_REG;
-		CH2_NEXT <= CH2_REG;
-		CH3_NEXT <= CH3_REG;
-	
 		ram_cpu_write_enable <= '0';
 		ram_cpu_addr_next <= ram_cpu_addr_reg;
 	
@@ -264,53 +326,6 @@ BEGIN
 		irq_active_next <= (irq_active_reg or irq_trigger) and irq_en_reg and irq_clear_n;
 	
 		adpcm_next <= adpcm_reg;
-
-		if (write_enable='0') then
-			store_channel := adpcm_channel;
-			store := adpcm_store;
-	       	else
-			store_channel := ADDR(1 downto 0);
-			store := '1';
-		end if;
-		store_source(3) := bits8;
-		store_source(2) := dma_on;
-		store_source(1) := adpcm_on;
-		store_source(0) := write_enable;
-
-		store_data := (others=>'0');
-		case store_source is
-			when "0001"|"0011"|"0101"|"0111"|"1001"|"1011"|"1101"|"1111" =>
-				store_data(12 downto 5) := di;
-			when "0110"|"1110" =>
-				store_data := adpcm_decoded(15 downto 3);
-			when "1100" =>
-				store_data(12) := not(ram_data(7));
-				store_data(11 downto 5) := ram_data(6 downto 0);
-			when "0100" =>
-				if (data_nibble='0') then
-					store_data(12) := not(ram_data(7));
-					store_data(11 downto 9) := ram_data(6 downto 4);
-				else
-					store_data(12) := not(ram_data(4));
-					store_data(11 downto 9) := ram_data(2 downto 0);
-				end if;
-
-			when others=>
-		end case;
-	
-		if (store='1') then
-			case store_channel is
-				when "00"=>
-					CH0_NEXT <= store_data;
-				when "01" =>
-					CH1_NEXT <= store_data;
-				when "10" =>
-					CH2_NEXT <= store_data;
-				when "11" => 
-					CH3_NEXT <= store_data;
-				when others =>
-			end case;
-		end if;
 
 		if (write_enable='1') then
 			if (addr_decoded5(4)='1') then
@@ -621,6 +636,8 @@ BEGIN
 			
 			adpcm_reg <= (others=>'0');
 			adpcm_data_ready_reg <= '0';
+
+			bits8_reg <= (others=>'1');
 	
 		elsif (clk'event and clk='1') then
 			CH0_REG <= CH0_NEXT;
@@ -656,6 +673,8 @@ BEGIN
 	
 			adpcm_reg <= adpcm_next;
 			adpcm_data_ready_reg <= adpcm_data_ready_next;
+
+			bits8_reg <= bits8_next;
 	
 		end if;
 	end process;

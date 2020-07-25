@@ -279,33 +279,40 @@ BEGIN
 		acc0_reg, acc1_reg, acc2_reg, acc3_reg, 
 		decstep0_reg, decstep1_reg, decstep2_reg, decstep3_reg
 	)
+		variable rst : std_logic;
 	begin
 		acc_mux <= (others=>'0');
 		decstep_mux <= (others=>'0');
 
 		syncreset_next <= (syncreset or syncreset_reg);
+		
+		rst := '0';
 
 		case sel is
 		when "00" =>
 			acc_mux <= acc0_reg;
 			decstep_mux <= decstep0_reg;
+			rst := syncreset_reg(0) or syncreset(0);
 			syncreset_next(0) <= (syncreset_reg(0) or syncreset(0)) and not(step_ready);
 		when "01" =>
 			acc_mux <= acc1_reg;
 			decstep_mux <= decstep1_reg;
+			rst := syncreset_reg(1) or syncreset(1);
 			syncreset_next(1) <= (syncreset_reg(1) or syncreset(1)) and not(step_ready);
 		when "10" =>
 			acc_mux <= acc2_reg;
-			decstep_mux <= decstep2_reg;			
+			decstep_mux <= decstep2_reg;
+			rst := syncreset_reg(2) or syncreset(2);			
 			syncreset_next(2) <= (syncreset_reg(2) or syncreset(2)) and not(step_ready);
 		when "11" =>
 			acc_mux <= acc3_reg;
 			decstep_mux <= decstep3_reg;
+			rst := syncreset_reg(3) or syncreset(3);
 			syncreset_next(3) <= (syncreset_reg(3) or syncreset(3)) and not(step_ready);
 		when others =>
 		end case;
 		
-		if (or_reduce(syncreset_reg or syncreset)='1') then
+		if (rst='1') then
 			acc_mux <= (others=>'0');
 			decstep_mux <= (others=>'0');
 		end if;
