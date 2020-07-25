@@ -19,7 +19,7 @@ PORT
 
 	syncreset : in std_logic;
 	start_addr : IN std_logic_vector(15 downto 0);
-	len : IN std_logic_vector(11 downto 0);
+	len : IN std_logic_vector(15 downto 0);
 	period : IN std_logic_vector(11 downto 0);
 	
 	twocycles : in std_logic;
@@ -33,8 +33,8 @@ END sample_channel;
 ARCHITECTURE vhdl OF sample_channel IS
 	signal pointer_reg : unsigned(16 downto 0);
 	signal pointer_next : unsigned(16 downto 0);
-	signal remaining_reg : unsigned(11 downto 0);
-	signal remaining_next : unsigned(11 downto 0);
+	signal remaining_reg : unsigned(15 downto 0);
+	signal remaining_next : unsigned(15 downto 0);
 	signal periodpos_reg : unsigned(11 downto 0);
 	signal periodpos_next : unsigned(11 downto 0);
 	signal req_reg : std_logic;

@@ -60,8 +60,8 @@ ARCHITECTURE vhdl OF sample_top IS
 
 	signal ch0_start_addr_reg : std_logic_vector(15 downto 0);
 	signal ch0_start_addr_next : std_logic_vector(15 downto 0);
-	signal ch0_len_reg : std_logic_vector(11 downto 0);
-	signal ch0_len_next : std_logic_vector(11 downto 0);
+	signal ch0_len_reg : std_logic_vector(15 downto 0);
+	signal ch0_len_next : std_logic_vector(15 downto 0);
 	signal ch0_period_reg : std_logic_vector(11 downto 0);
 	signal ch0_period_next : std_logic_vector(11 downto 0);
 	signal ch0_volume_reg : std_logic_vector(5 downto 0);
@@ -69,8 +69,8 @@ ARCHITECTURE vhdl OF sample_top IS
 
 	signal ch1_start_addr_reg : std_logic_vector(15 downto 0);
 	signal ch1_start_addr_next : std_logic_vector(15 downto 0);
-	signal ch1_len_reg : std_logic_vector(11 downto 0);
-	signal ch1_len_next : std_logic_vector(11 downto 0);
+	signal ch1_len_reg : std_logic_vector(15 downto 0);
+	signal ch1_len_next : std_logic_vector(15 downto 0);
 	signal ch1_period_reg : std_logic_vector(11 downto 0);
 	signal ch1_period_next : std_logic_vector(11 downto 0);
 	signal ch1_volume_reg : std_logic_vector(5 downto 0);
@@ -78,8 +78,8 @@ ARCHITECTURE vhdl OF sample_top IS
 
 	signal ch2_start_addr_reg : std_logic_vector(15 downto 0);
 	signal ch2_start_addr_next : std_logic_vector(15 downto 0);
-	signal ch2_len_reg : std_logic_vector(11 downto 0);
-	signal ch2_len_next : std_logic_vector(11 downto 0);
+	signal ch2_len_reg : std_logic_vector(15 downto 0);
+	signal ch2_len_next : std_logic_vector(15 downto 0);
 	signal ch2_period_reg : std_logic_vector(11 downto 0);
 	signal ch2_period_next : std_logic_vector(11 downto 0);
 	signal ch2_volume_reg : std_logic_vector(5 downto 0);
@@ -87,8 +87,8 @@ ARCHITECTURE vhdl OF sample_top IS
 
 	signal ch3_start_addr_reg : std_logic_vector(15 downto 0);
 	signal ch3_start_addr_next : std_logic_vector(15 downto 0);
-	signal ch3_len_reg : std_logic_vector(11 downto 0);
-	signal ch3_len_next : std_logic_vector(11 downto 0);
+	signal ch3_len_reg : std_logic_vector(15 downto 0);
+	signal ch3_len_next : std_logic_vector(15 downto 0);
 	signal ch3_period_reg : std_logic_vector(11 downto 0);
 	signal ch3_period_next : std_logic_vector(11 downto 0);
 	signal ch3_volume_reg : std_logic_vector(5 downto 0);
@@ -193,7 +193,7 @@ BEGIN
 			store <= adpcm_store;
 	       	else
 			store_channel <= ADDR(1 downto 0);
-			store <= '1';
+			store <= not(or_reduce(ADDR(5 downto 2)));
 		end if;
 		store_source(3) <= bits8;
 		store_source(2) <= dma_on;
@@ -358,7 +358,7 @@ BEGIN
 						ch0_len_next(7 downto 0) <= DI;
 					end if;
 					if (addr_decoded5(12)='1') then
-						ch0_len_next(11 downto 8) <= DI(3 downto 0);
+						ch0_len_next(15 downto 8) <= DI;
 					end if;
 					if (addr_decoded5(13)='1') then
 						ch0_period_next(7 downto 0) <= DI;
@@ -380,7 +380,7 @@ BEGIN
 						ch1_len_next(7 downto 0) <= DI;
 					end if;
 					if (addr_decoded5(12)='1') then
-						ch1_len_next(11 downto 8) <= DI(3 downto 0);
+						ch1_len_next(15 downto 8) <= DI;
 					end if;
 					if (addr_decoded5(13)='1') then
 						ch1_period_next(7 downto 0) <= DI;
@@ -402,7 +402,7 @@ BEGIN
 						ch2_len_next(7 downto 0) <= DI;
 					end if;
 					if (addr_decoded5(12)='1') then
-						ch2_len_next(11 downto 8) <= DI(3 downto 0);
+						ch2_len_next(15 downto 8) <= DI;
 					end if;
 					if (addr_decoded5(13)='1') then
 						ch2_period_next(7 downto 0) <= DI;
@@ -424,7 +424,7 @@ BEGIN
 						ch3_len_next(7 downto 0) <= DI;
 					end if;
 					if (addr_decoded5(12)='1') then
-						ch3_len_next(11 downto 8) <= DI(3 downto 0);
+						ch3_len_next(15 downto 8) <= DI;
 					end if;
 					if (addr_decoded5(13)='1') then
 						ch3_period_next(7 downto 0) <= DI;
