@@ -20,6 +20,7 @@ ENTITY flash_controller IS
 	PORT
 	(
 		CLK : IN STD_LOGIC;
+		CLK_SLOW : IN STD_LOGIC;
 		RESET_N : IN STD_LOGIC;
 
 		-- Request from device 1 (cpu)
@@ -29,6 +30,7 @@ ENTITY flash_controller IS
 
 		flash_req_request : IN STD_LOGIC_VECTOR(7 downto 0);
 		flash_req_complete : OUT STD_LOGIC_VECTOR(7 downto 0);
+		flash_req_complete_slow : OUT STD_LOGIC_VECTOR(7 downto 0);
 
 		flash_req1_addr : IN STD_LOGIC_VECTOR(15 downto 0) := (others=>'0');
 		flash_req2_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
@@ -40,7 +42,8 @@ ENTITY flash_controller IS
 		flash_req8_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
 
 		-- Output
-		flash_data_out : OUT STD_LOGIC_VECTOR(31 downto 0)
+		flash_data_out : OUT STD_LOGIC_VECTOR(31 downto 0);
+		flash_data_out_slow : OUT STD_LOGIC_VECTOR(31 downto 0)
 	);
 END flash_controller;		
 		
@@ -117,6 +120,11 @@ ARCHITECTURE vhdl OF flash_controller IS
 	signal flash_complete_next : std_logic_vector(7 downto 0);
 	signal flash_complete_reg : std_logic_vector(7 downto 0);	
 
+	signal flash_do_slow_next : std_logic_vector(31 downto 0);
+	signal flash_do_slow_reg : std_logic_vector(31 downto 0);
+	signal flash_complete_slow_next : std_logic_vector(7 downto 0);
+	signal flash_complete_slow_reg : std_logic_vector(7 downto 0);	
+
 BEGIN
 
 	flash1 : flash
@@ -166,6 +174,17 @@ BEGIN
 			robin_reg <= robin_next;
 			flash_do_reg <= flash_do_next;
 			flash_complete_reg <= flash_complete_next;
+		end if;
+	end process;
+
+	process(clk_slow,reset_n)
+	begin
+		if (reset_n='0') then
+			flash_complete_slow_reg <= (others=>'0');
+			flash_do_slow_reg <= (others=>'0');
+		elsif (clk_slow'event and clk_slow='1') then
+			flash_complete_slow_reg <= flash_complete_slow_next;
+			flash_do_slow_reg <= flash_do_slow_next;
 		end if;
 	end process;
 
@@ -286,12 +305,23 @@ BEGIN
 
 	-- register complete
 	flash_complete_next <= output_reg and (complete&complete&complete&complete&complete&complete&complete&complete);
-	flash_do_next <= flash_do;
+	flash_complete_slow_next <= flash_complete_next or flash_complete_reg;
+	process(flash_do_reg,flash_do,complete)
+	begin
+		flash_do_next <= flash_do_reg;
+		flash_do_slow_next <= flash_do_reg;
+		if (complete='1') then
+			flash_do_next <= flash_do;
+			flash_do_slow_next <= flash_do;
+		end if;
+	end process;
 
 	-- mux on who requested
 	flash_req_complete <= flash_complete_reg;
+	flash_req_complete_slow <= flash_complete_slow_reg;
 
 	-- outputs
 	flash_data_out <= flash_do_reg;
+	flash_data_out_slow <= flash_do_slow_reg;
 
 end vhdl;	

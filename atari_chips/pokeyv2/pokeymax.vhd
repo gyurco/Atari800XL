@@ -263,7 +263,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal ADPCM_STEP_READY : std_logic;
 
 	-- FLASH
-	signal flash_do : std_logic_vector(31 downto 0);
+	signal flash_do_slow : std_logic_vector(31 downto 0); --58Mhz
 
 	signal CPU_FLASH_REQUEST_NEXT : std_logic;
 	signal CPU_FLASH_REQUEST_REG : std_logic;
@@ -308,7 +308,7 @@ BEGIN
 
 flash_on : if enable_flash=1 generate 
 
-	process(CLK116,RESET_N)
+	process(CLK,RESET_N)
 	begin
 		if (RESET_N='0') then
 			CPU_FLASH_REQUEST_REG <= '0';
@@ -317,7 +317,7 @@ flash_on : if enable_flash=1 generate
 			CPU_FLASH_ADDR_REG <= (others=>'0');
 			CPU_FLASH_DATA_REG <= (others=>'0');
 			CONFIG_FLASH_STATE_REG <= CONFIG_FLASH_STATE_ADDR1;
-		elsif (CLK116'event and CLK116='1') then
+		elsif (CLK'event and CLK='1') then
 			CPU_FLASH_REQUEST_REG <= CPU_FLASH_REQUEST_NEXT;
 			CPU_FLASH_WRITE_N_REG <= CPU_FLASH_WRITE_N_NEXT;
 			CPU_FLASH_CFG_REG <= CPU_FLASH_CFG_NEXT;
@@ -334,6 +334,7 @@ flash_on : if enable_flash=1 generate
 	port map
 	(
 		CLK => CLK116,
+		CLK_SLOW => CLK,
 		RESET_N => RESET_N,
 
 		-- Request from device 1 (cpu)
@@ -352,12 +353,14 @@ flash_on : if enable_flash=1 generate
 		flash_req_request(1) => CONFIG_FLASH_REQUEST,
 		flash_req_request(2) => ADPCM_STEP_REQUEST,
 		flash_req_request(7 downto 3) => (others=>'0'),
-		flash_req_complete(0) => CPU_FLASH_COMPLETE,
-		flash_req_complete(1) => CONFIG_FLASH_COMPLETE,
-		flash_req_complete(2) => ADPCM_STEP_READY,
-		flash_req_complete(7 downto 3) => open,
+		flash_req_complete(7 downto 0) => open,
 
-		flash_data_out => flash_do
+		flash_req_complete_slow(0) => CPU_FLASH_COMPLETE,
+		flash_req_complete_slow(1) => CONFIG_FLASH_COMPLETE,
+		flash_req_complete_slow(2) => ADPCM_STEP_READY,
+		flash_req_complete_slow(7 downto 3) => open,
+
+		flash_data_out_slow => flash_do_slow
 	);
 
 	-- initialize the registers from flash
@@ -849,7 +852,7 @@ sample_on : if enable_sample=1 generate
 		ADPCM_STEP_ADDR => ADPCM_STEP_ADDR,
 		ADPCM_STEP_REQUEST => ADPCM_STEP_REQUEST,
 		ADPCM_STEP_READY => ADPCM_STEP_READY,
-		ADPCM_STEP_VALUE => FLASH_DO(14 downto 0)
+		ADPCM_STEP_VALUE => FLASH_DO_SLOW(14 downto 0)
 	);
 
 	sample_ram_inst : entity work.generic_ram_infer
@@ -1019,7 +1022,7 @@ process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
 	PSG_PROFILESEL_REG,
 	PSG_ENVELOPE16_REG,
 	CPU_FLASH_REQUEST_REG,CPU_FLASH_WRITE_N_REG,CPU_FLASH_CFG_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
-	CPU_FLASH_COMPLETE,CONFIG_FLASH_COMPLETE,CONFIG_FLASH_ADDR,flash_do
+	CPU_FLASH_COMPLETE,CONFIG_FLASH_COMPLETE,CONFIG_FLASH_ADDR,flash_do_slow
 )
 begin
 	SATURATE_NEXT <= SATURATE_REG;
@@ -1048,26 +1051,26 @@ begin
 
 
 	if (CPU_FLASH_COMPLETE='1') then
-		CPU_FLASH_DATA_NEXT <= flash_do;
+		CPU_FLASH_DATA_NEXT <= flash_do_slow;
 		CPU_FLASH_REQUEST_NEXT <= '0';
 	end if;
 
 	if (enable_flash=1 and CONFIG_FLASH_COMPLETE='1') then
 		case CONFIG_FLASH_ADDR is
 			when "0"=>
-				SATURATE_NEXT <= flash_do(0);
+				SATURATE_NEXT <= flash_do_slow(0);
 					-- 1 reserved...
-				CHANNEL_MODE_NEXT <= flash_do(2);
-				IRQ_EN_NEXT <= flash_do(3);
-				DETECT_RIGHT_NEXT <= flash_do(4);
+				CHANNEL_MODE_NEXT <= flash_do_slow(2);
+				IRQ_EN_NEXT <= flash_do_slow(3);
+				DETECT_RIGHT_NEXT <= flash_do_slow(4);
 					-- 5-7 reserved
-				POST_DIVIDE_NEXT <= flash_do(15 downto 8);
-				GTIA_ENABLE_NEXT <= flash_do(19 downto 16);
+				POST_DIVIDE_NEXT <= flash_do_slow(15 downto 8);
+				GTIA_ENABLE_NEXT <= flash_do_slow(19 downto 16);
 					-- 23 downto 20 reserved
-				PSG_FREQ_NEXT <= flash_do(25 downto 24);
-				PSG_STEREOMODE_NEXT <= flash_do(27 downto 26);
-				PSG_ENVELOPE16_NEXT <= flash_do(28);
-				PSG_PROFILESEL_NEXT <= flash_do(30 downto 29);
+				PSG_FREQ_NEXT <= flash_do_slow(25 downto 24);
+				PSG_STEREOMODE_NEXT <= flash_do_slow(27 downto 26);
+				PSG_ENVELOPE16_NEXT <= flash_do_slow(28);
+				PSG_PROFILESEL_NEXT <= flash_do_slow(30 downto 29);
 					-- 31 reserved
 			when "1" =>
 			when others =>
