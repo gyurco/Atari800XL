@@ -217,7 +217,7 @@ BEGIN
 					store_data(12) <= not(ram_data(7));
 					store_data(11 downto 9) <= ram_data(6 downto 4);
 				else
-					store_data(12) <= not(ram_data(4));
+					store_data(12) <= not(ram_data(3));
 					store_data(11 downto 9) <= ram_data(2 downto 0);
 				end if;
 
