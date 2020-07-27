@@ -187,10 +187,10 @@ BEGIN
 		store_channel <= (others=>'0');
 		store_source <= (others=>'0');
 
-		if (write_enable='0') then
+		if (write_enable='0' and dma_on='1') then
 			store_channel <= adpcm_channel;
 			store <= adpcm_store;
-	       	else
+		elsif (write_enable='1') then
 			store_channel <= ADDR(1 downto 0);
 			store <= not(or_reduce(ADDR(4 downto 2)));
 		end if;
