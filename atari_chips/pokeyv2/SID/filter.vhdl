@@ -16,13 +16,36 @@ use ieee.math_real.all;
 -- This implementation is correct (I hope!), but will need some tweaks to replicate the broken
 -- sound of the 6581
 
+-- Example F computation for completely linear filter response:
+-- i.e. 0.21 fixed point (We have 18 lowest bits of that)
+--
+--	CLKSPEED : IN integer; --In Hz 58333333
+--	FMIN : IN integer;   --In Hz (30)
+--	FMAX : IN integer   --In Hz (12500 on 8580)
+--	process(CUTOFF_FREQUENCY)
+--		constant f_min : real := 2.0*sin(MATH_PI*real(FMIN)/real(CLKSPEED));
+--		constant f_max : real := 2.0*sin(MATH_PI*real(FMAX)/real(CLKSPEED));
+--
+--		variable f_offset : unsigned(17 downto 0); --0.21(000,18)
+--		variable f_scale : unsigned(17 downto 0); --0.21(000,18)
+--
+--		variable F_MULT : UNSIGNED(35 DOWNTO 0);
+--	begin
+--		--f = 2*sin(pi*10000/inrate);
+--		--CUTOFF_FREQUENCY : IN STD_LOGIC_VECTOR(10 downto 0);
+--		--CLKSPEED : IN integer; --In Hz
+--		--FMIN : IN integer;   --In Hz
+--		--FMAX : IN integer;   --In Hz
+--
+--		f_offset := to_unsigned(integer(f_min*2.0**21.0),18);
+--		f_scale  := to_unsigned(integer(2.0**21.0*((f_max-f_min)/2.0**11.0)),18);
+--
+--		-- TODO: Could use a real curve captured from a chip? Lets start with it correctly then...
+--		f_mult := f_scale * resize(unsigned(CUTOFF_FREQUENCY),18);
+--	       	f_next <= f_mult(17 downto 0) + f_offset;
+--	end process;
+
 ENTITY SID_filter IS
-GENERIC
-(
-	CLKSPEED : IN integer; --In Hz
-	FMIN : IN integer;   --In Hz
-	FMAX : IN integer   --In Hz
-);
 PORT 
 ( 
 	CLK : IN STD_LOGIC;
@@ -34,7 +57,7 @@ PORT
 	BANDPASS : OUT SIGNED(17 downto 0);
 	HIGHPASS : OUT SIGNED(17 downto 0);
 
-	CUTOFF_FREQUENCY : IN STD_LOGIC_VECTOR(10 downto 0);
+	F : IN UNSIGNED(17 downto 0);
 	Q : IN STD_LOGIC_VECTOR(3 downto 0)
 );
 END SID_filter;
@@ -112,9 +135,6 @@ ARCHITECTURE vhdl OF SID_filter IS
 	signal bandpass_next : signed(41 downto 0);
 	signal lowpass_next : signed(41 downto 0);
 
-	signal f_reg : unsigned(17 downto 0);
-	signal f_next :  unsigned(17 downto 0);
-
 	signal q_reg : signed(17 downto 0);
 	signal q_next :  signed(17 downto 0);
 
@@ -133,7 +153,6 @@ BEGIN
 	process(clk, reset_n)
 	begin
 		if (reset_n = '0') then
-			f_reg <= (others=>'0');
 			q_reg <= (others=>'0');
 			multq_reg <= (others=>'0');
 			mult1_reg <= (others=>'0');
@@ -142,7 +161,6 @@ BEGIN
 			bandpass_reg <= (others=>'0');
 			lowpass_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then
-			f_reg <= f_next;
 			q_reg <= q_next;
 			multq_reg <= multq_next;
 			mult1_reg <= mult1_next;
@@ -165,30 +183,7 @@ BEGIN
 		end loop;
 	end process;
 
-	process(CUTOFF_FREQUENCY)
-		constant f_min : real := 2.0*sin(MATH_PI*real(FMIN)/real(CLKSPEED));
-		constant f_max : real := 2.0*sin(MATH_PI*real(FMAX)/real(CLKSPEED));
-
-		variable f_offset : unsigned(17 downto 0); --0.21(000,18)
-		variable f_scale : unsigned(17 downto 0); --0.21(000,18)
-
-		variable F_MULT : UNSIGNED(35 DOWNTO 0);
-	begin
-		--f = 2*sin(pi*10000/inrate);
-		--CUTOFF_FREQUENCY : IN STD_LOGIC_VECTOR(10 downto 0);
-		--CLKSPEED : IN integer; --In Hz
-		--FMIN : IN integer;   --In Hz
-		--FMAX : IN integer;   --In Hz
-
-		f_offset := to_unsigned(integer(f_min*2.0**21.0),18);
-		f_scale  := to_unsigned(integer(2.0**21.0*((f_max-f_min)/2.0**11.0)),18);
-
-		-- TODO: Could use a real curve captured from a chip? Lets start with it correctly then...
-		f_mult := f_scale * resize(unsigned(CUTOFF_FREQUENCY),18);
-	       	f_next <= f_mult(17 downto 0) + f_offset;
-	end process;
-
-	process(input,q_reg,f_reg,multq_reg,mult1_reg,mult2_reg,highpass_reg,bandpass_reg,lowpass_reg)
+	process(input,q_reg,f,multq_reg,mult1_reg,mult2_reg,highpass_reg,bandpass_reg,lowpass_reg)
 		variable multq : signed(41 downto 0);
 		variable mult1 : signed(41 downto 0);
 		variable mult2 : signed(41 downto 0);
@@ -207,14 +202,14 @@ BEGIN
 		inputadj(41 downto 24) := resize(input,18);
 		highpass_next <= inputadj + (-multq) + (-lowpass_reg); --all 18.24s
 
-		mult1tmp := signed('0'&f_reg) * highpass_reg(41 downto 6); --0.21u * 18.18s
+		mult1tmp := signed('0'&f) * highpass_reg(41 downto 6); --0.21u * 18.18s
 		mult1_next <= mult1tmp(53 downto 0);
 		--mult1: 15.39s
 		--mult1->18.24s
 		mult1 := resize(mult1_reg(51 downto 15),42);
 		bandpass_next <= mult1 + bandpass_reg; --all 18.24s
 
-		mult2tmp := signed('0'&f_reg) * bandpass_reg(41 downto 6); -- 0.21u * 18.18s
+		mult2tmp := signed('0'&f) * bandpass_reg(41 downto 6); -- 0.21u * 18.18s
 		mult2_next <= mult2tmp(53 downto 0);
 		--mult2: 15.39s
 		--mult2->18.24s

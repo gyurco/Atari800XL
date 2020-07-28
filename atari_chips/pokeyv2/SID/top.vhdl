@@ -15,10 +15,6 @@ use IEEE.STD_LOGIC_MISC.all;
 LIBRARY work;
 
 ENTITY SID_top IS 
-	GENERIC
-	(
-		CLKSPEED : integer -- Need to know CLK frequency for the filtering
-	);
 	PORT
 	(
 		CLK : in std_logic; -- >1MHz, ideally higher for more accurate filter (as long as timing met)
@@ -39,7 +35,12 @@ ENTITY SID_top IS
 
 		DEBUG_WV1 : out unsigned(11 downto 0);
 		DEBUG_EV1 : out unsigned(7 downto 0);
-		DEBUG_AM1 : out signed(15 downto 0)
+		DEBUG_AM1 : out signed(15 downto 0);
+
+		statevariable_f_addr : out std_logic_vector(10 downto 0);
+		statevariable_f_data : in std_logic_vector(17 downto 0);
+		statevariable_f_request : out std_logic;
+		statevariable_f_ready : in std_logic
 	);
 END SID_top;		
 		
@@ -106,8 +107,15 @@ ARCHITECTURE vhdl OF SID_top IS
 	signal envelope_release_c_next : std_logic_vector(3 downto 0);	
 	
 	-- state variable filter params
-	signal statevariable_fcutoff_reg : std_logic_vector(10 downto 0); --30Hz to 12KHz, linear
+	signal statevariable_fcutoff_reg : std_logic_vector(10 downto 0); --30Hz to 12KHz, linear (or rather not, read from rom...)
 	signal statevariable_fcutoff_next : std_logic_vector(10 downto 0);
+	signal statevariable_F_reg : std_logic_vector(17 downto 0);  -- F computed from fcutoff -> or read from ram : 0.21 fixed point
+	signal statevariable_F_next : std_logic_vector(17 downto 0); -- see example computation at start of filter.vhdl
+	signal statevariable_f_changed : std_logic;
+	signal statevariable_f_state_reg : std_logic_vector(0 downto 0);
+	signal statevariable_f_state_next : std_logic_vector(0 downto 0);
+	constant statevariable_f_state_init : std_logic_vector(0 downto 0) := "0";
+	constant statevariable_f_state_romrequest : std_logic_vector(0 downto 0) := "1";
 	signal statevariable_Q_reg : std_logic_vector(3 downto 0); --resonance
 	signal statevariable_Q_next : std_logic_vector(3 downto 0);
 
@@ -198,7 +206,9 @@ BEGIN
 			envelope_release_b_reg <= (others=>'0');
 			envelope_release_c_reg <= (others=>'0');
 			statevariable_fcutoff_reg <= (others=>'0');
-			statevariable_Q_Reg <= (others=>'0');
+			statevariable_F_reg <= (others=>'0');
+			statevariable_Q_reg <= (others=>'0');
+			statevariable_f_state_reg <= statevariable_f_state_romrequest;
 			filter_en_reg <= (others=>'0');
 			filter_sel_reg <= (others=>'0');
 			ch3silent_reg <= '0';
@@ -229,7 +239,9 @@ BEGIN
 			envelope_release_b_reg <= envelope_release_b_next;
 			envelope_release_c_reg <= envelope_release_c_next;
 			statevariable_fcutoff_reg <= statevariable_fcutoff_next;
+			statevariable_F_reg <= statevariable_F_next;
 			statevariable_Q_Reg <= statevariable_Q_next;
+			statevariable_f_state_reg <= statevariable_f_state_next;
 			filter_en_reg <= filter_en_next;
 			filter_sel_reg <= filter_sel_next;
 			ch3silent_reg <= ch3silent_next;
@@ -304,6 +316,8 @@ decode_addr1 : entity work.complete_address_decoder
 		filter_sel_next <= filter_sel_reg;
 		ch3silent_next <= ch3silent_reg;
 		vol_next <= vol_reg;
+
+		statevariable_f_changed <= '0';
 	
 		if (write_enable='1') then
 			--ch a
@@ -387,9 +401,11 @@ decode_addr1 : entity work.complete_address_decoder
 			--filter
 			if (addr_decoded(21)='1') then
 				statevariable_fcutoff_next(2 downto 0) <= di(2 downto 0);
+				statevariable_f_changed <= '1';
 			end if;
 			if (addr_decoded(22)='1') then
 				statevariable_fcutoff_next(10 downto 3) <= di;
+				statevariable_f_changed <= '1';
 			end if;
 			if (addr_decoded(23)='1') then
 				statevariable_Q_next <= di(7 downto 4);
@@ -645,13 +661,31 @@ decode_addr1 : entity work.complete_address_decoder
 		DIRECT_OUT => channel_directsum
 	);
 
+	process(statevariable_F_reg,  
+		statevariable_f_state_reg, statevariable_f_changed,
+		statevariable_f_data, statevariable_f_ready)
+	begin
+		statevariable_F_next <= statevariable_F_reg;
+		statevariable_f_state_next <= statevariable_f_state_reg;
+		statevariable_f_request <= '0';
+
+		case statevariable_f_state_reg is
+			when statevariable_f_state_init =>
+				if (statevariable_f_changed='1') then
+					statevariable_f_state_next <= statevariable_f_state_romrequest;
+				end if;
+			when statevariable_f_state_romrequest =>
+				statevariable_f_request <= '1';
+				if (statevariable_f_ready = '1') then
+					statevariable_F_next <= statevariable_f_data;
+					statevariable_f_state_next <= statevariable_f_state_init;
+				end if;
+			when others =>
+				statevariable_f_state_next <= statevariable_f_state_init;
+		end case;
+	end process;
+
 	variable_state_filter : entity work.SID_filter
-	GENERIC MAP
-	(
-		CLKSPEED => CLKSPEED,
-		FMIN => 30,
-		FMAX => 12500 -- different on 6581 (10k)
-	)
 	PORT MAP
 	(
 		CLK => clk,
@@ -663,7 +697,8 @@ decode_addr1 : entity work.complete_address_decoder
 		BANDPASS => filter_bp,
 		HIGHPASS => filter_hp,
 
-		CUTOFF_FREQUENCY => statevariable_fcutoff_reg,
+		--CUTOFF_FREQUENCY => statevariable_fcutoff_reg,
+		F => unsigned(statevariable_F_reg),
 		Q => statevariable_Q_reg
 	);
 
@@ -707,6 +742,8 @@ decode_addr1 : entity work.complete_address_decoder
 	DEBUG_EV1 <= unsigned(envelope_a_reg);
 	DEBUG_WV1 <= unsigned(wave_a_reg);
 	DEBUG_AM1 <= channel_a_modulated;
+
+	statevariable_f_addr <= statevariable_fcutoff_reg;
 	
 end vhdl;
 

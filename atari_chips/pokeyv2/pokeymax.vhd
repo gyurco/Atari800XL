@@ -172,6 +172,12 @@ ARCHITECTURE vhdl OF pokeymax IS
 	-- SID
 	signal SID_CLK_ENABLE : std_logic;
 	signal SID_AUDIO : SID_AUDIO_TYPE(1 downto 0);
+	signal SID_STATEVARIABLE1_ADDR : std_logic_vector(10 downto 0);
+        signal SID_STATEVARIABLE1_ROMREQUEST : std_logic;
+        signal SID_STATEVARIABLE1_ROMREADY : std_logic;
+	signal SID_STATEVARIABLE2_ADDR : std_logic_vector(10 downto 0);
+        signal SID_STATEVARIABLE2_ROMREQUEST : std_logic;
+        signal SID_STATEVARIABLE2_ROMREADY : std_logic;
 	
 	-- PSG
 	signal PSG_ENABLE_2Mhz : std_logic;
@@ -349,16 +355,24 @@ flash_on : if enable_flash=1 generate
 		flash_req3_addr(12 downto 8) => (others=>'0'),
 		flash_req3_addr(7 downto 0) => "1"&ADPCM_STEP_ADDR(6 downto 0),
 
+		flash_req4_addr(12 downto 0) => "01"&SID_STATEVARIABLE1_ADDR(10 downto 0), --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
+
+		flash_req5_addr(12 downto 0) => "01"&SID_STATEVARIABLE2_ADDR(10 downto 0), --Or perhaps we store val/shift in 16 bits? -> 4KB?
+
 		flash_req_request(0) => CPU_FLASH_REQUEST_REG,
 		flash_req_request(1) => CONFIG_FLASH_REQUEST,
 		flash_req_request(2) => ADPCM_STEP_REQUEST,
-		flash_req_request(7 downto 3) => (others=>'0'),
+		flash_req_request(3) => SID_STATEVARIABLE1_ROMREQUEST,
+		flash_req_request(4) => SID_STATEVARIABLE2_ROMREQUEST,
+		flash_req_request(7 downto 5) => (others=>'0'),
 		flash_req_complete(7 downto 0) => open,
 
 		flash_req_complete_slow(0) => CPU_FLASH_COMPLETE,
 		flash_req_complete_slow(1) => CONFIG_FLASH_COMPLETE,
 		flash_req_complete_slow(2) => ADPCM_STEP_READY,
-		flash_req_complete_slow(7 downto 3) => open,
+		flash_req_complete_slow(3) => SID_STATEVARIABLE1_ROMREADY,
+		flash_req_complete_slow(4) => SID_STATEVARIABLE2_ROMREADY,
+		flash_req_complete_slow(7 downto 5) => open,
 
 		flash_data_out_slow => flash_do_slow
 	);
@@ -644,10 +658,10 @@ sid_on : if enable_sid=1 generate
           port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>SID_CLK_ENABLE);
 
 sid1 : entity work.SID_top
-GENERIC MAP
-(
-	CLKSPEED => 58333333 --TODO
-)
+--GENERIC MAP
+--(
+--	CLKSPEED => 58333333 --TODO
+--)
 PORT MAP(
 	CLK => CLK,
 	RESET_N => RESET_N,
@@ -660,14 +674,19 @@ PORT MAP(
 	--POT_X => (others=>'0'),
 	--POT_Y => (others=>'0'),
 	--EXTFILTER_EN => '0',
-	AUDIO => SID_AUDIO(0) --TODO: review volume, can't really be 17 bits!!
+	AUDIO => SID_AUDIO(0), 
+
+	statevariable_f_addr => sid_statevariable1_addr,
+	statevariable_f_data => flash_do_slow(17 downto 0),
+       	statevariable_f_request => sid_statevariable1_romrequest,
+	statevariable_f_ready => sid_statevariable1_romready
 );
 
 sid2 : entity work.SID_top
-GENERIC MAP
-(
-	CLKSPEED => 58333333 --TODO
-)
+--GENERIC MAP
+--(
+--	CLKSPEED => 58333333 --TODO
+--)
 PORT MAP(
 	CLK => CLK,
 	RESET_N => RESET_N,
@@ -680,7 +699,12 @@ PORT MAP(
 	--POT_X => (others=>'0'),
 	--POT_Y => (others=>'0'),
 	--EXTFILTER_EN => '0',
-	AUDIO => SID_AUDIO(1)
+	AUDIO => SID_AUDIO(1),
+
+	statevariable_f_addr => sid_statevariable2_addr,
+	statevariable_f_data => flash_do_slow(17 downto 0),
+       	statevariable_f_request => sid_statevariable2_romrequest,
+	statevariable_f_ready => sid_statevariable2_romready
 );
 end generate sid_on;		
 --------------------------------------------------------
@@ -806,10 +830,12 @@ covox_off : if enable_covox=0 generate
 	SAMPLE_DO <= (others=>'0');
 	SAMPLE_AUDIO(0) <= (others=>'0');
 	SAMPLE_AUDIO(1) <= (others=>'0');
+	ADPCM_STEP_REQUEST <= '0';
 end generate covox_off;
 
 covox_on : if enable_covox=1 and enable_sample=0 generate 
 	SAMPLE_IRQ <= '0';
+	ADPCM_STEP_REQUEST <= '0';
 
 	covox1 : entity work.covox_top
 	PORT MAP(

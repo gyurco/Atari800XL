@@ -1,4 +1,4 @@
 rm -f init.bin
-gcc -Wall init.c -o init && ./init
+gcc -Wall init.c -lm -o init && ./init
 ./makehex ./init.bin init.hex "0x000000"
 
