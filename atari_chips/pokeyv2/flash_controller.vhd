@@ -95,6 +95,9 @@ ARCHITECTURE vhdl OF flash_controller IS
 	constant state_write : std_logic_vector(2 downto 0) := "010";
 	constant state_read_wait : std_logic_vector(2 downto 0) := "011";
 	constant state_delay : std_logic_vector(2 downto 0) := "100";
+	constant state_delay2 : std_logic_vector(2 downto 0) := "101";
+	constant state_delay3 : std_logic_vector(2 downto 0) := "110";
+	constant state_delay4 : std_logic_vector(2 downto 0) := "111";
 
 	signal request_addr_reg : std_logic_vector(15 downto 0);
 	signal request_addr_next : std_logic_vector(15 downto 0);
@@ -269,7 +272,13 @@ BEGIN
 				state_next <= state_delay;
 			end if;
 		when state_delay=>
-			state_next <= state_idle; -- client sees complete here, allow client to drop request line before we take next
+			state_next <= state_delay2; -- client sees complete here, allow client to drop request line before we take next
+		when state_delay2=>
+			state_next <= state_delay3; -- without a 3rd delay we never get readdatavalid!!
+		when state_delay3=>
+			state_next <= state_delay4; 
+		when state_delay4=>
+			state_next <= state_idle; 
 		when others=>
 			state_next <= state_idle;
 		end case;
