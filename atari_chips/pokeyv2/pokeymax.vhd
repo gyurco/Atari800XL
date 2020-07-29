@@ -172,10 +172,10 @@ ARCHITECTURE vhdl OF pokeymax IS
 	-- SID
 	signal SID_CLK_ENABLE : std_logic;
 	signal SID_AUDIO : SID_AUDIO_TYPE(1 downto 0);
-	signal SID_STATEVARIABLE1_ADDR : std_logic_vector(10 downto 0);
+	signal SID_STATEVARIABLE1_ADDR : std_logic_vector(9 downto 0);
         signal SID_STATEVARIABLE1_ROMREQUEST : std_logic;
         signal SID_STATEVARIABLE1_ROMREADY : std_logic;
-	signal SID_STATEVARIABLE2_ADDR : std_logic_vector(10 downto 0);
+	signal SID_STATEVARIABLE2_ADDR : std_logic_vector(9 downto 0);
         signal SID_STATEVARIABLE2_ROMREQUEST : std_logic;
         signal SID_STATEVARIABLE2_ROMREADY : std_logic;
 	
@@ -355,9 +355,9 @@ flash_on : if enable_flash=1 generate
 		flash_req3_addr(12 downto 8) => (others=>'0'),
 		flash_req3_addr(7 downto 0) => "1"&ADPCM_STEP_ADDR(6 downto 0),
 
-		flash_req4_addr(12 downto 0) => "01"&SID_STATEVARIABLE1_ADDR(10 downto 0), --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
+		flash_req4_addr(12 downto 0) => "010"&SID_STATEVARIABLE1_ADDR(9 downto 0), --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
 
-		flash_req5_addr(12 downto 0) => "01"&SID_STATEVARIABLE2_ADDR(10 downto 0), --Or perhaps we store val/shift in 16 bits? -> 4KB?
+		flash_req5_addr(12 downto 0) => "010"&SID_STATEVARIABLE2_ADDR(9 downto 0), --Or perhaps we store val/shift in 16 bits? -> 4KB?
 
 		flash_req_request(0) => CPU_FLASH_REQUEST_REG,
 		flash_req_request(1) => CONFIG_FLASH_REQUEST,
@@ -677,7 +677,7 @@ PORT MAP(
 	AUDIO => SID_AUDIO(0), 
 
 	statevariable_f_addr => sid_statevariable1_addr,
-	statevariable_f_data => flash_do_slow(17 downto 0),
+	statevariable_f_data => flash_do_slow,
        	statevariable_f_request => sid_statevariable1_romrequest,
 	statevariable_f_ready => sid_statevariable1_romready
 );
@@ -702,7 +702,7 @@ PORT MAP(
 	AUDIO => SID_AUDIO(1),
 
 	statevariable_f_addr => sid_statevariable2_addr,
-	statevariable_f_data => flash_do_slow(17 downto 0),
+	statevariable_f_data => flash_do_slow,
        	statevariable_f_request => sid_statevariable2_romrequest,
 	statevariable_f_ready => sid_statevariable2_romready
 );
