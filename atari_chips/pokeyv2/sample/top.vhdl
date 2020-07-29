@@ -121,6 +121,8 @@ ARCHITECTURE vhdl OF sample_top IS
 	signal adpcm_on : std_logic;
 	signal adpcm_channel : std_logic_vector(1 downto 0);
 	signal adpcm_store : std_logic;
+	signal adpcm_step_request_raw : std_logic;
+	signal adpcm_step_ready_adj : std_logic;
 
 	signal bits8_reg : std_logic_vector(3 downto 0);
 	signal bits8_next : std_logic_vector(3 downto 0);
@@ -269,8 +271,8 @@ BEGIN
 			data_in => adpcm_data_in,
 
 			step_addr => adpcm_step_addr,
-			step_request => adpcm_step_request,
-			step_ready => adpcm_step_ready,
+			step_request => adpcm_step_request_raw,
+			step_ready => adpcm_step_ready_adj,
 			step_value => adpcm_step_value
 		);
 		--data_in=>ram_data, 
@@ -279,6 +281,9 @@ BEGIN
 		--data_nibble=>ch3_addr(0)&ch2_addr(0)&ch1_addr(0)&ch0_addr(0),
 		-- TODO -> feed in data slower and each nibble
 	adpcm_data_in <= ram_data(7 downto 4) when data_nibble='0' else ram_data(3 downto 0);
+
+	adpcm_step_request <= adpcm_on and dma_on and adpcm_step_request_raw;
+	adpcm_step_ready_adj <= (not(adpcm_on and dma_on) and adpcm_step_request_raw) or adpcm_step_ready;
 	
 	process(ADDR, addr_decoded5, WRITE_ENABLE, DI,
 	ram_cpu_addr_reg,
