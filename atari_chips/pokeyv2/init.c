@@ -68,6 +68,8 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 	buffer[3] |= (psg_stereomode&3)<<2;
 	buffer[3] |= (psg_envelope16&1)<<4;
 
+	buffer[4] = 2; // 6581 filter
+
 	// 0x80(0x200 8-bit) adpcm step table
 	for (i=0x0; i!=89; ++i)
 	{
