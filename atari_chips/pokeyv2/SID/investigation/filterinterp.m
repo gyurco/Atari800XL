@@ -26,6 +26,7 @@ curves(extra).freq = 30 + (((12500-30)/2048) .* curves(extra).cutoff);
 
 figure;
 
+CLKSPEED = 58333333.0;
 for c=1:numel(curves)
   res = nan(0,2047);  
   %pf = polyfit(curves(c).cutoff,curves(c).freq,10);
@@ -34,6 +35,7 @@ for c=1:numel(curves)
   %end
   res = interp1(curves(c).cutoff,curves(c).freq,0:2047);
   curves(c).interp = res;
+  curves(c).f =  freq = 2.0*sin(pi*res/CLKSPEED);
   
   plot(0:2047,res);
   hold on;
