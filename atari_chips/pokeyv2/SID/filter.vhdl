@@ -147,6 +147,12 @@ ARCHITECTURE vhdl OF SID_filter IS
 		Q := 1.0/(2.0**((4.0-real(Qval))/8.0));
 		ret := to_signed(integer(32768.0/Q),18);
 		return ret;
+
+		-- resonanceFactor is 1!
+		--8580:
+		--_1_div_Q = 1.f / (0.707f + resonanceFactor * res / 15.f);
+		--6581:
+		--_1_div_Q = 1.f / (0.5f + resonanceFactor * res / 18f);
 	end function compute_q;
 BEGIN
 	-- register
