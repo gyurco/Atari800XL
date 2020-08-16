@@ -31,7 +31,7 @@ ENTITY covox_top IS
 END covox_top;		
 		
 ARCHITECTURE vhdl OF covox_top IS
-	signal addr_decoded: std_logic_vector(1 downto 0);
+	signal addr_decoded: std_logic_vector(3 downto 0);
 	signal CH1_REG : std_logic_vector(7 downto 0);
 	signal CH0_REG : std_logic_vector(7 downto 0);
 	signal CH1_NEXT : std_logic_vector(7 downto 0);
