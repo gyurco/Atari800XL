@@ -178,8 +178,10 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal SID_STATEVARIABLE2_ADDR : std_logic_vector(9 downto 0);
         signal SID_STATEVARIABLE2_ROMREQUEST : std_logic;
         signal SID_STATEVARIABLE2_ROMREADY : std_logic;
-	signal SID_FILTER_REG : std_logic_vector(0 downto 0);
-	signal SID_FILTER_NEXT : std_logic_vector(0 downto 0);
+	signal SID_FILTER1_REG : std_logic_vector(0 downto 0);
+	signal SID_FILTER1_NEXT : std_logic_vector(0 downto 0);
+	signal SID_FILTER2_REG : std_logic_vector(0 downto 0);
+	signal SID_FILTER2_NEXT : std_logic_vector(0 downto 0);
 	
 	-- PSG
 	signal PSG_ENABLE_2Mhz : std_logic;
@@ -357,9 +359,9 @@ flash_on : if enable_flash=1 generate
 		flash_req3_addr(12 downto 8) => (others=>'0'),
 		flash_req3_addr(7 downto 0) => "1"&ADPCM_STEP_ADDR(6 downto 0),
 
-		flash_req4_addr(12 downto 0) => "0"&std_logic_vector(unsigned('0'&SID_FILTER_REG)+1)&SID_STATEVARIABLE1_ADDR(9 downto 0), --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
+		flash_req4_addr(12 downto 0) => "0"&std_logic_vector(unsigned('0'&SID_FILTER1_REG)+1)&SID_STATEVARIABLE1_ADDR(9 downto 0), --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
 
-		flash_req5_addr(12 downto 0) => "0"&std_logic_vector(unsigned('0'&SID_FILTER_REG)+1)&SID_STATEVARIABLE2_ADDR(9 downto 0), 
+		flash_req5_addr(12 downto 0) => "0"&std_logic_vector(unsigned('0'&SID_FILTER2_REG)+1)&SID_STATEVARIABLE2_ADDR(9 downto 0), 
 
 		flash_req_request(0) => CPU_FLASH_REQUEST_REG,
 		flash_req_request(1) => CONFIG_FLASH_REQUEST,
@@ -1015,7 +1017,8 @@ begin
 		PSG_STEREOMODE_REG <= "01"; --Polish
 		PSG_PROFILESEL_REG <= "00"; --Simple log
 		PSG_ENVELOPE16_REG <= '0'; --32 step
-		SID_FILTER_REG <= "0"; -- 0=8580,1=6581
+		SID_FILTER1_REG <= "0"; -- 0=8580,1=6581
+		SID_FILTER2_REG <= "0"; -- 0=8580,1=6581
 	elsif (clk'event and clk='1') then
 		DETECT_RIGHT_REG <= DETECT_RIGHT_NEXT;
 		IRQ_EN_REG <= IRQ_EN_NEXT;
@@ -1029,7 +1032,8 @@ begin
 		PSG_STEREOMODE_REG <= PSG_STEREOMODE_NEXT;
 		PSG_PROFILESEL_REG <= PSG_PROFILESEL_NEXT;
 		PSG_ENVELOPE16_REG <= PSG_ENVELOPE16_NEXT;
-		SID_FILTER_REG <= SID_FILTER_NEXT;
+		SID_FILTER1_REG <= SID_FILTER1_NEXT;
+		SID_FILTER2_REG <= SID_FILTER2_NEXT;
 	end if;
 end process;
 
@@ -1051,7 +1055,7 @@ process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
 	PSG_STEREOMODE_REG,
 	PSG_PROFILESEL_REG,
 	PSG_ENVELOPE16_REG,
-	SID_FILTER_REG,
+	SID_FILTER1_REG, SID_FILTER2_REG,
 	CPU_FLASH_REQUEST_REG,CPU_FLASH_WRITE_N_REG,CPU_FLASH_CFG_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
 	CPU_FLASH_COMPLETE,CONFIG_FLASH_COMPLETE,CONFIG_FLASH_ADDR,flash_do_slow
 )
@@ -1074,7 +1078,8 @@ begin
 	PSG_PROFILESEL_NEXT <= PSG_PROFILESEL_REG;
 	PSG_ENVELOPE16_NEXT <= PSG_ENVELOPE16_REG;
 
-	SID_FILTER_NEXT <= SID_FILTER_REG;
+	SID_FILTER1_NEXT <= SID_FILTER1_REG;
+	SID_FILTER2_NEXT <= SID_FILTER2_REG;
 
 	CPU_FLASH_REQUEST_NEXT <= CPU_FLASH_REQUEST_REG;
 	CPU_FLASH_WRITE_N_NEXT <= CPU_FLASH_WRITE_N_REG;
@@ -1106,8 +1111,10 @@ begin
 				PSG_PROFILESEL_NEXT <= flash_do_slow(30 downto 29);
 					-- 31 reserved
 			when "1" =>
-				SID_FILTER_NEXT <= flash_do_slow(0 downto 0);
-				-- 2-3 reserved
+				SID_FILTER1_NEXT <= flash_do_slow(0 downto 0);
+				-- 1-3 reserved
+				SID_FILTER2_NEXT <= flash_do_slow(4 downto 4);
+				-- 5-7 reserved
 			when others =>
 		end case;
 	elsif (CONFIG_WRITE_ENABLE='1') then
@@ -1138,7 +1145,8 @@ begin
 		end if;
 
 		if (addr_decoded4(6)='1') then
-			SID_FILTER_NEXT <= WRITE_DATA(0 downto 0);
+			SID_FILTER1_NEXT <= WRITE_DATA(0 downto 0);
+			SID_FILTER2_NEXT <= WRITE_DATA(4 downto 4);
 			-- (3 downto 1) reserved in case we want all revisions!
 		end if;
 		
@@ -1187,7 +1195,7 @@ process(addr_decoded4,VERSION_LOC_REG,
 SATURATE_REG,CHANNEL_MODE_REG,IRQ_EN_REG,DETECT_RIGHT_REG,
 POST_DIVIDE_REG, GTIA_ENABLE_REG,
 PSG_FREQ_REG, PSG_STEREOMODE_REG, PSG_PROFILESEL_REG, PSG_ENVELOPE16_REG,
-SID_FILTER_REG,
+SID_FILTER1_REG, SID_FILTER2_REG,
 CPU_FLASH_CFG_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
 CPU_FLASH_REQUEST_REG, CPU_FLASH_WRITE_N_REG
 )
@@ -1279,8 +1287,11 @@ begin
 	end if;
 
 	if (addr_decoded4(6)='1') then
-		CONFIG_DO(0 downto 0) <= SID_FILTER_REG;
+		CONFIG_DO <= (others=>'0');
+		CONFIG_DO(0 downto 0) <= SID_FILTER1_REG;
 		-- (3 downto 1) reserved in case we want more filter options
+		CONFIG_DO(4 downto 4) <= SID_FILTER2_REG;
+		-- (7 downto 5) reserved in case we want more filter options
 	end if;
 
 	if (addr_decoded4(12)='1') then

@@ -317,15 +317,22 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
 	    cprintf("Linear\r\n");
     else
 	    cprintf("Log %d\r\n",(val>>5)&3);
-    cprintf("\r\n");
 
     revers(line==11);
     val = (*flash2)&0x1;
     cprintf("SID version   : ");
+    revers(line==11 && col==0);
     if (val==0)
-	    cprintf("8580\r\n");
+	    cprintf("1:8580 ");
     else
-	    cprintf("6581\r\n");
+	    cprintf("1:6581 ");
+    revers(line==11 && col==1);
+    val = (*flash2)&0x10;
+    if (val==0)
+	    cprintf("2:8580");
+    else
+	    cprintf("2:6581");
+    cprintf("\r\n");
     cprintf("\r\n");
 
     revers(0);
@@ -398,7 +405,7 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char l
     case 11:
             flashaddr = flash2;
 	    mask = 1;
-            shift = 0;
+            shift = 0 + (col<<2);
 	    max = 1;
 	    break;
     }
@@ -612,6 +619,8 @@ int main (void)
 	    (((unsigned long)config[3])<<16) |
 	    (((unsigned long)config[2])<<8) |
 	    (((unsigned long)config[0]));
+    flash2 =
+	    ((unsigned long) config[6]);
 
     line = 1;
     col = 0;
@@ -641,6 +650,8 @@ int main (void)
         case CH_CURS_RIGHT:
 		if (col<3)
 			col =col+1;
+    		if (line==11 && col>1)
+		    col =1;
 		break;
         case CH_ENTER:
 		changeValue(&flash1,&flash2,line,col);
