@@ -197,7 +197,7 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
     //textcolor(0xa);
     chline(40);
 
-    cprintf("Pokeymax config v0.4 ");
+    cprintf("Pokeymax config v0.5 ");
 
     cprintf(" Core:");
     for (i=0;i!=8;++i)
@@ -319,6 +319,15 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
 	    cprintf("Log %d\r\n",(val>>5)&3);
     cprintf("\r\n");
 
+    revers(line==11);
+    val = (*flash2)&0x1;
+    cprintf("SID version   : ");
+    if (val==0)
+	    cprintf("8580\r\n");
+    else
+	    cprintf("6581\r\n");
+    cprintf("\r\n");
+
     revers(0);
     chline(40);
 
@@ -344,7 +353,7 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char l
     unsigned char val;
     unsigned long tmp;
 
-    *flash2; // silence warning
+    unsigned long * flashaddr = flash1;
 
     switch(line)
     {
@@ -386,17 +395,23 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char l
             shift = 29;
 	    max = 3;
 	    break;
+    case 11:
+            flashaddr = flash2;
+	    mask = 1;
+            shift = 0;
+	    max = 1;
+	    break;
     }
 
     tmp = mask;
     tmp = tmp<<shift;
-    val = ((*flash1)&tmp)>>shift;
-    *flash1 = (*flash1)&~tmp;
+    val = ((*flashaddr)&tmp)>>shift;
+    *flashaddr = (*flashaddr)&~tmp;
     val = val+1;
     if (val>max) val=0;
     tmp = val;
     tmp = tmp<<shift;
-    *flash1 |= tmp;
+    *flashaddr |= tmp;
 }
 
 void applyConfig(unsigned long flash1, unsigned long flash2)
@@ -615,7 +630,7 @@ int main (void)
 		col = 0;
 		break;
         case CH_CURS_DOWN:
-		if (line<10)
+		if (line<11)
 		    line = line+1;
 		col = 0;
 		break;
