@@ -136,34 +136,34 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 	// Lets write 2 tables...
 	// i) linear
         double CLKSPEED = 58333333.0;
-//	double FMIN = 30;
-//	double FMAX = 12500;
-//	double f_min = 2.0*sin(M_PI*FMIN/CLKSPEED);
-//	double f_max = 2.0*sin(M_PI*FMAX/CLKSPEED);
-//	for (int i=0;i!=2048;++i)
-//	{
-//		double f_offset = f_min*pow(2,21);
-//		double f_scale  = pow(2,21)*((f_max-f_min)/pow(2,11));
-//		double f_mult = f_scale*((double)i);
-//		double f_next = f_mult+f_offset;
-//	//	printf("%d:%f:%f\n",i,f_next,round(f_next));
-//		sidfreqtable[i] = (unsigned short)round(f_next);
-//	}
-	// i) 8580 (which?)
-	FILE * f;
-       	f = fopen("8580.csv","r"); //fc-curves/Trurl_Ext/8580R5_3691.txt
+	double FMIN = 30;
+	double FMAX = 12500;
+	double f_min = 2.0*sin(M_PI*FMIN/CLKSPEED);
+	double f_max = 2.0*sin(M_PI*FMAX/CLKSPEED);
 	for (int i=0;i!=2048;++i)
 	{
-		double freqval;
-		fscanf(f,"%lf",&freqval);
-
-		double freq = 2.0*sin(M_PI*freqval/CLKSPEED);
-
-		double f_next  = pow(2,21)*(freq);
-//		printf("%d:%f:%f\n",i,f_next,round(f_next));
+		double f_offset = f_min*pow(2,21);
+		double f_scale  = pow(2,21)*((f_max-f_min)/pow(2,11));
+		double f_mult = f_scale*((double)i);
+		double f_next = f_mult+f_offset;
+	//	printf("%d:%f:%f\n",i,f_next,round(f_next));
 		sidfreqtable[i] = (unsigned short)round(f_next);
 	}
-	fclose(f);
+	// i) 8580 (which?)
+	FILE * f;
+//       	f = fopen("8580.csv","r"); //fc-curves/Trurl_Ext/8580R5_3691.txt
+//	for (int i=0;i!=2048;++i)
+//	{
+//		double freqval;
+//		fscanf(f,"%lf",&freqval);
+//
+//		double freq = 2.0*sin(M_PI*freqval/CLKSPEED);
+//
+//		double f_next  = pow(2,21)*(freq);
+////		printf("%d:%f:%f\n",i,f_next,round(f_next));
+//		sidfreqtable[i] = (unsigned short)round(f_next);
+//	}
+//	fclose(f);
 	
 	// ii) 6581 (which?)
 	//printf("%f - %f\n",f_min,f_max);
