@@ -205,6 +205,23 @@ my %variants =
 		"fpga" => "10M08SCU169C8G",
 		"version" => $version . "M08HK"
 	}
+##	"10M08_sample" =>
+##	{
+##		"pokeys" => 4,
+##		"enable_auto_stereo" => 1,
+##		"enable_sid" => 0,
+##		"enable_psg" => 0,
+##		"enable_covox" => 1,
+##		"enable_sample" => 1,
+##		"enable_flash" => 1,
+##		"a4_bit" => 1,
+##		"a5_bit" => 2,
+##		"a6_bit" => 3,
+##		"a7_bit" => 19,  #use CS1
+##		"cs1_bit" => 20, #force high
+##		"fpga" => "10M08SCU169C8G",
+##		"version" => $version . "M08HK"
+##	}
 #	"10M08_full" => 
 #	{
 #		"board" => 3,
@@ -255,12 +272,12 @@ foreach my $variant (sort keys %variants)
 	`cp pokeymax*.qpf $dir`;
 	`cp pokeymax*.qsf $dir`;
 	`cp -r int_osc* $dir`;
-	`cp -r sample_ram* $dir`;
 	`cp -r pll* $dir`;
 	`cp -r flash_$flashver/flash* $dir`;
 	`cp -r PSG $dir`;
 	`cp -r SID $dir`;
 	`cp -r sample $dir`;
+	`cp -r covox $dir`;
 
 	chdir $dir;
 
