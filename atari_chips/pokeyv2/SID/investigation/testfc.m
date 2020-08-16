@@ -1,4 +1,4 @@
-test = csvread('~/fpga/svn/jsidplay2-code/jsidplay2/jsidplay_linux_mine/jsidplay2-4.2-java11-linux/output_6.csv');
+test = csvread('/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/SID/investigation/output_6.csv');
 s1 = test(test(:,1)==1,:);
 s2 = test(test(:,1)==2,:);
 s3 = test(test(:,1)==3,:);
