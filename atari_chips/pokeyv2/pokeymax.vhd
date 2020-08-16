@@ -1106,7 +1106,7 @@ begin
 				PSG_PROFILESEL_NEXT <= flash_do_slow(30 downto 29);
 					-- 31 reserved
 			when "1" =>
-				SID_FILTER_NEXT <= flash_do_slow(1 downto 0);
+				SID_FILTER_NEXT <= flash_do_slow(0 downto 0);
 				-- 2-3 reserved
 			when others =>
 		end case;
@@ -1138,8 +1138,8 @@ begin
 		end if;
 
 		if (addr_decoded4(6)='1') then
-			SID_FILTER_NEXT <= WRITE_DATA(1 downto 0);
-			-- (3 downto 2) reserved in case we want all revisions!
+			SID_FILTER_NEXT <= WRITE_DATA(0 downto 0);
+			-- (3 downto 1) reserved in case we want all revisions!
 		end if;
 		
 		if (addr_decoded4(12)='1') then
