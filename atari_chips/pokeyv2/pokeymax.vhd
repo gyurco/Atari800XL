@@ -1280,6 +1280,7 @@ begin
 	end if;
 
 	if (addr_decoded4(5)='1') then
+		CONFIG_DO <= (others=>'0');
 		CONFIG_DO(1 downto 0) <= PSG_FREQ_REG;
 		CONFIG_DO(3 downto 2) <= PSG_STEREOMODE_REG;
 		CONFIG_DO(4) <= PSG_ENVELOPE16_REG;
