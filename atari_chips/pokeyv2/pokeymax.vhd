@@ -39,6 +39,8 @@ ENTITY pokeymax IS
 		enable_sample : integer := 0;
 		enable_flash : integer := 0;
 
+		ext_clk_enable : integer := 0; -- Use PADDLE(6) for sid clk enable, PADDLE(7) for psg
+
    		version : STRING  := "DEVELOPR" -- 8 char string atascii
 	);
 	PORT
@@ -295,6 +297,12 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal CONFIG_FLASH_REQUEST : std_logic;
 	signal CONFIG_FLASH_COMPLETE : std_logic;
 	signal CONFIG_FLASH_ADDR : std_logic_vector(0 downto 0);
+
+	-- ext clk enable
+	signal SID_ENABLE_NEXT : std_logic;
+	signal SID_ENABLE_REG : std_logic;
+	signal PSG_ENABLE_NEXT : std_logic;
+	signal PSG_ENABLE_REG : std_logic;
 
 	function getByte(a : string; x : integer) return std_logic_vector is
    		 variable ret : std_logic_vector(7 downto 0);
@@ -657,9 +665,27 @@ sid_off : if enable_sid=0 generate
 end generate sid_off;
 
 sid_on : if enable_sid=1 generate 
+
+sid_clk_on : if ext_clk_enable=0 generate 
 	enable_sid_div : entity work.syncreset_enable_divider
           generic map (COUNT=>58,RESETCOUNT=>6) -- 28-22
           port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>SID_CLK_ENABLE);
+end generate sid_clk_on;
+
+sid_clk_off : if ext_clk_enable=1 generate 
+        synchronizer_sid_clk : entity work.synchronizer
+		port map (clk=>clk, raw=>PADDLE(6), sync=>SID_ENABLE_NEXT);
+	SID_CLK_ENABLE <= SID_ENABLE_NEXT and not(SID_ENABLE_REG);
+
+process(clk,reset_n)
+begin
+	if (reset_n='0') then
+		SID_ENABLE_REG <= '0';
+	elsif (clk'event and clk='1') then
+		SID_ENABLE_REG <= SID_ENABLE_NEXT;
+	end if;
+end process;
+end generate sid_clk_off;
 
 sid1 : entity work.SID_top
 --GENERIC MAP
@@ -723,6 +749,7 @@ end generate psg_off;
 
 -- VERY approx (for now) PSG master clock!
 psg_on : if enable_psg=1 generate 
+psg_clk_on : if ext_clk_enable=0 generate 
 enable_psg_div2 : entity work.syncreset_enable_divider
   generic map (COUNT=>29,RESETCOUNT=>6) -- 28-22
   port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>PSG_ENABLE_2MHz);
@@ -750,6 +777,23 @@ begin
 			PSG_ENABLE <= ENABLE_CYCLE;
 	end case;
 end process;
+
+end generate psg_clk_on;
+
+psg_clk_off : if ext_clk_enable=1 generate 
+        synchronizer_sid_clk : entity work.synchronizer
+                port map (clk=>clk, raw=>PADDLE(7), sync=>PSG_ENABLE_NEXT);
+
+	PSG_ENABLE <= PSG_ENABLE_NEXT and not(PSG_ENABLE_REG);
+process(clk,reset_n)
+begin
+	if (reset_n='0') then
+		PSG_ENABLE_REG <= '0'; 
+	elsif (clk'event and clk='1') then
+		PSG_ENABLE_REG <= PSG_ENABLE_NEXT;
+	end if;
+end process;
+end generate psg_clk_off;
 
 process(PSG_STEREOMODE_REG)
 begin
@@ -1495,6 +1539,6 @@ IRQ <= '0' when (IRQ_EN_REG='1' and (and_reduce(POKEY_IRQ)='0')) or (IRQ_EN_REG=
 
 D <= BUS_DATA when BUS_OE='1' else (others=>'Z');
 
-POTRESET_N <= not(POTRESET);
+POTRESET_N <= not(POTRESET) when ext_clk_enable=0 else '1';
 
 END vhdl;
