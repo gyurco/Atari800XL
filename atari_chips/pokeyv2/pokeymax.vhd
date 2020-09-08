@@ -24,6 +24,7 @@ ENTITY pokeymax IS
 
 		fancy_switch_bit : integer := 20; -- 0=ext is low => mono
 		gtia_audio_bit : integer := 0;    -- 0=no gtia on l/r,1=gtia mixed on l/r
+		detect_right_on_by_default : integer := 1; 
 		a4_bit : integer := 0;
 		a5_bit : integer := 0;
 		a6_bit : integer := 0;
@@ -1049,7 +1050,11 @@ end process;
 process(clk,reset_n)
 begin
 	if (reset_n='0') then
-		DETECT_RIGHT_REG <= '1';
+		if detect_right_on_by_default=1 then
+			DETECT_RIGHT_REG <= '1';
+		else
+			DETECT_RIGHT_REG <= '0';
+		end if;
 		IRQ_EN_REG <= '0';
 		CHANNEL_MODE_REG <= '0';
 		SATURATE_REG <= '1';
