@@ -58,6 +58,7 @@ ARCHITECTURE vhdl OF iox_glue IS
 	constant state_kbscan : std_logic_vector(3 downto 0) := "0110";
 	constant state_kbread : std_logic_vector(3 downto 0) := "0111";
 	constant state_setup7 : std_logic_vector(3 downto 0) := "1001";
+	constant state_kbscan_delay : std_logic_vector(3 downto 0) := "1010";
 	-- address, write input port0(02),val
 	-- address, read input port1(01),0xff(in)
 	-- address, write input port1(03),val
@@ -74,6 +75,9 @@ ARCHITECTURE vhdl OF iox_glue IS
 
 	signal op_complete : std_logic;
 	signal busy_reg : std_logic;
+
+	signal keyboard_response_reg : std_logic_vector(1 downto 0);
+	signal keyboard_response_next : std_logic_vector(1 downto 0);
 begin
 	process(clk,reset_n)
 	begin
@@ -81,10 +85,12 @@ begin
 			state_reg <= state_setup1;
 			i2c_state_reg <= i2c_state_part1;
 			busy_reg <= '0';
+			keyboard_response_reg <= "11";
 		elsif (clk'event and clk='1') then
 			state_reg <= state_next;
 			i2c_state_reg <= i2c_state_next;
 			busy_reg <= busy;
+			keyboard_response_reg <= keyboard_response_next;
 		end if;
 	end process;
 
@@ -135,11 +141,11 @@ begin
 	end process;
 
 
-	process(state_reg,keyboard_scan,busy,busy_reg,read_data,op_complete)
+	process(state_reg,keyboard_scan,busy,busy_reg,read_data,op_complete,int,keyboard_response_reg)
 	begin
 		state_next <= state_reg;
 
-		keyboard_response <= "11";
+		keyboard_response_next <= keyboard_response_reg;
 		keyboard_scan_enable <= '0';
 
 		w2 <= '0';
@@ -194,10 +200,17 @@ begin
 				write1 <= x"00";
 				write2 <= x"ff";
 				if (op_complete='1') then
-					keyboard_response <= read_data(0)&read_data(7);
-					keyboard_scan_enable <= '1';
-					state_next <= state_kbscan;
+					keyboard_response_next <= read_data(0)&read_data(7);
+					state_next <= state_kbscan_delay;
 				end if;
+
+			when state_kbscan_delay =>
+				state_next <= state_kbscan;
+				keyboard_scan_enable <= '1';
+
+
+			--	keyboard_scan_enable <= '1';
+			--	state_next <= state_kbscan;
 			when state_kbscan =>
 				w2 <= '1';
 				write1 <= x"01";
@@ -225,13 +238,20 @@ begin
 --P0_6,K0
 --P0_7,KR1
 				if (op_complete='1') then
-					state_next <= state_kbread;
+					if (int='0') then
+						state_next <= state_kbread;
+					else
+						state_next <= state_kbscan;
+						keyboard_scan_enable <= '1';
+					end if;
 				end if;
 			when others =>
 				state_next <= state_setup1;
 		end case;
 		
 	end process;
+
+	keyboard_response <= keyboard_response_reg;
 
 end vhdl;
 
