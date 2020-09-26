@@ -19,7 +19,7 @@ ENTITY pokeymax IS
 	GENERIC
 	(
 		pokeys : integer := 1; -- 1-4
-		lowpass : integer := 1; -- 0=lowpass off, 1=lowpass on (leave on except if there is no space! Low impact...)
+		lowpass : integer := 0; -- 0=lowpass off, 1=lowpass on (leave on except if there is no space! Low impact...)
 		enable_auto_stereo : integer := 0;   -- 1=auto detect a4 => not toggling => mono
 
 		fancy_switch_bit : integer := 20; -- 0=ext is low => mono
@@ -298,6 +298,15 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal CONFIG_FLASH_REQUEST : std_logic;
 	signal CONFIG_FLASH_COMPLETE : std_logic;
 	signal CONFIG_FLASH_ADDR : std_logic_vector(0 downto 0);
+
+	-- capability restriction
+	signal RESTRICT_CAPABILITY_REG : std_logic_vector(4 downto 0);
+	signal RESTRICT_CAPABILITY_NEXT : std_logic_vector(4 downto 0);
+	-- 0=stereo off
+	-- 1=quad off
+	-- 2=sid off
+	-- 3=psg off
+	-- 4=sample off
 
 	-- ext clk enable
 	signal SID_ENABLE_NEXT : std_logic;
@@ -979,7 +988,7 @@ begin
 	if (addr_in(7 downto 4)=x"f") then -- TODO: tweak...
 		addr_bits := x"0"; --disable config access here
 	end if;
-		
+
 	if ((config_enable_reg='1' and addr_bits="0001") or (addr_bits(3 downto 2) = "00" and addr_decoded4(12)='1')) then
 		addr_bits := x"f";
 	end if;
@@ -995,9 +1004,11 @@ process(
 	SAMPLE_DO,
 	CONFIG_DO,
 	write_n,
-	request
+	request,
+	RESTRICT_CAPABILITY_REG
 	)
 	variable writereq : std_logic;
+	variable enable_region : std_logic;
 begin
 	writereq := not(write_n) and request;
 	
@@ -1006,42 +1017,54 @@ begin
 	PSG_WRITE_ENABLE <= (others=>'0');
 	SAMPLE_WRITE_ENABLE <= '0';
 	CONFIG_WRITE_ENABLE <= '0';
+	enable_region :='0';
 	
 	DO_MUX <= (others =>'0');
 	
 	case DEVICE_ADDR is
-		when x"0" =>
-			DO_MUX <= POKEY_DO(0);
-			POKEY_WRITE_ENABLE(0) <= writereq;
-		when x"1" =>
+		when "0001" =>
+			enable_region := RESTRICT_CAPABILITY_REG(0) or RESTRICT_CAPABILITY_REG(1);
 			DO_MUX <= POKEY_DO(1);
 			POKEY_WRITE_ENABLE(1) <= writereq;
-		when x"2" =>
+		when "0010" =>
+			enable_region := RESTRICT_CAPABILITY_REG(1);
 			DO_MUX <= POKEY_DO(2);
 			POKEY_WRITE_ENABLE(2) <= writereq;
-		when x"3" =>
+		when "0011" =>
+			enable_region := RESTRICT_CAPABILITY_REG(1);
 			DO_MUX <= POKEY_DO(3);
 			POKEY_WRITE_ENABLE(3) <= writereq;
-		when x"4"|x"5" =>
+		when "0100"|"0101" =>
+			enable_region := RESTRICT_CAPABILITY_REG(2);
 			DO_MUX <= SID_DO(0);
 			SID_WRITE_ENABLE(0) <= writereq;
-		when x"6"|x"7" =>
+		when "0110"|"0111" =>
+			enable_region := RESTRICT_CAPABILITY_REG(2);
 			DO_MUX <= SID_DO(1);
 			SID_WRITE_ENABLE(1) <= writereq;
-		when x"8"|x"9" =>
+		when "1000"|"1001" =>
+			enable_region := RESTRICT_CAPABILITY_REG(4);
 			DO_MUX <= SAMPLE_DO;								
 			SAMPLE_WRITE_ENABLE <= writereq;			
-		when x"a" =>
+		when "1100" =>
+			enable_region := RESTRICT_CAPABILITY_REG(3);
 			DO_MUX <= PSG_DO(0);
 			PSG_WRITE_ENABLE(0) <= writereq;
-		when x"b" =>
+		when "1101" =>
+			enable_region := RESTRICT_CAPABILITY_REG(3);
 			DO_MUX <= PSG_DO(1);			
 			PSG_WRITE_ENABLE(1) <= writereq;
-		when x"f" =>
+		when "1111" =>
+			enable_region := '1';
 			DO_MUX <= CONFIG_DO;
 			CONFIG_WRITE_ENABLE <= writereq;
 		when others =>
 	end case;
+
+	if enable_region='0' then
+		DO_MUX <= POKEY_DO(0);
+		POKEY_WRITE_ENABLE(0) <= writereq;
+	end if;
 end process;
 
 -------------------------------------------------------
@@ -1068,6 +1091,7 @@ begin
 		PSG_ENVELOPE16_REG <= '0'; --32 step
 		SID_FILTER1_REG <= "0"; -- 0=8580,1=6581
 		SID_FILTER2_REG <= "0"; -- 0=8580,1=6581
+		RESTRICT_CAPABILITY_REG <= (others=>'1');
 	elsif (clk'event and clk='1') then
 		DETECT_RIGHT_REG <= DETECT_RIGHT_NEXT;
 		IRQ_EN_REG <= IRQ_EN_NEXT;
@@ -1083,6 +1107,7 @@ begin
 		PSG_ENVELOPE16_REG <= PSG_ENVELOPE16_NEXT;
 		SID_FILTER1_REG <= SID_FILTER1_NEXT;
 		SID_FILTER2_REG <= SID_FILTER2_NEXT;
+		RESTRICT_CAPABILITY_REG <= RESTRICT_CAPABILITY_NEXT;
 	end if;
 end process;
 
@@ -1106,7 +1131,8 @@ process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
 	PSG_ENVELOPE16_REG,
 	SID_FILTER1_REG, SID_FILTER2_REG,
 	CPU_FLASH_REQUEST_REG,CPU_FLASH_WRITE_N_REG,CPU_FLASH_CFG_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
-	CPU_FLASH_COMPLETE,CONFIG_FLASH_COMPLETE,CONFIG_FLASH_ADDR,flash_do_slow
+	CPU_FLASH_COMPLETE,CONFIG_FLASH_COMPLETE,CONFIG_FLASH_ADDR,flash_do_slow,
+	RESTRICT_CAPABILITY_REG
 )
 begin
 	SATURATE_NEXT <= SATURATE_REG;
@@ -1136,6 +1162,7 @@ begin
 	CPU_FLASH_ADDR_NEXT <= CPU_FLASH_ADDR_REG;
 	CPU_FLASH_DATA_NEXT <= CPU_FLASH_DATA_REG;
 
+	RESTRICT_CAPABILITY_NEXT <= RESTRICT_CAPABILITY_REG;
 
 	if (CPU_FLASH_COMPLETE='1') then
 		CPU_FLASH_DATA_NEXT <= flash_do_slow;
@@ -1164,6 +1191,8 @@ begin
 				-- 1-3 reserved
 				SID_FILTER2_NEXT <= flash_do_slow(4 downto 4);
 				-- 5-7 reserved
+				RESTRICT_CAPABILITY_NEXT <= flash_do_slow(12 downto 8);
+				-- 13-15 reserved
 			when others =>
 		end case;
 	elsif (CONFIG_WRITE_ENABLE='1') then
@@ -1173,7 +1202,7 @@ begin
 			IRQ_EN_NEXT <= WRITE_DATA(3);
 			DETECT_RIGHT_NEXT <= WRITE_DATA(4);
 		end if;
-		
+
 		if (addr_decoded4(2)='1') then
 			POST_DIVIDE_NEXT <= WRITE_DATA;
 		end if;
@@ -1198,6 +1227,11 @@ begin
 			SID_FILTER2_NEXT <= WRITE_DATA(4 downto 4);
 			-- (3 downto 1) reserved in case we want all revisions!
 		end if;
+
+		if (addr_decoded4(7)='1') then
+			RESTRICT_CAPABILITY_NEXT(4 downto 0) <= WRITE_DATA(4 downto 0);
+		end if;
+		
 		
 		if (addr_decoded4(12)='1') then
 			if (WRITE_DATA=x"3F") then
@@ -1246,8 +1280,10 @@ POST_DIVIDE_REG, GTIA_ENABLE_REG,
 PSG_FREQ_REG, PSG_STEREOMODE_REG, PSG_PROFILESEL_REG, PSG_ENVELOPE16_REG,
 SID_FILTER1_REG, SID_FILTER2_REG,
 CPU_FLASH_CFG_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
-CPU_FLASH_REQUEST_REG, CPU_FLASH_WRITE_N_REG
+CPU_FLASH_REQUEST_REG, CPU_FLASH_WRITE_N_REG,
+RESTRICT_CAPABILITY_REG
 )
+	variable ACTUAL_CAPABILITY : std_logic_vector(7 downto 0);
 begin
 	CONFIG_DO <= (others=>'1');
 	
@@ -1258,41 +1294,44 @@ begin
 			CONFIG_DO(3) <= IRQ_EN_REG;
 			CONFIG_DO(4) <= DETECT_RIGHT_REG;
 	end if;	
+
+	ACTUAL_CAPABILITY := (others=>'0');
+
+	if (pokeys=1) then
+		ACTUAL_CAPABILITY(1 downto 0) := "00";
+	elsif (pokeys=2) then
+		ACTUAL_CAPABILITY(1 downto 0) := "01"; --bit0=stereo
+	elsif (pokeys=4) then
+		ACTUAL_CAPABILITY(1 downto 0) := "11"; --bit1=quad
+	end if;
+	if (enable_sid=1) then
+		ACTUAL_CAPABILITY(2) := '1';
+	else
+		ACTUAL_CAPABILITY(2) := '0';
+	end if;
+	if (enable_psg=1) then
+		ACTUAL_CAPABILITY(3) := '1';
+	else
+		ACTUAL_CAPABILITY(3) := '0';
+	end if;		
+	if (enable_covox=1) then
+		ACTUAL_CAPABILITY(4) := '1';
+	else
+		ACTUAL_CAPABILITY(4) := '0';
+	end if;			
+	if (enable_sample=1) then
+		ACTUAL_CAPABILITY(5) := '1';
+	else
+		ACTUAL_CAPABILITY(5) := '0';
+	end if;					
+	if (enable_flash=1) then
+		ACTUAL_CAPABILITY(6) := '1';
+	else
+		ACTUAL_CAPABILITY(6) := '0';
+	end if;					
 	
 	if (addr_decoded4(1)='1') then
-		CONFIG_DO <= (others=>'0');
-		if (pokeys=1) then
-			CONFIG_DO(1 downto 0) <= "00";
-		elsif (pokeys=2) then
-			CONFIG_DO(1 downto 0) <= "01";
-		elsif (pokeys=4) then
-			CONFIG_DO(1 downto 0) <= "10";
-		end if;
-		if (enable_sid=1) then
-			CONFIG_DO(2) <= '1';
-		else
-			CONFIG_DO(2) <= '0';
-		end if;
-		if (enable_psg=1) then
-			CONFIG_DO(3) <= '1';
-		else
-			CONFIG_DO(3) <= '0';
-		end if;		
-		if (enable_covox=1) then
-			CONFIG_DO(4) <= '1';
-		else
-			CONFIG_DO(4) <= '0';
-		end if;			
-		if (enable_sample=1) then
-			CONFIG_DO(5) <= '1';
-		else
-			CONFIG_DO(5) <= '0';
-		end if;					
-		if (enable_flash=1) then
-			CONFIG_DO(6) <= '1';
-		else
-			CONFIG_DO(6) <= '0';
-		end if;					
+		CONFIG_DO <= ACTUAL_CAPABILITY and "11"&RESTRICT_CAPABILITY_REG(4)&RESTRICT_CAPABILITY_REG;
 	end if;
 	
 	if (addr_decoded4(2)='1') then
@@ -1342,6 +1381,10 @@ begin
 		-- (3 downto 1) reserved in case we want more filter options
 		CONFIG_DO(4 downto 4) <= SID_FILTER2_REG;
 		-- (7 downto 5) reserved in case we want more filter options
+	end if;
+
+	if (addr_decoded4(7)='1') then
+		CONFIG_DO(4 downto 0) <= RESTRICT_CAPABILITY_REG(4 downto 0);
 	end if;
 
 	if (addr_decoded4(12)='1') then
