@@ -1083,11 +1083,11 @@ begin
 			enable_region := RESTRICT_CAPABILITY_REG(4);
 			DO_MUX <= SAMPLE_DO;								
 			SAMPLE_WRITE_ENABLE <= writereq;			
-		when "1100" =>
+		when "1010" =>
 			enable_region := RESTRICT_CAPABILITY_REG(3);
 			DO_MUX <= PSG_DO(0);
 			PSG_WRITE_ENABLE(0) <= writereq;
-		when "1101" =>
+		when "1011" =>
 			enable_region := RESTRICT_CAPABILITY_REG(3);
 			DO_MUX <= PSG_DO(1);			
 			PSG_WRITE_ENABLE(1) <= writereq;
