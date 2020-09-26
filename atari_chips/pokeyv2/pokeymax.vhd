@@ -172,6 +172,10 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
 	signal KEYBOARD_SCAN_ENABLE : std_logic;
 
+	signal POKEY_PROFILE_ADDR : std_logic_vector(5 downto 0);
+	signal POKEY_PROFILE_REQUEST : std_logic;
+	signal POKEY_PROFILE_READY : std_logic;
+
 	-- SID
 	signal SID_CLK_ENABLE : std_logic;
 	signal SID_AUDIO : SID_AUDIO_TYPE(1 downto 0);
@@ -385,7 +389,10 @@ flash_on : if enable_flash=1 generate
 		flash_req5_addr(12 downto 0) => "0"&std_logic_vector(unsigned('0'&SID_FILTER2_REG)+1)&SID_STATEVARIABLE2_ADDR(9 downto 0), 
 
 		flash_req6_addr(12 downto 9) => (others=>'0'),
-		flash_req6_addr(8 downto 0) => "10"&PSG_PROFILESEL_REG&PSG_PROFILE_ADDR(4 downto 0),  --TODO + init.bin
+		flash_req6_addr(8 downto 0) => "10"&PSG_PROFILESEL_REG&PSG_PROFILE_ADDR,  --TODO + init.bin
+
+		flash_req7_addr(12 downto 9) => (others=>'0'),
+		flash_req7_addr(8 downto 0) => "11"&SATURATE_REG&POKEY_PROFILE_ADDR,  --TODO + init.bin
 
 		flash_req_request(0) => CPU_FLASH_REQUEST_REG,
 		flash_req_request(1) => CONFIG_FLASH_REQUEST,
@@ -393,7 +400,8 @@ flash_on : if enable_flash=1 generate
 		flash_req_request(3) => SID_STATEVARIABLE1_ROMREQUEST,
 		flash_req_request(4) => SID_STATEVARIABLE2_ROMREQUEST,
 		flash_req_request(5) => PSG_PROFILE_REQUEST,
-		flash_req_request(7 downto 6) => (others=>'0'),
+		flash_req_request(6) => POKEY_PROFILE_REQUEST,
+		flash_req_request(7 downto 7) => (others=>'0'),
 		flash_req_complete(7 downto 0) => open,
 
 		flash_req_complete_slow(0) => CPU_FLASH_COMPLETE,
@@ -402,7 +410,8 @@ flash_on : if enable_flash=1 generate
 		flash_req_complete_slow(3) => SID_STATEVARIABLE1_ROMREADY,
 		flash_req_complete_slow(4) => SID_STATEVARIABLE2_ROMREADY,
 		flash_req_complete_slow(5) => PSG_PROFILE_READY,
-		flash_req_complete_slow(7 downto 6) => open,
+		flash_req_complete_slow(6) => POKEY_PROFILE_READY,
+		flash_req_complete_slow(7 downto 7) => open,
 
 		flash_data_out_slow => flash_do_slow
 	);
@@ -593,8 +602,24 @@ PORT MAP(CLK => CLK,
 		 VOLUME_OUT_1 => POKEY_AUDIO_1,
 		 VOLUME_OUT_2 => POKEY_AUDIO_2,
 		 VOLUME_OUT_3 => POKEY_AUDIO_3,
-		 SATURATE => SATURATE_REG
+		 PROFILE_ADDR => POKEY_PROFILE_ADDR,
+		 PROFILE_REQUEST => POKEY_PROFILE_REQUEST,
+		 PROFILE_READY => POKEY_PROFILE_READY,
+		 PROFILE_DATA => flash_do_slow(15 downto 0)
 		 );
+
+flash_off : if enable_flash=0 generate 
+	shared_pokey_mixer : entity work.pokey_mixer
+	port map
+	(
+		sum => unsigned(pokey_profile_addr),
+
+		saturate => saturate_reg,
+
+		VOLUME_OUT_NEXT => flash_do_slow(15 downto 0)
+	);
+	POKEY_PROFILE_READY <= '1';
+end generate;
 
 --------------------------------------------------------
 -- PRIMARY POKEY		 GTIA_VOLUME_

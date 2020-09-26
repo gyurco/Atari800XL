@@ -133,6 +133,91 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 		printf("psg:%d:%ld:%ld:%ld:%ld\n",i,psgvoltable[0][i],psgvoltable[1][i],psgvoltable[2][i],psgvoltable[3][i]);
 	}
 
+	// 0x180(0x600 8-bit) pokey volume table - 128
+	int pokeyvoltablebase = 0x600;
+	unsigned int * pokeyvoltable[2];
+	pokeyvoltable[0] = (unsigned int *)(buffer+pokeyvoltablebase);
+	pokeyvoltable[1] = (unsigned int *)(buffer+pokeyvoltablebase+(64*4));
+	i = 0;
+	pokeyvoltable[0][i++] = 0b0000000000000000; //ym2149 from octave capture I think (CONFIRM!!)
+	pokeyvoltable[0][i++] = 0b0000000000011100;
+	pokeyvoltable[0][i++] = 0b0000000000111101;
+	pokeyvoltable[0][i++] = 0b0000000001100110;
+	pokeyvoltable[0][i++] = 0b0000000010011001;
+	pokeyvoltable[0][i++] = 0b0000000011010111;
+
+	pokeyvoltable[0][i++] = 0x0022;
+	pokeyvoltable[0][i++] = 0x0993;
+	pokeyvoltable[0][i++] = 0x135E;
+	pokeyvoltable[0][i++] = 0x1D9A;
+	pokeyvoltable[0][i++] = 0x2842;
+	pokeyvoltable[0][i++] = 0x3345;
+	pokeyvoltable[0][i++] = 0x3E84;
+	pokeyvoltable[0][i++] = 0x49E0;
+	pokeyvoltable[0][i++] = 0x5538;
+	pokeyvoltable[0][i++] = 0x606E;
+	pokeyvoltable[0][i++] = 0x6B69;
+	pokeyvoltable[0][i++] = 0x7612;
+	pokeyvoltable[0][i++] = 0x805A;
+	pokeyvoltable[0][i++] = 0x8A34;
+	pokeyvoltable[0][i++] = 0x9399;
+	pokeyvoltable[0][i++] = 0x9C84;
+	pokeyvoltable[0][i++] = 0xA4F4;
+	pokeyvoltable[0][i++] = 0xACEA;
+	pokeyvoltable[0][i++] = 0xB468;
+	pokeyvoltable[0][i++] = 0xBB70;
+	pokeyvoltable[0][i++] = 0xC207;
+	pokeyvoltable[0][i++] = 0xC830;
+	pokeyvoltable[0][i++] = 0xCDEE;
+	pokeyvoltable[0][i++] = 0xD343;
+	pokeyvoltable[0][i++] = 0xD833;
+	pokeyvoltable[0][i++] = 0xDCC0;
+	pokeyvoltable[0][i++] = 0xE0EB;
+	pokeyvoltable[0][i++] = 0xE4B6;
+	pokeyvoltable[0][i++] = 0xE824;
+	pokeyvoltable[0][i++] = 0xEB36;
+	pokeyvoltable[0][i++] = 0xEDEF;
+	pokeyvoltable[0][i++] = 0xF053;
+	pokeyvoltable[0][i++] = 0xF265;
+	pokeyvoltable[0][i++] = 0xF42B;
+	pokeyvoltable[0][i++] = 0xF5AB;
+	pokeyvoltable[0][i++] = 0xF6E9;
+	pokeyvoltable[0][i++] = 0xF7EF;
+	pokeyvoltable[0][i++] = 0xF8C3;
+	pokeyvoltable[0][i++] = 0xF96D;
+	pokeyvoltable[0][i++] = 0xF9F4;
+	pokeyvoltable[0][i++] = 0xFA61;
+	pokeyvoltable[0][i++] = 0xFABB;
+	pokeyvoltable[0][i++] = 0xFB07;
+	pokeyvoltable[0][i++] = 0xFB4C;
+	pokeyvoltable[0][i++] = 0xFB8D;
+	pokeyvoltable[0][i++] = 0xFBCE;
+	pokeyvoltable[0][i++] = 0xFC11;
+	pokeyvoltable[0][i++] = 0xFC56;
+	pokeyvoltable[0][i++] = 0xFC9F;
+	pokeyvoltable[0][i++] = 0xFCEA;
+	pokeyvoltable[0][i++] = 0xFD37;
+	pokeyvoltable[0][i++] = 0xFD85;
+	pokeyvoltable[0][i++] = 0xFDD5;
+	pokeyvoltable[0][i++] = 0xFE28;
+	pokeyvoltable[0][i++] = 0xFE82;
+	pokeyvoltable[0][i++] = 0xFEE7;
+	pokeyvoltable[0][i++] = 0xFF5D;
+	pokeyvoltable[0][i++] = 0xFFEB;
+	pokeyvoltable[0][i++] = 0xFFFF;
+	pokeyvoltable[0][i++] = 0xFFFF;
+	pokeyvoltable[0][i++] = 0xFFFF;		
+	for (i=0;i!=64;++i)
+	{
+		//pokeyvoltable[1][i] = pokeyvoltable[0][i]; //ym2149
+		pokeyvoltable[1][i] = i<<10; //linear
+	}
+
+	for (i=0;i!=64;++i)
+	{
+		printf("pokey:%d:%d:%d\n",i,pokeyvoltable[0][i],pokeyvoltable[1][i]);
+	}
+
 	// 0x100(0x400 8-bit) sid tables --TODO!!
 	// to store: 
 	// i) 6581 channel mixing:

@@ -25,7 +25,10 @@ PORT
 	VOLUME_OUT_2 : OUT unsigned(15 downto 0);
 	VOLUME_OUT_3 : OUT unsigned(15 downto 0);
 	
-	SATURATE : IN STD_LOGIC
+	PROFILE_ADDR : OUT std_logic_vector(5 downto 0);
+	PROFILE_REQUEST : OUT std_logic;
+	PROFILE_READY : IN std_logic;
+	PROFILE_DATA : IN std_logic_vector(15 downto 0)
 );
 END pokey_mixer_mux;
 
@@ -42,8 +45,6 @@ ARCHITECTURE vhdl OF pokey_mixer_mux IS
 	signal CHANNEL_2_SEL : STD_LOGIC_VECTOR(3 downto 0);
 	signal CHANNEL_3_SEL : STD_LOGIC_VECTOR(3 downto 0);
 
-	signal VOLUME_OUT_NEXT : unsigned(15 downto 0);
-
 	signal VOLUME_OUT_0_NEXT : unsigned(15 downto 0);
 	signal VOLUME_OUT_0_REG : unsigned(15 downto 0);
 	signal VOLUME_OUT_1_NEXT : unsigned(15 downto 0);
@@ -52,7 +53,6 @@ ARCHITECTURE vhdl OF pokey_mixer_mux IS
 	signal VOLUME_OUT_2_REG : unsigned(15 downto 0);
 	signal VOLUME_OUT_3_NEXT : unsigned(15 downto 0);
 	signal VOLUME_OUT_3_REG : unsigned(15 downto 0);
-
 	signal channel_sum_out : unsigned(5 downto 0);
 BEGIN
 
@@ -69,8 +69,13 @@ begin
 END PROCESS;
 
 -- takes a few cycles for each channel
-CHANNEL_NEXT(2 downto 0) <= CHANNEL_REG(3 downto 1);
-CHANNEL_NEXT(3) <= CHANNEL_REG(0);
+process(channel_reg,profile_ready)
+begin
+	if (profile_ready='1') then
+		CHANNEL_NEXT(2 downto 0) <= CHANNEL_REG(3 downto 1);
+		CHANNEL_NEXT(3) <= CHANNEL_REG(0);
+	end if;
+end process;
 
 -- mux input
 PROCESS(
@@ -82,11 +87,11 @@ BEGIN
 	channel_sum := (OTHERS=>'0');
 
 	case channel_reg is
-   when "1000" => -- 0
-		channel_sum := CHANNEL_0;
-   when "0100" => -- 1
-		channel_sum := CHANNEL_1;
-   when "0010" => -- 2
+	when "1000" => -- 0
+	     	channel_sum := CHANNEL_0;
+	when "0100" => -- 1
+	     	channel_sum := CHANNEL_1;
+	when "0010" => -- 2
 		channel_sum := CHANNEL_2;
    --when "0000001" => -- 3
 	when others =>
@@ -98,19 +103,20 @@ BEGIN
 END PROCESS;
 
 -- shared mixer
-shared_pokey_mixer : entity work.pokey_mixer
-	port map
-	(
-		sum => channel_sum_out,
-		
-		saturate => saturate,
-
-		VOLUME_OUT_NEXT => VOLUME_OUT_NEXT
-	);
+--shared_pokey_mixer : entity work.pokey_mixer
+--	port map
+--	(
+--		sum => channel_sum_out,
+--		
+--		saturate => saturate,
+--
+--		VOLUME_OUT_NEXT => VOLUME_OUT_NEXT
+--	);
 
 -- mux output
 PROCESS(
-	VOLUME_OUT_NEXT,
+	PROFILE_DATA,
+	PROFILE_READY,
 	VOLUME_OUT_0_REG,
 	VOLUME_OUT_1_REG,
 	VOLUME_OUT_2_REG,
@@ -122,16 +128,18 @@ BEGIN
 	VOLUME_OUT_2_NEXT <= VOLUME_OUT_2_REG;
 	VOLUME_OUT_3_NEXT <= VOLUME_OUT_3_REG;
 
-	case channel_reg is
-   when "1000" => -- 0
-		VOLUME_OUT_0_NEXT <= VOLUME_OUT_NEXT;
-   when "0100" => -- 1
-		VOLUME_OUT_1_NEXT <= VOLUME_OUT_NEXT;
-   when "0010" => -- 2
-		VOLUME_OUT_2_NEXT <= VOLUME_OUT_NEXT;
-   when others=>     -- 3
-		VOLUME_OUT_3_NEXT <= VOLUME_OUT_NEXT;		
-	end case;
+	if (profile_ready='1') then
+		case channel_reg is
+		when "1000" => -- 0
+			VOLUME_OUT_0_NEXT <= unsigned(PROFILE_DATA);
+		when "0100" => -- 1
+			VOLUME_OUT_1_NEXT <= unsigned(PROFILE_DATA);
+		when "0010" => -- 2
+			VOLUME_OUT_2_NEXT <= unsigned(PROFILE_DATA);
+		when others=>     -- 3
+			VOLUME_OUT_3_NEXT <= unsigned(PROFILE_DATA);		
+		end case;
+	end if;
 END PROCESS;
 
 -- output
@@ -139,6 +147,9 @@ END PROCESS;
 	VOLUME_OUT_1 <= VOLUME_OUT_1_REG;
 	VOLUME_OUT_2 <= VOLUME_OUT_2_REG;
 	VOLUME_OUT_3 <= VOLUME_OUT_3_REG;
+
+	PROFILE_ADDR <= std_logic_vector(CHANNEL_SUM_OUT);
+	PROFILE_REQUEST <= '1';
 
 END vhdl;
 

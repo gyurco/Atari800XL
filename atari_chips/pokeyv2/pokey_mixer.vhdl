@@ -17,7 +17,7 @@ PORT
 	
 	SATURATE : IN std_logic; -- pokey style curve or linear
 	
-	VOLUME_OUT_NEXT : OUT unsigned(15 downto 0)
+	VOLUME_OUT_NEXT : OUT std_logic_vector(15 downto 0)
 );
 END pokey_mixer;
 
@@ -97,11 +97,11 @@ BEGIN
 	begin
 -- saturation on
 		if (saturate='1') then
-			volume_out_next <= pokeyvolume(sum);
+			volume_out_next <= std_logic_vector(pokeyvolume(sum));
 		else
 -- saturation off
 			volume_out_next <= (others=>'0');
-			volume_out_next(15 downto 6) <= unsigned(SUM&"0000")+unsigned("0000"&SUM);
+			volume_out_next(15 downto 6) <= std_logic_vector(unsigned(SUM&"0000")+unsigned("0000"&SUM));
 		end if;
         end process;
 
