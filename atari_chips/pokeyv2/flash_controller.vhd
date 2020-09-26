@@ -112,6 +112,7 @@ ARCHITECTURE vhdl OF flash_controller IS
 	signal robin_next : std_logic_vector(7 downto 0);
 
 	signal complete : std_logic;
+	signal update_robin : std_logic;
 	signal flash_read : std_logic;
 	signal flash_readvalid : std_logic;
 	signal flash_write : std_logic;
@@ -202,7 +203,10 @@ BEGIN
 		flash_req2_addr, flash_req3_addr, flash_req4_addr,
 		flash_req5_addr, flash_req6_addr, flash_req7_addr, flash_req8_addr,
 
-		flash_readvalid, flash_waitrequest
+		flash_readvalid, flash_waitrequest,
+
+		complete,
+		update_robin
 		)
 		variable addr : std_logic_vector(15 downto 0);
 		variable device : std_logic;
@@ -213,7 +217,7 @@ BEGIN
 		request_di_next <= request_di_reg;
 		device_next <= device_reg;
 		output_next <= output_reg;
-		robin_next <= robin_reg(6 downto 0)&robin_reg(7);
+		robin_next <= robin_reg;
 
 		complete <= '0';
 		flash_read <= '0';
@@ -241,6 +245,12 @@ BEGIN
 			addr(12 downto 0) := flash_req8_addr;
 		end case;
 
+
+		update_robin <= complete;
+		if (update_robin='1') then
+			robin_next <= robin_reg(6 downto 0)&robin_reg(7);
+		end if;
+
 		case state_reg is
 		when state_idle=>
 			if (or_reduce(robin_reg and flash_req_request)='1') then
@@ -256,6 +266,8 @@ BEGIN
 				output_next <= robin_reg;
 
 				device_next <= device;
+			else
+				update_robin <= '1';
 			end if;
 		when state_read=>
 			flash_read <= '1';
