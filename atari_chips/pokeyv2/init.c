@@ -71,7 +71,7 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 	buffer[4] = 0; // 8580 filter
 	buffer[5] = 0xff; // enable_all
 
-	// 0x80(0x200 8-bit) adpcm step table
+	// 0x80(0x200 8-bit) adpcm step table - 90
 	for (i=0x0; i!=89; ++i)
 	{
 		buffer[((0x80+i)<<2) + 0] = ima_step_table[i]&0xff;
@@ -79,7 +79,61 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 		buffer[((0x80+i)<<2) + 2] = (ima_step_table[i]>>16)&0xff;
 		buffer[((0x80+i)<<2) + 3] = (ima_step_table[i]>>24)&0xff;
 	}
-	// 0x100(0x400 8-bit) sid tables
+
+	// 0x100(0x400 8-bit) psg volume table - 128
+	int psgvoltablebase = 0x400;
+	unsigned int * psgvoltable[4];
+	psgvoltable[0] = (unsigned int *)(buffer+psgvoltablebase);
+	psgvoltable[1] = (unsigned int *)(buffer+psgvoltablebase+(32*4));
+	psgvoltable[2] = (unsigned int *)(buffer+psgvoltablebase+(64*4));
+	psgvoltable[3] = (unsigned int *)(buffer+psgvoltablebase+(96*4));
+	i = 0;
+	psgvoltable[0][i++] = 0b0000000000000000; //ym2149 from octave capture I think (CONFIRM!!)
+	psgvoltable[0][i++] = 0b0000000000011100;
+	psgvoltable[0][i++] = 0b0000000000111101;
+	psgvoltable[0][i++] = 0b0000000001100110;
+	psgvoltable[0][i++] = 0b0000000010011001;
+	psgvoltable[0][i++] = 0b0000000011010111;
+	psgvoltable[0][i++] = 0b0000000100100011;
+	psgvoltable[0][i++] = 0b0000000110000000;
+	psgvoltable[0][i++] = 0b0000000111110001;
+	psgvoltable[0][i++] = 0b0000001001111101;
+	psgvoltable[0][i++] = 0b0000001100100111;
+	psgvoltable[0][i++] = 0b0000001111111000;
+	psgvoltable[0][i++] = 0b0000010011111000;
+	psgvoltable[0][i++] = 0b0000011000110001;
+	psgvoltable[0][i++] = 0b0000011110110001;
+	psgvoltable[0][i++] = 0b0000100110000111;
+	psgvoltable[0][i++] = 0b0000101111000111;
+	psgvoltable[0][i++] = 0b0000111010001000;
+	psgvoltable[0][i++] = 0b0001000111101000;
+	psgvoltable[0][i++] = 0b0001011000001010;
+	psgvoltable[0][i++] = 0b0001101100011001;
+	psgvoltable[0][i++] = 0b0010000101001100;
+	psgvoltable[0][i++] = 0b0010100011100011;
+	psgvoltable[0][i++] = 0b0011001000101111;
+	psgvoltable[0][i++] = 0b0011110110010010;
+	psgvoltable[0][i++] = 0b0100101110000100;
+	psgvoltable[0][i++] = 0b0101110010011000;
+	psgvoltable[0][i++] = 0b0111000110000011;
+	psgvoltable[0][i++] = 0b1000101100100001;
+	psgvoltable[0][i++] = 0b1010101010000001;
+	psgvoltable[0][i++] = 0b1101000011101111;
+	psgvoltable[0][i++] = 0b1111111111111111;
+	for (i=0;i!=32;++i)
+	{
+		//psgvoltable[1][i] = psgvoltable[0][i]; //ym2149
+		psgvoltable[1][i] = psgvoltable[0][i]; //ay3 TODO
+		psgvoltable[2][i] = (256*(pow(sqrt(2),i)/pow(sqrt(2),15)))-1; //datasheet of ym2149!
+		psgvoltable[3][i] = i<<11; //linear
+	}
+
+	for (i=0;i!=32;++i)
+	{
+		printf("psg:%d:%ld:%ld:%ld:%ld\n",i,psgvoltable[0][i],psgvoltable[1][i],psgvoltable[2][i],psgvoltable[3][i]);
+	}
+
+	// 0x100(0x400 8-bit) sid tables --TODO!!
 	// to store: 
 	// i) 6581 channel mixing:
 	// 	wire [7:0] wave__st[4096]; (sawtooth + triangle)
@@ -131,6 +185,7 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 //              f_next <= f_mult(17 downto 0) + f_offset;
 //      end process;
 
+	// 0x400(0x1000 8-bit) sid frequency tables
 	int sidfreqtablebase = 2048*2;
 	unsigned short * sidfreqtable = (unsigned short *)(buffer+sidfreqtablebase);
 
