@@ -26,10 +26,13 @@ PORT
 	CHANNEL_MASK_1 : IN STD_LOGIC_VECTOR(5 downto 0); --1ABC/2ABC
 	CHANNEL_MASK_2 : IN STD_LOGIC_VECTOR(5 downto 0); 
 
-	PROFILE_SELECT : IN STD_LOGIC_VECTOR(1 downto 0); 
-	
 	AUDIO_OUT_1 : OUT STD_LOGIC_VECTOR(15 downto 0);
-	AUDIO_OUT_2 : OUT STD_LOGIC_VECTOR(15 downto 0)
+	AUDIO_OUT_2 : OUT STD_LOGIC_VECTOR(15 downto 0);
+
+	PROFILE_ADDR : OUT std_logic_vector(4 downto 0);
+	PROFILE_REQUEST : OUT std_logic;
+	PROFILE_READY : IN std_logic;
+	PROFILE_DATA : IN std_logic_vector(15 downto 0)
 );
 END PSG_volume_profile;
 
@@ -53,43 +56,43 @@ ARCHITECTURE vhdl OF PSG_volume_profile IS
 	signal volume : unsigned(15 downto 0);
 	signal channel_mux : std_logic_vector(4 downto 0);
 
-	function logvolume(x: std_logic_vector(4 downto 0)) return unsigned is
-	begin
-		case x is
-	when "00000" => return "0000000000000000";
-        when "00001" => return "0000000000011100";
-        when "00010" => return "0000000000111101";
-        when "00011" => return "0000000001100110";
-        when "00100" => return "0000000010011001";
-        when "00101" => return "0000000011010111";
-        when "00110" => return "0000000100100011";
-        when "00111" => return "0000000110000000";
-        when "01000" => return "0000000111110001";
-        when "01001" => return "0000001001111101";
-        when "01010" => return "0000001100100111";
-        when "01011" => return "0000001111111000";
-        when "01100" => return "0000010011111000";
-        when "01101" => return "0000011000110001";
-        when "01110" => return "0000011110110001";
-        when "01111" => return "0000100110000111";
-        when "10000" => return "0000101111000111";
-        when "10001" => return "0000111010001000";
-        when "10010" => return "0001000111101000";
-        when "10011" => return "0001011000001010";
-        when "10100" => return "0001101100011001";
-        when "10101" => return "0010000101001100";
-        when "10110" => return "0010100011100011";
-        when "10111" => return "0011001000101111";
-        when "11000" => return "0011110110010010";
-        when "11001" => return "0100101110000100";
-        when "11010" => return "0101110010011000";
-        when "11011" => return "0111000110000011";
-        when "11100" => return "1000101100100001";
-        when "11101" => return "1010101010000001";
-        when "11110" => return "1101000011101111";
-        when "11111" => return "1111111111111111";
-		end case;
-	end logvolume;	
+--	function logvolume(x: std_logic_vector(4 downto 0)) return unsigned is
+--	begin
+--		case x is
+--	when "00000" => return "0000000000000000";
+--        when "00001" => return "0000000000011100";
+--        when "00010" => return "0000000000111101";
+--        when "00011" => return "0000000001100110";
+--        when "00100" => return "0000000010011001";
+--        when "00101" => return "0000000011010111";
+--        when "00110" => return "0000000100100011";
+--        when "00111" => return "0000000110000000";
+--        when "01000" => return "0000000111110001";
+--        when "01001" => return "0000001001111101";
+--        when "01010" => return "0000001100100111";
+--        when "01011" => return "0000001111111000";
+--        when "01100" => return "0000010011111000";
+--        when "01101" => return "0000011000110001";
+--        when "01110" => return "0000011110110001";
+--        when "01111" => return "0000100110000111";
+--        when "10000" => return "0000101111000111";
+--        when "10001" => return "0000111010001000";
+--        when "10010" => return "0001000111101000";
+--        when "10011" => return "0001011000001010";
+--        when "10100" => return "0001101100011001";
+--        when "10101" => return "0010000101001100";
+--        when "10110" => return "0010100011100011";
+--        when "10111" => return "0011001000101111";
+--        when "11000" => return "0011110110010010";
+--        when "11001" => return "0100101110000100";
+--        when "11010" => return "0101110010011000";
+--        when "11011" => return "0111000110000011";
+--        when "11100" => return "1000101100100001";
+--        when "11101" => return "1010101010000001";
+--        when "11110" => return "1101000011101111";
+--        when "11111" => return "1111111111111111";
+--		end case;
+--	end logvolume;	
 BEGIN
 	-- register
 	process(clk, reset_n)
@@ -180,23 +183,14 @@ BEGIN
 	-- for now, lets use log of each channel then sum
 	-- + I'd like to review that table in octave to understand what is going on...
 	-- from octave based on datasheet only: sqrt(2)^i/sqrt(2)^15;
-	process(channel_mux,profile_select)
-		variable tmp : std_logic_vector(10 downto 0);
-	begin
-		case profile_select is
-			when "11"=>
-				tmp := (others=>'0');
-				volume <= unsigned(channel_mux&tmp);
-			when others =>
-				volume <= logvolume(channel_mux);	
-		end case;
-		--volume <= (others=>'0');
-		--volume(4 downto 0) <= unsigned(channel_mux);
-		ready <= '1';
-	end process;
+	volume <= unsigned(profile_data);
+	ready <= profile_ready;
 		
 	-- output
 	AUDIO_OUT_1 <= STD_LOGIC_VECTOR(vol_1_reg);
 	AUDIO_OUT_2 <= STD_LOGIC_VECTOR(vol_2_reg);
+
+	PROFILE_ADDR <= channel_mux;
+	PROFILE_REQUEST <= '1';
 		
 END vhdl;

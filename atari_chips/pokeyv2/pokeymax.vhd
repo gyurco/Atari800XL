@@ -203,6 +203,9 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal PSG_PROFILESEL_REG : std_logic_vector(1 downto 0);
 	signal PSG_PROFILESEL_NEXT : std_logic_vector(1 downto 0);
+	signal PSG_PROFILE_ADDR : std_logic_vector(4 downto 0);
+	signal PSG_PROFILE_REQUEST : std_logic;
+	signal PSG_PROFILE_READY : std_logic;
 
 	signal PSG_ENVELOPE16_REG : std_logic;
 	signal PSG_ENVELOPE16_NEXT : std_logic;
@@ -381,12 +384,16 @@ flash_on : if enable_flash=1 generate
 
 		flash_req5_addr(12 downto 0) => "0"&std_logic_vector(unsigned('0'&SID_FILTER2_REG)+1)&SID_STATEVARIABLE2_ADDR(9 downto 0), 
 
+		flash_req6_addr(12 downto 9) => (others=>'0'),
+		flash_req6_addr(8 downto 0) => "10"&PSG_PROFILESEL_REG&PSG_PROFILE_ADDR(4 downto 0),  --TODO + init.bin
+
 		flash_req_request(0) => CPU_FLASH_REQUEST_REG,
 		flash_req_request(1) => CONFIG_FLASH_REQUEST,
 		flash_req_request(2) => ADPCM_STEP_REQUEST,
 		flash_req_request(3) => SID_STATEVARIABLE1_ROMREQUEST,
 		flash_req_request(4) => SID_STATEVARIABLE2_ROMREQUEST,
-		flash_req_request(7 downto 5) => (others=>'0'),
+		flash_req_request(5) => PSG_PROFILE_REQUEST,
+		flash_req_request(7 downto 6) => (others=>'0'),
 		flash_req_complete(7 downto 0) => open,
 
 		flash_req_complete_slow(0) => CPU_FLASH_COMPLETE,
@@ -394,7 +401,8 @@ flash_on : if enable_flash=1 generate
 		flash_req_complete_slow(2) => ADPCM_STEP_READY,
 		flash_req_complete_slow(3) => SID_STATEVARIABLE1_ROMREADY,
 		flash_req_complete_slow(4) => SID_STATEVARIABLE2_ROMREADY,
-		flash_req_complete_slow(7 downto 5) => open,
+		flash_req_complete_slow(5) => PSG_PROFILE_READY,
+		flash_req_complete_slow(7 downto 6) => open,
 
 		flash_data_out_slow => flash_do_slow
 	);
@@ -872,10 +880,14 @@ PSG_2 : entity work.PSG_top
 		CHANNEL_MASK_1=>PSG_MIX1, --LABC:RABC
 		CHANNEL_MASK_2=>PSG_MIX2,
 
-		PROFILE_SELECT=>PSG_PROFILESEL_REG,
-		
 		AUDIO_OUT_1 => PSG_AUDIO(0),
-		AUDIO_OUT_2 => PSG_AUDIO(1)
+		AUDIO_OUT_2 => PSG_AUDIO(1),
+
+		--PROFILE_SELECT=>PSG_PROFILESEL_REG,
+		PROFILE_ADDR => PSG_PROFILE_ADDR,
+		PROFILE_REQUEST => PSG_PROFILE_REQUEST,
+		PROFILE_READY => PSG_PROFILE_READY,
+		PROFILE_DATA => flash_do_slow(15 downto 0)
 	);	
 
 end generate psg_on;		
