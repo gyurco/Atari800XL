@@ -206,22 +206,26 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
 	    cprintf("%c",config[4]);
     }
     cprintf("\r\n");
+    val = ((*flash2)>>8)&0x1f;
+    config[7] = val;
     val = config[1];
     pokeys = val&0x3;
     switch (pokeys)
     {
 	    case 0:
-		    pokeys = 'M';
+		    pokeys = 1;
 		    break;
 	    case 1:
-		    pokeys = 'S';
+		    pokeys = 2;
 		    break;
 	    case 2:
+		    pokeys = 4;
+		    break;
 	    case 3:
-		    pokeys = 'Q';
+		    pokeys = 8;
 		    break;
     }
-    cprintf("Pokey:%c sid:%d psg:%d covox:%d sample:%d\r\n",pokeys,(val&4)==4 ? 2 : 0,(val&8)==8 ? 2 : 0,(val&16)==16 ? 4 : 0,(val&32)==32 ? 1 : 0);
+    cprintf("Pokey:%d sid:%d psg:%d covox:%d sample:%d\r\n",pokeys,(val&4)==4 ? 2 : 0,(val&8)==8 ? 2 : 0,(val&16)==16 ? 1 : 0,(val&32)==32 ? 1 : 0);
     chline(40);
 
     val = (*flash1)&0xff;
@@ -334,36 +338,32 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
     else
 	    cprintf("2:6581");
     cprintf("\r\n");
-    cprintf("\r\n");
 
     revers(line==12);
-    val = ((*flash2)&0x1f00)>>8;
+    val = ((*flash2)>>8)&0x1f;
     cprintf("Restrict      : ");
     revers(line==12 && col==0);
-    if (val&1)
-	    cprintf("!stereo ");
-    else
-	    cprintf(" stereo ");
-    revers(line==12 && col==1);
     if (val&2)
-	    cprintf("!quad ");
+	    cprintf("quad ");
+    else if (val&1)
+	    cprintf("dual ");
     else
-	    cprintf(" quad ");
-    revers(line==12 && col==2);
+	    cprintf("mono ");
+    revers(line==12 && col==1);
     if (val&4)
-	    cprintf("!sid ");
-    else
 	    cprintf(" sid ");
-    revers(line==12 && col==3);
+    else
+	    cprintf("!sid ");
+    revers(line==12 && col==2);
     if (val&8)
-	    cprintf("!psg ");
-    else
 	    cprintf(" psg ");
-    revers(line==12 && col==4);
-    if (val&16)
-	    cprintf("!covox ");
     else
-	    cprintf(" covox ");
+	    cprintf("!psg ");
+    revers(line==12 && col==3);
+    if (val&16)
+	    cprintf(" covox");
+    else
+	    cprintf("!covox");
     cprintf("\r\n");
     cprintf("\r\n");
 
@@ -442,9 +442,18 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char l
 	    break;
     case 12:
             flashaddr = flash2;
-	    mask = 1;
-            shift = 8 + col;
-	    max = 1;
+	    if (col==0)
+	    {
+	    	mask = 3;
+            	shift = 8;
+	    	max = 2;
+	    }
+	    else
+	    {
+	    	mask = 1;
+            	shift = 9 + col;
+	    	max = 1;
+	    }
 	    break;
     }
 
@@ -692,11 +701,6 @@ int main (void)
 		{
 			if (col>1)
 				col =1;
-		}
-		else if (line==12)
-		{
-			if (col>4)
-				col =4;
 		}
 		else
 		{
