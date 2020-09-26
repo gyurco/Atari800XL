@@ -71,6 +71,7 @@ END PROCESS;
 -- takes a few cycles for each channel
 process(channel_reg,profile_ready)
 begin
+	CHANNEL_NEXT <= CHANNEL_REG;
 	if (profile_ready='1') then
 		CHANNEL_NEXT(2 downto 0) <= CHANNEL_REG(3 downto 1);
 		CHANNEL_NEXT(3) <= CHANNEL_REG(0);
