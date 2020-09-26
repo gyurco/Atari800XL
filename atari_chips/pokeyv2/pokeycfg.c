@@ -197,7 +197,7 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
     //textcolor(0xa);
     chline(40);
 
-    cprintf("Pokeymax config v0.5 ");
+    cprintf("Pokeymax config v0.6 ");
 
     cprintf(" Core:");
     for (i=0;i!=8;++i)
@@ -211,16 +211,17 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
     switch (pokeys)
     {
 	    case 0:
-		    pokeys = 1;
+		    pokeys = 'M';
 		    break;
 	    case 1:
-		    pokeys = 2;
+		    pokeys = 'S';
 		    break;
 	    case 2:
-		    pokeys = 4;
+	    case 3:
+		    pokeys = 'Q';
 		    break;
     }
-    cprintf("Pokey:%d sid:%d psg:%d covox:%d sample:%d\r\n",pokeys,(val&4)==4 ? 2 : 0,(val&8)==8 ? 2 : 0,(val&16)==16 ? 4 : 0,(val&32)==32 ? 1 : 0);
+    cprintf("Pokey:%c sid:%d psg:%d covox:%d sample:%d\r\n",pokeys,(val&4)==4 ? 2 : 0,(val&8)==8 ? 2 : 0,(val&16)==16 ? 4 : 0,(val&32)==32 ? 1 : 0);
     chline(40);
 
     val = (*flash1)&0xff;
@@ -335,6 +336,37 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
     cprintf("\r\n");
     cprintf("\r\n");
 
+    revers(line==12);
+    val = ((*flash2)&0x1f00)>>8;
+    cprintf("Restrict      : ");
+    revers(line==12 && col==0);
+    if (val&1)
+	    cprintf("!stereo ");
+    else
+	    cprintf(" stereo ");
+    revers(line==12 && col==1);
+    if (val&2)
+	    cprintf("!quad ");
+    else
+	    cprintf(" quad ");
+    revers(line==12 && col==2);
+    if (val&4)
+	    cprintf("!sid ");
+    else
+	    cprintf(" sid ");
+    revers(line==12 && col==3);
+    if (val&8)
+	    cprintf("!psg ");
+    else
+	    cprintf(" psg ");
+    revers(line==12 && col==4);
+    if (val&16)
+	    cprintf("!covox ");
+    else
+	    cprintf(" covox ");
+    cprintf("\r\n");
+    cprintf("\r\n");
+
     revers(0);
     chline(40);
 
@@ -406,6 +438,12 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char l
             flashaddr = flash2;
 	    mask = 1;
             shift = 0 + (col<<2);
+	    max = 1;
+	    break;
+    case 12:
+            flashaddr = flash2;
+	    mask = 1;
+            shift = 8 + col;
 	    max = 1;
 	    break;
     }
@@ -620,6 +658,7 @@ int main (void)
 	    (((unsigned long)config[2])<<8) |
 	    (((unsigned long)config[0]));
     flash2 =
+	    (((unsigned long) config[7])<<8) |
 	    ((unsigned long) config[6]);
 
     line = 1;
@@ -639,7 +678,7 @@ int main (void)
 		col = 0;
 		break;
         case CH_CURS_DOWN:
-		if (line<11)
+		if (line<12)
 		    line = line+1;
 		col = 0;
 		break;
@@ -648,10 +687,22 @@ int main (void)
 			col =col-1;
 		break;
         case CH_CURS_RIGHT:
-		if (col<3)
-			col =col+1;
-    		if (line==11 && col>1)
-		    col =1;
+		col =col+1;
+    		if (line==11)
+		{
+			if (col>1)
+				col =1;
+		}
+		else if (line==12)
+		{
+			if (col>4)
+				col =4;
+		}
+		else
+		{
+			if (col>3)
+				col =3;
+		}
 		break;
         case CH_ENTER:
 		changeValue(&flash1,&flash2,line,col);
