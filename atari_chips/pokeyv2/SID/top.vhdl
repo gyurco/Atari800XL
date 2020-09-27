@@ -114,10 +114,10 @@ ARCHITECTURE vhdl OF SID_top IS
 	signal statevariable_F_reg : std_logic_vector(17 downto 0);  -- F computed from fcutoff -> or read from ram : 0.21 fixed point
 	signal statevariable_F_next : std_logic_vector(17 downto 0); -- see example computation at start of filter.vhdl
 	signal statevariable_f_changed : std_logic;
-	signal statevariable_f_state_reg : std_logic_vector(0 downto 0);
-	signal statevariable_f_state_next : std_logic_vector(0 downto 0);
-	constant statevariable_f_state_init : std_logic_vector(0 downto 0) := "0";
-	constant statevariable_f_state_romrequest : std_logic_vector(0 downto 0) := "1";
+	signal rom_state_reg : std_logic_vector(0 downto 0);
+	signal rom_state_next : std_logic_vector(0 downto 0);
+	constant rom_state_init : std_logic_vector(0 downto 0) := "0";
+	constant rom_state_romrequest_statevariable_f : std_logic_vector(0 downto 0) := "1";
 	signal statevariable_Q_reg : std_logic_vector(3 downto 0); --resonance
 	signal statevariable_Q_next : std_logic_vector(3 downto 0);
 
@@ -210,7 +210,7 @@ BEGIN
 			statevariable_fcutoff_reg <= (others=>'0');
 			statevariable_F_reg <= (others=>'0');
 			statevariable_Q_reg <= (others=>'0');
-			statevariable_f_state_reg <= statevariable_f_state_romrequest;
+			rom_state_reg <= rom_state_init;
 			filter_en_reg <= (others=>'0');
 			filter_sel_reg <= (others=>'0');
 			ch3silent_reg <= '0';
@@ -243,7 +243,7 @@ BEGIN
 			statevariable_fcutoff_reg <= statevariable_fcutoff_next;
 			statevariable_F_reg <= statevariable_F_next;
 			statevariable_Q_Reg <= statevariable_Q_next;
-			statevariable_f_state_reg <= statevariable_f_state_next;
+			rom_state_reg <= rom_state_next;
 			filter_en_reg <= filter_en_next;
 			filter_sel_reg <= filter_sel_next;
 			ch3silent_reg <= ch3silent_next;
@@ -664,19 +664,19 @@ decode_addr1 : entity work.complete_address_decoder
 	);
 
 	process(statevariable_F_reg,  
-		statevariable_f_state_reg, statevariable_f_changed,
+		rom_state_reg, statevariable_f_changed,
 		rom_data, rom_ready)
 	begin
 		statevariable_F_next <= statevariable_F_reg;
-		statevariable_f_state_next <= statevariable_f_state_reg;
+		rom_state_next <= rom_state_reg;
 		rom_request <= '0';
 
-		case statevariable_f_state_reg is
-			when statevariable_f_state_init =>
+		case rom_state_reg is
+			when rom_state_init =>
 				if (statevariable_f_changed='1') then
-					statevariable_f_state_next <= statevariable_f_state_romrequest;
+					rom_state_next <= rom_state_romrequest_statevariable_f;
 				end if;
-			when statevariable_f_state_romrequest =>
+			when rom_state_romrequest_statevariable_f =>
 				rom_request <= '1';
 				if (rom_ready = '1') then
 					if (statevariable_fcutoff_reg(0)='0') then
@@ -684,10 +684,10 @@ decode_addr1 : entity work.complete_address_decoder
 					else
 						statevariable_F_next <= "00"&rom_data(31 downto 16);
 					end if;
-					statevariable_f_state_next <= statevariable_f_state_init;
+					rom_state_next <= rom_state_init;
 				end if;
 			when others =>
-				statevariable_f_state_next <= statevariable_f_state_init;
+				rom_state_next <= rom_state_init;
 		end case;
 	end process;
 
