@@ -179,12 +179,12 @@ ARCHITECTURE vhdl OF pokeymax IS
 	-- SID
 	signal SID_CLK_ENABLE : std_logic;
 	signal SID_AUDIO : SID_AUDIO_TYPE(1 downto 0);
-	signal SID_STATEVARIABLE1_ADDR : std_logic_vector(9 downto 0);
-        signal SID_STATEVARIABLE1_ROMREQUEST : std_logic;
-        signal SID_STATEVARIABLE1_ROMREADY : std_logic;
-	signal SID_STATEVARIABLE2_ADDR : std_logic_vector(9 downto 0);
-        signal SID_STATEVARIABLE2_ROMREQUEST : std_logic;
-        signal SID_STATEVARIABLE2_ROMREADY : std_logic;
+	signal SID_FLASH1_ADDR : std_logic_vector(12 downto 0);
+        signal SID_FLASH1_ROMREQUEST : std_logic;
+        signal SID_FLASH1_ROMREADY : std_logic;
+	signal SID_FLASH2_ADDR : std_logic_vector(12 downto 0);
+        signal SID_FLASH2_ROMREQUEST : std_logic;
+        signal SID_FLASH2_ROMREADY : std_logic;
 	signal SID_FILTER1_REG : std_logic_vector(0 downto 0);
 	signal SID_FILTER1_NEXT : std_logic_vector(0 downto 0);
 	signal SID_FILTER2_REG : std_logic_vector(0 downto 0);
@@ -384,9 +384,9 @@ flash_on : if enable_flash=1 generate
 		flash_req3_addr(12 downto 8) => (others=>'0'),
 		flash_req3_addr(7 downto 0) => "1"&ADPCM_STEP_ADDR(6 downto 0),
 
-		flash_req4_addr(12 downto 0) => "0"&std_logic_vector(unsigned('0'&SID_FILTER1_REG)+1)&SID_STATEVARIABLE1_ADDR(9 downto 0), --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
+		flash_req4_addr(12 downto 0) => SID_FLASH1_ADDR, --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
 
-		flash_req5_addr(12 downto 0) => "0"&std_logic_vector(unsigned('0'&SID_FILTER2_REG)+1)&SID_STATEVARIABLE2_ADDR(9 downto 0), 
+		flash_req5_addr(12 downto 0) => SID_FLASH2_ADDR, 
 
 		flash_req6_addr(12 downto 9) => (others=>'0'),
 		flash_req6_addr(8 downto 0) => "10"&PSG_PROFILESEL_REG&PSG_PROFILE_ADDR,  --TODO + init.bin
@@ -397,8 +397,8 @@ flash_on : if enable_flash=1 generate
 		flash_req_request(0) => CPU_FLASH_REQUEST_REG,
 		flash_req_request(1) => CONFIG_FLASH_REQUEST,
 		flash_req_request(2) => ADPCM_STEP_REQUEST,
-		flash_req_request(3) => SID_STATEVARIABLE1_ROMREQUEST,
-		flash_req_request(4) => SID_STATEVARIABLE2_ROMREQUEST,
+		flash_req_request(3) => SID_FLASH1_ROMREQUEST,
+		flash_req_request(4) => SID_FLASH2_ROMREQUEST,
 		flash_req_request(5) => PSG_PROFILE_REQUEST,
 		flash_req_request(6) => POKEY_PROFILE_REQUEST,
 		flash_req_request(7 downto 7) => (others=>'0'),
@@ -407,8 +407,8 @@ flash_on : if enable_flash=1 generate
 		flash_req_complete_slow(0) => CPU_FLASH_COMPLETE,
 		flash_req_complete_slow(1) => CONFIG_FLASH_COMPLETE,
 		flash_req_complete_slow(2) => ADPCM_STEP_READY,
-		flash_req_complete_slow(3) => SID_STATEVARIABLE1_ROMREADY,
-		flash_req_complete_slow(4) => SID_STATEVARIABLE2_ROMREADY,
+		flash_req_complete_slow(3) => SID_FLASH1_ROMREADY,
+		flash_req_complete_slow(4) => SID_FLASH2_ROMREADY,
 		flash_req_complete_slow(5) => PSG_PROFILE_READY,
 		flash_req_complete_slow(6) => POKEY_PROFILE_READY,
 		flash_req_complete_slow(7 downto 7) => open,
@@ -749,10 +749,12 @@ PORT MAP(
 	--EXTFILTER_EN => '0',
 	AUDIO => SID_AUDIO(0), 
 
-	statevariable_f_addr => sid_statevariable1_addr,
-	statevariable_f_data => flash_do_slow,
-       	statevariable_f_request => sid_statevariable1_romrequest,
-	statevariable_f_ready => sid_statevariable1_romready
+	SIDTYPE => SID_FILTER1_REG,
+
+	rom_addr => sid_flash1_addr,
+	rom_data => flash_do_slow,
+       	rom_request => sid_flash1_romrequest,
+	rom_ready => sid_flash1_romready
 );
 
 sid2 : entity work.SID_top
@@ -774,10 +776,12 @@ PORT MAP(
 	--EXTFILTER_EN => '0',
 	AUDIO => SID_AUDIO(1),
 
-	statevariable_f_addr => sid_statevariable2_addr,
-	statevariable_f_data => flash_do_slow,
-       	statevariable_f_request => sid_statevariable2_romrequest,
-	statevariable_f_ready => sid_statevariable2_romready
+	SIDTYPE => SID_FILTER2_REG,
+
+	rom_addr => sid_flash2_addr,
+	rom_data => flash_do_slow,
+       	rom_request => sid_flash2_romrequest,
+	rom_ready => sid_flash2_romready
 );
 end generate sid_on;		
 --------------------------------------------------------

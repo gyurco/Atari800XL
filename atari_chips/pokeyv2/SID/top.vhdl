@@ -37,10 +37,12 @@ ENTITY SID_top IS
 		DEBUG_EV1 : out unsigned(7 downto 0);
 		DEBUG_AM1 : out signed(15 downto 0);
 
-		statevariable_f_addr : out std_logic_vector(9 downto 0);
-		statevariable_f_data : in std_logic_vector(31 downto 0);
-		statevariable_f_request : out std_logic;
-		statevariable_f_ready : in std_logic
+		sidtype : in std_logic_vector(0 downto 0); -- 0=8580,1=6581
+
+		rom_addr : out std_logic_vector(12 downto 0);
+		rom_data : in std_logic_vector(31 downto 0);
+		rom_request : out std_logic;
+		rom_ready : in std_logic
 	);
 END SID_top;		
 		
@@ -663,11 +665,11 @@ decode_addr1 : entity work.complete_address_decoder
 
 	process(statevariable_F_reg,  
 		statevariable_f_state_reg, statevariable_f_changed,
-		statevariable_f_data, statevariable_f_ready)
+		rom_data, rom_ready)
 	begin
 		statevariable_F_next <= statevariable_F_reg;
 		statevariable_f_state_next <= statevariable_f_state_reg;
-		statevariable_f_request <= '0';
+		rom_request <= '0';
 
 		case statevariable_f_state_reg is
 			when statevariable_f_state_init =>
@@ -675,12 +677,12 @@ decode_addr1 : entity work.complete_address_decoder
 					statevariable_f_state_next <= statevariable_f_state_romrequest;
 				end if;
 			when statevariable_f_state_romrequest =>
-				statevariable_f_request <= '1';
-				if (statevariable_f_ready = '1') then
+				rom_request <= '1';
+				if (rom_ready = '1') then
 					if (statevariable_fcutoff_reg(0)='0') then
-						statevariable_F_next <= "00"&statevariable_f_data(15 downto 0);
+						statevariable_F_next <= "00"&rom_data(15 downto 0);
 					else
-						statevariable_F_next <= "00"&statevariable_f_data(31 downto 16);
+						statevariable_F_next <= "00"&rom_data(31 downto 16);
 					end if;
 					statevariable_f_state_next <= statevariable_f_state_init;
 				end if;
@@ -747,7 +749,7 @@ decode_addr1 : entity work.complete_address_decoder
 	DEBUG_WV1 <= unsigned(wave_a_reg);
 	DEBUG_AM1 <= channel_a_modulated;
 
-	statevariable_f_addr <= statevariable_fcutoff_reg(10 downto 1);
+	rom_addr <= "0"&std_logic_vector(unsigned('0'&sidtype)+1)&statevariable_fcutoff_reg(10 downto 1);
 	
 end vhdl;
 
