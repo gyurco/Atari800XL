@@ -120,6 +120,7 @@ ARCHITECTURE vhdl OF SID_top IS
 	constant rom_state_romrequest_statevariable_f : std_logic_vector(0 downto 0) := "1";
 	signal statevariable_Q_reg : std_logic_vector(3 downto 0); --resonance
 	signal statevariable_Q_next : std_logic_vector(3 downto 0);
+	signal rom_addr_mux : std_logic_vector(1 downto 0);
 
 	-- which channels are filtered?
 	signal filter_en_reg : std_logic_vector(2 downto 0);
@@ -671,6 +672,9 @@ decode_addr1 : entity work.complete_address_decoder
 		rom_state_next <= rom_state_reg;
 		rom_request <= '0';
 
+
+		rom_addr_mux <= "00";
+
 		case rom_state_reg is
 			when rom_state_init =>
 				if (statevariable_f_changed='1') then
@@ -678,6 +682,7 @@ decode_addr1 : entity work.complete_address_decoder
 				end if;
 			when rom_state_romrequest_statevariable_f =>
 				rom_request <= '1';
+				rom_addr_mux <= "00";
 				if (rom_ready = '1') then
 					if (statevariable_fcutoff_reg(0)='0') then
 						statevariable_F_next <= "00"&rom_data(15 downto 0);
@@ -689,6 +694,20 @@ decode_addr1 : entity work.complete_address_decoder
 			when others =>
 				rom_state_next <= rom_state_init;
 		end case;
+	end process;
+
+	process(rom_addr_mux,
+		sidtype,
+		statevariable_fcutoff_reg)
+	begin
+		rom_addr <= (others=>'0');
+
+		case rom_addr_mux is
+		when "00" =>
+			rom_addr <= "0"&std_logic_vector(unsigned('0'&sidtype)+1)&statevariable_fcutoff_reg(10 downto 1);
+		when others =>
+		end case;
+
 	end process;
 
 	variable_state_filter : entity work.SID_filter
@@ -749,8 +768,6 @@ decode_addr1 : entity work.complete_address_decoder
 	DEBUG_WV1 <= unsigned(wave_a_reg);
 	DEBUG_AM1 <= channel_a_modulated;
 
-	rom_addr <= "0"&std_logic_vector(unsigned('0'&sidtype)+1)&statevariable_fcutoff_reg(10 downto 1);
-	
 end vhdl;
 
 
