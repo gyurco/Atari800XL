@@ -2,3 +2,7 @@ rm -f init.bin
 gcc -Wall init.c -lm -o init && ./init
 ./makehex ./init.bin init.hex "0x000000"
 
+rm -f sidwavedata.bin
+gcc -Wall sidwavedata.c -lm -o sidwavedata && ./sidwavedata
+
+
