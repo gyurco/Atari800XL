@@ -82,6 +82,18 @@ my %variants =
 		"fpga" => "10M02SCU169C8G",
 		"version" =>  $version."M02SC"
 	},
+	"10M02_stereo_covox_no_right_detect" =>
+	{
+		"pokeys" => 2,
+		"enable_auto_stereo" => 0,
+		"enable_covox" => 1,
+		"detect_right_on_by_default" => 0,
+		"a4_bit" => 1,
+		"a7_bit" => 2,
+		"gtia_audio_bit" => 3, 
+		"fpga" => "10M02SCU169C8G",
+		"version" =>  $version."M02SC"
+	},
 	"10M08_stereo_covox_auto" =>
 	{
 		"pokeys" => 2,
@@ -204,24 +216,42 @@ my %variants =
 		"cs1_bit" => 20, #force high
 		"fpga" => "10M08SCU169C8G",
 		"version" => $version . "M08HK"
+	},
+	"10M08_audiotest" =>
+	{
+		"pokeys" => 4,
+		"enable_auto_stereo" => 1,
+		"enable_sid" => 1,
+		"enable_psg" => 1,
+		"enable_covox" => 1,
+		"enable_sample" => 1,
+		"enable_flash" => 1,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a6_bit" => 3,
+		"a7_bit" => 19,  #use CS1
+		"cs1_bit" => 20, #force high
+		"ext_clk_enable" => 1,
+		"fpga" => "10M08SCU169C8G",
+		"version" => $version . "M08HK"
+	},
+	"10M08_sample" =>
+	{
+		"pokeys" => 4,
+		"enable_auto_stereo" => 1,
+		"enable_sid" => 0,
+		"enable_psg" => 0,
+		"enable_covox" => 1,
+		"enable_sample" => 1,
+		"enable_flash" => 1,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a6_bit" => 3,
+		"a7_bit" => 19,  #use CS1
+		"cs1_bit" => 20, #force high
+		"fpga" => "10M08SCU169C8G",
+		"version" => $version . "M08HK"
 	}
-##	"10M08_sample" =>
-##	{
-##		"pokeys" => 4,
-##		"enable_auto_stereo" => 1,
-##		"enable_sid" => 0,
-##		"enable_psg" => 0,
-##		"enable_covox" => 1,
-##		"enable_sample" => 1,
-##		"enable_flash" => 1,
-##		"a4_bit" => 1,
-##		"a5_bit" => 2,
-##		"a6_bit" => 3,
-##		"a7_bit" => 19,  #use CS1
-##		"cs1_bit" => 20, #force high
-##		"fpga" => "10M08SCU169C8G",
-##		"version" => $version . "M08HK"
-##	}
 #	"10M08_full" => 
 #	{
 #		"board" => 3,
@@ -278,6 +308,7 @@ foreach my $variant (sort keys %variants)
 	`cp -r SID $dir`;
 	`cp -r sample $dir`;
 	`cp -r covox $dir`;
+	`cp -r *.bin $dir`;
 
 	chdir $dir;
 
@@ -298,6 +329,7 @@ foreach my $variant (sort keys %variants)
 	`../openocd_flash/extractbinfromsvf.pl output_files/pokeymax.svf`;
 	`cat UFM1.bin UFM0.bin > UFMboth.bin`;
 	`cat CFM1.bin CFM0.bin > CFMboth.bin`;
+	`../modifyflash_$flashver ./output_files/pokeymax.pof ./output_files/core.bin`;
 
 	chdir "..";
 }
