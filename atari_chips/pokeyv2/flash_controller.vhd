@@ -35,8 +35,8 @@ ENTITY flash_controller IS
 		flash_req1_addr : IN STD_LOGIC_VECTOR(15 downto 0) := (others=>'0');
 		flash_req2_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
 		flash_req3_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
-		flash_req4_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
-		flash_req5_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
+		flash_req4_addr : IN STD_LOGIC_VECTOR(15 downto 0) := (others=>'0');
+		flash_req5_addr : IN STD_LOGIC_VECTOR(15 downto 0) := (others=>'0');
 		flash_req6_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
 		flash_req7_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
 		flash_req8_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
@@ -234,9 +234,9 @@ BEGIN
 		when x"04" =>
 			addr(12 downto 0) := flash_req3_addr;
 		when x"08" =>
-			addr(12 downto 0) := flash_req4_addr;
+			addr := flash_req4_addr;
 		when x"10" =>
-			addr(12 downto 0) := flash_req5_addr;
+			addr := flash_req5_addr;
 		when x"20" =>
 			addr(12 downto 0) := flash_req6_addr;
 		when x"40" =>

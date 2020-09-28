@@ -22,6 +22,7 @@ PORT
 	SYNC_IN : IN STD_LOGIC;
 	SYNC_OUT : OUT STD_LOGIC;
 	LFSR_ENABLE : OUT STD_LOGIC;
+	CHANGING : OUT STD_LOGIC;
 
 	ADJ : IN STD_LOGIC_VECTOR(15 downto 0)
 );
@@ -42,12 +43,13 @@ BEGIN
 	end process;
 	
 	-- next state
-	process(count_reg,enable,adj,sync_in,test)
+	process(count_reg,count_next,enable,adj,sync_in,test)
 		variable count_inc : unsigned(23 downto 0);
 	begin
 		count_next <= count_reg;
 		sync_out <= '0';
 		lfsr_enable <= '0';
+		changing <= '0';
 
 		if (enable = '1') then
 			count_inc := count_reg+resize(unsigned(adj),24);
@@ -59,6 +61,10 @@ BEGIN
 				count_next <= (others=>'0');
 			else
 				count_next <= count_inc;
+			end if;
+
+			if (count_reg(23 downto 12) /= count_next(23 downto 12)) then
+				changing <= '1';
 			end if;
 		end if;
 	end process;	

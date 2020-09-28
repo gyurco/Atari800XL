@@ -18,6 +18,8 @@ PORT
 ( 
 	CLK : IN STD_LOGIC;
 	RESET_N : IN STD_LOGIC;
+
+	CHANGING : IN STD_LOGIC;
 	
 	RINGMOD : IN STD_LOGIC;
 	RINGMOD_OSC_MSB : IN STD_LOGIC;
@@ -28,6 +30,10 @@ PORT
 	
 	WAVESELECT_IN : IN STD_LOGIC_VECTOR(3 downto 0);
 
+	WAVE_DATA_NEEDED : OUT STD_LOGIC;
+	WAVE_DATA_READY : IN STD_LOGIC;
+	WAVE_DATA : IN STD_LOGIC_VECTOR(11 downto 0);
+
 	WAVE_OUT : OUT STD_LOGIC_VECTOR(11 downto 0)
 );
 END SID_wavegen;
@@ -37,8 +43,11 @@ ARCHITECTURE vhdl OF SID_wavegen IS
 	signal wave_next : std_logic_vector(11 downto 0);
 	signal lfsr_reg : std_logic_vector(22 downto 0);
 	signal lfsr_next : std_logic_vector(22 downto 0);
+	signal wave_data_needed_reg : std_logic;
+	signal wave_data_needed_next : std_logic;
 	signal pulse_comparator_reg : std_logic;
 	signal pulse_comparator_next : std_logic;
+	signal multiple_wave_bits : std_logic;
 BEGIN
 	-- register
 	process(clk, reset_n)
@@ -47,10 +56,12 @@ BEGIN
 			wave_reg <= (others=>'0');
 			lfsr_reg <= (others=>'1');
 			pulse_comparator_reg <= '0';
+			wave_data_needed_reg <= '0';
 		elsif (clk'event and clk='1') then
 			wave_reg <= wave_next;
 			lfsr_reg <= lfsr_next;
 			pulse_comparator_reg <= pulse_comparator_next;
+			wave_data_needed_reg <= wave_data_needed_next;
 		end if;
 	end process;
 
@@ -73,7 +84,7 @@ BEGIN
 	end process;
 	
 	-- next state - wave
-	process(osc_in,waveselect_in,pulse_width_in,lfsr_reg,test,ringmod,ringmod_osc_msb,pulse_comparator_reg)
+	process(multiple_wave_bits,wave_reg,osc_in,waveselect_in,pulse_width_in,lfsr_reg,test,ringmod,ringmod_osc_msb,pulse_comparator_reg,wave_data,wave_data_ready)
 		variable noise : std_logic_vector(11 downto 0);
 		variable pulse : std_logic_vector(11 downto 0);
 		variable triangle : std_logic_vector(11 downto 0);
@@ -84,7 +95,8 @@ BEGIN
 		variable triangle_xor_ext : std_logic_vector(10 downto 0);
 		variable osc_xored : std_logic_vector(10 downto 0);
 	begin
-		wave_next <= (others=>'0');
+		wave_next <= wave_reg;
+
 		noise:= (others=>'1');
 		pulse:= (others=>'1');
 		triangle:= (others=>'1');
@@ -123,10 +135,27 @@ BEGIN
 		-- In fact transistors drive against each other with different resistances and
 		-- a corrupt waveform is generated. 
 		-- TODO: Either compute or use flash storage (optionally)
-		wave_next <= noise and pulse and sawtooth and triangle;
+		if (multiple_wave_bits='0') then
+			wave_next <= noise and pulse and sawtooth and triangle;
+		else
+			if (wave_data_ready='1') then
+				wave_next <= wave_data and pulse;
+			end if;
+		end if;
 	end process;	
+
+	multiple_wave_bits <= 
+	        not(waveselect_in(3)) and
+		(
+			(waveselect_in(0) and waveselect_in(1))
+				or 
+			(waveselect_in(2) and (waveselect_in(0) or waveselect_in(1)))
+		)
+		;
+	wave_data_needed_next <= (wave_data_needed_reg or (multiple_wave_bits and changing)) and not(wave_data_ready);
 
 	--output
 	wave_out <= wave_reg;
+	wave_data_needed <= wave_data_needed_reg;
 		
 END vhdl;

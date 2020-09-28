@@ -179,10 +179,10 @@ ARCHITECTURE vhdl OF pokeymax IS
 	-- SID
 	signal SID_CLK_ENABLE : std_logic;
 	signal SID_AUDIO : SID_AUDIO_TYPE(1 downto 0);
-	signal SID_FLASH1_ADDR : std_logic_vector(12 downto 0);
+	signal SID_FLASH1_ADDR : std_logic_vector(15 downto 0);
         signal SID_FLASH1_ROMREQUEST : std_logic;
         signal SID_FLASH1_ROMREADY : std_logic;
-	signal SID_FLASH2_ADDR : std_logic_vector(12 downto 0);
+	signal SID_FLASH2_ADDR : std_logic_vector(15 downto 0);
         signal SID_FLASH2_ROMREQUEST : std_logic;
         signal SID_FLASH2_ROMREADY : std_logic;
 	signal SID_FILTER1_REG : std_logic_vector(0 downto 0);
@@ -384,9 +384,9 @@ flash_on : if enable_flash=1 generate
 		flash_req3_addr(12 downto 8) => (others=>'0'),
 		flash_req3_addr(7 downto 0) => "1"&ADPCM_STEP_ADDR(6 downto 0),
 
-		flash_req4_addr(12 downto 0) => SID_FLASH1_ADDR, --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
+		flash_req4_addr => SID_FLASH1_ADDR, --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
 
-		flash_req5_addr(12 downto 0) => SID_FLASH2_ADDR, 
+		flash_req5_addr => SID_FLASH2_ADDR, 
 
 		flash_req6_addr(12 downto 9) => (others=>'0'),
 		flash_req6_addr(8 downto 0) => "10"&PSG_PROFILESEL_REG&PSG_PROFILE_ADDR,  --TODO + init.bin
