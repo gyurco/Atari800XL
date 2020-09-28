@@ -2,14 +2,20 @@
 #include "stdlib.h"
 #include <math.h>
 
+unsigned short data[] = 
+{
+#include "SID/investigation/sidsimplify.out"
+};
+
 int main(void)
 {
 	unsigned short * buffer = (unsigned short *) malloc(16384*2*2); //16-bit, 2 copies
 	int i=0;
-	for (i=0;i!=16384;++i)
+	for (i=0;i!=32768;++i)
 	{
-		buffer[i] = i;
-		buffer[16384+i] = i;
+		//buffer[i] = i;
+		//buffer[16384+i] = i;
+		buffer[i] = data[i];
 	}
 
 	// 0x100(0x400 8-bit) sid tables --TODO!!
