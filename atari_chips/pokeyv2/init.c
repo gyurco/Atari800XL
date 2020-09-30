@@ -213,7 +213,7 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 
 	// 0x200(0x800 8-bit) sid q table - 32 (4 32-bit, 4 32-bit)
 	// 8580=0,6581=1
-	int sidqtablebase = 0x600;
+	int sidqtablebase = 0x800;
 	unsigned int * sidqtable[2];
 	sidqtable[0] = (unsigned int *)(buffer+sidqtablebase);
 	sidqtable[1] = (unsigned int *)(buffer+sidqtablebase+(4*4));
