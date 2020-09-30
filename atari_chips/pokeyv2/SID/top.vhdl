@@ -123,10 +123,16 @@ ARCHITECTURE vhdl OF SID_top IS
 	constant rom_state_romrequest_wave_a : std_logic_vector(2 downto 0) := "010";
 	constant rom_state_romrequest_wave_b : std_logic_vector(2 downto 0) := "011";
 	constant rom_state_romrequest_wave_c : std_logic_vector(2 downto 0) := "100";
+	constant rom_state_romrequest_statevariable_q : std_logic_vector(2 downto 0) := "101";
+	signal statevariable_q_changed : std_logic;
+	signal statevariable_q_dirty_next : std_logic;
+	signal statevariable_q_dirty_reg : std_logic;
 	signal statevariable_Q_reg : std_logic_vector(3 downto 0); --resonance
 	signal statevariable_Q_next : std_logic_vector(3 downto 0);
+	signal statevariable_1q_reg : signed(17 downto 0); --resonance
+	signal statevariable_1q_next : signed(17 downto 0);
 
-	signal rom_addr_mux : std_logic_vector(1 downto 0);
+	signal rom_addr_mux : std_logic_vector(2 downto 0);
 	signal rom_data_word : std_logic_vector(15 downto 0);
 
 	signal rom_osc : std_logic_vector(10 downto 0);
@@ -229,12 +235,14 @@ BEGIN
 			statevariable_fcutoff_reg <= (others=>'0');
 			statevariable_F_reg <= (others=>'0');
 			statevariable_Q_reg <= (others=>'0');
+			statevariable_1q_reg <= (others=>'0');
 			rom_state_reg <= rom_state_init;
 			filter_en_reg <= (others=>'0');
 			filter_sel_reg <= (others=>'0');
 			ch3silent_reg <= '0';
 			vol_reg <= (others=>'0');
 			statevariable_f_dirty_reg <= '1';
+			statevariable_q_dirty_reg <= '1';
 		elsif (clk'event and clk='1') then
 			freq_adj_channel_a_reg <= freq_adj_channel_a_next;
 			freq_adj_channel_b_reg <= freq_adj_channel_b_next;
@@ -263,12 +271,14 @@ BEGIN
 			statevariable_fcutoff_reg <= statevariable_fcutoff_next;
 			statevariable_F_reg <= statevariable_F_next;
 			statevariable_Q_Reg <= statevariable_Q_next;
+			statevariable_1q_reg <= statevariable_1q_next;
 			rom_state_reg <= rom_state_next;
 			filter_en_reg <= filter_en_next;
 			filter_sel_reg <= filter_sel_next;
 			ch3silent_reg <= ch3silent_next;
 			vol_reg <= vol_next;
 			statevariable_f_dirty_reg <= statevariable_f_dirty_next;
+			statevariable_q_dirty_reg <= statevariable_q_dirty_next;
 		end if;
 	end process;
 	
@@ -341,6 +351,7 @@ decode_addr1 : entity work.complete_address_decoder
 		vol_next <= vol_reg;
 
 		statevariable_f_changed <= '0';
+		statevariable_q_changed <= '0';
 	
 		if (write_enable='1') then
 			--ch a
@@ -432,6 +443,7 @@ decode_addr1 : entity work.complete_address_decoder
 			end if;
 			if (addr_decoded(23)='1') then
 				statevariable_Q_next <= di(7 downto 4);
+				statevariable_q_changed <= '1';
 				filter_en_next <= di(2 downto 0);
 			end if;
 			if (addr_decoded(24)='1') then
@@ -705,18 +717,21 @@ decode_addr1 : entity work.complete_address_decoder
 		DIRECT_OUT => channel_directsum
 	);
 
-	process(statevariable_F_reg,  
+	process(statevariable_F_reg, statevariable_1q_reg,
 		rom_state_reg, 
 		statevariable_f_changed, statevariable_f_dirty_reg,
+		statevariable_q_changed, statevariable_q_dirty_reg,
 		rom_data, rom_data_word, rom_high_word, rom_ready,
 		wavegen_data_needed)
 	begin
 		statevariable_f_dirty_next <= statevariable_f_dirty_reg or statevariable_f_changed;
 		statevariable_F_next <= statevariable_F_reg;
+		statevariable_q_dirty_next <= statevariable_q_dirty_reg or statevariable_q_changed;
+		statevariable_1q_next <= statevariable_1q_reg;
 		rom_state_next <= rom_state_reg;
 		rom_request <= '0';
 
-		rom_addr_mux <= "00";
+		rom_addr_mux <= "000";
 		wavegen_data_ready <= (others=>'0');
 
 		if (rom_high_word='0') then
@@ -730,6 +745,9 @@ decode_addr1 : entity work.complete_address_decoder
 				if (statevariable_f_dirty_reg='1') then
 					rom_state_next <= rom_state_romrequest_statevariable_f;
 				end if;
+				if (statevariable_q_dirty_reg='1') then
+					rom_state_next <= rom_state_romrequest_statevariable_q;
+				end if;
 				if (wavegen_data_needed(0)='1') then
 					rom_state_next <= rom_state_romrequest_wave_a;
 				end if;
@@ -741,7 +759,7 @@ decode_addr1 : entity work.complete_address_decoder
 				end if;
 			when rom_state_romrequest_statevariable_f =>
 				rom_request <= '1';
-				rom_addr_mux <= "00";
+				rom_addr_mux <= "000";
 				if (rom_ready = '1') then
 					statevariable_f_dirty_next <= '0';
 					statevariable_F_next <= "00"&rom_data_word;
@@ -749,23 +767,31 @@ decode_addr1 : entity work.complete_address_decoder
 				end if;
 			when rom_state_romrequest_wave_a =>
 				rom_request <= '1';
-				rom_addr_mux <= "01";
+				rom_addr_mux <= "001";
 				wavegen_data_ready(0) <= rom_ready;
 				if (rom_ready = '1') then
 					rom_state_next <= rom_state_init;
 				end if;
 			when rom_state_romrequest_wave_b =>
 				rom_request <= '1';
-				rom_addr_mux <= "10";
+				rom_addr_mux <= "010";
 				wavegen_data_ready(1) <= rom_ready;
 				if (rom_ready = '1') then
 					rom_state_next <= rom_state_init;
 				end if;
 			when rom_state_romrequest_wave_c =>
 				rom_request <= '1';
-				rom_addr_mux <= "11";
+				rom_addr_mux <= "011";
 				wavegen_data_ready(2) <= rom_ready;
 				if (rom_ready = '1') then
+					rom_state_next <= rom_state_init;
+				end if;
+			when rom_state_romrequest_statevariable_q =>
+				rom_request <= '1';
+				rom_addr_mux <= "100";
+				if (rom_ready = '1') then
+					statevariable_q_dirty_next <= '0';
+					statevariable_1q_next <= signed(rom_data(17 downto 0));
 					rom_state_next <= rom_state_init;
 				end if;
 			when others =>
@@ -776,6 +802,7 @@ decode_addr1 : entity work.complete_address_decoder
 	process(rom_addr_mux,
 		sidtype,
 		statevariable_fcutoff_reg,
+		statevariable_q_reg,
 		osc_a_reg,osc_b_reg,osc_c_reg,
 		waveselect_a_reg,waveselect_b_reg,waveselect_c_reg,
 		rom_wave_2bit,rom_wave_3bit,
@@ -807,24 +834,26 @@ decode_addr1 : entity work.complete_address_decoder
 		rom_wave_addr := std_logic_vector(unsigned(wave_base)+resize(unsigned(sidtype&rom_wave_2bit&rom_osc),16)); --1:2:11
 
 		case rom_addr_mux is
-		when "00" =>
+		when "000" =>
 			rom_addr <= "0000"&std_logic_vector(unsigned('0'&sidtype)+1)&statevariable_fcutoff_reg(10 downto 1);
 			rom_high_word <= statevariable_fcutoff_reg(0);
-		when "01" =>
+		when "001" =>
 			rom_osc <= osc_a_reg(11 downto 1);
 			rom_wave_3bit <= waveselect_a_reg(2 downto 0);
 			rom_addr <= rom_wave_addr;
 			rom_high_word <= osc_a_reg(0);
-		when "10" =>
+		when "010" =>
 			rom_osc <= osc_b_reg(11 downto 1);
 			rom_wave_3bit <= waveselect_b_reg(2 downto 0);
 			rom_addr <= rom_wave_addr;
 			rom_high_word <= osc_b_reg(0);
-		when "11" =>
+		when "011" =>
 			rom_osc <= osc_c_reg(11 downto 1);
 			rom_wave_3bit <= waveselect_c_reg(2 downto 0);
 			rom_addr <= rom_wave_addr;
 			rom_high_word <= osc_c_reg(0);
+		when "100" =>
+			rom_addr <= "00000010000"&sidtype&statevariable_q_reg;
 		when others =>
 		end case;
 
@@ -844,7 +873,7 @@ decode_addr1 : entity work.complete_address_decoder
 
 		--CUTOFF_FREQUENCY => statevariable_fcutoff_reg,
 		F => unsigned(statevariable_F_reg),
-		Q => statevariable_Q_reg
+		Q => statevariable_1q_reg
 	);
 
 	postfilter: entity work.SID_postFilterSum
@@ -889,5 +918,4 @@ decode_addr1 : entity work.complete_address_decoder
 	DEBUG_AM1 <= channel_a_modulated;
 
 end vhdl;
-
 

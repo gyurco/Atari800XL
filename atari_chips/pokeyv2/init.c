@@ -211,6 +211,61 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 		printf("pokey:%d:%d:%d\n",i,pokeyvoltable[0][i],pokeyvoltable[1][i]);
 	}
 
+	// 0x200(0x800 8-bit) sid q table - 32 (4 32-bit, 4 32-bit)
+	// 8580=0,6581=1
+	int sidqtablebase = 0x600;
+	unsigned int * sidqtable[2];
+	sidqtable[0] = (unsigned int *)(buffer+sidqtablebase);
+	sidqtable[1] = (unsigned int *)(buffer+sidqtablebase+(4*4));
+	for (i=0;i!=16;++i)
+	{
+		double Q = 1.0/pow(2.0,(4.0-((double)i)/8.0));
+		sidqtable[0][i] = round(32768.0/Q);
+	}
+	for (i=0;i!=16;++i)
+	{
+//--		--_1_div_Q = 1.f / (0.5f + resonanceFactor * res / 18f);
+		double Q = 0.5 + ((double)i)/18.0;
+		sidqtable[1][i] = round(32768.0/Q);
+	}
+	for (i=0;i!=16;++i)
+	{
+		printf("sidq:%d:%d:%d\n",i,sidqtable[0][i],sidqtable[1][i]);
+	}
+//--		Q := 1.0/(2.0**((4.0-real(Qval))/8.0));
+//--		ret := to_signed(integer(32768.0/Q),18);
+//--		return ret;
+	
+//--
+//--	--    q = 1.0 / Q;
+//--	--    q = int64(round(q*32768));%3.15u
+//--	function compute_q(Qval : integer) return signed is
+//--		 variable Q : real;
+//--   		 variable ret : signed(17 downto 0);
+//--	begin
+//--		Q := 1.0/(2.0**((4.0-real(Qval))/8.0));
+//--		ret := to_signed(integer(32768.0/Q),18);
+//--		return ret;
+//--
+//--		-- resonanceFactor is 1!
+//--		--8580:
+//--		--_1_div_Q = 1.f / (0.707f + resonanceFactor * res / 15.f);
+//--		--6581:
+//--		--_1_div_Q = 1.f / (0.5f + resonanceFactor * res / 18f);
+//--	end function compute_q;
+//--
+//--	process(Q)
+//--	begin
+//--		q_next <= (others=>'0');
+//--
+//--		for I in 0 to 15 loop
+//--			if (to_integer(unsigned(Q)) = I) then
+//--				q_next <= compute_q(I);
+//--			end if;
+//--		end loop;
+//--	end process;
+
+
 	// 0x100(0x400 8-bit) sid tables --TODO!!
 	// to store: 
 	// i) 6581 channel mixing:

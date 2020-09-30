@@ -58,7 +58,7 @@ PORT
 	HIGHPASS : OUT SIGNED(17 downto 0);
 
 	F : IN UNSIGNED(17 downto 0);
-	Q : IN STD_LOGIC_VECTOR(3 downto 0)
+	Q : IN SIGNED(17 downto 0)
 );
 END SID_filter;
 
@@ -135,31 +135,11 @@ ARCHITECTURE vhdl OF SID_filter IS
 	signal bandpass_next : signed(41 downto 0);
 	signal lowpass_next : signed(41 downto 0);
 
-	signal q_reg : signed(17 downto 0);
-	signal q_next :  signed(17 downto 0);
-
-	--    q = 1.0 / Q;
-	--    q = int64(round(q*32768));%3.15u
-	function compute_q(Qval : integer) return signed is
-		 variable Q : real;
-   		 variable ret : signed(17 downto 0);
-	begin
-		Q := 1.0/(2.0**((4.0-real(Qval))/8.0));
-		ret := to_signed(integer(32768.0/Q),18);
-		return ret;
-
-		-- resonanceFactor is 1!
-		--8580:
-		--_1_div_Q = 1.f / (0.707f + resonanceFactor * res / 15.f);
-		--6581:
-		--_1_div_Q = 1.f / (0.5f + resonanceFactor * res / 18f);
-	end function compute_q;
 BEGIN
 	-- register
 	process(clk, reset_n)
 	begin
 		if (reset_n = '0') then
-			q_reg <= (others=>'0');
 			multq_reg <= (others=>'0');
 			mult1_reg <= (others=>'0');
 			mult2_reg <= (others=>'0');
@@ -167,7 +147,6 @@ BEGIN
 			bandpass_reg <= (others=>'0');
 			lowpass_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then
-			q_reg <= q_next;
 			multq_reg <= multq_next;
 			mult1_reg <= mult1_next;
 			mult2_reg <= mult2_next;
@@ -178,18 +157,7 @@ BEGIN
 	end process;
 
 	-- next state
-	process(Q)
-	begin
-		q_next <= (others=>'0');
-
-		for I in 0 to 15 loop
-			if (to_integer(unsigned(Q)) = I) then
-				q_next <= compute_q(I);
-			end if;
-		end loop;
-	end process;
-
-	process(input,q_reg,f,multq_reg,mult1_reg,mult2_reg,highpass_reg,bandpass_reg,lowpass_reg)
+	process(input,q,f,multq_reg,mult1_reg,mult2_reg,highpass_reg,bandpass_reg,lowpass_reg)
 		variable multq : signed(41 downto 0);
 		variable mult1 : signed(41 downto 0);
 		variable mult2 : signed(41 downto 0);
@@ -199,7 +167,7 @@ BEGIN
 		variable mult1tmp : signed(54 downto 0);
 		variable mult2tmp : signed(54 downto 0);
 	begin
-		multqtmp := bandpass_reg(41 downto 6) * q_reg; --18.18s * 3.15u
+		multqtmp := bandpass_reg(41 downto 6) * q; --18.18s * 3.15u
 		multq_next <= multqtmp(53 downto 0);
 		--multq: 21.33s
 		--multq->18.24s
