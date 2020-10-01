@@ -40,7 +40,9 @@ ENTITY PSG_top IS
 		
 		channel_a_vol : out std_logic_vector(4 downto 0);
 		channel_b_vol : out std_logic_vector(4 downto 0);
-		channel_c_vol : out std_logic_vector(4 downto 0)
+		channel_c_vol : out std_logic_vector(4 downto 0);
+
+		channel_changed : out std_logic
 	);
 END PSG_top;		
 		
@@ -94,6 +96,10 @@ ARCHITECTURE vhdl OF PSG_top IS
 	signal channel_a_val : std_logic;
 	signal channel_b_val : std_logic;
 	signal channel_c_val : std_logic;
+
+	signal channel_a_changed : std_logic;
+	signal channel_b_changed : std_logic;
+	signal channel_c_changed : std_logic;
 	
 	signal envelope_reg : std_logic_vector(4 downto 0); 
 	signal envelope_count_reset : std_logic;
@@ -499,7 +505,8 @@ decode_addr1 : entity work.complete_address_decoder
 		FIXED => vol_channel_a_reg,
 		ENVELOPE => envelope_reg,
 		
-		VOL_OUT => channel_a_vol
+		VOL_OUT => channel_a_vol,
+		CHANGED => channel_a_changed
 	);		
 	
 	vol_b : entity work.PSG_volume
@@ -513,7 +520,8 @@ decode_addr1 : entity work.complete_address_decoder
 		FIXED => vol_channel_b_reg,
 		ENVELOPE => envelope_reg,
 		
-		VOL_OUT => channel_b_vol
+		VOL_OUT => channel_b_vol,
+		CHANGED => channel_b_changed
 	);		
 	
 	vol_c : entity work.PSG_volume
@@ -527,7 +535,8 @@ decode_addr1 : entity work.complete_address_decoder
 		FIXED => vol_channel_c_reg,
 		ENVELOPE => envelope_reg,
 		
-		VOL_OUT => channel_c_vol
+		VOL_OUT => channel_c_vol,
+		CHANGED => channel_c_changed
 	);		
 	
 	-- outputs
@@ -535,6 +544,7 @@ decode_addr1 : entity work.complete_address_decoder
 	IOB_OUT <= iob_reg;
 	IOA_OE <= io_output_reg(0);
 	IOB_OE <= io_output_reg(1);
+	channel_changed <= channel_a_changed or channel_b_changed or channel_c_changed;
 	
 end vhdl;
 

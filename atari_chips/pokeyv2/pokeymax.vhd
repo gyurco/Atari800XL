@@ -198,6 +198,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal PSG_AUDIO : PSG_AUDIO_TYPE(1 downto 0);	
 
 	signal PSG_CHANNEL : PSG_CHANNEL_TYPE(5 downto 0);	
+	signal PSG_CHANGED : std_logic_vector(1 downto 0);
 
 	signal PSG_FREQ_REG : std_logic_vector(1 downto 0);
 	signal PSG_FREQ_NEXT : std_logic_vector(1 downto 0);
@@ -594,6 +595,7 @@ end process;
 	
 pokey_mixer_both : entity work.pokey_mixer_mux
 PORT MAP(CLK => CLK,
+		RESET_N => RESET_N,
 		 CHANNEL_0 => CHANNEL0SUM_REG,
 		 CHANNEL_1 => CHANNEL1SUM_REG,
 		 CHANNEL_2 => CHANNEL2SUM_REG,
@@ -875,7 +877,8 @@ PSG_1 : entity work.PSG_top
 	do=>PSG_DO(0),
 	channel_a_vol => PSG_CHANNEL(0),
 	channel_b_vol => PSG_CHANNEL(1),
-	channel_c_vol => PSG_CHANNEL(2)
+	channel_c_vol => PSG_CHANNEL(2),
+	channel_changed => PSG_CHANGED(0)
 	);
 	
 PSG_2 : entity work.PSG_top
@@ -890,7 +893,8 @@ PSG_2 : entity work.PSG_top
 	do=>PSG_DO(1),
 	channel_a_vol => PSG_CHANNEL(3),
 	channel_b_vol => PSG_CHANNEL(4),
-	channel_c_vol => PSG_CHANNEL(5)
+	channel_c_vol => PSG_CHANNEL(5),
+	channel_changed => PSG_CHANGED(1)
 	);
 
 	vol_profile1 : entity work.PSG_volume_profile
@@ -902,9 +906,11 @@ PSG_2 : entity work.PSG_top
 		CHANNEL_1A => PSG_CHANNEL(0),
 		CHANNEL_1B => PSG_CHANNEL(1),
 		CHANNEL_1C => PSG_CHANNEL(2),
+		CHANNEL_1_CHANGED => PSG_CHANGED(0),
 		CHANNEL_2A => PSG_CHANNEL(3),
 		CHANNEL_2B => PSG_CHANNEL(4),
 		CHANNEL_2C => PSG_CHANNEL(5),
+		CHANNEL_2_CHANGED => PSG_CHANGED(1),
 
 		CHANNEL_MASK_1=>PSG_MIX1, --LABC:RABC
 		CHANNEL_MASK_2=>PSG_MIX2,
