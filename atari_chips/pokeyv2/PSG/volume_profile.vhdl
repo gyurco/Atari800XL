@@ -47,16 +47,28 @@ ARCHITECTURE vhdl OF PSG_volume_profile IS
 	signal vol_2_reg: unsigned(15 downto 0);
 	signal vol_2_next: unsigned(15 downto 0);
 
+	signal state_reg : std_logic_vector(2 downto 0);
+	signal state_next : std_logic_vector(2 downto 0);
+	constant state_idle : std_logic_vector(2 downto 0) := "000";
+	constant state_update1_request : std_logic_vector(2 downto 0) := "001";
+	constant state_update1_wait : std_logic_vector(2 downto 0) := "010";
+	constant state_update1_done : std_logic_vector(2 downto 0) := "011";
+	constant state_update2_request : std_logic_vector(2 downto 0) := "100";
+	constant state_update2_wait : std_logic_vector(2 downto 0) := "101";
+	constant state_update2_done : std_logic_vector(2 downto 0) := "110";
+
 	signal channelsel_reg: std_logic_vector(5 downto 0);
 	signal channelsel_next: std_logic_vector(5 downto 0);
-
-	signal inst_reg: std_logic;
-	signal inst_next: std_logic;
+	signal mask: std_logic_vector(5 downto 0);
 
 	signal ready : std_logic;
+	signal store : std_logic;
+	signal request : std_logic;
 
 	signal volume : unsigned(15 downto 0);
 	signal channel_mux : std_logic_vector(4 downto 0);
+
+	signal outputdev_mux : std_logic;
 
 --	function logvolume(x: std_logic_vector(4 downto 0)) return unsigned is
 --	begin
@@ -104,61 +116,128 @@ BEGIN
 			vol_2_reg <= (others=>'0');
 			channelsel_reg <= "100000";
 			acc_reg <= (others=>'0');
-			inst_reg <= '0';
+			state_reg <= state_idle;
 		elsif (clk'event and clk='1') then
 			vol_1_reg <= vol_1_next;
 			vol_2_reg <= vol_2_next;
 			channelsel_reg <= channelsel_next;
 			acc_reg <= acc_next;
-			inst_reg <= inst_next;
+			state_reg <= state_next;
 		end if;
 	end process;
 	
 	-- next state
 	-- channel in->compute->result->store->add
-	process(inst_reg, vol_1_reg, vol_2_reg, acc_reg, channelsel_reg, ready, volume,channel_mask_1,channel_mask_2)
-		variable current : unsigned(17 downto 0);
-		variable mask : std_logic_vector(5 downto 0);
+	process(state_reg, acc_reg, channelsel_reg, ready, volume,channel_mask_1,channel_mask_2, mask, channel_1_changed,channel_2_changed)
+		variable start : std_logic;
+		variable inc : std_logic;
+		variable active : std_logic;
+		variable last : std_logic;
 	begin
-		inst_next <= inst_reg;
-		vol_1_next <= vol_1_reg;
-		vol_2_next <= vol_2_reg;
+		state_next <= state_reg;
 		acc_next <= acc_reg;
 		channelsel_next <= channelsel_reg;
+		outputdev_mux <= '0';
 
-		current := (others=>'0');
+		start := '0';
+		inc := '0';
+		active := or_reduce(mask and channelsel_reg);
+		last := channelsel_reg(0);
+
+		request <= '0';
+		store <= '0';
+
+		case state_reg is
+			when state_idle =>
+				if ((channel_1_changed or channel_2_changed)='1') then
+					state_next <= state_update1_request;
+					start := '1';
+				end if;
+			when state_update1_request =>
+				request <= active;
+				inc := not(active);
+				if (active='1') then
+					state_next <= state_update1_wait;
+				else 
+					if (last='1') then
+						state_next <= state_update1_done;
+					end if;
+				end if;
+			when state_update1_wait =>
+				inc := ready;
+				if (ready='1') then
+					if (last='1') then
+						state_next <= state_update1_done;
+					else
+						state_next <= state_update1_wait;
+					end if;
+				end if;
+			when state_update1_done =>
+				state_next <= state_update2_request;
+				store <= '1';
+				start := '1';
+			when state_update2_request =>
+				outputdev_mux <= '1';
+				request <= active;
+				inc := not(active);
+				if (active='1') then
+					state_next <= state_update2_wait;
+				else 
+					if (last='1') then
+						state_next <= state_update2_done;
+					end if;
+				end if;
+			when state_update2_wait =>
+				outputdev_mux <= '1';
+				inc := ready;
+				if (ready='1') then
+					if (last='1') then
+						state_next <= state_update2_done;
+					else
+						state_next <= state_update2_wait;
+					end if;
+				end if;
+			when state_update2_done =>
+				outputdev_mux <= '1';
+				state_next <= state_idle;
+				store <= '1';
+			when others=>
+				state_next <= state_idle;
+		end case;
+
+		if (start='1') then
+			acc_next <= (others=>'0');
+			channelsel_next <= "100000";
+		end if;
+
+		if (inc='1') then
+			channelsel_next <= "0"&channelsel_reg(5 downto 1);
+		end if;
 
 		if (ready='1') then
-			if (channelsel_reg(5)='1') then				
-				if (inst_reg='1') then
-					vol_2_next <= acc_reg(17 downto 2);
-				else
-					vol_1_next <= acc_reg(17 downto 2);
-				end if;
-			else
-				current := acc_reg;
-			end if;
-
-			if (channelsel_reg(0)='1') then			
-				inst_next <= not(inst_reg);
-			end if;
-			
-			if (inst_reg='1') then
-				mask := channel_mask_1;
-			else
-				mask := channel_mask_2;
-			end if;
-
-			if (or_reduce(mask and channelsel_reg)='1') then
-				acc_next <= current + resize(volume,17);
-			else
-				acc_next <= current;
-			end if;
-
-			channelsel_next <= channelsel_reg(0)&channelsel_reg(5 downto 1);
+			acc_next <= acc_reg + resize(volume,17);
 		end if;
 
 	end process;	
+
+	process(outputdev_mux,vol_1_reg,vol_2_reg,store,acc_reg,channel_mask_1,channel_mask_2)
+	begin
+		mask <= (others=>'0');
+		vol_1_next <= vol_1_reg;
+		vol_2_next <= vol_2_reg;
+
+		if (outputdev_mux='1') then
+			mask <= channel_mask_1;
+			if (store='1') then
+				vol_1_next <= acc_reg(17 downto 2);
+			end if;
+		else
+			mask <= channel_mask_2;
+			if (store='1') then
+				vol_2_next <= acc_reg(17 downto 2);
+			end if;
+		end if;
+	end process;
 
 	process(channelsel_reg,channel_1a,channel_1b,channel_1c,channel_2a,channel_2b,channel_2c)
 	begin
@@ -193,6 +272,6 @@ BEGIN
 	AUDIO_OUT_2 <= STD_LOGIC_VECTOR(vol_2_reg);
 
 	PROFILE_ADDR <= channel_mux;
-	PROFILE_REQUEST <= '1';
+	PROFILE_REQUEST <= request;
 		
 END vhdl;
