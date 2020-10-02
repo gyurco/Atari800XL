@@ -1,0 +1,7 @@
+cp $1 pokeymax_orig.pof
+
+./swapbits sidwavedata.bin sidwavedata_swap.bin
+dd if=sidwavedata_swap.bin bs=1 seek=256168 count=65536 of=$1 conv=notrunc
+truncate -s -2 $1
+HASHCODE=`../rehashr/rehash $1 -norecur -none -fcs16 | grep FCS | sed -e 's/.*:\s*//'`
+../addhash.pl $1 $HASHCODE

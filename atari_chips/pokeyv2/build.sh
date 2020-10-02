@@ -340,13 +340,13 @@ foreach my $variant (sort keys %variants)
 
 	`quartus_sh --flow compile pokeymax > build.log 2> build.err`;
 	`quartus_cpf --convert ../convert_secure.cof`;
+	`../modifypof_$flashver ./output_files/pokeymax.pof`;
 	`quartus_cpf -c -q 10MHz -g 3.3 -n p output_files/pokeymax.pof output_files/pokeymax.svf`;
 	`../makeflash_$flashver ./output_files/pokeymax.pof $versioncode output_files/core.bin`;
 	`touch UFM1 UFM0 CFM1 CFM0`;
 	`../openocd_flash/extractbinfromsvf.pl output_files/pokeymax.svf`;
 	`cat UFM1.bin UFM0.bin > UFMboth.bin`;
 	`cat CFM1.bin CFM0.bin > CFMboth.bin`;
-	`../modifyflash_$flashver ./output_files/pokeymax.pof ./output_files/core.bin`;
 
 	chdir "..";
 }
