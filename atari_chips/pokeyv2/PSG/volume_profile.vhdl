@@ -165,11 +165,12 @@ BEGIN
 				end if;
 			when state_update1_wait =>
 				inc := ready;
+				request <= not(ready);
 				if (ready='1') then
 					if (last='1') then
 						state_next <= state_update1_done;
 					else
-						state_next <= state_update1_wait;
+						state_next <= state_update1_request;
 					end if;
 				end if;
 			when state_update1_done =>
@@ -190,11 +191,12 @@ BEGIN
 			when state_update2_wait =>
 				outputdev_mux <= '1';
 				inc := ready;
+				request <= not(ready);
 				if (ready='1') then
 					if (last='1') then
 						state_next <= state_update2_done;
 					else
-						state_next <= state_update2_wait;
+						state_next <= state_update2_request;
 					end if;
 				end if;
 			when state_update2_done =>
