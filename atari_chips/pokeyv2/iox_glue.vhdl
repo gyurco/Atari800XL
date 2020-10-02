@@ -38,7 +38,8 @@ PORT
 
 	KEYBOARD_SCAN : IN STD_LOGIC_VECTOR(5 downto 0);
 	KEYBOARD_RESPONSE : OUT STD_LOGIC_VECTOR(1 downto 0);
-	KEYBOARD_SCAN_ENABLE : OUT STD_LOGIC
+	KEYBOARD_SCAN_ENABLE : OUT STD_LOGIC;
+	KEYBOARD_SCAN_UPDATE : IN STD_LOGIC
 );
 END iox_glue;
 
@@ -69,21 +70,24 @@ ARCHITECTURE vhdl OF iox_glue IS
 
 	signal i2c_state_reg : std_logic_vector(1 downto 0);
 	signal i2c_state_next : std_logic_vector(1 downto 0);
-	constant i2c_state_part1 : std_logic_vector(1 downto 0) := "00";
-	constant i2c_state_part2 : std_logic_vector(1 downto 0) := "01";
-	constant i2c_state_part3 : std_logic_vector(1 downto 0) := "10";
+	constant i2c_state_idle : std_logic_vector(1 downto 0) := "00";
+	constant i2c_state_part1 : std_logic_vector(1 downto 0) := "01";
+	constant i2c_state_part2 : std_logic_vector(1 downto 0) := "10";
+	constant i2c_state_part3 : std_logic_vector(1 downto 0) := "11";
 
 	signal op_complete : std_logic;
 	signal busy_reg : std_logic;
 
 	signal keyboard_response_reg : std_logic_vector(1 downto 0);
 	signal keyboard_response_next : std_logic_vector(1 downto 0);
+
+	signal request : std_logic;
 begin
 	process(clk,reset_n)
 	begin
 		if (reset_n='0') then
 			state_reg <= state_setup1;
-			i2c_state_reg <= i2c_state_part1;
+			i2c_state_reg <= i2c_state_idle;
 			busy_reg <= '0';
 			keyboard_response_reg <= "11";
 		elsif (clk'event and clk='1') then
@@ -95,7 +99,7 @@ begin
 	end process;
 
 
-	process(i2c_state_reg,w2,write1,write2,busy_reg,busy)
+	process(i2c_state_reg,w2,write1,write2,busy_reg,busy,request)
 		variable busy_latched : std_logic;
 	begin
 		i2c_state_next <= i2c_state_reg;
@@ -112,6 +116,10 @@ begin
 		end if;
 
 		case (i2c_state_reg) is
+			when i2c_state_idle =>
+				if (request = '1') then
+					i2c_state_next <= i2c_state_part1;
+				end if;
 			when i2c_state_part1 =>
 				ena <= '1';
 				rw <= '0';
@@ -131,29 +139,31 @@ begin
 			when i2c_state_part3 =>
 				ena <= '0';
 				if (busy='0') then
-					i2c_state_next <= i2c_state_part1;
+					i2c_state_next <= i2c_state_idle;
 					op_complete <= '1';
 				end if;
 			when others =>
-				i2c_state_next <= i2c_state_part1;
+				i2c_state_next <= i2c_state_idle;
 		end case;
 		
 	end process;
 
 
-	process(state_reg,keyboard_scan,busy,busy_reg,read_data,op_complete,int,keyboard_response_reg)
+	process(state_reg,keyboard_scan,keyboard_scan_update,busy,busy_reg,read_data,op_complete,int,keyboard_response_reg)
 	begin
 		state_next <= state_reg;
 
 		keyboard_response_next <= keyboard_response_reg;
 		keyboard_scan_enable <= '0';
 
+		request <= '0';
 		w2 <= '0';
 		write1 <= x"ff";
 		write2 <= x"ff";
 
 		case (state_reg) is
 			when state_setup1 =>
+				request <= '1';
 				w2 <= '1';
 				write1 <= x"4f";
 				write2 <= "00000000";
@@ -161,6 +171,7 @@ begin
 					state_next <= state_setup3;
 				end if;
 			when state_setup3 =>
+				request <= '1';
 				w2 <= '1';
 				write1 <= x"03";
 				write2 <= "10000001";
@@ -168,6 +179,7 @@ begin
 					state_next <= state_setup4;
 				end if;
 			when state_setup4 =>
+				request <= '1';
 				w2 <= '1';
 				write1 <= x"43";
 				write2 <= "10000001";
@@ -175,6 +187,7 @@ begin
 					state_next <= state_setup5;
 				end if;
 			when state_setup5 =>
+				request <= '1';
 				w2 <= '1';
 				write1 <= x"44";
 				write2 <= "10000001";
@@ -182,6 +195,7 @@ begin
 					state_next <= state_setup6;
 				end if;
 			when state_setup6 =>
+				request <= '1';
 				w2 <= '1';
 				write1 <= x"45";
 				write2 <= "01111110";
@@ -189,6 +203,7 @@ begin
 					state_next <= state_setup7;
 				end if;
 			when state_setup7 =>
+				request <= '1';
 				w2 <= '1';
 				write1 <= x"4f";
 				write2 <= "00000000";
@@ -196,6 +211,7 @@ begin
 					state_next <= state_kbscan;
 				end if;
 			when state_kbread =>
+				request <= '1';
 				w2 <= '0';
 				write1 <= x"00";
 				write2 <= x"ff";
@@ -205,19 +221,21 @@ begin
 				end if;
 
 			when state_kbscan_delay =>
-				state_next <= state_kbscan;
+				if (keyboard_scan_update='1') then
+					state_next <= state_kbscan;
+				end if;
 				keyboard_scan_enable <= '1';
 
 
 			--	keyboard_scan_enable <= '1';
 			--	state_next <= state_kbscan;
 			when state_kbscan =>
+				request <= '1';
 				w2 <= '1';
 				write1 <= x"01";
 				-- Some pokey bits are inverted (k2,k1,k0,k5), handle FPGA side
 				--write2 <= not(keyboard_scan(5))&keyboard_scan(4)&keyboard_scan(3)&not(keyboard_scan(0)&keyboard_scan(1)&keyboard_scan(2))&"00";
 				write2 <= "0"&keyboard_scan(0)&keyboard_scan(1)&keyboard_scan(2)&keyboard_scan(3)&keyboard_scan(4)&keyboard_scan(5)&"0";
-
 --v1
 --p1_0 - KR2 (act low)
 --p1_1 - KR1 (act low)
@@ -241,8 +259,7 @@ begin
 					if (int='0') then
 						state_next <= state_kbread;
 					else
-						state_next <= state_kbscan;
-						keyboard_scan_enable <= '1';
+						state_next <= state_kbscan_delay;
 					end if;
 				end if;
 			when others =>

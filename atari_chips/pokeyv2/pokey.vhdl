@@ -29,6 +29,7 @@ PORT
 	-- keyboard interface
 	keyboard_scan_enable : in std_logic := '0';
 	keyboard_scan : out std_logic_vector(5 downto 0);
+	keyboard_scan_update : out std_logic;
 	keyboard_response : in std_logic_vector(1 downto 0);
 	
 	-- pots - go high as capacitor charges
@@ -1229,11 +1230,13 @@ end generate;
 gen_custom_scan : if custom_keyboard_scan=1 generate
 	pokey_keyboard_scanner1 : pokey_keyboard_scanner
 		port map (clk=>clk, reset_n=>reset_n, enable=>keyboard_scan_enable, keyboard_response=>keyboard_response, debounce_disable=>not(skctl_reg(0)), scan_enable=>skctl_reg(1), keyboard_scan=>keyboard_scan, key_held=>key_held, shift_held=>shift_held, keycode=>kbcode, other_key_irq=>other_key_irq, break_irq=>break_irq);
+	keyboard_scan_update <= skctl_reg(1) and keyboard_scan_enable;
 end generate;
 
 gen_normal_scan : if custom_keyboard_scan=0 generate
 	pokey_keyboard_scanner1 : pokey_keyboard_scanner
 		port map (clk=>clk, reset_n=>reset_n, enable=>enable_15, keyboard_response=>keyboard_response, debounce_disable=>not(skctl_reg(0)), scan_enable=>skctl_reg(1), keyboard_scan=>keyboard_scan, key_held=>key_held, shift_held=>shift_held, keycode=>kbcode, other_key_irq=>other_key_irq, break_irq=>break_irq);
+	keyboard_scan_update <= skctl_reg(1) and enable_15;
 end generate;
 
 	-- POT scan

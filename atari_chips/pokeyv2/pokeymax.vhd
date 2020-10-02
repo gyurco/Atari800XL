@@ -171,6 +171,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal KEYBOARD_SCAN : std_logic_vector(5 downto 0);
 	signal KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
 	signal KEYBOARD_SCAN_ENABLE : std_logic;
+	signal KEYBOARD_SCAN_UPDATE : std_logic;
 
 	signal POKEY_PROFILE_ADDR : std_logic_vector(5 downto 0);
 	signal POKEY_PROFILE_REQUEST : std_logic;
@@ -627,10 +628,10 @@ end generate;
 -- PRIMARY POKEY		 GTIA_VOLUME_
 --------------------------------------------------------
 pokey1 : entity work.pokey
-GENERIC MAP
-(
-	custom_keyboard_scan => 1
-)
+--GENERIC MAP
+--(
+--	custom_keyboard_scan => 1
+--)
 PORT MAP(CLK => CLK,
 		 ENABLE_179 => ENABLE_CYCLE,
 		 WR_EN => POKEY_WRITE_ENABLE(0),
@@ -657,7 +658,8 @@ PORT MAP(CLK => CLK,
 		 CHANNEL_3_OUT => POKEY_CHANNEL3(0),
 		 DATA_OUT => POKEY_DO(0),
 		 keyboard_scan => KEYBOARD_SCAN,
-		 keyboard_scan_enable => KEYBOARD_SCAN_ENABLE
+		 keyboard_scan_enable => KEYBOARD_SCAN_ENABLE,
+		 keyboard_scan_update => KEYBOARD_SCAN_UPDATE
 		);
 
 --------------------------------------------------------		
@@ -1576,7 +1578,7 @@ port map
 -- drive to 0 for pot reset (otherwise high imp)
 -- drive keyboard lines
 	i2c_master0 : entity work.i2c_master
- 	generic map(input_clk=>58_000_000, bus_clk=>400_000)
+ 	generic map(input_clk=>58_000_000, bus_clk=>1_500_000)
 	port map(
 		clk=>clk,
 		reset_n=>reset_n,
@@ -1610,6 +1612,7 @@ port map
 
 		keyboard_scan=>keyboard_scan,
 		keyboard_scan_enable=>keyboard_scan_enable,
+		keyboard_scan_update=>keyboard_scan_update,
 		keyboard_response=>keyboard_response
 	);
 
