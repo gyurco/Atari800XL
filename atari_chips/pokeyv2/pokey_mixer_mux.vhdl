@@ -137,6 +137,7 @@ begin
 	CHANNEL_DIRTY_NEXT <= CHANNEL_DIRTY_REG or channel_changed;
 
 	CHANNEL_MUX <= (others=>'0');
+	PROFILE_REQUEST <= '0';
 
 	case CHANNEL_STATE_REG is 
 		when CHANNEL_STATE_WAIT0 =>
@@ -165,21 +166,29 @@ begin
 			end if;
 		when CHANNEL_STATE_REQUEST0 =>
 			CHANNEL_MUX <= "00";
+			PROFILE_REQUEST <= '1';
+			CHANNEL_DIRTY_NEXT(0) <= not(profile_ready);
 			if (profile_ready='1') then
 				CHANNEL_STATE_NEXT <= CHANNEL_STATE_WAIT1;
 			end if;
 		when CHANNEL_STATE_REQUEST1 =>
 			CHANNEL_MUX <= "01";
+			PROFILE_REQUEST <= '1';
+			CHANNEL_DIRTY_NEXT(1) <= not(profile_ready);
 			if (profile_ready='1') then
 				CHANNEL_STATE_NEXT <= CHANNEL_STATE_WAIT2;
 			end if;
 		when CHANNEL_STATE_REQUEST2 =>
 			CHANNEL_MUX <= "10";
+			PROFILE_REQUEST <= '1';
+			CHANNEL_DIRTY_NEXT(2) <= not(profile_ready);
 			if (profile_ready='1') then
 				CHANNEL_STATE_NEXT <= CHANNEL_STATE_WAIT3;
 			end if;
 		when CHANNEL_STATE_REQUEST3 =>
 			CHANNEL_MUX <= "11";
+			PROFILE_REQUEST <= '1';
+			CHANNEL_DIRTY_NEXT(3) <= not(profile_ready);
 			if (profile_ready='1') then
 				CHANNEL_STATE_NEXT <= CHANNEL_STATE_WAIT0;
 			end if;
