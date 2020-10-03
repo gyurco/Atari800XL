@@ -1019,13 +1019,13 @@ BEGIN
 		serout_active_next <= serout_active_reg;
 		
 		serial_out_next <= serial_out_reg; -- output from shift reg (if unchanged)
-		sio_out_next <= serial_out_reg;		
-	
+		sio_out_next <= serial_out_reg and not(skctl_reg(7));
+
 		-- two tone output
 		twotone_next <= twotone_reg;
 		twotone_reset <= '0';
 		
-		if ((audf1_pulse or (audf0_pulse and serial_out_reg)) = '1') then
+		if ((audf1_pulse or (audf0_pulse and (serial_out_reg and not skctl_reg(7)))) = '1') then
 			twotone_next <= not(twotone_reg);
 			twotone_reset <= skctl_reg(3);
 		end if;
@@ -1064,11 +1064,6 @@ BEGIN
 			end if;
 		end if;
 
-		-- force break
-		if (skctl_reg(7) = '1') then
-			serial_out_next <= '0';
-		end if;
-		
 		-- register to load has been written too, update our state to reflect that it is full
 		if (serout_holding_load = '1') then
 			serout_holding_full_next <= '1';
