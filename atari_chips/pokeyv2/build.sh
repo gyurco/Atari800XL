@@ -94,11 +94,12 @@ my %variants =
 		"fpga" => "10M02SCU169C8G",
 		"version" =>  $version."M02SC"
 	},
-	"10M08_stereo_covox_auto" =>
+	"10M08_stereo_covox_sample_auto" =>
 	{
 		"pokeys" => 2,
 		"enable_auto_stereo" => 1,
 		"enable_covox" => 1,
+		"enable_sample" => 1,
 		"enable_flash" => 1,
 		"a4_bit" => 1,
 		"a7_bit" => 2,
