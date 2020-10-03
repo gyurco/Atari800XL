@@ -8,7 +8,7 @@ my $name="eclaireXL";
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
-my $version = "117";
+my $version = "118";
 
 my %variants = 
 (
