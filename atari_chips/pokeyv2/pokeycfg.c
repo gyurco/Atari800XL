@@ -197,7 +197,7 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
     //textcolor(0xa);
     chline(40);
 
-    cprintf("Pokeymax config v0.6 ");
+    cprintf("Pokeymax config v0.7 ");
 
     cprintf(" Core:");
     for (i=0;i!=8;++i)
@@ -567,17 +567,17 @@ void updateCore()
 	    cprintf("File opened\r\n");
 	    fread(&version[0],8,1,input);
 	    // Verify validity!
-	    valid = 0;
+	    valid = 1;
   	    for (i=3;i!=8;++i)
   	    {
   	            config[4] = i;
                     if (config[4]!=version[i])
 	            {
+			  valid = 0;
 	          	  cprintf("Invalid core");
 			  sleep(3);
 	          	  break;
 	            }
-		    valid = 1;
   	    }
 	    if (valid)
 	    {
