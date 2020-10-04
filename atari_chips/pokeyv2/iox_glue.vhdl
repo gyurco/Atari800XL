@@ -38,7 +38,6 @@ PORT
 
 	KEYBOARD_SCAN : IN STD_LOGIC_VECTOR(5 downto 0);
 	KEYBOARD_RESPONSE : OUT STD_LOGIC_VECTOR(1 downto 0);
-	KEYBOARD_SCAN_ENABLE : OUT STD_LOGIC;
 	KEYBOARD_SCAN_UPDATE : IN STD_LOGIC
 );
 END iox_glue;
@@ -154,7 +153,6 @@ begin
 		state_next <= state_reg;
 
 		keyboard_response_next <= keyboard_response_reg;
-		keyboard_scan_enable <= '0';
 
 		request <= '0';
 		w2 <= '0';
@@ -221,10 +219,12 @@ begin
 				end if;
 
 			when state_kbscan_delay =>
+				if (int='0') then
+					state_next <= state_kbread;
+				end if;
 				if (keyboard_scan_update='1') then
 					state_next <= state_kbscan;
 				end if;
-				keyboard_scan_enable <= '1';
 
 
 			--	keyboard_scan_enable <= '1';
@@ -256,11 +256,7 @@ begin
 --P0_6,K0
 --P0_7,KR1
 				if (op_complete='1') then
-					if (int='0') then
-						state_next <= state_kbread;
-					else
-						state_next <= state_kbscan_delay;
-					end if;
+					state_next <= state_kbscan_delay;
 				end if;
 			when others =>
 				state_next <= state_setup1;
