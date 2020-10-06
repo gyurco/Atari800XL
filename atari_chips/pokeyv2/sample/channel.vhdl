@@ -104,7 +104,6 @@ BEGIN
 				req_next <= '1';	
 
 				nextsample := endsample;
-				irq_next <= endsample;
 			end if;
 
 			if (resetpending_reg='1') then
@@ -112,6 +111,7 @@ BEGIN
 			end if;
 
 			if (nextsample='1') then
+				irq_next <= '1';
 				pointer_next <= unsigned(start_addr)&'0';
 				remaining_next <= unsigned(len);
 				periodpos_next <= unsigned(period);
