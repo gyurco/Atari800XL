@@ -543,8 +543,8 @@ BEGIN
 		r :=     resize(unsigned(CH1_REG),18)*resize(unsigned(ch1_volume_reg),9);
 	        r := r + resize(unsigned(CH2_REG),18)*resize(unsigned(ch2_volume_reg),9);
 		-- TODO: probably need to register here?
-		AUDIO0 <= std_logic_vector(l(18 downto 3));
-		AUDIO1 <= std_logic_vector(r(18 downto 3));
+		AUDIO0 <= std_logic_vector(l(19 downto 4));
+		AUDIO1 <= std_logic_vector(r(19 downto 4));
 	
 		-- TODO: modulation?
 		-- TODO: samples from rom and put in voice samples after core?
