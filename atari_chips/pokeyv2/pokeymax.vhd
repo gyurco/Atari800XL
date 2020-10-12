@@ -89,6 +89,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 			inclk0   : in  std_logic := '0';
 			c0 : out std_logic;
 			c1 : out std_logic;
+			c2 : out std_logic;
 			locked   : out std_logic
 		);
 	end component;
@@ -97,6 +98,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal CLK : std_logic;
 	signal CLK116 : std_logic;
+	signal CLK106 : std_logic;
 	signal RESET_N : std_logic;
 
 	signal ENABLE_CYCLE : std_logic;
@@ -470,6 +472,7 @@ end generate;
 	PORT MAP(inclk0 => CLK_SLOW,
 			 c0 => CLK, --56 ish
 			 c1 => CLK116,  --113ish
+			 c2 => CLK106,  --106ish
 			 locked => RESET_N);
 
 
@@ -1534,7 +1537,7 @@ port map
 (
   reset_n => reset_n,
   clk => clk,
-  clk2 => CLK116,
+  clk2 => CLK106,
   ENABLE_179 => ENABLE_CYCLE,
   audin => AUDIO_1_UNSIGNED,
   AUDOUT => AUDIO_1_SIGMADELTA
@@ -1566,7 +1569,7 @@ port map
 (
   reset_n => reset_n,
   clk => clk,
-  clk2 => CLK116,
+  clk2 => CLK106,
   ENABLE_179 => ENABLE_CYCLE,
   audin => AUDIO_3_UNSIGNED,
   AUDOUT => AUDIO_3_SIGMADELTA
