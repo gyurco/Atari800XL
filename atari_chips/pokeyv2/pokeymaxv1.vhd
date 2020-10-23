@@ -60,7 +60,6 @@ ENTITY pokeymax IS
 		ACLK : OUT STD_LOGIC;
 		BCLK : INOUT STD_LOGIC;
 		SID : IN STD_LOGIC;
-		CS0_N : IN STD_LOGIC;
 		CS1 : IN STD_LOGIC;
 
 		AUD : OUT STD_LOGIC_VECTOR(4 DOWNTO 1);
@@ -68,7 +67,6 @@ ENTITY pokeymax IS
 		EXT : INOUT STD_LOGIC_VECTOR(EXT_BITS DOWNTO 1);
 
 		PADDLE : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		POTRESET_N : OUT STD_LOGIC;
 
 		IOX_RST : OUT STD_LOGIC;
 		IOX_INT : IN STD_LOGIC;
@@ -173,7 +171,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal KEYBOARD_SCAN : std_logic_vector(5 downto 0);
 	signal KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
-	signal KEYBOARD_SCAN_UPDATE : std_logic;
+	signal KEYBOARD_SCAN_ENABLE : std_logic;
 
 	signal POKEY_PROFILE_ADDR : std_logic_vector(5 downto 0);
 	signal POKEY_PROFILE_REQUEST : std_logic;
@@ -457,7 +455,7 @@ end generate;
 
 	EXT_INT(0) <= '0';  --force to 0
 	EXT_INT(17 downto ext_bits+1) <= (others=>'1');
-	EXT_INT(18) <= CS0_N;
+	--EXT_INT(18) <= CS0_N;
 	EXT_INT(19) <= CS1;
 	EXT_INT(20) <= '1';
 	EXT_INT(ext_bits downto 1) <= EXT;
@@ -634,10 +632,10 @@ end generate;
 -- PRIMARY POKEY		 GTIA_VOLUME_
 --------------------------------------------------------
 pokey1 : entity work.pokey
---GENERIC MAP
---(
---	custom_keyboard_scan => 1
---)
+GENERIC MAP
+(
+	custom_keyboard_scan => 1
+)
 PORT MAP(CLK => CLK,
 		 ENABLE_179 => ENABLE_CYCLE,
 		 WR_EN => POKEY_WRITE_ENABLE(0),
@@ -665,7 +663,7 @@ PORT MAP(CLK => CLK,
 		 DATA_OUT => POKEY_DO(0),
 		 keyboard_scan => KEYBOARD_SCAN,
 		 keyboard_scan_enable => open,
-		 keyboard_scan_update => KEYBOARD_SCAN_UPDATE
+		 keyboard_scan_enable => KEYBOARD_SCAN_ENABLE
 		);
 
 --------------------------------------------------------		
@@ -1616,8 +1614,9 @@ port map
 
 		int=>iox_int,
 
+		pot_reset=>potreset,
 		keyboard_scan=>keyboard_scan,
-		keyboard_scan_update=>keyboard_scan_update,
+		keyboard_scan_enable=>keyboard_scan_enable,
 		keyboard_response=>keyboard_response
 	);
 
@@ -1641,7 +1640,5 @@ AUD(4) <= AUDIO_3_SIGMADELTA;
 IRQ <= '0' when (IRQ_EN_REG='1' and (and_reduce(POKEY_IRQ)='0')) or (IRQ_EN_REG='0' and POKEY_IRQ(0)='0') or (SAMPLE_IRQ='1')  else 'Z';
 
 D <= BUS_DATA when BUS_OE='1' else (others=>'Z');
-
-POTRESET_N <= not(POTRESET) when ext_clk_enable=0 else '1';
 
 END vhdl;

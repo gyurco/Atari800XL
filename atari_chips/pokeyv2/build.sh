@@ -8,7 +8,7 @@ my $name="eclaireXL";
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
-my $version = "118";
+my $version = "119";
 
 my %variants = 
 (
@@ -42,6 +42,17 @@ my %variants =
 		"a4_bit" => 1, #to access config!
 		"version" => $version . "M02MO"
 	},
+	"v1_10M02_stereo_auto" =>
+	{
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"a4_bit" => 1,
+		"fpga" => "10M02SCU169C8G",
+		"board" => "v1",
+		"ext_bits"=> 1,
+		"cs0_bit" => 0, #force low
+		"version" => $version . "M02SA"
+	},
 	"10M02_stereo_auto" =>
 	{
 		"pokeys" => 2,
@@ -49,7 +60,7 @@ my %variants =
 		"a4_bit" => 1,
 		"gtia_audio_bit" => 3,
 		"fpga" => "10M02SCU169C8G",
-		"version" => $version . "M02SU"
+		"version" => $version . "M02SA"
 	},
 	"10M02_stereo_xel_auto" =>
 	{
@@ -153,6 +164,17 @@ my %variants =
 		"fpga" => "10M04SCU169C8G",
 		"version" => $version . "M04QC"
 	},
+	"10M08_stereo_u1mb_auto" =>
+	{
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"enable_flash" => 1,
+		"a4_bit" => 1,
+		"fancy_switch_bit" => 2,
+		"gtia_audio_bit" => 3,
+		"fpga" => "10M08SCU169C8G",
+		"version" => $version . "M08SU"
+	},
 	"10M08_quad_auto" =>
 	{
 		"pokeys" => 4,
@@ -226,8 +248,8 @@ my %variants =
 #		"enable_auto_stereo" => 1,
 #		"enable_sid" => 0,
 #		"enable_psg" => 0,
-#		"enable_covox" => 0,
-#		"enable_sample" => 0,
+#		"enable_covox" => 1,
+#		"enable_sample" => 1,
 #		"enable_flash" => 1,
 #		"a4_bit" => 1,
 #		"a5_bit" => 2,
@@ -312,15 +334,18 @@ foreach my $variant (sort keys %variants)
 	my $fpga = $variants{$variant}->{"fpga"};
 	my $flashver = $fpga;
 	$flashver =~ s/..M(..).*/$1/;
+	my $board = $variants{$variant}->{"board"};
 
 	my $dir = "build_$variant";
 	`rm -rf $dir`;
 	mkdir $dir;
 	`cp *.vhd* $dir`;
+	`cp iox_glue$board.vhdl $dir/iox_glue.vhdl`;
+	`cp pokeymax$board.vhd $dir/pokeymax.vhd`;
 	`cp swapbits $dir`;
 	`cp pokeymax*.sdc $dir`;
 	`cp pokeymax*.qpf $dir`;
-	`cp pokeymax*.qsf $dir`;
+	`cp pokeymax$board.qsf $dir/pokeymax.qsf`;
 	`cp -r int_osc* $dir`;
 	`cp -r pll* $dir`;
 	`cp -r flash_$flashver/flash* $dir`;
