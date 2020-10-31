@@ -1585,7 +1585,7 @@ port map
 -- drive to 0 for pot reset (otherwise high imp)
 -- drive keyboard lines
 	i2c_master0 : entity work.i2c_master
- 	generic map(input_clk=>58_000_000, bus_clk=>2_200_000)
+ 	generic map(input_clk=>58_000_000, bus_clk=>2_800_000)
 	port map(
 		clk=>clk,
 		reset_n=>reset_n,
