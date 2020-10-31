@@ -38,7 +38,8 @@ PORT
 
 	KEYBOARD_SCAN : IN STD_LOGIC_VECTOR(5 downto 0);
 	KEYBOARD_RESPONSE : OUT STD_LOGIC_VECTOR(1 downto 0);
-	KEYBOARD_SCAN_UPDATE : IN STD_LOGIC
+	KEYBOARD_SCAN_UPDATE : IN STD_LOGIC;
+	KEYBOARD_SCAN_ENABLE : OUT STD_LOGIC
 );
 END iox_glue;
 
@@ -80,6 +81,9 @@ ARCHITECTURE vhdl OF iox_glue IS
 	signal keyboard_response_reg : std_logic_vector(1 downto 0);
 	signal keyboard_response_next : std_logic_vector(1 downto 0);
 
+	signal keyboard_scan_update_pending_reg : std_logic;
+	signal keyboard_scan_update_pending_next : std_logic;
+	
 	signal request : std_logic;
 begin
 	process(clk,reset_n)
@@ -89,11 +93,13 @@ begin
 			i2c_state_reg <= i2c_state_idle;
 			busy_reg <= '0';
 			keyboard_response_reg <= "11";
+			keyboard_scan_update_pending_reg <= '0';
 		elsif (clk'event and clk='1') then
 			state_reg <= state_next;
 			i2c_state_reg <= i2c_state_next;
 			busy_reg <= busy;
 			keyboard_response_reg <= keyboard_response_next;
+			keyboard_scan_update_pending_reg <= keyboard_scan_update_pending_next;
 		end if;
 	end process;
 
@@ -148,11 +154,13 @@ begin
 	end process;
 
 
-	process(state_reg,keyboard_scan,keyboard_scan_update,busy,busy_reg,read_data,op_complete,int,keyboard_response_reg)
+	process(state_reg,keyboard_scan,keyboard_scan_update,keyboard_scan_update_pending_reg,busy,busy_reg,read_data,op_complete,int,keyboard_response_reg)
 	begin
 		state_next <= state_reg;
 
+		keyboard_scan_enable <= '0';
 		keyboard_response_next <= keyboard_response_reg;
+		keyboard_scan_update_pending_next <= keyboard_scan_update_pending_reg or keyboard_scan_update;
 
 		request <= '0';
 		w2 <= '0';
@@ -222,7 +230,9 @@ begin
 				if (int='0') then
 					state_next <= state_kbread;
 				end if;
-				if (keyboard_scan_update='1') then
+				if (keyboard_scan_update_pending_reg='1') then
+				   keyboard_scan_update_pending_next <= '0';				
+					keyboard_scan_enable <= '1';
 					state_next <= state_kbscan;
 				end if;
 

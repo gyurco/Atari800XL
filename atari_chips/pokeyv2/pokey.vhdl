@@ -1222,16 +1222,15 @@ gen_scan_off : if custom_keyboard_scan=2 generate
 		  keyboard_scan <= (others=>'0');
 end generate;
 
+keyboard_scan_update <= skctl_reg(1) and enable_15;
 gen_custom_scan : if custom_keyboard_scan=1 generate
 	pokey_keyboard_scanner1 : pokey_keyboard_scanner
 		port map (clk=>clk, reset_n=>reset_n, enable=>keyboard_scan_enable, keyboard_response=>keyboard_response, debounce_disable=>not(skctl_reg(0)), scan_enable=>skctl_reg(1), keyboard_scan=>keyboard_scan, key_held=>key_held, shift_held=>shift_held, keycode=>kbcode, other_key_irq=>other_key_irq, break_irq=>break_irq);
-	keyboard_scan_update <= skctl_reg(1) and keyboard_scan_enable;
 end generate;
 
 gen_normal_scan : if custom_keyboard_scan=0 generate
 	pokey_keyboard_scanner1 : pokey_keyboard_scanner
 		port map (clk=>clk, reset_n=>reset_n, enable=>enable_15, keyboard_response=>keyboard_response, debounce_disable=>not(skctl_reg(0)), scan_enable=>skctl_reg(1), keyboard_scan=>keyboard_scan, key_held=>key_held, shift_held=>shift_held, keycode=>kbcode, other_key_irq=>other_key_irq, break_irq=>break_irq);
-	keyboard_scan_update <= skctl_reg(1) and enable_15;
 end generate;
 
 	-- POT scan
