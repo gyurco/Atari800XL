@@ -1,0 +1,47 @@
+58,62c58
+< 		IRQ : INOUT STD_LOGIC;
+< 		SOD : OUT STD_LOGIC;
+< 		ACLK : OUT STD_LOGIC;
+< 		BCLK : INOUT STD_LOGIC;
+< 		SID : IN STD_LOGIC;
+---
+> 		RST : IN STD_LOGIC;
+64d59
+< 		CS1 : IN STD_LOGIC;
+70c65
+< 		PADDLE : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+---
+> 		PADDLE : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+103a99
+> 	signal PLL_RESET_N : std_logic;
+462c458
+< 	EXT_INT(19) <= CS1;
+---
+> 	EXT_INT(19) <= '0';
+480c476,478
+< 			 locked => RESET_N);
+---
+> 			 locked => PLL_RESET_N);
+> 
+> 	RESET_N <= PLL_RESET_N and RST;
+655c653
+< 		 POT_IN => PADDLE,
+---
+> 		 POT_IN => "000000"&PADDLE,
+1627,1629c1625,1627
+< ACLK <= SIO_CLOCKOUT;
+< BCLK <= '0' when (SIO_CLOCKIN_OE='1' and SIO_CLOCKIN_OUT='0') else 'Z';
+< SIO_CLOCKIN_IN <= BCLK;
+---
+> --ACLK <= SIO_CLOCKOUT;
+> --BCLK <= '0' when (SIO_CLOCKIN_OE='1' and SIO_CLOCKIN_OUT='0') else 'Z';
+> SIO_CLOCKIN_IN <= '0';
+1631,1632c1629
+< SOD <= '0' when SIO_TXD='0' else 'Z';
+< SIO_RXD <= SID;
+---
+> SIO_RXD <= '1';
+1643c1640
+< IRQ <= '0' when (IRQ_EN_REG='1' and (and_reduce(POKEY_IRQ)='0')) or (IRQ_EN_REG='0' and POKEY_IRQ(0)='0') or (SAMPLE_IRQ='1')  else 'Z';
+---
+> --IRQ <= '0' when (IRQ_EN_REG='1' and (and_reduce(POKEY_IRQ)='0')) or (IRQ_EN_REG='0' and POKEY_IRQ(0)='0') or (SAMPLE_IRQ='1')  else 'Z';

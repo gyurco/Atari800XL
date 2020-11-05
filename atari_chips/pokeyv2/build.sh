@@ -82,6 +82,17 @@ my %variants =
 		"fpga" => "10M02SCU169C8G",
 		"version" => $version . "M02SU"
 	},
+#	"10M02_mark" =>
+#	{
+#		"pokeys" => 1,
+#		"enable_auto_stereo" => 1,
+#		"enable_covox" => 0,
+#		"a4_bit" => 1,
+#		"a7_bit" => 2,
+#		"gtia_audio_bit" => 3, 
+#		"fpga" => "10M02SCU169C8G",
+#		"version" =>  $version."M02SC"
+#	},
 	"10M02_stereo_covox_auto" =>
 	{
 		"pokeys" => 2,
@@ -117,6 +128,23 @@ my %variants =
 		"gtia_audio_bit" => 3, 
 		"fpga" => "10M08SCU169C8G",
 		"version" =>  $version."M08SC"
+	},
+	"sid_10M08_sid_mono" =>
+	{
+		"pokeys" => 1,
+		"enable_sid" => 1,
+		"enable_auto_stereo" => 1,
+		"enable_flash" => 1,
+		"ext_bits"=> 4,
+		"bus" => "c64",
+		"a4_bit" => 4,
+		"a5_bit" => 0,  #force low for now (will be stereo)
+		"a6_bit" => 20, #force high
+		"a7_bit" => 0, #force low
+		"board" => "sid",
+		"cs1_bit" => 20, #force high
+		"fpga" => "10M08SCU169C8G",
+		"version" => $version . "M08SI"
 	},
 	"10M04_stereo_u1mb_auto" =>
 	{
@@ -335,6 +363,7 @@ foreach my $variant (sort keys %variants)
 	my $flashver = $fpga;
 	$flashver =~ s/..M(..).*/$1/;
 	my $board = $variants{$variant}->{"board"};
+	my $bus = $variants{$variant}->{"bus"};
 
 	my $dir = "build_$variant";
 	`rm -rf $dir`;
@@ -342,6 +371,7 @@ foreach my $variant (sort keys %variants)
 	`cp *.vhd* $dir`;
 	`cp iox_glue$board.vhdl $dir/iox_glue.vhdl`;
 	`cp pokeymax$board.vhd $dir/pokeymax.vhd`;
+	`cp slave_timing_6502$bus.vhd $dir/slave_timing_6502.vhd`;
 	`cp swapbits $dir`;
 	`cp pokeymax*.sdc $dir`;
 	`cp pokeymax*.qpf $dir`;
