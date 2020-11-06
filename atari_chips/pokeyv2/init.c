@@ -216,10 +216,10 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 	int sidqtablebase = 0x800;
 	unsigned int * sidqtable[2];
 	sidqtable[0] = (unsigned int *)(buffer+sidqtablebase);
-	sidqtable[1] = (unsigned int *)(buffer+sidqtablebase+(4*4));
+	sidqtable[1] = (unsigned int *)(buffer+sidqtablebase+(16*4));
 	for (i=0;i!=16;++i)
 	{
-		double Q = 1.0/pow(2.0,(4.0-((double)i)/8.0));
+		double Q = 1.0/pow(2.0,(4.0-(double)i)/8.0);
 		sidqtable[0][i] = round(32768.0/Q);
 	}
 	for (i=0;i!=16;++i)
