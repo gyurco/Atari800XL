@@ -186,26 +186,212 @@ void eraseSector(unsigned char sector)
 	}
 }
 
-void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, unsigned char col)
+void renderLine(unsigned long * flash1, unsigned long * flash2, unsigned char activeLine, unsigned char line, unsigned char col)
+{
+    unsigned char val;
+    unsigned char i;
+
+    gotoxy(0,line+3);
+    val = (*flash1)&0xff;
+
+    switch(line)
+    {
+    case 1:
+        revers(activeLine==1);
+        cprintf("Mixing        : %s",((val&1)==1) ? "Non-linear" : "Linear");
+        break;
+    case 2:
+        revers(activeLine==2);
+        cprintf("Channel mode  : %s",((val&4)==4) ? "On" : "Off");
+        break;
+    case 3:
+        revers(activeLine==3);
+        cprintf("IRQ           : %s",((val&8)==8) ? "All pokey chips" : "Pokey 1");
+	break;
+    case 4:
+        revers(activeLine==4);
+        cprintf("Mono support  : %s",((val&16)==16) ? "Play on both channels" : "Left only");
+        break;
+    case 5:	
+        revers(activeLine==5);
+        cprintf("Post divide   : ");
+        val = ((*flash1)>>8)&0xff;
+        for (i=0;i!=4;++i)
+        {
+                unsigned char pd = (val&0x3);
+        		switch (pd)
+        		{
+        		        case 0:
+        		    	    pd = 1;
+        		    	    break;
+        		        case 1:
+        		    	    pd = 2;
+        		    	    break;
+        		        case 2:
+        		    	    pd = 4;
+        		    	    break;
+        		        case 3:
+        		    	    pd = 8;
+        		    	    break;
+        		}
+                revers(activeLine==5 && col==i);
+                cprintf("%d=%d ",i+1,pd);
+                val = val>>2;
+        }
+        break;
+    case 6:
+        revers(activeLine==6);
+        cprintf("GTIA mixing   : ");
+        val = ((*flash1)>>16)&0xff;
+        for (i=0;i!=4;++i)
+        {
+                unsigned char pd = (val&0x1);
+                revers(activeLine==6 && col==i);
+                cprintf("%d=%d ",i+1,pd);
+                val = val>>1;
+        }
+        break;
+    case 7:
+        val = ((*flash1)>>24)&0xff;
+        revers(activeLine==7);
+        cprintf("PSG frequency : ");
+        switch (val&3)
+        {
+    	case 0:
+    		cprintf("2MHz");
+    	    break;
+    	case 1:
+    		cprintf("1MHz");
+    	    break;
+    	case 2:
+    		cprintf("PHI2");
+    	    break;
+        }
+        break;
+    case 8:
+        val = ((*flash1)>>24)&0xff;
+        revers(activeLine==8);
+        cprintf("PSG stereo    : ");
+        switch ((val&12)>>2)
+        {
+        case 0:
+                cprintf("mono   (L:ABC R:ABC)");
+                break;
+        case 1:
+                cprintf("polish (L:AB  R:BC )");
+                break;
+        case 2:
+                cprintf("czech  (L:AC  R:BC )");
+                break;
+        case 3:
+                cprintf("l/r    (L:111 R:222)");
+                break;
+        }
+	break;
+    case 9:
+        val = ((*flash1)>>24)&0xff;
+        revers(activeLine==9);
+        cprintf("PSG envelope  : ");
+        if ((val&16)==16)
+                cprintf("16 steps");
+        else
+                cprintf("32 steps");
+        break;
+    case 10:
+        val = ((*flash1)>>24)&0xff;
+        revers(activeLine==10);
+        cprintf("PSG volume    : ");
+        if (((val&0x60)>>5)==3)
+    	    cprintf("Linear");
+        else
+    	    cprintf("Log %d",(val>>5)&3);
+	break;
+    case 11:
+        revers(activeLine==11);
+        val = (*flash2)&0x1;
+        cprintf("SID version   : ");
+        revers(activeLine==11 && col==0);
+        if (val==0)
+                cprintf("1:8580 ");
+        else
+                cprintf("1:6581 ");
+        revers(activeLine==11 && col==1);
+        val = (*flash2)&0x10;
+        if (val==0)
+                cprintf("2:8580");
+        else
+                cprintf("2:6581");
+	break;
+    case 12:
+        revers(activeLine==12);
+        val = ((*flash2)>>8)&0x1f;
+        cprintf("Restrict      : ");
+        revers(activeLine==12 && col==0);
+        if (val&2)
+    	    cprintf("quad ");
+        else if (val&1)
+    	    cprintf("dual ");
+        else
+    	    cprintf("mono ");
+        revers(activeLine==12 && col==1);
+        if (val&4)
+    	    cprintf(" sid ");
+        else
+    	    cprintf("!sid ");
+        revers(activeLine==12 && col==2);
+        if (val&8)
+    	    cprintf(" psg ");
+        else
+    	    cprintf("!psg ");
+        revers(activeLine==12 && col==3);
+        if (val&16)
+    	    cprintf(" covox");
+        else
+    	    cprintf("!covox");
+	break;
+    }
+    revers(0);
+    *flash2; // silence warning
+}
+
+
+void render(unsigned long * flash1, unsigned long * flash2, unsigned char activeLine, unsigned char line, unsigned char col)
 {
     unsigned char pokeys;
     unsigned char val;
     unsigned char i;
-    clrscr();
-    bgcolor(0);
-    bordercolor(0);
-    //textcolor(0xa);
-    chline(40);
-
-    cprintf("Pokeymax config v0.7 ");
-
-    cprintf(" Core:");
-    for (i=0;i!=8;++i)
+    unsigned char prev559;
+    if (line ==255)
     {
-	    config[4] = i;
-	    cprintf("%c",config[4]);
+	    prev559 = *(unsigned char *)559;
+	    *(unsigned char *)559 = 0;
+	    clrscr();
+	    //textcolor(0xa);
+	    chline(40);
+	    cprintf("Pokeymax config v0.8 ");
+            cprintf(" Core:");
+            for (i=0;i!=8;++i)
+            {
+                    config[4] = i;
+                    cprintf("%c",config[4]);
+            }
+	    gotoxy(0,3);
+	    chline(40);
+
+	    gotoxy(0,17);
+	    chline(40);
+	    cprintf("Options:\r\n");
+	    cprintf("  (A)pply config\r\n");
+	    if (has_flash())
+	    {
+		    cprintf("  (S)tore config\r\n");
+		    cprintf("  (U)pdate core\r\n");
+	    }
+	    cprintf("  (Q)uit\r\n");
+	    cprintf("Use arrows and enter to change config");
     }
-    cprintf("\r\n");
+    gotoxy(0,2);
+
     val = ((*flash2)>>8)&0x1f;
     config[7] = val;
     val = config[1];
@@ -225,162 +411,20 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char line, 
 		    pokeys = 8;
 		    break;
     }
-    cprintf("Pokey:%d sid:%d psg:%d covox:%d sample:%d\r\n",pokeys,(val&4)==4 ? 2 : 0,(val&8)==8 ? 2 : 0,(val&16)==16 ? 1 : 0,(val&32)==32 ? 1 : 0);
-    chline(40);
+    cprintf("Pokey:%d sid:%d psg:%d covox:%d sample:%d",pokeys,(val&4)==4 ? 2 : 0,(val&8)==8 ? 2 : 0,(val&16)==16 ? 1 : 0,(val&32)==32 ? 1 : 0);
 
-    val = (*flash1)&0xff;
-    revers(line==1);
-    cprintf("Mixing        : %s\r\n",((val&1)==1) ? "Non-linear" : "Linear");
-    revers(line==2);
-    cprintf("Channel mode  : %s\r\n",((val&4)==4) ? "On" : "Off");
-    revers(line==3);
-    cprintf("IRQ           : %s\r\n",((val&8)==8) ? "All pokey chips" : "Pokey 1");
-    revers(line==4);
-    cprintf("Mono support  : %s\r\n",((val&16)==16) ? "Play on both channels" : "Left only");
-    revers(line==5);
-    cprintf("Post divide   : ");
-    val = ((*flash1)>>8)&0xff;
-    for (i=0;i!=4;++i)
+    if (line==255)
     {
-	    unsigned char pd = (val&0x3);
-    		switch (pd)
-    		{
-    		        case 0:
-    		    	    pd = 1;
-    		    	    break;
-    		        case 1:
-    		    	    pd = 2;
-    		    	    break;
-    		        case 2:
-    		    	    pd = 4;
-    		    	    break;
-    		        case 3:
-    		    	    pd = 8;
-    		    	    break;
-    		}
-	    revers(line==5 && col==i);
-	    cprintf("%d=%d ",i+1,pd);
-	    val = val>>2;
+	    for (line=1;line<=12;++line)
+		    renderLine(flash1,flash2,activeLine, line,col);
+	    *(unsigned char *)559 = prev559;
     }
-    cprintf("\r\n");
-
-    revers(line==6);
-    cprintf("GTIA mixing   : ");
-    val = ((*flash1)>>16)&0xff;
-    for (i=0;i!=4;++i)
+    else
     {
-	    unsigned char pd = (val&0x1);
-	    revers(line==6 && col==i);
-	    cprintf("%d=%d ",i+1,pd);
-	    val = val>>1;
+    	renderLine(flash1,flash2,activeLine, line,col);
+        if (wherex()>15)
+            cclear(40-wherex());
     }
-    cprintf("\r\n");
-    val = ((*flash1)>>24)&0xff;
-    revers(line==7);
-    cprintf("PSG frequency : ");
-    switch (val&3)
-    {
-	case 0:
-		cprintf("2MHz");
-	    break;
-	case 1:
-		cprintf("1MHz");
-	    break;
-	case 2:
-		cprintf("PHI2");
-	    break;
-   }
-    cprintf("\r\n");
-    revers(line==8);
-    cprintf("PSG stereo    : ");
-    switch ((val&12)>>2)
-    {
-    case 0:
-	    cprintf("mono   (L:ABC R:ABC)");
-	    break;
-    case 1:
-	    cprintf("polish (L:AB  R:BC )");
-	    break;
-    case 2:
-	    cprintf("czech  (L:AC  R:BC )");
-	    break;
-    case 3:
-	    cprintf("l/r    (L:111 R:222)");
-	    break;
-    }
-    cprintf("\r\n");
-    revers(line==9);
-    cprintf("PSG envelope  : ");
-    if ((val&16)==16)
-	    cprintf("16 steps\r\n");
-    else
-	    cprintf("32 steps\r\n");
-
-    revers(line==10);
-    cprintf("PSG volume    : ");
-    if (((val&0x60)>>5)==3)
-	    cprintf("Linear\r\n");
-    else
-	    cprintf("Log %d\r\n",(val>>5)&3);
-
-    revers(line==11);
-    val = (*flash2)&0x1;
-    cprintf("SID version   : ");
-    revers(line==11 && col==0);
-    if (val==0)
-	    cprintf("1:8580 ");
-    else
-	    cprintf("1:6581 ");
-    revers(line==11 && col==1);
-    val = (*flash2)&0x10;
-    if (val==0)
-	    cprintf("2:8580");
-    else
-	    cprintf("2:6581");
-    cprintf("\r\n");
-
-    revers(line==12);
-    val = ((*flash2)>>8)&0x1f;
-    cprintf("Restrict      : ");
-    revers(line==12 && col==0);
-    if (val&2)
-	    cprintf("quad ");
-    else if (val&1)
-	    cprintf("dual ");
-    else
-	    cprintf("mono ");
-    revers(line==12 && col==1);
-    if (val&4)
-	    cprintf(" sid ");
-    else
-	    cprintf("!sid ");
-    revers(line==12 && col==2);
-    if (val&8)
-	    cprintf(" psg ");
-    else
-	    cprintf("!psg ");
-    revers(line==12 && col==3);
-    if (val&16)
-	    cprintf(" covox");
-    else
-	    cprintf("!covox");
-    cprintf("\r\n");
-    cprintf("\r\n");
-
-    revers(0);
-    chline(40);
-
-    cprintf("Options:\r\n");
-    cprintf("  (A)pply config\r\n");
-    if (has_flash())
-    {
-	    cprintf("  (S)tore config\r\n");
-	    cprintf("  (U)pdate core\r\n");
-    }
-    cprintf("  (Q)uit\r\n");
-    cprintf("Use arrows and enter to change config");
-
-    *flash2; // silence warning
 }
 
 void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char line, unsigned char col)
@@ -474,7 +518,9 @@ void applyConfig(unsigned long flash1, unsigned long flash2)
 	config[2] = (flash1>>8)&0xff;
 	config[3] = (flash1>>16)&0xff;
 	config[5] = (flash1>>24)&0xff;
-	flash2 ==0;
+
+	config[6] = flash2&0xff;
+	config[7] = (flash2>>8)&0xff;
 //	                                   SATURATE_NEXT <= flash_do(0);
 //                                        -- 1 reserved...
 //                                CHANNEL_MODE_NEXT <= flash_do(2);
@@ -645,15 +691,19 @@ void updateCore()
 
 int main (void)
 {
-    unsigned char line,col,quit;
+    unsigned char prevline,line,col,quit;
     unsigned long flash1;
     unsigned long flash2;
+    unsigned char origbg;
+    unsigned char origbord;
     if (pokey[12] != 1)
     {
 	    cprintf("Pokeymax not found!");
 	    sleep(5);
 	    return -1;
     }
+    origbg = bgcolor(0);
+    origbord = bordercolor(0);
 
     pokey[12] = 0x3f; // select config area
 
@@ -670,32 +720,36 @@ int main (void)
 	    (((unsigned long) config[7])<<8) |
 	    ((unsigned long) config[6]);
 
+    prevline = 255;
     line = 1;
     col = 0;
     quit = 0;
 
     while (!quit)
     {
-        render(&flash1,&flash2,line,col);
+        render(&flash1,&flash2,line,prevline,col);
+        render(&flash1,&flash2,line,line,col);
+
+	prevline=line;
 
 	while (!kbhit());
         switch (cgetc())
 	{
-        case CH_CURS_UP:
+        case '-':
 		if (line>1)
 		    line = line-1;
 		col = 0;
 		break;
-        case CH_CURS_DOWN:
+        case '=':
 		if (line<12)
 		    line = line+1;
 		col = 0;
 		break;
-        case CH_CURS_LEFT:
+        case '+':
 		if (col>0)
 			col =col-1;
 		break;
-        case CH_CURS_RIGHT:
+        case '*':
 		col =col+1;
     		if (line==11)
 		{
@@ -724,6 +778,7 @@ int main (void)
                 if (has_flash()) updateCore();
 		break;
         case 'q':
+		clrscr();
 		quit = 1;
 		break;
         }
@@ -741,6 +796,8 @@ int main (void)
 	    displayFlash(config);*/
 
     pokey[12] = 0x0; // deselect config area
+    bgcolor(origbg);
+    bordercolor(origbord);
     return EXIT_SUCCESS;
 }
 
