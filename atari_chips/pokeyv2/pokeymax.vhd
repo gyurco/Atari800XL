@@ -193,6 +193,16 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal SID_FILTER1_NEXT : std_logic_vector(0 downto 0);
 	signal SID_FILTER2_REG : std_logic_vector(0 downto 0);
 	signal SID_FILTER2_NEXT : std_logic_vector(0 downto 0);
+	signal SID1_FILTER_BP : signed(17 downto 0);
+	signal SID1_FILTER_HP : signed(17 downto 0);
+	signal SID1_F_RAW : std_logic_vector(17 downto 0);
+	signal SID1_F_BP : unsigned(17 downto 0);
+	signal SID1_F_HP : unsigned(17 downto 0);
+	signal SID2_FILTER_BP : signed(17 downto 0);
+	signal SID2_FILTER_HP : signed(17 downto 0);
+	signal SID2_F_RAW : std_logic_vector(17 downto 0);
+	signal SID2_F_BP : unsigned(17 downto 0);
+	signal SID2_F_HP : unsigned(17 downto 0);
 	
 	-- PSG
 	signal PSG_ENABLE_2Mhz : std_logic;
@@ -741,6 +751,23 @@ begin
 end process;
 end generate sid_clk_off;
 
+f_distortion_mux : entity work.SID_f_distortion_mux
+port map
+(
+	clk=>clk,
+	reset_n=>reset_n,
+	state1=>SID1_FILTER_BP,
+	state2=>SID1_FILTER_HP,
+	state3=>SID2_FILTER_BP,
+	state4=>SID2_FILTER_HP,
+	f_raw12=>unsigned(SID1_F_RAW),
+	f_raw34=>unsigned(SID2_F_RAW),
+	f_distorted1=>SID1_F_BP,
+	f_distorted2=>SID1_F_HP,
+	f_distorted3=>SID2_F_BP,
+	f_distorted4=>SID2_F_HP
+);
+
 sid1 : entity work.SID_top
 --GENERIC MAP
 --(
@@ -765,7 +792,13 @@ PORT MAP(
 	rom_addr => sid_flash1_addr,
 	rom_data => flash_do_slow,
        	rom_request => sid_flash1_romrequest,
-	rom_ready => sid_flash1_romready
+	rom_ready => sid_flash1_romready,
+
+	FILTER_BP_OUT => SID1_FILTER_BP,
+	FILTER_HP_OUT => SID1_FILTER_HP,
+	FILTER_F_OUT => SID1_F_RAW,
+	FILTER_F_BP => std_logic_vector(SID1_F_BP),
+	FILTER_F_HP => std_logic_vector(SID1_F_HP)
 );
 
 sid2 : entity work.SID_top
@@ -792,7 +825,13 @@ PORT MAP(
 	rom_addr => sid_flash2_addr,
 	rom_data => flash_do_slow,
        	rom_request => sid_flash2_romrequest,
-	rom_ready => sid_flash2_romready
+	rom_ready => sid_flash2_romready,
+
+	FILTER_BP_OUT => SID2_FILTER_BP,
+	FILTER_HP_OUT => SID2_FILTER_HP,
+	FILTER_F_OUT => SID2_F_RAW,
+	FILTER_F_BP => std_logic_vector(SID2_F_BP),
+	FILTER_F_HP => std_logic_vector(SID2_F_HP)
 );
 end generate sid_on;		
 --------------------------------------------------------

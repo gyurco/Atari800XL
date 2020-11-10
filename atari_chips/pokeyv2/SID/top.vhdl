@@ -42,7 +42,13 @@ ENTITY SID_top IS
 		rom_addr : out std_logic_vector(15 downto 0);
 		rom_data : in std_logic_vector(31 downto 0);
 		rom_request : out std_logic;
-		rom_ready : in std_logic
+		rom_ready : in std_logic;
+
+		FILTER_BP_OUT : out signed(17 downto 0);
+		FILTER_HP_OUT : out signed(17 downto 0);
+		FILTER_F_OUT : out std_logic_vector(17 downto 0);
+		FILTER_F_BP : in std_logic_vector(17 downto 0);
+		FILTER_F_HP : in std_logic_vector(17 downto 0)
 	);
 END SID_top;		
 		
@@ -872,7 +878,8 @@ decode_addr1 : entity work.complete_address_decoder
 		HIGHPASS => filter_hp,
 
 		--CUTOFF_FREQUENCY => statevariable_fcutoff_reg,
-		F => unsigned(statevariable_F_reg),
+		F_BP => unsigned(filter_f_bp),
+		F_HP => unsigned(filter_f_hp),
 		Q => statevariable_1q_reg
 	);
 
@@ -894,20 +901,20 @@ decode_addr1 : entity work.complete_address_decoder
 		CHANNEL_OUT => audio_reg
 	);
 
-	--TODO: 6581! buggy_variable_state_filter : entity work.SID_filter
-	--ref: https://bel.fi/alankila/c64-sw/index-cpp.html
-	-- see distortion section
 	
 	--------------------------------
 	-- TODO
 	-- 1) DONE:check above works!
-	-- 2) wave combinations need to read flash
+	-- 2) DONE: wave combinations need to read flash
 	-- 3) DONE:envelope/gate
 	-- 4) DONE:amplitude modulation
 	-- 5) DONE:filter on/off
 	-- 5) DONE:filter (state variable as per info found)
 	-- 6) DONE:volume
 	-- 7) DONE: read registers: pot, osc3 etc
+	-- 8) 6581! buggy_variable_state_filter : entity work.SID_filter
+	-- ref: https://bel.fi/alankila/c64-sw/index-cpp.html
+	-- see distortion section
 	--------------------------------
 	
 	--outputs
@@ -916,6 +923,10 @@ decode_addr1 : entity work.complete_address_decoder
 	DEBUG_EV1 <= unsigned(envelope_a_reg);
 	DEBUG_WV1 <= unsigned(wave_a_reg);
 	DEBUG_AM1 <= channel_a_modulated;
+
+	FILTER_BP_OUT <= filter_bp;
+	FILTER_HP_OUT <= filter_hp;
+	FILTER_F_OUT <= statevariable_F_reg;
 
 end vhdl;
 

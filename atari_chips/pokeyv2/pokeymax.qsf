@@ -149,7 +149,6 @@ set_global_assignment -name VHDL_FILE latch_delay_line.vhdl
 set_global_assignment -name VHDL_FILE sigmadelta_1storder.vhd
 set_global_assignment -name VHDL_FILE sigmadelta_2ndorder.vhd
 set_global_assignment -name VHDL_FILE filtered_sigmadelta.vhd
-set_global_assignment -name VHDL_FILE mult_infer.vhdl
 set_global_assignment -name VHDL_FILE generic_ram_infer.vhdl
 set_global_assignment -name VHDL_FILE simple_low_pass_filter.vhdl
 set_global_assignment -name VHDL_FILE pokey_poly_17_9.vhdl
@@ -180,6 +179,8 @@ set_global_assignment -name VHDL_FILE SID/envelope.vhdl
 set_global_assignment -name VHDL_FILE SID/amplitudeModulator.vhdl
 set_global_assignment -name VHDL_FILE SID/preFilterSum.vhdl
 set_global_assignment -name VHDL_FILE SID/filter.vhdl
+set_global_assignment -name VHDL_FILE SID/f_distortion.vhdl
+set_global_assignment -name VHDL_FILE SID/f_distortion_mux.vhdl
 set_global_assignment -name VHDL_FILE SID/postFilterSum.vhdl
 set_global_assignment -name VHDL_FILE sample/channel.vhdl
 set_global_assignment -name VHDL_FILE sample/adpcm.vhdl
@@ -187,6 +188,7 @@ set_global_assignment -name VHDL_FILE sample/top.vhdl
 set_global_assignment -name VHDL_FILE covox/top.vhdl
 set_global_assignment -name QIP_FILE int_osc/synthesis/int_osc.qip
 set_global_assignment -name QIP_FILE pll.qip
+set_global_assignment -name QIP_FILE m9kfull.qip
 set_global_assignment -name QIP_FILE flash/synthesis/flash.qip
 
 
