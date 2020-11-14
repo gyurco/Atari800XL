@@ -287,6 +287,24 @@ my %variants =
 		"fpga" => "10M08SCU169C8G",
 		"version" => $version . "M08HK"
 	},
+	"10M16_fullv2" =>
+	{
+		"pokeys" => 4,
+		"enable_auto_stereo" => 1,
+		"enable_sid" => 1,
+		"enable_psg" => 1,
+		"enable_covox" => 1,
+		"enable_sample" => 1,
+		"enable_flash" => 1,
+		"flash_addr_bits" => 17,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a6_bit" => 3,
+		"a7_bit" => 19,  #use CS1
+		"cs1_bit" => 20, #force high
+		"fpga" => "10M16SCU169C8G",
+		"version" => $version . "M16HK"
+	},
 #	"10M08_light" =>
 #	{
 #		"pokeys" => 2,
