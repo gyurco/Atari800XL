@@ -17,6 +17,10 @@ LIBRARY work;
 -- takes about 5-6 cycles per read (depending on family)
 -- So at 116MHz can service all 8 clients at >2MHz - if they all request at once
 ENTITY flash_controller IS 
+	GENERIC
+	(
+		addr_bits: integer := 16
+	);
 	PORT
 	(
 		CLK : IN STD_LOGIC;
@@ -32,11 +36,11 @@ ENTITY flash_controller IS
 		flash_req_complete : OUT STD_LOGIC_VECTOR(7 downto 0);
 		flash_req_complete_slow : OUT STD_LOGIC_VECTOR(7 downto 0);
 
-		flash_req1_addr : IN STD_LOGIC_VECTOR(15 downto 0) := (others=>'0');
+		flash_req1_addr : IN STD_LOGIC_VECTOR(addr_bits-1 downto 0) := (others=>'0');
 		flash_req2_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
 		flash_req3_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
-		flash_req4_addr : IN STD_LOGIC_VECTOR(15 downto 0) := (others=>'0');
-		flash_req5_addr : IN STD_LOGIC_VECTOR(15 downto 0) := (others=>'0');
+		flash_req4_addr : IN STD_LOGIC_VECTOR(addr_bits-1 downto 0) := (others=>'0');
+		flash_req5_addr : IN STD_LOGIC_VECTOR(addr_bits-1 downto 0) := (others=>'0');
 		flash_req6_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
 		flash_req7_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
 		flash_req8_addr : IN STD_LOGIC_VECTOR(12 downto 0) := (others=>'0');
@@ -56,7 +60,7 @@ ARCHITECTURE vhdl OF flash_controller IS
 		avmm_csr_writedata      : in  std_logic_vector(31 downto 0) := (others => '0'); --       .writedata
 		avmm_csr_write          : in  std_logic                     := '0';             --       .write
 		avmm_csr_readdata       : out std_logic_vector(31 downto 0);                    --       .readdata
-		avmm_data_addr          : in  std_logic_vector(15 downto 0) := (others => '0'); --   data.address
+		avmm_data_addr          : in  std_logic_vector(addr_bits-1 downto 0) := (others => '0'); --   data.address
 		avmm_data_read          : in  std_logic                     := '0';             --       .read
 		avmm_data_writedata     : in  std_logic_vector(31 downto 0) := (others => '0'); --       .writedata
 		avmm_data_write         : in  std_logic                     := '0';             --       .write
@@ -75,7 +79,7 @@ ARCHITECTURE vhdl OF flash_controller IS
 	signal flash_config_write : std_logic;
 	signal flash_config_do : std_logic_vector(31 downto 0);
 
-	signal flash_data_addr : std_logic_vector(15 downto 0);
+	signal flash_data_addr : std_logic_vector(addr_bits-1 downto 0);
 	signal flash_data_read : std_logic;
 	signal flash_data_di : std_logic_vector(31 downto 0);
 
@@ -99,8 +103,8 @@ ARCHITECTURE vhdl OF flash_controller IS
 	constant state_delay3 : std_logic_vector(2 downto 0) := "110";
 	constant state_delay4 : std_logic_vector(2 downto 0) := "111";
 
-	signal request_addr_reg : std_logic_vector(15 downto 0);
-	signal request_addr_next : std_logic_vector(15 downto 0);
+	signal request_addr_reg : std_logic_vector(addr_bits-1 downto 0);
+	signal request_addr_next : std_logic_vector(addr_bits-1 downto 0);
 	signal request_di_reg : std_logic_vector(31 downto 0);
 	signal request_di_next : std_logic_vector(31 downto 0);
 	signal device_reg : std_logic;
@@ -208,7 +212,7 @@ BEGIN
 		complete,
 		update_robin
 		)
-		variable addr : std_logic_vector(15 downto 0);
+		variable addr : std_logic_vector(addr_bits-1 downto 0);
 		variable device : std_logic;
 		variable request: std_logic;
 	begin

@@ -41,6 +41,8 @@ ENTITY pokeymax IS
 		enable_sample : integer := 0;
 		enable_flash : integer := 0;
 
+		flash_addr_bits : integer := 16;
+
 		ext_clk_enable : integer := 0; -- Use PADDLE(6) for sid clk enable, PADDLE(7) for psg
 
    		version : STRING  := "DEVELOPR" -- 8 char string atascii
@@ -307,8 +309,8 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal CPU_FLASH_WRITE_N_REG : std_logic;
 	signal CPU_FLASH_CFG_NEXT : std_logic;
 	signal CPU_FLASH_CFG_REG : std_logic;
-	signal CPU_FLASH_ADDR_NEXT : std_logic_vector(17 downto 0);
-	signal CPU_FLASH_ADDR_REG : std_logic_vector(17 downto 0);
+	signal CPU_FLASH_ADDR_NEXT : std_logic_vector(flash_addr_bits+1 downto 0);
+	signal CPU_FLASH_ADDR_REG : std_logic_vector(flash_addr_bits+1 downto 0);
 	signal CPU_FLASH_DATA_NEXT : std_logic_vector(31 downto 0);
 	signal CPU_FLASH_DATA_REG : std_logic_vector(31 downto 0);
 	signal CPU_FLASH_COMPLETE : std_logic;
@@ -382,6 +384,10 @@ flash_on : if enable_flash=1 generate
 	-- then the state machine fills the entirely of block ram
 	-- say it takes 10 cycles for 32-bits, this will take... 0.7ms, should be ok... 44MB/s!
 	flash_controller_inst : entity work.flash_controller
+	generic map
+	(
+		addr_bits =>flash_addr_bits
+	)
 	port map
 	(
 		CLK => CLK116,
@@ -390,7 +396,7 @@ flash_on : if enable_flash=1 generate
 
 		-- Request from device 1 (cpu)
 		flash_req1_addr_config => CPU_FLASH_CFG_REG,
-		flash_req1_addr => CPU_FLASH_ADDR_REG(17 downto 2),
+		flash_req1_addr => CPU_FLASH_ADDR_REG(flash_addr_bits+1 downto 2),
 		flash_req1_data_in => CPU_FLASH_DATA_REG,
 		flash_req1_write_n => CPU_FLASH_WRITE_N_REG,
 
@@ -400,9 +406,11 @@ flash_on : if enable_flash=1 generate
 		flash_req3_addr(12 downto 8) => (others=>'0'),
 		flash_req3_addr(7 downto 0) => "1"&ADPCM_STEP_ADDR(6 downto 0),
 
-		flash_req4_addr => SID_FLASH1_ADDR, --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
+		flash_req4_addr(flash_addr_bits-1 downto 16) => (others=>'0'),
+		flash_req4_addr(15 downto 0) => SID_FLASH1_ADDR, --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
 
-		flash_req5_addr => SID_FLASH2_ADDR, 
+		flash_req5_addr(flash_addr_bits-1 downto 16) => (others=>'0'),
+		flash_req5_addr(15 downto 0) => SID_FLASH2_ADDR, 
 
 		flash_req6_addr(12 downto 9) => (others=>'0'),
 		flash_req6_addr(8 downto 0) => "10"&PSG_PROFILESEL_REG&PSG_PROFILE_ADDR,  --TODO + init.bin
@@ -1338,7 +1346,7 @@ begin
 
 		if enable_flash=1 then 
 			if (addr_decoded4(11)='1') then
-				CPU_FLASH_ADDR_NEXT(17 downto 16) <= WRITE_DATA(4 downto 3);
+				CPU_FLASH_ADDR_NEXT(flash_addr_bits+1 downto 16) <= WRITE_DATA((flash_addr_bits-16)+4 downto 3);
 
 				CPU_FLASH_CFG_NEXT <= WRITE_DATA(2);
 				CPU_FLASH_REQUEST_NEXT <= WRITE_DATA(1);
@@ -1488,7 +1496,7 @@ begin
 
 	if enable_flash=1 then 
 		if (addr_decoded4(11)='1') then
-			CONFIG_DO(4 downto 3) <= CPU_FLASH_ADDR_REG(17 downto 16);
+			CONFIG_DO((flash_addr_bits-16)+4 downto 3) <= CPU_FLASH_ADDR_REG(flash_addr_bits+1 downto 16);
 			CONFIG_DO(2) <= CPU_FLASH_CFG_REG;
 			CONFIG_DO(1) <= CPU_FLASH_REQUEST_REG;
 			CONFIG_DO(0) <= CPU_FLASH_WRITE_N_REG;
