@@ -15,6 +15,10 @@ use IEEE.STD_LOGIC_MISC.all;
 LIBRARY work;
 
 ENTITY SID_top IS 
+	GENERIC
+	(
+		wave_base: std_logic_vector(16 downto 0)
+	);
 	PORT
 	(
 		CLK : in std_logic; -- >1MHz, ideally higher for more accurate filter (as long as timing met)
@@ -39,7 +43,7 @@ ENTITY SID_top IS
 
 		sidtype : in std_logic_vector(0 downto 0); -- 0=8580,1=6581
 
-		rom_addr : out std_logic_vector(15 downto 0);
+		rom_addr : out std_logic_vector(16 downto 0);
 		rom_data : in std_logic_vector(31 downto 0);
 		rom_request : out std_logic;
 		rom_ready : in std_logic;
@@ -814,8 +818,7 @@ decode_addr1 : entity work.complete_address_decoder
 		rom_wave_2bit,rom_wave_3bit,
 		rom_osc,rom_high_word)
 
-	variable wave_base: std_logic_vector(15 downto 0);
-	variable rom_wave_addr: std_logic_vector(15 downto 0);
+	variable rom_wave_addr: std_logic_vector(16 downto 0);
 	begin
 		rom_addr <= (others=>'0');
 		rom_high_word <= '0';
@@ -823,7 +826,6 @@ decode_addr1 : entity work.complete_address_decoder
 		rom_wave_3bit <= (others=>'0');
 		rom_osc <= (others=>'0');
 
-		wave_base := x"a600";
 		case rom_wave_3bit is
 		when "011" =>
 			rom_wave_2bit <= "00";
@@ -837,11 +839,11 @@ decode_addr1 : entity work.complete_address_decoder
 		end case;
 
 				
-		rom_wave_addr := std_logic_vector(unsigned(wave_base)+resize(unsigned(sidtype&rom_wave_2bit&rom_osc),16)); --1:2:11
+		rom_wave_addr := std_logic_vector(unsigned(wave_base)+resize(unsigned(sidtype&rom_wave_2bit&rom_osc),17)); --1:2:11
 
 		case rom_addr_mux is
 		when "000" =>
-			rom_addr <= "0000"&std_logic_vector(unsigned('0'&sidtype)+1)&statevariable_fcutoff_reg(10 downto 1);
+			rom_addr <= "00000"&std_logic_vector(unsigned('0'&sidtype)+1)&statevariable_fcutoff_reg(10 downto 1);
 			rom_high_word <= statevariable_fcutoff_reg(0);
 		when "001" =>
 			rom_osc <= osc_a_reg(11 downto 1);
@@ -859,7 +861,7 @@ decode_addr1 : entity work.complete_address_decoder
 			rom_addr <= rom_wave_addr;
 			rom_high_word <= osc_c_reg(0);
 		when "100" =>
-			rom_addr <= "00000010000"&sidtype&statevariable_q_reg;
+			rom_addr <= "000000010000"&sidtype&statevariable_q_reg;
 		when others =>
 		end case;
 

@@ -287,7 +287,7 @@ my %variants =
 		"fpga" => "10M08SCU169C8G",
 		"version" => $version . "M08HK"
 	},
-	"10M16_fullv2" =>
+	"10M16_fullv3" =>
 	{
 		"pokeys" => 4,
 		"enable_auto_stereo" => 1,
@@ -297,12 +297,18 @@ my %variants =
 		"enable_sample" => 1,
 		"enable_flash" => 1,
 		"flash_addr_bits" => 17,
+		"board" => "v3",
 		"a4_bit" => 1,
 		"a5_bit" => 2,
 		"a6_bit" => 3,
-		"a7_bit" => 19,  #use CS1
-		"cs1_bit" => 20, #force high
+		"a7_bit" => 4,
+		"gtia_audio_bit" => 5, 
+		#"fancy_switch_bit" => 6,
+		#"a7_bit" => 19,  #use CS1
+		"ext_bits"=> 11,
+		#"cs1_bit" => 20, #force high
 		"fpga" => "10M16SCU169C8G",
+		"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
 		"version" => $version . "M16HK"
 	},
 #	"10M08_light" =>
@@ -404,6 +410,8 @@ foreach my $variant (sort keys %variants)
 	`rm -rf $dir`;
 	mkdir $dir;
 	`cp *.vhd* $dir`;
+	`cp iox_glue.vhdl $dir/iox_glue.vhdl`;
+	`cp pokeymax.vhd $dir/pokeymax.vhd`;
 	`cp iox_glue$board.vhdl $dir/iox_glue.vhdl`;
 	`cp pokeymax$board.vhd $dir/pokeymax.vhd`;
 	`cp slave_timing_6502$bus.vhd $dir/slave_timing_6502.vhd`;
@@ -428,7 +436,7 @@ foreach my $variant (sort keys %variants)
 	foreach my $key (sort keys %{$variants{$variant}})
 	{
 		my $val = $variants{$variant}->{$key};
-		`echo set_parameter -name $key $val >> pokeymax.qsf`;
+		`echo 'set_parameter -name $key $val' >> pokeymax.qsf`;
 	}
 
 	`quartus_sh --flow compile pokeymax > build.log 2> build.err`;

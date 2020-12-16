@@ -40,6 +40,8 @@ ENTITY pokeymax IS
 		enable_covox : integer := 0;
 		enable_sample : integer := 0;
 		enable_flash : integer := 0;
+	
+		sid_wave_base : integer := 42496; --to_integer(unsigned(x"a600"));
 
 		flash_addr_bits : integer := 16;
 
@@ -185,10 +187,10 @@ ARCHITECTURE vhdl OF pokeymax IS
 	-- SID
 	signal SID_CLK_ENABLE : std_logic;
 	signal SID_AUDIO : SID_AUDIO_TYPE(1 downto 0);
-	signal SID_FLASH1_ADDR : std_logic_vector(15 downto 0);
+	signal SID_FLASH1_ADDR : std_logic_vector(16 downto 0);
         signal SID_FLASH1_ROMREQUEST : std_logic;
         signal SID_FLASH1_ROMREADY : std_logic;
-	signal SID_FLASH2_ADDR : std_logic_vector(15 downto 0);
+	signal SID_FLASH2_ADDR : std_logic_vector(16 downto 0);
         signal SID_FLASH2_ROMREQUEST : std_logic;
         signal SID_FLASH2_ROMREADY : std_logic;
 	signal SID_FILTER1_REG : std_logic_vector(0 downto 0);
@@ -406,11 +408,11 @@ flash_on : if enable_flash=1 generate
 		flash_req3_addr(12 downto 8) => (others=>'0'),
 		flash_req3_addr(7 downto 0) => "1"&ADPCM_STEP_ADDR(6 downto 0),
 
-		flash_req4_addr(flash_addr_bits-1 downto 16) => (others=>'0'),
-		flash_req4_addr(15 downto 0) => SID_FLASH1_ADDR, --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
+		flash_req4_addr(flash_addr_bits-1 downto 17) => (others=>'0'),
+		flash_req4_addr(16 downto 0) => SID_FLASH1_ADDR, --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
 
-		flash_req5_addr(flash_addr_bits-1 downto 16) => (others=>'0'),
-		flash_req5_addr(15 downto 0) => SID_FLASH2_ADDR, 
+		flash_req5_addr(flash_addr_bits-1 downto 17) => (others=>'0'),
+		flash_req5_addr(16 downto 0) => SID_FLASH2_ADDR, 
 
 		flash_req6_addr(12 downto 9) => (others=>'0'),
 		flash_req6_addr(8 downto 0) => "10"&PSG_PROFILESEL_REG&PSG_PROFILE_ADDR,  --TODO + init.bin
@@ -777,10 +779,10 @@ port map
 );
 
 sid1 : entity work.SID_top
---GENERIC MAP
---(
---	CLKSPEED => 58333333 --TODO
---)
+GENERIC MAP
+(
+	wave_base => std_logic_vector(to_unsigned(sid_wave_base,17))
+)
 PORT MAP(
 	CLK => CLK,
 	RESET_N => RESET_N,
@@ -810,10 +812,10 @@ PORT MAP(
 );
 
 sid2 : entity work.SID_top
---GENERIC MAP
---(
---	CLKSPEED => 58333333 --TODO
---)
+GENERIC MAP
+(
+	wave_base => std_logic_vector(to_unsigned(sid_wave_base,17))
+)
 PORT MAP(
 	CLK => CLK,
 	RESET_N => RESET_N,

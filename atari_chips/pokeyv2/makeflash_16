@@ -5,8 +5,8 @@ rm core2.bin
 rm version
 
 ./swapbits $1 pokeymax.pofswap
-dd if=pokeymax.pofswap bs=1 skip=2216 count=32768 of=init2.bin
-dd if=pokeymax.pofswap bs=1 skip=118952 count=202752 of=core2.bin
+dd if=pokeymax.pofswap bs=1 skip=4264 count=32768 of=init2.bin
+dd if=pokeymax.pofswap bs=1 skip=192680 count=385024 of=core2.bin
 cat init2.bin core2.bin > $3
 echo $2 > version
 dd conv=notrunc if=version bs=1 count=8 of=$3
