@@ -322,6 +322,27 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 	int sidfreqtablebase = 2048*2;
 	unsigned short * sidfreqtable = (unsigned short *)(buffer+sidfreqtablebase);
 
+	// We have a table of tadj values - 39 positions - for interp
+	// sigmoidreal = @(x) 1./(1.+e.^-x);
+	// rescale =  0.133923834850281;
+	// reoffset = 0.00188312488556502;
+	// low = -8;
+	// high = 8;
+	// vals = low:(high-low)/ceil(32*300/256):high; % I lookup in a range 1:300... shift is 0-255...
+	// t = sigmoidreal(vals)*rescale + reoffset;
+	// 
+	// clockorig = 985248.400000;
+	// clocknew = 58333333.0;
+	// 
+	// %origscale = 2.0*sin(M_PI*freqval/clockorig);
+	// freqval = asin(t/2)*clockorig/pi;
+	// tadj = 2*sin(pi*freqval/clocknew);
+	//
+	// in 8580 mode, state is 0, so we just use this directly
+	// in 6581 mode, we add the voltage, so we shift the sigmoid..
+	
+	double interp[] = {68.000000,69.000000,70.000000,72.000000,75.000000,79.000000,86.000000,96.000000,112.000000,136.000000,171.000000,224.000000,303.000000,417.000000,581.000000,809.000000,1112.000000,1495.000000,1946.000000,2439.000000,2931.000000,3383.000000,3766.000000,4070.000000,4297.000000,4462.000000,4577.000000,4655.000000,4708.000000,4744.000000,4768.000000,4783.000000,4794.000000,4801.000000,4805.000000,4808.000000,4810.000000,4811.000001,4812.000000};
+
 	// Lets write 2 tables...
 	// i) linear
         double CLKSPEED = 58333333.0;
@@ -366,8 +387,23 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 	//	printf("freqval %lf - freq %lf\n",freqval,freq);
 
 		double f_next  = pow(2,21)*(freq);
-	//	printf("%d:%f:%f\n",i,f_next,round(f_next));
-		sidfreqtable[i+2048] = (unsigned short)round(f_next);
+	
+		// We want f_next, but we need to work out which val in interp table to use...
+		int j;
+		for (j=0;j<38;++j)
+			if (interp[j+1]>f_next)
+				break;
+		if (j==38)
+			j = 37;
+		double l = interp[j];
+		double h = interp[j+1];
+		double f_in_range = fmax(fmin(h,f_next),l);
+		double lookup = round(4096*((double)(j) + (f_in_range-l)/(h-l)));
+		double f_got = ((h-l)*((lookup/4096) - j))+l;
+		double freq_got = CLKSPEED*asin((f_got/2)/pow(2,21))/M_PI;
+		printf("%d: 6581 interp %d:%f<%f<%f at %d - wanted:%f got:%f %f %f lookup:%f\n",sizeof(interp)/sizeof(double),i,l,f_next,h,j,freqval,freq_got,f_in_range, f_got, lookup/4096);
+		
+		sidfreqtable[i+2048] = (unsigned short)lookup;
 	}
 	fclose(f);
 
