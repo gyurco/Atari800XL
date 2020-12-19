@@ -347,6 +347,13 @@ ARCHITECTURE vhdl OF pokeymax IS
 	        ret := std_logic_vector(to_unsigned(character'pos(a(x)), 8));
 	    return ret;
 	end function getByte;
+
+	function MIN(LEFT, RIGHT: INTEGER) return INTEGER is
+	begin
+	  if LEFT < RIGHT then return LEFT;
+	  else return RIGHT;
+	  end if;
+	end function min;
 	
 BEGIN
 	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
@@ -409,10 +416,10 @@ flash_on : if enable_flash=1 generate
 		flash_req3_addr(7 downto 0) => "1"&ADPCM_STEP_ADDR(6 downto 0),
 
 		flash_req4_addr(flash_addr_bits-1 downto 17) => (others=>'0'),
-		flash_req4_addr(16 downto 0) => SID_FLASH1_ADDR, --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
+		flash_req4_addr(min(flash_addr_bits-1,16) downto 0) => SID_FLASH1_ADDR(min(flash_addr_bits-1,16) downto 0), --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
 
 		flash_req5_addr(flash_addr_bits-1 downto 17) => (others=>'0'),
-		flash_req5_addr(16 downto 0) => SID_FLASH2_ADDR, 
+		flash_req5_addr(min(flash_addr_bits-1,16) downto 0) => SID_FLASH2_ADDR(min(flash_addr_bits-1,16) downto 0), 
 
 		flash_req6_addr(12 downto 9) => (others=>'0'),
 		flash_req6_addr(8 downto 0) => "10"&PSG_PROFILESEL_REG&PSG_PROFILE_ADDR,  --TODO + init.bin
