@@ -398,10 +398,10 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 		double l = interp[j];
 		double h = interp[j+1];
 		double f_in_range = fmax(fmin(h,f_next),l);
-		double lookup = round(4096*((double)(j) + (f_in_range-l)/(h-l)));
-		double f_got = ((h-l)*((lookup/4096) - j))+l;
+		double lookup = round(128*((double)(j) + (f_in_range-l)/(h-l)));
+		double f_got = ((h-l)*((lookup/128) - j))+l;
 		double freq_got = CLKSPEED*asin((f_got/2)/pow(2,21))/M_PI;
-		printf("%d: 6581 interp %d:%f<%f<%f at %d - wanted:%f got:%f %f %f lookup:%f\n",sizeof(interp)/sizeof(double),i,l,f_next,h,j,freqval,freq_got,f_in_range, f_got, lookup/4096);
+		printf("%d: 6581 interp %d:%f<%f<%f at %d - wanted:%f got:%f %f %f lookup:%f - %f\n",sizeof(interp)/sizeof(double),i,l,f_next,h,j,freqval,freq_got,f_in_range, f_got, lookup/128, lookup);
 		
 		sidfreqtable[i+2048] = (unsigned short)lookup;
 	}

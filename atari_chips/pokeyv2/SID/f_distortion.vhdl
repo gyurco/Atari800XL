@@ -50,7 +50,7 @@ begin
 		variable pos: unsigned(17 downto 0);
 	begin
 		-- assumption: /home/markw/fpga/svn/jsidplay2-code/jsidplay2/src/main/java/builder/resid/residfp/Filter6581.java
-		pos := unsigned('0'&not(state(17))&state(16 downto 8)&"00") + resize(f_raw,18);
+		pos := unsigned('0'&not(state(17))&state(16 downto 8)&"00") + resize(f_raw&"00000",18);
 		if (pos(17 downto 12) > to_unsigned(37,6)) then
 			pos(17 downto 12) := to_unsigned(37,6);
 			pos(11 downto 0) := (others=>'1');
