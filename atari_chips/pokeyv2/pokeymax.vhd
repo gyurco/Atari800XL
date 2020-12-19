@@ -197,16 +197,16 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal SID_FILTER1_NEXT : std_logic_vector(0 downto 0);
 	signal SID_FILTER2_REG : std_logic_vector(0 downto 0);
 	signal SID_FILTER2_NEXT : std_logic_vector(0 downto 0);
-	signal SID1_FILTER_BP : signed(17 downto 0);
-	signal SID1_FILTER_HP : signed(17 downto 0);
-	signal SID1_F_RAW : std_logic_vector(17 downto 0);
-	signal SID1_F_BP : unsigned(17 downto 0);
-	signal SID1_F_HP : unsigned(17 downto 0);
-	signal SID2_FILTER_BP : signed(17 downto 0);
-	signal SID2_FILTER_HP : signed(17 downto 0);
-	signal SID2_F_RAW : std_logic_vector(17 downto 0);
-	signal SID2_F_BP : unsigned(17 downto 0);
-	signal SID2_F_HP : unsigned(17 downto 0);
+	signal SID1_FILTER_BP : signed(17 downto 8);
+	signal SID1_FILTER_HP : signed(17 downto 8);
+	signal SID1_F_RAW : std_logic_vector(12 downto 0);
+	signal SID1_F_BP : unsigned(12 downto 0);
+	signal SID1_F_HP : unsigned(12 downto 0);
+	signal SID2_FILTER_BP : signed(17 downto 8);
+	signal SID2_FILTER_HP : signed(17 downto 8);
+	signal SID2_F_RAW : std_logic_vector(12 downto 0);
+	signal SID2_F_BP : unsigned(12 downto 0);
+	signal SID2_F_HP : unsigned(12 downto 0);
 	
 	-- PSG
 	signal PSG_ENABLE_2Mhz : std_logic;
@@ -773,10 +773,10 @@ port map
 (
 	clk=>clk,
 	reset_n=>reset_n,
-	state1=>SID1_FILTER_BP,
-	state2=>SID1_FILTER_HP,
-	state3=>SID2_FILTER_BP,
-	state4=>SID2_FILTER_HP,
+	state1=>SID1_FILTER_BP(17 downto 8),
+	state2=>SID1_FILTER_HP(17 downto 8),
+	state3=>SID2_FILTER_BP(17 downto 8),
+	state4=>SID2_FILTER_HP(17 downto 8),
 	SIDTYPE12 => SID_FILTER1_REG(0),
 	SIDTYPE34 => SID_FILTER2_REG(0),
 	f_raw12=>unsigned(SID1_F_RAW),

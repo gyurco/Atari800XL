@@ -48,11 +48,11 @@ ENTITY SID_top IS
 		rom_request : out std_logic;
 		rom_ready : in std_logic;
 
-		FILTER_BP_OUT : out signed(17 downto 0);
-		FILTER_HP_OUT : out signed(17 downto 0);
-		FILTER_F_OUT : out std_logic_vector(17 downto 0);
-		FILTER_F_BP : in std_logic_vector(17 downto 0);
-		FILTER_F_HP : in std_logic_vector(17 downto 0)
+		FILTER_BP_OUT : out signed(17 downto 8);
+		FILTER_HP_OUT : out signed(17 downto 8);
+		FILTER_F_OUT : out std_logic_vector(12 downto 0);
+		FILTER_F_BP : in std_logic_vector(12 downto 0);
+		FILTER_F_HP : in std_logic_vector(12 downto 0)
 	);
 END SID_top;		
 		
@@ -121,8 +121,8 @@ ARCHITECTURE vhdl OF SID_top IS
 	-- state variable filter params
 	signal statevariable_fcutoff_reg : std_logic_vector(10 downto 0); --30Hz to 12KHz, linear (or rather not, read from rom...)
 	signal statevariable_fcutoff_next : std_logic_vector(10 downto 0);
-	signal statevariable_F_reg : std_logic_vector(17 downto 0);  -- F computed from fcutoff -> or read from ram : 0.21 fixed point
-	signal statevariable_F_next : std_logic_vector(17 downto 0); -- see example computation at start of filter.vhdl
+	signal statevariable_F_reg : std_logic_vector(12 downto 0);  -- F computed from fcutoff -> or read from ram : 0.21 fixed point
+	signal statevariable_F_next : std_logic_vector(12 downto 0); -- see example computation at start of filter.vhdl
 	signal statevariable_f_changed : std_logic;
 	signal statevariable_f_dirty_next : std_logic;
 	signal statevariable_f_dirty_reg : std_logic;
@@ -772,7 +772,7 @@ decode_addr1 : entity work.complete_address_decoder
 				rom_addr_mux <= "000";
 				if (rom_ready = '1') then
 					statevariable_f_dirty_next <= '0';
-					statevariable_F_next <= "00"&rom_data_word;
+					statevariable_F_next <= rom_data_word(12 downto 0);
 					rom_state_next <= rom_state_init;
 				end if;
 			when rom_state_romrequest_wave_a =>
@@ -926,8 +926,8 @@ decode_addr1 : entity work.complete_address_decoder
 	DEBUG_WV1 <= unsigned(wave_a_reg);
 	DEBUG_AM1 <= channel_a_modulated;
 
-	FILTER_BP_OUT <= filter_bp;
-	FILTER_HP_OUT <= filter_hp;
+	FILTER_BP_OUT <= filter_bp(17 downto 8);
+	FILTER_HP_OUT <= filter_hp(17 downto 8);
 	FILTER_F_OUT <= statevariable_F_reg;
 
 end vhdl;

@@ -57,8 +57,8 @@ PORT
 	BANDPASS : OUT SIGNED(17 downto 0);
 	HIGHPASS : OUT SIGNED(17 downto 0);
 
-	F_BP : IN UNSIGNED(17 downto 0);
-	F_HP : IN UNSIGNED(17 downto 0);
+	F_BP : IN UNSIGNED(12 downto 0);
+	F_HP : IN UNSIGNED(12 downto 0);
 	Q : IN SIGNED(17 downto 0)
 );
 END SID_filter;
@@ -177,14 +177,14 @@ BEGIN
 		inputadj(41 downto 24) := resize(input,18);
 		highpass_next <= inputadj + (-multq) + (-lowpass_reg); --all 18.24s
 
-		mult1tmp := signed('0'&f_hp) * highpass_reg(41 downto 6); --0.21u * 18.18s
+		mult1tmp := signed('0'&resize(f_hp,18)) * highpass_reg(41 downto 6); --0.21u * 18.18s
 		mult1_next <= mult1tmp(53 downto 0);
 		--mult1: 15.39s
 		--mult1->18.24s
 		mult1 := resize(mult1_reg(51 downto 15),42);
 		bandpass_next <= mult1 + bandpass_reg; --all 18.24s
 
-		mult2tmp := signed('0'&f_bp) * bandpass_reg(41 downto 6); -- 0.21u * 18.18s
+		mult2tmp := signed('0'&resize(f_bp,18)) * bandpass_reg(41 downto 6); -- 0.21u * 18.18s
 		mult2_next <= mult2tmp(53 downto 0);
 		--mult2: 15.39s
 		--mult2->18.24s

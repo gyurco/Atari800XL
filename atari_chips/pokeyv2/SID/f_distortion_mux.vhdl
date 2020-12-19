@@ -15,34 +15,34 @@ PORT
 	CLK : IN STD_LOGIC;
 	RESET_N : IN STD_LOGIC;
 
-	state1 : in SIGNED(17 downto 0);
-	state2 : in SIGNED(17 downto 0);
-	state3 : in SIGNED(17 downto 0);
-	state4 : in SIGNED(17 downto 0);
+	state1 : in SIGNED(17 downto 8);
+	state2 : in SIGNED(17 downto 8);
+	state3 : in SIGNED(17 downto 8);
+	state4 : in SIGNED(17 downto 8);
 	SIDTYPE12 : in std_logic;
 	SIDTYPE34 : in std_logic;
-	f_raw12 : in UNSIGNED(17 downto 0);
-	f_raw34 : in UNSIGNED(17 downto 0);
-	f_distorted1 : out unsigned(17 downto 0);
-	f_distorted2 : out unsigned(17 downto 0);
-	f_distorted3 : out unsigned(17 downto 0);
-	f_distorted4 : out unsigned(17 downto 0)
+	f_raw12 : in UNSIGNED(12 downto 0);
+	f_raw34 : in UNSIGNED(12 downto 0);
+	f_distorted1 : out unsigned(12 downto 0);
+	f_distorted2 : out unsigned(12 downto 0);
+	f_distorted3 : out unsigned(12 downto 0);
+	f_distorted4 : out unsigned(12 downto 0)
 );
 END SID_f_distortion_mux;
 
 ARCHITECTURE vhdl OF SID_f_distortion_mux IS
-	signal FILTER_STATE : signed(17 downto 0);
-	signal F : unsigned(17 downto 0);
-	signal F_DISTORTED : unsigned(17 downto 0);
+	signal FILTER_STATE : signed(17 downto 8);
+	signal F : unsigned(12 downto 0);
+	signal F_DISTORTED : unsigned(12 downto 0);
 
-	signal F_DISTORTED1_NEXT : unsigned(17 downto 0);
-	signal F_DISTORTED2_NEXT : unsigned(17 downto 0);
-	signal F_DISTORTED3_NEXT : unsigned(17 downto 0);
-	signal F_DISTORTED4_NEXT : unsigned(17 downto 0);
-	signal F_DISTORTED1_REG : unsigned(17 downto 0);
-	signal F_DISTORTED2_REG : unsigned(17 downto 0);
-	signal F_DISTORTED3_REG : unsigned(17 downto 0);
-	signal F_DISTORTED4_REG : unsigned(17 downto 0);
+	signal F_DISTORTED1_NEXT : unsigned(12 downto 0);
+	signal F_DISTORTED2_NEXT : unsigned(12 downto 0);
+	signal F_DISTORTED3_NEXT : unsigned(12 downto 0);
+	signal F_DISTORTED4_NEXT : unsigned(12 downto 0);
+	signal F_DISTORTED1_REG : unsigned(12 downto 0);
+	signal F_DISTORTED2_REG : unsigned(12 downto 0);
+	signal F_DISTORTED3_REG : unsigned(12 downto 0);
+	signal F_DISTORTED4_REG : unsigned(12 downto 0);
 
 	signal state_next : std_logic_vector(1 downto 0);
 	signal state_reg : std_logic_vector(1 downto 0);
@@ -52,7 +52,7 @@ begin
 	(
 		clk=>clk,
 		reset_n=>reset_n,
-		state=>FILTER_STATE(17 downto 1),
+		state=>FILTER_STATE(17 downto 8),
 		f_raw=>F,
 		f_distorted=>F_DISTORTED
 	);
