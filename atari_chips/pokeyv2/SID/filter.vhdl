@@ -51,6 +51,7 @@ PORT
 	CLK : IN STD_LOGIC;
 	RESET_N : IN STD_LOGIC;
 
+	SIDTYPE : IN STD_LOGIC;
 	INPUT : IN SIGNED(15 downto 0);
 
 	LOWPASS : OUT SIGNED(17 downto 0);
@@ -85,6 +86,30 @@ END SID_filter;
 --
 --      res(ceil(i*outrate/inrate)) = sum3;
 --    end
+
+--
+-- 6581
+--    sum1: Vhp = (Vbp * _1_div_Q - Vlp - Vi) * attenuation; //at=0.5
+--    sum2: Vbp -= Vhp * type3_w0(Vhp);
+--    sum3: Vlp -= Vbp * type3_w0(Vbp);
+--
+--    Subst Vbn = -Vbp
+--    sum1: Vhp = (-Vbn * _1_div_Q - Vlp - Vi) * attenuation; //at=0.5
+--    sum2: Vbn += Vhp * type3_w0(Vhp);
+--    sum3: Vlp += Vbn * type3_w0(Vbp);
+--    So invert bp on output and attentuate internally
+-- 
+-- 8580
+--    sum1: Vhp = -Vbp * _1_div_Q - Vlp - Vi;
+--    sum2: Vbp += Vhp * type4_w0_cache;
+--    sum3: Vlp += Vbp * type4_w0_cache;
+--
+-- changes:
+-- sum1: ALL:input -> -input 
+-- sum1: 6581: +multq
+-- sum1: 6581: /2
+-- sum2: 6581: -hp
+-- sum3: 6581: -bp
 
 -- as fixed point
 --    sum1 = int64(0);
@@ -158,7 +183,7 @@ BEGIN
 	end process;
 
 	-- next state
-	process(input,q,f_bp,f_hp,multq_reg,mult1_reg,mult2_reg,highpass_reg,bandpass_reg,lowpass_reg)
+	process(input,q,f_bp,f_hp,multq_reg,mult1_reg,mult2_reg,highpass_reg,bandpass_reg,lowpass_reg,sidtype)
 		variable multq : signed(41 downto 0);
 		variable mult1 : signed(41 downto 0);
 		variable mult2 : signed(41 downto 0);
@@ -167,6 +192,8 @@ BEGIN
 		variable multqtmp : signed(53 downto 0);
 		variable mult1tmp : signed(54 downto 0);
 		variable mult2tmp : signed(54 downto 0);
+
+		variable highpass_tmp : signed(41 downto 0);
 	begin
 		multqtmp := bandpass_reg(41 downto 6) * q; --18.18s * 3.15u
 		multq_next <= multqtmp(53 downto 0);
@@ -175,7 +202,13 @@ BEGIN
 		multq := multq_reg(50 downto 9);
 		inputadj(23 downto 0) := (others=>'0');
 		inputadj(41 downto 24) := resize(input,18);
-		highpass_next <= inputadj + (-multq) + (-lowpass_reg); --all 18.24s
+
+		highpass_tmp := -(inputadj + lowpass_reg + multq);
+		if (sidtype='0') then
+			highpass_next <= highpass_tmp; --all 18.24s
+		else -- attenuate hp for 6581
+			highpass_next <= shift_right(highpass_tmp,1); --all 18.24s
+		end if;
 
 		mult1tmp := signed('0'&resize(f_hp,18)) * highpass_reg(41 downto 6); --0.21u * 18.18s
 		mult1_next <= mult1tmp(53 downto 0);
@@ -194,7 +227,7 @@ BEGIN
 
 	--output
 	lowpass <= lowpass_reg(41 downto 24);
-	bandpass <= bandpass_reg(41 downto 24);
+	bandpass <= bandpass_reg(41 downto 24) when sidtype='0' else -bandpass_reg(41 downto 24); -- invert bp for 6581
 	highpass <= highpass_reg(41 downto 24);
 		
 END vhdl;

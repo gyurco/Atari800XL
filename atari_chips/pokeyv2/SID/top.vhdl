@@ -875,6 +875,8 @@ decode_addr1 : entity work.complete_address_decoder
 
 		INPUT => channel_prefilter,
 
+		SIDTYPE => sidtype(0),
+
 		LOWPASS => filter_lp,
 		BANDPASS => filter_bp,
 		HIGHPASS => filter_hp,
