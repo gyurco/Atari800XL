@@ -770,6 +770,8 @@ port map
 	state2=>SID1_FILTER_HP,
 	state3=>SID2_FILTER_BP,
 	state4=>SID2_FILTER_HP,
+	SIDTYPE12 => SID_FILTER1_REG(0),
+	SIDTYPE34 => SID_FILTER2_REG(0),
 	f_raw12=>unsigned(SID1_F_RAW),
 	f_raw34=>unsigned(SID2_F_RAW),
 	f_distorted1=>SID1_F_BP,

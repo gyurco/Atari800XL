@@ -19,6 +19,8 @@ PORT
 	state2 : in SIGNED(17 downto 0);
 	state3 : in SIGNED(17 downto 0);
 	state4 : in SIGNED(17 downto 0);
+	SIDTYPE12 : in std_logic;
+	SIDTYPE34 : in std_logic;
 	f_raw12 : in UNSIGNED(17 downto 0);
 	f_raw34 : in UNSIGNED(17 downto 0);
 	f_distorted1 : out unsigned(17 downto 0);
@@ -50,7 +52,7 @@ begin
 	(
 		clk=>clk,
 		reset_n=>reset_n,
-		state=>FILTER_STATE,
+		state=>FILTER_STATE(17 downto 1),
 		f_raw=>F,
 		f_distorted=>F_DISTORTED
 	);
@@ -74,9 +76,14 @@ begin
 
 	process(
 		state_reg,
+		sidtype12,sidtype34,
 		state1,state2,state3,state4,
 		f_raw12,f_raw34,
-		F_DISTORTED)
+		F_DISTORTED,
+		F_DISTORTED1_REG,
+		F_DISTORTED2_REG,
+		F_DISTORTED3_REG,
+		F_DISTORTED4_REG)
 	begin
 		state_next <= state_reg;
 		F_DISTORTED1_NEXT <= F_DISTORTED1_REG;
@@ -91,22 +98,38 @@ begin
 		when "00"=>
 			F <= f_raw12;
 			FILTER_STATE <= state1;
-			F_DISTORTED4_NEXT <= F_DISTORTED;
+			if (sidtype34 = '0') then
+				F_DISTORTED4_NEXT <= F_RAW34;
+			else
+				F_DISTORTED4_NEXT <= F_DISTORTED;
+			end if;
 			state_next <= "01";
 		when "01" =>
 			F <= f_raw12;
 			FILTER_STATE <= state2;
-			F_DISTORTED1_NEXT <= F_DISTORTED;
+			if (sidtype12 = '0') then
+				F_DISTORTED1_NEXT <= F_RAW12;
+			else
+				F_DISTORTED1_NEXT <= F_DISTORTED;
+			end if;
 			state_next <= "10";
 		when "10" =>
 			F <= f_raw34;
 			FILTER_STATE <= state3;
-			F_DISTORTED2_NEXT <= F_DISTORTED;
+			if (sidtype12 = '0') then
+				F_DISTORTED2_NEXT <= F_RAW12;
+			else
+				F_DISTORTED2_NEXT <= F_DISTORTED;
+			end if;
 			state_next <= "11";
 		when "11" =>
 			F <= f_raw34;
 			FILTER_STATE <= state4;
-			F_DISTORTED3_NEXT <= F_DISTORTED;
+			if (sidtype34 = '0') then
+				F_DISTORTED3_NEXT <= F_RAW34;
+			else
+				F_DISTORTED3_NEXT <= F_DISTORTED;
+			end if;
 			state_next <= "00";
 		when others=>
 			state_next <= "00";
