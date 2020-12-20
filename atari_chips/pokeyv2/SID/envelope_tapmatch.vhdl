@@ -79,7 +79,7 @@ BEGIN
 			when others =>
 				state_next <= "00";
 				tapmatches_next(2) <= tapmatch;
-				delay_lfsr_sel <= delay_lfsr2;
+				delay_lfsr_sel <= delay_lfsr3;
 				tapkey_sel <= tapkey3;
 		end case;
 	end process;
