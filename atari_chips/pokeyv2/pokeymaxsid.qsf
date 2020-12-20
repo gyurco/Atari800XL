@@ -161,6 +161,7 @@ set_global_assignment -name VHDL_FILE SID/top.vhdl
 set_global_assignment -name VHDL_FILE SID/oscillator.vhdl
 set_global_assignment -name VHDL_FILE SID/wavegen.vhdl
 set_global_assignment -name VHDL_FILE SID/envelope.vhdl
+set_global_assignment -name VHDL_FILE SID/envelope_tapmatch.vhdl
 set_global_assignment -name VHDL_FILE SID/amplitudeModulator.vhdl
 set_global_assignment -name VHDL_FILE SID/preFilterSum.vhdl
 set_global_assignment -name VHDL_FILE SID/filter.vhdl

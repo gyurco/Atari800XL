@@ -17,6 +17,8 @@ PORT
 	RESET_N : IN STD_LOGIC;
 	ENABLE : IN STD_LOGIC;
 
+	TAPMATCH : IN STD_LOGIC;
+
 	ATTACK : IN STD_LOGIC_VECTOR(3 downto 0);
 	SUSTAIN : IN STD_LOGIC_VECTOR(3 downto 0);
 	DECAY : IN STD_LOGIC_VECTOR(3 downto 0);
@@ -24,7 +26,10 @@ PORT
 
 	GATE : IN STD_LOGIC;
 	
-	ENVELOPE : OUT STD_LOGIC_VECTOR(7 downto 0)
+	ENVELOPE : OUT STD_LOGIC_VECTOR(7 downto 0);
+
+	delay_lfsr : OUT std_logic_vector(14 downto 0);
+	tapkey : OUT std_logic_vector(3 downto 0)
 );
 END SID_envelope;
 
@@ -44,8 +49,8 @@ ARCHITECTURE vhdl OF SID_envelope IS
 	signal expdelay_lfsr_reset : std_logic;
 	signal envelope_decremented : std_logic;
 
-	signal tapkey : std_logic_vector(3 downto 0);
-	signal tapmatch : std_logic;
+	signal tapkey_next : std_logic_vector(3 downto 0);
+	signal tapkey_reg : std_logic_vector(3 downto 0);
 
 	signal exptap : std_logic_vector(2 downto 0);
 
@@ -75,6 +80,7 @@ BEGIN
 			exptapmatch_reg <= (others=>'0');
 			state_reg <= state_release;
 			count_state_reg <= count_state_stopped;
+			tapkey_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then
 			envelope_reg <= envelope_next;
 			delay_lfsr_reg <= delay_lfsr_next;
@@ -82,6 +88,7 @@ BEGIN
 			exptapmatch_reg <= exptapmatch_next;
 			state_reg <= state_next;
 			count_state_reg <= count_state_next;
+			tapkey_reg <= tapkey_next;
 		end if;
 	end process;
 
@@ -168,12 +175,12 @@ BEGIN
 		end if;
 	end process;
 
-	process(enable,state_reg,envelope_reg,gate,tapmatch,attack,sustain,decay,release_in)
+	process(enable,state_reg,envelope_reg,tapkey_reg,gate,tapmatch,attack,sustain,decay,release_in)
 		variable envelope_over_sustain : std_logic;
 	begin
 		state_next <= state_reg;
 		expdelay_lfsr_reset <= '0';
-		tapkey <= (others=>'0');
+		tapkey_next <= tapkey_reg;
 		gate_changed <= '0';
 		hold_counter <= '0';
 
@@ -185,7 +192,7 @@ BEGIN
 		if (enable='1') then
 			case state_reg is
 				when state_attack =>
-					tapkey <= attack;
+					tapkey_next <= attack;
 					if (and_reduce(std_logic_vector(envelope_reg))='1') then
 						state_next <= state_decay;
 					end if;
@@ -194,7 +201,7 @@ BEGIN
 						gate_changed <= '1';
 					end if;
 				when state_decay =>
-					tapkey <= decay;
+					tapkey_next <= decay;
 					if (envelope_over_sustain='0') then
 						hold_counter <= '1';
 					end if;
@@ -203,7 +210,7 @@ BEGIN
 						gate_changed <= '1';
 					end if;
 				when state_release =>
-					tapkey <= release_in;
+					tapkey_next <= release_in;
 					if (gate='1') then
 						state_next <= state_attack;
 						gate_changed <= '1';
@@ -224,54 +231,6 @@ BEGIN
 				delay_lfsr_next(0) <= delay_lfsr_reg(14) xor delay_lfsr_reg(13);
 				delay_lfsr_next(14 downto 1) <= delay_lfsr_reg(13 downto 0);
 			end if;
-		end if;
-	end process;
-
-	process(tapkey, delay_lfsr_reg)
-		variable tomatch : std_logic_Vector(14 downto 0);
-	begin
-		tapmatch <= '0';
-		tomatch := (others=>'0');
-
-		case tapkey is
-		when "0000" =>
-			tomatch := "111111100000000"; --8
-		when "0001" =>
-			tomatch := "000000000000110"; --31
-		when "0010" =>
-			tomatch := "000000000111100"; --62
-		when "0011" =>
-			tomatch := "000001100110000"; --94
-		when "0100" => 
-			tomatch := "010000011000000"; --148
-		when "0101" =>
-			tomatch := "110011101010101"; --219
-		when "0110" =>
-			tomatch := "011100000000000"; --266
-		when "0111" =>
-			tomatch := "101000000001110"; --312
-		when "1000" => 
-			tomatch := "001001000010010"; --391
-		when "1001" =>
-			tomatch := "000001000100010"; --976
-		when "1010" =>
-			tomatch := "001100001001000"; --1953
-		when "1011" =>
-			tomatch := "101100110111000"; --3125
-		when "1100" =>
-			tomatch := "011100001000000"; --3906
-		when "1101" =>
-			tomatch := "111011111100010"; --11719
-		when "1110" =>
-			tomatch := "111011000100101"; --19531
-		when "1111" =>
-			tomatch := "000101010010011"; --31250
-		when others=>
-		end case;
-
-		
-		if (tomatch = delay_lfsr_reg) then
-			tapmatch <= '1';
 		end if;
 	end process;
 
@@ -313,5 +272,7 @@ BEGIN
 		
 	-- output
 	envelope <= std_logic_vector(envelope_reg);
+	delay_lfsr <= delay_lfsr_reg;
+	tapkey <= tapkey_reg;
 		
 END vhdl;

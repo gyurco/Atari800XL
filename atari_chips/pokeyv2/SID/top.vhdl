@@ -200,6 +200,13 @@ ARCHITECTURE vhdl OF SID_top IS
 	signal envelope_a_reg : std_logic_vector(7 downto 0);
 	signal envelope_b_reg : std_logic_vector(7 downto 0);
 	signal envelope_c_reg : std_logic_vector(7 downto 0);
+	signal delay_lfsr_a : std_logic_vector(14 downto 0);
+	signal delay_lfsr_b : std_logic_vector(14 downto 0);
+	signal delay_lfsr_c : std_logic_vector(14 downto 0);
+	signal tapkey_a : std_logic_vector(3 downto 0);
+	signal tapkey_b : std_logic_vector(3 downto 0);
+	signal tapkey_c : std_logic_vector(3 downto 0);
+	signal tapmatches : std_logic_vector(2 downto 0);
 
 	-- amplitude modulator
 	signal channel_a_modulated : signed(15 downto 0);
@@ -626,6 +633,8 @@ decode_addr1 : entity work.complete_address_decoder
 		RESET_N => reset_n,		
 		ENABLE => enable,
 
+		TAPMATCH => tapmatches(0),
+
 		ATTACK => envelope_attack_a_reg,
 		SUSTAIN => envelope_sustain_a_reg,
 		DECAY => envelope_decay_a_reg,
@@ -633,7 +642,9 @@ decode_addr1 : entity work.complete_address_decoder
 
 		GATE => control_a_reg(0),
 		
-		ENVELOPE => envelope_a_reg
+		ENVELOPE => envelope_a_reg,
+		DELAY_LFSR => delay_lfsr_a,
+		TAPKEY => tapkey_a
 	);		
 
 	envelope_b : entity work.SID_envelope
@@ -643,6 +654,8 @@ decode_addr1 : entity work.complete_address_decoder
 		RESET_N => reset_n,		
 		ENABLE => enable,
 
+		TAPMATCH => tapmatches(1),
+
 		ATTACK => envelope_attack_b_reg,
 		SUSTAIN => envelope_sustain_b_reg,
 		DECAY => envelope_decay_b_reg,
@@ -650,7 +663,9 @@ decode_addr1 : entity work.complete_address_decoder
 
 		GATE => control_b_reg(0),
 		
-		ENVELOPE => envelope_b_reg
+		ENVELOPE => envelope_b_reg,
+		DELAY_LFSR => delay_lfsr_b,
+		TAPKEY => tapkey_b
 	);		
 
 	envelope_c : entity work.SID_envelope
@@ -660,6 +675,8 @@ decode_addr1 : entity work.complete_address_decoder
 		RESET_N => reset_n,		
 		ENABLE => enable,
 
+		TAPMATCH => tapmatches(2),
+
 		ATTACK => envelope_attack_c_reg,
 		SUSTAIN => envelope_sustain_c_reg,
 		DECAY => envelope_decay_c_reg,
@@ -667,7 +684,26 @@ decode_addr1 : entity work.complete_address_decoder
 
 		GATE => control_c_reg(0),
 		
-		ENVELOPE => envelope_c_reg
+		ENVELOPE => envelope_c_reg,
+		DELAY_LFSR => delay_lfsr_c,
+		TAPKEY => tapkey_c
+	);		
+
+	envelope_tapmatcher : entity work.SID_envelope_tapmatch
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,		
+
+		DELAY_LFSR1 => delay_lfsr_a,
+		DELAY_LFSR2 => delay_lfsr_b,
+		DELAY_LFSR3 => delay_lfsr_c,
+
+		TAPKEY1 => tapkey_a,
+		TAPKEY2 => tapkey_b,
+		TAPKEY3 => tapkey_c,
+
+		TAPMATCHES => tapmatches
 	);		
 
 	-- volume

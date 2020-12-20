@@ -285,7 +285,8 @@ my %variants =
 		"a7_bit" => 19,  #use CS1
 		"cs1_bit" => 20, #force high
 		"fpga" => "10M08SCU169C8G",
-		"version" => $version . "M08HK"
+		"version" => $version . "M08HK",
+		"optimisearea" => 1
 	},
 	"10M16_fullv3" =>
 	{
@@ -437,6 +438,10 @@ foreach my $variant (sort keys %variants)
 	{
 		my $val = $variants{$variant}->{$key};
 		`echo 'set_parameter -name $key $val' >> pokeymax.qsf`;
+	}
+	if (exists $variants{$variant}->{"optimisearea"})
+	{
+		`echo 'set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE AREA' >>pokeymax.qsf`;
 	}
 
 	`quartus_sh --flow compile pokeymax > build.log 2> build.err`;
