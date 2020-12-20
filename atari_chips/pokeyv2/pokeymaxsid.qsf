@@ -165,6 +165,8 @@ set_global_assignment -name VHDL_FILE SID/envelope_tapmatch.vhdl
 set_global_assignment -name VHDL_FILE SID/amplitudeModulator.vhdl
 set_global_assignment -name VHDL_FILE SID/preFilterSum.vhdl
 set_global_assignment -name VHDL_FILE SID/filter.vhdl
+set_global_assignment -name VHDL_FILE SID/f_distortion.vhdl
+set_global_assignment -name VHDL_FILE SID/f_distortion_mux.vhdl
 set_global_assignment -name VHDL_FILE SID/postFilterSum.vhdl
 set_global_assignment -name VHDL_FILE sample/channel.vhdl
 set_global_assignment -name VHDL_FILE sample/adpcm.vhdl
