@@ -40,6 +40,10 @@ ENTITY pokeymax IS
 		enable_covox : integer := 0;
 		enable_sample : integer := 0;
 		enable_flash : integer := 0;
+	
+		sid_wave_base : integer := 42496; --to_integer(unsigned(x"a600"));
+
+		flash_addr_bits : integer := 16;
 
 		ext_clk_enable : integer := 0; -- Use PADDLE(6) for sid clk enable, PADDLE(7) for psg
 
@@ -179,16 +183,26 @@ ARCHITECTURE vhdl OF pokeymax IS
 	-- SID
 	signal SID_CLK_ENABLE : std_logic;
 	signal SID_AUDIO : SID_AUDIO_TYPE(1 downto 0);
-	signal SID_FLASH1_ADDR : std_logic_vector(15 downto 0);
+	signal SID_FLASH1_ADDR : std_logic_vector(16 downto 0);
         signal SID_FLASH1_ROMREQUEST : std_logic;
         signal SID_FLASH1_ROMREADY : std_logic;
-	signal SID_FLASH2_ADDR : std_logic_vector(15 downto 0);
+	signal SID_FLASH2_ADDR : std_logic_vector(16 downto 0);
         signal SID_FLASH2_ROMREQUEST : std_logic;
         signal SID_FLASH2_ROMREADY : std_logic;
 	signal SID_FILTER1_REG : std_logic_vector(0 downto 0);
 	signal SID_FILTER1_NEXT : std_logic_vector(0 downto 0);
 	signal SID_FILTER2_REG : std_logic_vector(0 downto 0);
 	signal SID_FILTER2_NEXT : std_logic_vector(0 downto 0);
+	signal SID1_FILTER_BP : signed(17 downto 8);
+	signal SID1_FILTER_HP : signed(17 downto 8);
+	signal SID1_F_RAW : std_logic_vector(12 downto 0);
+	signal SID1_F_BP : unsigned(12 downto 0);
+	signal SID1_F_HP : unsigned(12 downto 0);
+	signal SID2_FILTER_BP : signed(17 downto 8);
+	signal SID2_FILTER_HP : signed(17 downto 8);
+	signal SID2_F_RAW : std_logic_vector(12 downto 0);
+	signal SID2_F_BP : unsigned(12 downto 0);
+	signal SID2_F_HP : unsigned(12 downto 0);
 	
 	-- PSG
 	signal PSG_ENABLE_2Mhz : std_logic;
@@ -293,8 +307,8 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal CPU_FLASH_WRITE_N_REG : std_logic;
 	signal CPU_FLASH_CFG_NEXT : std_logic;
 	signal CPU_FLASH_CFG_REG : std_logic;
-	signal CPU_FLASH_ADDR_NEXT : std_logic_vector(17 downto 0);
-	signal CPU_FLASH_ADDR_REG : std_logic_vector(17 downto 0);
+	signal CPU_FLASH_ADDR_NEXT : std_logic_vector(flash_addr_bits+1 downto 0);
+	signal CPU_FLASH_ADDR_REG : std_logic_vector(flash_addr_bits+1 downto 0);
 	signal CPU_FLASH_DATA_NEXT : std_logic_vector(31 downto 0);
 	signal CPU_FLASH_DATA_REG : std_logic_vector(31 downto 0);
 	signal CPU_FLASH_COMPLETE : std_logic;
@@ -329,6 +343,13 @@ ARCHITECTURE vhdl OF pokeymax IS
 	        ret := std_logic_vector(to_unsigned(character'pos(a(x)), 8));
 	    return ret;
 	end function getByte;
+
+	function MIN(LEFT, RIGHT: INTEGER) return INTEGER is
+	begin
+	  if LEFT < RIGHT then return LEFT;
+	  else return RIGHT;
+	  end if;
+	end function min;
 	
 BEGIN
 	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
@@ -368,6 +389,10 @@ flash_on : if enable_flash=1 generate
 	-- then the state machine fills the entirely of block ram
 	-- say it takes 10 cycles for 32-bits, this will take... 0.7ms, should be ok... 44MB/s!
 	flash_controller_inst : entity work.flash_controller
+	generic map
+	(
+		addr_bits =>flash_addr_bits
+	)
 	port map
 	(
 		CLK => CLK116,
@@ -376,7 +401,7 @@ flash_on : if enable_flash=1 generate
 
 		-- Request from device 1 (cpu)
 		flash_req1_addr_config => CPU_FLASH_CFG_REG,
-		flash_req1_addr => CPU_FLASH_ADDR_REG(17 downto 2),
+		flash_req1_addr => CPU_FLASH_ADDR_REG(flash_addr_bits+1 downto 2),
 		flash_req1_data_in => CPU_FLASH_DATA_REG,
 		flash_req1_write_n => CPU_FLASH_WRITE_N_REG,
 
@@ -386,9 +411,11 @@ flash_on : if enable_flash=1 generate
 		flash_req3_addr(12 downto 8) => (others=>'0'),
 		flash_req3_addr(7 downto 0) => "1"&ADPCM_STEP_ADDR(6 downto 0),
 
-		flash_req4_addr => SID_FLASH1_ADDR, --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
+		flash_req4_addr(flash_addr_bits-1 downto 17) => (others=>'0'),
+		flash_req4_addr(min(flash_addr_bits-1,16) downto 0) => SID_FLASH1_ADDR(min(flash_addr_bits-1,16) downto 0), --8KB per type: 6581, 8580 takes 16KB. Can use space after core for more?
 
-		flash_req5_addr => SID_FLASH2_ADDR, 
+		flash_req5_addr(flash_addr_bits-1 downto 17) => (others=>'0'),
+		flash_req5_addr(min(flash_addr_bits-1,16) downto 0) => SID_FLASH2_ADDR(min(flash_addr_bits-1,16) downto 0), 
 
 		flash_req6_addr(12 downto 9) => (others=>'0'),
 		flash_req6_addr(8 downto 0) => "10"&PSG_PROFILESEL_REG&PSG_PROFILE_ADDR,  --TODO + init.bin
@@ -739,11 +766,30 @@ begin
 end process;
 end generate sid_clk_off;
 
+f_distortion_mux : entity work.SID_f_distortion_mux
+port map
+(
+	clk=>clk,
+	reset_n=>reset_n,
+	state1=>SID1_FILTER_BP(17 downto 8),
+	state2=>SID1_FILTER_HP(17 downto 8),
+	state3=>SID2_FILTER_BP(17 downto 8),
+	state4=>SID2_FILTER_HP(17 downto 8),
+	SIDTYPE12 => SID_FILTER1_REG(0),
+	SIDTYPE34 => SID_FILTER2_REG(0),
+	f_raw12=>unsigned(SID1_F_RAW),
+	f_raw34=>unsigned(SID2_F_RAW),
+	f_distorted1=>SID1_F_BP,
+	f_distorted2=>SID1_F_HP,
+	f_distorted3=>SID2_F_BP,
+	f_distorted4=>SID2_F_HP
+);
+
 sid1 : entity work.SID_top
---GENERIC MAP
---(
---	CLKSPEED => 58333333 --TODO
---)
+GENERIC MAP
+(
+	wave_base => std_logic_vector(to_unsigned(sid_wave_base,17))
+)
 PORT MAP(
 	CLK => CLK,
 	RESET_N => RESET_N,
@@ -763,14 +809,20 @@ PORT MAP(
 	rom_addr => sid_flash1_addr,
 	rom_data => flash_do_slow,
        	rom_request => sid_flash1_romrequest,
-	rom_ready => sid_flash1_romready
+	rom_ready => sid_flash1_romready,
+
+	FILTER_BP_OUT => SID1_FILTER_BP,
+	FILTER_HP_OUT => SID1_FILTER_HP,
+	FILTER_F_OUT => SID1_F_RAW,
+	FILTER_F_BP => std_logic_vector(SID1_F_BP),
+	FILTER_F_HP => std_logic_vector(SID1_F_HP)
 );
 
 sid2 : entity work.SID_top
---GENERIC MAP
---(
---	CLKSPEED => 58333333 --TODO
---)
+GENERIC MAP
+(
+	wave_base => std_logic_vector(to_unsigned(sid_wave_base,17))
+)
 PORT MAP(
 	CLK => CLK,
 	RESET_N => RESET_N,
@@ -790,7 +842,13 @@ PORT MAP(
 	rom_addr => sid_flash2_addr,
 	rom_data => flash_do_slow,
        	rom_request => sid_flash2_romrequest,
-	rom_ready => sid_flash2_romready
+	rom_ready => sid_flash2_romready,
+
+	FILTER_BP_OUT => SID2_FILTER_BP,
+	FILTER_HP_OUT => SID2_FILTER_HP,
+	FILTER_F_OUT => SID2_F_RAW,
+	FILTER_F_BP => std_logic_vector(SID2_F_BP),
+	FILTER_F_HP => std_logic_vector(SID2_F_HP)
 );
 end generate sid_on;		
 --------------------------------------------------------
@@ -1297,7 +1355,7 @@ begin
 
 		if enable_flash=1 then 
 			if (addr_decoded4(11)='1') then
-				CPU_FLASH_ADDR_NEXT(17 downto 16) <= WRITE_DATA(4 downto 3);
+				CPU_FLASH_ADDR_NEXT(flash_addr_bits+1 downto 16) <= WRITE_DATA((flash_addr_bits-16)+4 downto 3);
 
 				CPU_FLASH_CFG_NEXT <= WRITE_DATA(2);
 				CPU_FLASH_REQUEST_NEXT <= WRITE_DATA(1);
@@ -1447,7 +1505,7 @@ begin
 
 	if enable_flash=1 then 
 		if (addr_decoded4(11)='1') then
-			CONFIG_DO(4 downto 3) <= CPU_FLASH_ADDR_REG(17 downto 16);
+			CONFIG_DO((flash_addr_bits-16)+4 downto 3) <= CPU_FLASH_ADDR_REG(flash_addr_bits+1 downto 16);
 			CONFIG_DO(2) <= CPU_FLASH_CFG_REG;
 			CONFIG_DO(1) <= CPU_FLASH_REQUEST_REG;
 			CONFIG_DO(0) <= CPU_FLASH_WRITE_N_REG;
