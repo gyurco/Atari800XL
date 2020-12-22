@@ -47,23 +47,24 @@ begin
 		type LOOKUP_TYPE is array (0 to 38) of unsigned(12 downto 0);
 		variable lookup : LOOKUP_TYPE;
 
-		variable pos: unsigned(17 downto 0);
+		variable pos: unsigned(18 downto 5);
 	begin
 		-- assumption: /home/markw/fpga/svn/jsidplay2-code/jsidplay2/src/main/java/builder/resid/residfp/Filter6581.java
 		pos := (others=>'0');
 		if (state(17)='0') then
-			pos := unsigned("0"&state(16 downto 8)&"000") + resize(f_raw&"00000",18);
+			pos := unsigned('0'&state(16 downto 8)&"000"&"0") + resize('0'&f_raw,14);
 		end if;
-		if (pos(17 downto 12) > to_unsigned(37,6)) then
+		if (pos(18 downto 12) > to_unsigned(37,6)) then
+			pos(18) := '0';
 			pos(17 downto 12) := to_unsigned(37,6);
-			pos(11 downto 0) := (others=>'1');
+			pos(11 downto 5) := (others=>'1');
 		end if;
 
 		-- replace with piecewise interp. Takes a mul unit but saves lookup space.
 		lookup := (
 		"0000001000100","0000001000101","0000001000110","0000001001000","0000001001011","0000001001111","0000001010110","0000001100000","0000001110000","0000010001000","0000010101011","0000011100000","0000100101111","0000110100001","0001001000101","0001100101001","0010001011000","0010111010111","0011110011010","0100110000111","0101101110011","0110100110111","0111010110110","0111111100110","1000011001001","1000101101110","1000111100001","1001000101111","1001001100100","1001010001000","1001010100000","1001010101111","1001010111010","1001011000001","1001011000101","1001011001000","1001011001010","1001011001011","1001011001100");
 
-		ychpos <= resize(pos(11 downto 0),13);
+		ychpos <= resize(pos(11 downto 5)&"00000",13);
 		y1 <= lookup(to_integer(pos(17 downto 12)));
 		y2 <= lookup(to_integer(pos(17 downto 12))+1);
 
