@@ -34,6 +34,7 @@ ENTITY SID_top IS
 		
 		DI : in std_logic_vector(7 downto 0);
 		DO : out std_logic_vector(7 downto 0);
+		DRIVE_DO : out std_logic;
 		
 		AUDIO : out std_logic_vector(15 downto 0);
 
@@ -479,6 +480,7 @@ decode_addr1 : entity work.complete_address_decoder
 		)
 	begin
 		do <= (others=>'0');
+		drive_do <= ADDR(4) and ADDR(3) and or_reduce(ADDR(2 downto 0));
 	
 		if (addr_decoded(25)='1') then
 			do <= potx;
@@ -487,7 +489,7 @@ decode_addr1 : entity work.complete_address_decoder
 			do <= poty;
 		end if;
 		if (addr_decoded(27)='1') then
-			do <= wave_c_reg(7 downto 0);
+			do <= wave_c_reg(11 downto 4);
 		end if;
 		if (addr_decoded(28)='1') then
 			do <= envelope_c_reg;

@@ -125,6 +125,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	SIGNAL POKEY_DO : DO_TYPE(3 downto 0);	
 	
 	SIGNAL SID_DO : DO_TYPE(1 downto 0);
+	SIGNAL SID_DRIVE_DO : std_logic_vector(1 downto 0);
 	
 	SIGNAL PSG_DO : DO_TYPE(1 DOWNTO 0);	
 	
@@ -244,6 +245,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal WRITE_N : std_logic;
 
 	signal DO_MUX : std_logic_vector(7 downto 0);
+	signal DRIVE_DO_MUX : std_logic;
 
 	signal i2c0_ena : std_logic;
 	signal i2c0_addr : std_logic_vector(7 downto 1);
@@ -546,7 +548,8 @@ bus_adapt : entity work.slave_timing_6502
 		ENABLE_CYCLE => ENABLE_CYCLE,
 		ENABLE_DOUBLE_CYCLE => ENABLE_DOUBLE_CYCLE,
 
-		DATA_OUT => DO_MUX
+		DATA_OUT => DO_MUX,
+		DRIVE_DATA_OUT => DRIVE_DO_MUX
 	);
 	
 auto_stereo : if enable_auto_stereo=1 generate -- auto detect
@@ -743,6 +746,8 @@ sid_off : if enable_sid=0 generate
 	SID_AUDIO(1) <= (others=>'0');
 	SID_DO(0) <= (others=>'0');
 	SID_DO(1) <= (others=>'0');
+	SID_DRIVE_DO(0) <= '0';
+	SID_DRIVE_DO(1) <= '0';
 end generate sid_off;
 
 sid_on : if enable_sid=1 generate 
@@ -801,6 +806,7 @@ PORT MAP(
 	ADDR => ADDR_IN(4 downto 0),
 	DI => WRITE_DATA(7 downto 0),
 	DO => SID_DO(0),
+	DRIVE_DO => SID_DRIVE_DO(0),
 	--POT_X => (others=>'0'),
 	--POT_Y => (others=>'0'),
 	--EXTFILTER_EN => '0',
@@ -834,6 +840,7 @@ PORT MAP(
 	ADDR => ADDR_IN(4 downto 0),
 	DI => WRITE_DATA(7 downto 0),
 	DO => SID_DO(1),
+	DRIVE_DO => SID_DRIVE_DO(1),
 	--POT_X => (others=>'0'),
 	--POT_Y => (others=>'0'),
 	--EXTFILTER_EN => '0',
@@ -1134,6 +1141,7 @@ begin
 	enable_region :='0';
 	
 	DO_MUX <= (others =>'0');
+	DRIVE_DO_MUX <= '1';
 	
 	case DEVICE_ADDR is
 		when "0001" =>
@@ -1151,10 +1159,12 @@ begin
 		when "0100"|"0101" =>
 			enable_region := RESTRICT_CAPABILITY_REG(2);
 			DO_MUX <= SID_DO(0);
+			DRIVE_DO_MUX <= SID_DRIVE_DO(0);
 			SID_WRITE_ENABLE(0) <= writereq;
 		when "0110"|"0111" =>
 			enable_region := RESTRICT_CAPABILITY_REG(2);
 			DO_MUX <= SID_DO(1);
+			DRIVE_DO_MUX <= SID_DRIVE_DO(1);
 			SID_WRITE_ENABLE(1) <= writereq;
 		when "1000"|"1001" =>
 			enable_region := RESTRICT_CAPABILITY_REG(4);
