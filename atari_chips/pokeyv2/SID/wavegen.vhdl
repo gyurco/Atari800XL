@@ -78,7 +78,7 @@ BEGIN
 		if (lfsr_enable='1') then
 			noise_and_others := or_reduce(waveselect_in(2 downto 0)) and waveselect_in(3);
 
-			lfsr_next(0) <= (lfsr_reg(22) xor lfsr_reg(17) xor test) and not(noise_and_others);
+			lfsr_next(0) <= (test or (lfsr_reg(22) xor lfsr_reg(17))) and not(noise_and_others);
 			lfsr_next(22 downto 1) <= lfsr_reg(21 downto 0);
 		end if;
 	end process;
@@ -104,6 +104,7 @@ BEGIN
 
 		if (waveselect_in(3)='1') then
 			noise(11 downto 4):= lfsr_reg(20)&lfsr_reg(18)&lfsr_reg(14)&lfsr_reg(11)&lfsr_reg(9)&lfsr_reg(5)&lfsr_reg(2)&lfsr_reg(0);
+			--2 4 3 2 4 3 2
 			noise(3 downto 0):= (others=>'0');
 		end if;
 

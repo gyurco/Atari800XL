@@ -567,8 +567,8 @@ decode_addr1 : entity work.complete_address_decoder
 
 		RINGMOD => control_a_reg(2),
 		RINGMOD_OSC_MSB => osc_c_reg(11),
-		TEST => control_a_reg(3),
-		LFSR_ENABLE => osc_a_lfsr_enable,
+		TEST => control_a_next(3),
+		LFSR_ENABLE => (osc_a_lfsr_enable or (control_a_reg(3) xor control_a_next(3)) or (control_a_reg(3) and enable)),
 		OSC_IN => osc_a_reg,
 		PULSE_WIDTH_IN => pulse_width_channel_a_reg,
 
@@ -590,8 +590,8 @@ decode_addr1 : entity work.complete_address_decoder
 
 		RINGMOD => control_b_reg(2),
 		RINGMOD_OSC_MSB => osc_a_reg(11),
-		TEST => control_b_reg(3),
-		LFSR_ENABLE => osc_b_lfsr_enable,
+		TEST => control_b_next(3),
+		LFSR_ENABLE => (osc_b_lfsr_enable or (control_b_reg(3) xor control_b_next(3)) or (control_b_reg(3) and enable)),
 		OSC_IN => osc_b_reg,
 		PULSE_WIDTH_IN => pulse_width_channel_b_reg,
 
@@ -613,8 +613,8 @@ decode_addr1 : entity work.complete_address_decoder
 
 		RINGMOD => control_c_reg(2),
 		RINGMOD_OSC_MSB => osc_b_reg(11),
-		TEST => control_c_reg(3),
-		LFSR_ENABLE => osc_c_lfsr_enable,
+		TEST => control_c_next(3),
+		LFSR_ENABLE => (osc_c_lfsr_enable or (control_c_reg(3) xor control_c_next(3)) or (control_c_reg(3) and enable)),
 		OSC_IN => osc_c_reg,
 		PULSE_WIDTH_IN => pulse_width_channel_c_reg,
 

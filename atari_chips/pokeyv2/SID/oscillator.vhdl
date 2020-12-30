@@ -55,7 +55,7 @@ BEGIN
 			count_inc := count_reg+resize(unsigned(adj),24);
 
 			sync_out <= count_inc(23) and not(count_reg(23));
-			lfsr_enable <= (count_inc(19) and not(count_reg(19))) or test;
+			lfsr_enable <= count_inc(19) and not(count_reg(19));
 
 			if (sync_in='1' or test='1') then
 				count_next <= (others=>'0');

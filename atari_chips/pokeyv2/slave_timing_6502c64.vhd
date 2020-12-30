@@ -52,7 +52,8 @@ ARCHITECTURE vhdl OF slave_timing_6502 IS
 
 	signal state_reg : std_logic_vector(1 downto 0);
 	signal state_next : std_logic_vector(1 downto 0);
-	constant state_wait_addrctl : std_logic_vector(1 downto 0) := "01";
+	constant state_wait_addrctl : std_logic_vector(1 downto 0) := "00";
+	constant state_wait_addrctl2 : std_logic_vector(1 downto 0) := "01";
 	constant state_write_request : std_logic_vector(1 downto 0) := "10";
 	constant state_read_output : std_logic_vector(1 downto 0) := "11";
 
@@ -68,8 +69,10 @@ ARCHITECTURE vhdl OF slave_timing_6502 IS
 	signal phi2_either_edge_reg : std_logic;
 
 	signal phi_addr_reg : std_logic_vector(address_bits-1 downto 0);
-	signal phi_cs_reg : std_logic;
+	signal phi_addr_next : std_logic_vector(address_bits-1 downto 0);
+	signal cs_sync : std_logic;
 	signal phi_rw_n_reg : std_logic;
+	signal phi_rw_n_next : std_logic;
 	signal phi_data_reg : std_logic_vector(7 downto 0);
 begin
 	-- phi2 half, phi2 is in sync properly within the atari, the out of sync stuff is a feature of the PBI buffer I believe
@@ -79,17 +82,6 @@ begin
 			phi_data_reg <= (others=>'0');
 		elsif (phi2'event and phi2='0') then -- falling edge
 			phi_data_reg <= bus_data;
-		end if;
-	end process;
-
-	process(bus_cs,reset_n)
-	begin
-		if (reset_n='0') then
-			phi_addr_reg <= (others=>'0');
-			phi_rw_n_reg <= '1';
-		elsif (bus_cs'event and bus_cs='1') then -- rising edge
-			phi_addr_reg <= bus_addr;
-			phi_rw_n_reg <= bus_rw_n;
 		end if;
 	end process;
 
@@ -109,6 +101,9 @@ begin
 			phi2_either_edge_reg <= '0';
 
 			state_reg <= state_wait_addrctl;
+
+			phi_addr_reg <= (others=>'0');
+			phi_rw_n_reg <= '1';
 		elsif (clk'event and clk='1') then
 			phi_edge_prev_reg <= phi_edge_prev_next;
 			bus_data_out_reg <= bus_data_out_next;
@@ -121,6 +116,9 @@ begin
 			phi2_either_edge_reg <= phi2_falling_edge or phi2_rising_edge;
 
 			state_reg <= state_next;
+
+			phi_addr_reg <= phi_addr_next;
+			phi_rw_n_reg <= phi_rw_n_next;
 		end if;
 	end process;
 	
@@ -128,7 +126,7 @@ begin
 				 port map (clk=>clk, raw=>PHI2, sync=>PHI2_SYNC);
 
 	synchronizer_cs : entity work.synchronizer
-				 port map (clk=>clk, raw=>bus_cs, sync=>phi_cs_reg);
+				 port map (clk=>clk, raw=>bus_cs, sync=>cs_sync);
 
 	phi_edge_prev_next <= phi2_sync;
 
@@ -141,8 +139,10 @@ begin
 		phi2_rising_edge,
 		phi2_falling_edge,
 		phi2_sync,
-		phi_cs_reg,
+		cs_sync,
 		phi_rw_n_reg,
+		bus_addr,
+		bus_rw_n,
 		state_reg)
 	begin
 		-- maintain snap (only read bus when safe!)
@@ -150,6 +150,8 @@ begin
 		bus_data_out_next <= bus_data_out_reg;
 		bus_drive_next <= bus_drive_reg;
 
+		phi_addr_next <= phi_addr_reg;
+		phi_rw_n_next <= phi_rw_n_reg;
 		registered_read_data_next <= registered_read_data_reg;
 		registered_drive_bus_next <= registered_drive_bus_reg;
 
@@ -201,16 +203,20 @@ begin
 		state_next <= state_reg;
 		case (state_reg) is
 			when state_wait_addrctl =>
+				if (phi2_sync='1' and cs_sync='1') then
+					state_next <= state_wait_addrctl2;
+					-- snap control signals, should be stable by now
+					phi_addr_next <= bus_addr;
+					phi_rw_n_next <= bus_rw_n;
+				end if;
+			when state_wait_addrctl2 =>
 				registered_read_data_next <= data_out;
 				registered_drive_bus_next <= drive_data_out;
-				if (phi2_sync='1' and phi_cs_reg='1') then
-					-- snap control signals, should be stable by now
-					if (phi_rw_n_reg='1') then -- read
-						internal_memory_request <= '1';
-						state_next <= state_read_output;
-					else
-						state_next <= state_write_request;
-					end if;
+				if (phi_rw_n_reg='1') then -- read
+					internal_memory_request <= '1';
+					state_next <= state_read_output;
+				else
+					state_next <= state_write_request;
 				end if;
 			when state_write_request =>
 				if (phi2_falling_edge='1') then
@@ -234,7 +240,7 @@ begin
 	addr_in <= phi_addr_reg;
 	data_in <= phi_data_reg;
 	rw_n <= phi_rw_n_reg;	
-	CS <= phi_cs_reg;
+	CS <= cs_sync;
 
 	enable_cycle <= phi2_falling_edge_reg;
 	enable_double_cycle <= phi2_either_edge_reg;

@@ -101,6 +101,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal CLK106 : std_logic;
 	signal RESET_N : std_logic;
 	signal PLL_RESET_N : std_logic;
+	signal RST_SYNC : std_logic;
 
 	signal ENABLE_CYCLE : std_logic;
 	signal ENABLE_DOUBLE_CYCLE : std_logic;
@@ -492,6 +493,8 @@ end generate;
                 port map (clk=>clk, raw=>EXT_INT(gtia_audio_bit), sync=>GTIA_AUDIO);
         synchronizer_fancy_enable : entity work.synchronizer
 		port map (clk=>clk, raw=>EXT_INT(fancy_switch_bit), sync=>FANCY_SWITCH);
+        synchronizer_rst : entity work.synchronizer
+                port map (clk=>clk, raw=>RST, sync=>RST_SYNC);
 
 	--assert address_bits<7 report "EXT3 already used for A6";
 
@@ -504,7 +507,7 @@ end generate;
 			 c2 => CLK106,  --106ish
 			 locked => PLL_RESET_N);
 
-	RESET_N <= PLL_RESET_N and RST;
+	RESET_N <= PLL_RESET_N and RST_SYNC;
 
 
 	AIN(3 downto 0) <= A;
@@ -751,9 +754,10 @@ end generate sid_off;
 sid_on : if enable_sid=1 generate 
 
 sid_clk_on : if ext_clk_enable=0 generate 
-	enable_sid_div : entity work.syncreset_enable_divider
-          generic map (COUNT=>58,RESETCOUNT=>6) -- 28-22
-          port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>SID_CLK_ENABLE);
+--	enable_sid_div : entity work.syncreset_enable_divider
+--          generic map (COUNT=>58,RESETCOUNT=>6) -- 28-22
+--          port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>SID_CLK_ENABLE);
+	SID_CLK_ENABLE <= ENABLE_CYCLE;
 end generate sid_clk_on;
 
 sid_clk_off : if ext_clk_enable=1 generate 
