@@ -127,14 +127,19 @@ ARCHITECTURE vhdl OF SID_top IS
 	signal statevariable_f_changed : std_logic;
 	signal statevariable_f_dirty_next : std_logic;
 	signal statevariable_f_dirty_reg : std_logic;
-	signal rom_state_reg : std_logic_vector(2 downto 0);
-	signal rom_state_next : std_logic_vector(2 downto 0);
-	constant rom_state_init : std_logic_vector(2 downto 0) := "000";
-	constant rom_state_romrequest_statevariable_f : std_logic_vector(2 downto 0) := "001";
-	constant rom_state_romrequest_wave_a : std_logic_vector(2 downto 0) := "010";
-	constant rom_state_romrequest_wave_b : std_logic_vector(2 downto 0) := "011";
-	constant rom_state_romrequest_wave_c : std_logic_vector(2 downto 0) := "100";
-	constant rom_state_romrequest_statevariable_q : std_logic_vector(2 downto 0) := "101";
+
+	type romstate is
+	(
+		rom_state_init,
+		rom_state_romrequest_statevariable_f,
+		rom_state_romrequest_wave_a,
+		rom_state_romrequest_wave_b,
+		rom_state_romrequest_wave_c,
+		rom_state_romrequest_statevariable_q
+	);
+	signal rom_state_reg : romstate;
+	signal rom_state_next : romstate;
+
 	signal statevariable_q_changed : std_logic;
 	signal statevariable_q_dirty_next : std_logic;
 	signal statevariable_q_dirty_reg : std_logic;
