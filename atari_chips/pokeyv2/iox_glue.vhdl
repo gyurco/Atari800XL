@@ -45,35 +45,41 @@ END iox_glue;
 
 ARCHITECTURE vhdl OF iox_glue IS
 	-- requests to send to i2c
-	signal state_reg : std_logic_vector(3 downto 0);
-	signal state_next : std_logic_vector(3 downto 0);
-	constant state_setup1 : std_logic_vector(3 downto 0) := "0000";
-	constant state_setup3 : std_logic_vector(3 downto 0) := "0010";
-	constant state_setup4 : std_logic_vector(3 downto 0) := "0011";
-	constant state_setup5 : std_logic_vector(3 downto 0) := "0100";
-	constant state_setup6 : std_logic_vector(3 downto 0) := "0101";
+	type ioxstate is
+	(
+		state_setup1,
+		state_setup3,
+		state_setup4,
+		state_setup5,
+		state_setup6,
 	--addr,$4f (driven),00000000 (port 1 is driven)
 	--addr,$03 (cfg port1), 10000001 (p1_0,p1_7 are inputs)
 	--addr,$43 (pull up/down),10000001 (use pull ups/downs)
 	--addr,$44 (pull up/down),10000001 (use pull up 100ks)
-	constant state_kbscan : std_logic_vector(3 downto 0) := "0110";
-	constant state_kbread : std_logic_vector(3 downto 0) := "0111";
-	constant state_setup7 : std_logic_vector(3 downto 0) := "1001";
-	constant state_kbscan_delay : std_logic_vector(3 downto 0) := "1010";
+		state_kbscan,
+		state_kbread,
+		state_setup7,
+		state_kbscan_delay
 	-- address, write input port0(02),val
 	-- address, read input port1(01),0xff(in)
 	-- address, write input port1(03),val
+	);
+	signal state_reg : ioxstate;
+	signal state_next : ioxstate;
 
 	signal w2 : std_logic;
 	signal write1 : std_logic_vector(7 downto 0);
 	signal write2 : std_logic_vector(7 downto 0);
 
-	signal i2c_state_reg : std_logic_vector(1 downto 0);
-	signal i2c_state_next : std_logic_vector(1 downto 0);
-	constant i2c_state_idle : std_logic_vector(1 downto 0) := "00";
-	constant i2c_state_part1 : std_logic_vector(1 downto 0) := "01";
-	constant i2c_state_part2 : std_logic_vector(1 downto 0) := "10";
-	constant i2c_state_part3 : std_logic_vector(1 downto 0) := "11";
+	type i2cstate is
+	(
+		i2c_state_idle,
+		i2c_state_part1,
+		i2c_state_part2,
+		i2c_state_part3
+	);
+	signal i2c_state_reg : i2cstate;
+	signal i2c_state_next : i2cstate;
 
 	signal op_complete : std_logic;
 	signal busy_reg : std_logic;
