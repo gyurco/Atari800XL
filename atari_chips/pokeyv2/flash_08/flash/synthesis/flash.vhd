@@ -141,7 +141,7 @@ begin
 			FLASH_WRITE_TIMEOUT_CYCLE_MAX_INDEX => 35380,
 			PARALLEL_MODE                       => true,
 			READ_AND_WRITE_MODE                 => true,
-			WRAPPING_BURST_MODE                 => false,
+			WRAPPING_BURST_MODE                 => true,
 			IS_DUAL_BOOT                        => "False",
 			IS_ERAM_SKIP                        => "True",
 			IS_COMPRESSED_IMAGE                 => "False"

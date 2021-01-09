@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deploy
- date="2020.06.15.08:46:53"
- outputDirectory="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_quad_sid/flash/">
+ date="2021.01.09.23:22:36"
+ outputDirectory="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/flash/">
  <perimeter>
   <parameter
      name="AUTO_GENERATION_ID"
@@ -130,7 +130,7 @@
    <property name="isFlash" value="true" />
    <property name="isMemoryDevice" value="true" />
    <property name="isNonVolatileStorage" value="true" />
-   <property name="linewrapBursts" value="false" />
+   <property name="linewrapBursts" value="true" />
    <property name="maximumPendingReadTransactions" value="1" />
    <property name="maximumPendingWriteTransactions" value="0" />
    <property name="minimumUninterruptedRunLength" value="0" />
@@ -184,13 +184,13 @@
  </perimeter>
  <entity
    path=""
-   parameterizationKey="flash:1.0:AUTO_CLK_CLOCK_DOMAIN=-1,AUTO_CLK_CLOCK_RATE=-1,AUTO_CLK_RESET_DOMAIN=-1,AUTO_DEVICE=10M08SCU169C8G,AUTO_DEVICE_FAMILY=MAX 10,AUTO_DEVICE_SPEEDGRADE=8,AUTO_GENERATION_ID=1592203613,AUTO_UNIQUE_ID=(altera_onchip_flash:19.1:ADDR_RANGE1_END_ADDR=8191,ADDR_RANGE1_OFFSET=512,ADDR_RANGE2_END_ADDR=58879,ADDR_RANGE2_OFFSET=21504,ADDR_RANGE3_OFFSET=0,AUTO_CLOCK_RATE=0,AVMM_DATA_ADDR_WIDTH=16,AVMM_DATA_BURSTCOUNT_WIDTH=2,AVMM_DATA_DATA_WIDTH=32,CLOCK_FREQUENCY=116.0,CONFIGURATION_MODE=Single Uncompressed Image,CONFIGURATION_SCHEME=Internal Configuration,DATA_INTERFACE=Parallel,DEVICE_FAMILY=MAX 10,DEVICE_ID=08,FLASH_ADDR_ALIGNMENT_BITS=1,FLASH_BUSY_TIMEOUT_CYCLE_MAX_INDEX=139,FLASH_ERASE_TIMEOUT_CYCLE_MAX_INDEX=40600000,FLASH_READ_CYCLE_MAX_INDEX=4,FLASH_RESET_CYCLE_MAX_INDEX=29,FLASH_SEQ_READ_DATA_COUNT=2,FLASH_WRITE_TIMEOUT_CYCLE_MAX_INDEX=35380,INIT_FILENAME=,INIT_FILENAME_SIM=,IS_COMPRESSED_IMAGE=False,IS_DUAL_BOOT=False,IS_ERAM_SKIP=True,MAX_UFM_VALID_ADDR=8191,MAX_VALID_ADDR=58879,MIN_UFM_VALID_ADDR=0,MIN_VALID_ADDR=0,PARALLEL_MODE=true,PART_NAME=10M08SCU169C8G,READ_AND_WRITE_MODE=true,READ_BURST_COUNT=2,READ_BURST_MODE=Incrementing,SECTOR1_END_ADDR=4095,SECTOR1_MAP=1,SECTOR1_START_ADDR=0,SECTOR2_END_ADDR=8191,SECTOR2_MAP=2,SECTOR2_START_ADDR=4096,SECTOR3_END_ADDR=23039,SECTOR3_MAP=4,SECTOR3_START_ADDR=8192,SECTOR4_END_ADDR=58879,SECTOR4_MAP=5,SECTOR4_START_ADDR=23040,SECTOR5_END_ADDR=0,SECTOR5_MAP=0,SECTOR5_START_ADDR=0,SECTOR_ACCESS_MODE=Read and write,Read and write,Read only,Read and write,Read and write,SECTOR_ADDRESS_MAPPING=0x00000 - 0x03fff,0x04000 - 0x07fff,NA,0x08000 - 0x167ff,0x16800 - 0x397ff,SECTOR_ID=1,2,NA,3,4,SECTOR_READ_PROTECTION_MODE=16,SECTOR_STORAGE_TYPE=UFM,UFM,NA,CFM,CFM,WRAPPING_BURST_MODE=false,autoInitializationFileName=flash_onchip_flash_0,initFlashContent=false,initializationFileName=altera_onchip_flash.hex,initializationFileNameForSim=altera_onchip_flash.dat,useNonDefaultInitFile=false)"
+   parameterizationKey="flash:1.0:AUTO_CLK_CLOCK_DOMAIN=-1,AUTO_CLK_CLOCK_RATE=-1,AUTO_CLK_RESET_DOMAIN=-1,AUTO_DEVICE=10M08SCU169C8G,AUTO_DEVICE_FAMILY=MAX 10,AUTO_DEVICE_SPEEDGRADE=8,AUTO_GENERATION_ID=1610230956,AUTO_UNIQUE_ID=(altera_onchip_flash:19.1:ADDR_RANGE1_END_ADDR=8191,ADDR_RANGE1_OFFSET=512,ADDR_RANGE2_END_ADDR=58879,ADDR_RANGE2_OFFSET=21504,ADDR_RANGE3_OFFSET=0,AUTO_CLOCK_RATE=0,AVMM_DATA_ADDR_WIDTH=16,AVMM_DATA_BURSTCOUNT_WIDTH=2,AVMM_DATA_DATA_WIDTH=32,CLOCK_FREQUENCY=116.0,CONFIGURATION_MODE=Single Uncompressed Image,CONFIGURATION_SCHEME=Internal Configuration,DATA_INTERFACE=Parallel,DEVICE_FAMILY=MAX 10,DEVICE_ID=08,FLASH_ADDR_ALIGNMENT_BITS=1,FLASH_BUSY_TIMEOUT_CYCLE_MAX_INDEX=139,FLASH_ERASE_TIMEOUT_CYCLE_MAX_INDEX=40600000,FLASH_READ_CYCLE_MAX_INDEX=4,FLASH_RESET_CYCLE_MAX_INDEX=29,FLASH_SEQ_READ_DATA_COUNT=2,FLASH_WRITE_TIMEOUT_CYCLE_MAX_INDEX=35380,INIT_FILENAME=,INIT_FILENAME_SIM=,IS_COMPRESSED_IMAGE=False,IS_DUAL_BOOT=False,IS_ERAM_SKIP=True,MAX_UFM_VALID_ADDR=8191,MAX_VALID_ADDR=58879,MIN_UFM_VALID_ADDR=0,MIN_VALID_ADDR=0,PARALLEL_MODE=true,PART_NAME=10M08SCU169C8G,READ_AND_WRITE_MODE=true,READ_BURST_COUNT=2,READ_BURST_MODE=Wrapping,SECTOR1_END_ADDR=4095,SECTOR1_MAP=1,SECTOR1_START_ADDR=0,SECTOR2_END_ADDR=8191,SECTOR2_MAP=2,SECTOR2_START_ADDR=4096,SECTOR3_END_ADDR=23039,SECTOR3_MAP=4,SECTOR3_START_ADDR=8192,SECTOR4_END_ADDR=58879,SECTOR4_MAP=5,SECTOR4_START_ADDR=23040,SECTOR5_END_ADDR=0,SECTOR5_MAP=0,SECTOR5_START_ADDR=0,SECTOR_ACCESS_MODE=Read and write,Read and write,Read only,Read and write,Read and write,SECTOR_ADDRESS_MAPPING=0x00000 - 0x03fff,0x04000 - 0x07fff,NA,0x08000 - 0x167ff,0x16800 - 0x397ff,SECTOR_ID=1,2,NA,3,4,SECTOR_READ_PROTECTION_MODE=16,SECTOR_STORAGE_TYPE=UFM,UFM,NA,CFM,CFM,WRAPPING_BURST_MODE=true,autoInitializationFileName=flash_onchip_flash_0,initFlashContent=false,initializationFileName=altera_onchip_flash.hex,initializationFileNameForSim=altera_onchip_flash.dat,useNonDefaultInitFile=false)"
    instancePathKey="flash"
    kind="flash"
    version="1.0"
    name="flash">
   <parameter name="AUTO_CLK_CLOCK_RATE" value="-1" />
-  <parameter name="AUTO_GENERATION_ID" value="1592203613" />
+  <parameter name="AUTO_GENERATION_ID" value="1610230956" />
   <parameter name="AUTO_DEVICE" value="10M08SCU169C8G" />
   <parameter name="AUTO_DEVICE_FAMILY" value="MAX 10" />
   <parameter name="AUTO_CLK_RESET_DOMAIN" value="-1" />
@@ -199,38 +199,38 @@
   <parameter name="AUTO_DEVICE_SPEEDGRADE" value="8" />
   <generatedFiles>
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_quad_sid/flash/synthesis/flash.vhd"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/flash/synthesis/flash.vhd"
        type="VHDL" />
   </generatedFiles>
   <childGeneratedFiles>
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_quad_sid/flash/synthesis/submodules/altera_onchip_flash_util.v"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/flash/synthesis/submodules/altera_onchip_flash_util.v"
        type="VERILOG"
        attributes="" />
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_quad_sid/flash/synthesis/submodules/altera_onchip_flash.v"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/flash/synthesis/submodules/altera_onchip_flash.v"
        type="VERILOG"
        attributes="" />
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_quad_sid/flash/synthesis/submodules/altera_onchip_flash_avmm_data_controller.v"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/flash/synthesis/submodules/altera_onchip_flash_avmm_data_controller.v"
        type="VERILOG"
        attributes="" />
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_quad_sid/flash/synthesis/submodules/altera_onchip_flash_avmm_csr_controller.v"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/flash/synthesis/submodules/altera_onchip_flash_avmm_csr_controller.v"
        type="VERILOG"
        attributes="" />
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_quad_sid/flash/synthesis/submodules/altera_onchip_flash.sdc"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/flash/synthesis/submodules/altera_onchip_flash.sdc"
        type="SDC"
        attributes="" />
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_quad_sid/flash/synthesis/submodules/rtl/altera_onchip_flash_block.v"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/flash/synthesis/submodules/rtl/altera_onchip_flash_block.v"
        type="VERILOG"
        attributes="" />
   </childGeneratedFiles>
   <sourceFiles>
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_quad_sid/flash.qsys" />
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/flash.qsys" />
   </sourceFiles>
   <childSourceFiles>
    <file
@@ -258,7 +258,7 @@
  </entity>
  <entity
    path="submodules/"
-   parameterizationKey="altera_onchip_flash:19.1:ADDR_RANGE1_END_ADDR=8191,ADDR_RANGE1_OFFSET=512,ADDR_RANGE2_END_ADDR=58879,ADDR_RANGE2_OFFSET=21504,ADDR_RANGE3_OFFSET=0,AUTO_CLOCK_RATE=0,AVMM_DATA_ADDR_WIDTH=16,AVMM_DATA_BURSTCOUNT_WIDTH=2,AVMM_DATA_DATA_WIDTH=32,CLOCK_FREQUENCY=116.0,CONFIGURATION_MODE=Single Uncompressed Image,CONFIGURATION_SCHEME=Internal Configuration,DATA_INTERFACE=Parallel,DEVICE_FAMILY=MAX 10,DEVICE_ID=08,FLASH_ADDR_ALIGNMENT_BITS=1,FLASH_BUSY_TIMEOUT_CYCLE_MAX_INDEX=139,FLASH_ERASE_TIMEOUT_CYCLE_MAX_INDEX=40600000,FLASH_READ_CYCLE_MAX_INDEX=4,FLASH_RESET_CYCLE_MAX_INDEX=29,FLASH_SEQ_READ_DATA_COUNT=2,FLASH_WRITE_TIMEOUT_CYCLE_MAX_INDEX=35380,INIT_FILENAME=,INIT_FILENAME_SIM=,IS_COMPRESSED_IMAGE=False,IS_DUAL_BOOT=False,IS_ERAM_SKIP=True,MAX_UFM_VALID_ADDR=8191,MAX_VALID_ADDR=58879,MIN_UFM_VALID_ADDR=0,MIN_VALID_ADDR=0,PARALLEL_MODE=true,PART_NAME=10M08SCU169C8G,READ_AND_WRITE_MODE=true,READ_BURST_COUNT=2,READ_BURST_MODE=Incrementing,SECTOR1_END_ADDR=4095,SECTOR1_MAP=1,SECTOR1_START_ADDR=0,SECTOR2_END_ADDR=8191,SECTOR2_MAP=2,SECTOR2_START_ADDR=4096,SECTOR3_END_ADDR=23039,SECTOR3_MAP=4,SECTOR3_START_ADDR=8192,SECTOR4_END_ADDR=58879,SECTOR4_MAP=5,SECTOR4_START_ADDR=23040,SECTOR5_END_ADDR=0,SECTOR5_MAP=0,SECTOR5_START_ADDR=0,SECTOR_ACCESS_MODE=Read and write,Read and write,Read only,Read and write,Read and write,SECTOR_ADDRESS_MAPPING=0x00000 - 0x03fff,0x04000 - 0x07fff,NA,0x08000 - 0x167ff,0x16800 - 0x397ff,SECTOR_ID=1,2,NA,3,4,SECTOR_READ_PROTECTION_MODE=16,SECTOR_STORAGE_TYPE=UFM,UFM,NA,CFM,CFM,WRAPPING_BURST_MODE=false,autoInitializationFileName=flash_onchip_flash_0,initFlashContent=false,initializationFileName=altera_onchip_flash.hex,initializationFileNameForSim=altera_onchip_flash.dat,useNonDefaultInitFile=false"
+   parameterizationKey="altera_onchip_flash:19.1:ADDR_RANGE1_END_ADDR=8191,ADDR_RANGE1_OFFSET=512,ADDR_RANGE2_END_ADDR=58879,ADDR_RANGE2_OFFSET=21504,ADDR_RANGE3_OFFSET=0,AUTO_CLOCK_RATE=0,AVMM_DATA_ADDR_WIDTH=16,AVMM_DATA_BURSTCOUNT_WIDTH=2,AVMM_DATA_DATA_WIDTH=32,CLOCK_FREQUENCY=116.0,CONFIGURATION_MODE=Single Uncompressed Image,CONFIGURATION_SCHEME=Internal Configuration,DATA_INTERFACE=Parallel,DEVICE_FAMILY=MAX 10,DEVICE_ID=08,FLASH_ADDR_ALIGNMENT_BITS=1,FLASH_BUSY_TIMEOUT_CYCLE_MAX_INDEX=139,FLASH_ERASE_TIMEOUT_CYCLE_MAX_INDEX=40600000,FLASH_READ_CYCLE_MAX_INDEX=4,FLASH_RESET_CYCLE_MAX_INDEX=29,FLASH_SEQ_READ_DATA_COUNT=2,FLASH_WRITE_TIMEOUT_CYCLE_MAX_INDEX=35380,INIT_FILENAME=,INIT_FILENAME_SIM=,IS_COMPRESSED_IMAGE=False,IS_DUAL_BOOT=False,IS_ERAM_SKIP=True,MAX_UFM_VALID_ADDR=8191,MAX_VALID_ADDR=58879,MIN_UFM_VALID_ADDR=0,MIN_VALID_ADDR=0,PARALLEL_MODE=true,PART_NAME=10M08SCU169C8G,READ_AND_WRITE_MODE=true,READ_BURST_COUNT=2,READ_BURST_MODE=Wrapping,SECTOR1_END_ADDR=4095,SECTOR1_MAP=1,SECTOR1_START_ADDR=0,SECTOR2_END_ADDR=8191,SECTOR2_MAP=2,SECTOR2_START_ADDR=4096,SECTOR3_END_ADDR=23039,SECTOR3_MAP=4,SECTOR3_START_ADDR=8192,SECTOR4_END_ADDR=58879,SECTOR4_MAP=5,SECTOR4_START_ADDR=23040,SECTOR5_END_ADDR=0,SECTOR5_MAP=0,SECTOR5_START_ADDR=0,SECTOR_ACCESS_MODE=Read and write,Read and write,Read only,Read and write,Read and write,SECTOR_ADDRESS_MAPPING=0x00000 - 0x03fff,0x04000 - 0x07fff,NA,0x08000 - 0x167ff,0x16800 - 0x397ff,SECTOR_ID=1,2,NA,3,4,SECTOR_READ_PROTECTION_MODE=16,SECTOR_STORAGE_TYPE=UFM,UFM,NA,CFM,CFM,WRAPPING_BURST_MODE=true,autoInitializationFileName=flash_onchip_flash_0,initFlashContent=false,initializationFileName=altera_onchip_flash.hex,initializationFileNameForSim=altera_onchip_flash.dat,useNonDefaultInitFile=false"
    instancePathKey="flash:.:onchip_flash_0"
    kind="altera_onchip_flash"
    version="19.1"
@@ -285,7 +285,7 @@
   <parameter name="CONFIGURATION_SCHEME" value="Internal Configuration" />
   <parameter name="SECTOR3_MAP" value="4" />
   <parameter name="DEVICE_ID" value="08" />
-  <parameter name="WRAPPING_BURST_MODE" value="false" />
+  <parameter name="WRAPPING_BURST_MODE" value="true" />
   <parameter name="SECTOR5_MAP" value="0" />
   <parameter name="FLASH_SEQ_READ_DATA_COUNT" value="2" />
   <parameter name="FLASH_WRITE_TIMEOUT_CYCLE_MAX_INDEX" value="35380" />
@@ -300,7 +300,7 @@
      name="SECTOR_ADDRESS_MAPPING"
      value="0x00000 - 0x03fff,0x04000 - 0x07fff,NA,0x08000 - 0x167ff,0x16800 - 0x397ff" />
   <parameter name="IS_ERAM_SKIP" value="True" />
-  <parameter name="READ_BURST_MODE" value="Incrementing" />
+  <parameter name="READ_BURST_MODE" value="Wrapping" />
   <parameter name="READ_AND_WRITE_MODE" value="true" />
   <parameter name="FLASH_BUSY_TIMEOUT_CYCLE_MAX_INDEX" value="139" />
   <parameter name="SECTOR5_START_ADDR" value="0" />
@@ -331,27 +331,27 @@
   <parameter name="IS_DUAL_BOOT" value="False" />
   <generatedFiles>
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_quad_sid/flash/synthesis/submodules/altera_onchip_flash_util.v"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/flash/synthesis/submodules/altera_onchip_flash_util.v"
        type="VERILOG"
        attributes="" />
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_quad_sid/flash/synthesis/submodules/altera_onchip_flash.v"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/flash/synthesis/submodules/altera_onchip_flash.v"
        type="VERILOG"
        attributes="" />
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_quad_sid/flash/synthesis/submodules/altera_onchip_flash_avmm_data_controller.v"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/flash/synthesis/submodules/altera_onchip_flash_avmm_data_controller.v"
        type="VERILOG"
        attributes="" />
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_quad_sid/flash/synthesis/submodules/altera_onchip_flash_avmm_csr_controller.v"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/flash/synthesis/submodules/altera_onchip_flash_avmm_csr_controller.v"
        type="VERILOG"
        attributes="" />
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_quad_sid/flash/synthesis/submodules/altera_onchip_flash.sdc"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/flash/synthesis/submodules/altera_onchip_flash.sdc"
        type="SDC"
        attributes="" />
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_quad_sid/flash/synthesis/submodules/rtl/altera_onchip_flash_block.v"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/flash/synthesis/submodules/rtl/altera_onchip_flash_block.v"
        type="VERILOG"
        attributes="" />
   </generatedFiles>
