@@ -191,10 +191,10 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal SID_FLASH2_ADDR : std_logic_vector(16 downto 0);
         signal SID_FLASH2_ROMREQUEST : std_logic;
         signal SID_FLASH2_ROMREADY : std_logic;
-	signal SID_FILTER1_REG : std_logic_vector(0 downto 0);
-	signal SID_FILTER1_NEXT : std_logic_vector(0 downto 0);
-	signal SID_FILTER2_REG : std_logic_vector(0 downto 0);
-	signal SID_FILTER2_NEXT : std_logic_vector(0 downto 0);
+	signal SID_FILTER1_REG : std_logic_vector(1 downto 0);
+	signal SID_FILTER1_NEXT : std_logic_vector(1 downto 0);
+	signal SID_FILTER2_REG : std_logic_vector(1 downto 0);
+	signal SID_FILTER2_NEXT : std_logic_vector(1 downto 0);
 	signal SID1_FILTER_BP : signed(17 downto 8);
 	signal SID1_FILTER_HP : signed(17 downto 8);
 	signal SID1_F_RAW : std_logic_vector(12 downto 0);
@@ -1215,8 +1215,8 @@ begin
 		PSG_STEREOMODE_REG <= "01"; --Polish
 		PSG_PROFILESEL_REG <= "00"; --Simple log
 		PSG_ENVELOPE16_REG <= '0'; --32 step
-		SID_FILTER1_REG <= "0"; -- 0=8580,1=6581
-		SID_FILTER2_REG <= "0"; -- 0=8580,1=6581
+		SID_FILTER1_REG <= "10"; -- 0=8580,1=6581,2=digifix
+		SID_FILTER2_REG <= "10"; -- 0=8580,1=6581,2=digifix
 		RESTRICT_CAPABILITY_REG <= (others=>'1');
 	elsif (clk'event and clk='1') then
 		DETECT_RIGHT_REG <= DETECT_RIGHT_NEXT;
@@ -1313,10 +1313,10 @@ begin
 				PSG_PROFILESEL_NEXT <= flash_do_slow(30 downto 29);
 					-- 31 reserved
 			when "1" =>
-				SID_FILTER1_NEXT <= flash_do_slow(0 downto 0);
-				-- 1-3 reserved
-				SID_FILTER2_NEXT <= flash_do_slow(4 downto 4);
-				-- 5-7 reserved
+				SID_FILTER1_NEXT <= flash_do_slow(1 downto 0);
+				-- 2-3 reserved
+				SID_FILTER2_NEXT <= flash_do_slow(5 downto 4);
+				-- 6-7 reserved
 				RESTRICT_CAPABILITY_NEXT <= flash_do_slow(12 downto 8);
 				-- 13-15 reserved
 			when others =>
@@ -1349,8 +1349,8 @@ begin
 		end if;
 
 		if (addr_decoded4(6)='1') then
-			SID_FILTER1_NEXT <= WRITE_DATA(0 downto 0);
-			SID_FILTER2_NEXT <= WRITE_DATA(4 downto 4);
+			SID_FILTER1_NEXT <= WRITE_DATA(1 downto 0);
+			SID_FILTER2_NEXT <= WRITE_DATA(5 downto 4);
 			-- (3 downto 1) reserved in case we want all revisions!
 		end if;
 
@@ -1503,10 +1503,10 @@ begin
 
 	if (addr_decoded4(6)='1') then
 		CONFIG_DO <= (others=>'0');
-		CONFIG_DO(0 downto 0) <= SID_FILTER1_REG;
-		-- (3 downto 1) reserved in case we want more filter options
-		CONFIG_DO(4 downto 4) <= SID_FILTER2_REG;
-		-- (7 downto 5) reserved in case we want more filter options
+		CONFIG_DO(1 downto 0) <= SID_FILTER1_REG;
+		-- (3 downto 2) reserved in case we want more filter options
+		CONFIG_DO(5 downto 4) <= SID_FILTER2_REG;
+		-- (7 downto 6) reserved in case we want more filter options
 	end if;
 
 	if (addr_decoded4(7)='1') then
