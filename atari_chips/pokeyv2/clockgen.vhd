@@ -37,8 +37,8 @@ ARCHITECTURE vhdl OF clockgen IS
 	signal cycle_count_reg : unsigned(3 downto 0);
 	signal clk_count_next : unsigned(8 downto 0);
 	signal clk_count_reg : unsigned(8 downto 0);
-	signal err_next : signed(13 downto 0);
-	signal err_reg : signed(13 downto 0);
+	signal err_next : signed(9 downto 0);
+	signal err_reg : signed(9 downto 0);
 
 	signal state_next : std_logic_vector(1 downto 0);
 	signal state_reg : std_logic_vector(1 downto 0);
@@ -56,106 +56,115 @@ BEGIN
 			cycle_count_reg <= (others=>'0');
 			clk_count_reg <= (others=>'0');
 			err_reg <= (others=>'0');
-			state_reg <= state_sync;
-			everyother_reg <= '0';
+--			state_reg <= state_sync;
+--			everyother_reg <= '0';
 		elsif (clk'event and clk='1') then
 			cycle_count_reg <= cycle_count_next;
 			clk_count_reg <= clk_count_next;
 			err_reg <= err_next;
-			state_reg <= state_next;
-			everyother_reg <= everyother_next;
+--			state_reg <= state_next;
+--			everyother_reg <= everyother_next;
 		end if;
 	end process;
 
-	process(clk_count_reg,cycle_count_reg,pal,phi2,state_reg,err_reg)
-		variable threshold : unsigned(3 downto 0);
-		variable adj1 : unsigned(17 downto 0); 
-		variable adj : signed(13 downto 0); -- 8.6 fixed point
-		variable trig : std_logic;
-		variable cycle_inc : std_logic;
-		variable thresh_match : std_logic;
+--	process(clk_count_reg,cycle_count_reg,pal,phi2,state_reg,err_reg)
+--		variable threshold : unsigned(3 downto 0);
+--		variable adj1 : unsigned(17 downto 0); 
+--		variable adj : signed(13 downto 0); -- 8.6 fixed point
+--		variable trig : std_logic;
+--		variable cycle_inc : std_logic;
+--		variable thresh_match : std_logic;
+--
+--		variable multby : unsigned(8 downto 0);
+--	begin
+--		cycle_count_next <= cycle_count_reg;
+--		clk_count_next <= clk_count_reg;
+--		state_next <= state_reg;
+--		err_next <= err_reg;
+--		everyother_next <= everyother_reg;
+--
+--		trig := '0';
+--		cycle_inc := '0';
+--
+--		mhz1 <= '0';
+--		mhz2 <= '0';
+--
+--		if (pal='1') then
+--			multby := to_unsigned(51,9);
+--		else
+--			multby := to_unsigned(64,9);
+--		end if;
+--		adj1:= multby * clk_count_reg;
+--		adj:= signed(adj1(16 downto 3));
+--
+--		--threshold: = "0111"; ntsc
+--		--threshold: = "1001"; pal
+--		threshold(0) := '1';
+--		threshold(1) := not(pal);
+--		threshold(2) := not(pal);
+--		threshold(3) := pal;
+--
+--		thresh_match := '0';
+--		if (cycle_count_reg=threshold) then
+--			thresh_match := '1';
+--		end if;
+--
+--
+--		err_next(13 downto 6) <= err_reg(13 downto 6) + 1;
+--
+--		case state_reg is
+--			when state_sync =>
+--				if (phi2='1') then
+--					state_next <= state_count;
+--				end if;
+--			when state_count =>
+--				clk_count_next <= clk_count_reg + 1;
+--				if (phi2='1') then
+--					cycle_inc := '1';
+--				end if;
+--				if (thresh_match='1') then
+--					state_next <= state_gen;
+--				end if;
+--			when state_genbegin =>
+--				if (phi2='1') then
+--					cycle_count_next <= (others=>'0');
+--					state_next <= state_gen;
+--					err_next <= -adj;
+--					trig := '1';
+--				end if;
+--			when state_gen =>
+--				-- threshold here is other size -1, which happens to match!
+--				if (err_reg(13) = '0') then
+--					err_next <= err_reg - adj;
+--					trig := '1';
+--					cycle_inc := '1';
+--					if (thresh_match='1') then
+--						state_next <= state_genbegin;
+--					end if;
+--				end if;
+--			when others=>
+--				state_next <= state_sync;
+--		end case;
+--
+--		if (cycle_inc='1') then
+--			cycle_count_next <= cycle_count_reg+1;
+--		end if;
+--
+--		if (trig='1') then
+--			mhz2 <= '1';
+--			everyother_next <= not(everyother_reg);
+--			mhz1 <= everyother_reg;
+--		end if;
+--	end process;
 
-		variable multby : unsigned(8 downto 0);
-	begin
-		cycle_count_next <= cycle_count_reg;
-		clk_count_next <= clk_count_reg;
-		state_next <= state_reg;
-		err_next <= err_reg;
-		everyother_next <= everyother_reg;
 
-		trig := '0';
-		cycle_inc := '0';
+enable_psg_div2 : entity work.syncreset_enable_divider
+  generic map (COUNT=>29,RESETCOUNT=>6) -- 28-22
+  port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>mhz2);
 
-		mhz1 <= '0';
-		mhz2 <= '0';
+enable_psg_div1 : entity work.syncreset_enable_divider
+  generic map (COUNT=>58,RESETCOUNT=>6) -- 28-22
+  port map(clk=>clk,syncreset=>'0',reset_n=>reset_n,enable_in=>'1',enable_out=>mhz1);
 
-		if (pal='1') then
-			multby := to_unsigned(51,9);
-		else
-			multby := to_unsigned(64,9);
-		end if;
-		adj1:= multby * clk_count_reg;
-		adj:= signed(adj1(16 downto 3));
-
-		--threshold: = "0111"; ntsc
-		--threshold: = "1001"; pal
-		threshold(0) := '1';
-		threshold(1) := not(pal);
-		threshold(2) := not(pal);
-		threshold(3) := pal;
-
-		thresh_match := '0';
-		if (cycle_count_reg=threshold) then
-			thresh_match := '1';
-		end if;
-
-		case state_reg is
-			when state_sync =>
-				if (phi2='1') then
-					state_next <= state_count;
-				end if;
-				clk_count_next <= (others=>'0');
-				cycle_count_next <= (others=>'0');
-			when state_count =>
-				clk_count_next <= clk_count_reg + 1;
-				if (phi2='1') then
-					cycle_inc := '1';
-				end if;
-				if (thresh_match='1') then
-					state_next <= state_gen;
-				end if;
-			when state_genbegin =>
-				if (phi2='1') then
-					err_next <= -adj;
-					cycle_count_next <= (others=>'0');
-					state_next <= state_gen;
-
-					trig := '1';
-				end if;
-			when state_gen =>
-				-- threshold here is other size -1, which happens to match!
-				err_next(13 downto 6) <= err_reg(13 downto 6) + 1;
-				if (err_reg>to_signed(0,14)) then
-					err_next <= err_reg - adj;
-					trig := '1';
-					cycle_inc := '1';
-					if (thresh_match='1') then
-						state_next <= state_genbegin;
-					end if;
-				end if;
-			when others=>
-				state_next <= state_sync;
-		end case;
-
-		if (cycle_inc='1') then
-			cycle_count_next <= cycle_count_reg+1;
-		end if;
-
-		if (trig='1') then
-			mhz2 <= '1';
-			everyother_next <= not(everyother_reg);
-			mhz1 <= everyother_reg;
-		end if;
-	end process;
 
 end vhdl;	
