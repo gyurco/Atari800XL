@@ -308,19 +308,35 @@ void renderLine(unsigned long * flash1, unsigned long * flash2, unsigned char ac
 	break;
     case 11:
         revers(activeLine==11);
-        val = (*flash2)&0x1;
+        val = (*flash2)&0x3;
         cprintf("SID version   : ");
         revers(activeLine==11 && col==0);
-        if (val==0)
-                cprintf("1:8580 ");
-        else
-                cprintf("1:6581 ");
+	switch(val)
+	{
+	case 0:
+        	cprintf("1:8580  ");
+		break;
+	case 1:
+                cprintf("1:6581  ");
+		break;
+	case 2:
+                cprintf("1:8580D ");
+		break;
+	}
         revers(activeLine==11 && col==1);
-        val = (*flash2)&0x10;
-        if (val==0)
-                cprintf("2:8580");
-        else
-                cprintf("2:6581");
+        val = (*flash2)&0x30;
+	switch(val)
+	{
+	case 0:
+        	cprintf("2:8580 ");
+		break;
+	case 0x10:
+                cprintf("2:6581 ");
+		break;
+	case 0x20:
+                cprintf("2:8580D");
+		break;
+	}
 	break;
     case 12:
         revers(activeLine==12);
@@ -480,9 +496,9 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char l
 	    break;
     case 11:
             flashaddr = flash2;
-	    mask = 1;
+	    mask = 3;
             shift = 0 + (col<<2);
-	    max = 1;
+	    max = 2;
 	    break;
     case 12:
             flashaddr = flash2;
