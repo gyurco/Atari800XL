@@ -15,12 +15,15 @@ PORT
 	CLK : IN STD_LOGIC;
 	RESET_N : IN STD_LOGIC;
 	ENABLE : IN STD_LOGIC;
+
+	BIAS_CHANNEL : IN STD_LOGIC;
+	BIAS_FILTER : IN STD_LOGIC;
 	
 	CHANNEL_A : IN SIGNED(15 downto 0);
 	CHANNEL_B : IN SIGNED(15 downto 0);
 	CHANNEL_C : IN SIGNED(15 downto 0);
 	CHANNEL_C_CUTDIRECT : IN STD_LOGIC;
-	FILTER_EN : IN STD_LOGIC_VECTOR(2 downto 0);
+	FILTER_EN : IN STD_LOGIC_VECTOR(3 downto 0);
 
 	PREFILTER_OUT : OUT SIGNED(15 downto 0); 
 	DIRECT_OUT : OUT SIGNED(15 downto 0)     -- Only chdis/4 amplitude
@@ -39,6 +42,14 @@ ARCHITECTURE vhdl OF SID_preFilterSum IS
 	
 	signal channel_mux : signed(15 downto 0);
 	signal channel_sel : std_logic_vector(1 downto 0);
+
+	function logic_to_unsigned(a : std_logic; b : integer) return unsigned is
+   		 variable ret : unsigned(2 downto 0);
+	begin
+		ret(2 downto 0) := (others=>'0');
+		ret(b) := a;
+	    return ret;
+	end function logic_to_unsigned;
 BEGIN
 	-- register
 	process(clk, reset_n)
@@ -57,13 +68,15 @@ BEGIN
 	end process;
 	
 	-- next state
-	process(phase_reg,acc_reg,prefilter_reg,direct_reg,enable,channel_c_cutdirect,filter_en,channel_mux)
+	process(phase_reg,acc_reg,prefilter_reg,direct_reg,enable,channel_c_cutdirect,filter_en,channel_mux,bias_channel,bias_filter)
 		variable filter_en0_ext : std_logic_vector(1 downto 0);
 		variable filter_en1_ext : std_logic_vector(1 downto 0);
 		variable filter_en2_ext : std_logic_vector(1 downto 0);
 		variable filter_en2cd_ext : std_logic_vector(1 downto 0);
 		
 		variable adder_result : signed(17 downto 0);
+
+		variable bias : unsigned(2 downto 0);
 	begin
 		prefilter_next <= prefilter_reg;
 		direct_next <= direct_reg;
@@ -79,8 +92,8 @@ BEGIN
 		
 		phase_next <= phase_reg+1;
 		
-		adder_result := acc_reg + channel_mux;	
-	   acc_next <= adder_result;	
+		adder_result := acc_reg + resize(channel_mux,18);	
+		acc_next <= adder_result;	
 		
 		case phase_reg is
 		when "000" =>
@@ -90,7 +103,13 @@ BEGIN
 		when "010" =>
 			channel_sel <= "11" and filter_en2_ext;		
 			prefilter_next	<= adder_result(17 downto 2);
-			acc_next <= (others=>'0');
+			acc_next <= (others=>'0'); --base for direct
+			bias:=
+				logic_to_unsigned(not(filter_en(0)) and bias_channel,0) + 
+				logic_to_unsigned(not(filter_en(1)) and bias_channel,0) +
+				logic_to_unsigned(not(filter_en2cd_ext(0)) and bias_channel,0) +
+				logic_to_unsigned(not(filter_en(3)) and bias_filter,1);
+			acc_next(14 downto 12) <= signed(std_logic_vector(bias));
 		when "011" =>
 			channel_sel <= "01" and not(filter_en0_ext);
 		when "100" =>
@@ -99,7 +118,13 @@ BEGIN
 			channel_sel <= "11" and not(filter_en2cd_ext);
 			phase_next <= (others=>'0');
 			direct_next <= adder_result(17 downto 2);
-			acc_next <= (others=>'0');
+			acc_next <= (others=>'0'); --base for filter
+			bias:=
+				logic_to_unsigned(filter_en(0) and bias_channel,0) + 
+				logic_to_unsigned(filter_en(1) and bias_channel,0) +
+				logic_to_unsigned(filter_en(2) and bias_channel,0) +
+				logic_to_unsigned(filter_en(3) and bias_filter,1);
+			acc_next(14 downto 12) <= signed(std_logic_vector(bias));
 		when others =>
 		end case;		
 		

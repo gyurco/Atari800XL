@@ -42,7 +42,7 @@ ENTITY SID_top IS
 		DEBUG_EV1 : out unsigned(7 downto 0);
 		DEBUG_AM1 : out signed(15 downto 0);
 
-		sidtype : in std_logic_vector(0 downto 0); -- 0=8580,1=6581
+		sidtype : in std_logic_vector(1 downto 0); -- 0=8580 filter, 1=6581 filter, 2=digifix
 
 		rom_addr : out std_logic_vector(16 downto 0);
 		rom_data : in std_logic_vector(31 downto 0);
@@ -155,8 +155,8 @@ ARCHITECTURE vhdl OF SID_top IS
 	signal wavegen_data_ready : std_logic_vector(2 downto 0);
 
 	-- which channels are filtered?
-	signal filter_en_reg : std_logic_vector(2 downto 0);
-	signal filter_en_next : std_logic_vector(2 downto 0);
+	signal filter_en_reg : std_logic_vector(3 downto 0);
+	signal filter_en_next : std_logic_vector(3 downto 0);
 
 	-- which filters are we using?
 	signal filter_sel_reg : std_logic_vector(2 downto 0); --hp/bp/lp
@@ -462,7 +462,7 @@ decode_addr1 : entity work.complete_address_decoder
 			if (addr_decoded(23)='1') then
 				statevariable_Q_next <= di(7 downto 4);
 				statevariable_q_changed <= '1';
-				filter_en_next <= di(2 downto 0);
+				filter_en_next <= di(3 downto 0);
 			end if;
 			if (addr_decoded(24)='1') then
 				ch3silent_next <= di(7);
@@ -562,6 +562,7 @@ decode_addr1 : entity work.complete_address_decoder
 	(
 		CLK => clk,
 		RESET_N => reset_n,
+		ENABLE => enable,
 
 		CHANGING => osc_a_changing,
 
@@ -585,6 +586,7 @@ decode_addr1 : entity work.complete_address_decoder
 	(
 		CLK => clk,
 		RESET_N => reset_n,
+		ENABLE => enable,
 
 		CHANGING => osc_b_changing,
 
@@ -608,6 +610,7 @@ decode_addr1 : entity work.complete_address_decoder
 	(
 		CLK => clk,
 		RESET_N => reset_n,
+		ENABLE => enable,
 
 		CHANGING => osc_c_changing,
 
@@ -755,6 +758,9 @@ decode_addr1 : entity work.complete_address_decoder
 		RESET_N => reset_n,		
 		ENABLE => enable,
 
+		BIAS_CHANNEL => sidtype(0),
+		BIAS_FILTER => sidtype(1),
+
 		CHANNEL_A => channel_a_modulated,
 		CHANNEL_B => channel_b_modulated,
 		CHANNEL_C => channel_c_modulated,
@@ -877,11 +883,11 @@ decode_addr1 : entity work.complete_address_decoder
 		end case;
 
 				
-		rom_wave_addr := std_logic_vector(unsigned(wave_base)+resize(unsigned(sidtype&rom_wave_2bit&rom_osc),17)); --1:2:11
+		rom_wave_addr := std_logic_vector(unsigned(wave_base)+resize(unsigned(sidtype(0 downto 0)&rom_wave_2bit&rom_osc),17)); --1:2:11
 
 		case rom_addr_mux is
 		when "000" =>
-			rom_addr <= "00000"&std_logic_vector(unsigned('0'&sidtype)+1)&statevariable_fcutoff_reg(10 downto 1);
+			rom_addr <= "00000"&std_logic_vector(unsigned('0'&sidtype(0 downto 0))+1)&statevariable_fcutoff_reg(10 downto 1);
 			rom_high_word <= statevariable_fcutoff_reg(0);
 		when "001" =>
 			rom_osc <= osc_a_reg(11 downto 1);
@@ -899,7 +905,7 @@ decode_addr1 : entity work.complete_address_decoder
 			rom_addr <= rom_wave_addr;
 			rom_high_word <= osc_c_reg(0);
 		when "100" =>
-			rom_addr <= "000000010000"&sidtype&statevariable_q_reg;
+			rom_addr <= "000000010000"&sidtype(0 downto 0)&statevariable_q_reg;
 		when others =>
 		end case;
 

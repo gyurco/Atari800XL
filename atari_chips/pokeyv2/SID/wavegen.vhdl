@@ -18,6 +18,7 @@ PORT
 ( 
 	CLK : IN STD_LOGIC;
 	RESET_N : IN STD_LOGIC;
+	ENABLE : IN STD_LOGIC;
 
 	CHANGING : IN STD_LOGIC;
 	
@@ -84,7 +85,7 @@ BEGIN
 	end process;
 	
 	-- next state - wave
-	process(multiple_wave_bits,wave_reg,osc_in,waveselect_in,pulse_width_in,lfsr_reg,test,ringmod,ringmod_osc_msb,pulse_comparator_reg,wave_data,wave_data_ready)
+	process(multiple_wave_bits,wave_reg,osc_in,waveselect_in,pulse_width_in,lfsr_reg,test,ringmod,ringmod_osc_msb,pulse_comparator_reg,wave_data,wave_data_ready,enable)
 		variable noise : std_logic_vector(11 downto 0);
 		variable pulse : std_logic_vector(11 downto 0);
 		variable triangle : std_logic_vector(11 downto 0);
@@ -97,21 +98,29 @@ BEGIN
 	begin
 		wave_next <= wave_reg;
 
-		noise:= (others=>'1');
-		pulse:= (others=>'1');
-		triangle:= (others=>'1');
-		sawtooth:= (others=>'1');
+		noise:= (others=>'0');
+		pulse:= (others=>'0');
+		triangle:= (others=>'0');
+		sawtooth:= (others=>'0');
 
 		if (waveselect_in(3)='1') then
 			noise(11 downto 4):= lfsr_reg(20)&lfsr_reg(18)&lfsr_reg(14)&lfsr_reg(11)&lfsr_reg(9)&lfsr_reg(5)&lfsr_reg(2)&lfsr_reg(0);
-			--2 4 3 2 4 3 2
 			noise(3 downto 0):= (others=>'0');
 		end if;
 
-		pulse_comparator_next <= '0';
-		if (unsigned(osc_in)>unsigned(pulse_width_in)) then
-			pulse_comparator_next <= '1'; --1 cycle delay
+		-- direct...
+		-- rise: perfect, fall: 1 cycle ahead
+		--pulse_comparator_next <= '0';
+		--if (unsigned(osc_in)>unsigned(pulse_width_in)) then
+		--	pulse_comparator_next <= '1';
+		--end if;
+		--pulse := (others=>(pulse_comparator_next or test));
+
+		pulse_comparator_next <= '1';
+		if (unsigned(osc_in)<=unsigned(pulse_width_in)) then
+			pulse_comparator_next <= pulse_comparator_reg and not(enable);
 		end if;
+
 		if (waveselect_in(2)='1') then
 			pulse := (others=>(pulse_comparator_reg or test));
 		end if;
@@ -137,7 +146,7 @@ BEGIN
 		-- a corrupt waveform is generated. 
 		-- TODO: Either compute or use flash storage (optionally)
 		if (multiple_wave_bits='0') then
-			wave_next <= noise and pulse and sawtooth and triangle;
+			wave_next <= noise or pulse or sawtooth or triangle;
 		else
 			if (wave_data_ready='1') then
 				wave_next <= wave_data and pulse;

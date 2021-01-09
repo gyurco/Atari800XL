@@ -31,31 +31,37 @@ END SID_oscillator;
 ARCHITECTURE vhdl OF SID_oscillator IS
 	signal count_reg: unsigned(23 downto 0);
 	signal count_next: unsigned(23 downto 0);
+
+	signal lfsr_enable_shift_reg: std_logic_vector(1 downto 0);
+	signal lfsr_enable_shift_next: std_logic_vector(1 downto 0);
 BEGIN
 	-- register
 	process(clk, reset_n)
 	begin
 		if (reset_n = '0') then
 			count_reg <= (others=>'0');
+			lfsr_enable_shift_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then
 			count_reg <= count_next;
+			lfsr_enable_shift_reg <= lfsr_enable_shift_next;
 		end if;
 	end process;
 	
 	-- next state
-	process(count_reg,count_next,enable,adj,sync_in,test)
+	process(count_reg,count_next,enable,adj,sync_in,test,lfsr_enable_shift_reg)
 		variable count_inc : unsigned(23 downto 0);
+		variable lfsr_enable_raw : std_logic;
 	begin
 		count_next <= count_reg;
+		lfsr_enable_shift_next <= lfsr_enable_shift_reg;
 		sync_out <= '0';
-		lfsr_enable <= '0';
 		changing <= '0';
 
 		if (enable = '1') then
 			count_inc := count_reg+resize(unsigned(adj),24);
 
 			sync_out <= count_inc(23) and not(count_reg(23));
-			lfsr_enable <= count_inc(19) and not(count_reg(19));
+			lfsr_enable_raw := count_inc(19) and not(count_reg(19));
 
 			if (sync_in='1' or test='1') then
 				count_next <= (others=>'0');
@@ -66,10 +72,13 @@ BEGIN
 			if (count_reg(23 downto 12) /= count_next(23 downto 12)) then
 				changing <= '1';
 			end if;
+
+			lfsr_enable_shift_next <= lfsr_enable_shift_reg(0 downto 0)&lfsr_enable_raw;
 		end if;
 	end process;	
 
 	--output
 	bits_out <= std_logic_vector(count_reg(23 downto 12));
+	lfsr_enable <= lfsr_enable_shift_reg(1) and enable;
 		
 END vhdl;
