@@ -314,13 +314,13 @@ void renderLine(unsigned long * flash1, unsigned long * flash2, unsigned char ac
 	switch(val)
 	{
 	case 0:
-        	cprintf("1:8580  ");
+        	cprintf("1:8580     ");
 		break;
 	case 1:
-                cprintf("1:6581  ");
+                cprintf("1:6581     ");
 		break;
 	case 2:
-                cprintf("1:8580D ");
+                cprintf("1:8580Digi ");
 		break;
 	}
         revers(activeLine==11 && col==1);
@@ -328,13 +328,13 @@ void renderLine(unsigned long * flash1, unsigned long * flash2, unsigned char ac
 	switch(val)
 	{
 	case 0:
-        	cprintf("2:8580 ");
+        	cprintf("2:8580     ");
 		break;
 	case 0x10:
-                cprintf("2:6581 ");
+                cprintf("2:6581     ");
 		break;
 	case 0x20:
-                cprintf("2:8580D");
+                cprintf("2:8580Digi ");
 		break;
 	}
 	break;
