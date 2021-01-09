@@ -47,18 +47,15 @@ ARCHITECTURE vhdl OF PSG_volume_profile IS
 	signal vol_2_reg: unsigned(15 downto 0);
 	signal vol_2_next: unsigned(15 downto 0);
 
-	type volstate is
-	(
-		state_idle,
-		state_update1_request,
-		state_update1_wait,
-		state_update1_done,
-		state_update2_request,
-		state_update2_wait,
-		state_update2_done
-	);
-	signal state_reg : volstate;
-	signal state_next : volstate;
+	signal state_reg : std_logic_vector(2 downto 0);
+	signal state_next : std_logic_vector(2 downto 0);
+	constant state_idle : std_logic_vector(2 downto 0) := "000";
+	constant state_update1_request : std_logic_vector(2 downto 0) := "001";
+	constant state_update1_wait : std_logic_vector(2 downto 0) := "010";
+	constant state_update1_done : std_logic_vector(2 downto 0) := "011";
+	constant state_update2_request : std_logic_vector(2 downto 0) := "100";
+	constant state_update2_wait : std_logic_vector(2 downto 0) := "101";
+	constant state_update2_done : std_logic_vector(2 downto 0) := "110";
 
 	signal channelsel_reg: std_logic_vector(5 downto 0);
 	signal channelsel_next: std_logic_vector(5 downto 0);

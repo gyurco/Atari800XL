@@ -98,19 +98,16 @@ when "111" => return to_signed(8,5);
 	signal code_reg : std_logic_vector(3 downto 0); 
 	signal code_next : std_logic_vector(3 downto 0); 
 
-	type adpcmstate is
-	(
-		state_ch0_mem_req,
-		state_ch0_step_req,
-		state_ch1_mem_req,
-		state_ch1_step_req,
-		state_ch2_mem_req,
-		state_ch2_step_req,
-		state_ch3_mem_req,
-		state_ch3_step_req
-	);
-	signal state_reg : adpcmstate;
-	signal state_next: adpcmstate;
+	signal state_reg : std_logic_vector(2 downto 0);
+	signal state_next: std_logic_vector(2 downto 0); 
+	constant state_ch0_mem_req   : std_logic_vector(2 downto 0) := "000";
+	constant state_ch0_step_req  : std_logic_vector(2 downto 0) := "001";
+	constant state_ch1_mem_req   : std_logic_vector(2 downto 0) := "010";
+	constant state_ch1_step_req  : std_logic_vector(2 downto 0) := "011";
+	constant state_ch2_mem_req   : std_logic_vector(2 downto 0) := "100";
+	constant state_ch2_step_req  : std_logic_vector(2 downto 0) := "101";
+	constant state_ch3_mem_req   : std_logic_vector(2 downto 0) := "110";
+	constant state_ch3_step_req  : std_logic_vector(2 downto 0) := "111";
 BEGIN
 	-- register
 	process(clk,reset_n)

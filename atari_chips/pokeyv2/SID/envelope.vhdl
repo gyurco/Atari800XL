@@ -54,23 +54,17 @@ ARCHITECTURE vhdl OF SID_envelope IS
 
 	signal exptap : std_logic_vector(2 downto 0);
 
-	type envstate is
-	(
-		state_attack,
-		state_decay,
-		state_release
-	);
-	signal state_reg : envstate;
-	signal state_next : envstate;
+	signal state_reg : std_logic_vector(1 downto 0);
+	signal state_next : std_logic_vector(1 downto 0);
+	constant state_attack : std_logic_vector(1 downto 0) := "00";
+	constant state_decay : std_logic_vector(1 downto 0) := "10";
+	constant state_release : std_logic_vector(1 downto 0) := "11";
 
-	type countstate is
-	(
-		count_state_up,
-		count_state_down,
-		count_state_stopped
-	);
-	signal count_state_reg : countstate;
-	signal count_state_next : countstate;
+	signal count_state_reg : std_logic_vector(1 downto 0);
+	signal count_state_next : std_logic_vector(1 downto 0);
+	constant count_state_up : std_logic_vector(1 downto 0) := "00";
+	constant count_state_down : std_logic_vector(1 downto 0) := "10";
+	constant count_state_stopped : std_logic_vector(1 downto 0) := "11";
 
 	signal gate_changed : std_logic;
 	signal hold_counter : std_logic;

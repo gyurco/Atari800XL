@@ -60,15 +60,12 @@ architecture vhdl of pokey_keyboard_scanner is
 	
 	signal my_key : std_logic;
 	
-	type kbstate is
-	(
-		state_wait_key,
-		state_key_bounce,
-		state_valid_key,
-		state_key_debounce
-	);
-	signal state_next : kbstate;
-	signal state_reg : kbstate;
+	signal state_next : std_logic_vector(1 downto 0);
+	signal state_reg : std_logic_vector(1 downto 0);
+	constant state_wait_key : std_logic_vector(1 downto 0) := "00";
+	constant state_key_bounce : std_logic_vector(1 downto 0) := "01";
+	constant state_valid_key : std_logic_vector(1 downto 0) := "10";
+	constant state_key_debounce : std_logic_vector(1 downto 0) := "11";
 begin
 
 	-- register

@@ -71,25 +71,22 @@ ARCHITECTURE vhdl OF mixer IS
 	signal secondBatch_reg : std_logic;
 	signal secondBatch_next : std_logic;
 	
-	type mixstate is
-	(
-		state_pokeyA_L,
-		state_pokeyB_L,
-		state_sample_L,
-		state_sid_L,
-		state_psg_L,
-		state_gtia_L,
-		state_clear_L,
-		state_pokeyA_R,
-		state_pokeyB_R,
-		state_sample_R,
-		state_sid_R,
-		state_psg_R,
-		state_gtia_R,
-		state_clear_R
-	);
-	signal state_reg : mixstate;
-	signal state_next : mixstate;
+	signal state_reg : unsigned(3 downto 0);
+	signal state_next : unsigned(3 downto 0);
+	constant state_pokeyA_L : unsigned(3 downto 0) := "0000";
+	constant state_pokeyB_L : unsigned(3 downto 0) := "0001";
+	constant state_sample_L : unsigned(3 downto 0) := "0010";
+	constant state_sid_L    : unsigned(3 downto 0) := "0011";
+	constant state_psg_L    : unsigned(3 downto 0) := "0100";
+	constant state_gtia_L   : unsigned(3 downto 0) := "0101";
+	constant state_clear_L  : unsigned(3 downto 0) := "0110";
+	constant state_pokeyA_R : unsigned(3 downto 0) := "0111";
+	constant state_pokeyB_R : unsigned(3 downto 0) := "1000";
+	constant state_sample_R : unsigned(3 downto 0) := "1001";
+	constant state_sid_R    : unsigned(3 downto 0) := "1010";
+	constant state_psg_R    : unsigned(3 downto 0) := "1011";
+	constant state_gtia_R   : unsigned(3 downto 0) := "1100";
+	constant state_clear_R  : unsigned(3 downto 0) := "1101";
 	
 	signal channelsel : std_logic_vector(3 downto 0);
 	
