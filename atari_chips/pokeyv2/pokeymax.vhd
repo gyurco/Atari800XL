@@ -279,6 +279,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal POST_DIVIDE_REG : std_logic_vector(7 downto 0);	
 	signal GTIA_ENABLE_REG : std_logic_vector(3 downto 0);
 	signal VERSION_LOC_REG : std_logic_vector(2 downto 0);
+	signal PAL_REG : std_logic;
 	
 	signal DETECT_RIGHT_NEXT : std_logic;
 	signal IRQ_EN_NEXT : std_logic;
@@ -287,6 +288,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal POST_DIVIDE_NEXT : std_logic_vector(7 downto 0);
 	signal GTIA_ENABLE_NEXT : std_logic_vector(3 downto 0);
 	signal VERSION_LOC_NEXT : std_logic_vector(2 downto 0);
+	signal PAL_NEXT : std_logic;
 	
 		--config infra
 	signal addr_decoded4 : std_logic_vector(15 downto 0);	
@@ -749,9 +751,9 @@ sidpsg_on : if enable_sid=1 or enable_psg=1 generate
 	PORT MAP
 	(
 		CLK => CLK,
-		RESET_N => RESET_N,
+		RESET_N => (RESET_N and (PAL_REG xnor PAL_NEXT)),
 
-		PAL => '1',
+		PAL => pal_reg,
 		PHI2 => ENABLE_CYCLE,
 
 		MHZ1 => MHZ1_ENABLE,
@@ -1217,6 +1219,7 @@ begin
 		GTIA_ENABLE_REG <= "1100"; -- external only
 		CONFIG_ENABLE_REG <= '0';
 		VERSION_LOC_REG <= (others=>'0');
+		PAL_REG <= '1';
 		PSG_FREQ_REG <= "00"; --2MHz
 		PSG_STEREOMODE_REG <= "01"; --Polish
 		PSG_PROFILESEL_REG <= "00"; --Simple log
@@ -1233,6 +1236,7 @@ begin
 		GTIA_ENABLE_REG <= GTIA_ENABLE_NEXT;
 		CONFIG_ENABLE_REG <= CONFIG_ENABLE_NEXT;
 		VERSION_LOC_REG <= VERSION_LOC_NEXT;
+		PAL_REG <= PAL_NEXT;
 		PSG_FREQ_REG <= PSG_FREQ_NEXT;
 		PSG_STEREOMODE_REG <= PSG_STEREOMODE_NEXT;
 		PSG_PROFILESEL_REG <= PSG_PROFILESEL_NEXT;
@@ -1264,7 +1268,8 @@ process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
 	SID_FILTER1_REG, SID_FILTER2_REG,
 	CPU_FLASH_REQUEST_REG,CPU_FLASH_WRITE_N_REG,CPU_FLASH_CFG_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
 	CPU_FLASH_COMPLETE,CONFIG_FLASH_COMPLETE,CONFIG_FLASH_ADDR,flash_do_slow,
-	RESTRICT_CAPABILITY_REG
+	RESTRICT_CAPABILITY_REG,
+	PAL_REG
 )
 begin
 	SATURATE_NEXT <= SATURATE_REG;
@@ -1296,6 +1301,8 @@ begin
 
 	RESTRICT_CAPABILITY_NEXT <= RESTRICT_CAPABILITY_REG;
 
+	PAL_NEXT <= PAL_REG;
+
 	if (CPU_FLASH_COMPLETE='1') then
 		CPU_FLASH_DATA_NEXT <= flash_do_slow;
 		CPU_FLASH_REQUEST_NEXT <= '0';
@@ -1325,6 +1332,7 @@ begin
 				-- 6-7 reserved
 				RESTRICT_CAPABILITY_NEXT <= flash_do_slow(12 downto 8);
 				-- 13-15 reserved
+				PAL_NEXT <= flash_do_slow(16);
 			when others =>
 		end case;
 	elsif (CONFIG_WRITE_ENABLE='1') then
@@ -1333,6 +1341,7 @@ begin
 			CHANNEL_MODE_NEXT <= WRITE_DATA(2);
 			IRQ_EN_NEXT <= WRITE_DATA(3);
 			DETECT_RIGHT_NEXT <= WRITE_DATA(4);
+			PAL_NEXT <= WRITE_DATA(5);
 		end if;
 
 		if (addr_decoded4(2)='1') then
@@ -1412,7 +1421,8 @@ PSG_FREQ_REG, PSG_STEREOMODE_REG, PSG_PROFILESEL_REG, PSG_ENVELOPE16_REG,
 SID_FILTER1_REG, SID_FILTER2_REG,
 CPU_FLASH_CFG_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
 CPU_FLASH_REQUEST_REG, CPU_FLASH_WRITE_N_REG,
-RESTRICT_CAPABILITY_REG
+RESTRICT_CAPABILITY_REG,
+PAL_REG
 )
 	variable ACTUAL_CAPABILITY : std_logic_vector(7 downto 0);
 begin
@@ -1424,6 +1434,7 @@ begin
 			CONFIG_DO(2) <= CHANNEL_MODE_REG;
 			CONFIG_DO(3) <= IRQ_EN_REG;
 			CONFIG_DO(4) <= DETECT_RIGHT_REG;
+			CONFIG_DO(5) <= PAL_REG;
 	end if;	
 
 	ACTUAL_CAPABILITY := (others=>'0');
