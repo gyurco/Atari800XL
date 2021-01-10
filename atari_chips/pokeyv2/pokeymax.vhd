@@ -40,6 +40,7 @@ ENTITY pokeymax IS
 		enable_covox : integer := 0;
 		enable_sample : integer := 0;
 		enable_flash : integer := 0;
+		enable_audout2: integer := 1;
 	
 		sid_wave_base : integer := 42496; --to_integer(unsigned(x"a600"));
 
@@ -1606,6 +1607,8 @@ port map
   AUDOUT => AUDIO_0_SIGMADELTA
 );
 
+audout2_on : if enable_audout2=1 generate 
+
 dac_1 : entity work.filtered_sigmadelta
 GENERIC MAP
 (
@@ -1621,6 +1624,12 @@ port map
   audin => AUDIO_1_UNSIGNED,
   AUDOUT => AUDIO_1_SIGMADELTA
 );
+
+end generate audout2_on;
+
+audout2_off : if enable_audout2=0 generate 
+	AUDIO_1_SIGMADELTA <= '0';
+end generate audout2_off;
 
 dac_2 : entity work.filtered_sigmadelta
 GENERIC MAP

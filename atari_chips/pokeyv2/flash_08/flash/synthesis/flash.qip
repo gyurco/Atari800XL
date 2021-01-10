@@ -2,7 +2,7 @@ set_global_assignment -entity "flash" -library "flash" -name IP_TOOL_NAME "Qsys"
 set_global_assignment -entity "flash" -library "flash" -name IP_TOOL_VERSION "19.1"
 set_global_assignment -entity "flash" -library "flash" -name IP_TOOL_ENV "Qsys"
 set_global_assignment -library "flash" -name SOPCINFO_FILE [file join $::quartus(qip_path) "../../flash.sopcinfo"]
-set_global_assignment -entity "flash" -library "flash" -name SLD_INFO "QSYS_NAME flash HAS_SOPCINFO 1 GENERATION_ID 1610230956"
+set_global_assignment -entity "flash" -library "flash" -name SLD_INFO "QSYS_NAME flash HAS_SOPCINFO 1 GENERATION_ID 1610288687"
 set_global_assignment -library "flash" -name MISC_FILE [file join $::quartus(qip_path) "../flash.cmp"]
 set_global_assignment -library "flash" -name SLD_FILE [file join $::quartus(qip_path) "flash.debuginfo"]
 set_global_assignment -entity "flash" -library "flash" -name IP_TARGETED_DEVICE_FAMILY "MAX 10"
@@ -15,7 +15,7 @@ set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_DISPLA
 set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_REPORT_HIERARCHY "On"
 set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_INTERNAL "Off"
 set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_VERSION "MS4w"
-set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_PARAMETER "QVVUT19HRU5FUkFUSU9OX0lE::MTYxMDIzMDk1Ng==::QXV0byBHRU5FUkFUSU9OX0lE"
+set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_PARAMETER "QVVUT19HRU5FUkFUSU9OX0lE::MTYxMDI4ODY4Nw==::QXV0byBHRU5FUkFUSU9OX0lE"
 set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfRkFNSUxZ::TUFYIDEw::QXV0byBERVZJQ0VfRkFNSUxZ"
 set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0U=::MTBNMDhTQ1UxNjlDOEc=::QXV0byBERVZJQ0U="
 set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfU1BFRURHUkFERQ==::OA==::QXV0byBERVZJQ0VfU1BFRURHUkFERQ=="

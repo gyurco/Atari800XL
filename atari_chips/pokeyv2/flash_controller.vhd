@@ -157,7 +157,7 @@ BEGIN
 
 		avmm_data_readdatavalid => flash_data_readvalid,
 
-		avmm_data_burstcount    => "01",
+	--	avmm_data_burstcount    => "01",
 
 		reset_n                 => reset_n
 	);
