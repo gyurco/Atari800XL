@@ -58,7 +58,7 @@ void writeFlash(unsigned long addr, unsigned char cfgarea, unsigned long data)
 	data = data>>8;
 	config[15] = data;
 
-	config[11] = (((addr>>16)&0x3)<<3)|cfgarea<<2|2|0;
+	config[11] = (((addr>>16)&0x7)<<3)|cfgarea<<2|2|0;
 }
 
 //void displayFlash(
@@ -365,6 +365,10 @@ void renderLine(unsigned long * flash1, unsigned long * flash2, unsigned char ac
         else
     	    cprintf("!covox");
 	break;
+    case 13:
+        revers(activeLine==13);
+        cprintf("PHI2->1MHz    : %s",((val&32)==32) ? "PAL (5/9)" : "NTSC (4/7)");
+	break;
     }
     revers(0);
     *flash2; // silence warning
@@ -384,7 +388,7 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char active
 	    clrscr();
 	    //textcolor(0xa);
 	    chline(40);
-	    cprintf("Pokeymax config v0.8 ");
+	    cprintf("Pokeymax config v0.9 ");
             cprintf(" Core:");
             for (i=0;i!=8;++i)
             {
@@ -431,7 +435,7 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char active
 
     if (line==255)
     {
-	    for (line=1;line<=12;++line)
+	    for (line=1;line<=13;++line)
 		    renderLine(flash1,flash2,activeLine, line,col);
 	    *(unsigned char *)559 = prev559;
     }
@@ -515,6 +519,9 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char l
 	    	max = 1;
 	    }
 	    break;
+    case 13:
+	    shift = 5;
+	    break;
     }
 
     tmp = mask;
@@ -530,6 +537,17 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char l
 
 void applyConfig(unsigned long flash1, unsigned long flash2)
 {
+    clrscr();
+    bgcolor(0x46);
+    //textcolor(0xa);
+    chline(40);
+    cprintf("Applying config\r\n");
+    chline(40);
+
+    cprintf("Press Y to confirm\r\n");
+    while(!kbhit());
+    if (cgetc()=='y') 
+    {
 	config[0] = flash1&0xff;
 	config[2] = (flash1>>8)&0xff;
 	config[3] = (flash1>>16)&0xff;
@@ -550,6 +568,9 @@ void applyConfig(unsigned long flash1, unsigned long flash2)
 //                                PSG_STEREOMODE_NEXT <= flash_do(27 downto 26);
 //                                PSG_ENVELOPE16_NEXT <= flash_do(28);
 //                                        -- 31 downto 29 reserved
+    }
+
+    bgcolor(0x00);
 }
 
 void saveConfig(unsigned long flash1, unsigned long flash2)
@@ -618,7 +639,7 @@ void updateCore()
     	{
 	    unsigned char version[8];
 	    unsigned char valid;
-	    unsigned char i;
+	    unsigned char i,j;
 
 	    cprintf("\r\n");
             chline(40);
@@ -636,8 +657,36 @@ void updateCore()
                     if (config[4]!=version[i])
 	            {
 			  valid = 0;
-	          	  cprintf("Invalid core");
-			  sleep(3);
+
+	          	  cprintf("Invalid core\r\n");
+			  cprintf("Current:");
+			  for (j=0;j!=8;++j)
+			  {
+				  config[4] = j;
+				  cprintf("%c",config[4]);
+			  }
+			  cprintf("\r\nFile   :");
+			  for (j=0;j!=8;++j)
+				  cprintf("%c",version[j]);
+
+			  config[4] = 5;
+			  if (config[4] == version[5])
+			  {
+			  	cprintf("\r\nPress any key to quit or f to force\r\n");
+    			  	if (cgetc()=='f') 
+			  	{
+			  	        cprintf("FORCED!\r\n");
+					cprintf("You may need to change wiring!\r\n");
+			  	        valid = 1;
+			  	}
+			  }
+			  else
+			  {
+			  	cprintf("\r\nCore is for a different FPGA!\r\n");
+			  	cprintf("Press any key to quit\r\n");
+                                cgetc();
+			  }
+
 	          	  break;
 	            }
   	    }
@@ -660,21 +709,22 @@ void updateCore()
 
 		config[4] = 5; //e.g 114M08QC 
 		               //    01234567
-
-	    	cprintf("Flashing M0%c... please wait",config[4]);
+		j = config[4];
+		config[4] = 4;
+	    	cprintf("Flashing M%c%c... please wait",config[4],j);
 	    	{
 	    	    unsigned long addr;
 	    	    unsigned long maxaddr;
 	    	    unsigned long * buffer = (unsigned long *)malloc(1024);
 		    unsigned char t=0;
 
-		    maxaddr = config[4]=='4' ? 0xd600 : 0xe600; // d600 for m04, e600 for m08. Default to 08 so DEVELPR works
+		    maxaddr = config[4]=='4' ? 0xd600 : config[4]=='8' ? 0xe600 : 0x19800; // d600 for m04, e600 for m08. Default to 08 so DEVELPR works
 
 	    	    for (addr=0;addr!=maxaddr;addr+=256) 
 	    	    {
 	    	    	unsigned long i;
 			gotoxy(0,20);
-			cprintf("%c  %d/%d      ",(t ? '/' : '\\'),(unsigned char)(1+(addr>>8)),(unsigned char)(maxaddr>>8));
+			cprintf("%c  %d/%d      ",(t ? '/' : '\\'),(unsigned short)(1+(addr>>8)),(unsigned short)(maxaddr>>8));
 			t = !t;
 
 	    	    	fread(&buffer[0],1024,1,input);
@@ -757,7 +807,7 @@ int main (void)
 		col = 0;
 		break;
         case '=':
-		if (line<12)
+		if (line<13)
 		    line = line+1;
 		col = 0;
 		break;
@@ -784,14 +834,17 @@ int main (void)
         case 'a':
 		// Apply config
 		applyConfig(flash1,flash2);
+    		prevline = 255;
 		break;
         case 's':
 		// Save config
                 if (has_flash()) saveConfig(flash1,flash2);
+    		prevline = 255;
 		break;
         case 'u':
 		// Update core
                 if (has_flash()) updateCore();
+    		prevline = 255;
 		break;
         case 'q':
 		clrscr();
