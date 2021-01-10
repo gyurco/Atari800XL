@@ -573,6 +573,13 @@ void applyConfig(unsigned long flash1, unsigned long flash2)
     bgcolor(0x00);
 }
 
+int getPageSize()
+{
+	config[4] = 5; //e.g 114M08QC
+               //    01234567
+	return config[4]=='6' ? 1024 : 512; // 16Kb for up to 10M08, then 32Kb for 10M16
+}
+
 void saveConfig(unsigned long flash1, unsigned long flash2)
 {
     clrscr();
@@ -586,11 +593,12 @@ void saveConfig(unsigned long flash1, unsigned long flash2)
     while(!kbhit());
     if (cgetc()=='y') 
     {
-        unsigned long * buffer = (unsigned long *)malloc(2048);
+	unsigned int pagesize = getPageSize();
+        unsigned long * buffer = (unsigned long *)malloc(pagesize*4);
 	unsigned short i = 0;
 
 	cprintf("Backing up page\r\n");
-	for (i=2;i!=512;++i)
+	for (i=2;i!=pagesize;++i)
 	{
 		buffer[i] = readFlash(i,0);
 	}
@@ -600,7 +608,7 @@ void saveConfig(unsigned long flash1, unsigned long flash2)
 	cprintf("Writing new page\r\n");
 	buffer[0] = flash1;
 	buffer[1] = flash2;
-	for (i=0;i!=512;++i)
+	for (i=0;i!=pagesize;++i)
 	{
 		writeFlash(i,0,buffer[i]);
 	}
