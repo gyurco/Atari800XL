@@ -142,23 +142,6 @@ my %variants =
 		"fpga" => "10M08SCU169C8G",
 		"version" =>  $version."M08SC"
 	},
-	"sid_10M04_sid_stereo" =>
-	{
-		"pokeys" => 1,
-		"enable_sid" => 1,
-		"enable_auto_stereo" => 1,
-		"enable_flash" => 1,
-		"ext_bits"=> 4,
-		"bus" => "c64",
-		"a4_bit" => 4,
-		"a5_bit" => 1,  #STEREO
-		"a6_bit" => 20, #force high
-		"a7_bit" => 0, #force low
-		"board" => "sid",
-		"cs1_bit" => 20, #force high
-		"fpga" => "10M04SCU169C8G",
-		"version" => $version . "M04SS"
-	},
 	"sid_10M08_sid_mono" =>
 	{
 		"pokeys" => 1,
