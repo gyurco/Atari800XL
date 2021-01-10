@@ -73,6 +73,7 @@ BEGIN
 		variable adj : signed(13 downto 0); -- 8.6 fixed point
 		variable trig : std_logic;
 		variable cycle_inc : std_logic;
+		variable clk_inc : std_logic;
 		variable thresh_match : std_logic;
 
 		variable multby : unsigned(8 downto 0);
@@ -85,6 +86,7 @@ BEGIN
 
 		trig := '0';
 		cycle_inc := '0';
+		clk_inc := '0';
 
 		mhz1 <= '0';
 		mhz2 <= '0';
@@ -95,7 +97,7 @@ BEGIN
 			multby := to_unsigned(64,9);
 		end if;
 		adj1:= multby * clk_count_reg;
-		adj:= signed(adj1(16 downto 3));
+		adj:= signed(adj1(16 downto 3)) - to_signed(64,14);
 
 		--threshold: = "0111"; ntsc
 		--threshold: = "1001"; pal
@@ -109,8 +111,7 @@ BEGIN
 			thresh_match := '1';
 		end if;
 
-
-		err_next(13 downto 6) <= err_reg(13 downto 6) + 1;
+		err_next(13 downto 0) <= err_reg(13 downto 0) + to_signed(64,14);
 
 		case state_reg is
 			when state_sync =>
@@ -118,12 +119,13 @@ BEGIN
 					state_next <= state_count;
 				end if;
 			when state_count =>
-				clk_count_next <= clk_count_reg + 1;
+				clk_inc := '1';
 				if (phi2='1') then
 					cycle_inc := '1';
 				end if;
 				if (thresh_match='1') then
 					state_next <= state_gen;
+					clk_inc := '0';
 				end if;
 			when state_genbegin =>
 				if (phi2='1') then
@@ -138,9 +140,9 @@ BEGIN
 					err_next <= err_reg - adj;
 					trig := '1';
 					cycle_inc := '1';
-					if (thresh_match='1') then
-						state_next <= state_genbegin;
-					end if;
+				end if;
+				if (thresh_match='1') then
+					state_next <= state_genbegin;
 				end if;
 			when others=>
 				state_next <= state_sync;
@@ -148,6 +150,10 @@ BEGIN
 
 		if (cycle_inc='1') then
 			cycle_count_next <= cycle_count_reg+1;
+		end if;
+
+		if (clk_inc='1') then
+			clk_count_next <= clk_count_reg + 1;
 		end if;
 
 		if (trig='1') then
