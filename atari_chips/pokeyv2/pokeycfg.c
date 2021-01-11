@@ -388,7 +388,7 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char active
 	    clrscr();
 	    //textcolor(0xa);
 	    chline(40);
-	    cprintf("Pokeymax config v0.9 ");
+	    cprintf("Pokeymax config v0.9b ");
             cprintf(" Core:");
             for (i=0;i!=8;++i)
             {
@@ -726,6 +726,7 @@ void updateCore()
 	    	    unsigned long * buffer = (unsigned long *)malloc(1024);
 		    unsigned char t=0;
 
+                    config[4] = 5; 
 		    maxaddr = config[4]=='4' ? 0xd600 : config[4]=='8' ? 0xe600 : 0x19800; // d600 for m04, e600 for m08. Default to 08 so DEVELPR works
 
 	    	    for (addr=0;addr!=maxaddr;addr+=256) 
