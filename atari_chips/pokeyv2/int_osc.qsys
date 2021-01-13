@@ -47,7 +47,7 @@
  <module
    name="int_osc_0"
    kind="altera_int_osc"
-   version="19.1"
+   version="20.1"
    enabled="1"
    autoexport="1">
   <parameter name="CBX_AUTO_BLACKBOX" value="ALL" />

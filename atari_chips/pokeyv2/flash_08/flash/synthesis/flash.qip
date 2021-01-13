@@ -1,8 +1,8 @@
 set_global_assignment -entity "flash" -library "flash" -name IP_TOOL_NAME "Qsys"
-set_global_assignment -entity "flash" -library "flash" -name IP_TOOL_VERSION "19.1"
+set_global_assignment -entity "flash" -library "flash" -name IP_TOOL_VERSION "20.1"
 set_global_assignment -entity "flash" -library "flash" -name IP_TOOL_ENV "Qsys"
 set_global_assignment -library "flash" -name SOPCINFO_FILE [file join $::quartus(qip_path) "../../flash.sopcinfo"]
-set_global_assignment -entity "flash" -library "flash" -name SLD_INFO "QSYS_NAME flash HAS_SOPCINFO 1 GENERATION_ID 1592203613"
+set_global_assignment -entity "flash" -library "flash" -name SLD_INFO "QSYS_NAME flash HAS_SOPCINFO 1 GENERATION_ID 1610565218"
 set_global_assignment -library "flash" -name MISC_FILE [file join $::quartus(qip_path) "../flash.cmp"]
 set_global_assignment -library "flash" -name SLD_FILE [file join $::quartus(qip_path) "flash.debuginfo"]
 set_global_assignment -entity "flash" -library "flash" -name IP_TARGETED_DEVICE_FAMILY "MAX 10"
@@ -15,7 +15,7 @@ set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_DISPLA
 set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_REPORT_HIERARCHY "On"
 set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_INTERNAL "Off"
 set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_VERSION "MS4w"
-set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_PARAMETER "QVVUT19HRU5FUkFUSU9OX0lE::MTU5MjIwMzYxMw==::QXV0byBHRU5FUkFUSU9OX0lE"
+set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_PARAMETER "QVVUT19HRU5FUkFUSU9OX0lE::MTYxMDU2NTIxOA==::QXV0byBHRU5FUkFUSU9OX0lE"
 set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfRkFNSUxZ::TUFYIDEw::QXV0byBERVZJQ0VfRkFNSUxZ"
 set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0U=::MTBNMDhTQ1UxNjlDOEc=::QXV0byBERVZJQ0U="
 set_global_assignment -entity "flash" -library "flash" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfU1BFRURHUkFERQ==::OA==::QXV0byBERVZJQ0VfU1BFRURHUkFERQ=="
@@ -28,7 +28,7 @@ set_global_assignment -entity "altera_onchip_flash" -library "flash" -name IP_CO
 set_global_assignment -entity "altera_onchip_flash" -library "flash" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
 set_global_assignment -entity "altera_onchip_flash" -library "flash" -name IP_COMPONENT_INTERNAL "Off"
 set_global_assignment -entity "altera_onchip_flash" -library "flash" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
-set_global_assignment -entity "altera_onchip_flash" -library "flash" -name IP_COMPONENT_VERSION "MTkuMQ=="
+set_global_assignment -entity "altera_onchip_flash" -library "flash" -name IP_COMPONENT_VERSION "MjAuMQ=="
 set_global_assignment -entity "altera_onchip_flash" -library "flash" -name IP_COMPONENT_DESCRIPTION "QWx0ZXJhIE9uLUNoaXAgRmxhc2ggTWVnYWZ1bmN0aW9uIHdpdGggQXZhbG9uLU1NIFNsYXZlIEludGVyZmFjZS4="
 set_global_assignment -entity "altera_onchip_flash" -library "flash" -name IP_COMPONENT_PARAMETER "REFUQV9JTlRFUkZBQ0U=::UGFyYWxsZWw=::RGF0YSBpbnRlcmZhY2U="
 set_global_assignment -entity "altera_onchip_flash" -library "flash" -name IP_COMPONENT_PARAMETER "UkVBRF9CVVJTVF9NT0RF::SW5jcmVtZW50aW5n::UmVhZCBidXJzdCBtb2Rl"
@@ -91,5 +91,5 @@ set_global_assignment -library "flash" -name SDC_FILE [file join $::quartus(qip_
 set_global_assignment -library "flash" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/rtl/altera_onchip_flash_block.v"]
 
 set_global_assignment -entity "altera_onchip_flash" -library "flash" -name IP_TOOL_NAME "altera_onchip_flash"
-set_global_assignment -entity "altera_onchip_flash" -library "flash" -name IP_TOOL_VERSION "19.1"
+set_global_assignment -entity "altera_onchip_flash" -library "flash" -name IP_TOOL_VERSION "20.1"
 set_global_assignment -entity "altera_onchip_flash" -library "flash" -name IP_TOOL_ENV "Qsys"
