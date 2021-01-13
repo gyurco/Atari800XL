@@ -388,7 +388,7 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char active
 	    clrscr();
 	    //textcolor(0xa);
 	    chline(40);
-	    cprintf("Pokeymax config v0.9b ");
+	    cprintf("Pokeymax config v1.0 ");
             cprintf(" Core:");
             for (i=0;i!=8;++i)
             {
@@ -624,6 +624,7 @@ void updateCore()
 {
     unsigned long flash1 = readFlash(0,0);
     unsigned long flash2 = readFlash(1,0); //unused for now
+    char filename[] = "d4:core.bin";
 
     clrscr();
     bgcolor(0x34);
@@ -637,7 +638,7 @@ void updateCore()
     while(!kbhit());
     if (cgetc()=='y') 
     {
-    	FILE * input = fopen("d4:core.bin","r");
+    	FILE * input = fopen(filename,"r");
     	if (!input)
     	{
     		cprintf("Failed to open file!\r\n");
@@ -702,7 +703,7 @@ void updateCore()
 	    {
 	    	//fseek(input,0,SEEK_SET);
 	        fclose(input);
-		input = fopen("d4:core.bin","r");
+		input = fopen(filename,"r");
 	    	writeProtect(0);
 
 	    	cprintf("Erasing");
@@ -736,7 +737,16 @@ void updateCore()
 			cprintf("%c  %d/%d      ",(t ? '/' : '\\'),(unsigned short)(1+(addr>>8)),(unsigned short)(maxaddr>>8));
 			t = !t;
 
-	    	    	fread(&buffer[0],1024,1,input);
+	    	    	i = fread(&buffer[0],1024,1,input);
+			if (i!=1) 
+			{
+				cprintf("\r\nError reading disk!\r\n");
+				cprintf("Press key then START AGAIN!\r\n");
+				fclose(input);
+				
+    				while(!kbhit());
+				return;
+			}
 	    	    	if (addr==0)
 	    	    	{
 				// keep our config...
@@ -745,8 +755,11 @@ void updateCore()
 	    	    	}
 	    	    	for (i=0;i!=256;++i)
 			{
-				bordercolor(i);
-	    	    		writeFlash(addr+i,0,buffer[i]);
+				if (buffer[i]!=0xffffffff)
+				{
+					bordercolor(i);
+		    	    		writeFlash(addr+i,0,buffer[i]);
+				}
 			}
 	    	    }
 
@@ -766,6 +779,7 @@ void updateCore()
 
 int main (void)
 {
+    unsigned int i;
     unsigned char prevline,line,col,quit;
     unsigned long flash1;
     unsigned long flash2;
@@ -858,6 +872,18 @@ int main (void)
         case 'q':
 		clrscr();
 		quit = 1;
+		break;
+        case 'x':
+		clrscr();
+		cprintf("Hex dump of flash from 0x400\r\n");
+		for (i=0;i!=64;++i)
+		{
+			unsigned long val = readFlash(i+0x400, 0);
+			cprintf("%08lx",val);
+		}
+		while (!kbhit());
+    		prevline = 255;
+
 		break;
         }
     }
