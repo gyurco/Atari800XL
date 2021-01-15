@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EnsembleReport name="flash" kind="system" version="20.1" fabric="QSYS">
  <!-- Format version 20.1 720 (Future versions may contain additional information.) -->
- <!-- 2021.01.13.20:13:38 -->
+ <!-- 2021.01.13.14:03:24 -->
  <!-- A collection of modules and connections -->
  <parameter name="clockCrossingAdapter">
   <type>com.altera.sopcmodel.ensemble.EClockAdapter</type>
@@ -53,7 +53,7 @@
  </parameter>
  <parameter name="generationId">
   <type>int</type>
-  <value>1610565218</value>
+  <value>1610543004</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>true</visible>
@@ -101,7 +101,7 @@
  </parameter>
  <parameter name="projectName">
   <type>java.lang.String</type>
-  <value>pokeymax.qpf</value>
+  <value>minimal_flash.qpf</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>false</visible>
@@ -280,7 +280,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="READ_BURST_MODE">
    <type>java.lang.String</type>
-   <value>Incrementing</value>
+   <value>Wrapping</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>true</visible>
@@ -290,13 +290,13 @@ the requested settings for a module instance. -->
    <type>int</type>
    <value>2</value>
    <derived>false</derived>
-   <enabled>true</enabled>
+   <enabled>false</enabled>
    <visible>true</visible>
    <valid>true</valid>
   </parameter>
   <parameter name="CLOCK_FREQUENCY">
    <type>double</type>
-   <value>116.0</value>
+   <value>80.0</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>true</visible>
@@ -693,7 +693,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="FLASH_RESET_CYCLE_MAX_INDEX">
    <type>int</type>
-   <value>29</value>
+   <value>20</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -701,7 +701,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="FLASH_BUSY_TIMEOUT_CYCLE_MAX_INDEX">
    <type>int</type>
-   <value>139</value>
+   <value>96</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -709,7 +709,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="FLASH_ERASE_TIMEOUT_CYCLE_MAX_INDEX">
    <type>int</type>
-   <value>40600000</value>
+   <value>28000000</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -717,7 +717,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="FLASH_WRITE_TIMEOUT_CYCLE_MAX_INDEX">
    <type>int</type>
-   <value>35380</value>
+   <value>24400</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -741,7 +741,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="WRAPPING_BURST_MODE">
    <type>boolean</type>
-   <value>false</value>
+   <value>true</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>false</visible>
@@ -1075,7 +1075,7 @@ parameters are a RESULT of the module parameters. -->
    </parameter>
    <parameter name="linewrapBursts">
     <type>boolean</type>
-    <value>false</value>
+    <value>true</value>
     <derived>false</derived>
     <enabled>true</enabled>
     <visible>true</visible>
@@ -1675,5 +1675,5 @@ parameters are a RESULT of the module parameters. -->
   <version>20.1</version>
  </plugin>
  <reportVersion>20.1 720</reportVersion>
- <uniqueIdentifier>F44D30F4F5CE00000176FD2AF269</uniqueIdentifier>
+ <uniqueIdentifier>F44D30F4F5CE00000176FBD7FCF7</uniqueIdentifier>
 </EnsembleReport>

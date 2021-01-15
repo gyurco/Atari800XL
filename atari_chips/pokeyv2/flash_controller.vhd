@@ -157,6 +157,7 @@ BEGIN
 
 		avmm_data_readdatavalid => flash_data_readvalid,
 
+		--avmm_data_burstcount    => "10",
 		avmm_data_burstcount    => "01",
 
 		reset_n                 => reset_n
@@ -277,6 +278,7 @@ BEGIN
 			flash_read <= '1';
 			state_next <= state_read_wait;
 		when state_read_wait =>
+			flash_read <= flash_waitrequest;
 			complete <= flash_readvalid;
 			if (flash_readvalid = '1') then
 				state_next <= state_delay;
