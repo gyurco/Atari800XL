@@ -21,7 +21,7 @@ unsigned long readFlash(unsigned long addr, unsigned char cfgarea)
 	config[13] = al|3;
 	config[14] = (addr>>8)&0xff;
 
-	config[11] = (((addr>>16)&0x3)<<3)|cfgarea<<2|2|1;
+	config[11] = (((addr>>16)&0x7)<<3)|cfgarea<<2|2|1;
 
 	res = config[15];
 	config[13] = al|2;
@@ -112,6 +112,9 @@ void writeProtect(unsigned char onoff)
 {
 	unsigned long data = readFlash(1, 1);
 	unsigned long mask = 0x1f;
+	unsigned long sectormask = 0x00700000;
+	unsigned long pagemask =   0x000fffff;
+	data = data|sectormask|pagemask; //Spurious erase fix!
 	mask = mask << 23;
 	if (onoff)
 		data = data|mask;
@@ -144,18 +147,24 @@ void flashContentsFromFile()
 	free(buffer);
 }
 
+int getPageSize()
+{
+	config[4] = 5; //e.g 114M08QC
+               //    01234567
+	return config[4]=='6' ? 1024 : 512; // 16Kb for up to 10M08, then 32Kb for 10M16
+}
+
 void erasePageContainingAddress(unsigned long addr)
 {
 	unsigned long data;
-	unsigned long sectormask = 0x7;
-	unsigned long pagemask = 0xfffff;
+	unsigned long sectormask = 0x00700000;
+	unsigned long pagemask =   0x000fffff;
 	unsigned long status;
-	sectormask = sectormask << 20;
 
 	data = readFlash(1,1);
-	data = data | sectormask;
+	data = data|sectormask;
 	data = data&~pagemask;
-	data = data|(addr>>11); //2k pages
+	data = data|addr; 
 	writeFlash(1,1,data);
 
 	for(;;)
@@ -168,13 +177,12 @@ void erasePageContainingAddress(unsigned long addr)
 void eraseSector(unsigned char sector)
 {
 	unsigned long data;
-	unsigned long sectormask = 0x7;
-	unsigned long pagemask = 0xfffff;
+	unsigned long sectormask = 0x00700000;
+	unsigned long pagemask =   0x000fffff;
 	unsigned long status;
-	sectormask = sectormask << 20;
 
 	data = readFlash(1,1);
-	data = data | pagemask;
+	data = data|pagemask;
 	data = data&~sectormask;
 	data = data|(((unsigned long)sector)<<20);
 	writeFlash(1,1,data);
@@ -388,7 +396,7 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char active
 	    clrscr();
 	    //textcolor(0xa);
 	    chline(40);
-	    cprintf("Pokeymax config v1.0 ");
+	    cprintf("Pokeymax config v1.1 ");
             cprintf(" Core:");
             for (i=0;i!=8;++i)
             {
@@ -405,7 +413,7 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char active
 	    if (has_flash())
 	    {
 		    cprintf("  (S)tore config\r\n");
-		    cprintf("  (U)pdate core\r\n");
+		    cprintf("  (U)pdate core/ (V)erify core\r\n");
 	    }
 	    cprintf("  (Q)uit\r\n");
 	    cprintf("Use arrows and enter to change config");
@@ -571,13 +579,6 @@ void applyConfig(unsigned long flash1, unsigned long flash2)
     }
 
     bgcolor(0x00);
-}
-
-int getPageSize()
-{
-	config[4] = 5; //e.g 114M08QC
-               //    01234567
-	return config[4]=='6' ? 1024 : 512; // 16Kb for up to 10M08, then 32Kb for 10M16
 }
 
 void saveConfig(unsigned long flash1, unsigned long flash2)
@@ -777,6 +778,100 @@ void updateCore()
     //writeFlashContentsToFile();
 }
 
+void verifyCore()
+{
+    unsigned long flash1 = readFlash(0,0);
+    unsigned long flash2 = readFlash(1,0); //unused for now
+    char filename[] = "d4:core.bin";
+
+    clrscr();
+    bgcolor(0x34);
+    //textcolor(0xa);
+    chline(40);
+    cprintf("Verifying core\r\n");
+    chline(40);
+
+    cprintf("Please insert core.bin into D4\r\n");
+    cprintf("Press Y to confirm core verify\r\n");
+    while(!kbhit());
+    if (cgetc()=='y') 
+    {
+    	FILE * input = fopen(filename,"r");
+	int j;
+    	unsigned long addr;
+    	unsigned long maxaddr;
+    	unsigned long * buffer = (unsigned long *)malloc(1024);
+	unsigned char t=0;
+    	if (!input)
+    	{
+    		cprintf("Failed to open file!\r\n");
+    		sleep(3);
+    	}
+    	//fseek(input,0,SEEK_SET);
+        fclose(input);
+	input = fopen(filename,"r");
+
+	config[4] = 5; //e.g 114M08QC 
+	               //    01234567
+	j = config[4];
+	config[4] = 4;
+    	cprintf("Verifying M%c%c... please wait",config[4],j);
+
+        config[4] = 5; 
+	maxaddr = config[4]=='4' ? 0xd600 : config[4]=='8' ? 0xe600 : 0x19800; // d600 for m04, e600 for m08. Default to 08 so DEVELPR works
+
+    	for (addr=0;addr!=maxaddr;addr+=256) 
+    	{
+    	    unsigned long i;
+	    gotoxy(0,20);
+	    cprintf("%c  %d/%d      ",(t ? '/' : '\\'),(unsigned short)(1+(addr>>8)),(unsigned short)(maxaddr>>8));
+	    t = !t;
+
+            i = fread(&buffer[0],1024,1,input);
+	    if (i!=1) 
+	    {
+	    	cprintf("\r\nError reading disk!\r\n");
+	    	cprintf("Press key then START AGAIN!\r\n");
+	    	fclose(input);
+	    	
+	    	while(!kbhit());
+   		bgcolor(0x00);
+		bordercolor(0x00);
+	    	return;
+	    }
+            if (addr==0)
+            {
+            // keep our config...
+            	buffer[0] = flash1;
+            	buffer[1] = flash2;
+            }
+            for (i=0;i!=256;++i)
+	    {
+		unsigned long val;
+                bordercolor(i);
+		val = readFlash(addr+i,0);
+		if (val!=buffer[i])
+		{
+	    		cprintf("\r\nError at address %08lx\r\n",addr+i);
+			cprintf("disk:%08lx flash:%08lx\r\n",buffer[i],val);
+	    		cprintf("Press key to continue\r\n");
+	    		fclose(input);
+	    		
+	    		while(!kbhit());
+	    		return;
+		}
+	    }
+    	}
+
+    	free(buffer);
+    	fclose(input);
+    }
+    bgcolor(0x00);
+    bordercolor(0x00);
+
+    //writeFlashContentsToFile();
+}
+
 int main (void)
 {
     unsigned int i;
@@ -868,6 +963,11 @@ int main (void)
 		// Update core
                 if (has_flash()) updateCore();
     		prevline = 255;
+		break;
+	case 'v':
+		// Verify core
+		if (has_flash()) verifyCore();
+		prevline = 255;
 		break;
         case 'q':
 		clrscr();
