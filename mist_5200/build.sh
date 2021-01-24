@@ -8,21 +8,13 @@ my $name="mist 5200";
 #variants...
 my $NTSC = 0;
 
-my $RGB = 1; # i.e. not scandoubled
-my $VGA = 2;
-
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
 my %variants = 
 (
-	"NTSC_Normal" =>
+	"NTSC" =>
 	{
-		csync => '0'
-	},
-	"NTSC_CompositeSync" =>
-	{
-		csync => '1'
 	}
 );
 
@@ -41,7 +33,6 @@ foreach my $variant (sort keys %variants)
 	mkdir $dir;
 	`cp atari5200core_mist.vhd $dir`;
 	`cp *pll*.* $dir`;
-	`cp *mist_sector*.* $dir`;
 	`cp *.v $dir`;
 	`cp *.vhdl $dir`;
 	`cp zpu_rom.vhdl $dir`;
@@ -54,6 +45,11 @@ foreach my $variant (sort keys %variants)
 	`cp -r ../common/components/* ./$dir/common/components`;
 	`mv ./$dir/common/components/*cyclone3/* ./$dir/common/components/`;
 	`cp ../common/zpu/* ./$dir/common/zpu`;
+	`rm ./$dir/common/a8core/atari800core_helloworld.vhd`;
+	`rm ./$dir/common/a8core/atari800nx_core_simple_sdram.vhd`;
+	`rm ./$dir/common/a8core/atari800xl.vhd`;
+	`rm ./$dir/common/a8core/internalromram_fast.vhd`;
+	`rm ./$dir/common/a8core/internalromram_simple.vhd`;
 
 	chdir $dir;
 	`../makeqsf ../atari5200core.qsf ./common/a8core ./common/components ./common/zpu`;
