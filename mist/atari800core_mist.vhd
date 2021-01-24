@@ -76,10 +76,12 @@ PORT (
 END COMPONENT;
 
 component user_io
-	GENERIC(
-		STRLEN : in integer := 0
-	);
+	GENERIC (
+		STRLEN : integer := 0;
+		PS2DIV : integer := 1500 );
 	PORT(
+		clk_sys : in std_logic;
+		clk_sd : in std_logic;
 		-- conf_str? how to do in vhdl...
 
 		-- mist spi to firmware
@@ -97,8 +99,12 @@ component user_io
 		SWITCHES : out std_logic_vector(1 downto 0);
 		STATUS : out std_logic_vector(7 downto 0); -- what is this?
 
+		-- video switches
+		scandoubler_disable: out std_logic;
+		ypbpr: out std_logic;
+		no_csync: out std_logic;
+
 		-- ps2
-		PS2_CLK : in std_logic; --12-16khz
 		PS2_KBD_CLK : out std_logic;
 		PS2_KBD_DATA : out std_logic;
 
@@ -108,44 +114,48 @@ component user_io
 
 		-- connection to sd card emulation
 		sd_lba : in std_logic_vector(31 downto 0);
-		sd_rd : in std_logic;
-		sd_wr : in std_logic;
+		sd_rd : in std_logic_vector(1 downto 0);
+		sd_wr : in std_logic_vector(1 downto 0);
 		sd_ack : out std_logic;
+		sd_ack_conf : out std_logic;
 		sd_conf : in std_logic;
 		sd_sdhc : in std_logic;
 		sd_dout : out std_logic_vector(7 downto 0);
 		sd_dout_strobe : out std_logic;
 		sd_din : in std_logic_vector(7 downto 0);
-		sd_din_strobe : out std_logic
+		sd_din_strobe : out std_logic;
+		sd_buff_addr : out std_logic_vector(8 downto 0)
 	  );
 	end component;
 
-	component sd_card
-	PORT (
+component sd_card
+	port (
+		clk_sys : in std_logic;
 		-- link to user_io for io controller
-		io_lba : out std_logic_vector(31 downto 0);
-		io_rd : out std_logic;
-		io_wr : out std_logic;
-		io_ack : in std_logic;
-		io_conf : out std_logic;
-		io_sdhc : out std_logic;
-		
+		sd_lba : out std_logic_vector(31 downto 0);
+		sd_rd : out std_logic;
+		sd_wr : out std_logic;
+		sd_ack : in std_logic;
+		sd_ack_conf : in std_logic;
+		sd_conf : out std_logic;
+		sd_sdhc : out std_logic;
+
+		sd_buff_addr : in std_logic_vector(8 downto 0);
 		-- data coming in from io controller
-		io_din : in std_logic_vector(7 downto 0);
-		io_din_strobe : in std_logic;
-		
+		sd_buff_dout : in std_logic_vector(7 downto 0);
+		sd_buff_wr : in std_logic;
+
 		-- data going out to io controller
-		io_dout : out std_logic_vector(7 downto 0);
-		io_dout_strobe : in std_logic;
-		
+		sd_buff_din : out std_logic_vector(7 downto 0);
+
 		-- configuration input
 		allow_sdhc : in std_logic;
-	
+
 		sd_cs : in std_logic;
 		sd_sck : in std_logic;
 		sd_sdi : in std_logic;
 		sd_sdo : out std_logic
-	); 
+	);
 	end component;
 
   signal AUDIO_L_PCM : std_logic_vector(15 downto 0);
@@ -252,12 +262,14 @@ component user_io
 	signal sd_rd : std_logic;
 	signal sd_wr : std_logic;
 	signal sd_ack : std_logic;
+	signal sd_ack_conf : std_logic;
 	signal sd_conf : std_logic;
 	signal sd_sdhc : std_logic;
 	signal sd_dout : std_logic_vector(7 downto 0);
 	signal sd_dout_strobe : std_logic;
 	signal sd_din : std_logic_vector(7 downto 0);
 	signal sd_din_strobe : std_logic;
+	signal sd_buff_addr: std_logic_vector(8 downto 0);
 
 	signal mist_sd_sdo : std_logic;
 	signal mist_sd_sck : std_logic;
@@ -265,7 +277,6 @@ component user_io
 	signal mist_sd_cs : std_logic;
 
 	-- ps2
-	signal SLOW_PS2_CLK : std_logic; -- around 16KHz
 	signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
 	signal PS2_KEYS_NEXT : STD_LOGIC_VECTOR(511 downto 0);
 
@@ -273,6 +284,8 @@ component user_io
 	signal half_scandouble_enable_reg : std_logic;
 	signal half_scandouble_enable_next : std_logic;
 	signal VIDEO_B : std_logic_vector(7 downto 0);
+	signal sd_hs : std_logic;
+	signal sd_vs : std_logic;
 
 	-- turbo freezer!
 	signal freezer_enable : std_logic;
@@ -286,9 +299,10 @@ component user_io
 	signal pal : std_logic;
 	signal scandouble : std_logic;
 	signal scanlines : std_logic;
-	signal csync : std_logic;
 	signal video_mode : std_logic_vector(2 downto 0);
+	signal scandoubler_disable : std_logic;
 	signal ypbpr : std_logic;
+	signal no_csync : std_logic;
 
 	-- pll reconfig
 	signal CLK_RECONFIG_PLL : std_logic;
@@ -334,10 +348,12 @@ BEGIN
 
 my_user_io : user_io
 	PORT map(
-	   SPI_CLK => SPI_SCK,
-	   SPI_SS_IO => CONF_DATA0,
-	   SPI_MISO => SPI_miso_io,
-	   SPI_MOSI => SPI_DI,
+		clk_sys => CLK,
+		clk_sd => CLK,
+		SPI_CLK => SPI_SCK,
+		SPI_SS_IO => CONF_DATA0,
+		SPI_MISO => SPI_miso_io,
+		SPI_MOSI => SPI_DI,
 		JOYSTICK_0 => joy2,
 		JOYSTICK_1 => joy1,
 		JOYSTICK_ANALOG_0(15 downto 8) => joy2x,
@@ -347,8 +363,10 @@ my_user_io : user_io
 		BUTTONS => mist_buttons,
 		SWITCHES => mist_switches,
 		STATUS => open,
+		scandoubler_disable => scandoubler_disable,
+		ypbpr => ypbpr,
+		no_csync => no_csync,
 
-		PS2_CLK => SLOW_PS2_CLK,
 		PS2_KBD_CLK => ps2_clk,
 		PS2_KBD_DATA => ps2_dat,
 	
@@ -356,39 +374,42 @@ my_user_io : user_io
 		SERIAL_STROBE => '0',
 
 		sd_lba => sd_lba,
-		sd_rd => sd_rd,
-		sd_wr => sd_wr,
+		sd_rd => '0' & sd_rd,
+		sd_wr => '0' & sd_wr,
 		sd_ack => sd_ack,
+		sd_ack_conf => sd_ack_conf,
 		sd_conf => sd_conf,
 		sd_sdhc => sd_sdhc,
 		sd_dout => sd_dout,
 		sd_dout_strobe => sd_dout_strobe,
 		sd_din => sd_din,
-		sd_din_strobe => sd_din_strobe
-	  );
+		sd_din_strobe => sd_din_strobe,
+		sd_buff_addr => sd_buff_addr
+	);
 
 my_sd_card : sd_card
 	PORT map (
-		io_lba => sd_lba,
-		io_rd => sd_rd,
-		io_wr => sd_wr,
-		io_ack => sd_ack,
-		io_conf => sd_conf,
-		io_sdhc => sd_sdhc,
-		
-		io_din => sd_dout,
-		io_din_strobe => sd_dout_strobe,
-		
-		io_dout => sd_din,
-		io_dout_strobe => sd_din_strobe,
-		
+		clk_sys => CLK,
+		sd_lba => sd_lba,
+		sd_rd => sd_rd,
+		sd_wr => sd_wr,
+		sd_ack => sd_ack,
+		sd_ack_conf => sd_ack_conf,
+		sd_conf => sd_conf,
+		sd_sdhc => sd_sdhc,
+
+		sd_buff_addr => sd_buff_addr,
+		sd_buff_dout => sd_dout,
+		sd_buff_wr => sd_dout_strobe,
+		sd_buff_din => sd_din,
+
 		allow_sdhc => '1',
-	
+
 		sd_cs => mist_sd_cs,
 		sd_sck => mist_sd_sck,
 		sd_sdi => mist_sd_sdi,
 		sd_sdo => mist_sd_sdo
-	); 
+	);
 	  
 -- PS2 to pokey
 keyboard_map1 : entity work.ps2_to_atari800
@@ -466,7 +487,6 @@ PORT MAP(inclk0 => CLOCK_27(0),
 	        PLL_CLKS(0) => CLK_SDRAM,
 	        PLL_CLKS(1) => CLK,
 	        PLL_CLKS(2) => SDRAM_CLK,
-		PLL_CLKS(3) => SLOW_PS2_CLK,
 	
 		RESET_N_OUT => RESET_N
 	    );
@@ -582,17 +602,10 @@ PORT MAP(CLK_SYSTEM => CLK,
 		 );
 		 
 SDRAM_A(12) <= '0';
---SDRAM_REFRESH <= '0'; -- TODO
 
--- Until SDRAM enabled... TODO
---SDRAM_nCS <= '1';
---SDRAM_DQ <= (others=>'Z');
-
---SDRAM_CKE <= '1';		 
 LED <= zpu_sio_rxd;
 
---VGA_HS <= not(VGA_HS_RAW xor VGA_VS_RAW);
---VGA_VS <= not(VGA_VS_RAW);
+	scandouble <= not scandoubler_disable;
 
 	process(clk,RESET_N,SDRAM_RESET_N,reset_atari)
 	begin
@@ -616,7 +629,7 @@ LED <= zpu_sio_rxd;
 		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
 		
 		VGA => scandouble,
-		COMPOSITE_ON_HSYNC => csync or ypbpr,
+		COMPOSITE_ON_HSYNC => '0', -- OSD needs separate sync, handle csync in the final mix
 
 		colour_enable => half_scandouble_enable_reg,
 		doubled_enable => '1',
@@ -634,8 +647,8 @@ LED <= zpu_sio_rxd;
 		G => SCANDOUBLE_G,
 		B => SCANDOUBLE_B,
 		
-		VSYNC => VGA_VS,
-		HSYNC => VGA_HS
+		VSYNC => sd_vs,
+		HSYNC => sd_hs
 	);
 
 rgb2component: rgb2ypbpr
@@ -651,12 +664,15 @@ port map (
 VGA_R <= vga_pr_o when ypbpr='1' else SCANDOUBLE_R;
 VGA_G <= vga_y_o  when ypbpr='1' else SCANDOUBLE_G;
 VGA_B <= vga_pb_o when ypbpr='1' else SCANDOUBLE_B;
+ -- If 15kHz Video - composite sync to VGA_HS and VGA_VS high for MiST RGB cable
+VGA_HS <= not (sd_hs xor sd_vs) when (scandoubler_disable='1' and no_csync='0') or ypbpr='1' else sd_hs;
+VGA_VS <= '1' when (scandoubler_disable='1' and no_csync='0') or ypbpr='1' else sd_vs;
 
 zpu: entity work.zpucore
 	GENERIC MAP
 	(
 		platform => 1,
-		spi_clock_div => 16,	-- 28MHz/2. Max for SD cards is 25MHz...
+		spi_clock_div => 4,	-- 28MHz/2. Max for SD cards is 25MHz...
 		nMHz_clock_div => 27,
 		memory => 8192
 	)
@@ -734,37 +750,6 @@ zpu: entity work.zpucore
 	video_mode <= zpu_out6(2 downto 0);
 	PAL <= zpu_out6(4);
 	scanlines <= zpu_out6(5);
-	csync <= zpu_out6(6);
-
-process(video_mode)
-begin
-	SCANDOUBLE <= '0';
-	YPBPR <= '0';
-
-	-- original RGB
-	-- scandoubled RGB (works on some vga devices...)
-	-- ypbpr
-	-- scandoubled ypbpr
-
-	case video_mode is
-		when "000" =>
-		when "001" =>
-			SCANDOUBLE <= '1';
-		when "010" => 
-			YPBPR <= '1';
-		when "011" =>
-			SCANDOUBLE <= '1';
-			YPBPR <= '1';
-		when "100" =>
-			-- not supported
-		when "101" =>
-			-- not supported
-		when "110" => -- composite
-			-- not supported
-
-		when others =>
-	end case;
-end process;
 
 	zpu_rom1: entity work.zpu_rom
 	port map(
