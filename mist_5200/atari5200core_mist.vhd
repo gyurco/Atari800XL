@@ -12,10 +12,6 @@ use ieee.numeric_std.all;
 LIBRARY work;
 
 ENTITY atari5200core_mist IS 
-	GENERIC
-	(
-		CSYNC : IN integer
-	);
 	PORT
 	(
 		CLOCK_27 :  IN  STD_LOGIC_VECTOR(1 downto 0);
@@ -118,6 +114,7 @@ component user_io
         buttons : out std_logic_vector(1 downto 0);
         scandoubler_disable: out std_logic;
         ypbpr: out std_logic;
+        no_csync: out std_logic;
         ps2_kbd_clk : out std_logic;
         ps2_kbd_data : out std_logic;
         ps2_mouse_clk : out std_logic;
@@ -257,6 +254,7 @@ signal scanlines_reg : std_logic;
 signal VIDEO_B : std_logic_vector(7 downto 0);
 signal scandoubler_disable : std_logic;
 signal ypbpr : std_logic;
+signal no_csync : std_logic;
 
 signal sd_hs        : std_logic;
 signal sd_vs        : std_logic;
@@ -324,8 +322,9 @@ mist_user_io : user_io
         BUTTONS => mist_buttons,
         SWITCHES => mist_switches,
         STATUS => mist_status,
-		scandoubler_disable => scandoubler_disable,
+        scandoubler_disable => scandoubler_disable,
         ypbpr => ypbpr,
+        no_csync => no_csync,
 
         PS2_KBD_CLK => ps2_clk,
         PS2_KBD_DATA => ps2_dat,
@@ -526,7 +525,7 @@ PORT MAP
 		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
 
 		VGA => vga,
-		COMPOSITE_ON_HSYNC => V01(csync),
+		COMPOSITE_ON_HSYNC => '0',
 		colour_enable => half_scandouble_enable_reg,
 		doubled_enable => '1',
 		scanlines_on => scanlines_reg,
@@ -576,8 +575,8 @@ port map (
 );
 
  -- If 15kHz Video - composite sync to VGA_HS and VGA_VS high for MiST RGB cable
-VGA_HS <= not (sd_hs xor sd_vs) when scandoubler_disable='1' or ypbpr='1' else sd_hs;
-VGA_VS <= '1' when scandoubler_disable='1' or ypbpr='1' else sd_vs;
+VGA_HS <= not (sd_hs xor sd_vs) when (no_csync='0' and scandoubler_disable='1') or ypbpr='1' else sd_hs;
+VGA_VS <= '1' when (no_csync='0' and scandoubler_disable='1') or ypbpr='1' else sd_vs;
 VGA_R <= vga_pr_o when ypbpr='1' else osd_red_o;
 VGA_G <= vga_y_o  when ypbpr='1' else osd_green_o;
 VGA_B <= vga_pb_o when ypbpr='1' else osd_blue_o;
