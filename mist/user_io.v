@@ -47,8 +47,11 @@ module user_io #(parameter STRLEN=0, parameter PS2DIV=100, parameter ROM_DIRECT_
 	output              scandoubler_disable,
 	output              ypbpr,
 	output              no_csync,
-	output reg   [31:0] status,
+	output reg   [63:0] status,
 	output reg    [6:0] core_mod, // core variant, sent before the config string is requested
+	// RTC data from IO controller
+	// sec, min, hour, date, month, year, day (BCD)
+	output reg   [63:0] rtc,
 
 	// connection to sd card emulation
 	input        [31:0] sd_lba,
@@ -82,8 +85,10 @@ module user_io #(parameter STRLEN=0, parameter PS2DIV=100, parameter ROM_DIRECT_
 	// mouse data
 	output reg    [8:0] mouse_x,
 	output reg    [8:0] mouse_y,
+	output reg    [3:0] mouse_z,
 	output reg    [7:0] mouse_flags,  // YOvfl, XOvfl, dy8, dx8, 1, mbtn, rbtn, lbtn
 	output reg          mouse_strobe, // mouse data is valid on mouse_strobe
+	output reg          mouse_idx,    // which mouse?
 
 	// serial com port
 	input [7:0]         serial_data,
@@ -144,7 +149,7 @@ assign ps2_kbd_clk = ps2_clk || (ps2_kbd_tx_state == 0);
 // ps2 transmitter
 // Takes a byte from the FIFO and sends it in a ps2 compliant serial format.
 reg ps2_kbd_r_inc;
-always@(posedge clk_sys) begin
+always@(posedge clk_sys) begin : ps2_kbd
 	reg ps2_clkD;
 
 	ps2_clkD <= ps2_clk;
@@ -213,7 +218,7 @@ assign ps2_mouse_clk = ps2_clk || (ps2_mouse_tx_state == 0);
 // ps2 transmitter
 // Takes a byte from the FIFO and sends it in a ps2 compliant serial format.
 reg ps2_mouse_r_inc;
-always@(posedge clk_sys) begin
+always@(posedge clk_sys) begin : ps2_mouse
 	reg ps2_clkD;
 
 	ps2_clkD <= ps2_clk;
@@ -281,7 +286,7 @@ wire [7:0] serial_out_status = { 7'b1000000, serial_out_data_available};
 
 // status[0] is reset signal from io controller and is thus used to flush
 // the fifo
-always @(posedge serial_strobe or posedge status[0]) begin
+always @(posedge serial_strobe or posedge status[0]) begin : serial_out
 	if(status[0] == 1) begin
 		serial_out_wptr <= 0;
 	end else begin 
@@ -290,7 +295,7 @@ always @(posedge serial_strobe or posedge status[0]) begin
 	end
 end 
 
-always@(negedge spi_sck or posedge status[0]) begin
+always@(negedge spi_sck or posedge status[0]) begin : serial_in
 	if(status[0] == 1) begin
 		serial_out_rptr <= 0;
 	end else begin
@@ -304,7 +309,7 @@ end
 
 
 // SPI bit and byte counters
-always@(posedge spi_sck or posedge SPI_SS_IO) begin
+always@(posedge spi_sck or posedge SPI_SS_IO) begin : spi_counter
 	if(SPI_SS_IO == 1) begin
 		bit_cnt <= 0;
 		byte_cnt <= 0;
@@ -319,7 +324,7 @@ end
 // SPI transmitter FPGA -> IO
 reg [7:0] spi_byte_out;
 
-always@(negedge spi_sck or posedge SPI_SS_IO) begin
+always@(negedge spi_sck or posedge SPI_SS_IO) begin : spi_byteout
 	if(SPI_SS_IO == 1) begin
 	   SPI_MISO <= 1'bZ;
 	end else begin
@@ -327,7 +332,7 @@ always@(negedge spi_sck or posedge SPI_SS_IO) begin
 	end
 end
 
-always@(posedge spi_sck or posedge SPI_SS_IO) begin
+always@(posedge spi_sck or posedge SPI_SS_IO) begin : spi_transmitter
 	reg [31:0] sd_lba_r;
 	reg  [7:0] drive_sel_r;
 
@@ -355,10 +360,12 @@ always@(posedge spi_sck or posedge SPI_SS_IO) begin
 
 			// reading sd card write data
 			8'h18: spi_byte_out <= sd_din;
+
 			8'h1b:
 				// send alternating flag byte and data
 				if(byte_cnt[0]) spi_byte_out <= serial_out_status;
 				else spi_byte_out <= serial_out_byte;
+
 			endcase
 		end
 	end
@@ -371,7 +378,7 @@ reg       spi_transfer_end_r = 1;
 reg [7:0] spi_byte_in;
 
 // Read at spi_sck clock domain, assemble bytes for transferring to clk_sys
-always@(posedge spi_sck or posedge SPI_SS_IO) begin
+always@(posedge spi_sck or posedge SPI_SS_IO) begin : spi_receiver
 
 	if(SPI_SS_IO == 1) begin
 		spi_transfer_end_r <= 1;
@@ -390,7 +397,7 @@ always@(posedge spi_sck or posedge SPI_SS_IO) begin
 end
 
 // Process bytes from SPI at the clk_sys domain
-always @(posedge clk_sys) begin
+always @(posedge clk_sys) begin : cmd_block
 
 	reg       spi_receiver_strobe;
 	reg       spi_transfer_end;
@@ -401,6 +408,7 @@ always @(posedge clk_sys) begin
 
 	reg [7:0] mouse_flags_r;
 	reg [7:0] mouse_x_r;
+	reg [7:0] mouse_y_r;
 
 	reg       key_pressed_r;
 	reg       key_extended_r;
@@ -414,7 +422,7 @@ always @(posedge clk_sys) begin
 	key_strobe <= 0;
 	mouse_strobe <= 0;
 
-	if (~spi_transfer_endD & spi_transfer_end) begin
+	if (spi_transfer_end) begin
 		abyte_cnt <= 8'd0;
 	end else if (spi_receiver_strobeD ^ spi_receiver_strobe) begin
 
@@ -432,17 +440,23 @@ always @(posedge clk_sys) begin
 				8'h62: if (abyte_cnt < 5) joystick_2[(abyte_cnt-1)<<3 +:8] <= spi_byte_in;
 				8'h63: if (abyte_cnt < 5) joystick_3[(abyte_cnt-1)<<3 +:8] <= spi_byte_in;
 				8'h64: if (abyte_cnt < 5) joystick_4[(abyte_cnt-1)<<3 +:8] <= spi_byte_in;
-				8'h04: begin
-					// store incoming ps2 mouse bytes 
-					ps2_mouse_fifo[ps2_mouse_wptr] <= spi_byte_in;
-					ps2_mouse_wptr <= ps2_mouse_wptr + 1'd1;
+				8'h70,8'h71: begin
+					// store incoming ps2 mouse bytes
+					if (abyte_cnt < 4) begin
+						ps2_mouse_fifo[ps2_mouse_wptr] <= spi_byte_in;
+						ps2_mouse_wptr <= ps2_mouse_wptr + 1'd1;
+					end
+
 					if (abyte_cnt == 1) mouse_flags_r <= spi_byte_in;
 					else if (abyte_cnt == 2) mouse_x_r <= spi_byte_in;
-					else if (abyte_cnt == 3) begin
+					else if (abyte_cnt == 3) mouse_y_r <= spi_byte_in;
+					else if (abyte_cnt == 4) begin
 						// flags: YOvfl, XOvfl, dy8, dx8, 1, mbtn, rbtn, lbtn
 						mouse_flags <= mouse_flags_r;
 						mouse_x <= { mouse_flags_r[4], mouse_x_r };
-						mouse_y <= { mouse_flags_r[5], spi_byte_in };
+						mouse_y <= { mouse_flags_r[5], mouse_y_r };
+						mouse_z <= spi_byte_in[3:0];
+						mouse_idx <= acmd[0];
 						mouse_strobe <= 1;
 					end
 				end
@@ -457,7 +471,7 @@ always @(posedge clk_sys) begin
 					if (spi_byte_in == 8'he0) key_extended_r <= 1'b1;
 					else if (spi_byte_in == 8'hf0) key_pressed_r <= 1'b0;
 					else begin
-						key_extended <= key_extended_r;
+						key_extended <= key_extended_r && abyte_cnt != 1;
 						key_pressed <= key_pressed_r || abyte_cnt == 1;
 						key_code <= spi_byte_in;
 						key_strobe <= 1'b1;
@@ -486,19 +500,22 @@ always @(posedge clk_sys) begin
 
 				8'h15: status <= spi_byte_in;
 
-				// status, 32bit version
-				8'h1e: if(abyte_cnt<5) status[(abyte_cnt-1)<<3 +:8] <= spi_byte_in;
+				// status, 64bit version
+				8'h1e: if(abyte_cnt<9) status[(abyte_cnt-1)<<3 +:8] <= spi_byte_in;
 
 				// core variant
 				8'h21: core_mod <= spi_byte_in[6:0];
 
+				// RTC
+				8'h22: if(abyte_cnt<9) rtc[(abyte_cnt-1)<<3 +:8] <= spi_byte_in;
 			endcase
 		end
 	end
 end
 
+
 // Process SD-card related bytes from SPI at the clk_sd domain
-always @(posedge clk_sd) begin
+always @(posedge clk_sd) begin : sd_block
 
 	reg       spi_receiver_strobe;
 	reg       spi_transfer_end;
@@ -529,7 +546,7 @@ always @(posedge clk_sd) begin
 
 	img_mounted <= 0;
 
-	if (~spi_transfer_endD & spi_transfer_end) begin
+	if (spi_transfer_end) begin
 		abyte_cnt <= 8'd0;
 		sd_ack <= 1'b0;
 		sd_ack_conf <= 1'b0;
@@ -549,6 +566,8 @@ always @(posedge clk_sd) begin
 				if(~&sd_buff_addr) sd_buff_addr <= sd_buff_addr + 1'b1;
 			end
 
+			if(spi_byte_in == 8'h19)
+				sd_ack_conf <= 1'b1;
 			if((spi_byte_in == 8'h17) || (spi_byte_in == 8'h18))
 				sd_ack <= 1'b1;
 
@@ -556,7 +575,9 @@ always @(posedge clk_sd) begin
 			case(acmd)
 
 				// send sector IO -> FPGA
-				8'h17: begin
+				8'h17,
+				// send SD config IO -> FPGA
+				8'h19: begin
 					// flag that download begins
 					sd_dout_strobe <= 1'b1;
 					sd_dout <= spi_byte_in;
@@ -568,14 +589,6 @@ always @(posedge clk_sd) begin
 						sd_din_strobe <= 1'b1;
 						sd_buff_addr <= sd_buff_addr + 1'b1;
 					end
-				end
-
-				// send SD config IO -> FPGA
-				8'h19: begin
-					// flag that download begins
-					sd_dout_strobe <= 1'b1;
-					sd_ack_conf <= 1'b1;
-					sd_dout <= spi_byte_in;
 				end
 
 				8'h1c: img_mounted[spi_byte_in[0]] <= 1;

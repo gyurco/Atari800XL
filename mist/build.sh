@@ -40,6 +40,7 @@ foreach my $variant (sort keys %variants)
 	`cp *.vhdl $dir`;
 	`cp *.vhd $dir`;
 	`cp ntsc.mif  pal.mif $dir`;
+	`cp pal_rom.* ntsc_rom.* $dir`;
 	`cp zpu_rom.* $dir`;
 	`cp atari800core.sdc $dir`;
 	`mkdir $dir/common`;
