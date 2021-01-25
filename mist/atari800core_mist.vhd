@@ -390,15 +390,18 @@ component user_io
 	constant CONF_STR : string :=
 		"A800XL;;"&
 		"F,ROMCAR,Load Cart;"&
---		"S,ATRXEX,Mount;"&
-		"O7,Video,NTSC,PAL;"&
+--		"S0,ATRXEX,Mount 0;"&
+--		"S1,ATRXEX,Mount 1;"&
+		"O3,Video,NTSC,PAL;"&
 		"O46,CPU Speed,1x,2x,4x,8x,16x;"&
-		"OB,Turbo at VBL only,Off,On;"&
-		"O13,Memory,64K,128K,320KB Compy,320KB Rambo,576K Compy,576K Rambo,1088K,4MB;"&
-		"O9,Keyboard,ISO,ANSI;"&
-		"O8,Scanlines,Off,On;"&
+		"O7,Turbo at VBL only,Off,On;"&
+		"O8,Machine,XL/XE,400/800;"&
+		"O9B,XL/XE Memory,64K,128K,320KB Compy,320KB Rambo,576K Compy,576K Rambo,1088K,4MB;"&
+		"OCE,400/800 Memory,8K,16K,32K,48K,52K;"&
+		"OF,Keyboard,ISO,ANSI;"&
+		"OG,Scanlines,Off,On;"&
 		"T0,Reset;"&
-		"TA,Cold reset;";
+		"T1,Cold reset;";
 
 --	constant CONF_STR : string := "";
 
@@ -1012,7 +1015,7 @@ BEGIN
 		ZPU_OUT6 => zpu_out6 --video mode
 	);
 
-	cold_reset  <= mist_status(10) or FKEYS(9);
+	cold_reset  <= mist_status(1) or FKEYS(9);
 	reset_atari <= mist_status(0) or mist_buttons(1) or zpu_out1(1) or reset_load;
 	speed_6502 <= "000001" when mist_status(6 downto 4) = "000" else
 	              "000010" when mist_status(6 downto 4) = "001" else
@@ -1020,14 +1023,15 @@ BEGIN
 	              "001000" when mist_status(6 downto 4) = "011" else
 	              "010000";
 
-	turbo_vblank_only <= mist_status(11);
-	ram_select <= mist_status(3 downto 1);
-	PAL <= mist_status(7);
-	scanlines <= mist_status(8);
-	key_type <= mist_status(9);
+	turbo_vblank_only <= mist_status(7);
+
+	atari800mode <= mist_status(8);
+	ram_select <= mist_status(11 downto 9) when atari800mode = '0' else mist_status(14 downto 12);
+	PAL <= mist_status(3);
+	scanlines <= mist_status(16);
+	key_type <= mist_status(15);
 
 	pause_atari <= '1' when zpu_out1(0) = '1' or ioctl_state /= IOCTL_IDLE else '0';
-	atari800mode <= zpu_out1(11);
 	freezer_enable <= zpu_out1(25);
 
 	zpu_rom1: entity work.zpu_rom
