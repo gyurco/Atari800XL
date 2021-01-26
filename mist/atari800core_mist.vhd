@@ -386,9 +386,11 @@ component user_io
 
 	constant SDRAM_BASE    : unsigned(23 downto 0) := x"800000";
 	constant CARTRIDGE_MEM : unsigned(23 downto 0) := x"D00000";
+	constant SDRAM_ROM_ADDR : unsigned(23 downto 0):= x"F00000";
 
 	constant CONF_STR : string :=
 		"A800XL;;"&
+		"F,ROM,Load ROM;"&
 		"F,ROMCAR,Load Cart;"&
 --		"S0,ATRXEX,Mount 0;"&
 --		"S1,ATRXEX,Mount 1;"&
@@ -400,8 +402,8 @@ component user_io
 		"OCE,400/800 Memory,8K,16K,32K,48K,52K;"&
 		"OF,Keyboard,ISO,ANSI;"&
 		"OG,Scanlines,Off,On;"&
-		"T0,Reset;"&
-		"T1,Cold reset;";
+		"T1,Reset;"&
+		"T2,Cold reset;";
 
 --	constant CONF_STR : string := "";
 
@@ -815,7 +817,7 @@ BEGIN
 					-- end of download
 					ioctl_state <= IOCTL_IDLE;
 					reset_load <= '1';
-					if ioctl_index = x"01" then
+					if ioctl_index = x"02" then
 						-- ROM file type detection from size
 						if    ioctl_addr = '0'&x"002000" then cart_type_byte <= x"01"; -- standard 8k
 						elsif ioctl_addr = '0'&x"004000" then cart_type_byte <= x"02"; -- standard 16k
@@ -827,18 +829,23 @@ BEGIN
 					end if;
 				elsif ioctl_wr = '1' then
 					-- new word arrived from IO controller
-					if (ioctl_index = x"41" and unsigned(ioctl_addr) = 6) then
+					if (ioctl_index = x"42" and unsigned(ioctl_addr) = 6) then
 						-- CAR header type field
 						cart_type_byte <= ioctl_dout(15 downto 8);
-					elsif (ioctl_index = x"41" and unsigned(ioctl_addr) < 16) then
+					elsif (ioctl_index = x"42" and unsigned(ioctl_addr) < 16) then
 						-- skip CAR header
 						null;
 					else
 						dma_fetch_ioctl <= '1';
 						dma_16bit_write_enable_ioctl <= '1';
 						dma_write_data_ioctl <= ioctl_dout & ioctl_dout;
-						sdram_a := unsigned(ioctl_addr(23 downto 0)) + CARTRIDGE_MEM;
-						if ioctl_index = x"41" then
+						if ioctl_index(7 downto 1) = "0000000" then -- 0 or 1
+							-- BASIC + OS ROM
+							sdram_a := unsigned(ioctl_addr(23 downto 0)) + SDRAM_ROM_ADDR;
+						else
+							sdram_a := unsigned(ioctl_addr(23 downto 0)) + CARTRIDGE_MEM;
+						end if;
+						if ioctl_index = x"42" then
 							sdram_a := sdram_a - 16;
 						end if;
 						dma_addr_fetch_ioctl <= std_logic_vector(sdram_a);
@@ -1015,8 +1022,8 @@ BEGIN
 		ZPU_OUT6 => zpu_out6 --video mode
 	);
 
-	cold_reset  <= mist_status(1) or FKEYS(9);
-	reset_atari <= mist_status(0) or mist_buttons(1) or zpu_out1(1) or reset_load;
+	cold_reset  <= mist_status(2) or FKEYS(9);
+	reset_atari <= mist_status(1) or mist_buttons(1) or zpu_out1(1) or reset_load;
 	speed_6502 <= "000001" when mist_status(6 downto 4) = "000" else
 	              "000010" when mist_status(6 downto 4) = "001" else
 	              "000100" when mist_status(6 downto 4) = "010" else
@@ -1031,7 +1038,8 @@ BEGIN
 	scanlines <= mist_status(16);
 	key_type <= mist_status(15);
 
-	pause_atari <= '1' when zpu_out1(0) = '1' or ioctl_state /= IOCTL_IDLE else '0';
+--	pause_atari <= '1' when zpu_out1(0) = '1' or ioctl_state /= IOCTL_IDLE else '0';
+	pause_atari <= '1' when ioctl_state /= IOCTL_IDLE else '0';
 	freezer_enable <= zpu_out1(25);
 
 	zpu_rom1: entity work.zpu_rom
