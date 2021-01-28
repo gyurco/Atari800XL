@@ -144,7 +144,9 @@ component user_io
 		sd_dout_strobe : out std_logic;
 		sd_din : in std_logic_vector(7 downto 0);
 		sd_din_strobe : out std_logic;
-		sd_buff_addr : out std_logic_vector(8 downto 0)
+		sd_buff_addr : out std_logic_vector(8 downto 0);
+		img_size    : out std_logic_vector(31 downto 0);
+		img_mounted : out std_logic_vector(1 downto 0)
 	  );
 	end component;
 
@@ -165,35 +167,6 @@ component user_io
 	);
 	end component data_io;
 
-	component sd_card
-	port (
-		clk_sys : in std_logic;
-		-- link to user_io for io controller
-		sd_lba : out std_logic_vector(31 downto 0);
-		sd_rd : out std_logic;
-		sd_wr : out std_logic;
-		sd_ack : in std_logic;
-		sd_ack_conf : in std_logic;
-		sd_conf : out std_logic;
-		sd_sdhc : out std_logic;
-
-		sd_buff_addr : in std_logic_vector(8 downto 0);
-		-- data coming in from io controller
-		sd_buff_dout : in std_logic_vector(7 downto 0);
-		sd_buff_wr : in std_logic;
-
-		-- data going out to io controller
-		sd_buff_din : out std_logic_vector(7 downto 0);
-
-		-- configuration input
-		allow_sdhc : in std_logic;
-
-		sd_cs : in std_logic;
-		sd_sck : in std_logic;
-		sd_sdi : in std_logic;
-		sd_sdo : out std_logic
-	);
-	end component;
 
   signal AUDIO_L_PCM : std_logic_vector(15 downto 0);
   signal AUDIO_R_PCM : std_logic_vector(15 downto 0);
@@ -285,6 +258,8 @@ component user_io
 	signal ZPU_ADDR_ROM : std_logic_vector(15 downto 0);
 	signal ZPU_ROM_DATA :  std_logic_vector(31 downto 0);
 
+	signal ZPU_IN1  : std_logic_vector(31 downto 0);
+	signal ZPU_IN2  : std_logic_vector(31 downto 0);
 	signal ZPU_OUT1 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT2 : std_logic_vector(31 downto 0);
 	signal ZPU_OUT3 : std_logic_vector(31 downto 0);
@@ -307,11 +282,12 @@ component user_io
 	signal cart_type_byte : std_logic_vector(7 downto 0);
 	signal key_type : std_logic;
 	signal atari800mode : std_logic;
+	signal turbo_drive : std_logic_vector(2 downto 0);
 
 	-- connection to sd card emulation
 	signal sd_lba : std_logic_vector(31 downto 0);
-	signal sd_rd : std_logic;
-	signal sd_wr : std_logic;
+	signal sd_rd : std_logic_vector(1 downto 0);
+	signal sd_wr : std_logic_vector(1 downto 0);
 	signal sd_ack : std_logic;
 	signal sd_ack_conf : std_logic;
 	signal sd_conf : std_logic;
@@ -321,6 +297,13 @@ component user_io
 	signal sd_din : std_logic_vector(7 downto 0);
 	signal sd_din_strobe : std_logic;
 	signal sd_buff_addr: std_logic_vector(8 downto 0);
+	signal img_size    : std_logic_vector(31 downto 0);
+	signal img_mounted : std_logic_vector(1 downto 0);
+
+	signal zpu_secbuf_addr : std_logic_vector(8 downto 0);
+	signal zpu_secbuf_d : std_logic_vector(7 downto 0);
+	signal zpu_secbuf_we : std_logic;
+	signal zpu_secbuf_q	: std_logic_vector(7 downto 0);
 
 	signal mist_sd_sdo : std_logic;
 	signal mist_sd_sck : std_logic;
@@ -392,20 +375,21 @@ component user_io
 		"A800XL;;"&
 		"F,ROM,Load ROM;"&
 		"F,ROMCAR,Load Cart;"&
---		"S0,ATRXEX,Mount 0;"&
---		"S1,ATRXEX,Mount 1;"&
-		"O3,Video,NTSC,PAL;"&
-		"O46,CPU Speed,1x,2x,4x,8x,16x;"&
-		"O7,Turbo at VBL only,Off,On;"&
-		"O8,Machine,XL/XE,400/800;"&
-		"O9B,XL/XE Memory,64K,128K,320KB Compy,320KB Rambo,576K Compy,576K Rambo,1088K,4MB;"&
-		"OCE,400/800 Memory,8K,16K,32K,48K,52K;"&
-		"OF,Keyboard,ISO,ANSI;"&
-		"OG,Scanlines,Off,On;"&
+		"S0,ATRXEX,Load Disk 1;"&
+		"S1,ATRXEX,Load Disk 2;"&
+		"P1,Video;"&
+		"P2,System;"&
+		"P1O3,Video,NTSC,PAL;"&
+		"P1OG,Scanlines,Off,On;"&
+		"P2O46,CPU Speed,1x,2x,4x,8x,16x;"&
+		"P2O7,Turbo at VBL only,Off,On;"&
+		"P2O8,Machine,XL/XE,400/800;"&
+		"P2O9B,XL/XE Memory,64K,128K,320KB Compy,320KB Rambo,576K Compy,576K Rambo,1088K,4MB;"&
+		"P2OCE,400/800 Memory,8K,16K,32K,48K,52K;"&
+		"P2OF,Keyboard,ISO,ANSI;"&
+		"P2OHJ,Drive speed,Standard,Fast-6,Fast-5,Fast-4,Fast-3,Fast-2,Fast-1,Fast-0;"&
 		"T1,Reset;"&
 		"T2,Cold reset;";
-
---	constant CONF_STR : string := "";
 
 	-- convert string to std_logic_vector to be given to user_io
 	function to_slv(s: string) return std_logic_vector is
@@ -452,6 +436,9 @@ BEGIN
 -- mist spi io
 	spi_do <= spi_miso_io when CONF_DATA0 ='0' else 'Z';
 
+	sd_conf <= '0';
+	sd_sdhc <= '1';
+
 	my_user_io : user_io
 	GENERIC map (STRLEN => CONF_STR'length)
 	PORT map(
@@ -482,8 +469,8 @@ BEGIN
 		SERIAL_STROBE => '0',
 
 		sd_lba => sd_lba,
-		sd_rd => '0' & sd_rd,
-		sd_wr => '0' & sd_wr,
+		sd_rd => sd_rd,
+		sd_wr => sd_wr,
 		sd_ack => sd_ack,
 		sd_ack_conf => sd_ack_conf,
 		sd_conf => sd_conf,
@@ -492,31 +479,9 @@ BEGIN
 		sd_dout_strobe => sd_dout_strobe,
 		sd_din => sd_din,
 		sd_din_strobe => sd_din_strobe,
-		sd_buff_addr => sd_buff_addr
-	);
-
-	my_sd_card : sd_card
-	PORT map (
-		clk_sys => CLK,
-		sd_lba => sd_lba,
-		sd_rd => sd_rd,
-		sd_wr => sd_wr,
-		sd_ack => sd_ack,
-		sd_ack_conf => sd_ack_conf,
-		sd_conf => sd_conf,
-		sd_sdhc => sd_sdhc,
-
 		sd_buff_addr => sd_buff_addr,
-		sd_buff_dout => sd_dout,
-		sd_buff_wr => sd_dout_strobe,
-		sd_buff_din => sd_din,
-
-		allow_sdhc => '1',
-
-		sd_cs => mist_sd_cs,
-		sd_sck => mist_sd_sck,
-		sd_sdi => mist_sd_sdi,
-		sd_sdo => mist_sd_sdo
+		img_mounted => img_mounted,
+		img_size => img_size
 	);
 
 	-- PS2 to pokey
@@ -949,6 +914,58 @@ BEGIN
 	VGA_HS <= not (sd_hs xor sd_vs) when (scandoubler_disable='1' and no_csync='0') or ypbpr='1' else sd_hs;
 	VGA_VS <= '1' when (scandoubler_disable='1' and no_csync='0') or ypbpr='1' else sd_vs;
 
+	sector_buffer: entity work.DualPortRAM
+	generic map (
+		addrbits => 9,
+		databits => 8
+	)
+	port map (
+		clock => CLK,
+		-- Port A - IO Controller side
+		address_a => sd_buff_addr,
+		data_a => sd_dout,
+		wren_a => sd_dout_strobe,
+		q_a => sd_din,
+		-- Port B - ZPU side
+		address_b => zpu_secbuf_addr,
+		data_b => zpu_secbuf_d,
+		wren_b => zpu_secbuf_we,
+		q_b => zpu_secbuf_q
+	);
+
+	process (CLK, RESET_N)
+	begin
+		if RESET_N = '0' then
+			zpu_in1(31 downto 29) <= "000";
+			zpu_secbuf_we <= '0';
+		elsif rising_edge(CLK) then
+			sd_lba <= zpu_out2;
+			sd_rd <= zpu_out3(31 downto 30);
+			sd_wr <= zpu_out3(29 downto 28);
+
+			zpu_secbuf_addr <= zpu_out3(16 downto 8);
+			zpu_secbuf_d <= zpu_out3(7 downto 0);
+			zpu_secbuf_we <= zpu_out3(17);
+
+			if img_mounted(0) = '1' then
+				zpu_in2 <= img_size;
+				zpu_in1(30) <= not zpu_in1(30);
+			elsif img_mounted(1) = '1' then
+				zpu_in2 <= img_size;
+				zpu_in1(31) <= not zpu_in1(31);
+			elsif zpu_out3(18) = '1' then
+				zpu_in2 <= X"000000"&zpu_secbuf_q;
+			end if;
+			zpu_in1(29) <= sd_ack;
+
+		end if;
+	end process;
+
+	zpu_in1(28 downto 0) <= 
+			turbo_drive&X"00"&
+			(atari_keyboard(28))&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
+				(FKEYS(10) or (mist_buttons(0) and not(joy1_n(4))))&"00"&FKEYS(8 downto 0);
+
 	zpu: entity work.zpucore
 	GENERIC MAP
 	(
@@ -1001,16 +1018,13 @@ BEGIN
 
 		-- external control
 		-- switches etc. sector DMA blah blah.
-		ZPU_IN1 => X"000"&
-			"00"&
-			(atari_keyboard(28))&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
-				(FKEYS(10) or (mist_buttons(0) and not(joy1_n(4))))&"00"&FKEYS(8 downto 0),
+		ZPU_IN1 => zpu_in1,
 
 --		ZPU_IN1 => X"000"&
 --			"00"&
 --			(atari_keyboard(28))&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
 --				(FKEYS(11) or (mist_buttons(0) and not(joy1_n(4))))&(FKEYS(10) or (mist_buttons(0) and joy1_n(4) and joy_still))&(FKEYS(9) or (mist_buttons(0) and joy1_n(4) and not(joy_still)))&FKEYS(8 downto 0),
-		ZPU_IN2 => X"00000000",
+		ZPU_IN2 => zpu_in2,
 		ZPU_IN3 => atari_keyboard(31 downto 0),
 		ZPU_IN4 => atari_keyboard(63 downto 32),
 
@@ -1037,15 +1051,15 @@ BEGIN
 	PAL <= mist_status(3);
 	scanlines <= mist_status(16);
 	key_type <= mist_status(15);
+	turbo_drive <= mist_status(19 downto 17);
 
---	pause_atari <= '1' when zpu_out1(0) = '1' or ioctl_state /= IOCTL_IDLE else '0';
-	pause_atari <= '1' when ioctl_state /= IOCTL_IDLE else '0';
+	pause_atari <= '1' when zpu_out1(0) = '1' or ioctl_state /= IOCTL_IDLE else '0';
 	freezer_enable <= zpu_out1(25);
 
 	zpu_rom1: entity work.zpu_rom
 	port map(
 	        clock => clk,
-	        address => zpu_addr_rom(14 downto 2),
+	        address => zpu_addr_rom(13 downto 2),
 	        q => zpu_rom_data
 	);
 

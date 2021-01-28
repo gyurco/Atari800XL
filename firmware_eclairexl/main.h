@@ -94,7 +94,9 @@ BIT_REG(,0x3f,17,cart_select,zpu_out1)
 // reserve 2 bits for extending cart_select
 BIT_REG(,0x01,25,freezer_enable,zpu_out1)
 BIT_REG(,0x03,26,key_type,zpu_out1) // ansi,iso,custom1,custom2
+#ifndef MIST
 BIT_REG(,0x07,28,turbo_drive,zpu_out1) 
+#endif
 BIT_REG(,0x01,31,turbo_6502_vblank_only,zpu_out1) 
 
 BIT_REG(,0x07,0,video,zpu_out6) // 4 bits,3 used... what to do...
@@ -120,6 +122,20 @@ BIT_REG_RO(,0x1,11,hotkey_fileselect,zpu_in1)
 BIT_REG_RO(,0x3f,12,controls,zpu_in1) // (esc)FLRDU
 BIT_REG_RO(,0x1,18,sd_detect,zpu_in1) // sd_detect
 BIT_REG_RO(,0x1,19,sd_writeprotect,zpu_in1) // sd_writeprotect
+
+//MiST file IO
+#ifdef MIST
+BIT_REG_RO(,0x07,26,turbo_drive,zpu_in1)
+BIT_REG_RO(,0x1,29,sd_ack,zpu_in1)
+BIT_REG_RO(,0x3,30,sd_mounted,zpu_in1)
+
+BIT_REG(,0x3,30,sd_read,zpu_out3)
+BIT_REG(,0x3,28,sd_write,zpu_out3)
+BIT_REG(,0x1,18,sd_secbuf_rd,zpu_out3)
+BIT_REG(,0x1,17,sd_secbuf_we,zpu_out3)
+BIT_REG(,0x1ff,8,sd_secbuf_addr,zpu_out3)
+BIT_REG(,0xff,0,sd_secbuf_d,zpu_out3)
+#endif
 
 #define VIDEO_RGB 0
 #define VIDEO_SCANDOUBLE 1
@@ -323,7 +339,9 @@ int main(void)
 	set_cart_select(0);
 	set_freezer_enable(0);
 	set_key_type(0);
+#ifndef MIST
 	set_turbo_drive(0);
+#endif
 	set_atari800mode(0);
 
 	*atari_colbk = 0xc8;
@@ -432,7 +450,6 @@ void usb_devices(int debugPos)
 
 char const * get_video_mode(int video_mode)
 {
-#ifndef MIST_VIDEO_MODE
 	static char const * videotxt[] = 
 	{
 		"RGB",
@@ -443,18 +460,6 @@ char const * get_video_mode(int video_mode)
 		"VGA",
 		"COMPOSITE"
 	};
-#else
-	static char const * videotxt[] = 
-	{
-		"RGB",
-		"SCANDOUBLE",
-		"YPBPR 240",
-		"YPBPR 480",
-		"",
-		"",
-		""
-	};
-#endif
 	return videotxt[video_mode];
 }
 
