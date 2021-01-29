@@ -311,6 +311,7 @@ component user_io
 	signal mist_sd_cs : std_logic;
 
 	-- data io
+	signal rom_loaded      : std_logic;
 	type ioctl_t is (
 		IOCTL_IDLE,
 		IOCTL_UNLOAD,
@@ -546,6 +547,17 @@ BEGIN
 		c0 => CLK_RECONFIG_PLL,
 		locked => CLK_RECONFIG_PLL_LOCKED);
 
+	process (CLK_RECONFIG_PLL, CLK_RECONFIG_PLL_LOCKED)
+	begin
+		if CLK_RECONFIG_PLL_LOCKED = '0' then
+			rom_loaded <= '0';
+		elsif rising_edge(CLK_RECONFIG_PLL) then
+			if ioctl_download = '1' then -- FIXME: synchronize
+				rom_loaded <= '1';
+			end if;
+		end if;
+	end process;
+
 	pll_switcher : work.switch_pal_ntsc
 	GENERIC MAP
 	(
@@ -558,7 +570,7 @@ BEGIN
 		RESET_N => CLK_RECONFIG_PLL_LOCKED,
 
 		PAL => PAL,
-
+		SWITCH_ENA => not ioctl_download and rom_loaded,
 		INPUT_CLK => CLOCK_27(0),
 		PLL_CLKS(0) => CLK_SDRAM,
 		PLL_CLKS(1) => CLK,

@@ -28,6 +28,7 @@ ENTITY switch_pal_ntsc IS
         RESET_N : IN STD_LOGIC;
 
         PAL : IN STD_LOGIC;
+        SWITCH_ENA : in STD_LOGIC;
 
         INPUT_CLK : IN STD_LOGIC;
         PLL_CLKS : OUT STD_LOGIC_VECTOR(CLOCKS-1 downto 0);
@@ -199,7 +200,7 @@ BEGIN
      end process;        
      
     pal_synchronizer : entity work.synchronizer
-              port map (clk=>RECONFIG_CLK, raw=>pal, sync=>pal_fpga_sync);                   
+              port map (clk=>RECONFIG_CLK, raw=>pal, sync=>pal_fpga_sync);
      
     process (pll_state_reg, pal_fpga_sync, pll_pause_counter_reg,pll_enable_reg, PLL_LOCKED1, PLL_LOCKED, pll_reconfig_busy,reconfig_to_pal_reg)
     begin
@@ -214,16 +215,18 @@ BEGIN
         pll_downstream_reset <= '0';
         pll_upstream_reset <= '0';
 
-        pll_enable_next <= pll_enable_reg;                                                          
+        pll_enable_next <= pll_enable_reg;
 
         case pll_state_reg is
               when PLL_STATE_WAIT =>
                   pll_enable_next <= '1';
-                  reset_n_next <= PLL_LOCKED;
-                  if (not(pal_fpga_sync = reconfig_to_pal_reg) and PLL_LOCKED='1' and PLL_LOCKED1='1') then
-                      reconfig_to_pal_next <= pal_fpga_sync;
-                      pll_state_next <= PLL_STATE_WAIT_RECONF_ROM;
-                      pll_reconfig_write_from_rom_next <= '1';
+                  if SWITCH_ENA = '1' then
+                      reset_n_next <= PLL_LOCKED;
+                      if (not(pal_fpga_sync = reconfig_to_pal_reg) and PLL_LOCKED='1' and PLL_LOCKED1='1') then
+                          reconfig_to_pal_next <= pal_fpga_sync;
+                          pll_state_next <= PLL_STATE_WAIT_RECONF_ROM;
+                          pll_reconfig_write_from_rom_next <= '1';
+                      end if;
                   end if;
 
               when PLL_STATE_WAIT_RECONF_ROM =>
