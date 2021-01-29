@@ -325,6 +325,8 @@ component user_io
 	signal ioctl_dout      : std_logic_vector(15 downto 0);
 	signal reset_load      : std_logic;
 	signal cold_reset      : std_logic;
+	signal zpu_cold_reset  : std_logic;
+	signal zpu_unl_reset   : std_logic;
 
 	-- ps2
 	signal PS2_KEYS : STD_LOGIC_VECTOR(511 downto 0);
@@ -379,17 +381,18 @@ component user_io
 		"S1,ATRXEX,Load Disk 2;"&
 		"P1,Video;"&
 		"P2,System;"&
-		"P1O3,Video,NTSC,PAL;"&
-		"P1OG,Scanlines,Off,On;"&
-		"P2O46,CPU Speed,1x,2x,4x,8x,16x;"&
-		"P2O7,Turbo at VBL only,Off,On;"&
-		"P2O8,Machine,XL/XE,400/800;"&
-		"P2O9B,XL/XE Memory,64K,128K,320KB Compy,320KB Rambo,576K Compy,576K Rambo,1088K,4MB;"&
-		"P2OCE,400/800 Memory,8K,16K,32K,48K,52K;"&
-		"P2OF,Keyboard,ISO,ANSI;"&
-		"P2OHJ,Drive speed,Standard,Fast-6,Fast-5,Fast-4,Fast-3,Fast-2,Fast-1,Fast-0;"&
+		"P1O5,Video,NTSC,PAL;"&
+		"P1O6,Scanlines,Off,On;"&
+		"P2O8A,CPU Speed,1x,2x,4x,8x,16x;"&
+		"P2OB,Turbo at VBL only,Off,On;"&
+		"P2OC,Machine,XL/XE,400/800;"&
+		"P2ODF,XL/XE Memory,64K,128K,320KB Compy,320KB Rambo,576K Compy,576K Rambo,1088K,4MB;"&
+		"P2OGI,400/800 Memory,8K,16K,32K,48K,52K;"&
+		"P2OJ,Keyboard,ISO,ANSI;"&
+		"P2OKM,Drive speed,Standard,Fast-6,Fast-5,Fast-4,Fast-3,Fast-2,Fast-1,Fast-0;"&
 		"T1,Reset;"&
-		"T2,Cold reset;";
+		"T2,Cold reset;"&
+		"T3,Cold reset with unload;";
 
 	-- convert string to std_logic_vector to be given to user_io
 	function to_slv(s: string) return std_logic_vector is
@@ -964,7 +967,7 @@ BEGIN
 	zpu_in1(28 downto 0) <= 
 			turbo_drive&X"00"&
 			(atari_keyboard(28))&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
-				(FKEYS(10) or (mist_buttons(0) and not(joy1_n(4))))&"00"&FKEYS(8 downto 0);
+				'0'&zpu_unl_reset&zpu_cold_reset&FKEYS(8 downto 0);
 
 	zpu: entity work.zpucore
 	GENERIC MAP
@@ -1036,22 +1039,25 @@ BEGIN
 		ZPU_OUT6 => zpu_out6 --video mode
 	);
 
-	cold_reset  <= mist_status(2) or FKEYS(9);
+	zpu_cold_reset <= mist_status(2) or FKEYS(9);
+	zpu_unl_reset <= mist_status(3) or FKEYS(10);
+
+	cold_reset  <= zpu_cold_reset or zpu_unl_reset;
 	reset_atari <= mist_status(1) or mist_buttons(1) or zpu_out1(1) or reset_load;
-	speed_6502 <= "000001" when mist_status(6 downto 4) = "000" else
-	              "000010" when mist_status(6 downto 4) = "001" else
-	              "000100" when mist_status(6 downto 4) = "010" else
-	              "001000" when mist_status(6 downto 4) = "011" else
+	speed_6502 <= "000001" when mist_status(10 downto 8) = "000" else
+	              "000010" when mist_status(10 downto 8) = "001" else
+	              "000100" when mist_status(10 downto 8) = "010" else
+	              "001000" when mist_status(10 downto 8) = "011" else
 	              "010000";
 
-	turbo_vblank_only <= mist_status(7);
+	turbo_vblank_only <= mist_status(11);
 
-	atari800mode <= mist_status(8);
-	ram_select <= mist_status(11 downto 9) when atari800mode = '0' else mist_status(14 downto 12);
-	PAL <= mist_status(3);
-	scanlines <= mist_status(16);
-	key_type <= mist_status(15);
-	turbo_drive <= mist_status(19 downto 17);
+	atari800mode <= mist_status(12);
+	ram_select <= mist_status(15 downto 13) when atari800mode = '0' else mist_status(18 downto 16);
+	PAL <= mist_status(5);
+	scanlines <= mist_status(6);
+	key_type <= mist_status(19);
+	turbo_drive <= mist_status(22 downto 20);
 
 	pause_atari <= '1' when zpu_out1(0) = '1' or ioctl_state /= IOCTL_IDLE else '0';
 	freezer_enable <= zpu_out1(25);

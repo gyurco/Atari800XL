@@ -259,6 +259,16 @@ void actions()
 			update_keys();
 		}
 		while (get_hotkey_coldboot());
+	} else if (get_hotkey_settings())
+		// cold boot with disk unload
+	{
+		set_drive_status(0, 0);
+		set_drive_status(1, 0);
+		reboot(1);
+		do
+		{
+			update_keys();
+		}
+		while (get_hotkey_settings());
 	}
-
 }
