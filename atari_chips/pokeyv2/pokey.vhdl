@@ -37,8 +37,6 @@ PORT
 	
 	-- sio interface
 	SIO_IN1 : IN std_logic;
-	SIO_IN2 : IN std_logic;
-	SIO_IN3 : IN std_logic;
 	
 	DATA_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 	
@@ -1084,10 +1082,10 @@ BEGIN
 	sio_in1_synchronizer : synchronizer
 		port map (clk=>clk, raw=>sio_in1, sync=>sio_in1_reg);	
 	sio_in2_synchronizer : synchronizer
-		port map (clk=>clk, raw=>sio_in2, sync=>sio_in2_reg);	
+		port map (clk=>clk, raw=>sio_in1_reg, sync=>sio_in2_reg);	
 	sio_in3_synchronizer : synchronizer
-		port map (clk=>clk, raw=>sio_in3, sync=>sio_in3_reg);	
-	sio_in_next <= sio_in1_reg and sio_in2_reg and sio_in3_reg;
+		port map (clk=>clk, raw=>sio_in2_reg, sync=>sio_in3_reg);	
+	sio_in_next <= sio_in3_reg;
 		
 	waiting_for_start_bit <= '1' when serin_bitcount_reg = X"9" else '0';
 	process(serin_enable_delayed,serin_clock_last_reg,serin_clock_reg, sio_in_reg, serin_reg,serin_shift_reg, serin_bitcount_reg, serial_ip_overrun_reg, serial_ip_framing_reg, skrest_write, irqst_reg, skctl_reg, waiting_for_start_bit, serial_reset)

@@ -159,6 +159,7 @@ set_global_assignment -name VHDL_FILE slave_timing_6502.vhd
 set_global_assignment -name SDC_FILE pokeymax.sdc
 set_global_assignment -name VHDL_FILE complete_address_decoder.vhdl
 set_global_assignment -name VHDL_FILE syncreset_enable_divider.vhd
+set_global_assignment -name VHDL_FILE enable_divider.vhdl
 set_global_assignment -name VHDL_FILE delay_line.vhdl
 set_global_assignment -name VHDL_FILE latch_delay_line.vhdl
 set_global_assignment -name VHDL_FILE sigmadelta_1storder.vhd
@@ -180,6 +181,9 @@ set_global_assignment -name VHDL_FILE synchronizer.vhdl
 set_global_assignment -name VHDL_FILE audiotypes.vhdl
 set_global_assignment -name VHDL_FILE mixer.vhdl
 set_global_assignment -name VHDL_FILE clockgen.vhd
+set_global_assignment -name VHDL_FILE spdif_transmitter.vhdl
+set_global_assignment -name VHDL_FILE ps2_keyboard.vhdl
+set_global_assignment -name VHDL_FILE ps2_to_atari800.vhdl
 set_global_assignment -name VHDL_FILE pokeymax.vhd
 set_global_assignment -name VHDL_FILE PSG/envelope.vhdl
 set_global_assignment -name VHDL_FILE PSG/noise.vhdl
@@ -205,7 +209,6 @@ set_global_assignment -name VHDL_FILE sample/top.vhdl
 set_global_assignment -name VHDL_FILE covox/top.vhdl
 set_global_assignment -name QIP_FILE int_osc/synthesis/int_osc.qip
 set_global_assignment -name QIP_FILE pll.qip
-set_global_assignment -name QIP_FILE m9kfull.qip
 set_global_assignment -name QIP_FILE flash/synthesis/flash.qip
 
 

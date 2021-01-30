@@ -8,7 +8,7 @@ my $name="eclaireXL";
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
-my $version = "122";
+my $version = "123";
 
 my %variants = 
 (
@@ -330,13 +330,19 @@ my %variants =
 		"enable_covox" => 1,
 		"enable_sample" => 1,
 		"enable_flash" => 1,
+		"enable_spdif" => 1,
+		"enable_ps2" => 1,
 		"flash_addr_bits" => 17,
 		"board" => "v3",
+		"pll_v2" => 0,
 		"a4_bit" => 1,
 		"a5_bit" => 2,
 		"a6_bit" => 3,
 		"a7_bit" => 4,
 		"gtia_audio_bit" => 5, 
+		"spdif_bit" => 6,
+		"ps2clk_bit" => 7,
+		"ps2dat_bit" => 8,
 		#"fancy_switch_bit" => 6,
 		#"a7_bit" => 19,  #use CS1
 		"ext_bits"=> 11,

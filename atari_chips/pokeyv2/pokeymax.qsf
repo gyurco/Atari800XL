@@ -186,6 +186,9 @@ set_global_assignment -name VHDL_FILE phi_mult.vhdl
 set_global_assignment -name VHDL_FILE synchronizer.vhdl
 set_global_assignment -name VHDL_FILE audiotypes.vhdl
 set_global_assignment -name VHDL_FILE mixer.vhdl
+set_global_assignment -name VHDL_FILE spdif_transmitter.vhdl
+set_global_assignment -name VHDL_FILE ps2_keyboard.vhdl
+set_global_assignment -name VHDL_FILE ps2_to_atari800.vhdl
 set_global_assignment -name VHDL_FILE pokeymax.vhd
 set_global_assignment -name VHDL_FILE clockgen.vhd
 set_global_assignment -name VHDL_FILE PSG/envelope.vhdl
@@ -211,8 +214,7 @@ set_global_assignment -name VHDL_FILE sample/adpcm.vhdl
 set_global_assignment -name VHDL_FILE sample/top.vhdl
 set_global_assignment -name VHDL_FILE covox/top.vhdl
 set_global_assignment -name QIP_FILE int_osc/synthesis/int_osc.qip
-set_global_assignment -name QIP_FILE pll.qip
-set_global_assignment -name QIP_FILE m9kfull.qip
+set_global_assignment -name QIP_FILE pllv3.qip
 set_global_assignment -name QIP_FILE flash/synthesis/flash.qip
 
 
