@@ -170,6 +170,7 @@ component user_io
 
   signal AUDIO_L_PCM : std_logic_vector(15 downto 0);
   signal AUDIO_R_PCM : std_logic_vector(15 downto 0);
+  signal AUDIO_R_PCM_IN : std_logic_vector(19 downto 0);
 
   signal VGA_VS_RAW : std_logic;
   signal VGA_HS_RAW : std_logic;
@@ -391,6 +392,7 @@ component user_io
 		"P2OGI,400/800 Memory,8K,16K,32K,48K,52K;"&
 		"P2OJ,Keyboard,ISO,ANSI;"&
 		"P2OKM,Drive speed,Standard,Fast-6,Fast-5,Fast-4,Fast-3,Fast-2,Fast-1,Fast-0;"&
+		"P2ON,Dual Pokey,No,Yes;"&
 		"T1,Reset;"&
 		"T2,Cold reset;"&
 		"T3,Cold reset with unload;";
@@ -532,16 +534,18 @@ BEGIN
 		dac_out => audio_l
 	);
 
+	AUDIO_R_PCM_IN <= AUDIO_R_PCM&"0000" when mist_status(23) = '1' else AUDIO_L_PCM&"0000";
+	
 	dac_right : hq_dac
 	port map
 	(
 		reset => not(reset_n),
 		clk => clk,
 		clk_ena => '1',
-		pcm_in => AUDIO_R_PCM&"0000",
+		pcm_in => AUDIO_R_PCM_IN,
 		dac_out => audio_r
 	);
-
+	
 	reconfig_pll : entity work.pll_reconfig -- This only exists to generate reset!!
 	PORT MAP(inclk0 => CLOCK_27(0),
 		c0 => CLK_RECONFIG_PLL,
