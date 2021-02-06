@@ -378,6 +378,9 @@ END COMPONENT;
 	signal csync : std_logic;
 	signal video_mode : std_logic_vector(2 downto 0);
 
+	-- pll switch
+	signal pll_reconfig_done : std_logic;
+
 BEGIN 
 
 USB2_N <= USBWireVPout when USBWireOE_n='0' else 'Z';
@@ -441,7 +444,8 @@ gen_real_pll : if ext_clock=0 generate
 		PLL_CLKS(3) => open,
 	        PLL_CLKS(4) => SCANDOUBLE_CLK,
 	
-		RESET_N_OUT => RESET_N
+		RESET_N_OUT => RESET_N,
+		PLL_RECONFIG_DONE => PLL_RECONFIG_DONE
 	    );
 	    SVIDEO_DAC_CLK <= SCANDOUBLE_CLK;
 end generate;
@@ -490,7 +494,7 @@ keyboard_map1 : entity work.ps2_to_atari800
 	PORT MAP
 	( 
 		CLK => clk,
-		RESET_N => reset_n,
+		RESET_N => reset_n and not(PLL_RECONFIG_DONE),
 		PS2_CLK => ps2k_clk,
 		PS2_DAT => ps2k_dat,
 
