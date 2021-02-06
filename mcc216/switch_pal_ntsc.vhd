@@ -32,7 +32,9 @@ ENTITY switch_pal_ntsc IS
         INPUT_CLK : IN STD_LOGIC;
         PLL_CLKS : OUT STD_LOGIC_VECTOR(CLOCKS-1 downto 0);
 
-        RESET_N_OUT : OUT STD_LOGIC
+        RESET_N_OUT : OUT STD_LOGIC;
+
+    	PLL_RECONFIG_DONE : OUT STD_LOGIC
     );
 END switch_pal_ntsc;
 
@@ -108,6 +110,8 @@ ARCHITECTURE vhdl OF switch_pal_ntsc IS
   
     signal reconfig_to_pal_reg : std_logic;
     signal reconfig_to_pal_next : std_logic;
+
+    signal pll_enable_reg_sync_reg : std_logic;
     
 BEGIN 
 
@@ -326,6 +330,16 @@ BEGIN
 
     pll_enable_synchronizer : entity work.synchronizer
               port map (clk=>CLK_RAW(SYNC_ON), raw=>pll_enable_reg, sync=>pll_enable_reg_sync); 
+
+
+    pll_reconfig_done <= '1' when pll_enable_reg_sync_reg='0' and pll_enable_reg_sync='1' else '0';
+
+    process(CLK_RAW)
+    begin
+	    if (CLK_RAW(SYNC_ON)'event and CLK_RAW(SYNC_ON)='1') then
+		    pll_enable_reg_sync_reg <= pll_enable_reg_sync;
+	    end if;
+    end process;
         
    GEN_CLKCTRL:
    for I in 0 to (CLOCKS-1) generate
