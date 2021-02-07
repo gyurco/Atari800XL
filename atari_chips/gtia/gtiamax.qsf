@@ -42,7 +42,7 @@ set_global_assignment -name DEVICE 10M02SCU169C8G
 set_global_assignment -name TOP_LEVEL_ENTITY gtiamax
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 17.0.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "19:35:48  JUNE 01, 2018"
-set_global_assignment -name LAST_QUARTUS_VERSION "18.0.0 Lite Edition"
+set_global_assignment -name LAST_QUARTUS_VERSION "20.1.1 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
@@ -64,6 +64,11 @@ set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to S[0]
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to S[1]
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to S[2]
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to S[3]
+
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to T[0]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to T[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to T[2]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to T[3]
 #
 #set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to AUD[1]
 #set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to AUD[2]
@@ -333,5 +338,12 @@ set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[28] -
 set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[30] -to auto_signaltap_0|vcc -section_id auto_signaltap_0
 set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT crc[31] -to auto_signaltap_0|gnd -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=512" -section_id auto_signaltap_0
+set_global_assignment -name QIP_FILE osc_in.qip
+set_global_assignment -name SIP_FILE osc_in.sip
+set_global_assignment -name QIP_FILE osc_out.qip
+set_global_assignment -name SIP_FILE osc_out.sip
+
+
+
 set_global_assignment -name SLD_FILE db/gtiastp_auto_stripped.stp
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

@@ -1,0 +1,3 @@
+osc_in_sim/osc_in.vhd
+osc_in_sim/altera_gpio_lite/altera_gpio_lite.sv
+osc_in_sim/altera_gpio_lite/mentor/altera_gpio_lite.sv

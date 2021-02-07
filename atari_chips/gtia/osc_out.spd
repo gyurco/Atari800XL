@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file
+   path="osc_out_sim/altera_gpio_lite/altera_gpio_lite.sv"
+   type="SYSTEM_VERILOG"
+   library="osc_out" />
+ <file
+   path="osc_out_sim/altera_gpio_lite/mentor/altera_gpio_lite.sv"
+   type="SYSTEM_VERILOG_ENCRYPT"
+   library="osc_out"
+   simulator="modelsim" />
+ <file path="osc_out_sim/osc_out.vhd" type="VHDL" />
+ <topLevel name="osc_out" />
+ <deviceFamily name="max10" />
+</simPackage>
