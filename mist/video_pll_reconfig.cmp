@@ -1,4 +1,4 @@
---Copyright (C) 1991-2013 Altera Corporation
+--Copyright (C) 1991-2014 Altera Corporation
 --Your use of Altera Corporation's design tools, logic functions 
 --and other software and tools, and its AMPP partner logic 
 --functions, and any output files from any of the foregoing 
@@ -26,6 +26,9 @@ component video_pll_reconfig
 		read_param		: IN STD_LOGIC ;
 		reconfig		: IN STD_LOGIC ;
 		reset		: IN STD_LOGIC ;
+		reset_rom_address		: IN STD_LOGIC  := '0';
+		rom_data_in		: IN STD_LOGIC  := '0';
+		write_from_rom		: IN STD_LOGIC  := '0';
 		write_param		: IN STD_LOGIC ;
 		busy		: OUT STD_LOGIC ;
 		data_out		: OUT STD_LOGIC_VECTOR (8 DOWNTO 0);
@@ -33,6 +36,8 @@ component video_pll_reconfig
 		pll_configupdate		: OUT STD_LOGIC ;
 		pll_scanclk		: OUT STD_LOGIC ;
 		pll_scanclkena		: OUT STD_LOGIC ;
-		pll_scandata		: OUT STD_LOGIC 
+		pll_scandata		: OUT STD_LOGIC ;
+		rom_address_out		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+		write_rom_ena		: OUT STD_LOGIC 
 	);
 end component;
