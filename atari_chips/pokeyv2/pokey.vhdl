@@ -335,7 +335,7 @@ ARCHITECTURE vhdl OF pokey IS
 	
 	signal sio_in1_reg : std_logic;
 	signal sio_in2_reg : std_logic;
-	signal sio_in3_reg : std_logic;
+	signal sio_clockin_in1_reg : std_logic;
 	signal sio_in_next : std_logic;
 	signal sio_in_reg : std_logic;
 	
@@ -1083,9 +1083,11 @@ BEGIN
 		port map (clk=>clk, raw=>sio_in1, sync=>sio_in1_reg);	
 	sio_in2_synchronizer : synchronizer
 		port map (clk=>clk, raw=>sio_in1_reg, sync=>sio_in2_reg);	
-	sio_in3_synchronizer : synchronizer
-		port map (clk=>clk, raw=>sio_in2_reg, sync=>sio_in3_reg);	
-	sio_in_next <= sio_in3_reg;
+
+	sio_clk1_synchronizer : synchronizer
+		port map (clk=>clk, raw=>sio_clockin_in, sync=>sio_clockin_in1_reg);	
+
+	sio_in_next <= sio_in2_reg;
 		
 	waiting_for_start_bit <= '1' when serin_bitcount_reg = X"9" else '0';
 	process(serin_enable_delayed,serin_clock_last_reg,serin_clock_reg, sio_in_reg, serin_reg,serin_shift_reg, serin_bitcount_reg, serial_ip_overrun_reg, serial_ip_framing_reg, skrest_write, irqst_reg, skctl_reg, waiting_for_start_bit, serial_reset)
@@ -1155,10 +1157,15 @@ BEGIN
 	end process;
 	
 	-- serial clocks
-	process(sio_clockin_in,skctl_reg,clock_reg,clock_sync_reg,audf1_pulse,audf2_pulse,audf3_pulse)
+	process(sio_clockin_in1_reg,skctl_reg,clock_reg,clock_sync_reg,audf1_pulse,audf2_pulse,audf3_pulse,enable_179)
 	begin
-		clock_next <= sio_clockin_in;
-		clock_sync_next <= clock_reg;
+		clock_next <= clock_reg;
+		clock_sync_next <= clock_sync_reg;
+
+		if (enable_179='1') then
+			clock_next <= sio_clockin_in1_reg;
+			clock_sync_next <= clock_reg;
+		end if;
 	
 		serout_enable <= '0';
 		serin_enable <= '0';
