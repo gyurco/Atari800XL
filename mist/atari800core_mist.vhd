@@ -203,12 +203,18 @@ component user_io
   signal mist_switches : std_logic_vector(1 downto 0);
   signal mist_status   : std_logic_vector(63 downto 0);
 
+  signal		MIST_JOY1 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+  signal		MIST_JOY2 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
   signal		JOY1 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
   signal		JOY2 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
   signal		JOY1_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
   signal		JOY2_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
   signal joy_still : std_logic;
 
+  signal		MIST_JOY1X : std_logic_vector(7 downto 0);
+  signal		MIST_JOY1Y : std_logic_vector(7 downto 0);
+  signal		MIST_JOY2X : std_logic_vector(7 downto 0);
+  signal		MIST_JOY2Y : std_logic_vector(7 downto 0);
   signal		JOY1X : std_logic_vector(7 downto 0);
   signal		JOY1Y : std_logic_vector(7 downto 0);
   signal		JOY2X : std_logic_vector(7 downto 0);
@@ -284,6 +290,7 @@ component user_io
 	signal key_type : std_logic;
 	signal atari800mode : std_logic;
 	signal turbo_drive : std_logic_vector(2 downto 0);
+	signal joyswap : std_logic;
 
 	-- connection to sd card emulation
 	signal sd_lba : std_logic_vector(31 downto 0);
@@ -393,6 +400,7 @@ component user_io
 		"P2OJ,Keyboard,ISO,ANSI;"&
 		"P2OKM,Drive speed,Standard,Fast-6,Fast-5,Fast-4,Fast-3,Fast-2,Fast-1,Fast-0;"&
 		"P2ON,Dual Pokey,No,Yes;"&
+		"O7,Swap joysticks,Off,On;"&
 		"T1,Reset;"&
 		"T2,Cold reset;";
 
@@ -411,7 +419,14 @@ component user_io
 		return rval;
 	end function;
 
-BEGIN 
+BEGIN
+	joy1 <= mist_joy1 when joyswap = '0' else mist_joy2;
+	joy2 <= mist_joy2 when joyswap = '0' else mist_joy1;
+	joy1x <= mist_joy1x when joyswap = '0' else mist_joy2x;
+	joy1y <= mist_joy1y when joyswap = '0' else mist_joy2y;
+	joy2x <= mist_joy2x when joyswap = '0' else mist_joy1x;
+	joy2y <= mist_joy2y when joyswap = '0' else mist_joy1y;
+
 -- hack for paddles
 	process(clk,RESET_N)
 	begin
@@ -454,12 +469,12 @@ BEGIN
 		SPI_MISO => SPI_miso_io,
 		SPI_MOSI => SPI_DI,
 		conf_str => to_slv(CONF_STR),
-		JOYSTICK_0 => joy2,
-		JOYSTICK_1 => joy1,
-		JOYSTICK_ANALOG_0(15 downto 8) => joy2x,
-		JOYSTICK_ANALOG_0(7 downto 0) => joy2y,
-		JOYSTICK_ANALOG_1(15 downto 8) => joy1x,
-		JOYSTICK_ANALOG_1(7 downto 0) => joy1y,
+		JOYSTICK_0 => mist_joy1,
+		JOYSTICK_1 => mist_joy2,
+		JOYSTICK_ANALOG_0(15 downto 8) => mist_joy1x,
+		JOYSTICK_ANALOG_0(7 downto 0) => mist_joy1y,
+		JOYSTICK_ANALOG_1(15 downto 8) => mist_joy2x,
+		JOYSTICK_ANALOG_1(7 downto 0) => mist_joy2y,
 		BUTTONS => mist_buttons,
 		SWITCHES => mist_switches,
 		STATUS => mist_status,
@@ -1065,6 +1080,7 @@ BEGIN
 	              "001000" when mist_status(10 downto 8) = "011" else
 	              "010000";
 
+	joyswap <= mist_status(7);
 	turbo_vblank_only <= mist_status(11);
 
 	atari800mode <= mist_status(12);
