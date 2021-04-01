@@ -379,8 +379,8 @@ component user_io
 		"A800XL;;"&
 		"F,ROM,Load ROM;"&
 		"F,ROMCAR,Load Cart;"&
-		"S0,ATRXEX,Load Disk 1;"&
-		"S1,ATRXEX,Load Disk 2;"&
+		"S0U,ATRXEX,Load Disk 1;"&
+		"S1U,ATRXEX,Load Disk 2;"&
 		"P1,Video;"&
 		"P2,System;"&
 		"P1O5,Video,NTSC,PAL;"&
@@ -394,8 +394,7 @@ component user_io
 		"P2OKM,Drive speed,Standard,Fast-6,Fast-5,Fast-4,Fast-3,Fast-2,Fast-1,Fast-0;"&
 		"P2ON,Dual Pokey,No,Yes;"&
 		"T1,Reset;"&
-		"T2,Cold reset;"&
-		"T3,Cold reset with unload;";
+		"T2,Cold reset;";
 
 	-- convert string to std_logic_vector to be given to user_io
 	function to_slv(s: string) return std_logic_vector is
@@ -1056,7 +1055,7 @@ BEGIN
 	);
 
 	zpu_cold_reset <= mist_status(2) or FKEYS(9);
-	zpu_unl_reset <= mist_status(3) or FKEYS(10);
+	zpu_unl_reset <= '0'; -- disabled, disk unload handled from OSD
 
 	cold_reset  <= zpu_cold_reset or zpu_unl_reset;
 	reset_atari <= mist_status(1) or mist_buttons(1) or zpu_out1(1) or reset_load;
