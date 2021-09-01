@@ -276,9 +276,10 @@ BEGIN
 			end if;
 		when state_read=>
 			flash_read <= '1';
-			state_next <= state_read_wait;
+			if (flash_waitrequest='0') then
+				state_next <= state_read_wait;
+			end if;
 		when state_read_wait =>
-			flash_read <= flash_waitrequest;
 			complete <= flash_readvalid;
 			if (flash_readvalid = '1') then
 				state_next <= state_delay;
