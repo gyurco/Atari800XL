@@ -25,14 +25,19 @@ ENTITY pokeymax IS
 		fancy_switch_bit : integer := 20; -- 0=ext is low => mono
 		gtia_audio_bit : integer := 0;    -- 0=no gtia on l/r,1=gtia mixed on l/r
 		detect_right_on_by_default : integer := 1; 
+		saturate_on_by_default : integer := 1; 
 		a4_bit : integer := 0;
 		a5_bit : integer := 0;
 		a6_bit : integer := 0;
 		a7_bit : integer := 0;
 		cs0_bit : integer := 18;
 		cs1_bit : integer := 19;
+		spdif_bit : integer := 0;
+		ps2clk_bit : integer := 0;
+		ps2dat_bit : integer := 0;
 
 		ext_bits : integer := 3; 
+		pll_v2 : integer := 1;
 
 		enable_config : integer := 1;
 		enable_sid : integer := 0;
@@ -41,6 +46,8 @@ ENTITY pokeymax IS
 		enable_sample : integer := 0;
 		enable_flash : integer := 0;
 		enable_audout2: integer := 1;
+		enable_spdif: integer := 0;
+		enable_ps2: integer := 0;
 	
 		sid_wave_base : integer := 42496; --to_integer(unsigned(x"a600"));
 
@@ -56,6 +63,9 @@ ENTITY pokeymax IS
 		
 		CLK_OUT : OUT STD_LOGIC; -- Use PHI2 and internal oscillator to create a clock, feed out here
 		CLK_SLOW : IN STD_LOGIC; -- ... and back in here, then to pll!		
+
+		CLK0 : IN STD_LOGIC; -- 50MHz on v3 only
+		CLK1 : IN STD_LOGIC; -- 50MHz on v3 only
 		
 		D :  INOUT  STD_LOGIC_VECTOR(7 DOWNTO 0);
 		A :  IN  STD_LOGIC_VECTOR(3 DOWNTO 0);
@@ -98,6 +108,17 @@ ARCHITECTURE vhdl OF pokeymax IS
 		);
 	end component;
 
+	component pllv3
+		port (
+			inclk0   : in  std_logic := '0';
+			c0 : out std_logic;
+			c1 : out std_logic;
+			c2 : out std_logic;
+			c3 : out std_logic;
+			locked   : out std_logic
+		);
+	end component;
+
 	signal OSC_CLK : std_logic; -- about 82MHz! Always?? Massive range on data sheet
 
 	signal CLK : std_logic;
@@ -112,6 +133,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	SIGNAL POKEY_WRITE_ENABLE : STD_LOGIC_VECTOR(3 downto 0);		
 	
 	SIGNAL SID_WRITE_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
+	SIGNAL SID_READ_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
 
 	SIGNAL PSG_WRITE_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
 
@@ -153,6 +175,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal SIO_TXD : std_logic;
 	signal SIO_RXD : std_logic;
+	signal SIO_RXD_SYNC : std_logic;
 
 	signal POKEY_IRQ : std_logic_vector(3 downto 0);
 
@@ -176,6 +199,8 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal AUDIO_3_SIGMADELTA : std_logic;
 
 	signal KEYBOARD_SCAN : std_logic_vector(5 downto 0);
+	signal IOX_KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
+	signal PS2_KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
 	signal KEYBOARD_RESPONSE : std_logic_vector(1 downto 0);
 	signal KEYBOARD_SCAN_UPDATE : std_logic;
 	signal KEYBOARD_SCAN_ENABLE : std_logic;
@@ -347,6 +372,18 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal MHZ1_ENABLE : std_logic;
 	signal MHZ2_ENABLE : std_logic;
 
+	-- spdif
+	signal spdif_mux : std_logic_vector(15 downto 0);
+	signal spdif_right : std_logic;
+	signal spdif_out : std_logic;
+	signal CLK6144 : std_logic; --spdif
+	signal AUDIO_2_FILTERED : unsigned(15 downto 0);
+	signal AUDIO_3_FILTERED : unsigned(15 downto 0);	
+
+	-- ps2
+	signal PS2CLK : std_logic;
+	signal PS2DAT : std_logic;
+
 	function getByte(a : string; x : integer) return std_logic_vector is
    		 variable ret : std_logic_vector(7 downto 0);
 	begin
@@ -505,12 +542,25 @@ end generate;
 
 	CLK_OUT <= OSC_CLK;
 
+
+pll_v2_inst : if pll_v2=1 generate
 	pll_inst : pll
 	PORT MAP(inclk0 => CLK_SLOW,
 			 c0 => CLK, --56 ish
 			 c1 => CLK116,  --113ish
 			 c2 => CLK106,  --106ish
 			 locked => RESET_N);
+end generate;
+
+pll_v3_inst : if pll_v2=0 generate
+	pll_inst : pllv3
+	PORT MAP(inclk0 => CLK0, --49.192 (50 on prototype)
+			 c0 => CLK, --49.192 
+			 c1 => CLK116,  --113ish
+			 c2 => CLK106,  --106ish
+			 c3 => CLK6144,  --6.44MHz
+			 locked => RESET_N);
+end generate;
 
 
 	AIN(3 downto 0) <= A;
@@ -818,6 +868,7 @@ PORT MAP(
 	ENABLE => SID_CLK_ENABLE, --1MHz
 
 	WRITE_ENABLE => SID_WRITE_ENABLE(0),
+	READ_ENABLE => SID_READ_ENABLE(0),
 	ADDR => ADDR_IN(4 downto 0),
 	DI => WRITE_DATA(7 downto 0),
 	DO => SID_DO(0),
@@ -827,7 +878,12 @@ PORT MAP(
 	--EXTFILTER_EN => '0',
 	AUDIO => SID_AUDIO(0), 
 
-	SIDTYPE => SID_FILTER1_REG,
+	SIDTYPE => SID_FILTER1_REG(0),
+	EXT => "0"&SID_FILTER1_REG(1),
+	EXT_ADC => (others=>'0'),
+
+	POT_X => '0',
+	POT_Y => '0',
 
 	rom_addr => sid_flash1_addr,
 	rom_data => flash_do_slow,
@@ -852,6 +908,7 @@ PORT MAP(
 	ENABLE => SID_CLK_ENABLE, --1MHz
 
 	WRITE_ENABLE => SID_WRITE_ENABLE(1),
+	READ_ENABLE => SID_READ_ENABLE(1),
 	ADDR => ADDR_IN(4 downto 0),
 	DI => WRITE_DATA(7 downto 0),
 	DO => SID_DO(1),
@@ -861,7 +918,12 @@ PORT MAP(
 	--EXTFILTER_EN => '0',
 	AUDIO => SID_AUDIO(1),
 
-	SIDTYPE => SID_FILTER2_REG,
+	SIDTYPE => SID_FILTER2_REG(0),
+	EXT => "0"&SID_FILTER2_REG(1),
+	EXT_ADC => (others=>'0'),
+
+	POT_X => '0',
+	POT_Y => '0',
 
 	rom_addr => sid_flash2_addr,
 	rom_data => flash_do_slow,
@@ -1133,12 +1195,15 @@ process(
 	RESTRICT_CAPABILITY_REG
 	)
 	variable writereq : std_logic;
+	variable readreq : std_logic;
 	variable enable_region : std_logic;
 begin
 	writereq := not(write_n) and request;
+	readreq := write_n and request;
 	
 	POKEY_WRITE_ENABLE <= (others=>'0');
 	SID_WRITE_ENABLE <= (others=>'0');
+	SID_READ_ENABLE <= (others=>'0');
 	PSG_WRITE_ENABLE <= (others=>'0');
 	SAMPLE_WRITE_ENABLE <= '0';
 	CONFIG_WRITE_ENABLE <= '0';
@@ -1165,11 +1230,13 @@ begin
 			DO_MUX <= SID_DO(0);
 			DRIVE_DO_MUX <= SID_DRIVE_DO(0);
 			SID_WRITE_ENABLE(0) <= writereq;
+			SID_READ_ENABLE(0) <= readreq;
 		when "0110"|"0111" =>
 			enable_region := RESTRICT_CAPABILITY_REG(2);
 			DO_MUX <= SID_DO(1);
 			DRIVE_DO_MUX <= SID_DRIVE_DO(1);
 			SID_WRITE_ENABLE(1) <= writereq;
+			SID_READ_ENABLE(0) <= readreq;
 		when "1000"|"1001" =>
 			enable_region := RESTRICT_CAPABILITY_REG(4);
 			DO_MUX <= SAMPLE_DO;								
@@ -1208,7 +1275,11 @@ begin
 		end if;
 		IRQ_EN_REG <= '0';
 		CHANNEL_MODE_REG <= '0';
-		SATURATE_REG <= '1';
+		if saturate_on_by_default=1 then
+			SATURATE_REG <= '1';
+		else
+			SATURATE_REG <= '0';
+		end if;
 		POST_DIVIDE_REG <= "10100000"; -- 1/2 5v, 3/4 1v
 		GTIA_ENABLE_REG <= "1100"; -- external only
 		CONFIG_ENABLE_REG <= '0';
@@ -1310,7 +1381,8 @@ begin
 				CHANNEL_MODE_NEXT <= flash_do_slow(2);
 				IRQ_EN_NEXT <= flash_do_slow(3);
 				DETECT_RIGHT_NEXT <= flash_do_slow(4);
-					-- 5-7 reserved
+				PAL_NEXT <= flash_do_slow(5);
+					-- 6-7 reserved
 				POST_DIVIDE_NEXT <= flash_do_slow(15 downto 8);
 				GTIA_ENABLE_NEXT <= flash_do_slow(19 downto 16);
 					-- 23 downto 20 reserved
@@ -1326,7 +1398,6 @@ begin
 				-- 6-7 reserved
 				RESTRICT_CAPABILITY_NEXT <= flash_do_slow(12 downto 8);
 				-- 13-15 reserved
-				PAL_NEXT <= flash_do_slow(16);
 			when others =>
 		end case;
 	elsif (CONFIG_WRITE_ENABLE='1') then
@@ -1586,7 +1657,9 @@ PORT MAP
 	CH7 => unsigned(SID_AUDIO(1)),	
 	CH8 => unsigned(PSG_AUDIO(0)),
 	CH9 => unsigned(PSG_AUDIO(1)),		
-	CHA(14 downto 0) => (others=>'0'),
+	CHA(14 downto 12) => (others=>'0'),
+	CHA(11) => SIO_RXD_SYNC,
+	CHA(10 downto 0) => (others=>'0'),
 	CHA(15) => GTIA_AUDIO,			
 	
 	AUDIO_0_UNSIGNED => AUDIO_0_UNSIGNED,
@@ -1668,6 +1741,42 @@ port map
   AUDOUT => AUDIO_3_SIGMADELTA
 );
 
+-- Digital audio output
+spdif_on : if enable_spdif=1 generate 
+
+-- todo: clock domain crossing!
+spdif_mux <= std_logic_vector(audio_2_filtered) when spdif_right='0' 
+   else std_logic_vector(audio_3_filtered);
+
+filter_left : entity work.simple_low_pass_filter
+PORT MAP 
+( 
+	CLK => clk,
+	AUDIO_IN => audio_2_unsigned,
+	SAMPLE_IN => enable_cycle,
+	AUDIO_OUT => audio_2_filtered
+);
+
+filter_right : entity work.simple_low_pass_filter
+PORT MAP 
+( 
+	CLK => clk,
+	AUDIO_IN => audio_3_unsigned,
+	SAMPLE_IN => enable_cycle,
+	AUDIO_OUT => audio_3_filtered
+);
+
+spdif : entity work.spdif_transmitter
+ port map(
+  bit_clock => CLK6144, -- 128x Fsample (6.144MHz for 48K samplerate)
+  data_in(23 downto 8) => spdif_mux,
+  data_in(7 downto 0) => (others=>'0'),
+  address_out => spdif_right,
+  spdif_out => spdif_out
+ );
+
+ EXT(SPDIF_BIT) <= spdif_out;
+end generate spdif_on;
 
 -- io extension
 -- drive to 0 for pot reset (otherwise high imp)
@@ -1708,10 +1817,53 @@ port map
 		pot_reset=>potreset,
 
 		keyboard_scan=>keyboard_scan,
-		keyboard_response=>keyboard_response,
-		--keyboard_scan_update => KEYBOARD_SCAN_UPDATE,
+		keyboard_scan_update=>keyboard_scan_update,
+		keyboard_response=>iox_keyboard_response,
 		keyboard_scan_enable=>keyboard_scan_enable
 	);
+
+-- PS2 keyboard
+ps2_on : if enable_ps2=1 generate 
+	 PS2CLK <= EXT(PS2CLK_BIT);
+	 PS2DAT <= EXT(PS2DAT_BIT);
+keyboard_map1 : entity work.ps2_to_atari800
+	GENERIC MAP
+	(
+		ps2_enable => 1,
+		direct_enable => 0
+	)
+	PORT MAP
+	( 
+		CLK => clk,
+		RESET_N => reset_n,
+		PS2_CLK => PS2CLK,
+		PS2_DAT => PS2DAT, 
+
+		INPUT => open,
+
+		KEY_TYPE => '0', -- TODO 1 is US key_type - probably add editor to pokeycfg an put in flash?
+ 		ATARI_KEYBOARD_OUT => open,
+		
+		KEYBOARD_SCAN => KEYBOARD_SCAN,
+		KEYBOARD_RESPONSE => PS2_KEYBOARD_RESPONSE,
+
+		CONSOL_START => open,
+		CONSOL_SELECT => open,
+		CONSOL_OPTION => open,
+		
+		FKEYS => open,
+		FREEZER_ACTIVATE => open,
+
+		PS2_KEYS_NEXT_OUT => open,
+		PS2_KEYS => open
+	);
+	KEYBOARD_RESPONSE <= IOX_KEYBOARD_RESPONSE and PS2_KEYBOARD_RESPONSE;
+end generate ps2_on;
+
+ps2_off : if enable_ps2=0 generate 
+	KEYBOARD_RESPONSE <= IOX_KEYBOARD_RESPONSE;
+end generate ps2_off;
+
 
 -- Wire up pins
 ACLK <= SIO_CLOCKOUT;
@@ -1720,6 +1872,8 @@ SIO_CLOCKIN_IN <= BCLK;
 
 SOD <= '0' when SIO_TXD='0' else 'Z';
 SIO_RXD <= SID;
+synchronizer_SIO : entity work.synchronizer
+	port map (clk=>clk, raw=>SID, sync=>SIO_RXD_SYNC);
 
 
 --1->pin37

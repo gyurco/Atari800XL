@@ -165,6 +165,9 @@ set_global_assignment -name VHDL_FILE synchronizer.vhdl
 set_global_assignment -name VHDL_FILE audiotypes.vhdl
 set_global_assignment -name VHDL_FILE mixer.vhdl
 set_global_assignment -name VHDL_FILE clockgen.vhd
+set_global_assignment -name VHDL_FILE spdif_transmitter.vhdl
+set_global_assignment -name VHDL_FILE ps2_keyboard.vhdl
+set_global_assignment -name VHDL_FILE ps2_to_atari800.vhdl
 set_global_assignment -name VHDL_FILE pokeymax.vhd
 set_global_assignment -name VHDL_FILE PSG/envelope.vhdl
 set_global_assignment -name VHDL_FILE PSG/noise.vhdl
