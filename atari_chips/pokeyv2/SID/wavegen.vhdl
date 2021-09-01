@@ -22,6 +22,7 @@ PORT
 
 	CHANGING : IN STD_LOGIC;
 	
+	DELAYSAWTOOTH : IN STD_LOGIC;
 	RINGMOD : IN STD_LOGIC;
 	RINGMOD_OSC_MSB : IN STD_LOGIC;
 	TEST : IN STD_LOGIC;
@@ -42,6 +43,8 @@ END SID_wavegen;
 ARCHITECTURE vhdl OF SID_wavegen IS
 	signal wave_reg : std_logic_vector(11 downto 0);
 	signal wave_next : std_logic_vector(11 downto 0);
+	signal wave0count1_reg : unsigned(9 downto 0);
+	signal wave0count1_next : unsigned(9 downto 0);
 	signal lfsr_reg : std_logic_vector(22 downto 0);
 	signal lfsr_next : std_logic_vector(22 downto 0);
 	signal wave_data_needed_reg : std_logic;
@@ -49,20 +52,27 @@ ARCHITECTURE vhdl OF SID_wavegen IS
 	signal pulse_comparator_reg : std_logic;
 	signal pulse_comparator_next : std_logic;
 	signal multiple_wave_bits : std_logic;
+	signal no_wave_bits : std_logic;
+	signal osc_del_reg : std_logic_vector(11 downto 0);
+	signal osc_del_next : std_logic_vector(11 downto 0);
 BEGIN
 	-- register
 	process(clk, reset_n)
 	begin
 		if (reset_n = '0') then
 			wave_reg <= (others=>'0');
+			wave0count1_reg <= (others=>'0');
 			lfsr_reg <= (others=>'1');
 			pulse_comparator_reg <= '0';
 			wave_data_needed_reg <= '0';
+			osc_del_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then
 			wave_reg <= wave_next;
+			wave0count1_reg <= wave0count1_next;
 			lfsr_reg <= lfsr_next;
 			pulse_comparator_reg <= pulse_comparator_next;
 			wave_data_needed_reg <= wave_data_needed_next;
+			osc_del_reg <= osc_del_next;
 		end if;
 	end process;
 
@@ -85,7 +95,7 @@ BEGIN
 	end process;
 	
 	-- next state - wave
-	process(multiple_wave_bits,wave_reg,osc_in,waveselect_in,pulse_width_in,lfsr_reg,test,ringmod,ringmod_osc_msb,pulse_comparator_reg,wave_data,wave_data_ready,enable)
+	process(no_wave_bits,multiple_wave_bits,wave_reg,osc_in,waveselect_in,pulse_width_in,lfsr_reg,test,ringmod,ringmod_osc_msb,pulse_comparator_reg,wave_data,wave_data_ready,enable,osc_del_reg,delaysawtooth,wave0count1_reg)
 		variable noise : std_logic_vector(11 downto 0);
 		variable pulse : std_logic_vector(11 downto 0);
 		variable triangle : std_logic_vector(11 downto 0);
@@ -95,8 +105,17 @@ BEGIN
 		variable triangle_xor : std_logic;
 		variable triangle_xor_ext : std_logic_vector(10 downto 0);
 		variable osc_xored : std_logic_vector(10 downto 0);
+		variable osc_sawtooth : std_logic_vector(11 downto 0);
+
+		variable wave0tmp : unsigned(12 downto 0);
 	begin
 		wave_next <= wave_reg;
+		wave0count1_next <= wave0count1_reg;
+		osc_del_next <= osc_del_reg;
+
+		if (enable='1') then
+			osc_del_next <= osc_in;
+		end if;
 
 		noise:= (others=>'0');
 		pulse:= (others=>'0');
@@ -126,14 +145,21 @@ BEGIN
 		end if;
 
 		--ref: https://sourceforge.net/p/sidplay-residfp/wiki/SID%20internals%20-%20Triangle%20Waveform/
+
+		if (delaysawtooth='1') then
+			osc_sawtooth:= osc_del_reg;
+		else
+			osc_sawtooth := osc_in;
+		end if;
+
 		triangle_xor := not(waveselect_in(1)) and                    -- sawtooth on->disable invert
-			((not(ringmod) and osc_in(11)) or                 -- not ringmod ->msb makes it invert
-			(ringmod and (osc_in(11) xnor ringmod_osc_msb))); -- ringmod -> both 0 or 1 -> invert
+			((not(ringmod) and osc_sawtooth(11)) or                 -- not ringmod ->msb makes it invert
+			(ringmod and (osc_sawtooth(11) xnor ringmod_osc_msb))); -- ringmod -> both 0 or 1 -> invert
 		triangle_xor_ext := (others=>triangle_xor);
-		osc_xored:= osc_in(10 downto 0) xor triangle_xor_ext;
+		osc_xored:= osc_sawtooth(10 downto 0) xor triangle_xor_ext;
 
 		if (waveselect_in(1)='1') then
-			sawtooth := osc_in(11) & osc_xored(10 downto 0);
+			sawtooth := osc_sawtooth(11) & osc_xored(10 downto 0);
 		end if;
 
 		if (waveselect_in(0)='1') then
@@ -145,16 +171,35 @@ BEGIN
 		-- In fact transistors drive against each other with different resistances and
 		-- a corrupt waveform is generated. 
 		-- TODO: Either compute or use flash storage (optionally)
-		if (multiple_wave_bits='0') then
-			wave_next <= noise or pulse or sawtooth or triangle;
+		if (no_wave_bits='1') then
+			if (enable='1') then
+				wave0count1_next <= unsigned("0"&wave0count1_reg(8 downto 0)) + 1;
+				if (wave0count1_reg(9)='1') then -- carry
+					wave0tmp := unsigned("0"&wave_reg) - 1; -- head to zero over 2 seconds!
+					if (wave0tmp(12) = '1') then
+						wave_next <= (others=>'0');
+					else
+						wave_next <= std_logic_vector(wave0tmp(11 downto 0));
+					end if;
+				end if;
+			end if;
 		else
-			if (wave_data_ready='1') then
-				wave_next <= wave_data and pulse;
+			if (multiple_wave_bits='0') then
+				wave_next <= noise or pulse or sawtooth or triangle;
+			else
+				if (wave_data_ready='1') then
+					if (waveselect_in(2)='1') then
+						wave_next <= wave_data and pulse;
+					else
+						wave_next <= wave_data;
+					end if;
+				end if;
 			end if;
 		end if;
+
 	end process;	
 
-	multiple_wave_bits <= 
+	multiple_wave_bits <=  --NPST   (?ST) or PS or PT
 	        not(waveselect_in(3)) and
 		(
 			(waveselect_in(0) and waveselect_in(1))
@@ -162,6 +207,7 @@ BEGIN
 			(waveselect_in(2) and (waveselect_in(0) or waveselect_in(1)))
 		)
 		;
+	no_wave_bits <= not(or_reduce(waveselect_in));
 	wave_data_needed_next <= (wave_data_needed_reg or (multiple_wave_bits and changing)) and not(wave_data_ready);
 
 	--output

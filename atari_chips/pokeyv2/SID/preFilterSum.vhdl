@@ -17,12 +17,12 @@ PORT
 	ENABLE : IN STD_LOGIC;
 
 	BIAS_CHANNEL : IN STD_LOGIC;
-	BIAS_FILTER : IN STD_LOGIC;
 	
 	CHANNEL_A : IN SIGNED(15 downto 0);
 	CHANNEL_B : IN SIGNED(15 downto 0);
 	CHANNEL_C : IN SIGNED(15 downto 0);
 	CHANNEL_C_CUTDIRECT : IN STD_LOGIC;
+	CHANNEL_D : IN SIGNED(15 downto 0);
 	FILTER_EN : IN STD_LOGIC_VECTOR(3 downto 0);
 
 	PREFILTER_OUT : OUT SIGNED(15 downto 0); 
@@ -41,7 +41,7 @@ ARCHITECTURE vhdl OF SID_preFilterSum IS
 	signal phase_next : unsigned(2 downto 0);
 	
 	signal channel_mux : signed(15 downto 0);
-	signal channel_sel : std_logic_vector(1 downto 0);
+	signal channel_sel : std_logic_vector(2 downto 0);
 
 	function logic_to_unsigned(a : std_logic; b : integer) return unsigned is
    		 variable ret : unsigned(2 downto 0);
@@ -68,11 +68,12 @@ BEGIN
 	end process;
 	
 	-- next state
-	process(phase_reg,acc_reg,prefilter_reg,direct_reg,enable,channel_c_cutdirect,filter_en,channel_mux,bias_channel,bias_filter)
-		variable filter_en0_ext : std_logic_vector(1 downto 0);
-		variable filter_en1_ext : std_logic_vector(1 downto 0);
-		variable filter_en2_ext : std_logic_vector(1 downto 0);
-		variable filter_en2cd_ext : std_logic_vector(1 downto 0);
+	process(phase_reg,acc_reg,prefilter_reg,direct_reg,enable,channel_c_cutdirect,filter_en,channel_mux,bias_channel,channel_d)
+		variable filter_en0_ext : std_logic_vector(2 downto 0);
+		variable filter_en1_ext : std_logic_vector(2 downto 0);
+		variable filter_en2_ext : std_logic_vector(2 downto 0);
+		variable filter_en2cd_ext : std_logic_vector(2 downto 0);
+		variable filter_en3_ext : std_logic_vector(2 downto 0);
 		
 		variable adder_result : signed(17 downto 0);
 
@@ -87,6 +88,7 @@ BEGIN
 		filter_en1_ext := (others=>filter_en(1));
 		filter_en2_ext := (others=>filter_en(2));
 		filter_en2cd_ext := (others=>filter_en(2) or channel_c_cutdirect);		
+		filter_en3_ext := (others=>filter_en(3));
 		
 		channel_sel <= (others=>'0');
 		
@@ -97,49 +99,53 @@ BEGIN
 		
 		case phase_reg is
 		when "000" =>
-			channel_sel <= "01" and filter_en0_ext;
+			channel_sel <= "001" and filter_en0_ext;
 		when "001" =>
-			channel_sel <= "10" and filter_en1_ext;
+			channel_sel <= "010" and filter_en1_ext;
 		when "010" =>
-			channel_sel <= "11" and filter_en2_ext;		
+			channel_sel <= "011" and filter_en2_ext;		
+		when "011" =>
+			channel_sel <= "100" and filter_en3_ext;		
 			prefilter_next	<= adder_result(17 downto 2);
 			acc_next <= (others=>'0'); --base for direct
 			bias:=
 				logic_to_unsigned(not(filter_en(0)) and bias_channel,0) + 
 				logic_to_unsigned(not(filter_en(1)) and bias_channel,0) +
-				logic_to_unsigned(not(filter_en2cd_ext(0)) and bias_channel,0) +
-				logic_to_unsigned(not(filter_en(3)) and bias_filter,1);
-			acc_next(14 downto 12) <= signed(std_logic_vector(bias));
-		when "011" =>
-			channel_sel <= "01" and not(filter_en0_ext);
+				logic_to_unsigned(not(filter_en2cd_ext(0)) and bias_channel,0);
+			acc_next(16 downto 14) <= signed(std_logic_vector(bias));
 		when "100" =>
-			channel_sel <= "10" and not(filter_en1_ext);
+			channel_sel <= "001" and not(filter_en0_ext);
 		when "101" =>
-			channel_sel <= "11" and not(filter_en2cd_ext);
+			channel_sel <= "010" and not(filter_en1_ext);
+		when "110" =>
+			channel_sel <= "011" and not(filter_en2cd_ext);
+		when "111" =>
+			channel_sel <= "100" and not(filter_en3_ext);
 			phase_next <= (others=>'0');
 			direct_next <= adder_result(17 downto 2);
 			acc_next <= (others=>'0'); --base for filter
 			bias:=
 				logic_to_unsigned(filter_en(0) and bias_channel,0) + 
 				logic_to_unsigned(filter_en(1) and bias_channel,0) +
-				logic_to_unsigned(filter_en(2) and bias_channel,0) +
-				logic_to_unsigned(filter_en(3) and bias_filter,1);
-			acc_next(14 downto 12) <= signed(std_logic_vector(bias));
+				logic_to_unsigned(filter_en(2) and bias_channel,0);
+			acc_next(16 downto 14) <= signed(std_logic_vector(bias));
 		when others =>
 		end case;		
 		
 	end process;	
 	
-	process(channel_sel,channel_a,channel_b,channel_c)
+	process(channel_sel,channel_a,channel_b,channel_c,channel_d)
 	begin
 		channel_mux <= (others=>'0');
 		case channel_sel is
-		when "01" =>
+		when "001" =>
 			channel_mux <= channel_a;
-		when "10" =>
+		when "010" =>
 			channel_mux <= channel_b;
-		when "11" =>
+		when "011" =>
 			channel_mux <= channel_c;
+		when "100" =>
+			channel_mux <= channel_d;
 		when others =>
 		end case;
 	end process;

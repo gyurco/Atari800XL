@@ -48,6 +48,12 @@ ARCHITECTURE vhdl OF SID_envelope IS
 
 	signal tapkey_next : std_logic_vector(3 downto 0);
 	signal tapkey_reg : std_logic_vector(3 downto 0);
+	signal tapkey_del1_next : std_logic_vector(3 downto 0);
+	signal tapkey_del1_reg : std_logic_vector(3 downto 0);
+	signal tapkey_del2_next : std_logic_vector(3 downto 0);
+	signal tapkey_del2_reg : std_logic_vector(3 downto 0);
+	signal tapkey_del3_next : std_logic_vector(3 downto 0);
+	signal tapkey_del3_reg : std_logic_vector(3 downto 0);
 
 	signal exptap : std_logic_vector(2 downto 0);
 	signal exptapmatching : std_logic;
@@ -67,6 +73,52 @@ ARCHITECTURE vhdl OF SID_envelope IS
 	signal gate_changed : std_logic;
 	signal hold_counter : std_logic;
 
+	signal gatedel : std_logic;
+	signal gateshift_reg : std_logic_vector(1 downto 0);
+	signal gateshift_next : std_logic_vector(1 downto 0);
+
+	signal r0_next : std_logic;
+	signal r0_reg : std_logic;
+
+	signal adrmux_next : std_logic_vector(1 downto 0);
+	signal adrmux_reg : std_logic_vector(1 downto 0);
+	signal adrmux_del1_next : std_logic_vector(1 downto 0);
+	signal adrmux_del1_reg : std_logic_vector(1 downto 0);
+	signal adrmux_del2_next : std_logic_vector(1 downto 0);
+	signal adrmux_del2_reg : std_logic_vector(1 downto 0);
+
+	signal attack_del1_reg : std_logic_vector(3 downto 0);
+	signal attack_del2_reg : std_logic_vector(3 downto 0);
+	signal attack_del3_reg : std_logic_vector(3 downto 0);
+	signal attack_del1_next : std_logic_vector(3 downto 0);
+	signal attack_del2_next : std_logic_vector(3 downto 0);
+	signal attack_del3_next : std_logic_vector(3 downto 0);
+	signal attack_delayed : std_logic_vector(3 downto 0);
+
+	signal decay_del1_reg : std_logic_vector(3 downto 0);
+	signal decay_del2_reg : std_logic_vector(3 downto 0);
+	signal decay_del3_reg : std_logic_vector(3 downto 0);
+	signal decay_del1_next : std_logic_vector(3 downto 0);
+	signal decay_del2_next : std_logic_vector(3 downto 0);
+	signal decay_del3_next : std_logic_vector(3 downto 0);
+	signal decay_delayed : std_logic_vector(3 downto 0);
+
+	signal release_del1_reg : std_logic_vector(3 downto 0);
+	signal release_del2_reg : std_logic_vector(3 downto 0);
+	signal release_del3_reg : std_logic_vector(3 downto 0);
+	signal release_del1_next : std_logic_vector(3 downto 0);
+	signal release_del2_next : std_logic_vector(3 downto 0);
+	signal release_del3_next : std_logic_vector(3 downto 0);
+	signal release_delayed : std_logic_vector(3 downto 0);
+
+	signal sustain_del1_reg : std_logic_vector(3 downto 0);
+	signal sustain_del2_reg : std_logic_vector(3 downto 0);
+	signal sustain_del3_reg : std_logic_vector(3 downto 0);
+	signal sustain_del1_next : std_logic_vector(3 downto 0);
+	signal sustain_del2_next : std_logic_vector(3 downto 0);
+	signal sustain_del3_next : std_logic_vector(3 downto 0);
+	signal sustain_delayed : std_logic_vector(3 downto 0);
+
 BEGIN
 	-- register
 	process(clk, reset_n)
@@ -79,6 +131,30 @@ BEGIN
 			state_reg <= state_release;
 			count_state_reg <= count_state_stopped;
 			tapkey_reg <= (others=>'0');
+			tapkey_del1_reg <= (others=>'0');
+			tapkey_del2_reg <= (others=>'0');
+			tapkey_del3_reg <= (others=>'0');
+			gateshift_reg <= (others=>'0');
+			r0_reg <= '0';
+			adrmux_reg <= (others=>'0');
+			adrmux_del1_reg <= (others=>'0');
+			adrmux_del2_reg <= (others=>'0');
+
+			attack_del1_reg <= (others=>'0');
+			attack_del2_reg <= (others=>'0');
+			attack_del3_reg <= (others=>'0');
+
+			decay_del1_reg <= (others=>'0');
+			decay_del2_reg <= (others=>'0');
+			decay_del3_reg <= (others=>'0');
+
+			release_del1_reg <= (others=>'0');
+			release_del2_reg <= (others=>'0');
+			release_del3_reg <= (others=>'0');
+
+			sustain_del1_reg <= (others=>'0');
+			sustain_del2_reg <= (others=>'0');
+			sustain_del3_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then
 			envelope_reg <= envelope_next;
 			delay_lfsr_reg <= delay_lfsr_next;
@@ -87,8 +163,94 @@ BEGIN
 			state_reg <= state_next;
 			count_state_reg <= count_state_next;
 			tapkey_reg <= tapkey_next;
+			tapkey_del1_reg <= tapkey_del1_next;
+			tapkey_del2_reg <= tapkey_del2_next;
+			tapkey_del3_reg <= tapkey_del3_next;
+			gateshift_reg <= gateshift_next;
+			r0_reg <= r0_next;
+			adrmux_reg <= adrmux_next;
+			adrmux_del1_reg <= adrmux_del1_next;
+			adrmux_del2_reg <= adrmux_del2_next;
+
+			attack_del1_reg <= attack_del1_next;
+			attack_del2_reg <= attack_del2_next;
+			attack_del3_reg <= attack_del3_next;
+
+			decay_del1_reg <= decay_del1_next;
+			decay_del2_reg <= decay_del2_next;
+			decay_del3_reg <= decay_del3_next;
+
+			release_del1_reg <= release_del1_next;
+			release_del2_reg <= release_del2_next;
+			release_del3_reg <= release_del3_next;
+
+			sustain_del1_reg <= sustain_del1_next;
+			sustain_del2_reg <= sustain_del2_next;
+			sustain_del3_reg <= sustain_del3_next;
 		end if;
 	end process;
+
+	process(gateshift_reg,gate,enable)
+	begin
+		gateshift_next <= gateshift_reg;
+		if (enable='1') then
+			gateshift_next(1) <= gate;
+			gateshift_next(0) <= gateshift_reg(1);
+		end if;
+	end process;
+	gatedel <= gateshift_reg(0);
+
+	process(attack_del1_reg,attack_del2_reg,attack_del3_reg,attack,enable)
+	begin
+		attack_del1_next <= attack_del1_reg;
+		attack_del2_next <= attack_del2_reg;
+		attack_del3_next <= attack_del3_reg;
+		if (enable='1') then
+			attack_del1_next <= attack;
+			attack_del2_next <= attack_del1_reg;
+			attack_del3_next <= attack_del2_reg;
+		end if;
+	end process;
+	attack_delayed <= attack_del3_reg;
+
+	process(decay_del1_reg,decay_del2_reg,decay_del3_reg,decay,enable)
+	begin
+		decay_del1_next <= decay_del1_reg;
+		decay_del2_next <= decay_del2_reg;
+		decay_del3_next <= decay_del3_reg;
+		if (enable='1') then
+			decay_del1_next <= decay;
+			decay_del2_next <= decay_del1_reg;
+			decay_del3_next <= decay_del2_reg;
+		end if;
+	end process;
+	decay_delayed <= decay_del3_reg;
+
+	process(release_del1_reg,release_del2_reg,release_del3_reg,release_in,enable)
+	begin
+		release_del1_next <= release_del1_reg;
+		release_del2_next <= release_del2_reg;
+		release_del3_next <= release_del3_reg;
+		if (enable='1') then
+			release_del1_next <= release_in;
+			release_del2_next <= release_del1_reg;
+			release_del3_next <= release_del2_reg;
+		end if;
+	end process;
+	release_delayed <= release_del3_reg;
+
+	process(sustain_del1_reg,sustain_del2_reg,sustain_del3_reg,sustain,enable)
+	begin
+		sustain_del1_next <= sustain_del1_reg;
+		sustain_del2_next <= sustain_del2_reg;
+		sustain_del3_next <= sustain_del3_reg;
+		if (enable='1') then
+			sustain_del1_next <= sustain;
+			sustain_del2_next <= sustain_del1_reg;
+			sustain_del3_next <= sustain_del2_reg;
+		end if;
+	end process;
+	sustain_delayed <= sustain_del2_reg;
 
 	-- next state
 	--VALUE  	ATTACK RATE	DECAY/RELEASE RATE
@@ -116,10 +278,9 @@ BEGIN
 	--ref1: https://www.codebase64.org/doku.php?id=base:classic_hard-restart_and_about_adsr_in_generally
 	--ref2: https://sourceforge.net/p/sidplay-residfp/wiki/SID%20internals%20-%20Envelope%20Overview/
 	-- up:linear, down: exponential approx
-	process(envelope_reg,enable,tapmatch,count_state_reg,exptapmatch_reg,exptap,exptapmatching,gate,gate_changed,hold_counter)
+	process(envelope_reg,enable,tapmatch,count_state_reg,exptapmatch_reg,exptap,exptapmatching,gatedel,gate_changed,hold_counter,r0_reg)
 		variable no_delay : std_logic;
 		variable delay_match : std_logic;
-		variable r0 : std_logic;
 	begin
 		count_state_next <= count_state_reg;
 		envelope_next <= envelope_reg;
@@ -127,25 +288,25 @@ BEGIN
 
 		exptapmatching <= '0';
 
+		r0_next <= r0_reg;
+
 		if (enable='1') then
 			no_delay := nor_reduce(exptapmatch_reg);
 			delay_match := '0';
 			if (exptapmatch_reg = exptap) then
 				delay_match := '1';
 			end if;
-			r0 := '0';
-
 			case count_state_reg is
 				when count_state_up =>
-					r0 := '1';
-					if (exptapmatching='1' and hold_counter='0') then
+					r0_next <= '1';
+					if (exptapmatching='1') then -- and hold_counter='0') then
 						envelope_next <= envelope_reg+1;
 						if (envelope_reg=x"fe") then
 							count_state_next <= count_state_down;
 						end if;
 					end if;
 				when count_state_down =>
-					r0 := '0';
+					r0_next <= '0';
 					if (exptapmatching='1' and hold_counter='0') then
 						envelope_next <= envelope_reg-1;
 						if (envelope_reg=x"01") then
@@ -155,10 +316,10 @@ BEGIN
 				when others=>
 			end case;
 
-			exptapmatching <= (tapmatch and (no_delay or r0)) or (delay_match and not(no_delay));
+			exptapmatching <= (tapmatch and (no_delay or r0_reg)) or (delay_match and not(no_delay));
 
 			if (gate_changed='1') then
-				if (gate='1') then
+				if (gatedel='1') then
 					count_state_next <= count_state_up;
 				else
 					count_state_next <= count_state_down;
@@ -166,6 +327,8 @@ BEGIN
 			end if;
 
 			case envelope_reg is
+				when x"00" =>
+					exptapmatch_next  <= "000";
 				when x"06" =>
 					exptapmatch_next  <= "101";
 				when x"0e" =>
@@ -183,42 +346,77 @@ BEGIN
 		end if;
 	end process;
 
-	process(enable,state_reg,envelope_reg,tapkey_reg,gate,tapmatch,attack,sustain,decay,release_in)
+	process(
+		enable,
+		tapkey_reg,tapkey_del1_reg,tapkey_del2_reg,tapkey_del3_reg,
+		attack_delayed,decay_delayed,release_delayed,
+		adrmux_del2_reg
+	)
+	begin
+		tapkey_next <= tapkey_reg;
+		tapkey_del1_next <= tapkey_del1_reg;
+		tapkey_del2_next <= tapkey_del2_reg;
+		tapkey_del3_next <= tapkey_del3_reg;
+		if (enable='1') then
+			tapkey_del1_next <= tapkey_reg;
+			tapkey_del2_next <= tapkey_del1_reg;
+			tapkey_del3_next <= tapkey_del2_reg;
+			case adrmux_reg is
+			when "00" =>
+				tapkey_next <= attack_delayed;
+			when "01" =>
+				tapkey_next <= decay_delayed;
+			when "10" =>
+				tapkey_next <= release_delayed;
+			when others =>
+				tapkey_next <= (others=>'0');
+			end case;
+		end if;
+	end process;
+
+	process(enable,state_reg,envelope_reg,gatedel,tapmatch,sustain_delayed,adrmux_reg,adrmux_del1_reg,adrmux_del2_reg)
 		variable envelope_over_sustain : std_logic;
 	begin
 		state_next <= state_reg;
-		tapkey_next <= tapkey_reg;
 		gate_changed <= '0';
 		hold_counter <= '0';
 
+		adrmux_next <= adrmux_reg;
+		adrmux_del1_next <= adrmux_del1_reg;
+		adrmux_del2_next <= adrmux_del2_reg;
+
 		envelope_over_sustain := '0';
-		if (unsigned(envelope_reg) > unsigned(sustain&sustain)) then
+		if (unsigned(envelope_reg) > unsigned(sustain_delayed&sustain_delayed)) then
 			envelope_over_sustain := '1';
 		end if;
 
 		if (enable='1') then
+			adrmux_del1_next <= adrmux_reg;
+			adrmux_del2_next <= adrmux_del1_reg;
 			case state_reg is
 				when state_attack =>
-					tapkey_next <= attack;
+					adrmux_next <= "00";
 					if (and_reduce(std_logic_vector(envelope_reg))='1') then
 						state_next <= state_decay;
 					end if;
-					if (gate='0') then
+					if (gatedel='0') then
 						state_next <= state_release;
+						--state_next <= state_decay;
 						gate_changed <= '1';
 					end if;
 				when state_decay =>
-					tapkey_next <= decay;
+					adrmux_next <= "01";
 					if (envelope_over_sustain='0') then
 						hold_counter <= '1';
 					end if;
-					if (gate='0') then
+					if (gatedel='0') then
 						state_next <= state_release;
 						gate_changed <= '1';
 					end if;
 				when state_release =>
-					tapkey_next <= release_in;
-					if (gate='1') then
+					adrmux_next <= "10";
+					if (gatedel='1') then
+						adrmux_next <= "01";
 						state_next <= state_attack;
 						gate_changed <= '1';
 					end if;
@@ -241,7 +439,7 @@ BEGIN
 		end if;
 	end process;
 
-	process(expdelay_lfsr_reg,exptapmatching,enable)
+	process(expdelay_lfsr_reg,exptapmatching,tapmatch,enable)
 	begin
 		expdelay_lfsr_next <= expdelay_lfsr_reg;
 		if (enable='1') then

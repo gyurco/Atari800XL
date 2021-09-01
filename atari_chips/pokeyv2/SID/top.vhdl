@@ -27,10 +27,12 @@ ENTITY SID_top IS
 		ENABLE : in std_logic; -- Typically ~1MHz
 
 		ADDR : in std_logic_vector(4 downto 0); 
+		READ_ENABLE : in std_logic;
 		WRITE_ENABLE : in std_logic;
 
-		POTX : in std_logic_vector(7 downto 0) := (others=> '1');
-		POTY : in std_logic_vector(7 downto 0) := (others=> '1');
+		POT_X : in std_logic;
+		POT_Y : in std_logic;
+		POT_RESET : out std_logic;
 		
 		DI : in std_logic_vector(7 downto 0);
 		DO : out std_logic_vector(7 downto 0);
@@ -42,7 +44,9 @@ ENTITY SID_top IS
 		DEBUG_EV1 : out unsigned(7 downto 0);
 		DEBUG_AM1 : out signed(15 downto 0);
 
-		sidtype : in std_logic_vector(1 downto 0); -- 0=8580 filter, 1=6581 filter, 2=digifix
+		sidtype : in std_logic; -- 0=8580 filter, 1=6581 filter
+		EXT : in std_logic_vector(1 downto 0); -- 00=GND,01=digifix,10=ADC
+		EXT_ADC : in unsigned(15 downto 0);
 
 		rom_addr : out std_logic_vector(16 downto 0);
 		rom_data : in std_logic_vector(31 downto 0);
@@ -213,6 +217,7 @@ ARCHITECTURE vhdl OF SID_top IS
 	signal channel_a_modulated : signed(15 downto 0);
 	signal channel_b_modulated : signed(15 downto 0);
 	signal channel_c_modulated : signed(15 downto 0);
+	signal channel_d : signed(15 downto 0);
 
 	-- prefilter
 	signal channel_prefilter : signed(15 downto 0);
@@ -222,6 +227,25 @@ ARCHITECTURE vhdl OF SID_top IS
 	signal filter_lp : signed(17 downto 0); -- extra bit due to Jammer causing filter to clip
 	signal filter_bp : signed(17 downto 0);
 	signal filter_hp : signed(17 downto 0);
+
+	-- paddles
+	signal potx_reg : std_logic_vector(7 downto 0);
+	signal potx_next : std_logic_vector(7 downto 0);
+	signal poty_reg : std_logic_vector(7 downto 0);
+	signal poty_next : std_logic_vector(7 downto 0);
+	signal potcount_reg : std_logic_vector(8 downto 0);
+	signal potcount_next : std_logic_vector(8 downto 0);
+	signal potread_x_reg : std_logic;
+	signal potread_y_reg : std_logic;
+	signal potread_x_next : std_logic;
+	signal potread_y_next : std_logic;
+
+	-- do internal bus
+	signal do_out_next : std_logic_vector(7 downto 0);
+	signal do_out_reg : std_logic_vector(7 downto 0);
+	signal reset_readcount : std_logic;
+	signal readcount_reg : unsigned(15 downto 0);
+	signal readcount_next : unsigned(15 downto 0);
 BEGIN
 	process(clk,reset_n)
 	begin
@@ -261,6 +285,13 @@ BEGIN
 			vol_reg <= (others=>'0');
 			statevariable_f_dirty_reg <= '1';
 			statevariable_q_dirty_reg <= '1';
+			potx_reg <= (others=>'0');
+			poty_reg <= (others=>'0');
+			potread_x_reg <= '0';
+			potread_y_reg <= '0';
+			potcount_reg <= (others=>'0');
+			do_out_reg <= (others=>'0');
+			readcount_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then
 			freq_adj_channel_a_reg <= freq_adj_channel_a_next;
 			freq_adj_channel_b_reg <= freq_adj_channel_b_next;
@@ -297,6 +328,13 @@ BEGIN
 			vol_reg <= vol_next;
 			statevariable_f_dirty_reg <= statevariable_f_dirty_next;
 			statevariable_q_dirty_reg <= statevariable_q_dirty_next;
+			potx_reg <= potx_next;
+			poty_reg <= poty_next;
+			potread_x_reg <= potread_x_next;
+			potread_y_reg <= potread_y_next;
+			potcount_reg <= potcount_next;
+			do_out_reg <= do_out_next;
+			readcount_reg <= readcount_next;
 		end if;
 	end process;
 	
@@ -472,29 +510,63 @@ decode_addr1 : entity work.complete_address_decoder
 		end if;
 	end process;
 	
-	process(addr_decoded,
+	process(addr,addr_decoded,
+		do_out_reg,do_out_next,
+		read_enable,
 		wave_c_reg,
 		envelope_c_reg,
-		potx,
-		poty
+		potx_reg,
+		poty_reg,
+		readcount_reg
 		)
 	begin
-		do <= (others=>'0');
-		drive_do <= ADDR(4) and ADDR(3) and or_reduce(ADDR(2 downto 0));
-	
-		if (addr_decoded(25)='1') then
-			do <= potx;
+		drive_do <= '1'; 
+		--ADDR(4) and ADDR(3) and or_reduce(ADDR(2 downto 0));
+		do_out_next <= do_out_reg;
+
+		reset_readcount <= '0';
+
+		if (read_enable='1') then
+			if (addr_decoded(25)='1') then
+				do_out_next <= potx_reg;
+				reset_readcount <= '1';
+			end if;
+			if (addr_decoded(26)='1') then
+				do_out_next <= poty_reg;
+				reset_readcount <= '1';
+			end if;
+			if (addr_decoded(27)='1') then
+				do_out_next <= wave_c_reg(11 downto 4);
+				reset_readcount <= '1';
+			end if;
+			if (addr_decoded(28)='1') then
+				do_out_next <= envelope_c_reg;
+				reset_readcount <= '1';
+			end if;
+		else
+			if (or_reduce(std_logic_vector(readcount_reg))='0') then
+				do_out_next <= (others=>'0');
+			end if;
 		end if;
-		if (addr_decoded(26)='1') then
-			do <= poty;
-		end if;
-		if (addr_decoded(27)='1') then
-			do <= wave_c_reg(11 downto 4);
-		end if;
-		if (addr_decoded(28)='1') then
-			do <= envelope_c_reg;
-		end if;
+		do <= do_out_next;
 	end process;	
+
+	process(readcount_reg,enable,reset_readcount)
+	begin
+		readcount_next <= readcount_reg;
+
+		if (reset_readcount='1') then
+			if (sidtype ='1') then --6581
+				readcount_next <=to_unsigned(8000,16);
+			else
+				readcount_next <=to_unsigned(65535,16);
+			end if;
+		else
+			if (enable='1') then
+				readcount_next <=readcount_reg-1;
+			end if;
+		end if;
+	end process;
 
 	-- osc a
 	osc_a : entity work.SID_oscillator
@@ -566,6 +638,7 @@ decode_addr1 : entity work.complete_address_decoder
 
 		CHANGING => osc_a_changing,
 
+		DELAYSAWTOOTH => not(sidtype),
 		RINGMOD => control_a_reg(2),
 		RINGMOD_OSC_MSB => osc_c_reg(11),
 		TEST => control_a_next(3),
@@ -590,6 +663,7 @@ decode_addr1 : entity work.complete_address_decoder
 
 		CHANGING => osc_b_changing,
 
+		DELAYSAWTOOTH => not(sidtype),
 		RINGMOD => control_b_reg(2),
 		RINGMOD_OSC_MSB => osc_a_reg(11),
 		TEST => control_b_next(3),
@@ -614,6 +688,7 @@ decode_addr1 : entity work.complete_address_decoder
 
 		CHANGING => osc_c_changing,
 
+		DELAYSAWTOOTH => not(sidtype),
 		RINGMOD => control_c_reg(2),
 		RINGMOD_OSC_MSB => osc_b_reg(11),
 		TEST => control_c_next(3),
@@ -758,13 +833,13 @@ decode_addr1 : entity work.complete_address_decoder
 		RESET_N => reset_n,		
 		ENABLE => enable,
 
-		BIAS_CHANNEL => sidtype(0),
-		BIAS_FILTER => sidtype(1),
+		BIAS_CHANNEL => sidtype,
 
 		CHANNEL_A => channel_a_modulated,
 		CHANNEL_B => channel_b_modulated,
 		CHANNEL_C => channel_c_modulated,
 		CHANNEL_C_CUTDIRECT => ch3silent_reg,
+		CHANNEL_D => channel_d,
 		FILTER_EN => filter_en_reg,
 
 		PREFILTER_OUT => channel_prefilter,
@@ -863,6 +938,7 @@ decode_addr1 : entity work.complete_address_decoder
 		rom_osc,rom_high_word)
 
 	variable rom_wave_addr: std_logic_vector(16 downto 0);
+	variable sidtype2: std_logic_vector(0 downto 0);
 	begin
 		rom_addr <= (others=>'0');
 		rom_high_word <= '0';
@@ -870,24 +946,26 @@ decode_addr1 : entity work.complete_address_decoder
 		rom_wave_3bit <= (others=>'0');
 		rom_osc <= (others=>'0');
 
+		sidtype2(0) := sidtype;
+
 		case rom_wave_3bit is
-		when "011" =>
+		when "011" => -- ST
 			rom_wave_2bit <= "00";
-		when "101" =>
+		when "101" => --P T
 			rom_wave_2bit <= "01";
-		when "110" =>
+		when "110" => --PS 
 			rom_wave_2bit <= "10";
-		when "111" =>
+		when "111" => --PST
 			rom_wave_2bit <= "11";
 		when others =>
 		end case;
 
 				
-		rom_wave_addr := std_logic_vector(unsigned(wave_base)+resize(unsigned(sidtype(0 downto 0)&rom_wave_2bit&rom_osc),17)); --1:2:11
+		rom_wave_addr := std_logic_vector(unsigned(wave_base)+resize(unsigned(sidtype2(0 downto 0)&rom_wave_2bit&rom_osc),17)); --1:2:11
 
 		case rom_addr_mux is
 		when "000" =>
-			rom_addr <= "00000"&std_logic_vector(unsigned('0'&sidtype(0 downto 0))+1)&statevariable_fcutoff_reg(10 downto 1);
+			rom_addr <= "00000"&std_logic_vector(unsigned('0'&sidtype2(0 downto 0))+1)&statevariable_fcutoff_reg(10 downto 1);
 			rom_high_word <= statevariable_fcutoff_reg(0);
 		when "001" =>
 			rom_osc <= osc_a_reg(11 downto 1);
@@ -905,7 +983,7 @@ decode_addr1 : entity work.complete_address_decoder
 			rom_addr <= rom_wave_addr;
 			rom_high_word <= osc_c_reg(0);
 		when "100" =>
-			rom_addr <= "000000010000"&sidtype(0 downto 0)&statevariable_q_reg;
+			rom_addr <= "000000010000"&sidtype2(0 downto 0)&statevariable_q_reg;
 		when others =>
 		end case;
 
@@ -919,7 +997,7 @@ decode_addr1 : entity work.complete_address_decoder
 
 		INPUT => channel_prefilter,
 
-		SIDTYPE => sidtype(0),
+		SIDTYPE => sidtype,
 
 		LOWPASS => filter_lp,
 		BANDPASS => filter_bp,
@@ -949,6 +1027,45 @@ decode_addr1 : entity work.complete_address_decoder
 		CHANNEL_OUT => audio_reg
 	);
 
+	-- paddles
+	process (potx_reg,poty_reg,pot_x,pot_y,potcount_reg,enable,potread_x_reg,potread_y_reg)
+	begin
+		potx_next <= potx_reg;
+		poty_next <= poty_reg;
+		potread_x_next <= potread_x_reg and not(potcount_reg(8));
+		potread_y_next <= potread_y_reg and not(potcount_reg(8));
+		potcount_next <= potcount_reg;
+
+		pot_reset <= potcount_reg(8);
+		if (enable='1') then
+			potcount_next <= std_logic_vector(unsigned(potcount_reg)+1);
+			if ((pot_x='1' or potcount_reg="011111111") and potread_x_reg='0') then
+				potx_next <= potcount_reg(7 downto 0);
+				potread_x_next <= '1';
+			end if;
+			if ((pot_y='1' or potcount_reg="011111111") and potread_y_reg='0') then
+				poty_next <= potcount_reg(7 downto 0);
+				potread_y_next <= '1';
+			end if;
+		end if;
+
+	end process;
+
+	-- ext audio
+	process(ext_adc,ext)
+	begin
+		--EXT : in std_logic_vector(1 downto 0); -- 00=GND,01=digifix,10=ADC
+		--EXT_ADC : in unsigned(7 downto 0);
+		channel_d <= to_signed(0,16);
+
+		case EXT is 
+			when "01" =>
+				channel_d <= signed("000"&ext&"00000000000");
+			when "10" =>
+				channel_d <= signed(not(ext_adc(15))&ext_adc(14 downto 0));
+			when others=>
+		end case;
+	end process;
 	
 	--------------------------------
 	-- TODO
