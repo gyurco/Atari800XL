@@ -1,6 +1,6 @@
 create_clock -period 1.9MHz [get_ports PHI2]
 
-create_clock -period 85MHz [get_ports CLK_SLOW]
+create_clock -period 87.36MHz [get_ports CLK_SLOW]
 derive_pll_clocks
 derive_clock_uncertainty
 

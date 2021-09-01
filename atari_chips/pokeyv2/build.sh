@@ -8,7 +8,7 @@ my $name="eclaireXL";
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
-my $version = "123";
+my $version = "000";
 
 my %variants = 
 (
@@ -44,50 +44,134 @@ my %variants =
 		"cs0_bit" => 0, #force low
 		"version" => $version . "M02SA"
 	},
-#	"10M02_stereo_u1mb_auto" =>
-#	{
-#		"pokeys" => 2,
-#		"enable_auto_stereo" => 1,
-#		"a4_bit" => 1,
-#		"fancy_switch_bit" => 2,
-#		"gtia_audio_bit" => 3,
-#		"fpga" => "10M02SCU169C8G",
-#		"version" => $version . "M02SU"
-#	},
-#	"10M02_mark" =>
-#	{
-#		"pokeys" => 1,
-#		"enable_auto_stereo" => 1,
-#		"enable_covox" => 0,
-#		"a4_bit" => 1,
-#		"a7_bit" => 2,
-#		"gtia_audio_bit" => 3, 
-#		"fpga" => "10M02SCU169C8G",
-#		"version" =>  $version."M02SC"
-#	},
-#	"10M02_stereo_covox_auto" =>
-#	{
-#		"pokeys" => 2,
-#		"enable_auto_stereo" => 1,
-#		"enable_covox" => 1,
-#		"a4_bit" => 1,
-#		"a7_bit" => 2,
-#		"gtia_audio_bit" => 3, 
-#		"fpga" => "10M02SCU169C8G",
-#		"version" =>  $version."M02SC"
-#	},
-#	"10M02_stereo_covox_no_right_detect" =>
-#	{
-#		"pokeys" => 2,
-#		"enable_auto_stereo" => 0,
-#		"enable_covox" => 1,
-#		"detect_right_on_by_default" => 0,
-#		"a4_bit" => 1,
-#		"a7_bit" => 2,
-#		"gtia_audio_bit" => 3, 
-#		"fpga" => "10M02SCU169C8G",
-#		"version" =>  $version."M02SC"
-#	},
+	"10M02_mono_linear" =>
+	{
+		"saturate_on_by_default" => 0,
+		"pokeys" => 1,
+		"fpga" => "10M02SCU169C8G",
+		"enable_auto_stereo" => 1,
+		"gtia_audio_bit" => 3,
+		"a4_bit" => 1, #to access config!
+		"version" => $version . "M02MO"
+	},
+	"10M02_stereo_xel_auto_linear" =>
+	{
+		"saturate_on_by_default" => 0,
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"a4_bit" => 1,
+		"cs1_bit" => 20,
+		"gtia_audio_bit" => 3,
+		"fpga" => "10M02SCU169C8G",
+		"version" => $version . "M02SX"
+	},
+	"10M02_stereo_covox_no_right_detect_linear" =>
+	{
+		"saturate_on_by_default" => 0,
+		"pokeys" => 2,
+		"enable_auto_stereo" => 0,
+		"enable_covox" => 1,
+		"detect_right_on_by_default" => 0,
+		"a4_bit" => 1,
+		"a7_bit" => 2,
+		"gtia_audio_bit" => 3, 
+		"fpga" => "10M02SCU169C8G",
+		"version" =>  $version."M02SC"
+	},
+	"10M02_stereo_auto_linear" =>
+	{
+		"saturate_on_by_default" => 0,
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"a4_bit" => 1,
+		"gtia_audio_bit" => 3,
+		"fpga" => "10M02SCU169C8G",
+		"version" => $version . "M02SA"
+	},
+	"10M02_stereo_u1mb_auto_linear" =>
+	{
+		"saturate_on_by_default" => 0,
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"a4_bit" => 1,
+		"fancy_switch_bit" => 2,
+		"gtia_audio_bit" => 3,
+		"fpga" => "10M02SCU169C8G",
+		"version" => $version . "M02SU"
+	},
+	"10M02_stereo_covox_auto_linear" =>
+	{
+		"saturate_on_by_default" => 0,
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"enable_covox" => 1,
+		"a4_bit" => 1,
+		"a7_bit" => 2,
+		"gtia_audio_bit" => 3, 
+		"fpga" => "10M02SCU169C8G",
+		"version" =>  $version."M02SC"
+	},
+	"10M02_mono" =>
+	{
+		"pokeys" => 1,
+		"fpga" => "10M02SCU169C8G",
+		"enable_auto_stereo" => 1,
+		"gtia_audio_bit" => 3,
+		"a4_bit" => 1, #to access config!
+		"version" => $version . "M02MO"
+	},
+	"10M02_stereo_xel_auto" =>
+	{
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"a4_bit" => 1,
+		"cs1_bit" => 20,
+		"gtia_audio_bit" => 3,
+		"fpga" => "10M02SCU169C8G",
+		"version" => $version . "M02SX"
+	},
+	"10M02_stereo_covox_no_right_detect" =>
+	{
+		"pokeys" => 2,
+		"enable_auto_stereo" => 0,
+		"enable_covox" => 1,
+		"detect_right_on_by_default" => 0,
+		"a4_bit" => 1,
+		"a7_bit" => 2,
+		"gtia_audio_bit" => 3, 
+		"fpga" => "10M02SCU169C8G",
+		"version" =>  $version."M02SC"
+	},
+	"10M02_stereo_auto" =>
+	{
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"a4_bit" => 1,
+		"gtia_audio_bit" => 3,
+		"fpga" => "10M02SCU169C8G",
+		"version" => $version . "M02SA"
+	},
+	"10M02_stereo_u1mb_auto" =>
+	{
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"a4_bit" => 1,
+		"fancy_switch_bit" => 2,
+		"gtia_audio_bit" => 3,
+		"fpga" => "10M02SCU169C8G",
+		"version" => $version . "M02SU"
+	},
+	"10M02_stereo_covox_auto" =>
+	{
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"enable_covox" => 1,
+		"a4_bit" => 1,
+		"a7_bit" => 2,
+		"gtia_audio_bit" => 3, 
+		"fpga" => "10M02SCU169C8G",
+		"version" =>  $version."M02SC"
+	},
 	"10M04_mono" =>
 	{
 		"pokeys" => 1,
@@ -224,6 +308,28 @@ my %variants =
 		"cs1_bit" => 20, #force high
 		"fpga" => "10M08SCU169C8G",
 		"version" => $version . "M08SS"
+	},
+	"sidmax_10M08_full" =>
+	{
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"enable_flash" => 1,
+		"enable_psg" => 1,
+		"enable_covox" => 1,
+		"enable_sample" => 1,
+		"ext_bits"=> 4,
+		"bus" => "c64",
+		"a5_bit" => 1,  #STEREO
+		"a6_bit" => 2,
+		"a7_bit" => 3,
+		"irq_bit" => 4,
+		#"a6_bit" => 20, #force high
+		#"a7_bit" => 0, #force low
+		"type" => "sidmax",
+		"board" => "v1",
+		#"cs1_bit" => 20, #force high
+		"fpga" => "10M08SCU169C8G",
+		"version" => $version . "S08HK"
 	},
 	"10M08_stereo_u1mb_auto" =>
 	{
@@ -446,6 +552,11 @@ foreach my $variant (sort keys %variants)
 	my $fpga = $variants{$variant}->{"fpga"};
 	my $flashver = $fpga;
 	$flashver =~ s/..M(..).*/$1/;
+	if (not exists $variants{$variant}->{"type"})
+	{
+		$variants{$variant}->{"type"} = "pokeymax";
+	}
+	my $type = $variants{$variant}->{"type"};
 	my $board = $variants{$variant}->{"board"};
 	my $bus = $variants{$variant}->{"bus"};
 
@@ -455,15 +566,18 @@ foreach my $variant (sort keys %variants)
 	`cp *.vhd* $dir`;
 	`cp iox_glue.vhdl $dir/iox_glue.vhdl`;
 	`cp pokeymax.vhd $dir/pokeymax.vhd`;
+
 	`cp iox_glue$board.vhdl $dir/iox_glue.vhdl`;
-	`cp pokeymax$board.vhd $dir/pokeymax.vhd`;
+	`cp $type$board.vhd $dir/$type.vhd`;
+	`cp $type$board.qsf $dir/$type.qsf`;
+
 	`cp slave_timing_6502$bus.vhd $dir/slave_timing_6502.vhd`;
 	`cp swapbits $dir`;
-	`cp pokeymax*.sdc $dir`;
-	`cp pokeymax*.qpf $dir`;
-	`cp pokeymax$board.qsf $dir/pokeymax.qsf`;
+	`cp $type*.sdc $dir`;
+	`cp $type*.qpf $dir`;
 	`cp -r int_osc* $dir`;
 	`cp -r pll* $dir`;
+	`cp -r lvds* $dir`;
 	`cp -r flash_$flashver/flash* $dir`;
 	`cp -r PSG $dir`;
 	`cp -r SID $dir`;
@@ -474,25 +588,25 @@ foreach my $variant (sort keys %variants)
 	chdir $dir;
 
 	
-	`echo set_global_assignment -name DEVICE $fpga >> pokeymax.qsf`;
+	`echo set_global_assignment -name DEVICE $fpga >> $type.qsf`;
 
 	foreach my $key (sort keys %{$variants{$variant}})
 	{
 		my $val = $variants{$variant}->{$key};
-		`echo 'set_parameter -name $key $val' >> pokeymax.qsf`;
+		`echo 'set_parameter -name $key $val' >> $type.qsf`;
 	}
 	if (exists $variants{$variant}->{"optimisearea"})
 	{
-		`echo 'set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE AREA' >>pokeymax.qsf`;
+		`echo 'set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE AREA' >>$type.qsf`;
 	}
 
-	`quartus_sh --flow compile pokeymax > build.log 2> build.err`;
-	`quartus_cpf --convert ../convert_secure.cof`;
-	`../modifypof_$flashver ./output_files/pokeymax.pof`;
-	`quartus_cpf -c -q 10MHz -g 3.3 -n p output_files/pokeymax.pof output_files/pokeymax.svf`;
-	`../makeflash_$flashver ./output_files/pokeymax.pof $versioncode output_files/core.bin`;
+	`quartus_sh --flow compile $type > build.log 2> build.err`;
+	`quartus_cpf --convert ../convert_secure_$type.cof`;
+	`../modifypof_$flashver $type ./output_files/$type.pof`;
+	`quartus_cpf -c -q 10MHz -g 3.3 -n p output_files/$type.pof output_files/$type.svf`;
+	`../makeflash_$flashver $type ./output_files/$type.pof $versioncode output_files/core.bin`;
 	`touch UFM1 UFM0 CFM1 CFM0`;
-	`../openocd_flash/extractbinfromsvf.pl output_files/pokeymax.svf`;
+	`../openocd_flash/extractbinfromsvf.pl output_files/$type.svf`;
 	`cat UFM1.bin UFM0.bin > UFMboth.bin`;
 	`cat CFM1.bin CFM0.bin > CFMboth.bin`;
 

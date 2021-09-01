@@ -25,6 +25,7 @@ ENTITY pokeymax IS
 		fancy_switch_bit : integer := 20; -- 0=ext is low => mono
 		gtia_audio_bit : integer := 0;    -- 0=no gtia on l/r,1=gtia mixed on l/r
 		detect_right_on_by_default : integer := 1; 
+		saturate_on_by_default : integer := 1; 
 		a4_bit : integer := 0;
 		a5_bit : integer := 0;
 		a6_bit : integer := 0;
@@ -134,6 +135,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	SIGNAL POKEY_WRITE_ENABLE : STD_LOGIC_VECTOR(3 downto 0);		
 	
 	SIGNAL SID_WRITE_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
+	SIGNAL SID_READ_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
 
 	SIGNAL PSG_WRITE_ENABLE : STD_LOGIC_VECTOR(1 downto 0);	
 
@@ -175,6 +177,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal SIO_TXD : std_logic;
 	signal SIO_RXD : std_logic;
+	signal SIO_RXD_SYNC : std_logic;
 
 	signal POKEY_IRQ : std_logic_vector(3 downto 0);
 
@@ -867,6 +870,7 @@ PORT MAP(
 	ENABLE => SID_CLK_ENABLE, --1MHz
 
 	WRITE_ENABLE => SID_WRITE_ENABLE(0),
+	READ_ENABLE => SID_READ_ENABLE(0),
 	ADDR => ADDR_IN(4 downto 0),
 	DI => WRITE_DATA(7 downto 0),
 	DO => SID_DO(0),
@@ -876,7 +880,12 @@ PORT MAP(
 	--EXTFILTER_EN => '0',
 	AUDIO => SID_AUDIO(0), 
 
-	SIDTYPE => SID_FILTER1_REG,
+	SIDTYPE => SID_FILTER1_REG(0),
+	EXT => "0"&SID_FILTER1_REG(1),
+	EXT_ADC => (others=>'0'),
+
+	POT_X => '0',
+	POT_Y => '0',
 
 	rom_addr => sid_flash1_addr,
 	rom_data => flash_do_slow,
@@ -901,6 +910,7 @@ PORT MAP(
 	ENABLE => SID_CLK_ENABLE, --1MHz
 
 	WRITE_ENABLE => SID_WRITE_ENABLE(1),
+	READ_ENABLE => SID_READ_ENABLE(1),
 	ADDR => ADDR_IN(4 downto 0),
 	DI => WRITE_DATA(7 downto 0),
 	DO => SID_DO(1),
@@ -910,7 +920,12 @@ PORT MAP(
 	--EXTFILTER_EN => '0',
 	AUDIO => SID_AUDIO(1),
 
-	SIDTYPE => SID_FILTER2_REG,
+	SIDTYPE => SID_FILTER2_REG(0),
+	EXT => "0"&SID_FILTER2_REG(1),
+	EXT_ADC => (others=>'0'),
+
+	POT_X => '0',
+	POT_Y => '0',
 
 	rom_addr => sid_flash2_addr,
 	rom_data => flash_do_slow,
@@ -1182,12 +1197,15 @@ process(
 	RESTRICT_CAPABILITY_REG
 	)
 	variable writereq : std_logic;
+	variable readreq : std_logic;
 	variable enable_region : std_logic;
 begin
 	writereq := not(write_n) and request;
+	readreq := write_n and request;
 	
 	POKEY_WRITE_ENABLE <= (others=>'0');
 	SID_WRITE_ENABLE <= (others=>'0');
+	SID_READ_ENABLE <= (others=>'0');
 	PSG_WRITE_ENABLE <= (others=>'0');
 	SAMPLE_WRITE_ENABLE <= '0';
 	CONFIG_WRITE_ENABLE <= '0';
@@ -1214,11 +1232,13 @@ begin
 			DO_MUX <= SID_DO(0);
 			DRIVE_DO_MUX <= SID_DRIVE_DO(0);
 			SID_WRITE_ENABLE(0) <= writereq;
+			SID_READ_ENABLE(0) <= readreq;
 		when "0110"|"0111" =>
 			enable_region := RESTRICT_CAPABILITY_REG(2);
 			DO_MUX <= SID_DO(1);
 			DRIVE_DO_MUX <= SID_DRIVE_DO(1);
 			SID_WRITE_ENABLE(1) <= writereq;
+			SID_READ_ENABLE(0) <= readreq;
 		when "1000"|"1001" =>
 			enable_region := RESTRICT_CAPABILITY_REG(4);
 			DO_MUX <= SAMPLE_DO;								
@@ -1257,7 +1277,11 @@ begin
 		end if;
 		IRQ_EN_REG <= '0';
 		CHANNEL_MODE_REG <= '0';
-		SATURATE_REG <= '1';
+		if saturate_on_by_default=1 then
+			SATURATE_REG <= '1';
+		else
+			SATURATE_REG <= '0';
+		end if;
 		POST_DIVIDE_REG <= "10100000"; -- 1/2 5v, 3/4 1v
 		GTIA_ENABLE_REG <= "1100"; -- external only
 		CONFIG_ENABLE_REG <= '0';
@@ -1635,7 +1659,9 @@ PORT MAP
 	CH7 => unsigned(SID_AUDIO(1)),	
 	CH8 => unsigned(PSG_AUDIO(0)),
 	CH9 => unsigned(PSG_AUDIO(1)),		
-	CHA(14 downto 0) => (others=>'0'),
+	CHA(14 downto 12) => (others=>'0'),
+	CHA(11) => SIO_RXD_SYNC,
+	CHA(10 downto 0) => (others=>'0'),
 	CHA(15) => GTIA_AUDIO,			
 	
 	AUDIO_0_UNSIGNED => AUDIO_0_UNSIGNED,
@@ -1846,6 +1872,8 @@ SIO_CLOCKIN_IN <= BCLK;
 
 SOD <= '0' when SIO_TXD='0' else 'Z';
 SIO_RXD <= SID;
+synchronizer_SIO : entity work.synchronizer
+	port map (clk=>clk, raw=>SID, sync=>SIO_RXD_SYNC);
 
 
 --1->pin37

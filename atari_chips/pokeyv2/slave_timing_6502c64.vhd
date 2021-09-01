@@ -140,6 +140,7 @@ begin
 		phi2_falling_edge,
 		phi2_sync,
 		cs_sync,
+		phi_addr_reg,
 		phi_rw_n_reg,
 		bus_addr,
 		bus_rw_n,

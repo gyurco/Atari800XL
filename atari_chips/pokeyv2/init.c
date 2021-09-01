@@ -59,7 +59,7 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 	buffer[0] |= (irq_en&1)<<3;
 	buffer[0] |= (detect_right&1)<<4;
 	buffer[0] |= (pal&1)<<5;
-	int post_divide = 0b10100000;
+	int post_divide = 0b10100101;
 	buffer[1] |= (post_divide&0xff)<<0;
 	int gtia_enable = 0b1100;
 	buffer[2] |= (gtia_enable&0xf)<<0;
@@ -73,6 +73,8 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 	//buffer[4] = 0x22; // 8580 filter, with digifix
 	buffer[4] = 0x11; // 6581 filter
 	buffer[5] = 0xff; // enable_all
+
+	buffer[6] = 0x10; // enable_all
 
 	// 0x80(0x200 8-bit) adpcm step table - 90
 	for (i=0x0; i!=89; ++i)
