@@ -8,7 +8,7 @@ my $name="eclaireXL";
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
-my $version = "000";
+my $version = "124";
 
 my %variants = 
 (
@@ -171,6 +171,19 @@ my %variants =
 		"gtia_audio_bit" => 3, 
 		"fpga" => "10M02SCU169C8G",
 		"version" =>  $version."M02SC"
+	},
+	"10M04_quad_covox_xel_auto" =>
+	{
+		"pokeys" => 4,
+		"enable_auto_stereo" => 1,
+		"enable_flash" => 1,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a7_bit" => 3, 
+		"cs1_bit" => 20,
+		"enable_covox" => 1,
+		"fpga" => "10M04SCU169C8G",
+		"version" => $version . "M04QX"
 	},
 	"10M04_mono" =>
 	{
@@ -430,6 +443,57 @@ my %variants =
 		"version" => $version . "M08HK",
 		"optimisearea" => 1
 	},
+	"10M04_quad_auto_v3" =>
+	{
+		"pokeys" => 4,
+		"enable_auto_stereo" => 1,
+		"enable_sid" => 0,
+		"enable_psg" => 0,
+		"enable_covox" => 0,
+		"enable_sample" => 0,
+		"enable_flash" => 1,
+		"enable_spdif" => 1,
+		"enable_ps2" => 1,
+		"board" => "v3",
+		"pll_v2" => 0,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"gtia_audio_bit" => 5, 
+		"spdif_bit" => 6,
+		"ps2clk_bit" => 7,
+		"ps2dat_bit" => 8,
+		"ext_bits"=> 11,
+		"fpga" => "10M04SCU169C8G",
+		"version" => $version . "M04QA"
+	},
+	"10M04_stereo_psg_covox_auto_v3" =>
+	{
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"enable_sid" => 0,
+		"enable_psg" => 1,
+		"enable_covox" => 1,
+		"enable_sample" => 0,
+		"enable_flash" => 1,
+		"enable_spdif" => 1,
+		"enable_ps2" => 1,
+		"board" => "v3",
+		"pll_v2" => 0,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a6_bit" => 3,
+		"a7_bit" => 4,
+		"gtia_audio_bit" => 5, 
+		"spdif_bit" => 6,
+		"ps2clk_bit" => 7,
+		"ps2dat_bit" => 8,
+		#"fancy_switch_bit" => 6,
+		#"a7_bit" => 19,  #use CS1
+		"ext_bits"=> 11,
+		#"cs1_bit" => 20, #force high
+		"fpga" => "10M04SCU169C8G",
+		"version" => $version . "M04SP"
+	},
 	"10M16_fullv3" =>
 	{
 		"pokeys" => 4,
@@ -459,6 +523,37 @@ my %variants =
 		"fpga" => "10M16SCU169C8G",
 		"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
 		"version" => $version . "M16HK"
+	},
+	"10M16_fullv3_xel" =>
+	{
+		"pokeys" => 4,
+		"enable_auto_stereo" => 1,
+		"enable_sid" => 1,
+		"enable_psg" => 1,
+		"enable_covox" => 1,
+		"enable_sample" => 1,
+		"enable_flash" => 1,
+		"enable_spdif" => 1,
+		"enable_ps2" => 1,
+		"flash_addr_bits" => 17,
+		"board" => "v3",
+		"pll_v2" => 0,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a6_bit" => 3,
+		"a7_bit" => 4,
+		"gtia_audio_bit" => 5, 
+		"spdif_bit" => 6,
+		"ps2clk_bit" => 7,
+		"ps2dat_bit" => 8,
+		#"fancy_switch_bit" => 6,
+		#"a7_bit" => 19,  #use CS1
+		"ext_bits"=> 11,
+		"cs1_bit" => 20,
+		#"cs1_bit" => 20, #force high
+		"fpga" => "10M16SCU169C8G",
+		"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
+		"version" => $version . "M16HX"
 	},
 #	"10M08_light" =>
 #	{
