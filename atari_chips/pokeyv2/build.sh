@@ -658,6 +658,9 @@ foreach my $variant (sort keys %variants)
 	my $noflash = "";
 	if (not defined $flash or $flash eq "0") {$noflash = "_noflash"};
 
+	my $sid = $variants{$variant}->{"enable_sid"};
+	if (not defined $sid) {$sid = "0"};
+
         my $dir = "build_$variant";
 	`rm -rf $dir`;
 	mkdir $dir;
@@ -699,7 +702,7 @@ foreach my $variant (sort keys %variants)
 	}
 
 	`quartus_sh --flow compile $type > build.log 2> build.err`;
-	`quartus_cpf --convert ../convert_secure_$type.cof`;
+	`quartus_cpf --convert ../convert_secure_$type_$sid.cof`;
 	`../modifypof_$flashver $type ./output_files/$type.pof`;
 	`quartus_cpf -c -q 10MHz -g 3.3 -n p output_files/$type.pof output_files/$type.svf`;
 	`../makeflash_$flashver $type ./output_files/$type.pof $versioncode output_files/core.bin`;

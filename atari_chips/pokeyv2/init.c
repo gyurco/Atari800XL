@@ -59,7 +59,7 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 	buffer[0] |= (irq_en&1)<<3;
 	buffer[0] |= (detect_right&1)<<4;
 	buffer[0] |= (pal&1)<<5;
-	int post_divide = 0b10100101;
+	int post_divide = 0b10100000;
 	buffer[1] |= (post_divide&0xff)<<0;
 	int gtia_enable = 0b1100;
 	buffer[2] |= (gtia_enable&0xf)<<0;
@@ -412,7 +412,14 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 	}
 	fclose(f);
 
-	FILE * x =fopen("init.bin","w");
+	FILE * x =fopen("init_0.bin","w");
+		fwrite(&buffer[0],1,32768,x);
+	fclose(x);
+
+	post_divide = 0b10100101;
+	buffer[1] |= (post_divide&0xff)<<0;
+
+	x =fopen("init_1.bin","w");
 		fwrite(&buffer[0],1,32768,x);
 	fclose(x);
 

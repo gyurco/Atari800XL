@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
 <cof>
-	<output_filename>output_files/pokeymax.pof</output_filename>
+	<output_filename>output_files/sidmax.pof</output_filename>
 	<n_pages>1</n_pages>
 	<width>1</width>
 	<mode>14</mode>
@@ -8,7 +8,7 @@
 		<user_name>Page_0</user_name>
 		<page_flags>1</page_flags>
 		<bit0>
-			<sof_filename>output_files/pokeymax.sof<compress_bitstream>1</compress_bitstream></sof_filename> 
+			<sof_filename>output_files/sidmax.sof<compress_bitstream>1</compress_bitstream></sof_filename> 
 		</bit0>
 	</sof_data>
 	<version>10</version>
@@ -27,7 +27,7 @@
 		<verify_protect>1</verify_protect>
 		<epof>0</epof>
  		<ufm_source>2</ufm_source>
-		<ufm_filepath>../init.hex</ufm_filepath>		
+		<ufm_filepath>../init_1.hex</ufm_filepath>		
 	</MAX10_device_options>
 	<advanced_options>
 		<ignore_epcs_id_check>1</ignore_epcs_id_check>
