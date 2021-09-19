@@ -350,7 +350,7 @@ BEGIN
 		enable,
 		tapkey_reg,tapkey_del1_reg,tapkey_del2_reg,tapkey_del3_reg,
 		attack_delayed,decay_delayed,release_delayed,
-		adrmux_del2_reg
+		adrmux_reg
 	)
 	begin
 		tapkey_next <= tapkey_reg;

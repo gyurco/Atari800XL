@@ -551,7 +551,7 @@ decode_addr1 : entity work.complete_address_decoder
 		do <= do_out_next;
 	end process;	
 
-	process(readcount_reg,enable,reset_readcount)
+	process(readcount_reg,enable,reset_readcount,sidtype)
 	begin
 		readcount_next <= readcount_reg;
 
