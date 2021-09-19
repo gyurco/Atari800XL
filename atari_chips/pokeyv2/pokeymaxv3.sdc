@@ -1,19 +1,26 @@
 create_clock -period 1.9MHz [get_ports PHI2]
 
 create_clock -period 87.36MHz [get_ports CLK_SLOW]
+create_clock -period 49.152MHz [get_ports CLK0]
+create_clock -period 49.152MHz [get_ports CLK1]
 derive_pll_clocks
 derive_clock_uncertainty
 
 set_clock_groups -asynchronous \
   -group { PHI2 } \
   -group { CLK_SLOW } \
+  -group { CLK0 } \
+  -group { CLK1 } \
   -group { \flash_on:flash_controller_inst|flash1|onchip_flash_0|altera_onchip_flash_block|ufm_block|osc } \
   -group { \
-    pll_inst|altpll_component|auto_generated|pll1|clk[0] \
-    pll_inst|altpll_component|auto_generated|pll1|clk[1] \
+    \pll_v3_inst:pll_inst|altpll_component|auto_generated|pll1|clk[0] \
+    \pll_v3_inst:pll_inst|altpll_component|auto_generated|pll1|clk[1] \
   } \
   -group { \
-    pll_inst|altpll_component|auto_generated|pll1|clk[2] \
+    \pll_v3_inst:pll_inst|altpll_component|auto_generated|pll1|clk[2] \
+  } \
+  -group { \
+    \pll_v3_inst:pll_inst|altpll_component|auto_generated|pll1|clk[3] \
   }
 
 #		IOX_RST : OUT STD_LOGIC;

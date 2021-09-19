@@ -668,7 +668,7 @@ foreach my $variant (sort keys %variants)
 
 	`cp slave_timing_6502$bus.vhd $dir/slave_timing_6502.vhd`;
 	`cp swapbits $dir`;
-	`cp $type*.sdc $dir`;
+	`cp $type$board.sdc $dir/$type.sdc`;
 	`cp $type*.qpf $dir`;
 	`cp -r int_osc* $dir`;
 	`cp -r pll* $dir`;
