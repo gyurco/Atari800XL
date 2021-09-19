@@ -7,7 +7,6 @@ derive_clock_uncertainty
 set_clock_groups -asynchronous \
   -group { PHI2 } \
   -group { CLK_SLOW } \
-  -group { \flash_on:flash_controller_inst|flash1|onchip_flash_0|altera_onchip_flash_block|ufm_block|osc } \
   -group { \
     \pll_v2_inst:pll_inst|altpll_component|auto_generated|pll1|clk[0] \
     \pll_v2_inst:pll_inst|altpll_component|auto_generated|pll1|clk[1] \

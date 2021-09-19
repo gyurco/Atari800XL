@@ -8,8 +8,11 @@ set_clock_groups -asynchronous \
   -group { PHI2 } \
   -group { CLK_SLOW } \
   -group { \
-    pll_inst|altpll_component|auto_generated|pll1|clk[0] \
-    pll_inst|altpll_component|auto_generated|pll1|clk[1] \
+    \pll_v2_inst:pll_inst|altpll_component|auto_generated|pll1|clk[0] \
+    \pll_v2_inst:pll_inst|altpll_component|auto_generated|pll1|clk[1] \
+  } \
+  -group { \
+    \pll_v2_inst:pll_inst|altpll_component|auto_generated|pll1|clk[2] \
   }
 
 #		IOX_RST : OUT STD_LOGIC;
