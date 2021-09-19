@@ -1188,7 +1188,7 @@ end process;
 process(
 	DEVICE_ADDR,
 	POKEY_DO,
-	SID_DO,
+	SID_DO,SID_DRIVE_DO,
 	PSG_DO,
 	SAMPLE_DO,
 	CONFIG_DO,
