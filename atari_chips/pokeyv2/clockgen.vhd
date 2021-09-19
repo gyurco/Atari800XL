@@ -67,7 +67,7 @@ BEGIN
 		end if;
 	end process;
 
-	process(clk_count_reg,cycle_count_reg,pal,phi2,state_reg,err_reg)
+	process(clk_count_reg,cycle_count_reg,pal,phi2,state_reg,err_reg,everyother_reg)
 		variable threshold : unsigned(3 downto 0);
 		variable adj1 : unsigned(17 downto 0); 
 		variable adj : signed(13 downto 0); -- 8.6 fixed point
