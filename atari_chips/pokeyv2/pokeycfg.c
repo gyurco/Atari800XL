@@ -396,7 +396,7 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char active
 	    clrscr();
 	    //textcolor(0xa);
 	    chline(40);
-	    cprintf("Pokeymax config v1.1 ");
+	    cprintf("Pokeymax config v1.2 ");
             cprintf(" Core:");
             for (i=0;i!=8;++i)
             {
@@ -436,7 +436,7 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char active
 		    pokeys = 4;
 		    break;
 	    case 3:
-		    pokeys = 8;
+		    pokeys = 4;
 		    break;
     }
     cprintf("Pokey:%d sid:%d psg:%d covox:%d sample:%d",pokeys,(val&4)==4 ? 2 : 0,(val&8)==8 ? 2 : 0,(val&16)==16 ? 1 : 0,(val&32)==32 ? 1 : 0);
@@ -588,6 +588,7 @@ void saveConfig(unsigned long flash1, unsigned long flash2)
     //textcolor(0xa);
     chline(40);
     cprintf("Saving config\r\n");
+    cprintf("NB: this does not apply now!\r\n");
     chline(40);
 
     cprintf("Press Y to confirm\r\n");
@@ -597,6 +598,7 @@ void saveConfig(unsigned long flash1, unsigned long flash2)
 	unsigned int pagesize = getPageSize();
         unsigned long * buffer = (unsigned long *)malloc(pagesize*4);
 	unsigned short i = 0;
+	unsigned int failCount = 0;
 
 	cprintf("Backing up page\r\n");
 	for (i=2;i!=pagesize;++i)
@@ -604,14 +606,49 @@ void saveConfig(unsigned long flash1, unsigned long flash2)
 		buffer[i] = readFlash(i,0);
 	}
 	writeProtect(0);
-	cprintf("Erasing page\r\n");
-	erasePageContainingAddress(0);
-	cprintf("Writing new page\r\n");
-	buffer[0] = flash1;
-	buffer[1] = flash2;
-	for (i=0;i!=pagesize;++i)
+	while (1)
 	{
-		writeFlash(i,0,buffer[i]);
+		unsigned char failed = 0;
+
+		cprintf("Erasing page\r\n");
+		erasePageContainingAddress(0);
+		cprintf("Writing\r\n");
+		buffer[0] = flash1;
+		buffer[1] = flash2;
+		for (i=0;i!=pagesize;++i)
+		{
+			writeFlash(i,0,buffer[i]);
+		}
+		
+		cprintf("Verifying\r\n");
+		for (i=0;i!=pagesize;++i)
+		{
+			unsigned long val = readFlash(i,0);
+			if (val!=buffer[i])
+			{
+				cprintf("Verify failed at %04x\r\n",i);
+				cprintf("read:%08x\r\n",val);
+				cprintf("buffer:%08x\r\n",buffer[i]);
+				failed = 1;
+				break;
+			}
+		}
+		if (failed)
+		{
+			cprintf("Verify FAILED\r\n");
+			cprintf("Press key to retry or q to give up\r\n");
+	        	while(!kbhit());
+    			if (cgetc()=='q') 
+				break;
+		}
+		else
+		{
+			cprintf("Verify pass\r\n");
+			cprintf("Press key to continue\r\n");
+	        	while(!kbhit());
+			cgetc();
+			break;
+		}
 	}
 	writeProtect(1);
 
