@@ -239,6 +239,11 @@ ARCHITECTURE vhdl OF pokey IS
 	signal audc3_next : std_logic_vector(7 downto 0);
 	signal audctl_next : std_logic_vector(7 downto 0);
 
+	signal audf0_pulse_raw : std_logic;
+	signal audf1_pulse_raw : std_logic;
+	signal audf2_pulse_raw : std_logic;
+	signal audf3_pulse_raw : std_logic;
+
 	signal audf0_pulse : std_logic;
 	signal audf1_pulse : std_logic;
 	signal audf2_pulse : std_logic;
@@ -639,25 +644,30 @@ BEGIN
 	-- Instantiate timers
 	timer0 : pokey_countdown_timer
 		generic map (UNDERFLOW_DELAY=>3)
-		port map(clk=>clk,enable=>audf0_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf0_reload,data_in=>audf0_next,DATA_OUT=>audf0_pulse);
+		port map(clk=>clk,enable=>audf0_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf0_reload,data_in=>audf0_next,DATA_OUT=>audf0_pulse_raw);
 	timer1 : pokey_countdown_timer
 		generic map (UNDERFLOW_DELAY=>3)
-		port map(clk=>clk,enable=>audf1_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf1_reload,data_in=>audf1_next,DATA_OUT=>audf1_pulse);
+		port map(clk=>clk,enable=>audf1_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf1_reload,data_in=>audf1_next,DATA_OUT=>audf1_pulse_raw);
 	timer2 : pokey_countdown_timer
 		generic map (UNDERFLOW_DELAY=>3)
-		port map(clk=>clk,enable=>audf2_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf2_reload,data_in=>audf2_next,DATA_OUT=>audf2_pulse);
+		port map(clk=>clk,enable=>audf2_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf2_reload,data_in=>audf2_next,DATA_OUT=>audf2_pulse_raw);
 	timer3 : pokey_countdown_timer
 		generic map (UNDERFLOW_DELAY=>3)
-		port map(clk=>clk,enable=>audf3_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf3_reload,data_in=>audf3_next,DATA_OUT=>audf3_pulse);		
+		port map(clk=>clk,enable=>audf3_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf3_reload,data_in=>audf3_next,DATA_OUT=>audf3_pulse_raw);		
 		
 	-- Timer reloading
-	process (audctl_reg, audf0_pulse, audf1_pulse, audf2_pulse, audf3_pulse, stimer_write_delayed, async_serial_reset, twotone_reset_delayed)
+	process (audctl_reg, audf0_pulse_raw, audf1_pulse_raw, audf2_pulse_raw, audf3_pulse_raw, stimer_write_delayed, async_serial_reset, twotone_reset_delayed)
 	begin
-		audf0_reload <= ((not(audctl_reg(4)) and audf0_pulse)) or (audctl_reg(4) and audf1_pulse) or stimer_write_delayed or twotone_reset_delayed;
-		audf1_reload <= audf1_pulse or stimer_write_delayed or twotone_reset_delayed;
-		audf2_reload <= ((not(audctl_reg(3)) and audf2_pulse)) or (audctl_reg(3) and audf3_pulse) or stimer_write_delayed or async_serial_reset;
-		audf3_reload <= audf3_pulse or stimer_write_delayed or async_serial_reset;
+		audf0_reload <= ((not(audctl_reg(4)) and audf0_pulse_raw)) or (audctl_reg(4) and audf1_pulse_raw) or stimer_write_delayed or twotone_reset_delayed;
+		audf1_reload <= audf1_pulse_raw or stimer_write_delayed or twotone_reset_delayed;
+		audf2_reload <= ((not(audctl_reg(3)) and audf2_pulse_raw)) or (audctl_reg(3) and audf3_pulse_raw) or stimer_write_delayed or async_serial_reset;
+		audf3_reload <= audf3_pulse_raw or stimer_write_delayed or async_serial_reset;
 	end process;
+
+	audf0_pulse <= audf0_pulse_raw and not(twotone_reset_delayed);
+	audf1_pulse <= audf1_pulse_raw and not(twotone_reset_delayed);
+	audf2_pulse <= audf2_pulse_raw and not(async_serial_reset);
+	audf3_pulse <= audf3_pulse_raw and not(async_serial_reset);
 
 	twotone_del : latch_delay_line
 		generic map (count=>2)
