@@ -75,6 +75,7 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 	buffer[5] = 0xff; // enable_all
 
 	buffer[6] = 0x10; // enable_all
+	buffer[7] = 0xff; // enable_all
 
 	// 0x80(0x200 8-bit) adpcm step table - 90
 	for (i=0x0; i!=89; ++i)

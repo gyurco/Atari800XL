@@ -364,6 +364,15 @@ ARCHITECTURE vhdl OF pokeymax IS
 	-- 3=psg off
 	-- 4=sample off
 
+	-- output channel on/off
+	signal CHANNEL_EN_REG : std_logic_vector(4 downto 0);
+	signal CHANNEL_EN_NEXT : std_logic_vector(4 downto 0);
+	-- 0=0 (37)
+	-- 1=1
+	-- 2=2 L ext 
+	-- 3=3 R ext
+	-- 4=spdif
+
 	-- ext clk enable
 	signal SID_ENABLE_NEXT : std_logic;
 	signal SID_ENABLE_REG : std_logic;
@@ -1294,6 +1303,7 @@ begin
 		SID_FILTER1_REG <= "10"; -- 0=8580,1=6581,2=digifix
 		SID_FILTER2_REG <= "10"; -- 0=8580,1=6581,2=digifix
 		RESTRICT_CAPABILITY_REG <= (others=>'1');
+		CHANNEL_EN_REG <= (others=>'1');
 	elsif (clk'event and clk='1') then
 		DETECT_RIGHT_REG <= DETECT_RIGHT_NEXT;
 		IRQ_EN_REG <= IRQ_EN_NEXT;
@@ -1311,6 +1321,7 @@ begin
 		SID_FILTER1_REG <= SID_FILTER1_NEXT;
 		SID_FILTER2_REG <= SID_FILTER2_NEXT;
 		RESTRICT_CAPABILITY_REG <= RESTRICT_CAPABILITY_NEXT;
+		CHANNEL_EN_REG <= CHANNEL_EN_NEXT;
 	end if;
 end process;
 
@@ -1336,6 +1347,7 @@ process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
 	CPU_FLASH_REQUEST_REG,CPU_FLASH_WRITE_N_REG,CPU_FLASH_CFG_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
 	CPU_FLASH_COMPLETE,CONFIG_FLASH_COMPLETE,CONFIG_FLASH_ADDR,flash_do_slow,
 	RESTRICT_CAPABILITY_REG,
+	CHANNEL_EN_REG,
 	PAL_REG
 )
 begin
@@ -1367,6 +1379,7 @@ begin
 	CPU_FLASH_DATA_NEXT <= CPU_FLASH_DATA_REG;
 
 	RESTRICT_CAPABILITY_NEXT <= RESTRICT_CAPABILITY_REG;
+	CHANNEL_EN_NEXT <= CHANNEL_EN_REG;
 
 	PAL_NEXT <= PAL_REG;
 
@@ -1400,6 +1413,9 @@ begin
 				-- 6-7 reserved
 				RESTRICT_CAPABILITY_NEXT <= flash_do_slow(12 downto 8);
 				-- 13-15 reserved
+				-- 16-23 reserved (used in sidmax)
+				CHANNEL_EN_NEXT <= flash_do_slow(28 downto 24);
+				-- 29-31 reserved
 			when others =>
 		end case;
 	elsif (CONFIG_WRITE_ENABLE='1') then
@@ -1438,6 +1454,10 @@ begin
 
 		if (addr_decoded4(7)='1') then
 			RESTRICT_CAPABILITY_NEXT(4 downto 0) <= WRITE_DATA(4 downto 0);
+		end if;
+
+		if (addr_decoded4(9)='1') then
+			CHANNEL_EN_NEXT(4 downto 0) <= WRITE_DATA(4 downto 0);
 		end if;
 
 		if (addr_decoded4(12)='1') then
@@ -1489,6 +1509,7 @@ SID_FILTER1_REG, SID_FILTER2_REG,
 CPU_FLASH_CFG_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
 CPU_FLASH_REQUEST_REG, CPU_FLASH_WRITE_N_REG,
 RESTRICT_CAPABILITY_REG,
+CHANNEL_EN_REG,
 PAL_REG
 )
 	variable ACTUAL_CAPABILITY : std_logic_vector(7 downto 0);
@@ -1594,6 +1615,10 @@ begin
 
 	if (addr_decoded4(7)='1') then
 		CONFIG_DO(4 downto 0) <= RESTRICT_CAPABILITY_REG(4 downto 0);
+	end if;
+
+	if (addr_decoded4(9)='1') then
+		CONFIG_DO(4 downto 0) <= CHANNEL_EN_REG(4 downto 0);
 	end if;
 
 	if (addr_decoded4(12)='1') then
@@ -1777,7 +1802,7 @@ spdif : entity work.spdif_transmitter
   spdif_out => spdif_out
  );
 
- EXT(SPDIF_BIT) <= spdif_out;
+ EXT(SPDIF_BIT) <= spdif_out when CHANNEL_EN_REG(4)='1' else 'Z';
 end generate spdif_on;
 
 -- io extension
@@ -1877,12 +1902,12 @@ synchronizer_SIO : entity work.synchronizer
 
 
 --1->pin37
-AUD(1) <= AUDIO_0_SIGMADELTA;
+AUD(1) <= AUDIO_0_SIGMADELTA when CHANNEL_EN_REG(0)='1' else '0';
 
 -- ext AUD pins:
-AUD(2) <= AUDIO_1_SIGMADELTA;
-AUD(3) <= AUDIO_2_SIGMADELTA;
-AUD(4) <= AUDIO_3_SIGMADELTA;
+AUD(2) <= AUDIO_1_SIGMADELTA when CHANNEL_EN_REG(1)='1' else '0';
+AUD(3) <= AUDIO_2_SIGMADELTA when CHANNEL_EN_REG(2)='1' else '0';
+AUD(4) <= AUDIO_3_SIGMADELTA when CHANNEL_EN_REG(3)='1' else '0';
 
 IRQ <= '0' when (IRQ_EN_REG='1' and (and_reduce(POKEY_IRQ)='0')) or (IRQ_EN_REG='0' and POKEY_IRQ(0)='0') or (SAMPLE_IRQ='1')  else 'Z';
 
