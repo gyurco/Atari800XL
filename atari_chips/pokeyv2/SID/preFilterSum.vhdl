@@ -44,9 +44,9 @@ ARCHITECTURE vhdl OF SID_preFilterSum IS
 	signal channel_sel : std_logic_vector(2 downto 0);
 
 	function logic_to_unsigned(a : std_logic; b : integer) return unsigned is
-   		 variable ret : unsigned(2 downto 0);
+   		 variable ret : unsigned(3 downto 0);
 	begin
-		ret(2 downto 0) := (others=>'0');
+		ret(3 downto 0) := (others=>'0');
 		ret(b) := a;
 	    return ret;
 	end function logic_to_unsigned;
@@ -77,7 +77,7 @@ BEGIN
 		
 		variable adder_result : signed(17 downto 0);
 
-		variable bias : unsigned(2 downto 0);
+		variable bias : unsigned(3 downto 0);
 	begin
 		prefilter_next <= prefilter_reg;
 		direct_next <= direct_reg;
@@ -112,7 +112,7 @@ BEGIN
 				logic_to_unsigned(not(filter_en(0)) and bias_channel,0) + 
 				logic_to_unsigned(not(filter_en(1)) and bias_channel,0) +
 				logic_to_unsigned(not(filter_en2cd_ext(0)) and bias_channel,0);
-			acc_next(16 downto 14) <= signed(std_logic_vector(bias));
+			acc_next(16 downto 13) <= signed(std_logic_vector(bias));
 		when "100" =>
 			channel_sel <= "001" and not(filter_en0_ext);
 		when "101" =>
@@ -128,7 +128,7 @@ BEGIN
 				logic_to_unsigned(filter_en(0) and bias_channel,0) + 
 				logic_to_unsigned(filter_en(1) and bias_channel,0) +
 				logic_to_unsigned(filter_en(2) and bias_channel,0);
-			acc_next(16 downto 14) <= signed(std_logic_vector(bias));
+			acc_next(16 downto 13) <= signed(std_logic_vector(bias));
 		when others =>
 		end case;		
 		
