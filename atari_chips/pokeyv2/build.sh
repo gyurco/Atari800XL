@@ -8,7 +8,7 @@ my $name="eclaireXL";
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
-my $version = "124";
+my $version = "126";
 
 my %variants = 
 (
@@ -555,6 +555,16 @@ my %variants =
 		"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
 		"version" => $version . "M16HX"
 	},
+	"10M08_mono" =>
+	{
+		"pokeys" => 1,
+		"fpga" => "10M08SCU169C8G",
+		"enable_auto_stereo" => 1,
+		"gtia_audio_bit" => 3,
+		"cs1_bit" => 20, #force high
+		"a4_bit" => 1, #to access config!
+		"version" => $version . "M08MO"
+	},
 #	"10M08_light" =>
 #	{
 #		"pokeys" => 2,
@@ -682,6 +692,7 @@ foreach my $variant (sort keys %variants)
 	`cp -r flash_$flashver/flash* $dir`;
 	`cp -r PSG $dir`;
 	`cp -r SID $dir`;
+	`cp -r pokey $dir`;
 	`cp -r sample $dir`;
 	`cp -r covox $dir`;
 	`cp -r *.bin $dir`;
