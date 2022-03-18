@@ -340,6 +340,8 @@ ARCHITECTURE vhdl OF sidmax IS
 	-- capability restriction
 	signal RESTRICT_CAPABILITY_REG : std_logic_vector(4 downto 0);
 	signal RESTRICT_CAPABILITY_NEXT : std_logic_vector(4 downto 0);
+	signal readreq_s : std_logic;
+	signal writereq_s : std_logic;
 	-- 0=stereo off
 	-- 1=quad off
 	-- 2=sid off
@@ -1127,7 +1129,7 @@ process(
 	CONFIG_DO,
 	write_n,
 	request,
-	RESTRICT_CAPABILITY_REG
+	RESTRICT_CAPABILITY_REG, readreq_s, writereq_s
 	)
 	variable writereq : std_logic;
 	variable readreq : std_logic;
@@ -1151,39 +1153,42 @@ begin
 		when "0101" =>
 			enable_region := RESTRICT_CAPABILITY_REG(0) or RESTRICT_CAPABILITY_REG(1);
 			DO_MUX <= POKEY_DO(1);
-			POKEY_WRITE_ENABLE(1) <= writereq;
+			POKEY_WRITE_ENABLE(1) <= writereq_s;
 		when "0110" =>
 			enable_region := RESTRICT_CAPABILITY_REG(1);
 			DO_MUX <= POKEY_DO(2);
-			POKEY_WRITE_ENABLE(2) <= writereq;
+			POKEY_WRITE_ENABLE(2) <= writereq_s;
 		when "0111" =>
 			enable_region := RESTRICT_CAPABILITY_REG(1);
 			DO_MUX <= POKEY_DO(3);
-			POKEY_WRITE_ENABLE(3) <= writereq;
+			POKEY_WRITE_ENABLE(3) <= writereq_s;
 		when "0010"|"0011" =>
 			enable_region := RESTRICT_CAPABILITY_REG(2);
 			DO_MUX <= SID_DO(1);
 			DRIVE_DO_MUX <= SID_DRIVE_DO(1);
-			SID_WRITE_ENABLE(1) <= writereq;
-			SID_READ_ENABLE(1) <= readreq;
+			SID_WRITE_ENABLE(1) <= writereq_s;
+			SID_READ_ENABLE(1) <= readreq_s;
 		when "1000"|"1001" =>
 			enable_region := RESTRICT_CAPABILITY_REG(4);
 			DO_MUX <= SAMPLE_DO;								
-			SAMPLE_WRITE_ENABLE <= writereq;			
+			SAMPLE_WRITE_ENABLE <= writereq_s;			
 		when "1010" =>
 			enable_region := RESTRICT_CAPABILITY_REG(3);
 			DO_MUX <= PSG_DO(0);
-			PSG_WRITE_ENABLE(0) <= writereq;
+			PSG_WRITE_ENABLE(0) <= writereq_s;
 		when "1011" =>
 			enable_region := RESTRICT_CAPABILITY_REG(3);
 			DO_MUX <= PSG_DO(1);			
-			PSG_WRITE_ENABLE(1) <= writereq;
+			PSG_WRITE_ENABLE(1) <= writereq_s;
 		when "1111" =>
 			enable_region := '1';
 			DO_MUX <= CONFIG_DO;
-			CONFIG_WRITE_ENABLE <= writereq;
+			CONFIG_WRITE_ENABLE <= writereq_s;
 		when others =>
 	end case;
+
+	readreq_s <= readreq and enable_region;
+	writereq_s <= writereq and enable_region;
 
 	if enable_region='0' then
 		DO_MUX <= SID_DO(0);
