@@ -1170,11 +1170,10 @@ BEGIN
 	process(sio_clockin_in1_reg,skctl_reg,clock_reg,clock_sync_reg,audf1_pulse,audf2_pulse,audf3_pulse,enable_179)
 	begin
 		clock_next <= clock_reg;
-		clock_sync_next <= clock_sync_reg;
+		clock_sync_next <= clock_reg;
 
 		if (enable_179='1') then
 			clock_next <= sio_clockin_in1_reg;
-			clock_sync_next <= clock_reg;
 		end if;
 	
 		serout_enable <= '0';
