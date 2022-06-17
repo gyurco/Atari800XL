@@ -25,10 +25,10 @@ void file_init(struct SimpleFile * file)
 	file->offset = -1;
 }
 
-char *fname = "";
+char *fname[] = {".ATR",".XEX",".ATX",".XFD"};
 char const * file_name(struct SimpleFile * file)
 {
-	return fname;
+	return fname[file->ext];
 }
 
 enum SimpleFileStatus file_open_name_in_dir(struct SimpleDirEntry * entry, char const * filename, struct SimpleFile * file)
@@ -178,11 +178,12 @@ enum SimpleFileStatus file_write_flush()
 	return SimpleFile_FAIL;
 }
 
-int file_mount(struct SimpleFile * file, unsigned char num, int size)
+int file_mount(struct SimpleFile * file, unsigned char num, int size, char ext)
 {
 	file->num = num;
 	file->offset = -1;
 	file->size = size;
 	file->is_readonly = 0;
+	file->ext = ext & 0x3;
 	file_reset();
 }

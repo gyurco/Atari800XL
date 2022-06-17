@@ -8,6 +8,7 @@ struct SimpleFile
 	int is_readonly;
 	int size;
 	int type;
+	char ext;
 };
 
 #endif

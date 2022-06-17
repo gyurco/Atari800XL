@@ -219,11 +219,12 @@ void actions()
 	update_keys();
 	// Check for new mounts
 	unsigned char sd_new_mounted = get_sd_mounted();
+	char ext_idx = get_ext_idx();
 	if ((sd_mounted & 0x01) != (sd_new_mounted & 0x01))
 	{
 		int size = *(int*)zpu_in2;
 		if (size) {
-			file_mount(files[0], 0, size);
+			file_mount(files[0], 0, size, ext_idx);
 			set_drive_status(0,files[0]);
 		} else {
 			// remove
@@ -235,7 +236,7 @@ void actions()
 	{
 		int size = *(int*)zpu_in2;
 		if (size) {
-			file_mount(files[1], 1, size);
+			file_mount(files[1], 1, size, ext_idx);
 			set_drive_status(1,files[1]);
 		} else {
 			// remove

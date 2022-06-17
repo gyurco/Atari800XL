@@ -386,8 +386,8 @@ component user_io
 		"A800XL;;"&
 		"F,ROM,Load ROM;"&
 		"F,ROMCAR,Load Cart;"&
-		"S0U,ATRXEX,Load Disk 1;"&
-		"S1U,ATRXEX,Load Disk 2;"&
+		"S0U,ATRXEXATXXFD,Disk 1;"&
+		"S1U,ATRXEXATXXFD,Disk 2;"&
 		"P1,Video;"&
 		"P2,System;"&
 		"P1O5,Video,NTSC,PAL;"&
@@ -995,7 +995,7 @@ BEGIN
 	end process;
 
 	zpu_in1(28 downto 0) <= 
-			turbo_drive&X"00"&
+			turbo_drive&ioctl_index(7 downto 6)&"00"&X"0"&
 			(atari_keyboard(28))&ps2_keys(16#5A#)&ps2_keys(16#174#)&ps2_keys(16#16B#)&ps2_keys(16#172#)&ps2_keys(16#175#)& -- (esc)FLRDU
 				'0'&zpu_unl_reset&zpu_cold_reset&FKEYS(8 downto 0);
 

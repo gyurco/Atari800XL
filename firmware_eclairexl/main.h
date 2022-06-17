@@ -125,6 +125,7 @@ BIT_REG_RO(,0x1,19,sd_writeprotect,zpu_in1) // sd_writeprotect
 
 //MiST file IO
 #ifdef MIST
+BIT_REG_RO(,0x03,24,ext_idx,zpu_in1)
 BIT_REG_RO(,0x07,26,turbo_drive,zpu_in1)
 BIT_REG_RO(,0x1,29,sd_ack,zpu_in1)
 BIT_REG_RO(,0x3,30,sd_mounted,zpu_in1)
