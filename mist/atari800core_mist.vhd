@@ -401,6 +401,7 @@ component user_io
 		"P2OKM,Drive speed,Standard,Fast-6,Fast-5,Fast-4,Fast-3,Fast-2,Fast-1,Fast-0;"&
 		"P2ON,Dual Pokey,No,Yes;"&
 		"O7,Swap joysticks,Off,On;"&
+		"O3,Paddles,Enabled,Disabled;"&
 		"T1,Reset;"&
 		"T2,Cold reset;";
 
@@ -422,10 +423,10 @@ component user_io
 BEGIN
 	joy1 <= mist_joy1 when joyswap = '0' else mist_joy2;
 	joy2 <= mist_joy2 when joyswap = '0' else mist_joy1;
-	joy1x <= mist_joy1x when joyswap = '0' else mist_joy2x;
-	joy1y <= mist_joy1y when joyswap = '0' else mist_joy2y;
-	joy2x <= mist_joy2x when joyswap = '0' else mist_joy1x;
-	joy2y <= mist_joy2y when joyswap = '0' else mist_joy1y;
+	joy1x <= x"80" when mist_status(3) = '1' else mist_joy1x when joyswap = '0' else mist_joy2x;
+	joy1y <= x"80" when mist_status(3) = '1' else mist_joy1y when joyswap = '0' else mist_joy2y;
+	joy2x <= x"80" when mist_status(3) = '1' else mist_joy2x when joyswap = '0' else mist_joy1x;
+	joy2y <= x"80" when mist_status(3) = '1' else mist_joy2y when joyswap = '0' else mist_joy1y;
 
 -- hack for paddles
 	process(clk,RESET_N)
