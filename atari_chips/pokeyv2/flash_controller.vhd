@@ -284,6 +284,7 @@ BEGIN
 			flash_read <= '1';
 			state_next <= state_read_wait;
 		when state_read_wait =>
+			flash_read <= flash_waitrequest;
 			if (flash_readvalid = '1') then
 				complete <= '1';
 				state_next <= state_delay;
