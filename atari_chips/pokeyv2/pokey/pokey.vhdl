@@ -220,6 +220,13 @@ ARCHITECTURE vhdl OF pokey IS
 	signal enable_64 : std_logic;
 	signal enable_15 : std_logic;
 
+	signal audf0_delayed_reg : std_logic_vector(7 downto 0);
+	signal audf1_delayed_reg : std_logic_vector(7 downto 0);
+	signal audf2_delayed_reg : std_logic_vector(7 downto 0);
+	signal audf3_delayed_reg : std_logic_vector(7 downto 0);
+
+	signal audctl_delayed_reg : std_logic_vector(7 downto 0);
+
 	signal audf0_reg : std_logic_vector(7 downto 0);
 	signal audc0_reg : std_logic_vector(7 downto 0);
 	signal audf1_reg : std_logic_vector(7 downto 0);
@@ -327,6 +334,8 @@ ARCHITECTURE vhdl OF pokey IS
 	signal serial_ip_overrun_next : std_logic;
 	signal serial_ip_overrun_reg : std_logic;
 	signal serial_op_needed_interrupt : std_logic;
+	signal serial_op_needed_interrupt_delayed_next : std_logic_vector(1 downto 0);
+	signal serial_op_needed_interrupt_delayed_reg : std_logic_vector(1 downto 0);
 	
 	signal skctl_next : std_logic_vector(7 downto 0);
 	signal skctl_reg : std_logic_vector(7 downto 0);
@@ -519,6 +528,8 @@ BEGIN
 			noise_4_reg <= (others=>'0');
 			noise_5_reg <= (others=>'0');
 			noise_large_reg <= (others=>'0');
+
+			serial_op_needed_interrupt_delayed_reg <= (others=>'0');
 			
 		elsif (clk'event and clk='1') then			
 			audf0_reg <= audf0_next;
@@ -601,6 +612,8 @@ BEGIN
 			noise_4_reg <= noise_4_next;
 			noise_5_reg <= noise_5_next;
 			noise_large_reg <= noise_large_next;
+
+			serial_op_needed_interrupt_delayed_reg <= serial_op_needed_interrupt_delayed_next;
 		end if;
 	end process;
 	
@@ -610,64 +623,80 @@ BEGIN
 		port map (addr_in=>addr, addr_decoded=>addr_decoded);
 	
 	-- clock selection
-	process(enable_64,enable_15,enable_179,audctl_reg,audf0_pulse,audf2_pulse)
+	process(enable_64,enable_15,enable_179,audctl_delayed_reg,audf0_pulse,audf2_pulse)
 	begin
 		audf0_enable <= enable_64;
 		audf1_enable <= enable_64;
 		audf2_enable <= enable_64;
 		audf3_enable <= enable_64;		
 		
-		if (audctl_reg(0) = '1') then
+		if (audctl_delayed_reg(0) = '1') then
 			audf0_enable <= enable_15;
 			audf1_enable <= enable_15;
 			audf2_enable <= enable_15;
 			audf3_enable <= enable_15;
 		end if;
 
-		if (audctl_reg(6) = '1') then
+		if (audctl_delayed_reg(6) = '1') then
 			audf0_enable <= enable_179;
 		end if;
 		
-		if (audctl_reg(5) = '1') then
+		if (audctl_delayed_reg(5) = '1') then
 			audf2_enable <= enable_179;
 		end if;
 		
-		if(audctl_reg(4) = '1') then
+		if(audctl_delayed_reg(4) = '1') then
 			audf1_enable <= audf0_pulse;
 		end if;
 		
-		if(audctl_reg(3) = '1') then
+		if(audctl_delayed_reg(3) = '1') then
 			audf3_enable <= audf2_pulse;
 		end if;
 	end process;
+
+	audf0_delay : entity work.wide_delay_line
+		generic map (COUNT=>1, WIDTH=>8)
+		port map(clk=>clk,sync_reset=>'0',data_in=>audf0_reg(7 downto 0),enable=>enable_179,reset_n=>reset_n,data_out=>audf0_delayed_reg(7 downto 0));	
+	audf1_delay : entity work.wide_delay_line
+		generic map (COUNT=>1, WIDTH=>8)
+		port map(clk=>clk,sync_reset=>'0',data_in=>audf1_reg(7 downto 0),enable=>enable_179,reset_n=>reset_n,data_out=>audf1_delayed_reg(7 downto 0));	
+	audf2_delay : entity work.wide_delay_line
+		generic map (COUNT=>1, WIDTH=>8)
+		port map(clk=>clk,sync_reset=>'0',data_in=>audf2_reg(7 downto 0),enable=>enable_179,reset_n=>reset_n,data_out=>audf2_delayed_reg(7 downto 0));	
+	audf3_delay : entity work.wide_delay_line
+		generic map (COUNT=>1, WIDTH=>8)
+		port map(clk=>clk,sync_reset=>'0',data_in=>audf3_reg(7 downto 0),enable=>enable_179,reset_n=>reset_n,data_out=>audf3_delayed_reg(7 downto 0));	
+	audctl_delay : entity work.wide_delay_line
+		generic map (COUNT=>1, WIDTH=>8)
+		port map(clk=>clk,sync_reset=>'0',data_in=>audctl_reg(7 downto 0),enable=>enable_179,reset_n=>reset_n,data_out=>audctl_delayed_reg(7 downto 0));	
 	
 	-- Instantiate timers
 	timer0 : pokey_countdown_timer
 		generic map (UNDERFLOW_DELAY=>3)
-		port map(clk=>clk,enable=>audf0_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf0_reload,data_in=>audf0_next,DATA_OUT=>audf0_pulse_raw);
+		port map(clk=>clk,enable=>audf0_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf0_reload,data_in=>audf0_delayed_reg,DATA_OUT=>audf0_pulse_raw);
 	timer1 : pokey_countdown_timer
 		generic map (UNDERFLOW_DELAY=>3)
-		port map(clk=>clk,enable=>audf1_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf1_reload,data_in=>audf1_next,DATA_OUT=>audf1_pulse_raw);
+		port map(clk=>clk,enable=>audf1_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf1_reload,data_in=>audf1_delayed_reg,DATA_OUT=>audf1_pulse_raw);
 	timer2 : pokey_countdown_timer
 		generic map (UNDERFLOW_DELAY=>3)
-		port map(clk=>clk,enable=>audf2_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf2_reload,data_in=>audf2_next,DATA_OUT=>audf2_pulse_raw);
+		port map(clk=>clk,enable=>audf2_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf2_reload,data_in=>audf2_delayed_reg,DATA_OUT=>audf2_pulse_raw);
 	timer3 : pokey_countdown_timer
 		generic map (UNDERFLOW_DELAY=>3)
-		port map(clk=>clk,enable=>audf3_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf3_reload,data_in=>audf3_next,DATA_OUT=>audf3_pulse_raw);		
+		port map(clk=>clk,enable=>audf3_enable,enable_underflow=>enable_179,reset_n=>reset_n,wr_en=>audf3_reload,data_in=>audf3_delayed_reg,DATA_OUT=>audf3_pulse_raw);		
 		
 	-- Timer reloading
-	process (audctl_reg, audf0_pulse_raw, audf1_pulse_raw, audf2_pulse_raw, audf3_pulse_raw, stimer_write_delayed, async_serial_reset, twotone_reset_delayed)
+	process (audctl_delayed_reg, audf0_pulse_raw, audf1_pulse_raw, audf2_pulse_raw, audf3_pulse_raw, stimer_write_delayed, async_serial_reset, twotone_reset_delayed)
 	begin
-		audf0_reload <= ((not(audctl_reg(4)) and audf0_pulse_raw)) or (audctl_reg(4) and audf1_pulse_raw) or stimer_write_delayed or twotone_reset_delayed;
+		audf0_reload <= ((not(audctl_delayed_reg(4)) and audf0_pulse_raw)) or (audctl_delayed_reg(4) and audf1_pulse_raw) or stimer_write_delayed or twotone_reset_delayed;
 		audf1_reload <= audf1_pulse_raw or stimer_write_delayed or twotone_reset_delayed;
-		audf2_reload <= ((not(audctl_reg(3)) and audf2_pulse_raw)) or (audctl_reg(3) and audf3_pulse_raw) or stimer_write_delayed or async_serial_reset;
+		audf2_reload <= ((not(audctl_delayed_reg(3)) and audf2_pulse_raw)) or (audctl_delayed_reg(3) and audf3_pulse_raw) or stimer_write_delayed or async_serial_reset;
 		audf3_reload <= audf3_pulse_raw or stimer_write_delayed or async_serial_reset;
 	end process;
 
-	audf0_pulse <= audf0_pulse_raw and not(twotone_reset_delayed);
-	audf1_pulse <= audf1_pulse_raw and not(twotone_reset_delayed);
-	audf2_pulse <= audf2_pulse_raw and not(async_serial_reset);
-	audf3_pulse <= audf3_pulse_raw and not(async_serial_reset);
+	audf0_pulse <= audf0_pulse_raw and not(twotone_reset_delayed) and not(stimer_write_delayed);
+	audf1_pulse <= audf1_pulse_raw and not(twotone_reset_delayed) and not(stimer_write_delayed);
+	audf2_pulse <= audf2_pulse_raw and not(async_serial_reset) and not(stimer_write_delayed);
+	audf3_pulse <= audf3_pulse_raw and not(async_serial_reset) and not(stimer_write_delayed);
 
 	twotone_del : latch_delay_line
 		generic map (count=>2)
@@ -833,8 +862,17 @@ BEGIN
 	end process;
 	
 	-- Fire interrupts
-	process (irqen_reg, irqst_reg, audf0_pulse, audf1_pulse, audf3_pulse, other_key_irq, serial_ip_ready_interrupt, serout_active_reg, serial_op_needed_interrupt, break_irq)
+	process (irqen_reg, irqst_reg, audf0_pulse, audf1_pulse, audf3_pulse, other_key_irq, serial_ip_ready_interrupt, serout_active_reg, serial_op_needed_interrupt, serial_op_needed_interrupt_delayed_reg, break_irq, enable_179)
 	begin
+		serial_op_needed_interrupt_delayed_next <= serial_op_needed_interrupt_delayed_reg;
+		if (enable_179='1') then
+			serial_op_needed_interrupt_delayed_next(1)<=serial_op_needed_interrupt_delayed_reg(0);
+			serial_op_needed_interrupt_delayed_next(0)<='0';
+		end if;
+		if (serial_op_needed_interrupt ='1') then
+			serial_op_needed_interrupt_delayed_next(0)<='1';
+		end if;
+
 		-- clear interrupts
 		irqst_next <= irqst_reg or not(irqen_reg);
 				
@@ -871,7 +909,7 @@ BEGIN
 		
 		irqst_next(3) <= serout_active_reg;
 		
-		if (serial_op_needed_interrupt = '1') then
+		if (serial_op_needed_interrupt_delayed_reg(1) = '1') then
 			irqst_next(4) <= not(irqen_reg(4));
 		end if;
 		
@@ -902,12 +940,12 @@ BEGIN
 	chan3_output_next <= audf3_pulse_noise;
 	
 	-- High pass filters
-	process(audctl_reg,audf2_pulse,audf3_pulse,chan0_output_reg, chan1_output_reg, chan2_output_reg, chan3_output_reg, highpass0_reg, highpass1_reg)
+	process(audctl_delayed_reg,audf2_pulse,audf3_pulse,chan0_output_reg, chan1_output_reg, chan2_output_reg, chan3_output_reg, highpass0_reg, highpass1_reg)
 	begin
 		highpass0_next <= highpass0_reg;
 		highpass1_next <= highpass1_reg;
 		
-		if (audctl_reg(2) = '1') then
+		if (audctl_delayed_reg(2) = '1') then
 			if (audf2_pulse = '1') then
 				highpass0_next <= chan0_output_reg;
 			end if;
@@ -915,7 +953,7 @@ BEGIN
 			highpass0_next <= '1';
 		end if;
 		
-		if (audctl_reg(1) = '1') then
+		if (audctl_delayed_reg(1) = '1') then
 			if (audf3_pulse = '1') then
 				highpass1_next <= chan1_output_reg;
 			end if;
@@ -946,17 +984,17 @@ BEGIN
 		
 	-- resetcount 6/33
 	enable_64_div : syncreset_enable_divider
-		generic map (COUNT=>28,RESETCOUNT=>6) -- 28-22
+		generic map (COUNT=>28,RESETCOUNT=>7) -- 28-22
 		port map(clk=>clk,syncreset=>initmode,reset_n=>reset_n,enable_in=>enable_179,enable_out=>enable_64);
 		
 	enable_15_div : syncreset_enable_divider
-		generic map (COUNT=>114,RESETCOUNT=>33) -- 114-81
+		generic map (COUNT=>114,RESETCOUNT=>34) -- 114-81
 		port map(clk=>clk,syncreset=>initmode,reset_n=>reset_n,enable_in=>enable_179,enable_out=>enable_15);
 		
 	-- Instantiate pokey noise circuits (lfsr)
 	initmode <= skctl_next(1) nor skctl_next(0);
 	poly_17_19_lfsr : pokey_poly_17_9
-		port map(clk=>clk,reset_n=>reset_n,init=>initmode,enable=>enable_179,select_9_17=>audctl_reg(7),bit_out=>noise_large,rand_out=>rand_out);
+		port map(clk=>clk,reset_n=>reset_n,init=>initmode,enable=>enable_179,select_9_17=>audctl_delayed_reg(7),bit_out=>noise_large,rand_out=>rand_out);
 		
 	poly_5_lfsr : pokey_poly_5
 		port map(clk=>clk,reset_n=>reset_n,init=>initmode,enable=>enable_179,bit_out=>noise_5);
@@ -1168,12 +1206,16 @@ BEGIN
 	
 	-- serial clocks
 	process(sio_clockin_in1_reg,skctl_reg,clock_reg,clock_sync_reg,audf1_pulse,audf2_pulse,audf3_pulse,enable_179)
+		variable clk_edge : std_logic;
 	begin
 		clock_next <= clock_reg;
-		clock_sync_next <= clock_reg;
+		clock_sync_next <= clock_sync_reg;
+
+		clk_edge := (not(clock_sync_reg) and clock_reg) or (clock_sync_reg and not(clock_reg));
 
 		if (enable_179='1') then
 			clock_next <= sio_clockin_in1_reg;
+			clock_sync_next <= clock_reg;
 		end if;
 	
 		serout_enable <= '0';
@@ -1182,11 +1224,11 @@ BEGIN
 		
 		case skctl_reg(6 downto 4) is
 			when "000" =>
-				serin_enable <= not(clock_sync_reg) and clock_reg;
-				serout_enable <= not(clock_sync_reg) and clock_reg;
+				serin_enable <= clk_edge;
+				serout_enable <= clk_edge;
 			when "001" =>
 				serin_enable <= audf3_pulse;
-				serout_enable <= not(clock_sync_reg) and clock_reg;
+				serout_enable <= clk_edge;
 			when "010" =>
 				serin_enable <= audf3_pulse;
 				serout_enable <= audf3_pulse;
@@ -1195,7 +1237,7 @@ BEGIN
 				serin_enable <= audf3_pulse;
 				serout_enable <= audf3_pulse;
 			when "100" =>
-				serin_enable <= not(clock_sync_reg) and clock_reg;
+				serin_enable <= clk_edge;
 				serout_enable <= audf3_pulse;
 			when "101" =>
 				serin_enable <= audf3_pulse;
@@ -1303,7 +1345,7 @@ end generate;
 		end if;
 			
 		if (potgo_write = '1') then
-			pot_counter_next <= (others=>'0');
+			pot_counter_next <= x"01";
 			pot_reset_next <= '0'; -- turn off pot dump transistors, so they start to get charged
 			allpot_next <= (others=>'1');
 		end if;		
