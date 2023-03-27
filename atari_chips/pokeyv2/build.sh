@@ -494,6 +494,36 @@ my %variants =
 		"fpga" => "10M04SCU169C8G",
 		"version" => $version . "M04SP"
 	},
+	"10M16_mono" =>
+	{
+		"pokeys" => 4,
+		"enable_auto_stereo" => 1,
+		"enable_sid" => 0,
+		"enable_psg" => 0,
+		"enable_covox" => 0,
+		"enable_sample" => 0,
+		"enable_flash" => 1,
+		"enable_spdif" => 0,
+		"enable_ps2" => 0,
+		"flash_addr_bits" => 17,
+		"board" => "v3",
+		"pll_v2" => 0,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a6_bit" => 3,
+		"a7_bit" => 4,
+		"gtia_audio_bit" => 5, 
+		"spdif_bit" => 6,
+		"ps2clk_bit" => 7,
+		"ps2dat_bit" => 8,
+		#"fancy_switch_bit" => 6,
+		#"a7_bit" => 19,  #use CS1
+		"ext_bits"=> 11,
+		#"cs1_bit" => 20, #force high
+		"fpga" => "10M16SCU169C8G",
+		"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
+		"version" => $version . "M16MO"
+	},
 	"10M16_fullv3" =>
 	{
 		"pokeys" => 4,
