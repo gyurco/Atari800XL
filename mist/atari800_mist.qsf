@@ -25,10 +25,10 @@
 
 set_global_assignment -name FAMILY "Cyclone III"
 set_global_assignment -name DEVICE EP3C25E144C8
-set_global_assignment -name TOP_LEVEL_ENTITY atari800core_mist
+set_global_assignment -name TOP_LEVEL_ENTITY atari800_mist_top
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 7.2
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "22:27:29  OCTOBER 30, 2007"
-set_global_assignment -name LAST_QUARTUS_VERSION "13.1 SP4.26"
+set_global_assignment -name LAST_QUARTUS_VERSION 13.1
 set_global_assignment -name USE_GENERATED_PHYSICAL_CONSTRAINTS OFF -section_id eda_palace
 set_global_assignment -name DEVICE_FILTER_PIN_COUNT 144
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "NO HEAT SINK WITH STILL AIR"
@@ -42,14 +42,10 @@ set_global_assignment -name CYCLONEIII_CONFIGURATION_SCHEME "PASSIVE SERIAL"
 set_global_assignment -name GENERATE_RBF_FILE ON
 set_global_assignment -name FORCE_CONFIGURATION_VCCIO ON
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+set_global_assignment -name PRE_FLOW_SCRIPT_FILE "quartus_sh:build_id.tcl"
 
 set_location_assignment PIN_7 -to LED
-set_location_assignment PIN_22 -to CLOCK_50[0]
-set_location_assignment PIN_23 -to CLOCK_50[1]
-set_location_assignment PIN_128 -to CLOCK_32[0]
-set_location_assignment PIN_129 -to CLOCK_32[1]
-set_location_assignment PIN_54 -to CLOCK_27[0]
-set_location_assignment PIN_55 -to CLOCK_27[1]
+set_location_assignment PIN_54 -to CLOCK_27
 set_location_assignment PIN_144 -to VGA_R[5]
 set_location_assignment PIN_143 -to VGA_R[4]
 set_location_assignment PIN_142 -to VGA_R[3]
@@ -152,9 +148,6 @@ set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA OFF
 set_global_assignment -name PHYSICAL_SYNTHESIS_MAP_LOGIC_TO_MEMORY_FOR_AREA OFF
 
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY out
-
-#set_parameter -name ENABLE_RUNTIME_MOD YES -to "Minimig1:minimig|amiga_boot:BOOTROM1|altsyncram:Ram0_rtl_10"
-#set_parameter -name INSTANCE_NAME mig -to "Minimig1:minimig|amiga_boot:BOOTROM1|altsyncram:Ram0_rtl_10"
 
 set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
 set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "USE AS REGULAR IO"
@@ -301,8 +294,8 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_B[2]
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_B[1]
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_B[0]
 
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 
+set_global_assignment -name SYSTEMVERILOG_FILE atari800_mist_top.sv
 set_global_assignment -name VHDL_FILE atari800core_mist.vhd
 set_global_assignment -name SDC_FILE atari800core.sdc
 set_global_assignment -name VERILOG_FILE user_io.v
@@ -318,3 +311,5 @@ set_global_assignment -name QIP_FILE clkctrl.qip
 set_global_assignment -name QIP_FILE pll_reconfig.qip
 set_global_assignment -name QIP_FILE pal_rom.qip
 set_global_assignment -name QIP_FILE ntsc_rom.qip
+
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

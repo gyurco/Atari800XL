@@ -12,15 +12,20 @@ use ieee.numeric_std.all;
 LIBRARY work;
 
 ENTITY atari800core_mist IS 
+	GENERIC
+	(
+		VGA_BITS : integer := 6;
+		BUILD_DATE : string := ""
+	);
 	PORT
 	(
-		CLOCK_27 :  IN  STD_LOGIC_VECTOR(1 downto 0);
+		CLOCK_27 :  IN  STD_LOGIC;
 
 		VGA_VS :  OUT  STD_LOGIC;
 		VGA_HS :  OUT  STD_LOGIC;
-		VGA_B :  OUT  STD_LOGIC_VECTOR(5 DOWNTO 0);
-		VGA_G :  OUT  STD_LOGIC_VECTOR(5 DOWNTO 0);
-		VGA_R :  OUT  STD_LOGIC_VECTOR(5 DOWNTO 0);
+		VGA_B :  OUT  STD_LOGIC_VECTOR(VGA_BITS-1 DOWNTO 0);
+		VGA_G :  OUT  STD_LOGIC_VECTOR(VGA_BITS-1 DOWNTO 0);
+		VGA_R :  OUT  STD_LOGIC_VECTOR(VGA_BITS-1 DOWNTO 0);
 		
 		AUDIO_L : OUT std_logic;
 		AUDIO_R : OUT std_logic;
@@ -45,8 +50,8 @@ ENTITY atari800core_mist IS
 		SPI_DO :  INOUT  STD_LOGIC;
 		SPI_DI :  IN  STD_LOGIC;
 		SPI_SCK :  IN  STD_LOGIC;
-		SPI_SS2 :  IN  STD_LOGIC;		
-		SPI_SS3 :  IN  STD_LOGIC;		
+		SPI_SS2 :  IN  STD_LOGIC;
+		SPI_SS3 :  IN  STD_LOGIC;
 		SPI_SS4 :  IN  STD_LOGIC;
 		CONF_DATA0 :  IN  STD_LOGIC -- AKA SPI_SS5
 	);
@@ -65,18 +70,18 @@ port (
 end component;
 
 component osd
-generic ( OSD_COLOR : integer := 1 );  -- blue
+generic ( OSD_COLOR : integer := 1; OUT_COLOR_DEPTH : integer := 6 );  -- blue
 port (
 	clk_sys     : in std_logic;
-	R_in        : in std_logic_vector(5 downto 0);
-	G_in        : in std_logic_vector(5 downto 0);
-	B_in        : in std_logic_vector(5 downto 0);
+	R_in        : in std_logic_vector(OUT_COLOR_DEPTH-1 downto 0);
+	G_in        : in std_logic_vector(OUT_COLOR_DEPTH-1 downto 0);
+	B_in        : in std_logic_vector(OUT_COLOR_DEPTH-1 downto 0);
 	HSync       : in std_logic;
 	VSync       : in std_logic;
 
-	R_out       : out std_logic_vector(5 downto 0);
-	G_out       : out std_logic_vector(5 downto 0);
-	B_out       : out std_logic_vector(5 downto 0);
+	R_out       : out std_logic_vector(OUT_COLOR_DEPTH-1 downto 0);
+	G_out       : out std_logic_vector(OUT_COLOR_DEPTH-1 downto 0);
+	B_out       : out std_logic_vector(OUT_COLOR_DEPTH-1 downto 0);
 
 	SPI_SCK     : in std_logic;
 	SPI_SS3     : in std_logic;
@@ -84,14 +89,25 @@ port (
 );
 end component osd;
 
-COMPONENT rgb2ypbpr
+COMPONENT RGBtoYPbPr
+GENERIC ( WIDTH : integer := 6 );
 PORT (
-        red     :        IN std_logic_vector(5 DOWNTO 0);
-        green   :        IN std_logic_vector(5 DOWNTO 0);
-        blue    :        IN std_logic_vector(5 DOWNTO 0);
-        y       :        OUT std_logic_vector(5 DOWNTO 0);
-        pb      :        OUT std_logic_vector(5 DOWNTO 0);
-        pr      :        OUT std_logic_vector(5 DOWNTO 0)
+        clk       :        IN std_logic;
+        ena       :        IN std_logic;
+        red_in    :        IN std_logic_vector(WIDTH-1 DOWNTO 0);
+        green_in  :        IN std_logic_vector(WIDTH-1 DOWNTO 0);
+        blue_in   :        IN std_logic_vector(WIDTH-1 DOWNTO 0);
+        hs_in     :        IN std_logic;
+        vs_in     :        IN std_logic;
+        cs_in     :        IN std_logic;
+        pixel_in  :        IN std_logic;
+        red_out   :        OUT std_logic_vector(WIDTH-1 DOWNTO 0);
+        green_out :        OUT std_logic_vector(WIDTH-1 DOWNTO 0);
+        blue_out  :        OUT std_logic_vector(WIDTH-1 DOWNTO 0);
+        hs_out    :        OUT std_logic;
+        vs_out    :        OUT std_logic;
+        cs_out    :        OUT std_logic;
+        pixel_out :        OUT std_logic
         );
 END COMPONENT;
 
@@ -168,76 +184,76 @@ component user_io
 	end component data_io;
 
 
-  signal AUDIO_L_PCM : std_logic_vector(15 downto 0);
-  signal AUDIO_R_PCM : std_logic_vector(15 downto 0);
-  signal AUDIO_R_PCM_IN : std_logic_vector(19 downto 0);
+	signal AUDIO_L_PCM : std_logic_vector(15 downto 0);
+	signal AUDIO_R_PCM : std_logic_vector(15 downto 0);
+	signal AUDIO_R_PCM_IN : std_logic_vector(19 downto 0);
 
-  signal VGA_VS_RAW : std_logic;
-  signal VGA_HS_RAW : std_logic;
-  signal VGA_CS_RAW : std_logic;
+	signal VGA_VS_RAW : std_logic;
+	signal VGA_HS_RAW : std_logic;
+	signal VGA_CS_RAW : std_logic;
 
-  signal RESET_n : std_logic;
-  signal CLK : std_logic;
-  signal CLK_SDRAM : std_logic;
+	signal RESET_n : std_logic;
+	signal CLK : std_logic;
+	signal CLK_SDRAM : std_logic;
 
-  signal CLK_PLL1 : std_logic; -- cascaded to get better pal clock
-  signal PLL1_LOCKED : std_logic;
+	signal CLK_PLL1 : std_logic; -- cascaded to get better pal clock
+	signal PLL1_LOCKED : std_logic;
 
-  SIGNAL PS2_CLK : std_logic;
-  SIGNAL PS2_DAT : std_logic;
-  SIGNAL	CONSOL_OPTION_RAW :  STD_LOGIC;
-  SIGNAL	CONSOL_OPTION :  STD_LOGIC;
-  SIGNAL	CONSOL_SELECT_RAW :  STD_LOGIC;
-  SIGNAL	CONSOL_SELECT :  STD_LOGIC;
-  SIGNAL	CONSOL_START_RAW :  STD_LOGIC;
-  SIGNAL	CONSOL_START :  STD_LOGIC;
-  SIGNAL FKEYS : std_logic_vector(11 downto 0);
+	SIGNAL PS2_CLK : std_logic;
+	SIGNAL PS2_DAT : std_logic;
+	SIGNAL CONSOL_OPTION_RAW :  STD_LOGIC;
+	SIGNAL CONSOL_OPTION :  STD_LOGIC;
+	SIGNAL CONSOL_SELECT_RAW :  STD_LOGIC;
+	SIGNAL CONSOL_SELECT :  STD_LOGIC;
+	SIGNAL CONSOL_START_RAW :  STD_LOGIC;
+	SIGNAL CONSOL_START :  STD_LOGIC;
+	SIGNAL FKEYS : std_logic_vector(11 downto 0);
 
-  signal capslock_pressed : std_logic;
-  signal capsheld_next : std_logic;
-  signal capsheld_reg : std_logic;
-  
-  signal spi_miso_io : std_logic;
+	signal capslock_pressed : std_logic;
+	signal capsheld_next : std_logic;
+	signal capsheld_reg : std_logic;
 
-  signal mist_buttons : std_logic_vector(1 downto 0);
-  signal mist_switches : std_logic_vector(1 downto 0);
-  signal mist_status   : std_logic_vector(63 downto 0);
+	signal spi_miso_io : std_logic;
 
-  signal		MIST_JOY1 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
-  signal		MIST_JOY2 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
-  signal		JOY1 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
-  signal		JOY2 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
-  signal		JOY1_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
-  signal		JOY2_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
-  signal joy_still : std_logic;
+	signal mist_buttons : std_logic_vector(1 downto 0);
+	signal mist_switches : std_logic_vector(1 downto 0);
+	signal mist_status   : std_logic_vector(63 downto 0);
 
-  signal		MIST_JOY1X : std_logic_vector(7 downto 0);
-  signal		MIST_JOY1Y : std_logic_vector(7 downto 0);
-  signal		MIST_JOY2X : std_logic_vector(7 downto 0);
-  signal		MIST_JOY2Y : std_logic_vector(7 downto 0);
-  signal		JOY1X : std_logic_vector(7 downto 0);
-  signal		JOY1Y : std_logic_vector(7 downto 0);
-  signal		JOY2X : std_logic_vector(7 downto 0);
-  signal		JOY2Y : std_logic_vector(7 downto 0);
+	signal MIST_JOY1 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+	signal MIST_JOY2 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+	signal JOY1 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+	signal JOY2 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+	signal JOY1_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
+	signal JOY2_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
+	signal joy_still : std_logic;
 
-  SIGNAL	KEYBOARD_RESPONSE :  STD_LOGIC_VECTOR(1 DOWNTO 0);
-  SIGNAL	KEYBOARD_SCAN :  STD_LOGIC_VECTOR(5 DOWNTO 0);
-  signal atari_keyboard : std_logic_vector(63 downto 0);
+	signal MIST_JOY1X : std_logic_vector(7 downto 0);
+	signal MIST_JOY1Y : std_logic_vector(7 downto 0);
+	signal MIST_JOY2X : std_logic_vector(7 downto 0);
+	signal MIST_JOY2Y : std_logic_vector(7 downto 0);
+	signal JOY1X : std_logic_vector(7 downto 0);
+	signal JOY1Y : std_logic_vector(7 downto 0);
+	signal JOY2X : std_logic_vector(7 downto 0);
+	signal JOY2Y : std_logic_vector(7 downto 0);
 
-  signal SDRAM_REQUEST : std_logic;
-  signal SDRAM_REQUEST_COMPLETE : std_logic;
-  signal SDRAM_READ_ENABLE :  STD_LOGIC;
-  signal SDRAM_WRITE_ENABLE : std_logic;
-  signal SDRAM_ADDR : STD_LOGIC_VECTOR(22 DOWNTO 0);
-  signal SDRAM_DO : STD_LOGIC_VECTOR(31 DOWNTO 0);
-  signal SDRAM_DI : STD_LOGIC_VECTOR(31 DOWNTO 0);
-  signal SDRAM_WIDTH_8bit_ACCESS : std_logic;
-  signal SDRAM_WIDTH_16bit_ACCESS : std_logic;
-  signal SDRAM_WIDTH_32bit_ACCESS : std_logic;
+	SIGNAL KEYBOARD_RESPONSE :  STD_LOGIC_VECTOR(1 DOWNTO 0);
+	SIGNAL KEYBOARD_SCAN :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+	signal atari_keyboard : std_logic_vector(63 downto 0);
 
-  signal SDRAM_REFRESH : std_logic;
-  
-  signal SDRAM_RESET_N : std_logic;
+	signal SDRAM_REQUEST : std_logic;
+	signal SDRAM_REQUEST_COMPLETE : std_logic;
+	signal SDRAM_READ_ENABLE :  STD_LOGIC;
+	signal SDRAM_WRITE_ENABLE : std_logic;
+	signal SDRAM_ADDR : STD_LOGIC_VECTOR(22 DOWNTO 0);
+	signal SDRAM_DO : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal SDRAM_DI : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal SDRAM_WIDTH_8bit_ACCESS : std_logic;
+	signal SDRAM_WIDTH_16bit_ACCESS : std_logic;
+	signal SDRAM_WIDTH_32bit_ACCESS : std_logic;
+
+	signal SDRAM_REFRESH : std_logic;
+
+	signal SDRAM_RESET_N : std_logic;
 
 	-- dma/virtual drive
 	signal DMA_ADDR_FETCH : std_logic_vector(23 downto 0);
@@ -363,16 +379,15 @@ component user_io
 	signal ypbpr : std_logic;
 	signal no_csync : std_logic;
 	signal sd_hs         : std_logic;
-  signal sd_vs         : std_logic;
-  signal sd_red_o      : std_logic_vector(5 downto 0);
-  signal sd_green_o    : std_logic_vector(5 downto 0);
-  signal sd_blue_o     : std_logic_vector(5 downto 0);
-  signal osd_red_o     : std_logic_vector(5 downto 0);
-  signal osd_green_o   : std_logic_vector(5 downto 0);
-  signal osd_blue_o    : std_logic_vector(5 downto 0);  
-  signal vga_y_o       : std_logic_vector(5 downto 0);
-  signal vga_pb_o      : std_logic_vector(5 downto 0);
-  signal vga_pr_o      : std_logic_vector(5 downto 0);
+	signal sd_vs         : std_logic;
+	signal sd_red_o      : std_logic_vector(VGA_BITS-1 downto 0);
+	signal sd_green_o    : std_logic_vector(VGA_BITS-1 downto 0);
+	signal sd_blue_o     : std_logic_vector(VGA_BITS-1 downto 0);
+	signal osd_red_o     : std_logic_vector(VGA_BITS-1 downto 0);
+	signal osd_green_o   : std_logic_vector(VGA_BITS-1 downto 0);
+	signal osd_blue_o    : std_logic_vector(VGA_BITS-1 downto 0);
+	signal vga_hs_o      : std_logic;
+	signal vga_vs_o      : std_logic;
 
 	-- pll reconfig
 	signal CLK_RECONFIG_PLL : std_logic;
@@ -403,7 +418,8 @@ component user_io
 		"O7,Swap joysticks,Off,On;"&
 		"O3,Paddles,Enabled,Disabled;"&
 		"T1,Reset;"&
-		"T2,Cold reset;";
+		"T2,Cold reset;"&
+		"V,v"&BUILD_DATE;
 
 	-- convert string to std_logic_vector to be given to user_io
 	function to_slv(s: string) return std_logic_vector is
@@ -562,7 +578,7 @@ BEGIN
 	);
 	
 	reconfig_pll : entity work.pll_reconfig -- This only exists to generate reset!!
-	PORT MAP(inclk0 => CLOCK_27(0),
+	PORT MAP(inclk0 => CLOCK_27,
 		c0 => CLK_RECONFIG_PLL,
 		locked => CLK_RECONFIG_PLL_LOCKED);
 
@@ -590,7 +606,7 @@ BEGIN
 
 		PAL => PAL,
 		SWITCH_ENA => not ioctl_download and rom_loaded,
-		INPUT_CLK => CLOCK_27(0),
+		INPUT_CLK => CLOCK_27,
 		PLL_CLKS(0) => CLK_SDRAM,
 		PLL_CLKS(1) => CLK,
 		PLL_CLKS(2) => SDRAM_CLK,
@@ -883,7 +899,7 @@ BEGIN
 	scandoubler1: entity work.scandoubler
 	GENERIC MAP
 	(
-		video_bits=>6
+		video_bits=>VGA_BITS
 	)
 	PORT MAP
 	( 
@@ -914,6 +930,7 @@ BEGIN
 	);
 
 	osd_inst: osd
+	generic map ( OUT_COLOR_DEPTH => VGA_BITS )
 	port map (
 		clk_sys     => CLK,
 		SPI_SCK     => SPI_SCK,
@@ -931,22 +948,30 @@ BEGIN
 		B_out       => osd_blue_o
 	);
 
-	rgb2ypbpr_inst: rgb2ypbpr
+	RGBtoYPbPr_inst: RGBtoYPbPr
+	generic map ( WIDTH => VGA_BITS )
 	port map (
-		red => osd_red_o,
-		green => osd_green_o,
-		blue => osd_blue_o,
-		y => vga_y_o,
-		pb => vga_pb_o,
-		pr => vga_pr_o
+		clk => CLK,
+		ena => ypbpr,
+		hs_in => sd_hs,
+		vs_in => sd_vs,
+		cs_in => '0',
+		pixel_in => '0',
+		red_in => osd_red_o,
+		green_in => osd_green_o,
+		blue_in => osd_blue_o,
+		red_out => VGA_R,
+		green_out => VGA_G,
+		blue_out => VGA_B,
+		hs_out => vga_hs_o,
+		vs_out => vga_vs_o,
+		cs_out => open,
+		pixel_out => open
 	);
 
-	VGA_R <= vga_pr_o when ypbpr='1' else osd_red_o;
-	VGA_G <= vga_y_o  when ypbpr='1' else osd_green_o;
-	VGA_B <= vga_pb_o when ypbpr='1' else osd_blue_o;
 	-- If 15kHz Video - composite sync to VGA_HS and VGA_VS high for MiST RGB cable
-	VGA_HS <= not (sd_hs xor sd_vs) when (scandoubler_disable='1' and no_csync='0') or ypbpr='1' else sd_hs;
-	VGA_VS <= '1' when (scandoubler_disable='1' and no_csync='0') or ypbpr='1' else sd_vs;
+	VGA_HS <= not (vga_hs_o xor vga_vs_o) when (scandoubler_disable='1' and no_csync='0') or ypbpr='1' else vga_hs_o;
+	VGA_VS <= '1' when (scandoubler_disable='1' and no_csync='0') or ypbpr='1' else vga_vs_o;
 
 	sector_buffer: entity work.DualPortRAM
 	generic map (
@@ -1033,7 +1058,7 @@ BEGIN
 		ZPU_ROM_WREN => open,
 
 		-- nmhz clock
-		CLK_nMHz => CLOCK_27(0),
+		CLK_nMHz => CLOCK_27,
 
 		-- spi master
 		ZPU_SPI_DI => mist_sd_sdo,
