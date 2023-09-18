@@ -72,7 +72,7 @@ always@(posedge SPI_SCK or posedge SPI_SS2) begin
 			sbuf[6:0] <= { sbuf[5:0], SPI_DI };
 
 		// finished reading a byte, prepare to transfer to clk_sys
-        if(bit_cnt == 7) begin
+		if(bit_cnt == 7) begin
 			spi_byte_in <= { sbuf, SPI_DI};
 			spi_receiver_strobe_r <= ~spi_receiver_strobe_r;
 		end

@@ -14,7 +14,10 @@ my $NTSC = 0;
 
 my %variants = 
 (
-	"COMMON" =>
+	"mist" =>
+	{
+	},
+	"SiDi128" =>
 	{
 	}
 );
@@ -32,10 +35,10 @@ foreach my $variant (sort keys %variants)
 	my $dir = "build_$variant";
 	`rm -rf $dir`;
 	mkdir $dir;
-	`cp atari800core_mist.vhd $dir`;
+	`cp build_id.tcl $dir`;
+	`cp atari800core_mist.vhd atari800_mist_top.sv $dir`;
 	`cp *pll*.* $dir`;
 	`cp *clkctrl*.* $dir`;
-	`cp *mist_sector*.* $dir`;
 	`cp *.v $dir`;
 	`cp *.vhdl $dir`;
 	`cp *.vhd $dir`;
@@ -58,7 +61,7 @@ foreach my $variant (sort keys %variants)
 	`rm ./$dir/common/a8core/internalromram_simple.vhd`;
 
 	chdir $dir;
-	`../makeqsf ../atari800core.qsf ./common/a8core ./common/components ./common/zpu`;
+	`../makeqsf ../atari800_$variant.qsf ./common/a8core ./common/components ./common/zpu`;
 
 	foreach my $key (sort keys %{$variants{$variant}})
 	{
@@ -66,7 +69,7 @@ foreach my $variant (sort keys %variants)
 		`echo set_parameter -name $key $val >> atari800core.qsf`;
 	}
 
-	`quartus_sh --flow compile atari800core > build.log 2> build.err`;
+	`quartus_sh --flow compile atari800_$variant > build.log 2> build.err`;
 
 	`quartus_cpf --convert ../output_file.cof`;
 	
