@@ -9,12 +9,17 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all; 
 use ieee.numeric_std.all;
 
-LIBRARY work;
+LIBRARY mist;
+USE mist.mist.user_io;
+USE mist.mist.mist_video;
+USE mist.mist.i2c_master;
 
 ENTITY atari800core_mist IS 
 	GENERIC
 	(
 		VGA_BITS : integer := 6;
+		BIG_OSD : boolean := false;
+		HDMI : boolean := false;
 		BUILD_DATE : string := ""
 	);
 	PORT
@@ -26,7 +31,18 @@ ENTITY atari800core_mist IS
 		VGA_B :  OUT  STD_LOGIC_VECTOR(VGA_BITS-1 DOWNTO 0);
 		VGA_G :  OUT  STD_LOGIC_VECTOR(VGA_BITS-1 DOWNTO 0);
 		VGA_R :  OUT  STD_LOGIC_VECTOR(VGA_BITS-1 DOWNTO 0);
-		
+
+		-- HDMI
+		HDMI_R     : out   std_logic_vector(7 downto 0);
+		HDMI_G     : out   std_logic_vector(7 downto 0);
+		HDMI_B     : out   std_logic_vector(7 downto 0);
+		HDMI_HS    : out   std_logic;
+		HDMI_VS    : out   std_logic;
+		HDMI_DE    : out   std_logic;
+		HDMI_PCLK  : out   std_logic;
+		HDMI_SCL   : inout std_logic;
+		HDMI_SDA   : inout std_logic;
+
 		AUDIO_L : OUT std_logic;
 		AUDIO_R : OUT std_logic;
 
@@ -69,104 +85,10 @@ port (
 );
 end component;
 
-component osd
-generic ( OSD_COLOR : integer := 1; OUT_COLOR_DEPTH : integer := 6 );  -- blue
-port (
-	clk_sys     : in std_logic;
-	R_in        : in std_logic_vector(OUT_COLOR_DEPTH-1 downto 0);
-	G_in        : in std_logic_vector(OUT_COLOR_DEPTH-1 downto 0);
-	B_in        : in std_logic_vector(OUT_COLOR_DEPTH-1 downto 0);
-	HSync       : in std_logic;
-	VSync       : in std_logic;
-
-	R_out       : out std_logic_vector(OUT_COLOR_DEPTH-1 downto 0);
-	G_out       : out std_logic_vector(OUT_COLOR_DEPTH-1 downto 0);
-	B_out       : out std_logic_vector(OUT_COLOR_DEPTH-1 downto 0);
-
-	SPI_SCK     : in std_logic;
-	SPI_SS3     : in std_logic;
-	SPI_DI      : in std_logic
-);
-end component osd;
-
-COMPONENT RGBtoYPbPr
-GENERIC ( WIDTH : integer := 6 );
-PORT (
-        clk       :        IN std_logic;
-        ena       :        IN std_logic;
-        red_in    :        IN std_logic_vector(WIDTH-1 DOWNTO 0);
-        green_in  :        IN std_logic_vector(WIDTH-1 DOWNTO 0);
-        blue_in   :        IN std_logic_vector(WIDTH-1 DOWNTO 0);
-        hs_in     :        IN std_logic;
-        vs_in     :        IN std_logic;
-        cs_in     :        IN std_logic;
-        pixel_in  :        IN std_logic;
-        red_out   :        OUT std_logic_vector(WIDTH-1 DOWNTO 0);
-        green_out :        OUT std_logic_vector(WIDTH-1 DOWNTO 0);
-        blue_out  :        OUT std_logic_vector(WIDTH-1 DOWNTO 0);
-        hs_out    :        OUT std_logic;
-        vs_out    :        OUT std_logic;
-        cs_out    :        OUT std_logic;
-        pixel_out :        OUT std_logic
-        );
-END COMPONENT;
-
-component user_io
-	GENERIC (
-		STRLEN : integer := 0;
-		PS2DIV : integer := 1500 );
-	PORT(
-		clk_sys : in std_logic;
-		clk_sd : in std_logic;
-		conf_str : in std_logic_vector(8*STRLEN-1 downto 0);
-
-		-- mist spi to firmware
-		SPI_CLK : in std_logic;
-		SPI_SS_IO : in std_logic;
-		SPI_MISO : out std_logic;
-		SPI_MOSI : in std_logic;
-
-		-- joysticks
-		JOYSTICK_0 : out std_logic_vector(5 downto 0);
-		JOYSTICK_1 : out std_logic_vector(5 downto 0);
-		JOYSTICK_ANALOG_0 : out std_logic_vector(15 downto 0);
-		JOYSTICK_ANALOG_1 : out std_logic_vector(15 downto 0);
-		BUTTONS : out std_logic_vector(1 downto 0);
-		SWITCHES : out std_logic_vector(1 downto 0);
-		STATUS : out std_logic_vector(63 downto 0);
-
-		-- video switches
-		scandoubler_disable: out std_logic;
-		ypbpr: out std_logic;
-		no_csync: out std_logic;
-
-		-- ps2
-		PS2_KBD_CLK : out std_logic;
-		PS2_KBD_DATA : out std_logic;
-
-		-- serial (one way?)
-		SERIAL_DATA : in std_logic_vector(7 downto 0);
-		SERIAL_STROBE : in std_logic;
-
-		-- connection to sd card emulation
-		sd_lba : in std_logic_vector(31 downto 0);
-		sd_rd : in std_logic_vector(1 downto 0);
-		sd_wr : in std_logic_vector(1 downto 0);
-		sd_ack : out std_logic;
-		sd_ack_conf : out std_logic;
-		sd_conf : in std_logic;
-		sd_sdhc : in std_logic;
-		sd_dout : out std_logic_vector(7 downto 0);
-		sd_dout_strobe : out std_logic;
-		sd_din : in std_logic_vector(7 downto 0);
-		sd_din_strobe : out std_logic;
-		sd_buff_addr : out std_logic_vector(8 downto 0);
-		img_size    : out std_logic_vector(31 downto 0);
-		img_mounted : out std_logic_vector(1 downto 0)
-	  );
-	end component;
-
 	component data_io
+	generic (
+		DOUT_16 : boolean := true
+	);
 	port (
 		clk_sys : in std_logic;
 
@@ -174,7 +96,6 @@ component user_io
 		SPI_SS2 : in std_logic;
 		SPI_DI  : in std_logic;
 
-		ioctl_wait     : in std_logic;
 		ioctl_download : out std_logic;
 		ioctl_index    : out std_logic_vector(7 downto 0);
 		ioctl_wr       : out std_logic;
@@ -191,6 +112,7 @@ component user_io
 	signal VGA_VS_RAW : std_logic;
 	signal VGA_HS_RAW : std_logic;
 	signal VGA_CS_RAW : std_logic;
+	signal VIDEO_BLANK: std_logic;
 
 	signal RESET_n : std_logic;
 	signal CLK : std_logic;
@@ -219,8 +141,8 @@ component user_io
 	signal mist_switches : std_logic_vector(1 downto 0);
 	signal mist_status   : std_logic_vector(63 downto 0);
 
-	signal MIST_JOY1 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
-	signal MIST_JOY2 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
+	signal MIST_JOY1 :  STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal MIST_JOY2 :  STD_LOGIC_VECTOR(31 DOWNTO 0);
 	signal JOY1 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
 	signal JOY2 :  STD_LOGIC_VECTOR(5 DOWNTO 0);
 	signal JOY1_n :  STD_LOGIC_VECTOR(4 DOWNTO 0);
@@ -321,7 +243,7 @@ component user_io
 	signal sd_din : std_logic_vector(7 downto 0);
 	signal sd_din_strobe : std_logic;
 	signal sd_buff_addr: std_logic_vector(8 downto 0);
-	signal img_size    : std_logic_vector(31 downto 0);
+	signal img_size    : std_logic_vector(63 downto 0);
 	signal img_mounted : std_logic_vector(1 downto 0);
 
 	signal zpu_secbuf_addr : std_logic_vector(8 downto 0);
@@ -333,6 +255,15 @@ component user_io
 	signal mist_sd_sck : std_logic;
 	signal mist_sd_sdi : std_logic;
 	signal mist_sd_cs : std_logic;
+
+	signal i2c_start : std_logic;
+	signal i2c_read : std_logic;
+	signal i2c_addr : std_logic_vector(6 downto 0);
+	signal i2c_subaddr : std_logic_vector(7 downto 0);
+	signal i2c_wdata : std_logic_vector(7 downto 0);
+	signal i2c_rdata : std_logic_vector(7 downto 0);
+	signal i2c_end : std_logic;
+	signal i2c_ack : std_logic;
 
 	-- data io
 	signal rom_loaded      : std_logic;
@@ -373,11 +304,14 @@ component user_io
 	-- video settings
 	signal pal : std_logic;
 	signal scandouble : std_logic;
-	signal scanlines : std_logic;
+	signal scanlines : std_logic_vector(1 downto 0);
 	signal video_mode : std_logic_vector(2 downto 0);
 	signal scandoubler_disable : std_logic;
 	signal ypbpr : std_logic;
 	signal no_csync : std_logic;
+	signal R : std_logic_vector(7 downto 0);
+	signal G : std_logic_vector(7 downto 0);
+	signal B : std_logic_vector(7 downto 0);
 	signal sd_hs         : std_logic;
 	signal sd_vs         : std_logic;
 	signal sd_red_o      : std_logic_vector(VGA_BITS-1 downto 0);
@@ -397,16 +331,33 @@ component user_io
 	constant CARTRIDGE_MEM : unsigned(23 downto 0) := x"D00000";
 	constant SDRAM_ROM_ADDR : unsigned(23 downto 0):= x"F00000";
 
+	function SEP return string is
+	begin
+		if BIG_OSD then return "-;"; else return ""; end if;
+	end function;
+
+	function USER_IO_FEAT return std_logic_vector is
+		variable feat: std_logic_vector(31 downto 0);
+	begin
+		feat := x"00000000";
+		if BIG_OSD then feat := feat or x"00002000"; end if;
+		if HDMI    then feat := feat or x"00004000"; end if;
+		return feat;
+	end function;
+
 	constant CONF_STR : string :=
 		"A800XL;;"&
 		"F,ROM,Load ROM;"&
 		"F,ROMCAR,Load Cart;"&
+		SEP&
 		"S0U,ATRXEXATXXFD,Disk 1;"&
 		"S1U,ATRXEXATXXFD,Disk 2;"&
+		SEP&
 		"P1,Video;"&
 		"P2,System;"&
-		"P1O5,Video,NTSC,PAL;"&
-		"P1O6,Scanlines,Off,On;"&
+		SEP&
+		"P1O4,Video,NTSC,PAL;"&
+		"P1O56,Scandoubler Fx,None,CRT 25%,CRT 50%,CRT 75%;"&
 		"P2O8A,CPU Speed,1x,2x,4x,8x,16x;"&
 		"P2OB,Turbo at VBL only,Off,On;"&
 		"P2OC,Machine,XL/XE,400/800;"&
@@ -437,8 +388,8 @@ component user_io
 	end function;
 
 BEGIN
-	joy1 <= mist_joy1 when joyswap = '0' else mist_joy2;
-	joy2 <= mist_joy2 when joyswap = '0' else mist_joy1;
+	joy1 <= mist_joy1(5 downto 0) when joyswap = '0' else mist_joy2(5 downto 0);
+	joy2 <= mist_joy2(5 downto 0) when joyswap = '0' else mist_joy1(5 downto 0);
 	joy1x <= x"80" when mist_status(3) = '1' else mist_joy1x when joyswap = '0' else mist_joy2x;
 	joy1y <= x"80" when mist_status(3) = '1' else mist_joy1y when joyswap = '0' else mist_joy2y;
 	joy2x <= x"80" when mist_status(3) = '1' else mist_joy2x when joyswap = '0' else mist_joy1x;
@@ -476,8 +427,8 @@ BEGIN
 	sd_conf <= '0';
 	sd_sdhc <= '1';
 
-	my_user_io : user_io
-	GENERIC map (STRLEN => CONF_STR'length)
+	my_user_io : mist.mist.user_io
+	GENERIC map (STRLEN => CONF_STR'length, PS2DIV => 1500, FEATURES => USER_IO_FEAT)
 	PORT map(
 		clk_sys => CLK,
 		clk_sd => CLK,
@@ -499,11 +450,17 @@ BEGIN
 		ypbpr => ypbpr,
 		no_csync => no_csync,
 
+		i2c_start => i2c_start,
+		i2c_read => i2c_read,
+		i2c_addr => i2c_addr,
+		i2c_subaddr => i2c_subaddr,
+		i2c_dout => i2c_wdata,
+		i2c_din => i2c_rdata,
+		i2c_end => i2c_end,
+		i2c_ack => i2c_ack,
+
 		PS2_KBD_CLK => ps2_clk,
 		PS2_KBD_DATA => ps2_dat,
-
-		SERIAL_DATA => (others=>'0'),
-		SERIAL_STROBE => '0',
 
 		sd_lba => sd_lba,
 		sd_rd => sd_rd,
@@ -634,6 +591,7 @@ BEGIN
 		VIDEO_B => VIDEO_B,
 		VIDEO_G => open,
 		VIDEO_R => open,
+		VIDEO_BLANK => VIDEO_BLANK,
 
 		AUDIO_L => AUDIO_L_PCM,
 		AUDIO_R => AUDIO_R_PCM,
@@ -734,7 +692,6 @@ BEGIN
 		SPI_SS2 => SPI_SS2,
 		SPI_DI  => SPI_DI,
 
-		ioctl_wait     => '0',
 		ioctl_download => ioctl_download,
 		ioctl_index    => ioctl_index,
 		ioctl_wr       => ioctl_wr,
@@ -896,82 +853,115 @@ BEGIN
 
 	half_scandouble_enable_next <= not(half_scandouble_enable_reg);
 
-	scandoubler1: entity work.scandoubler
-	GENERIC MAP
-	(
-		video_bits=>VGA_BITS
-	)
-	PORT MAP
-	( 
-		CLK => CLK,
-		RESET_N => RESET_N and SDRAM_RESET_N and not(reset_atari),
-		
-		VGA => scandouble,
-		COMPOSITE_ON_HSYNC => '0', -- OSD needs separate sync, handle csync in the final mix
-
-		colour_enable => half_scandouble_enable_reg,
-		doubled_enable => '1',
-		scanlines_on => scanlines,
-		
-		-- GTIA interface
-		pal => PAL,
-		colour_in => VIDEO_B,
-		vsync_in => VGA_VS_RAW,
-		hsync_in => VGA_HS_RAW,
-		csync_in => VGA_CS_RAW,
-		
-		-- TO TV...
-		R => sd_red_o,
-		G => sd_green_o,
-		B => sd_blue_o,
-		
-		VSYNC => sd_vs,
-		HSYNC => sd_hs
+	gtia_palette : entity work.gtia_palette
+	port map (
+		ATARI_COLOUR => VIDEO_B,
+		PAL => PAL,
+		R_next => R,
+		G_next => G,
+		B_next => B
 	);
 
-	osd_inst: osd
-	generic map ( OUT_COLOR_DEPTH => VGA_BITS )
+	vga_video : mist_video
+	generic map (
+		SD_HCNT_WIDTH => 10,
+		COLOR_DEPTH => 8,
+		OSD_COLOR => "011",
+		OSD_AUTO_CE => false,
+		USE_BLANKS => false,
+		OUT_COLOR_DEPTH => VGA_BITS,
+		BIG_OSD => BIG_OSD
+	)
 	port map (
 		clk_sys     => CLK,
+		scanlines   => scanlines,
+		scandoubler_disable => scandoubler_disable,
+		ypbpr       => ypbpr,
+		no_csync    => no_csync,
+		rotate      => "00",
+		blend       => '0',
+
 		SPI_SCK     => SPI_SCK,
 		SPI_SS3     => SPI_SS3,
 		SPI_DI      => SPI_DI,
 
-		R_in        => sd_red_o,
-		G_in        => sd_green_o,
-		B_in        => sd_blue_o,
-		HSync       => sd_hs,
-		VSync       => sd_vs,
+		HSync       => VGA_HS_RAW,
+		VSync       => VGA_VS_RAW,
+		--HBlank      => hblank,
+		--VBlank      => vblank,
+		R           => R,
+		G           => G,
+		B           => B,
 
-		R_out       => osd_red_o,
-		G_out       => osd_green_o,
-		B_out       => osd_blue_o
+		VGA_HS      => VGA_HS,
+		VGA_VS      => VGA_VS,
+		VGA_R       => VGA_R,
+		VGA_G       => VGA_G,
+		VGA_B       => VGA_B
 	);
 
-	RGBtoYPbPr_inst: RGBtoYPbPr
-	generic map ( WIDTH => VGA_BITS )
+	hdmi_block : if HDMI generate
+
+	my_i2c_master : i2c_master
+	generic map (
+		CLK_Freq => 56750000
+	)
 	port map (
-		clk => CLK,
-		ena => ypbpr,
-		hs_in => sd_hs,
-		vs_in => sd_vs,
-		cs_in => '0',
-		pixel_in => '0',
-		red_in => osd_red_o,
-		green_in => osd_green_o,
-		blue_in => osd_blue_o,
-		red_out => VGA_R,
-		green_out => VGA_G,
-		blue_out => VGA_B,
-		hs_out => vga_hs_o,
-		vs_out => vga_vs_o,
-		cs_out => open,
-		pixel_out => open
+		CLK => CLK,
+		I2C_START => i2c_start,
+		I2C_READ => i2c_read,
+		I2C_ADDR => i2c_addr,
+		I2C_SUBADDR => i2c_subaddr,
+		I2C_WDATA => i2c_wdata,
+		I2C_RDATA => i2c_rdata,
+		I2C_END => i2c_end,
+		I2C_ACK => i2c_ack,
+		I2C_SCL => HDMI_SCL,
+		I2C_SDA => HDMI_SDA
 	);
 
-	-- If 15kHz Video - composite sync to VGA_HS and VGA_VS high for MiST RGB cable
-	VGA_HS <= not (vga_hs_o xor vga_vs_o) when (scandoubler_disable='1' and no_csync='0') or ypbpr='1' else vga_hs_o;
-	VGA_VS <= '1' when (scandoubler_disable='1' and no_csync='0') or ypbpr='1' else vga_vs_o;
+	hdmi_video : mist_video
+	generic map (
+		SD_HCNT_WIDTH => 10,
+		COLOR_DEPTH => 8,
+		OSD_COLOR => "011",
+		OSD_AUTO_CE => false,
+		USE_BLANKS => true,
+		OUT_COLOR_DEPTH => 8,
+		BIG_OSD => BIG_OSD
+	)
+	port map (
+		clk_sys     => CLK,
+		scanlines   => scanlines,
+		scandoubler_disable => '0',
+		ypbpr       => '0',
+		no_csync    => '1',
+		rotate      => "00",
+		blend       => '0',
+
+		SPI_SCK     => SPI_SCK,
+		SPI_SS3     => SPI_SS3,
+		SPI_DI      => SPI_DI,
+
+		HSync       => VGA_HS_RAW,
+		VSync       => VGA_VS_RAW,
+		HBlank      => VIDEO_BLANK,
+		VBlank      => VGA_VS_RAW,
+		R           => R,
+		G           => G,
+		B           => B,
+
+		VGA_HS      => HDMI_HS,
+		VGA_VS      => HDMI_VS,
+		VGA_R       => HDMI_R,
+		VGA_G       => HDMI_G,
+		VGA_B       => HDMI_B,
+		VGA_DE      => HDMI_DE
+	);
+
+	HDMI_PCLK <= CLK;
+
+	end generate;
 
 	sector_buffer: entity work.DualPortRAM
 	generic map (
@@ -1007,10 +997,10 @@ BEGIN
 			zpu_secbuf_we <= zpu_out3(17);
 
 			if img_mounted(0) = '1' then
-				zpu_in2 <= img_size;
+				zpu_in2 <= img_size(31 downto 0);
 				zpu_in1(30) <= not zpu_in1(30);
 			elsif img_mounted(1) = '1' then
-				zpu_in2 <= img_size;
+				zpu_in2 <= img_size(31 downto 0);
 				zpu_in1(31) <= not zpu_in1(31);
 			elsif zpu_out3(18) = '1' then
 				zpu_in2 <= X"000000"&zpu_secbuf_q;
@@ -1111,8 +1101,8 @@ BEGIN
 
 	atari800mode <= mist_status(12);
 	ram_select <= mist_status(15 downto 13) when atari800mode = '0' else mist_status(18 downto 16);
-	PAL <= mist_status(5);
-	scanlines <= mist_status(6);
+	PAL <= mist_status(4);
+	scanlines <= mist_status(6 downto 5);
 	key_type <= mist_status(19);
 	turbo_drive <= mist_status(22 downto 20);
 
