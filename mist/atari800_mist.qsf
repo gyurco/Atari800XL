@@ -298,9 +298,7 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_B[0]
 set_global_assignment -name SYSTEMVERILOG_FILE atari800_mist_top.sv
 set_global_assignment -name VHDL_FILE atari800core_mist.vhd
 set_global_assignment -name SDC_FILE atari800core.sdc
-set_global_assignment -name VERILOG_FILE user_io.v
-set_global_assignment -name VERILOG_FILE data_io.v
-set_global_assignment -name VERILOG_FILE osd.v
+set_global_assignment -name QIP_FILE common/components/mist-modules/mist.qip
 set_global_assignment -name QIP_FILE zpu_rom.qip
 set_global_assignment -name VHDL_FILE DualPortRAM.vhd
 set_global_assignment -name VHDL_FILE switch_pal_ntsc.vhd
