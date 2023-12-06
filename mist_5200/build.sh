@@ -11,11 +11,14 @@ my $NTSC = 0;
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
-my %variants = 
+my %variants =
 (
-	"NTSC" =>
-	{
-	}
+        "mist" =>
+        {
+        },
+        "SiDi128" =>
+        {
+        }
 );
 
 if (not defined $wanted_variant or (not exists $variants{$wanted_variant} and $wanted_variant ne "ALL"))
@@ -31,7 +34,8 @@ foreach my $variant (sort keys %variants)
 	my $dir = "build_$variant";
 	`rm -rf $dir`;
 	mkdir $dir;
-	`cp atari5200core_mist.vhd $dir`;
+	`cp build_id.tcl $dir`;
+	`cp atari5200core_mist.vhd atari5200_mist_top.sv $dir`;
 	`cp *pll*.* $dir`;
 	`cp *.v $dir`;
 	`cp *.vhdl $dir`;
@@ -52,7 +56,7 @@ foreach my $variant (sort keys %variants)
 	`rm ./$dir/common/a8core/internalromram_simple.vhd`;
 
 	chdir $dir;
-	`../makeqsf ../atari5200core.qsf ./common/a8core ./common/components ./common/zpu`;
+	`../makeqsf ../atari5200_$variant.qsf ./common/a8core ./common/components ./common/zpu`;
 
 	foreach my $key (sort keys %{$variants{$variant}})
 	{
@@ -60,7 +64,7 @@ foreach my $variant (sort keys %variants)
 		`echo set_parameter -name $key $val >> atari5200core.qsf`;
 	}
 
-	`quartus_sh --flow compile atari5200core > build.log 2> build.err`;
+	`quartus_sh --flow compile atari5200_$variant > build.log 2> build.err`;
 
 	`quartus_cpf --convert ../output_file.cof`;
 	
