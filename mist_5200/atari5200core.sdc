@@ -38,7 +38,7 @@ set_time_format -unit ns -decimal_places 3
 # Create Clock
 #**************************************************************
 
-create_clock -name clk_27 -period 37.037 [get_ports {CLOCK_27[0]}]
+create_clock -name clk_27 -period 37.037 [get_ports {CLOCK_27}]
 create_clock -name {SPI_SCK}  -period 41.666 -waveform { 20.8 41.666 } [get_ports {SPI_SCK}]
 
 #**************************************************************
@@ -63,25 +63,25 @@ derive_clock_uncertainty;
 #**************************************************************
 
 # SDRAM is clocked from sd1clk_pin, but the SDRAM controller uses memclk
-set_input_delay -clock [get_clocks {mist_pll|altpll_component|auto_generated|pll1|clk[2]}] -reference_pin [get_ports SDRAM_CLK] -max 6.4 [get_ports SDRAM_DQ[*]]
-set_input_delay -clock [get_clocks {mist_pll|altpll_component|auto_generated|pll1|clk[2]}] -reference_pin [get_ports SDRAM_CLK] -min 3.2 [get_ports SDRAM_DQ[*]]
+set_input_delay -clock [get_clocks {atari5200core_mist|mist_pll|altpll_component|auto_generated|pll1|clk[2]}] -reference_pin [get_ports SDRAM_CLK] -max 6.4 [get_ports SDRAM_DQ[*]]
+set_input_delay -clock [get_clocks {atari5200core_mist|mist_pll|altpll_component|auto_generated|pll1|clk[2]}] -reference_pin [get_ports SDRAM_CLK] -min 3.2 [get_ports SDRAM_DQ[*]]
 
 
 #**************************************************************
 # Set Output Delay
 #**************************************************************
 
-set_output_delay -clock [get_clocks {mist_pll|altpll_component|auto_generated|pll1|clk[2]}] -reference_pin [get_ports SDRAM_CLK] -max 1.5 [get_ports {SDRAM_D* SDRAM_A* SDRAM_BA* SDRAM_n* SDRAM_CKE}]
-set_output_delay -clock [get_clocks {mist_pll|altpll_component|auto_generated|pll1|clk[2]}] -reference_pin [get_ports SDRAM_CLK] -min -0.8 [get_ports {SDRAM_D* SDRAM_A* SDRAM_BA* SDRAM_n* SDRAM_CKE}]
+set_output_delay -clock [get_clocks {atari5200core_mist|mist_pll|altpll_component|auto_generated|pll1|clk[2]}] -reference_pin [get_ports SDRAM_CLK] -max 1.5 [get_ports {SDRAM_D* SDRAM_A* SDRAM_BA* SDRAM_n* SDRAM_CKE}]
+set_output_delay -clock [get_clocks {atari5200core_mist|mist_pll|altpll_component|auto_generated|pll1|clk[2]}] -reference_pin [get_ports SDRAM_CLK] -min -0.8 [get_ports {SDRAM_D* SDRAM_A* SDRAM_BA* SDRAM_n* SDRAM_CKE}]
 
-set_output_delay -clock [get_clocks {mist_pll|altpll_component|auto_generated|pll1|clk[1]}] -max 0 [get_ports {VGA_*}]
-set_output_delay -clock [get_clocks {mist_pll|altpll_component|auto_generated|pll1|clk[1]}] -min -5 [get_ports {VGA_*}]
+set_output_delay -clock [get_clocks {atari5200core_mist|mist_pll|altpll_component|auto_generated|pll1|clk[1]}] -max 0 [get_ports {VGA_*}]
+set_output_delay -clock [get_clocks {atari5200core_mist|mist_pll|altpll_component|auto_generated|pll1|clk[1]}] -min -5 [get_ports {VGA_*}]
 
 #**************************************************************
 # Set Clock Groups
 #**************************************************************
 
-set_clock_groups -asynchronous -group [get_clocks {SPI_SCK}] -group [get_clocks {mist_pll|*}]
+set_clock_groups -asynchronous -group [get_clocks {SPI_SCK}] -group [get_clocks {atari5200core_mist|mist_pll|*}]
 
 #**************************************************************
 # Set False Path
@@ -99,7 +99,7 @@ set_false_path -to [get_ports {LED}]
 set_multicycle_path -to {VGA_*[*]} -setup 2
 set_multicycle_path -to {VGA_*[*]} -hold 1
 
-set_multicycle_path -from [get_clocks {mist_pll|altpll_component|auto_generated|pll1|clk[2]}] -to [get_clocks {mist_pll|altpll_component|auto_generated|pll1|clk[0]}] -setup 2
+set_multicycle_path -from [get_clocks {atari5200core_mist|mist_pll|altpll_component|auto_generated|pll1|clk[2]}] -to [get_clocks {atari5200core_mist|mist_pll|altpll_component|auto_generated|pll1|clk[0]}] -setup 2
 #**************************************************************
 # Set Maximum Delay
 #**************************************************************
