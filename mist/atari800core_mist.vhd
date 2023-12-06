@@ -347,8 +347,8 @@ end component;
 
 	constant CONF_STR : string :=
 		"A800XL;;"&
-		"F,ROM,Load ROM;"&
-		"F,ROMCAR,Load Cart;"&
+		"F1,ROM,Load ROM;"&
+		"F2,ROMCAR,Load Cart;"&
 		SEP&
 		"S0U,ATRXEXATXXFD,Disk 1;"&
 		"S1U,ATRXEXATXXFD,Disk 2;"&
@@ -791,12 +791,12 @@ BEGIN
 					reset_load <= '1';
 					if ioctl_index = x"02" then
 						-- ROM file type detection from size
-						if    ioctl_addr = '0'&x"002000" then cart_type_byte <= x"01"; -- standard 8k
-						elsif ioctl_addr = '0'&x"004000" then cart_type_byte <= x"02"; -- standard 16k
-						elsif ioctl_addr = '0'&x"008000" then cart_type_byte <= x"0c"; -- Atari XEGS 32k
-						elsif ioctl_addr = '0'&x"010000" then cart_type_byte <= x"0d"; -- Atari XEGS 64k
-						elsif ioctl_addr = '0'&x"020000" then cart_type_byte <= x"0e"; -- Atari XEGS 128k
-						elsif ioctl_addr = '0'&x"100000" then cart_type_byte <= x"2a"; -- Atarimax 1024k
+						if    ioctl_addr = '0'&x"001FFE" then cart_type_byte <= x"01"; -- standard 8k
+						elsif ioctl_addr = '0'&x"003FFE" then cart_type_byte <= x"02"; -- standard 16k
+						elsif ioctl_addr = '0'&x"007FFE" then cart_type_byte <= x"0c"; -- Atari XEGS 32k
+						elsif ioctl_addr = '0'&x"00FFFE" then cart_type_byte <= x"0d"; -- Atari XEGS 64k
+						elsif ioctl_addr = '0'&x"01FFFE" then cart_type_byte <= x"0e"; -- Atari XEGS 128k
+						elsif ioctl_addr = '0'&x"0FFFFE" then cart_type_byte <= x"2a"; -- Atarimax 1024k
 						end if;
 					end if;
 				elsif ioctl_wr = '1' then
