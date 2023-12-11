@@ -46,6 +46,11 @@ ENTITY atari800core_mist IS
 		AUDIO_L : OUT std_logic;
 		AUDIO_R : OUT std_logic;
 
+		I2S_BCK    : out   std_logic;
+		I2S_LRCK   : out   std_logic;
+		I2S_DATA   : out   std_logic;
+		SPDIF_O    : out   std_logic;
+
 		SDRAM_BA :  OUT  STD_LOGIC_VECTOR(1 downto 0);
 		SDRAM_nCS :  OUT  STD_LOGIC;
 		SDRAM_nRAS :  OUT  STD_LOGIC;
@@ -104,6 +109,33 @@ end component;
 	);
 	end component data_io;
 
+	component i2s
+	generic (
+		I2S_Freq   : integer := 48000;
+		AUDIO_DW   : integer := 16
+	);
+	port
+	(
+		clk        : in    std_logic;
+		reset      : in    std_logic;
+		clk_rate   : in    integer;
+		sclk       : out   std_logic;
+		lrclk      : out   std_logic;
+		sdata      : out   std_logic;
+		left_chan  : in    std_logic_vector(AUDIO_DW-1 downto 0);
+		right_chan : in    std_logic_vector(AUDIO_DW-1 downto 0)
+	);
+	end component i2s;
+
+	component spdif port
+	(
+		clk_i      : in    std_logic;
+		rst_i      : in    std_logic;
+		clk_rate_i : in    integer;
+		spdif_o    : out   std_logic;
+		sample_i   : in    std_logic_vector(31 downto 0)
+	);
+	end component spdif;
 
 	signal AUDIO_L_PCM : std_logic_vector(15 downto 0);
 	signal AUDIO_R_PCM : std_logic_vector(15 downto 0);
@@ -120,6 +152,7 @@ end component;
 
 	signal CLK_PLL1 : std_logic; -- cascaded to get better pal clock
 	signal PLL1_LOCKED : std_logic;
+	signal CLK_RATE : integer;
 
 	SIGNAL PS2_CLK : std_logic;
 	SIGNAL PS2_DAT : std_logic;
@@ -533,7 +566,30 @@ BEGIN
 		pcm_in => AUDIO_R_PCM_IN,
 		dac_out => audio_r
 	);
-	
+
+	CLK_RATE <= 56750000 when PAL = '1' else 57270000;
+
+	my_i2s : i2s
+	port map (
+		clk => clk,
+		reset => '0',
+		clk_rate => CLK_RATE,
+		sclk => I2S_BCK,
+		lrclk => I2S_LRCK,
+		sdata => I2S_DATA,
+		left_chan  => AUDIO_L_PCM,
+		right_chan => AUDIO_R_PCM_IN(15 downto 0)
+	);
+
+	my_spdif : spdif
+	port map (
+		rst_i => '0',
+		clk_i => clk,
+		clk_rate_i => CLK_RATE,
+		spdif_o => SPDIF_O,
+		sample_i => AUDIO_R_PCM_IN(15 downto 0) & AUDIO_L_PCM
+	);
+
 	reconfig_pll : entity work.pll_reconfig -- This only exists to generate reset!!
 	PORT MAP(inclk0 => CLOCK_27,
 		c0 => CLK_RECONFIG_PLL,
