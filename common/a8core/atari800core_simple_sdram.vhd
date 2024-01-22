@@ -153,7 +153,8 @@ ENTITY atari800core_simple_sdram is
 		emulated_cartridge_select: in std_logic_vector(5 downto 0);
 		freezer_enable: in std_logic := '0';
 		freezer_activate: in std_logic := '0';
-		atari800mode: in std_logic := '0'
+		atari800mode: in std_logic := '0';
+		HIRES_ENA : in std_logic := '1'
 	);
 end atari800core_simple_sdram;
 
@@ -435,7 +436,8 @@ atari800xl : entity work.atari800core
 		TURBO_VBLANK_ONLY => TURBO_VBLANK_ONLY,
 		freezer_enable => freezer_enable,
 		freezer_activate => freezer_activate,
-		atari800mode => atari800mode
+		atari800mode => atari800mode,
+		HIRES_ENA => HIRES_ENA
 	);
 
 end vhdl;

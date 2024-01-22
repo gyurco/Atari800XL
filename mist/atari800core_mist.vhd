@@ -335,6 +335,7 @@ end component;
 	signal paddle_mode_reg : std_logic;
 
 	-- video settings
+	signal hires_ena : std_logic;
 	signal pal : std_logic;
 	signal scandouble : std_logic;
 	signal scanlines : std_logic_vector(1 downto 0);
@@ -391,6 +392,7 @@ end component;
 		SEP&
 		"P1O4,Video,NTSC,PAL;"&
 		"P1O56,Scandoubler Fx,None,CRT 25%,CRT 50%,CRT 75%;"&
+		"P1OO,Custom hi-res modes,Off,On;"&
 		"P2O8A,CPU Speed,1x,2x,4x,8x,16x;"&
 		"P2OB,Turbo at VBL only,Off,On;"&
 		"P2OC,Machine,XL/XE,400/800;"&
@@ -701,7 +703,8 @@ BEGIN
 		TURBO_VBLANK_ONLY => turbo_vblank_only,
 		emulated_cartridge_select => emulated_cartridge_select,
 		freezer_enable => freezer_enable,
-		freezer_activate => freezer_activate
+		freezer_activate => freezer_activate,
+		HIRES_ENA => hires_ena
 	);
 
 	sdram_adaptor : entity work.sdram_statemachine
@@ -1161,6 +1164,7 @@ BEGIN
 	scanlines <= mist_status(6 downto 5);
 	key_type <= mist_status(19);
 	turbo_drive <= mist_status(22 downto 20);
+	hires_ena <= mist_status(24);
 
 	pause_atari <= '1' when zpu_out1(0) = '1' or ioctl_state /= IOCTL_IDLE else '0';
 	freezer_enable <= zpu_out1(25);

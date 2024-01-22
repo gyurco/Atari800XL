@@ -62,6 +62,9 @@ PORT
 
 	-- used to throttle in vblank mode
 	vblank_out : out std_logic;
+
+	-- enable hires modes
+	hires_ena : in std_logic;
 	
 	-- for debugging
 	shift_out : out std_logic_vector(7 downto 0);
@@ -693,8 +696,8 @@ BEGIN
 
 		an_current <= an_current_next(0);
 		an_prev <= an_current_next(1);
-		
-		case dmactl_delayed_reg(6 downto 5) is
+
+		case (dmactl_delayed_reg(6 downto 5) and hires_ena&'1') is
 		when "01" =>
 			dmactl_delayed_enabled <= '1';
 		when "10" =>
