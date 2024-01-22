@@ -201,6 +201,7 @@ ENTITY atari800core IS
 		freezer_enable: in std_logic;
 		freezer_activate: in std_logic;
 		ATARI800MODE : in std_logic;
+		HIRES_ENA : in std_logic := '1';
 
 		-- freezer trigger
 		-- if these match then we enter the freezer
@@ -440,6 +441,7 @@ PORT MAP(CLK => CLK,
 		 refresh_out => ANTIC_REFRESH_CYCLE,
 		 turbo_out => ANTIC_TURBO,
 		 vblank_out => ANTIC_VBLANK,
+		 hires_ena => HIRES_ENA,
 		 AN => ANTIC_AN,
 		 DATA_OUT => ANTIC_DO,
 		 dma_address_out => ANTIC_ADDR);
