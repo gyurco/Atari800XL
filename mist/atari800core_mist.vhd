@@ -573,23 +573,23 @@ BEGIN
 
 	my_i2s : i2s
 	port map (
-		clk => clk,
+		clk => CLK,
 		reset => '0',
 		clk_rate => CLK_RATE,
 		sclk => I2S_BCK,
 		lrclk => I2S_LRCK,
 		sdata => I2S_DATA,
 		left_chan  => AUDIO_L_PCM,
-		right_chan => AUDIO_R_PCM_IN(15 downto 0)
+		right_chan => AUDIO_R_PCM_IN(19 downto 4)
 	);
 
 	my_spdif : spdif
 	port map (
 		rst_i => '0',
-		clk_i => clk,
+		clk_i => CLK,
 		clk_rate_i => CLK_RATE,
 		spdif_o => SPDIF_O,
-		sample_i => AUDIO_R_PCM_IN(15 downto 0) & AUDIO_L_PCM
+		sample_i => AUDIO_R_PCM_IN(19 downto 4) & AUDIO_L_PCM
 	);
 
 	reconfig_pll : entity work.pll_reconfig -- This only exists to generate reset!!
