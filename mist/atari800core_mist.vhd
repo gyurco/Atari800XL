@@ -454,7 +454,7 @@ BEGIN
 		end if;
 	end process;
 
-	paddle_mode_next <= paddle_mode_reg xor (not(ps2_keys(16#11F#)) and ps2_keys_next(16#11F#)); -- left windows key
+	paddle_mode_next <= not mist_status(3);
 
 -- mist spi io
 	spi_do <= spi_miso_io when CONF_DATA0 ='0' else 'Z';
