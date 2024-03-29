@@ -1,0 +1,5 @@
+PART	OLD	NEW	Reason	Notes
+50MHZ	815-ASE-50.000MLCT	KC3225A49.1520C30E00	Use 49.152MHz oscillator instead of 50MHz	Can be different model but pinout/size must match
+R10	0402 10Mohm resistor	0402 33Kohm resistor	Reduce noise when audin not connected	10% ok
+R11	0402 10Mohm resistor	0402 33Kohm resistor	Reduce noise when audin not connected	10% ok
+MAX10	…	10M16SCU169C8G	Space for more SID improvements and later - AMY	
