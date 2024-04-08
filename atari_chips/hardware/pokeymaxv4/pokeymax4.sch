@@ -8392,7 +8392,7 @@ SOurce: www.abracon.com</description>
 <part name="RN3" library="resistor-array" deviceset="741-8" device="" value="560"/>
 <part name="RN2" library="resistor-array" deviceset="741-8" device="" value="10K"/>
 <part name="RN1" library="resistor-array" deviceset="741-8" device="" value="20K"/>
-<part name="POKEYMAX1" library="ic-package" deviceset="DIL40" device=""/>
+<part name="POKEYMAX4" library="ic-package" deviceset="DIL40" device=""/>
 <part name="U4" library="max10" deviceset="SN74CB3T16211" device="SM" value="SN74CB3T16211SM"/>
 <part name="R6" library="rcl" deviceset="R-EU_" device="R0402" value="1k1"/>
 <part name="R7" library="rcl" deviceset="R-EU_" device="R0402" value="2k2"/>
@@ -9175,7 +9175,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 </plain>
 <instances>
 <instance part="U2" gate="G$1" x="-124.46" y="-2.54"/>
-<instance part="POKEYMAX1" gate="G$1" x="-43.18" y="17.78"/>
+<instance part="POKEYMAX4" gate="G$1" x="-43.18" y="17.78"/>
 <instance part="U4" gate="G$1" x="-210.82" y="2.54"/>
 <instance part="JP1" gate="A" x="-30.48" y="-38.1"/>
 </instances>
@@ -9213,7 +9213,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="-20.32" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="32"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="32"/>
 <wire x1="-27.94" y1="20.32" x2="-35.56" y2="20.32" width="0.1524" layer="91"/>
 <label x="-35.56" y="20.32" size="1.778" layer="95"/>
 </segment>
@@ -9225,7 +9225,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="-17.78" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="33"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="33"/>
 <wire x1="-27.94" y1="22.86" x2="-35.56" y2="22.86" width="0.1524" layer="91"/>
 <label x="-35.56" y="22.86" size="1.778" layer="95"/>
 </segment>
@@ -9237,7 +9237,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="-15.24" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="34"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="34"/>
 <wire x1="-27.94" y1="25.4" x2="-35.56" y2="25.4" width="0.1524" layer="91"/>
 <label x="-35.56" y="25.4" size="1.778" layer="95"/>
 </segment>
@@ -9249,7 +9249,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="10.16" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="7"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="7"/>
 <wire x1="-58.42" y1="25.4" x2="-50.8" y2="25.4" width="0.1524" layer="91"/>
 <label x="-58.42" y="25.4" size="1.778" layer="95"/>
 </segment>
@@ -9261,7 +9261,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="12.7" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="6"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="6"/>
 <wire x1="-58.42" y1="27.94" x2="-50.8" y2="27.94" width="0.1524" layer="91"/>
 <label x="-58.42" y="27.94" size="1.778" layer="95"/>
 </segment>
@@ -9273,7 +9273,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="15.24" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="5"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="5"/>
 <wire x1="-58.42" y1="30.48" x2="-50.8" y2="30.48" width="0.1524" layer="91"/>
 <label x="-58.42" y="30.48" size="1.778" layer="95"/>
 </segment>
@@ -9285,7 +9285,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="17.78" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="4"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="4"/>
 <wire x1="-58.42" y1="33.02" x2="-50.8" y2="33.02" width="0.1524" layer="91"/>
 <label x="-58.42" y="33.02" size="1.778" layer="95"/>
 </segment>
@@ -9297,7 +9297,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="20.32" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="3"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="3"/>
 <wire x1="-58.42" y1="35.56" x2="-50.8" y2="35.56" width="0.1524" layer="91"/>
 <label x="-58.42" y="35.56" size="1.778" layer="95"/>
 </segment>
@@ -9309,7 +9309,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="22.86" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="2"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="2"/>
 <wire x1="-58.42" y1="38.1" x2="-50.8" y2="38.1" width="0.1524" layer="91"/>
 <label x="-58.42" y="38.1" size="1.778" layer="95"/>
 </segment>
@@ -9321,7 +9321,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="-12.7" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="40"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="40"/>
 <wire x1="-27.94" y1="40.64" x2="-35.56" y2="40.64" width="0.1524" layer="91"/>
 <label x="-35.56" y="40.64" size="1.778" layer="95"/>
 </segment>
@@ -9333,7 +9333,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="-7.62" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="39"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="39"/>
 <wire x1="-27.94" y1="38.1" x2="-35.56" y2="38.1" width="0.1524" layer="91"/>
 <label x="-35.56" y="38.1" size="1.778" layer="95"/>
 </segment>
@@ -9345,7 +9345,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="-5.08" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="30"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="30"/>
 <wire x1="-27.94" y1="15.24" x2="-35.56" y2="15.24" width="0.1524" layer="91"/>
 <label x="-35.56" y="15.24" size="1.778" layer="95"/>
 </segment>
@@ -9357,7 +9357,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="2.54" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="27"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="27"/>
 <wire x1="-27.94" y1="7.62" x2="-35.56" y2="7.62" width="0.1524" layer="91"/>
 <label x="-35.56" y="7.62" size="1.778" layer="95"/>
 </segment>
@@ -9369,7 +9369,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="0" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="38"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="38"/>
 <wire x1="-27.94" y1="35.56" x2="-35.56" y2="35.56" width="0.1524" layer="91"/>
 <label x="-35.56" y="35.56" size="1.778" layer="95"/>
 </segment>
@@ -9381,7 +9381,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="-33.02" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="24"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="24"/>
 <wire x1="-27.94" y1="0" x2="-35.56" y2="0" width="0.1524" layer="91"/>
 <label x="-35.56" y="0" size="1.778" layer="95"/>
 </segment>
@@ -9393,7 +9393,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="-27.94" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="25"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="25"/>
 <wire x1="-27.94" y1="2.54" x2="-35.56" y2="2.54" width="0.1524" layer="91"/>
 <label x="-35.56" y="2.54" size="1.778" layer="95"/>
 </segment>
@@ -9416,7 +9416,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="27.94" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="1"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="1"/>
 <wire x1="-50.8" y1="40.64" x2="-60.96" y2="40.64" width="0.1524" layer="91"/>
 <label x="-60.96" y="40.64" size="1.778" layer="95"/>
 </segment>
@@ -9456,7 +9456,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="-22.86" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="35"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="35"/>
 <wire x1="-27.94" y1="27.94" x2="-35.56" y2="27.94" width="0.1524" layer="91"/>
 <label x="-35.56" y="27.94" size="1.778" layer="95"/>
 </segment>
@@ -9608,7 +9608,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="7.62" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="29"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="29"/>
 <wire x1="-27.94" y1="12.7" x2="-35.56" y2="12.7" width="0.1524" layer="91"/>
 <label x="-35.56" y="12.7" size="1.778" layer="95"/>
 </segment>
@@ -9655,7 +9655,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="-25.4" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="26"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="26"/>
 <wire x1="-27.94" y1="5.08" x2="-35.56" y2="5.08" width="0.1524" layer="91"/>
 <label x="-35.56" y="5.08" size="1.778" layer="95"/>
 </segment>
@@ -9667,14 +9667,14 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="5.08" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="28"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="28"/>
 <wire x1="-27.94" y1="10.16" x2="-35.56" y2="10.16" width="0.1524" layer="91"/>
 <label x="-35.56" y="10.16" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="AUDF1" class="0">
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="37"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="37"/>
 <wire x1="-35.56" y1="33.02" x2="-20.32" y2="33.02" width="0.1524" layer="91"/>
 <label x="-25.4" y="33.02" size="1.778" layer="95"/>
 </segment>
@@ -9686,7 +9686,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="-35.56" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="23"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="23"/>
 <wire x1="-27.94" y1="-2.54" x2="-35.56" y2="-2.54" width="0.1524" layer="91"/>
 <label x="-35.56" y="-2.54" size="1.778" layer="95"/>
 </segment>
@@ -9698,7 +9698,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="-10.16" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="36"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="36"/>
 <wire x1="-27.94" y1="30.48" x2="-35.56" y2="30.48" width="0.1524" layer="91"/>
 <label x="-35.56" y="30.48" size="1.778" layer="95"/>
 </segment>
@@ -9710,14 +9710,14 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-111.76" y="-2.54" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="31"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="31"/>
 <wire x1="-27.94" y1="17.78" x2="-35.56" y2="17.78" width="0.1524" layer="91"/>
 <label x="-35.56" y="17.78" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="5V0" class="0">
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="17"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="17"/>
 <wire x1="-50.8" y1="0" x2="-55.88" y2="0" width="0.1524" layer="91"/>
 <wire x1="-55.88" y1="0" x2="-55.88" y2="-27.94" width="0.1524" layer="91"/>
 <label x="-55.88" y="-25.4" size="1.778" layer="95"/>
@@ -9730,7 +9730,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-198.12" y="27.94" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="22"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="22"/>
 <wire x1="-27.94" y1="-5.08" x2="-35.56" y2="-5.08" width="0.1524" layer="91"/>
 <label x="-35.56" y="-5.08" size="1.778" layer="95"/>
 </segment>
@@ -9742,7 +9742,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-198.12" y="25.4" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="21"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="21"/>
 <wire x1="-27.94" y1="-7.62" x2="-35.56" y2="-7.62" width="0.1524" layer="91"/>
 <label x="-35.56" y="-7.62" size="1.778" layer="95"/>
 </segment>
@@ -9845,7 +9845,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-198.12" y="2.54" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="8"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="8"/>
 <wire x1="-58.42" y1="22.86" x2="-50.8" y2="22.86" width="0.1524" layer="91"/>
 <label x="-58.42" y="22.86" size="1.778" layer="95"/>
 </segment>
@@ -9857,7 +9857,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-198.12" y="0" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="9"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="9"/>
 <wire x1="-58.42" y1="20.32" x2="-50.8" y2="20.32" width="0.1524" layer="91"/>
 <label x="-58.42" y="20.32" size="1.778" layer="95"/>
 </segment>
@@ -9869,7 +9869,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-198.12" y="-2.54" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="10"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="10"/>
 <wire x1="-58.42" y1="17.78" x2="-50.8" y2="17.78" width="0.1524" layer="91"/>
 <label x="-58.42" y="17.78" size="1.778" layer="95"/>
 </segment>
@@ -9881,7 +9881,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-198.12" y="-5.08" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="11"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="11"/>
 <wire x1="-58.42" y1="15.24" x2="-50.8" y2="15.24" width="0.1524" layer="91"/>
 <label x="-58.42" y="15.24" size="1.778" layer="95"/>
 </segment>
@@ -9893,7 +9893,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-198.12" y="-7.62" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="14"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="14"/>
 <wire x1="-58.42" y1="7.62" x2="-50.8" y2="7.62" width="0.1524" layer="91"/>
 <label x="-58.42" y="7.62" size="1.778" layer="95"/>
 </segment>
@@ -9905,7 +9905,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-198.12" y="-10.16" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="15"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="15"/>
 <wire x1="-58.42" y1="5.08" x2="-50.8" y2="5.08" width="0.1524" layer="91"/>
 <label x="-58.42" y="5.08" size="1.778" layer="95"/>
 </segment>
@@ -9917,7 +9917,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-198.12" y="-12.7" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="13"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="13"/>
 <wire x1="-58.42" y1="10.16" x2="-50.8" y2="10.16" width="0.1524" layer="91"/>
 <label x="-58.42" y="10.16" size="1.778" layer="95"/>
 </segment>
@@ -9929,7 +9929,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-198.12" y="-15.24" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="12"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="12"/>
 <wire x1="-58.42" y1="12.7" x2="-50.8" y2="12.7" width="0.1524" layer="91"/>
 <label x="-58.42" y="12.7" size="1.778" layer="95"/>
 </segment>
@@ -9965,7 +9965,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-198.12" y="-22.86" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="20"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="20"/>
 <wire x1="-58.42" y1="-7.62" x2="-50.8" y2="-7.62" width="0.1524" layer="91"/>
 <label x="-58.42" y="-7.62" size="1.778" layer="95"/>
 </segment>
@@ -9977,7 +9977,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-198.12" y="-25.4" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="19"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="19"/>
 <wire x1="-58.42" y1="-5.08" x2="-50.8" y2="-5.08" width="0.1524" layer="91"/>
 <label x="-58.42" y="-5.08" size="1.778" layer="95"/>
 </segment>
@@ -9989,7 +9989,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-198.12" y="-27.94" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="18"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="18"/>
 <wire x1="-58.42" y1="-2.54" x2="-50.8" y2="-2.54" width="0.1524" layer="91"/>
 <label x="-58.42" y="-2.54" size="1.778" layer="95"/>
 </segment>
@@ -10001,7 +10001,7 @@ B1 (TR) - L4P/L5N  : P2/THRES
 <label x="-198.12" y="-30.48" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="POKEYMAX1" gate="G$1" pin="16"/>
+<pinref part="POKEYMAX4" gate="G$1" pin="16"/>
 <wire x1="-58.42" y1="2.54" x2="-50.8" y2="2.54" width="0.1524" layer="91"/>
 <label x="-58.42" y="2.54" size="1.778" layer="95"/>
 </segment>

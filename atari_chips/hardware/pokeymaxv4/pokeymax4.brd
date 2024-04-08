@@ -2311,7 +2311,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <attribute name="NAME" x="13.2347" y="45.8676" size="0.6096" layer="25" ratio="18" rot="R270"/>
 <attribute name="VALUE" x="13.0823" y="46.6296" size="0.8128" layer="27" ratio="10" rot="R270"/>
 </element>
-<element name="POKEYMAX1" library="ic-package" package="DIL40" value="" x="19.6" y="26.8" smashed="yes" rot="R270">
+<element name="POKEYMAX4" library="ic-package" package="DIL40" value="" x="19.6" y="26.8" smashed="yes" rot="R270">
 <attribute name="NAME" x="9.186" y="52.324" size="1.27" layer="25"/>
 <attribute name="VALUE" x="18.584" y="43.945" size="1.778" layer="27" rot="R270"/>
 </element>
@@ -2502,7 +2502,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <via x="14.0208" y="45.8724" extent="1-16" drill="0.2" shape="octagon"/>
 <wire x1="14.5548" y1="46.0096" x2="14.158" y2="46.0096" width="0.254" layer="1"/>
 <wire x1="14.158" y1="46.0096" x2="14.0208" y2="45.8724" width="0.254" layer="1"/>
-<contactref element="POKEYMAX1" pad="1"/>
+<contactref element="POKEYMAX4" pad="1"/>
 <contactref element="U4" pad="8"/>
 <contactref element="U4" pad="38"/>
 <contactref element="U4" pad="49"/>
@@ -2616,7 +2616,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLA17">
 <contactref element="U2" pad="35"/>
-<contactref element="POKEYMAX1" pad="32"/>
+<contactref element="POKEYMAX4" pad="32"/>
 <wire x1="26.3652" y1="37.7952" x2="26.8224" y2="37.338" width="0.1524" layer="1"/>
 <wire x1="26.8224" y1="37.338" x2="27.7368" y2="37.338" width="0.1524" layer="1"/>
 <wire x1="27.8892" y1="32.4612" x2="27.8892" y2="31.2792" width="0.1524" layer="1"/>
@@ -2634,7 +2634,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLA16">
 <contactref element="U2" pad="36"/>
-<contactref element="POKEYMAX1" pad="33"/>
+<contactref element="POKEYMAX4" pad="33"/>
 <wire x1="26.67" y1="37.0332" x2="26.2128" y2="37.4904" width="0.1524" layer="1"/>
 <wire x1="22.412" y1="39.37" x2="22.412" y2="37.3288" width="0.1524" layer="1"/>
 <wire x1="22.412" y1="37.3288" x2="22.5552" y2="37.1856" width="0.1524" layer="1"/>
@@ -2648,7 +2648,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLA15">
 <contactref element="U2" pad="37"/>
-<contactref element="POKEYMAX1" pad="34"/>
+<contactref element="POKEYMAX4" pad="34"/>
 <wire x1="26.0604" y1="37.1856" x2="27.22" y2="36.026" width="0.1524" layer="1"/>
 <wire x1="27.22" y1="35.69" x2="27.22" y2="36.026" width="0.1524" layer="1"/>
 <wire x1="22.012" y1="39.37" x2="22.012" y2="37.8812" width="0.1524" layer="1"/>
@@ -2664,7 +2664,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="17.612" y1="39.37" x2="17.612" y2="38.3188" width="0.1524" layer="1"/>
 <wire x1="17.612" y1="38.3188" x2="17.6784" y2="38.2524" width="0.1524" layer="1"/>
 <wire x1="17.6784" y1="38.2524" x2="17.6784" y2="37.338" width="0.1524" layer="1"/>
-<contactref element="POKEYMAX1" pad="7"/>
+<contactref element="POKEYMAX4" pad="7"/>
 <wire x1="11.98" y1="35.69" x2="14.6588" y2="35.69" width="0.1524" layer="1"/>
 <wire x1="14.6588" y1="35.69" x2="15.3924" y2="36.4236" width="0.1524" layer="16"/>
 <wire x1="15.3924" y1="36.4236" x2="16.764" y2="36.4236" width="0.1524" layer="1"/>
@@ -2679,7 +2679,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="16.764" y1="38.2524" x2="16.764" y2="37.7952" width="0.1524" layer="1"/>
 <wire x1="14.1096" y1="37.4904" x2="16.4592" y2="37.4904" width="0.1524" layer="1"/>
 <wire x1="16.4592" y1="37.4904" x2="16.764" y2="37.7952" width="0.1524" layer="1"/>
-<contactref element="POKEYMAX1" pad="6"/>
+<contactref element="POKEYMAX4" pad="6"/>
 <wire x1="11.98" y1="38.23" x2="13.37" y2="38.23" width="0.1524" layer="1"/>
 <wire x1="13.37" y1="38.23" x2="14.1096" y2="37.4904" width="0.1524" layer="1"/>
 </signal>
@@ -2689,7 +2689,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="16.3068" y1="37.7952" x2="16.4592" y2="37.9476" width="0.1524" layer="1"/>
 <wire x1="16.4592" y1="37.9476" x2="16.4592" y2="39.3228" width="0.1524" layer="1"/>
 <wire x1="16.4592" y1="39.3228" x2="16.412" y2="39.37" width="0.1524" layer="1"/>
-<contactref element="POKEYMAX1" pad="5"/>
+<contactref element="POKEYMAX4" pad="5"/>
 <wire x1="11.98" y1="40.77" x2="12.23" y2="40.77" width="0.1524" layer="1"/>
 <wire x1="12.23" y1="40.77" x2="13.2" y2="39.8" width="0.1524" layer="1"/>
 <wire x1="13.2" y1="38.8" x2="14.2048" y2="37.7952" width="0.1524" layer="1"/>
@@ -2697,7 +2697,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLA2">
 <contactref element="U2" pad="52"/>
-<contactref element="POKEYMAX1" pad="4"/>
+<contactref element="POKEYMAX4" pad="4"/>
 <wire x1="16.012" y1="39.37" x2="16.012" y2="38.412" width="0.1524" layer="1"/>
 <wire x1="16.012" y1="38.412" x2="15.8" y2="38.2" width="0.1524" layer="1"/>
 <wire x1="15.8" y1="38.2" x2="14.2" y2="38.2" width="0.1524" layer="1"/>
@@ -2714,7 +2714,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="15.0876" y1="40.8432" x2="15.612" y2="40.3188" width="0.1524" layer="1"/>
 <wire x1="15.612" y1="39.37" x2="15.612" y2="40.3188" width="0.1524" layer="1"/>
 <wire x1="13.4" y1="41.8432" x2="14.4" y2="40.8432" width="0.1524" layer="1"/>
-<contactref element="POKEYMAX1" pad="3"/>
+<contactref element="POKEYMAX4" pad="3"/>
 <wire x1="13.4" y1="44.8" x2="13.4" y2="41.8432" width="0.1524" layer="1"/>
 <wire x1="11.98" y1="45.85" x2="12.35" y2="45.85" width="0.1524" layer="1"/>
 <wire x1="12.35" y1="45.85" x2="13.4" y2="44.8" width="0.1524" layer="1"/>
@@ -2725,7 +2725,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="14.9352" y1="40.5384" x2="15.212" y2="40.2616" width="0.1524" layer="1"/>
 <wire x1="15.212" y1="39.37" x2="15.212" y2="40.2616" width="0.1524" layer="1"/>
 <wire x1="13" y1="41.7384" x2="14.2" y2="40.5384" width="0.1524" layer="1"/>
-<contactref element="POKEYMAX1" pad="2"/>
+<contactref element="POKEYMAX4" pad="2"/>
 <wire x1="11.98" y1="48.39" x2="12.4176" y2="48.39" width="0.1524" layer="16"/>
 <wire x1="12.4176" y1="48.39" x2="12.954" y2="47.8536" width="0.1524" layer="16"/>
 <wire x1="12.954" y1="47.8536" x2="12.954" y2="46.6344" width="0.1524" layer="16"/>
@@ -2740,7 +2740,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <contactref element="U2" pad="39"/>
 <wire x1="21.212" y1="39.37" x2="21.212" y2="40.262" width="0.1524" layer="1"/>
 <wire x1="21.212" y1="40.262" x2="21.6408" y2="40.6908" width="0.1524" layer="1"/>
-<contactref element="POKEYMAX1" pad="40"/>
+<contactref element="POKEYMAX4" pad="40"/>
 <wire x1="27.22" y1="50.93" x2="27.22" y2="50.1992" width="0.1524" layer="1"/>
 <wire x1="27.22" y1="50.1992" x2="28.4988" y2="48.9204" width="0.1524" layer="1"/>
 <wire x1="28.4988" y1="48.9204" x2="28.4988" y2="42.2148" width="0.1524" layer="1"/>
@@ -2753,7 +2753,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLA12">
 <contactref element="U2" pad="41"/>
-<contactref element="POKEYMAX1" pad="39"/>
+<contactref element="POKEYMAX4" pad="39"/>
 <wire x1="20.412" y1="39.37" x2="20.412" y2="40.3764" width="0.1524" layer="1"/>
 <wire x1="20.412" y1="40.3764" x2="21.336" y2="41.3004" width="0.1524" layer="1"/>
 <wire x1="21.336" y1="41.3004" x2="26.5176" y2="41.3004" width="0.1524" layer="1"/>
@@ -2768,7 +2768,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLA11">
 <contactref element="U2" pad="42"/>
-<contactref element="POKEYMAX1" pad="30"/>
+<contactref element="POKEYMAX4" pad="30"/>
 <wire x1="20.012" y1="39.37" x2="20.012" y2="37.7476" width="0.1524" layer="1"/>
 <wire x1="20.012" y1="37.7476" x2="20.2692" y2="37.4904" width="0.1524" layer="1"/>
 <wire x1="20.2692" y1="37.4904" x2="21.0312" y2="37.4904" width="0.1524" layer="1"/>
@@ -2798,14 +2798,14 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="26.3652" y1="30.1936" x2="26.3652" y2="30.1752" width="0.1524" layer="1"/>
 <wire x1="26.3652" y1="30.1752" x2="26.8224" y2="29.718" width="0.1524" layer="1"/>
 <wire x1="26.8224" y1="29.718" x2="27.5844" y2="29.718" width="0.1524" layer="1"/>
-<contactref element="POKEYMAX1" pad="27"/>
+<contactref element="POKEYMAX4" pad="27"/>
 <wire x1="28.3464" y1="19.0364" x2="27.22" y2="17.91" width="0.1524" layer="1"/>
 <wire x1="27.5844" y1="29.718" x2="28.3464" y2="28.956" width="0.1524" layer="1"/>
 <wire x1="28.3464" y1="28.956" x2="28.3464" y2="19.0364" width="0.1524" layer="1"/>
 </signal>
 <signal name="LVLA9">
 <contactref element="U2" pad="44"/>
-<contactref element="POKEYMAX1" pad="38"/>
+<contactref element="POKEYMAX4" pad="38"/>
 <wire x1="28.194" y1="42.794" x2="28.194" y2="43.7388" width="0.1524" layer="1"/>
 <wire x1="27.22" y1="45.85" x2="27.22" y2="44.7128" width="0.1524" layer="1"/>
 <wire x1="27.22" y1="44.7128" x2="28.194" y2="43.7388" width="0.1524" layer="1"/>
@@ -2825,7 +2825,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="25.0952" y1="38.2524" x2="26.0604" y2="38.2524" width="0.1524" layer="1"/>
 <wire x1="26.0604" y1="38.2524" x2="26.8224" y2="39.0652" width="0.1524" layer="1"/>
 <wire x1="26.8224" y1="39.0652" x2="28.2956" y2="39.0652" width="0.1524" layer="1"/>
-<contactref element="POKEYMAX1" pad="24"/>
+<contactref element="POKEYMAX4" pad="24"/>
 <wire x1="28.2956" y1="39.0652" x2="28.956" y2="38.4048" width="0.1524" layer="1"/>
 <wire x1="28.956" y1="38.4048" x2="28.956" y2="17.6784" width="0.1524" layer="1"/>
 <wire x1="28.956" y1="17.6784" x2="29.2" y2="17.3736" width="0.1524" layer="1"/>
@@ -2845,7 +2845,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="24.3078" y1="38.0746" x2="25.654" y2="38.1508" width="0.1524" layer="16"/>
 <wire x1="25.654" y1="38.1508" x2="25.654" y2="38.3032" width="0.1524" layer="16"/>
 <wire x1="25.654" y1="38.3032" x2="26.8224" y2="39.4716" width="0.1524" layer="16"/>
-<contactref element="POKEYMAX1" pad="25"/>
+<contactref element="POKEYMAX4" pad="25"/>
 <via x="28.4988" y="37.4904" extent="1-16" drill="0.2" shape="octagon"/>
 <wire x1="28.4988" y1="37.4904" x2="28.6512" y2="37.338" width="0.1524" layer="1"/>
 <wire x1="28.6512" y1="37.338" x2="28.6512" y2="18.5928" width="0.1524" layer="1"/>
@@ -3080,7 +3080,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="17.3692" y1="5.0308" x2="17.8" y2="4.6" width="0.254" layer="16"/>
 <wire x1="17.8" y1="4.6" x2="17.8" y2="3.8" width="0.254" layer="16"/>
 <wire x1="17.8" y1="3.8" x2="16.6" y2="2.6" width="0.254" layer="16"/>
-<contactref element="POKEYMAX1" pad="17"/>
+<contactref element="POKEYMAX4" pad="17"/>
 <wire x1="16.6116" y1="45.294015625" x2="13.705984375" y2="45.294015625" width="0.254" layer="1"/>
 <wire x1="13.705984375" y1="45.294015625" x2="13.4" y2="45.6" width="0.254" layer="1"/>
 <wire x1="13.4" y1="45.6" x2="13.4" y2="46.2" width="0.254" layer="1"/>
@@ -3446,7 +3446,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLA18">
 <contactref element="U2" pad="34"/>
-<contactref element="POKEYMAX1" pad="35"/>
+<contactref element="POKEYMAX4" pad="35"/>
 <via x="23.1394" y="38.1508" extent="1-16" drill="0.2" shape="octagon"/>
 <wire x1="26.9376" y1="37.9476" x2="27.22" y2="38.23" width="0.1524" layer="16"/>
 <wire x1="26.9376" y1="37.9476" x2="26.8224" y2="37.9476" width="0.1524" layer="16"/>
@@ -3604,7 +3604,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="19.2024" y1="36.2712" x2="20.4216" y2="36.2712" width="0.1524" layer="1"/>
 <wire x1="25.4508" y1="35.306" x2="21.3868" y2="35.306" width="0.1524" layer="1"/>
 <wire x1="21.3868" y1="35.306" x2="20.4216" y2="36.2712" width="0.1524" layer="1"/>
-<contactref element="POKEYMAX1" pad="29"/>
+<contactref element="POKEYMAX4" pad="29"/>
 <wire x1="25.7556" y1="29.8704" x2="26.3652" y2="29.2608" width="0.1524" layer="1"/>
 <wire x1="26.3652" y1="29.2608" x2="26.3652" y2="24.9936" width="0.1524" layer="1"/>
 <wire x1="26.3652" y1="24.9936" x2="27.2796" y2="24.0792" width="0.1524" layer="1"/>
@@ -3686,7 +3686,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLA19">
 <contactref element="U2" pad="33"/>
-<contactref element="POKEYMAX1" pad="26"/>
+<contactref element="POKEYMAX4" pad="26"/>
 <wire x1="23.612" y1="39.37" x2="23.612" y2="38.3132" width="0.1524" layer="1"/>
 <via x="23.7236" y="38.1" extent="1-16" drill="0.2" shape="octagon"/>
 <wire x1="24.0792" y1="37.6428" x2="25.7556" y2="37.6428" width="0.1524" layer="16"/>
@@ -3709,7 +3709,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLA7">
 <contactref element="U2" pad="46"/>
-<contactref element="POKEYMAX1" pad="28"/>
+<contactref element="POKEYMAX4" pad="28"/>
 <wire x1="26.0604" y1="35.2044" x2="26.0604" y2="30.0228" width="0.1524" layer="1"/>
 <wire x1="18.412" y1="39.37" x2="18.412" y2="37.5188" width="0.1524" layer="1"/>
 <wire x1="18.412" y1="37.5188" x2="19.3548" y2="36.576" width="0.1524" layer="1"/>
@@ -3740,7 +3740,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="19.562" y1="44.5556" x2="19.562" y2="45.0406" width="0.2032" layer="1"/>
 <wire x1="19.562" y1="45.0406" x2="19.562" y2="46.0796" width="0.2032" layer="1"/>
 <wire x1="19.562" y1="46.0796" x2="19.9644" y2="46.482" width="0.2032" layer="1"/>
-<contactref element="POKEYMAX1" pad="37"/>
+<contactref element="POKEYMAX4" pad="37"/>
 <wire x1="26.3652" y1="43.4848" x2="22.8092" y2="43.4848" width="0.2032" layer="1"/>
 <wire x1="19.9644" y1="46.482" x2="20.2692" y2="46.482" width="0.2032" layer="1"/>
 <wire x1="27.22" y1="43.31" x2="26.4444" y2="43.31" width="0.2032" layer="1"/>
@@ -3764,7 +3764,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="25.212" y1="39.37" x2="25.8572" y2="39.37" width="0.1524" layer="1"/>
 <wire x1="25.8572" y1="39.37" x2="25.908" y2="39.3446" width="0.1524" layer="1"/>
 <wire x1="25.908" y1="39.3446" x2="28.5242" y2="39.3446" width="0.1524" layer="1"/>
-<contactref element="POKEYMAX1" pad="23"/>
+<contactref element="POKEYMAX4" pad="23"/>
 <wire x1="28.5242" y1="39.3446" x2="28.8036" y2="39.624" width="0.1524" layer="1"/>
 <via x="28.8036" y="39.624" extent="1-16" drill="0.2" shape="octagon"/>
 <wire x1="28.8036" y1="39.624" x2="29.1084" y2="39.3192" width="0.1524" layer="16"/>
@@ -3806,7 +3806,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLA13">
 <contactref element="U2" pad="40"/>
-<contactref element="POKEYMAX1" pad="36"/>
+<contactref element="POKEYMAX4" pad="36"/>
 <wire x1="20.812" y1="40.3192" x2="21.4884" y2="40.9956" width="0.1524" layer="1"/>
 <wire x1="27.1468" y1="40.8432" x2="27.22" y2="40.77" width="0.1524" layer="1"/>
 <wire x1="20.812" y1="39.37" x2="20.812" y2="40.3192" width="0.1524" layer="1"/>
@@ -3815,7 +3815,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLA10">
 <contactref element="U2" pad="43"/>
-<contactref element="POKEYMAX1" pad="31"/>
+<contactref element="POKEYMAX4" pad="31"/>
 <via x="26.2128" y="36.2712" extent="1-16" drill="0.2" shape="octagon"/>
 <wire x1="19.612" y1="39.37" x2="19.612" y2="37.6904" width="0.1524" layer="1"/>
 <wire x1="19.612" y1="37.6904" x2="20.1168" y2="37.1856" width="0.1524" layer="1"/>
@@ -4113,7 +4113,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLB0">
 <contactref element="U4" pad="54"/>
-<contactref element="POKEYMAX1" pad="22"/>
+<contactref element="POKEYMAX4" pad="22"/>
 <wire x1="24.5644" y1="11.73" x2="24.5644" y2="10.7924" width="0.1524" layer="1"/>
 <wire x1="24.5644" y1="10.7924" x2="24.8412" y2="10.5156" width="0.1524" layer="1"/>
 <wire x1="26.2128" y1="9.6012" x2="26.2128" y2="5.9436" width="0.1524" layer="1"/>
@@ -4124,7 +4124,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLB1">
 <contactref element="U4" pad="53"/>
-<contactref element="POKEYMAX1" pad="21"/>
+<contactref element="POKEYMAX4" pad="21"/>
 <wire x1="24.1644" y1="11.73" x2="24.1644" y2="10.7352" width="0.1524" layer="1"/>
 <wire x1="24.1644" y1="10.7352" x2="24.6888" y2="10.2108" width="0.1524" layer="1"/>
 <wire x1="24.6888" y1="10.2108" x2="25.146" y2="10.2108" width="0.1524" layer="1"/>
@@ -4232,7 +4232,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLB10">
 <contactref element="U4" pad="43"/>
-<contactref element="POKEYMAX1" pad="8"/>
+<contactref element="POKEYMAX4" pad="8"/>
 <wire x1="19.3548" y1="15.0876" x2="14.6304" y2="15.0876" width="0.1524" layer="1"/>
 <wire x1="14.6304" y1="15.0876" x2="14.0208" y2="15.6972" width="0.1524" layer="1"/>
 <wire x1="13.8684" y1="26.0604" x2="14.3256" y2="25.6032" width="0.1524" layer="1"/>
@@ -4255,7 +4255,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLB11">
 <contactref element="U4" pad="42"/>
-<contactref element="POKEYMAX1" pad="9"/>
+<contactref element="POKEYMAX4" pad="9"/>
 <wire x1="19.05" y1="14.7828" x2="14.478" y2="14.7828" width="0.1524" layer="1"/>
 <wire x1="14.478" y1="14.7828" x2="13.716" y2="15.5448" width="0.1524" layer="1"/>
 <wire x1="14.0208" y1="24.0792" x2="14.0208" y2="25.4508" width="0.1524" layer="1"/>
@@ -4273,7 +4273,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLB12">
 <contactref element="U4" pad="41"/>
-<contactref element="POKEYMAX1" pad="10"/>
+<contactref element="POKEYMAX4" pad="10"/>
 <wire x1="18.7452" y1="14.478" x2="14.3256" y2="14.478" width="0.1524" layer="1"/>
 <wire x1="14.3256" y1="14.478" x2="13.4112" y2="15.3924" width="0.1524" layer="1"/>
 <wire x1="13.716" y1="25.146" x2="11.98" y2="26.882" width="0.1524" layer="1"/>
@@ -4290,7 +4290,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLB13">
 <contactref element="U4" pad="40"/>
-<contactref element="POKEYMAX1" pad="11"/>
+<contactref element="POKEYMAX4" pad="11"/>
 <wire x1="18.5928" y1="14.1732" x2="14.1732" y2="14.1732" width="0.1524" layer="1"/>
 <wire x1="13.1064" y1="25.2984" x2="12.2116" y2="25.2984" width="0.1524" layer="1"/>
 <wire x1="12.2116" y1="25.2984" x2="11.98" y2="25.53" width="0.1524" layer="1"/>
@@ -4306,7 +4306,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLB14">
 <contactref element="U4" pad="39"/>
-<contactref element="POKEYMAX1" pad="14"/>
+<contactref element="POKEYMAX4" pad="14"/>
 <wire x1="18.288" y1="13.8684" x2="13.8684" y2="13.8684" width="0.1524" layer="1"/>
 <wire x1="12.8016" y1="14.9352" x2="13.8684" y2="13.8684" width="0.1524" layer="1"/>
 <wire x1="12.8016" y1="15.7168" x2="12.8016" y2="14.9352" width="0.1524" layer="1"/>
@@ -4320,7 +4320,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLB15">
 <contactref element="U4" pad="37"/>
-<contactref element="POKEYMAX1" pad="15"/>
+<contactref element="POKEYMAX4" pad="15"/>
 <wire x1="17.2212" y1="13.5636" x2="13.716" y2="13.5636" width="0.1524" layer="1"/>
 <wire x1="11.98" y1="15.37" x2="11.98" y2="15.2996" width="0.1524" layer="1"/>
 <wire x1="11.98" y1="15.2996" x2="13.716" y2="13.5636" width="0.1524" layer="1"/>
@@ -4331,7 +4331,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLB16">
 <contactref element="U4" pad="36"/>
-<contactref element="POKEYMAX1" pad="13"/>
+<contactref element="POKEYMAX4" pad="13"/>
 <wire x1="16.9164" y1="13.2588" x2="13.4112" y2="13.2588" width="0.1524" layer="1"/>
 <wire x1="13.4112" y1="13.2588" x2="12.6492" y2="14.0208" width="0.1524" layer="1"/>
 <wire x1="12.6492" y1="14.0208" x2="11.7348" y2="14.0208" width="0.1524" layer="1"/>
@@ -4350,7 +4350,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLB17">
 <contactref element="U4" pad="35"/>
-<contactref element="POKEYMAX1" pad="12"/>
+<contactref element="POKEYMAX4" pad="12"/>
 <wire x1="16.6116" y1="12.954" x2="13.1064" y2="12.954" width="0.1524" layer="1"/>
 <wire x1="13.1064" y1="12.954" x2="12.3444" y2="13.716" width="0.1524" layer="1"/>
 <wire x1="10.8204" y1="14.3256" x2="11.43" y2="13.716" width="0.1524" layer="1"/>
@@ -4387,7 +4387,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLB20">
 <contactref element="U4" pad="32"/>
-<contactref element="POKEYMAX1" pad="20"/>
+<contactref element="POKEYMAX4" pad="20"/>
 <wire x1="15.7644" y1="11.73" x2="15.7644" y2="10.278" width="0.1524" layer="1"/>
 <wire x1="15.7644" y1="10.278" x2="15.5448" y2="10.0584" width="0.1524" layer="1"/>
 <wire x1="15.5448" y1="10.0584" x2="14.3256" y2="10.0584" width="0.1524" layer="1"/>
@@ -4404,7 +4404,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLB21">
 <contactref element="U4" pad="31"/>
-<contactref element="POKEYMAX1" pad="19"/>
+<contactref element="POKEYMAX4" pad="19"/>
 <wire x1="13" y1="7.2" x2="11.98" y2="6.18" width="0.1524" layer="1"/>
 <wire x1="11.98" y1="6.18" x2="11.98" y2="5.21" width="0.1524" layer="1"/>
 <wire x1="13" y1="7.2" x2="13" y2="9.3424" width="0.1524" layer="1"/>
@@ -4415,7 +4415,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLB22">
 <contactref element="U4" pad="30"/>
-<contactref element="POKEYMAX1" pad="18"/>
+<contactref element="POKEYMAX4" pad="18"/>
 <wire x1="14.9352" y1="10.668" x2="13.8684" y2="10.668" width="0.1524" layer="1"/>
 <wire x1="14.9644" y1="11.73" x2="14.9644" y2="10.6972" width="0.1524" layer="1"/>
 <wire x1="14.9644" y1="10.6972" x2="14.9352" y2="10.668" width="0.1524" layer="1"/>
@@ -4424,7 +4424,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="LVLB23">
 <contactref element="U4" pad="29"/>
-<contactref element="POKEYMAX1" pad="16"/>
+<contactref element="POKEYMAX4" pad="16"/>
 <wire x1="14.5644" y1="11.73" x2="13.08" y2="11.73" width="0.1524" layer="1"/>
 <wire x1="13.08" y1="11.73" x2="11.98" y2="12.83" width="0.1524" layer="1"/>
 </signal>
