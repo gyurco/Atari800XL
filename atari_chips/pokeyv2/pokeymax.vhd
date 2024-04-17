@@ -89,7 +89,7 @@ ENTITY pokeymax IS
 	        -- V4
 		PADDLE_P : INOUT STD_LOGIC_VECTOR((7*paddle_lvds) DOWNTO (1-paddle_lvds));
 		PADDLE_N : INOUT STD_LOGIC_VECTOR((7*paddle_lvds) DOWNTO (1-paddle_lvds));
-		K : OUT STD_LOGIC_VECTOR((7*enable_iox) DOWNTO (1-enable_iox));
+		K : OUT STD_LOGIC_VECTOR((5-(5*enable_iox)) DOWNTO enable_iox);
 		KR1 : IN STD_LOGIC;
 		KR2 : IN STD_LOGIC;
 		ADC_TX_P : OUT STD_LOGIC;
