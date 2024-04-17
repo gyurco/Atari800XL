@@ -1,0 +1,3 @@
+paddle_gpio_sim/paddle_gpio.vhd
+paddle_gpio_sim/altera_gpio_lite/altera_gpio_lite.sv
+paddle_gpio_sim/altera_gpio_lite/mentor/altera_gpio_lite.sv

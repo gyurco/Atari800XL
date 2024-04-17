@@ -195,6 +195,18 @@ my %variants =
 		"a4_bit" => 1, #to access config!
 		"version" => $version . "M04MO"
 	},
+	"10M16_monov2" =>
+	{
+		"pokeys" => 1,
+		"fpga" => "10M16SCU169C8G",
+		"enable_auto_stereo" => 1,
+		"gtia_audio_bit" => 3,
+		"flash_addr_bits" => 17,
+		"cs1_bit" => 20, #force high
+		"a4_bit" => 1, #to access config!
+		"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
+		"version" => $version . "M16MO"
+	},
 	"10M04_stereo_xel_auto" =>
 	{
 		"pokeys" => 2,
@@ -322,6 +334,28 @@ my %variants =
 		"fpga" => "10M08SCU169C8G",
 		"version" => $version . "M08SS"
 	},
+	"sidmax_10M04_stereo" =>
+	{
+		"pokeys" => 0,
+		"enable_auto_stereo" => 1,
+		"enable_flash" => 1,
+		"enable_psg" => 0,
+		"enable_covox" => 0,
+		"enable_sample" => 0,
+		"ext_bits"=> 4,
+		"bus" => "c64",
+		"a5_bit" => 1,  #STEREO
+		"a6_bit" => 2,
+		"a7_bit" => 3,
+		"irq_bit" => 4,
+		#"a6_bit" => 20, #force high
+		#"a7_bit" => 0, #force low
+		"type" => "sidmax",
+		"board" => "v1",
+		#"cs1_bit" => 20, #force high
+		"fpga" => "10M04SCU169C8G",
+		"version" => $version . "S04DS"
+	},
 	"sidmax_10M08_full" =>
 	{
 		"pokeys" => 2,
@@ -424,6 +458,26 @@ my %variants =
 #		"version" => $version . "M08HK",
 #		"optimisearea" => 1
 #	},
+	"10M16_fullv2" =>
+	{
+		"fpga" => "10M16SCU169C8G",
+		"flash_addr_bits" => 17,
+		"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
+		"version" => $version . "M16MO",
+		"pokeys" => 4,
+		"enable_auto_stereo" => 1,
+		"enable_sid" => 1,
+		"enable_psg" => 1,
+		"enable_covox" => 1,
+		"enable_sample" => 1,
+		"enable_flash" => 1,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a6_bit" => 3,
+		"a7_bit" => 19,  #use CS1
+		"cs1_bit" => 20, #force high
+		"version" => $version . "M16HK"
+	},
 	"10M08_fullv2" =>
 	{
 		"enable_audout2" => 0,
@@ -442,6 +496,54 @@ my %variants =
 		"fpga" => "10M08SCU169C8G",
 		"version" => $version . "M08HK",
 		"optimisearea" => 1
+	},
+	"10M08_fullv2_stereo" =>
+	{
+		"enable_audout2" => 0,
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"enable_sid" => 1,
+		"enable_psg" => 1,
+		"enable_covox" => 1,
+		"enable_sample" => 1,
+		"enable_flash" => 1,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a6_bit" => 3,
+		"a7_bit" => 19,  #use CS1
+		"cs1_bit" => 20, #force high
+		"fpga" => "10M08SCU169C8G",
+		"version" => $version . "M08HK",
+		"optimisearea" => 1
+	},
+	"10M08_fullv4_stereo" =>
+	{
+		"enable_audout2" => 0,
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"enable_sid" => 1,
+		"enable_psg" => 1,
+		"enable_covox" => 1,
+		"enable_sample" => 1,
+		"enable_flash" => 1,
+		"a4_bit" => 1,
+		"a5_bit" => 2,
+		"a6_bit" => 3,
+		"a7_bit" => 4,
+		"ps2clk_bit" => 5,
+		"ps2dat_bit" => 6,
+		"gtia_audio_bit" => 7, 
+		"spdif_bit" => 10,
+		"ext_bits"=> 10,
+		"paddle_lvds"=>1,
+		"paddle_comp"=>0,
+		"enable_iox"=>0,
+		"enable_adc"=>1,
+		#"pll_v2" => 0, Later, once soldered
+		"fpga" => "10M08SCU169C8G",
+		"version" => $version . "M08HK",
+		"optimisearea" => 1,
+		"board" => "v4"
 	},
 	"10M04_quad_auto_v3" =>
 	{
@@ -719,6 +821,7 @@ foreach my $variant (sort keys %variants)
 	`cp -r int_osc* $dir`;
 	`cp -r pll* $dir`;
 	`cp -r lvds* $dir`;
+	`cp -r paddle* $dir`;
 	`cp -r flash_$flashver/flash* $dir`;
 	`cp -r PSG $dir`;
 	`cp -r SID $dir`;

@@ -48,6 +48,10 @@ ENTITY pokeymax IS
 		enable_audout2: integer := 1;
 		enable_spdif: integer := 0;
 		enable_ps2: integer := 0;
+		enable_adc: integer := 0;
+		paddle_lvds: integer := 0;
+		paddle_comp: integer := 1;
+		enable_iox: integer := 1;
 	
 		sid_wave_base : integer := 42496; --to_integer(unsigned(x"a600"));
 
@@ -82,7 +86,19 @@ ENTITY pokeymax IS
 
 		EXT : INOUT STD_LOGIC_VECTOR(EXT_BITS DOWNTO 1);
 
-		PADDLE : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+	        -- V4
+		PADDLE_P : INOUT STD_LOGIC_VECTOR((7*paddle_lvds) DOWNTO (1-paddle_lvds));
+		PADDLE_N : INOUT STD_LOGIC_VECTOR((7*paddle_lvds) DOWNTO (1-paddle_lvds));
+		K : OUT STD_LOGIC_VECTOR((7*enable_iox) DOWNTO (1-enable_iox));
+		KR1 : IN STD_LOGIC;
+		KR2 : IN STD_LOGIC;
+		ADC_TX_P : OUT STD_LOGIC;
+		--ADC_TX_N : OUT STD_LOGIC;
+		ADC_RX_P : IN STD_LOGIC;
+		--ADC_RX_N : IN STD_LOGIC
+
+	        -- V2-V3
+		PADDLE : IN STD_LOGIC_VECTOR((7*paddle_comp) DOWNTO (1-paddle_comp));
 		POTRESET_N : OUT STD_LOGIC;
 
 		IOX_RST : OUT STD_LOGIC;
@@ -120,6 +136,31 @@ ARCHITECTURE vhdl OF pokeymax IS
 			locked   : out std_logic
 		);
 	end component;
+
+	component lvds_tx is
+		port (
+			tx_in  : in  std_logic_vector(0 downto 0) := (others => 'X'); -- tx_in
+			tx_out : out std_logic_vector(0 downto 0)                     -- tx_out
+		);
+	end component lvds_tx;
+
+	component lvds_rx is
+		port (
+			data  : in  std_logic_vector(0 downto 0) := (others => 'X'); -- data
+			clock : in  std_logic                    := 'X';             -- clock
+			q     : out std_logic_vector(0 downto 0)                     -- q
+		);
+	end component lvds_rx;
+
+	component paddle_gpio is
+        port (
+                dout     : out   std_logic_vector(7 downto 0);                    --     dout.export
+                din      : in    std_logic_vector(7 downto 0) := (others => '0'); --      din.export
+                pad_io   : inout std_logic_vector(7 downto 0) := (others => '0'); --   pad_io.export
+                pad_io_b : inout std_logic_vector(7 downto 0) := (others => '0'); -- pad_io_b.export
+                oe       : in    std_logic_vector(7 downto 0) := (others => '0')  --       oe.export
+        );
+	end component paddle_gpio;
 
 	signal OSC_CLK : std_logic; -- about 82MHz! Always?? Massive range on data sheet
 
@@ -397,6 +438,28 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal PS2CLK : std_logic;
 	signal PS2DAT : std_logic;
 
+	-- adc
+	signal count_reg : unsigned(7 downto 0);
+	signal count_next : unsigned(7 downto 0);
+
+	signal sum_reg : unsigned(7 downto 0);
+	signal sum_next : unsigned(7 downto 0);
+
+	signal sample_reg : unsigned(7 downto 0);
+	signal sample_next : unsigned(7 downto 0);
+
+	signal toggle_reg : std_logic_vector(255 downto 0);
+	signal toggle_next : std_logic_vector(255 downto 0);
+
+	signal decimate_reg : unsigned(3 downto 0);
+	signal decimate_next : unsigned(3 downto 0);
+
+	signal ADC_FILTERED1 : unsigned(15 downto 0);	
+	signal ADC_FILTERED2 : unsigned(15 downto 0);	
+
+	-- paddles
+	signal PADDLE_ADJ : std_logic_vector(7 downto 0);
+
 	function getByte(a : string; x : integer) return std_logic_vector is
    		 variable ret : std_logic_vector(7 downto 0);
 	begin
@@ -412,7 +475,6 @@ ARCHITECTURE vhdl OF pokeymax IS
 	end function min;
 	
 BEGIN
-	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
 	EXT <= (others=>'Z');
 
 	CS_COMB <= CS1MOD and not(CS0NMOD);
@@ -733,7 +795,7 @@ end generate;
 pokey1 : entity work.pokey
 GENERIC MAP
 (
-	custom_keyboard_scan => 1
+	custom_keyboard_scan => enable_iox
 )
 PORT MAP(CLK => CLK,
 		 ENABLE_179 => ENABLE_CYCLE,
@@ -746,7 +808,7 @@ PORT MAP(CLK => CLK,
 		 ADDR => ADDR_IN(3 DOWNTO 0),
 		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		 keyboard_response => KEYBOARD_RESPONSE,
-		 POT_IN => PADDLE,
+		 POT_IN => PADDLE_ADJ,
 		 IRQ_N_OUT => POKEY_IRQ(0),
 		 SIO_OUT1 => SIO_TXD,
 		 SIO_OUT2 => open,
@@ -1813,6 +1875,7 @@ end generate spdif_on;
 -- io extension
 -- drive to 0 for pot reset (otherwise high imp)
 -- drive keyboard lines
+iox_on : if enable_iox=1 generate 
 	i2c_master0 : entity work.i2c_master
  	generic map(input_clk=>58_000_000, bus_clk=>2_800_000)
 	port map(
@@ -1851,6 +1914,13 @@ end generate spdif_on;
 		keyboard_response=>iox_keyboard_response,
 		keyboard_scan_enable=>keyboard_scan_enable
 	);
+	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
+end generate iox_on;
+
+iox_off : if enable_iox=0 generate 
+	iox_keyboard_response <= KR2&KR1;
+	k <= keyboard_scan;
+end generate iox_off;
 
 -- PS2 keyboard
 ps2_on : if enable_ps2=1 generate 
@@ -1894,6 +1964,107 @@ ps2_off : if enable_ps2=0 generate
 	KEYBOARD_RESPONSE <= IOX_KEYBOARD_RESPONSE;
 end generate ps2_off;
 
+adc_on : if enable_adc=1 generate 
+ -- Simple ADC for SIO/PBI audio in
+	 process(clk,reset_n)
+	 begin
+	   if (reset_n='0') then
+			count_reg <= (others=>'0');
+			toggle_reg <= (others=>'0');
+			sum_reg <= (others=>'0');
+			decimate_reg <= (others=>'0');
+			sample_reg <= (others=>'0');
+		elsif (clk'event and clk='1') then
+			count_reg <= count_next;
+			toggle_reg <= toggle_next;
+			sum_reg <= sum_next;
+			decimate_reg <= decimate_next;
+			sample_reg <= sample_next;
+		end if;
+	 end process;	
+	 
+	 lvds_tx0: lvds_tx
+	 port map(
+	 	tx_in(0) => toggle_reg(0),
+	 	tx_out(0) => ADC_TX_P
+	 );
+	-- ADC_TX <= toggle_reg(0);
+	
+	 lvds_rx0: lvds_rx
+	 port map(
+	 	data(0) => ADC_RX_P,
+	 	clock => CLK,
+	 	q(0) => toggle_next(0)
+	 );
+--	 toggle_next(0) <= not(ext_in);
+	 toggle_next(255 downto 1) <= toggle_reg(254 downto 0);
+	 
+adcfilter : entity work.simple_low_pass_filter
+PORT  MAP
+( 
+	CLK => CLK,
+	AUDIO_IN => not(sample_reg(7)&sample_reg(6 downto 0))&"00000000",
+	SAMPLE_IN => ENABLE_CYCLE,
+	AUDIO_OUT => ADC_FILTERED1
+);
+
+adcfilter2 : entity work.simple_low_pass_filter
+PORT  MAP
+( 
+	CLK => CLK,
+	AUDIO_IN => ADC_FILTERED1,
+	SAMPLE_IN => ENABLE_CYCLE,
+	AUDIO_OUT => ADC_FILTERED2
+);
+
+process(count_reg,sum_reg,sample_reg,toggle_reg,decimate_reg)
+begin
+	count_next <= count_reg;
+	sum_next <= sum_reg;	
+	sample_next <= sample_reg;
+	decimate_next <= decimate_reg;
+
+	if (toggle_reg(255)='1' and toggle_reg(0)='0') then
+		sum_next <= sum_reg -1;
+	elsif (toggle_reg(255)='0' and toggle_reg(0)='1') then
+		sum_next <= sum_reg +1;
+	end if;	
+
+	sample_next <= sum_reg;
+end process;
+end generate adc_on;
+
+adc_off : if enable_adc=0 generate 
+	ADC_FILTERED2 <= (others=>'0');
+end generate adc_off;
+
+paddle_lvds_on : if paddle_lvds=1 generate 
+	--PADDLE_ADJ <= PADDLE_P;
+	--PADDLE_P <= (others=>'0') when POTRESET='1' else (others=>'Z');
+	-- lvds
+
+--	 paddle_lvds_tx0: lvds_tx
+--	 port map(
+--	 	tx_in(0) => toggle_reg(0),
+--	 	tx_out(0) => PADDLE_P(0)
+--	 );
+	-- ADC_TX <= toggle_reg(0);
+	
+	 paddle_lvds_rx0: paddle_gpio
+	 port map(
+	 	dout => PADDLE_ADJ,
+		din => (others=>'0'),
+	 	pad_io => PADDLE_P,
+	 	pad_io_b => PADDLE_N,
+		oe =>(others=>POTRESET)
+	 );
+
+end generate paddle_lvds_on;
+
+paddle_comp_on : if paddle_comp=1 generate 
+	POTRESET_N <= not(POTRESET) when ext_clk_enable=0 else '1';
+	PADDLE_ADJ <= PADDLE;
+end generate paddle_comp_on;
 
 -- Wire up pins
 ACLK <= SIO_CLOCKOUT;
@@ -1917,7 +2088,5 @@ AUD(4) <= AUDIO_3_SIGMADELTA when CHANNEL_EN_REG(3)='1' else '0';
 IRQ <= '0' when (IRQ_EN_REG='1' and (and_reduce(POKEY_IRQ)='0')) or (IRQ_EN_REG='0' and POKEY_IRQ(0)='0') or (SAMPLE_IRQ='1')  else 'Z';
 
 D <= BUS_DATA when BUS_OE='1' else (others=>'Z');
-
-POTRESET_N <= not(POTRESET) when ext_clk_enable=0 else '1';
 
 END vhdl;

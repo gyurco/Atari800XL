@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file
+   path="paddle_gpio_sim/altera_gpio_lite/altera_gpio_lite.sv"
+   type="SYSTEM_VERILOG"
+   library="paddle_gpio" />
+ <file
+   path="paddle_gpio_sim/altera_gpio_lite/mentor/altera_gpio_lite.sv"
+   type="SYSTEM_VERILOG_ENCRYPT"
+   library="paddle_gpio"
+   simulator="modelsim" />
+ <file path="paddle_gpio_sim/paddle_gpio.vhd" type="VHDL" />
+ <topLevel name="paddle_gpio" />
+ <deviceFamily name="max10" />
+</simPackage>
