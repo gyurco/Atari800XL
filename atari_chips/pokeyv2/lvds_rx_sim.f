@@ -1,0 +1,2 @@
+lvds_rx_sim/lvds_rx.vhd
+lvds_rx_sim/altera_soft_lvds/altera_soft_lvds_rx_twD2Tqf3.v

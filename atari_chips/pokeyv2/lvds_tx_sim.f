@@ -1,0 +1,2 @@
+lvds_tx_sim/lvds_tx.vhd
+lvds_tx_sim/altera_soft_lvds/altera_soft_lvds_tx_twD5CSXW.v

@@ -1,0 +1,7 @@
+	component lvds_tx is
+		port (
+			tx_in  : in  std_logic_vector(0 downto 0) := (others => 'X'); -- tx_in
+			tx_out : out std_logic_vector(0 downto 0)                     -- tx_out
+		);
+	end component lvds_tx;
+

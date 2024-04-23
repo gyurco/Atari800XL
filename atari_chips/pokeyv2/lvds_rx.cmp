@@ -1,0 +1,8 @@
+	component lvds_rx is
+		port (
+			data  : in  std_logic_vector(0 downto 0) := (others => 'X'); -- data
+			clock : in  std_logic                    := 'X';             -- clock
+			q     : out std_logic_vector(0 downto 0)                     -- q
+		);
+	end component lvds_rx;
+
