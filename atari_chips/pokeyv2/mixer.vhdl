@@ -27,6 +27,7 @@ PORT
 	POST_DIVIDE : IN STD_LOGIC_VECTOR(7 downto 0);
 	FANCY_ENABLE : IN STD_LOGIC;
 	GTIA_EN : IN STD_LOGIC_VECTOR(3 downto 0);	
+	ADC_EN : IN STD_LOGIC_VECTOR(3 downto 0);	
 
 	CH0 : IN UNSIGNED(15 downto 0); --pokey0
 	CH1 : IN UNSIGNED(15 downto 0); --pokey1
@@ -39,6 +40,7 @@ PORT
 	CH8 : IN UNSIGNED(15 downto 0); --psg0
 	CH9 : IN UNSIGNED(15 downto 0); --psg1
 	CHA : IN UNSIGNED(15 downto 0); --gtia0	
+	CHB : IN UNSIGNED(15 downto 0); --adc	
 
 	AUDIO_0_UNSIGNED : out unsigned(15 downto 0);
 	AUDIO_1_UNSIGNED : out unsigned(15 downto 0);
@@ -78,15 +80,17 @@ ARCHITECTURE vhdl OF mixer IS
 	constant state_sample_L : unsigned(3 downto 0) := "0010";
 	constant state_sid_L    : unsigned(3 downto 0) := "0011";
 	constant state_psg_L    : unsigned(3 downto 0) := "0100";
-	constant state_gtia_L   : unsigned(3 downto 0) := "0101";
-	constant state_clear_L  : unsigned(3 downto 0) := "0110";
-	constant state_pokeyA_R : unsigned(3 downto 0) := "0111";
-	constant state_pokeyB_R : unsigned(3 downto 0) := "1000";
-	constant state_sample_R : unsigned(3 downto 0) := "1001";
-	constant state_sid_R    : unsigned(3 downto 0) := "1010";
-	constant state_psg_R    : unsigned(3 downto 0) := "1011";
-	constant state_gtia_R   : unsigned(3 downto 0) := "1100";
-	constant state_clear_R  : unsigned(3 downto 0) := "1101";
+	constant state_adc_L    : unsigned(3 downto 0) := "0101";
+	constant state_gtia_L   : unsigned(3 downto 0) := "0110";
+	constant state_clear_L  : unsigned(3 downto 0) := "0111";
+	constant state_pokeyA_R : unsigned(3 downto 0) := "1000";
+	constant state_pokeyB_R : unsigned(3 downto 0) := "1001";
+	constant state_sample_R : unsigned(3 downto 0) := "1010";
+	constant state_sid_R    : unsigned(3 downto 0) := "1011";
+	constant state_psg_R    : unsigned(3 downto 0) := "1100";
+	constant state_adc_R    : unsigned(3 downto 0) := "1101";
+	constant state_gtia_R   : unsigned(3 downto 0) := "1110";
+	constant state_clear_R  : unsigned(3 downto 0) := "1111";
 	
 	signal channelsel : std_logic_vector(3 downto 0);
 	
@@ -183,6 +187,13 @@ RIGHT_PLAYING_RECENTLY <= or_reduce(std_logic_vector(RIGHT_PLAYING_COUNT_REG));
 					state_next <= state_psg_L;
 				when state_psg_L    =>
 					channelsel <= x"8";
+					state_next <= state_adc_L;
+				when state_adc_L   =>
+					channelsel <= x"b";
+					write_0 <= not(adc_en(0));	
+					write_1 <= not(adc_en(0)) and leftOnRight;	
+					write_2 <= not(adc_en(2));	
+					write_3 <= not(adc_en(2)) and leftOnRight; 						
 					state_next <= state_gtia_L;
 				when state_gtia_L   =>
 					channelsel <= x"a";
@@ -217,14 +228,20 @@ RIGHT_PLAYING_RECENTLY <= or_reduce(std_logic_vector(RIGHT_PLAYING_COUNT_REG));
 				when state_psg_R    =>
 					channelsel <= x"9";
 					R := '1';
+					state_next <= state_adc_R;
+				when state_adc_R   =>
+					channelsel <= x"b";
+					R := '1';
+					write_1 <= not(adc_en(1)) and not(leftOnRight);
+					write_3 <= not(adc_en(3)) and not(leftOnRight);	
+					-- NEEDS DOING WITHOUT ADC GTIA mixed, since those plays on all channels!!
+					RIGHT_NEXT <= xor_reduce(std_logic_vector(saturated));						
 					state_next <= state_gtia_R;
 				when state_gtia_R   =>
-					channelsel <= x"b";
+					channelsel <= x"a";
 					R := '1';
 					write_1 <= not(gtia_en(1)) and not(leftOnRight);
 					write_3 <= not(gtia_en(3)) and not(leftOnRight);	
-					-- NEEDS DOING WITHOUT GTIA mixed, since that plays on all channels!!
-					RIGHT_NEXT <= xor_reduce(std_logic_vector(saturated));						
 					state_next <= state_clear_R;
 				when state_clear_R   =>
 					clearAcc := '1';
@@ -306,6 +323,8 @@ RIGHT_PLAYING_RECENTLY <= or_reduce(std_logic_vector(RIGHT_PLAYING_COUNT_REG));
 			volume <= ch9;
 		when x"a" =>
 		        volume <= cha;
+		when x"b" =>
+		        volume <= chb;
 		when others =>
 		end case;
 	end process;

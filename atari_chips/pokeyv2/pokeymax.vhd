@@ -439,9 +439,6 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal PS2DAT : std_logic;
 
 	-- adc
-	signal count_reg : unsigned(7 downto 0);
-	signal count_next : unsigned(7 downto 0);
-
 	signal sum_reg : unsigned(7 downto 0);
 	signal sum_next : unsigned(7 downto 0);
 
@@ -450,9 +447,6 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal toggle_reg : std_logic_vector(255 downto 0);
 	signal toggle_next : std_logic_vector(255 downto 0);
-
-	signal decimate_reg : unsigned(3 downto 0);
-	signal decimate_next : unsigned(3 downto 0);
 
 	signal ADC_FILTERED1 : unsigned(15 downto 0);	
 	signal ADC_FILTERED2 : unsigned(15 downto 0);	
@@ -1740,6 +1734,7 @@ PORT MAP
 	DETECT_RIGHT => DETECT_RIGHT_REG,	
 	FANCY_ENABLE => FANCY_ENABLE,
 	GTIA_EN => GTIA_ENABLE_REG,
+	ADC_EN => "1100",
 
 	CH0 => POKEY_AUDIO_0,
 	CH1 => POKEY_AUDIO_1,
@@ -1755,6 +1750,7 @@ PORT MAP
 	CHA(11) => SIO_RXD_SYNC,
 	CHA(10 downto 0) => (others=>'0'),
 	CHA(15) => GTIA_AUDIO,			
+	CHB => ADC_FILTERED2,			
 	
 	AUDIO_0_UNSIGNED => AUDIO_0_UNSIGNED,
 	AUDIO_1_UNSIGNED => AUDIO_1_UNSIGNED,
@@ -1969,16 +1965,12 @@ adc_on : if enable_adc=1 generate
 	 process(clk,reset_n)
 	 begin
 	   if (reset_n='0') then
-			count_reg <= (others=>'0');
 			toggle_reg <= (others=>'0');
 			sum_reg <= (others=>'0');
-			decimate_reg <= (others=>'0');
 			sample_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then
-			count_reg <= count_next;
 			toggle_reg <= toggle_next;
 			sum_reg <= sum_next;
-			decimate_reg <= decimate_next;
 			sample_reg <= sample_next;
 		end if;
 	 end process;	
@@ -1988,7 +1980,6 @@ adc_on : if enable_adc=1 generate
 	 	tx_in(0) => toggle_reg(0),
 	 	tx_out(0) => ADC_TX_P
 	 );
-	-- ADC_TX <= toggle_reg(0);
 	
 	 lvds_rx0: lvds_rx
 	 port map(
@@ -1996,7 +1987,6 @@ adc_on : if enable_adc=1 generate
 	 	clock => CLK,
 	 	q(0) => toggle_next(0)
 	 );
---	 toggle_next(0) <= not(ext_in);
 	 toggle_next(255 downto 1) <= toggle_reg(254 downto 0);
 	 
 adcfilter : entity work.simple_low_pass_filter
@@ -2017,12 +2007,10 @@ PORT  MAP
 	AUDIO_OUT => ADC_FILTERED2
 );
 
-process(count_reg,sum_reg,sample_reg,toggle_reg,decimate_reg)
+process(sum_reg,sample_reg,toggle_reg)
 begin
-	count_next <= count_reg;
 	sum_next <= sum_reg;	
 	sample_next <= sample_reg;
-	decimate_next <= decimate_reg;
 
 	if (toggle_reg(255)='1' and toggle_reg(0)='0') then
 		sum_next <= sum_reg -1;
@@ -2039,17 +2027,6 @@ adc_off : if enable_adc=0 generate
 end generate adc_off;
 
 paddle_lvds_on : if paddle_lvds=1 generate 
-	--PADDLE_ADJ <= PADDLE_P;
-	--PADDLE_P <= (others=>'0') when POTRESET='1' else (others=>'Z');
-	-- lvds
-
---	 paddle_lvds_tx0: lvds_tx
---	 port map(
---	 	tx_in(0) => toggle_reg(0),
---	 	tx_out(0) => PADDLE_P(0)
---	 );
-	-- ADC_TX <= toggle_reg(0);
-	
 	 paddle_lvds_rx0: paddle_gpio
 	 port map(
 	 	dout => PADDLE_ADJ,
