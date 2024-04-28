@@ -1746,9 +1746,7 @@ PORT MAP
 	CH7 => unsigned(SID_AUDIO(1)),	
 	CH8 => unsigned(PSG_AUDIO(0)),
 	CH9 => unsigned(PSG_AUDIO(1)),		
-	CHA(14 downto 12) => (others=>'0'),
-	CHA(11) => SIO_RXD_SYNC,
-	CHA(10 downto 0) => (others=>'0'),
+	CHA(14 downto 0) => (others=>'0'),
 	CHA(15) => GTIA_AUDIO,			
 	CHB => ADC_FILTERED2,			
 	
@@ -2023,7 +2021,9 @@ end process;
 end generate adc_on;
 
 adc_off : if enable_adc=0 generate 
-	ADC_FILTERED2 <= (others=>'0');
+	ADC_FILTERED2(15 downto 12) <= (others=>'0');
+	ADC_FILTERED2(11) <= SIO_RXD_SYNC;
+	ADC_FILTERED2(10 downto 0) <= (others=>'0');
 end generate adc_off;
 
 paddle_lvds_on : if paddle_lvds=1 generate 
