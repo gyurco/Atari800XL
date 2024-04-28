@@ -141,10 +141,10 @@ set_location_assignment PIN_C9 -to AUD[3]
 set_location_assignment PIN_D9 -to AUD[4]  
 set_location_assignment PIN_C10 -to AUD[1] 
 
-set_location_assignment PIN_M12 -to ADC_RX_p  #LVLB9
-set_location_assignment PIN_M13 -to ADC_RX_n  
-set_location_assignment PIN_L11 -to ADC_TX_p  
-set_location_assignment PIN_M11 -to ADC_TX_n  
+set_location_assignment PIN_M12 -to ADC_RX_P  #LVLB9
+set_location_assignment PIN_M13 -to ADC_RX_N  
+set_location_assignment PIN_L11 -to ADC_TX_P  
+set_location_assignment PIN_M11 -to ADC_TX_N  
 
 #set_location_assignment PIN_M4,N4,N6,N7,M8,M10,N10,L5 -to PTHRES  
 
@@ -192,27 +192,8 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to AUD[1]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to AUD[3]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to AUD[4]
 
-set_instance_assignment -name IO_STANDARD "2.5 V" -to ADC_TX_P
-set_instance_assignment -name IO_STANDARD "2.5 V" -to ADC_RX_P
-set_instance_assignment -name IO_STANDARD LVDS -to ADC_TX_P[0]
-set_instance_assignment -name IO_STANDARD LVDS -to ADC_RX_P[0]
-
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_P[0]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_N[0]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_P[1]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_N[1]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_P[2]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_N[2]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_P[3]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_N[3]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_P[4]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_N[4]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_P[5]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_N[5]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_P[6]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_N[6]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_P[7]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to PADDLE_N[7]
+set_instance_assignment -name IO_STANDARD LVDS -to ADC_TX_P
+set_instance_assignment -name IO_STANDARD LVDS -to ADC_RX_P
 
 set_instance_assignment -name IO_STANDARD "Bus LVDS" -to PADDLE_P[0]
 set_instance_assignment -name IO_STANDARD "Bus LVDS" -to PADDLE_P[1]
@@ -249,6 +230,7 @@ set_global_assignment -name STRATIXV_CONFIGURATION_SCHEME "PASSIVE SERIAL"
 set_global_assignment -name USE_CONFIGURATION_DEVICE ON
 set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+set_global_assignment -name IOBANK_VCCIO 2.5V -section_id 3
 set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
