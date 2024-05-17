@@ -137,8 +137,8 @@ set_location_assignment PIN_B13 -to EXT[10] #LVLA21,
 set_location_assignment PIN_C12 -to SID    #LVLA22,
 set_location_assignment PIN_D13 -to K[0]   #LVLA23,
 
-set_location_assignment PIN_C9 -to AUD[3]  
-set_location_assignment PIN_D9 -to AUD[4]  
+set_location_assignment PIN_C9 -to AUD[4]  
+set_location_assignment PIN_D9 -to AUD[3]  
 set_location_assignment PIN_C10 -to AUD[1] 
 
 set_location_assignment PIN_M12 -to ADC_RX_P  #LVLB9
