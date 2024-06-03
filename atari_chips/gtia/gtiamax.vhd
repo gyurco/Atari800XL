@@ -111,9 +111,13 @@ ARCHITECTURE vhdl OF gtiamax IS
 	signal COLOUR_OSC_PHASED : std_logic_vector(1 downto 0);
 
 	signal OSC_CLEAN : std_logic;
+	signal OSC_CLEAN_FAST : std_logic;
 	signal OSC_CLEAN_VIDEO : std_logic;
 	signal OSC_CLEAN_EVENT : std_logic;
+	signal OSC_CLEAN_FAST_EVENT : std_logic;
+	signal CC_FALLING_FAST : std_logic;
 	signal CC_FALLING : std_logic;
+	signal OSC_CLEAN_PREV_REG : std_logic;
 
 	signal S_OUT : std_logic_vector(3 downto 0);
 
@@ -179,27 +183,18 @@ BEGIN
 			 c1 => FAST_CLK, -- 300MHz
 			 locked => RESET_N);
 
-	process(clk,reset_n)
+	process(cc_falling_fast,reset_n)
 	begin
 		if (reset_n='0') then
 			AN_DEL_REG <= (others=>'0');
 			AN_DEL2_REG <= (others=>'0');
-		elsif (clk'event and clk='1') then
+		elsif (cc_falling_fast'event and cc_falling_fast='1') then
 			AN_DEL_REG <= AN_DEL_NEXT;
 			AN_DEL2_REG <= AN_DEL2_NEXT;
 		end if;
 	end process;
-
-	process(AN,AN_DEL_REG,AN_DEL2_REG,CC_FALLING)
-	begin
-		AN_DEL_NEXT <= AN_DEL_REG;
-		AN_DEL2_NEXT <= AN_DEL2_REG;
-
-		if (CC_FALLING='1') then
-			AN_DEL_NEXT <= AN;
-			AN_DEL2_NEXT <= AN_DEL_REG;
-		end if;
-	end process;
+	AN_DEL_NEXT <= AN;
+	AN_DEL2_NEXT <= AN_DEL_REG;
 
 bus_adapt : entity work.slave_timing_6502
 	PORT MAP
@@ -254,13 +249,32 @@ PORT MAP(
 
 osc_cleaner : entity work.correct_duty
 PORT MAP(
-	CLK => CLK,
+	CLK => FAST_CLK,
 	RESET_N => RESET_N,
 	CLKIN => OSC,
-	CLKOUT => OSC_CLEAN,
-	CLKOUT_EVENT => OSC_CLEAN_EVENT
+	CLKOUT => OSC_CLEAN_FAST,
+	CLKOUT_EVENT => OSC_CLEAN_FAST_EVENT
+	);
+	CC_FALLING_FAST <= OSC_CLEAN_FAST_EVENT and not(OSC_CLEAN_FAST);
+
+	sync_clk : entity work.synchronizer
+	port map
+	(
+		CLK => CLK,
+		RAW => OSC_CLEAN_FAST,
+		SYNC => OSC_CLEAN
 	);
 
+	process(clk,reset_n)
+	begin
+		if (reset_n='0') then
+			OSC_CLEAN_PREV_REG <= '0';
+		elsif (clk'event and clk='1') then
+			OSC_CLEAN_PREV_REG <= OSC_CLEAN;
+		end if;
+	end process;
+
+	OSC_CLEAN_EVENT <= OSC_CLEAN_PREV_REG xor OSC_CLEAN;
 	CC_FALLING <= OSC_CLEAN_EVENT and not(OSC_CLEAN);
 
 	pal_ntsc_n <= '1'; -- TODO GPIO
@@ -338,6 +352,6 @@ CSYNC <= NOT(VIDEO_CSYNC);
 --COLOR <= colour_osc_phased;
 LUM(3 downto 0) <= VIDEO_COLOUR(3 downto 0);
 
-FO0 <= OSC_CLEAN;
+FO0 <= OSC_CLEAN_FAST;
 
 END vhdl;
