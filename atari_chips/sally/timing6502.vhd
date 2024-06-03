@@ -33,9 +33,11 @@ PORT
 
 	CPU_IRQ_N : OUT STD_LOGIC;
 	CPU_NMI_N : OUT STD_LOGIC;
+	CPU_RDY : OUT STD_LOGIC;
 
 	-- 6502 side
 	BUS_DATA_IN : IN STD_LOGIC_VECTOR(7 downto 0);
+	BUS_RDY : IN STD_LOGIC;
 	
 	BUS_PHI1 : OUT STD_LOGIC;
 	BUS_PHI2 : OUT STD_LOGIC;
@@ -89,6 +91,8 @@ ARCHITECTURE vhdl OF timing6502 IS
 	signal NMI_N_REG : std_logic;		
 	signal IRQ_N_NEXT : std_logic;	
 	signal IRQ_N_REG : std_logic;		
+	signal RDY_NEXT : std_logic;	
+	signal RDY_REG : std_logic;		
 	signal HALT_N_NEXT : std_logic;	
 	signal HALT_N_REG : std_logic;		
 
@@ -119,6 +123,7 @@ BEGIN
 			IRQ_N_REG <= '1';
 			NMI_N_REG <= '1';
 			HALT_N_REG <= '1';
+			RDY_REG <= '1';
 			init_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then
 			state_reg <= state_next;
@@ -137,6 +142,7 @@ BEGIN
 			IRQ_N_REG <= IRQ_N_NEXT;
 			NMI_N_REG <= NMI_N_NEXT;
 			HALT_N_REG <= HALT_N_NEXT;
+			RDY_REG <= RDY_NEXT;
 
 			init_reg <= init_next;
 		end if;			
@@ -162,7 +168,7 @@ BEGIN
 	end process;
 
 	-- next state
-	process(initmode, syncphi2, state_reg, phi1_reg, phi2_reg, addr_in, data_in, addr_reg, addr_oe_reg, data_reg, data_oe_reg, data_read_reg, bus_data_in, write_n_reg, write_in, request_handling_reg, write_oe_reg, irq_n_reg, nmi_n_reg, halt_n_reg, nmi_n, irq_n, halt_n)
+	process(initmode, syncphi2, state_reg, phi1_reg, phi2_reg, addr_in, data_in, addr_reg, addr_oe_reg, data_reg, data_oe_reg, data_read_reg, bus_data_in, write_n_reg, write_in, request_handling_reg, write_oe_reg, irq_n_reg, nmi_n_reg, halt_n_reg, bus_rdy, rdy_reg, nmi_n, irq_n, halt_n)
 	begin
 		CPU_REQUEST_COMPLETE <= '0';
 	
@@ -180,15 +186,18 @@ BEGIN
 		irq_n_next <= irq_n_reg;
 		nmi_n_next <= nmi_n_reg;
 		halt_n_next <= halt_n_reg;
+		rdy_next <= rdy_reg;
 
 		if (initmode = '0') then
 			state_next <= std_logic_vector(unsigned(state_reg)+1);		
 		end if;
 
 		if (syncphi2 = '1') then
-			phi1_next <= '0';
-			state_next <= "01110";
+			phi1_next <= '1';
+			state_next <= "01111";
 		end if;
+		
+		rdy_next <= bus_rdy;	
 
 		case state_reg is
 		when "00000" =>
@@ -246,5 +255,6 @@ BEGIN
 	CPU_REQUEST <= request_handling_reg;
 	CPU_NMI_N <= NMI_N_REG;
 	CPU_IRQ_N <= IRQ_N_REG;
+	CPU_RDY <= RDY_REG;
 	
 END vhdl;

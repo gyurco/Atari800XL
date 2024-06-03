@@ -72,6 +72,8 @@ ARCHITECTURE vhdl OF sallymax IS
 	signal CPU_NMI_N : std_logic;
 	signal CPU_IRQ_N : std_logic;
 
+	signal CPU_RDY : std_logic;
+
 	signal BUS_ADDR : std_logic_vector(15 downto 0);
 	signal BUS_ADDR_OE : std_logic;
 	signal BUS_DATA : std_logic_vector(7 downto 0);
@@ -131,6 +133,7 @@ bus_adapt : entity work.timing6502
 		CPU_REQUEST_COMPLETE => CPU_REQUEST_COMPLETE,
 		CPU_NMI_N => CPU_NMI_N,		
 		CPU_IRQ_N => CPU_IRQ_N,		
+		CPU_RDY => CPU_RDY,
 
 		-- bus side
 		BUS_DATA_IN => D,		
@@ -142,7 +145,8 @@ bus_adapt : entity work.timing6502
 		BUS_DATA_OUT => BUS_DATA,
 		BUS_DATA_OE => BUS_DATA_OE,
 		BUS_WRITE_N => BUS_WRITE_N, 
-		BUS_WRITE_OE => BUS_WRITE_OE
+		BUS_WRITE_OE => BUS_WRITE_OE,
+		BUS_RDY => RDY
 	);	
 				 
 cpu6502 : entity work.cpu
@@ -153,7 +157,7 @@ PORT MAP(CLK => CLK,
 		 NMI_n => CPU_NMI_N,
 		 MEMORY_READY => CPU_REQUEST_COMPLETE,
 		 THROTTLE => CPU_REQUEST,
-		 RDY => RDY,
+		 RDY => CPU_RDY,
 		 DI => CPU_READ_DATA,
 		 R_W_n => CPU_WRITE_N,
 		 CPU_FETCH => open,
