@@ -516,6 +516,35 @@ my %variants =
 		"version" => $version . "M08HK",
 		"optimisearea" => 1
 	},
+	"10M02_v4_stereo" =>
+	{
+		"enable_audout2" => 0,
+		"pokeys" => 2,
+		"enable_auto_stereo" => 1,
+		"enable_sid" => 0,
+		"enable_psg" => 0,
+		"enable_covox" => 0,
+		"enable_sample" => 0,
+		"enable_flash" => 0,
+		"enable_spdif" => 1,
+		"enable_ps2" => 0,
+		"a4_bit" => 1,
+		"ps2clk_bit" => 5,
+		"ps2dat_bit" => 6,
+		"gtia_audio_bit" => 7, 
+		"fancy_switch_bit" => 8,
+		"spdif_bit" => 10,
+		"ext_bits"=> 10,
+		"paddle_lvds"=>1,
+		"paddle_comp"=>0,
+		"enable_iox"=>0,
+		"enable_adc"=>1,
+		"pll_v2" => 0, 
+		"fpga" => "10M02SCU169C8G",
+		"version" => $version . "M02SA",
+		"optimisearea" => 1,
+		"board" => "v4"
+	},
 	"10M08_fullv4_stereo_sample" =>
 	{
 		"enable_audout2" => 0,
