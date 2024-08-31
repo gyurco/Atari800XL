@@ -118,7 +118,8 @@ ARCHITECTURE vhdl OF flash_controller IS
 
 	signal complete : std_logic;
 	signal update_robin : std_logic;
-	signal flash_read : std_logic;
+	signal flash_read_next : std_logic;
+	signal flash_read_reg : std_logic;
 	signal flash_readvalid : std_logic;
 	signal flash_write_next : std_logic;
 	signal flash_write_reg : std_logic;
@@ -177,6 +178,7 @@ BEGIN
 			flash_do_reg <= (others=>'0');
 			flash_complete_reg <= (others=>'0');
 			flash_write_reg <= '0';
+			flash_read_reg <= '0';
 		elsif (clk'event and clk='1') then
 			state_reg <= state_next;
 			request_addr_reg <= request_addr_next;
@@ -187,6 +189,7 @@ BEGIN
 			flash_do_reg <= flash_do_next;
 			flash_complete_reg <= flash_complete_next;
 			flash_write_reg <= flash_write_next;
+			flash_read_reg <= flash_read_next;
 		end if;
 	end process;
 
@@ -214,7 +217,7 @@ BEGIN
 
 		flash_readvalid, flash_waitrequest,
 
-		flash_write_reg,
+		flash_write_reg, flash_read_reg,
 
 		complete,
 		update_robin
@@ -231,7 +234,7 @@ BEGIN
 		robin_next <= robin_reg;
 
 		complete <= '0';
-		flash_read <= '0';
+		flash_read_next <= flash_read_reg;
 		flash_write_next <= flash_write_reg;
 
 		device := '0';
@@ -281,10 +284,12 @@ BEGIN
 				update_robin <= '1';
 			end if;
 		when state_read=>
-			flash_read <= '1';
+			flash_read_next <= '1';
 			state_next <= state_read_wait;
 		when state_read_wait =>
-			flash_read <= flash_waitrequest;
+			if (flash_waitrequest = '0') then
+				flash_read_next <= '0';
+			end if;
 			if (flash_readvalid = '1') then
 				complete <= '1';
 				state_next <= state_delay;
@@ -315,7 +320,7 @@ BEGIN
 
 	-- mux on selected device
 	process(device_reg, flash_data_do, flash_config_do,
-		flash_write_reg,flash_read,flash_data_readvalid,flash_data_waitrequest)
+		flash_write_reg,flash_read_reg,flash_data_readvalid,flash_data_waitrequest)
 	begin
 		flash_do <= (others=>'0');
 
@@ -329,12 +334,12 @@ BEGIN
 
 		if (device_reg='1') then --config
 			flash_do <= flash_config_do;
-			flash_config_read <= flash_read;
+			flash_config_read <= flash_read_reg;
 			flash_config_write <= flash_write_reg;
 			flash_readvalid <= '1';
 		elsif (device_reg='0') then --main
 			flash_do <= flash_data_do;
-			flash_data_read <= flash_read;
+			flash_data_read <= flash_read_reg;
 			flash_data_write <= flash_write_reg;
 			flash_readvalid <= flash_data_readvalid;
 			flash_waitrequest <= flash_data_waitrequest;
