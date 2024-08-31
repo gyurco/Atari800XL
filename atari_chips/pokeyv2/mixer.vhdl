@@ -147,7 +147,7 @@ RIGHT_PLAYING_RECENTLY <= or_reduce(std_logic_vector(RIGHT_PLAYING_COUNT_REG));
 
 
 	process(state_reg,secondBatch_reg,acc_reg,volume,ready,
-	POST_DIVIDE,FANCY_ENABLE,RIGHT_PLAYING_RECENTLY,DETECT_RIGHT,RIGHT_REG,SATURATED,GTIA_EN)
+	POST_DIVIDE,FANCY_ENABLE,RIGHT_PLAYING_RECENTLY,DETECT_RIGHT,RIGHT_REG,SATURATED,GTIA_EN,ADC_EN)
 		variable postdivide : std_logic_vector(1 downto 0);
 		variable presaturate : unsigned(19 downto 0);
 		variable leftOnRight : std_logic;
@@ -295,7 +295,7 @@ RIGHT_PLAYING_RECENTLY <= or_reduce(std_logic_vector(RIGHT_PLAYING_COUNT_REG));
 	end process;		
 	
 	process(state_reg,channelsel,
-		ch0,ch1,ch2,ch3,ch4,ch5,ch6,ch7,ch8,ch9,cha
+		ch0,ch1,ch2,ch3,ch4,ch5,ch6,ch7,ch8,ch9,cha,chb
 		)
 	begin
 		volume <= (others=>'0');
