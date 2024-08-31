@@ -699,42 +699,7 @@ flash_off : if enable_flash=0 generate
 end generate;
 
 --------------------------------------------------------
--- PRIMARY POKEY		 GTIA_VOLUME_
---------------------------------------------------------
-   POKEY_ONE_ON: 
-   for I in 0 to min(pokeys-1,0-1) generate
-pokey1 : entity work.pokey
-PORT MAP(CLK => CLK,
-		 ENABLE_179 => MHZ179_ENABLE,
-		 WR_EN => POKEY_WRITE_ENABLE(0),
-		 RESET_N => RESET_N,
-		 SIO_IN1 => '1',
-		 SIO_CLOCKIN_IN => '1',
-		 SIO_CLOCKIN_OUT => open,
-		 SIO_CLOCKIN_OE => open,
-		 ADDR => ADDR_IN(3 DOWNTO 0),
-		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
-		 keyboard_response => "11",
-		 POT_IN => "000000"&POTY_P&POTX_P,
-		 IRQ_N_OUT => POKEY_IRQ(0),
-		 SIO_OUT1 => open,
-		 SIO_OUT2 => open,
-		 SIO_OUT3 => open,
-		 SIO_CLOCKOUT => open,
-		 POT_RESET => open,
-		 CHANNEL_0_OUT => POKEY_CHANNEL0(0),
-		 CHANNEL_1_OUT => POKEY_CHANNEL1(0),
-		 CHANNEL_2_OUT => POKEY_CHANNEL2(0),
-		 CHANNEL_3_OUT => POKEY_CHANNEL3(0),
-		 DATA_OUT => POKEY_DO(0),
-		 keyboard_scan => open,
-		 keyboard_scan_enable => '1',
-		 keyboard_scan_update => open
-		);
-   end generate POKEY_ONE_ON;		
-
---------------------------------------------------------		
--- POKEY 2-4	 
+-- POKEY 1-4	 
 --------------------------------------------------------		
    POKEY_OFF: 
    for I in pokeys to 3 generate
@@ -747,7 +712,7 @@ PORT MAP(CLK => CLK,
    end generate POKEY_OFF;		
 
    POKEY_ON: 
-   for I in 1 to pokeys-1 generate
+   for I in 0 to pokeys-1 generate
 		pokeyx : entity work.pokey
 		GENERIC MAP
 		(
