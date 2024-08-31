@@ -30,6 +30,10 @@ ARCHITECTURE vhdl OF SID_f_distortion IS
 	signal yadj_reg : unsigned(25 downto 0);
 	signal ychpos : unsigned(12 downto 0);
 	signal f_distorted_next : unsigned(12 downto 0);
+	signal STATE_next : SIGNED(17 downto 8);
+	signal STATE_reg : SIGNED(17 downto 8);
+	signal F_RAW_next : UNSIGNED(12 downto 0);
+	signal F_RAW_reg : UNSIGNED(12 downto 0);
 begin
 	-- register
 	process(clk,reset_n)
@@ -37,13 +41,20 @@ begin
 		if (reset_n='0') then
 			y1_reg <= (others=>'0');
 			yadj_reg <= (others=>'0');
+			state_reg <= (others=>'0');
+			f_raw_reg <= (others=>'0');
 		elsif (clk'event and clk='1') then						
 			y1_reg <= y1;
 			yadj_reg <= yadj_next;
+			state_reg <= state_next;
+			f_raw_reg <= f_raw_next;
 		end if;
 	end process;
 
- 	process (state,f_raw, y1, y2, ych, ychpos, y1_reg, yadj_reg)
+	state_next <= state;
+	f_raw_next <= f_raw;
+
+ 	process (state_reg,f_raw_reg, y1, y2, ych, ychpos, y1_reg, yadj_reg)
 		type LOOKUP_TYPE is array (0 to 38) of unsigned(12 downto 0);
 		variable lookup : LOOKUP_TYPE;
 
@@ -51,8 +62,8 @@ begin
 	begin
 		-- assumption: /home/markw/fpga/svn/jsidplay2-code/jsidplay2/src/main/java/builder/resid/residfp/Filter6581.java
 		pos := (others=>'0');
-		if (state(17)='0') then
-			pos := unsigned('0'&state(16 downto 8)&"000"&"0") + resize('0'&f_raw,14);
+		if (state_reg(17)='0') then
+			pos := unsigned('0'&state_reg(16 downto 8)&"000"&"0") + resize('0'&f_raw_reg,14);
 		end if;
 		if (pos(18 downto 12) > to_unsigned(37,6)) then
 			pos(18) := '0';
