@@ -961,6 +961,7 @@ foreach my $variant (sort keys %variants)
 
 	my $sid = $variants{$variant}->{"enable_sid"};
 	if (not defined $sid) {$sid = "0"};
+	if ($variant =~ /sidmax/) {$sid = "1"};
 
         my $dir = "build_$variant";
 	`rm -rf $dir`;
