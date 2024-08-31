@@ -144,6 +144,7 @@ set_global_assignment -name SDC_FILE pokeymax.sdc
 set_global_assignment -name VHDL_FILE complete_address_decoder.vhdl
 set_global_assignment -name VHDL_FILE syncreset_enable_divider.vhd
 set_global_assignment -name VHDL_FILE delay_line.vhdl
+set_global_assignment -name VHDL_FILE wide_delay_line.vhdl
 set_global_assignment -name VHDL_FILE latch_delay_line.vhdl
 set_global_assignment -name VHDL_FILE sigmadelta_1storder.vhd
 set_global_assignment -name VHDL_FILE sigmadelta_2ndorder.vhd
