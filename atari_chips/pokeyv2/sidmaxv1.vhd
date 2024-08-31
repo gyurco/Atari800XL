@@ -701,6 +701,8 @@ end generate;
 --------------------------------------------------------
 -- PRIMARY POKEY		 GTIA_VOLUME_
 --------------------------------------------------------
+   POKEY_ONE_ON: 
+   for I in 0 to min(pokeys-1,0-1) generate
 pokey1 : entity work.pokey
 PORT MAP(CLK => CLK,
 		 ENABLE_179 => MHZ179_ENABLE,
@@ -729,6 +731,7 @@ PORT MAP(CLK => CLK,
 		 keyboard_scan_enable => '1',
 		 keyboard_scan_update => open
 		);
+   end generate POKEY_ONE_ON;		
 
 --------------------------------------------------------		
 -- POKEY 2-4	 
@@ -1277,7 +1280,7 @@ process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
 	CPU_FLASH_COMPLETE,CONFIG_FLASH_COMPLETE,CONFIG_FLASH_ADDR,flash_do_slow,
 	RESTRICT_CAPABILITY_REG,
 	PAL_REG,
-	SID_EXT1_REG,SID_EXT2_REG,SID_AUTO_REG
+	SID_EXT1_REG,SID_EXT2_REG
 )
 begin
 	SATURATE_NEXT <= SATURATE_REG;
@@ -1603,6 +1606,7 @@ PORT MAP
 	DETECT_RIGHT => DETECT_RIGHT_REG,	
 	FANCY_ENABLE => FANCY_ENABLE,
 	GTIA_EN => GTIA_ENABLE_REG,
+	ADC_EN => "0000",
 
 	CH0 => POKEY_AUDIO_0,
 	CH1 => POKEY_AUDIO_1,
@@ -1616,6 +1620,7 @@ PORT MAP
 	CH9 => unsigned(PSG_AUDIO(1)),		
 	CHA(14 downto 0) => (others=>'0'),
 	CHA(15) => GTIA_AUDIO,			
+	CHB => (others=>'0'),
 	
 	AUDIO_0_UNSIGNED => AUDIO_0_UNSIGNED,
 	AUDIO_1_UNSIGNED => open,
