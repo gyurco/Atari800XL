@@ -6,8 +6,8 @@ rm core2.bin
 rm version
 
 ./swapbits $2 ${TYPE}.pofswap
-dd if=${TYPE}.pofswap bs=1 skip=4264 count=32768 of=init2.bin
-dd if=${TYPE}.pofswap bs=1 skip=192680 count=385024 of=core2.bin
+dd if=${TYPE}.pofswap bs=1 skip=4267 count=32768 of=init2.bin
+dd if=${TYPE}.pofswap bs=1 skip=192683 count=385024 of=core2.bin
 cat init2.bin core2.bin > $4
 echo $3 > version
 dd conv=notrunc if=version bs=1 count=8 of=$4
