@@ -10,7 +10,8 @@ set_clock_groups -asynchronous \
   -group { \
     pll_inst|altpll_component|auto_generated|pll1|clk[0] \
     pll_inst|altpll_component|auto_generated|pll1|clk[1] \
-  }
+  } \
+  -group { pll_inst|altpll_component|auto_generated|pll1|clk[2] }
 
 #		IOX_RST : OUT STD_LOGIC;
 #		IOX_INT : IN STD_LOGIC;
