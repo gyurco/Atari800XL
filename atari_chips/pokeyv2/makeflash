@@ -1,0 +1,6 @@
+TYPE=$1
+rm version
+
+cat UFMboth_post.bin CFMboth_post.bin > $3
+echo $2 > version
+dd conv=notrunc if=version bs=1 count=8 of=$3
