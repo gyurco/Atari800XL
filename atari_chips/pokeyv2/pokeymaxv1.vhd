@@ -48,6 +48,10 @@ ENTITY pokeymax IS
 		enable_audout2: integer := 1;
 		enable_spdif: integer := 0;
 		enable_ps2: integer := 0;
+		enable_adc: integer := 0;
+		paddle_lvds: integer := 0;
+		paddle_comp: integer := 1;
+		enable_iox: integer := 1;
 	
 		sid_wave_base : integer := 42496; --to_integer(unsigned(x"a600"));
 
@@ -81,7 +85,19 @@ ENTITY pokeymax IS
 
 		EXT : INOUT STD_LOGIC_VECTOR(EXT_BITS DOWNTO 1);
 
-		PADDLE : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+	        -- V4
+		PADDLE_P : INOUT STD_LOGIC_VECTOR((7*paddle_lvds) DOWNTO (1-paddle_lvds));
+		PADDLE_N : INOUT STD_LOGIC_VECTOR((7*paddle_lvds) DOWNTO (1-paddle_lvds));
+		K : OUT STD_LOGIC_VECTOR((5-(5*enable_iox)) DOWNTO enable_iox);
+		KR1 : IN STD_LOGIC;
+		KR2 : IN STD_LOGIC;
+		ADC_TX_P : OUT STD_LOGIC;
+		--ADC_TX_N : OUT STD_LOGIC;
+		ADC_RX_P : IN STD_LOGIC;
+		--ADC_RX_N : IN STD_LOGIC
+
+	        -- V2-V3
+		PADDLE : IN STD_LOGIC_VECTOR((7*paddle_comp) DOWNTO (1-paddle_comp));
 
 		IOX_RST : OUT STD_LOGIC;
 		IOX_INT : IN STD_LOGIC;
@@ -118,6 +134,31 @@ ARCHITECTURE vhdl OF pokeymax IS
 			locked   : out std_logic
 		);
 	end component;
+
+	component lvds_tx is
+		port (
+			tx_in  : in  std_logic_vector(0 downto 0) := (others => 'X'); -- tx_in
+			tx_out : out std_logic_vector(0 downto 0)                     -- tx_out
+		);
+	end component lvds_tx;
+
+	component lvds_rx is
+		port (
+			data  : in  std_logic_vector(0 downto 0) := (others => 'X'); -- data
+			clock : in  std_logic                    := 'X';             -- clock
+			q     : out std_logic_vector(0 downto 0)                     -- q
+		);
+	end component lvds_rx;
+
+	component paddle_gpio is
+        port (
+                dout     : out   std_logic_vector(7 downto 0);                    --     dout.export
+                din      : in    std_logic_vector(7 downto 0) := (others => '0'); --      din.export
+                pad_io   : inout std_logic_vector(7 downto 0) := (others => '0'); --   pad_io.export
+                pad_io_b : inout std_logic_vector(7 downto 0) := (others => '0'); -- pad_io_b.export
+                oe       : in    std_logic_vector(7 downto 0) := (others => '0')  --       oe.export
+        );
+	end component paddle_gpio;
 
 	signal OSC_CLK : std_logic; -- about 82MHz! Always?? Massive range on data sheet
 
@@ -356,11 +397,22 @@ ARCHITECTURE vhdl OF pokeymax IS
 	-- capability restriction
 	signal RESTRICT_CAPABILITY_REG : std_logic_vector(4 downto 0);
 	signal RESTRICT_CAPABILITY_NEXT : std_logic_vector(4 downto 0);
+	signal readreq_s : std_logic;
+	signal writereq_s : std_logic;
 	-- 0=stereo off
 	-- 1=quad off
 	-- 2=sid off
 	-- 3=psg off
 	-- 4=sample off
+
+	-- output channel on/off
+	signal CHANNEL_EN_REG : std_logic_vector(4 downto 0);
+	signal CHANNEL_EN_NEXT : std_logic_vector(4 downto 0);
+	-- 0=0 (37)
+	-- 1=1
+	-- 2=2 L ext 
+	-- 3=3 R ext
+	-- 4=spdif
 
 	-- ext clk enable
 	signal SID_ENABLE_NEXT : std_logic;
@@ -384,6 +436,22 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal PS2CLK : std_logic;
 	signal PS2DAT : std_logic;
 
+	-- adc
+	signal sum_reg : unsigned(7 downto 0);
+	signal sum_next : unsigned(7 downto 0);
+
+	signal sample_reg : unsigned(7 downto 0);
+	signal sample_next : unsigned(7 downto 0);
+
+	signal toggle_reg : std_logic_vector(255 downto 0);
+	signal toggle_next : std_logic_vector(255 downto 0);
+
+	signal ADC_FILTERED1 : unsigned(15 downto 0);	
+	signal ADC_FILTERED2 : unsigned(15 downto 0);	
+
+	-- paddles
+	signal PADDLE_ADJ : std_logic_vector(7 downto 0);
+
 	function getByte(a : string; x : integer) return std_logic_vector is
    		 variable ret : std_logic_vector(7 downto 0);
 	begin
@@ -399,7 +467,6 @@ ARCHITECTURE vhdl OF pokeymax IS
 	end function min;
 	
 BEGIN
-	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
 	EXT <= (others=>'Z');
 
 	CS_COMB <= CS1MOD and not(CS0NMOD);
@@ -720,7 +787,7 @@ end generate;
 pokey1 : entity work.pokey
 GENERIC MAP
 (
-	custom_keyboard_scan => 1
+	custom_keyboard_scan => enable_iox
 )
 PORT MAP(CLK => CLK,
 		 ENABLE_179 => ENABLE_CYCLE,
@@ -733,7 +800,7 @@ PORT MAP(CLK => CLK,
 		 ADDR => ADDR_IN(3 DOWNTO 0),
 		 DATA_IN => WRITE_DATA(7 DOWNTO 0),
 		 keyboard_response => KEYBOARD_RESPONSE,
-		 POT_IN => PADDLE,
+		 POT_IN => PADDLE_ADJ,
 		 IRQ_N_OUT => POKEY_IRQ(0),
 		 SIO_OUT1 => SIO_TXD,
 		 SIO_OUT2 => open,
@@ -1186,13 +1253,13 @@ end process;
 process(
 	DEVICE_ADDR,
 	POKEY_DO,
-	SID_DO,
+	SID_DO,SID_DRIVE_DO,
 	PSG_DO,
 	SAMPLE_DO,
 	CONFIG_DO,
 	write_n,
 	request,
-	RESTRICT_CAPABILITY_REG
+	RESTRICT_CAPABILITY_REG, readreq_s, writereq_s
 	)
 	variable writereq : std_logic;
 	variable readreq : std_logic;
@@ -1216,45 +1283,48 @@ begin
 		when "0001" =>
 			enable_region := RESTRICT_CAPABILITY_REG(0) or RESTRICT_CAPABILITY_REG(1);
 			DO_MUX <= POKEY_DO(1);
-			POKEY_WRITE_ENABLE(1) <= writereq;
+			POKEY_WRITE_ENABLE(1) <= writereq_s;
 		when "0010" =>
 			enable_region := RESTRICT_CAPABILITY_REG(1);
 			DO_MUX <= POKEY_DO(2);
-			POKEY_WRITE_ENABLE(2) <= writereq;
+			POKEY_WRITE_ENABLE(2) <= writereq_s;
 		when "0011" =>
 			enable_region := RESTRICT_CAPABILITY_REG(1);
 			DO_MUX <= POKEY_DO(3);
-			POKEY_WRITE_ENABLE(3) <= writereq;
+			POKEY_WRITE_ENABLE(3) <= writereq_s;
 		when "0100"|"0101" =>
 			enable_region := RESTRICT_CAPABILITY_REG(2);
 			DO_MUX <= SID_DO(0);
 			DRIVE_DO_MUX <= SID_DRIVE_DO(0);
-			SID_WRITE_ENABLE(0) <= writereq;
-			SID_READ_ENABLE(0) <= readreq;
+			SID_WRITE_ENABLE(0) <= writereq_s;
+			SID_READ_ENABLE(0) <= readreq_s;
 		when "0110"|"0111" =>
 			enable_region := RESTRICT_CAPABILITY_REG(2);
 			DO_MUX <= SID_DO(1);
 			DRIVE_DO_MUX <= SID_DRIVE_DO(1);
-			SID_WRITE_ENABLE(1) <= writereq;
-			SID_READ_ENABLE(0) <= readreq;
+			SID_WRITE_ENABLE(1) <= writereq_s;
+			SID_READ_ENABLE(0) <= readreq_s;
 		when "1000"|"1001" =>
 			enable_region := RESTRICT_CAPABILITY_REG(4);
 			DO_MUX <= SAMPLE_DO;								
-			SAMPLE_WRITE_ENABLE <= writereq;			
+			SAMPLE_WRITE_ENABLE <= writereq_s;			
 		when "1010" =>
 			enable_region := RESTRICT_CAPABILITY_REG(3);
 			DO_MUX <= PSG_DO(0);
-			PSG_WRITE_ENABLE(0) <= writereq;
+			PSG_WRITE_ENABLE(0) <= writereq_s;
 		when "1011" =>
 			enable_region := RESTRICT_CAPABILITY_REG(3);
 			DO_MUX <= PSG_DO(1);			
-			PSG_WRITE_ENABLE(1) <= writereq;
+			PSG_WRITE_ENABLE(1) <= writereq_s;
 		when "1111" =>
 			enable_region := '1';
 			DO_MUX <= CONFIG_DO;
-			CONFIG_WRITE_ENABLE <= writereq;
+			CONFIG_WRITE_ENABLE <= writereq_s;
 		when others =>
 	end case;
+
+	readreq_s <= readreq and enable_region;
+	writereq_s <= writereq and enable_region;
 
 	if enable_region='0' then
 		DO_MUX <= POKEY_DO(0);
@@ -1292,6 +1362,7 @@ begin
 		SID_FILTER1_REG <= "10"; -- 0=8580,1=6581,2=digifix
 		SID_FILTER2_REG <= "10"; -- 0=8580,1=6581,2=digifix
 		RESTRICT_CAPABILITY_REG <= (others=>'1');
+		CHANNEL_EN_REG <= (others=>'1');
 	elsif (clk'event and clk='1') then
 		DETECT_RIGHT_REG <= DETECT_RIGHT_NEXT;
 		IRQ_EN_REG <= IRQ_EN_NEXT;
@@ -1309,6 +1380,7 @@ begin
 		SID_FILTER1_REG <= SID_FILTER1_NEXT;
 		SID_FILTER2_REG <= SID_FILTER2_NEXT;
 		RESTRICT_CAPABILITY_REG <= RESTRICT_CAPABILITY_NEXT;
+		CHANNEL_EN_REG <= CHANNEL_EN_NEXT;
 	end if;
 end process;
 
@@ -1334,6 +1406,7 @@ process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
 	CPU_FLASH_REQUEST_REG,CPU_FLASH_WRITE_N_REG,CPU_FLASH_CFG_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
 	CPU_FLASH_COMPLETE,CONFIG_FLASH_COMPLETE,CONFIG_FLASH_ADDR,flash_do_slow,
 	RESTRICT_CAPABILITY_REG,
+	CHANNEL_EN_REG,
 	PAL_REG
 )
 begin
@@ -1365,6 +1438,7 @@ begin
 	CPU_FLASH_DATA_NEXT <= CPU_FLASH_DATA_REG;
 
 	RESTRICT_CAPABILITY_NEXT <= RESTRICT_CAPABILITY_REG;
+	CHANNEL_EN_NEXT <= CHANNEL_EN_REG;
 
 	PAL_NEXT <= PAL_REG;
 
@@ -1398,6 +1472,9 @@ begin
 				-- 6-7 reserved
 				RESTRICT_CAPABILITY_NEXT <= flash_do_slow(12 downto 8);
 				-- 13-15 reserved
+				-- 16-23 reserved (used in sidmax)
+				CHANNEL_EN_NEXT <= flash_do_slow(28 downto 24);
+				-- 29-31 reserved
 			when others =>
 		end case;
 	elsif (CONFIG_WRITE_ENABLE='1') then
@@ -1436,6 +1513,10 @@ begin
 
 		if (addr_decoded4(7)='1') then
 			RESTRICT_CAPABILITY_NEXT(4 downto 0) <= WRITE_DATA(4 downto 0);
+		end if;
+
+		if (addr_decoded4(9)='1') then
+			CHANNEL_EN_NEXT(4 downto 0) <= WRITE_DATA(4 downto 0);
 		end if;
 
 		if (addr_decoded4(12)='1') then
@@ -1487,6 +1568,7 @@ SID_FILTER1_REG, SID_FILTER2_REG,
 CPU_FLASH_CFG_REG,CPU_FLASH_ADDR_REG,CPU_FLASH_DATA_REG,
 CPU_FLASH_REQUEST_REG, CPU_FLASH_WRITE_N_REG,
 RESTRICT_CAPABILITY_REG,
+CHANNEL_EN_REG,
 PAL_REG
 )
 	variable ACTUAL_CAPABILITY : std_logic_vector(7 downto 0);
@@ -1594,6 +1676,10 @@ begin
 		CONFIG_DO(4 downto 0) <= RESTRICT_CAPABILITY_REG(4 downto 0);
 	end if;
 
+	if (addr_decoded4(9)='1') then
+		CONFIG_DO(4 downto 0) <= CHANNEL_EN_REG(4 downto 0);
+	end if;
+
 	if (addr_decoded4(12)='1') then
 		CONFIG_DO <= x"01";
 	end if;		
@@ -1646,6 +1732,7 @@ PORT MAP
 	DETECT_RIGHT => DETECT_RIGHT_REG,	
 	FANCY_ENABLE => FANCY_ENABLE,
 	GTIA_EN => GTIA_ENABLE_REG,
+	ADC_EN => "1100",
 
 	CH0 => POKEY_AUDIO_0,
 	CH1 => POKEY_AUDIO_1,
@@ -1657,10 +1744,9 @@ PORT MAP
 	CH7 => unsigned(SID_AUDIO(1)),	
 	CH8 => unsigned(PSG_AUDIO(0)),
 	CH9 => unsigned(PSG_AUDIO(1)),		
-	CHA(14 downto 12) => (others=>'0'),
-	CHA(11) => SIO_RXD_SYNC,
-	CHA(10 downto 0) => (others=>'0'),
+	CHA(14 downto 0) => (others=>'0'),
 	CHA(15) => GTIA_AUDIO,			
+	CHB => ADC_FILTERED2,			
 	
 	AUDIO_0_UNSIGNED => AUDIO_0_UNSIGNED,
 	AUDIO_1_UNSIGNED => AUDIO_1_UNSIGNED,
@@ -1775,12 +1861,13 @@ spdif : entity work.spdif_transmitter
   spdif_out => spdif_out
  );
 
- EXT(SPDIF_BIT) <= spdif_out;
+ EXT(SPDIF_BIT) <= spdif_out when CHANNEL_EN_REG(4)='1' else 'Z';
 end generate spdif_on;
 
 -- io extension
 -- drive to 0 for pot reset (otherwise high imp)
 -- drive keyboard lines
+iox_on : if enable_iox=1 generate 
 	i2c_master0 : entity work.i2c_master
  	generic map(input_clk=>58_000_000, bus_clk=>2_800_000)
 	port map(
@@ -1821,6 +1908,13 @@ end generate spdif_on;
 		keyboard_response=>iox_keyboard_response,
 		keyboard_scan_enable=>keyboard_scan_enable
 	);
+	IOX_RST <= 'Z'; -- TODO weak pull up in pins (see TODO file)
+end generate iox_on;
+
+iox_off : if enable_iox=0 generate 
+	iox_keyboard_response <= KR2&KR1;
+	k <= keyboard_scan;
+end generate iox_off;
 
 -- PS2 keyboard
 ps2_on : if enable_ps2=1 generate 
@@ -1864,6 +1958,89 @@ ps2_off : if enable_ps2=0 generate
 	KEYBOARD_RESPONSE <= IOX_KEYBOARD_RESPONSE;
 end generate ps2_off;
 
+adc_on : if enable_adc=1 generate 
+ -- Simple ADC for SIO/PBI audio in
+	 process(clk,reset_n)
+	 begin
+	   if (reset_n='0') then
+			toggle_reg <= (others=>'0');
+			sum_reg <= (others=>'0');
+			sample_reg <= (others=>'0');
+		elsif (clk'event and clk='1') then
+			toggle_reg <= toggle_next;
+			sum_reg <= sum_next;
+			sample_reg <= sample_next;
+		end if;
+	 end process;	
+	 
+	 lvds_tx0: lvds_tx
+	 port map(
+	 	tx_in(0) => toggle_reg(0),
+	 	tx_out(0) => ADC_TX_P
+	 );
+	
+	 lvds_rx0: lvds_rx
+	 port map(
+	 	data(0) => ADC_RX_P,
+	 	clock => CLK,
+	 	q(0) => toggle_next(0)
+	 );
+	 toggle_next(255 downto 1) <= toggle_reg(254 downto 0);
+	 
+adcfilter : entity work.simple_low_pass_filter
+PORT  MAP
+( 
+	CLK => CLK,
+	AUDIO_IN => not(sample_reg(7)&sample_reg(6 downto 0))&"00000000",
+	SAMPLE_IN => ENABLE_CYCLE,
+	AUDIO_OUT => ADC_FILTERED1
+);
+
+adcfilter2 : entity work.simple_low_pass_filter
+PORT  MAP
+( 
+	CLK => CLK,
+	AUDIO_IN => ADC_FILTERED1,
+	SAMPLE_IN => ENABLE_CYCLE,
+	AUDIO_OUT => ADC_FILTERED2
+);
+
+process(sum_reg,sample_reg,toggle_reg)
+begin
+	sum_next <= sum_reg;	
+	sample_next <= sample_reg;
+
+	if (toggle_reg(255)='1' and toggle_reg(0)='0') then
+		sum_next <= sum_reg -1;
+	elsif (toggle_reg(255)='0' and toggle_reg(0)='1') then
+		sum_next <= sum_reg +1;
+	end if;	
+
+	sample_next <= sum_reg;
+end process;
+end generate adc_on;
+
+adc_off : if enable_adc=0 generate 
+	ADC_FILTERED2(15 downto 12) <= (others=>'0');
+	ADC_FILTERED2(11) <= SIO_RXD_SYNC;
+	ADC_FILTERED2(10 downto 0) <= (others=>'0');
+end generate adc_off;
+
+paddle_lvds_on : if paddle_lvds=1 generate 
+	 paddle_lvds_rx0: paddle_gpio
+	 port map(
+	 	dout => PADDLE_ADJ,
+		din => (others=>'0'),
+	 	pad_io => PADDLE_P,
+	 	pad_io_b => PADDLE_N,
+		oe =>(others=>POTRESET)
+	 );
+
+end generate paddle_lvds_on;
+
+paddle_comp_on : if paddle_comp=1 generate 
+	PADDLE_ADJ <= PADDLE;
+end generate paddle_comp_on;
 
 -- Wire up pins
 ACLK <= SIO_CLOCKOUT;
@@ -1877,12 +2054,12 @@ synchronizer_SIO : entity work.synchronizer
 
 
 --1->pin37
-AUD(1) <= AUDIO_0_SIGMADELTA;
+AUD(1) <= AUDIO_0_SIGMADELTA when CHANNEL_EN_REG(0)='1' else '0';
 
 -- ext AUD pins:
-AUD(2) <= AUDIO_1_SIGMADELTA;
-AUD(3) <= AUDIO_2_SIGMADELTA;
-AUD(4) <= AUDIO_3_SIGMADELTA;
+AUD(2) <= AUDIO_1_SIGMADELTA when CHANNEL_EN_REG(1)='1' else '0';
+AUD(3) <= AUDIO_2_SIGMADELTA when CHANNEL_EN_REG(2)='1' else '0';
+AUD(4) <= AUDIO_3_SIGMADELTA when CHANNEL_EN_REG(3)='1' else '0';
 
 IRQ <= '0' when (IRQ_EN_REG='1' and (and_reduce(POKEY_IRQ)='0')) or (IRQ_EN_REG='0' and POKEY_IRQ(0)='0') or (SAMPLE_IRQ='1')  else 'Z';
 
