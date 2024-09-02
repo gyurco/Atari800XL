@@ -1,7 +1,6 @@
-rm -f init.bin
-./makehex ./init_0.bin init_0.hex "0x000000"
-./makehex ./init_1.bin init_1.hex "0x000000"
+gcc -Wall init.c -lm -o init && ./init
+gcc -Wall sidwavedata.c -lm -o sidwavedata && ./sidwavedata
+g++ -Wall find_offset.cpp -o find_offset
+gcc -Wall swapbits.c -o swapbits
 
-rm -f sidwavedata.bin
-./sidwavedata
 
