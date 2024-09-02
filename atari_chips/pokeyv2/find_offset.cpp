@@ -11,7 +11,7 @@ int main(int argc, char **  argv)
 
 	std::string pattern = argv[1];
 	int offset = atoi(argv[2]);
-	int len = atoi(argv[3]);
+	size_t len = atoi(argv[3]);
 	std::string find_in_here = argv[4];
 	
 	FILE * p = fopen(pattern.c_str(),"rb");
@@ -44,7 +44,7 @@ int main(int argc, char **  argv)
 		if (fread(match,1,len,f) !=len)
 			break;
 		found = true;
-		for (int i=0;i!=len;++i)
+		for (size_t i=0;i!=len;++i)
 		{
 			//printf("%d:%d:%02x %02x\n",file_offset,i,match[i],data[i]);
 			if (match[i]!=data[i])
