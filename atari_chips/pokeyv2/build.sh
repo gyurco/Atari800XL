@@ -8,7 +8,7 @@ my $name="eclaireXL";
 #Added like this to the generated qsf
 #set_parameter -name TV 1
 
-my $version = "127";
+my $version = "128";
 
 my %variants = 
 (
@@ -30,903 +30,762 @@ my %variants =
 #		enable_sample : integer := 0;
 #
 #   		version : STRING  := "DEVELOPR" -- 8 char string atascii
-
-
-
-	"v1_10M02_stereo_auto" =>
+	"pokeymax_v1" =>
 	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"a4_bit" => 1,
-		"fpga" => "10M02SCU169C8G",
-		"board" => "v1",
-		"ext_bits"=> 1,
-		"cs0_bit" => 0, #force low
-		"version" => $version . "M02SA"
+		"stereo_auto" =>
+		{
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"a4_bit" => 1,
+			"fpga" => "10M02SCU169C8G",
+			"ext_bits"=> 1,
+			"cs0_bit" => 0, #force low
+		},
 	},
-	"10M02_mono_linear" =>
+	"pokeymax_v2" =>
 	{
-		"saturate_on_by_default" => 0,
-		"pokeys" => 1,
-		"fpga" => "10M02SCU169C8G",
-		"enable_auto_stereo" => 1,
-		"gtia_audio_bit" => 3,
-		"a4_bit" => 1, #to access config!
-		"version" => $version . "M02MO"
+		"mono_linear" =>
+		{
+			"saturate_on_by_default" => 0,
+			"pokeys" => 1,
+			"fpga" => "10M02SCU169C8G",
+			"enable_auto_stereo" => 1,
+			"gtia_audio_bit" => 3,
+			"a4_bit" => 1, #to access config!
+		},
+		"stereo_xel_auto_linear" =>
+		{
+			"saturate_on_by_default" => 0,
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"a4_bit" => 1,
+			"cs1_bit" => 20,
+			"gtia_audio_bit" => 3,
+			"fpga" => "10M02SCU169C8G",
+		},
+		"stereo_covox_no_right_detect_linear" =>
+		{
+			"saturate_on_by_default" => 0,
+			"pokeys" => 2,
+			"enable_auto_stereo" => 0,
+			"enable_covox" => 1,
+			"detect_right_on_by_default" => 0,
+			"a4_bit" => 1,
+			"a7_bit" => 2,
+			"gtia_audio_bit" => 3, 
+			"fpga" => "10M02SCU169C8G",
+		},
+		"stereo_auto_linear" =>
+		{
+			"saturate_on_by_default" => 0,
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"a4_bit" => 1,
+			"gtia_audio_bit" => 3,
+			"fpga" => "10M02SCU169C8G",
+		},
+		"stereo_u1mb_auto_linear" =>
+		{
+			"saturate_on_by_default" => 0,
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"a4_bit" => 1,
+			"fancy_switch_bit" => 2,
+			"gtia_audio_bit" => 3,
+			"fpga" => "10M02SCU169C8G",
+		},
+		"stereo_covox_auto_linear" =>
+		{
+			"saturate_on_by_default" => 0,
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"enable_covox" => 1,
+			"a4_bit" => 1,
+			"a7_bit" => 2,
+			"gtia_audio_bit" => 3, 
+			"fpga" => "10M02SCU169C8G",
+		},
+		"mono" =>
+		{
+			"pokeys" => 1,
+			"fpga" => "10M02SCU169C8G",
+			"enable_auto_stereo" => 1,
+			"gtia_audio_bit" => 3,
+			"a4_bit" => 1, #to access config!
+		},
+		"stereo_xel_auto" =>
+		{
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"a4_bit" => 1,
+			"cs1_bit" => 20,
+			"gtia_audio_bit" => 3,
+			"fpga" => "10M02SCU169C8G",
+		},
+		"stereo_covox_no_right_detect" =>
+		{
+			"pokeys" => 2,
+			"enable_auto_stereo" => 0,
+			"enable_covox" => 1,
+			"detect_right_on_by_default" => 0,
+			"a4_bit" => 1,
+			"a7_bit" => 2,
+			"gtia_audio_bit" => 3, 
+			"fpga" => "10M02SCU169C8G",
+		},
+		"stereo_auto" =>
+		{
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"a4_bit" => 1,
+			"gtia_audio_bit" => 3,
+			"fpga" => "10M02SCU169C8G",
+		},
+		"stereo_u1mb_auto" =>
+		{
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"a4_bit" => 1,
+			"fancy_switch_bit" => 2,
+			"gtia_audio_bit" => 3,
+			"fpga" => "10M02SCU169C8G",
+		},
+		"stereo_covox_auto" =>
+		{
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"enable_covox" => 1,
+			"a4_bit" => 1,
+			"a7_bit" => 2,
+			"gtia_audio_bit" => 3, 
+			"fpga" => "10M02SCU169C8G",
+		},
+		"quad_covox_xel_auto" =>
+		{
+			"pokeys" => 4,
+			"enable_auto_stereo" => 1,
+			"enable_flash" => 1,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a7_bit" => 3, 
+			"cs1_bit" => 20,
+			"enable_covox" => 1,
+			"fpga" => "10M04SCU169C8G",
+		},
+		"mono" =>
+		{
+			"pokeys" => 1,
+			"fpga" => "10M04SCU169C8G",
+			"enable_auto_stereo" => 1,
+			"gtia_audio_bit" => 3,
+			"enable_flash" => 1,
+			"a4_bit" => 1, #to access config!
+		},
+		"mono" =>
+		{
+			"pokeys" => 1,
+			"fpga" => "10M08SCU169C8G",
+			"enable_auto_stereo" => 1,
+			"gtia_audio_bit" => 3,
+			"cs1_bit" => 20, #force high
+			"a4_bit" => 1, #to access config!
+		},
+		"mono" =>
+		{
+			"pokeys" => 1,
+			"fpga" => "10M16SCU169C8G",
+			"enable_auto_stereo" => 1,
+			"gtia_audio_bit" => 3,
+			"flash_addr_bits" => 17,
+			"cs1_bit" => 20, #force high
+			"a4_bit" => 1, #to access config!
+			"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
+		},
+		"stereo_xel_auto" =>
+		{
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"enable_flash" => 1,
+			"a4_bit" => 1,
+			"cs1_bit" => 20,
+			"gtia_audio_bit" => 3,
+			"fpga" => "10M04SCU169C8G",
+		},
+		"stereo_covox_no_right_detect" =>
+		{
+			"pokeys" => 2,
+			"enable_auto_stereo" => 0,
+			"enable_covox" => 1,
+			"enable_flash" => 1,
+			"detect_right_on_by_default" => 0,
+			"a4_bit" => 1,
+			"a7_bit" => 2,
+			"gtia_audio_bit" => 3, 
+			"fpga" => "10M04SCU169C8G",
+		},
+		"stereo_auto" =>
+		{
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"enable_flash" => 1,
+			"a4_bit" => 1,
+			"gtia_audio_bit" => 3,
+			"fpga" => "10M04SCU169C8G",
+		},
+		"stereo_u1mb_auto" =>
+		{
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"enable_flash" => 1,
+			"a4_bit" => 1,
+			"fancy_switch_bit" => 2,
+			"gtia_audio_bit" => 3,
+			"fpga" => "10M04SCU169C8G",
+		},
+		"stereo_covox_auto" =>
+		{
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"enable_covox" => 1,
+			"enable_flash" => 1,
+			"a4_bit" => 1,
+			"a7_bit" => 2,
+			"gtia_audio_bit" => 3, 
+			"fpga" => "10M04SCU169C8G",
+		},
+		"quad_auto" =>
+		{
+			"pokeys" => 4,
+			"enable_auto_stereo" => 1,
+			"enable_flash" => 1,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"gtia_audio_bit" => 3, 
+			"fpga" => "10M04SCU169C8G",
+		},
+		"quad_covox_auto" =>
+		{
+			"pokeys" => 4,
+			"enable_auto_stereo" => 1,
+			"enable_flash" => 1,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a7_bit" => 3, 
+			"enable_covox" => 1,
+			"fpga" => "10M04SCU169C8G",
+		},
+		"stereo_covox_sample_auto" =>
+		{
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"enable_covox" => 1,
+			"enable_sample" => 1,
+			"enable_flash" => 1,
+			"a4_bit" => 1,
+			"a7_bit" => 2,
+			"gtia_audio_bit" => 3, 
+			"fpga" => "10M08SCU169C8G",
+		},
+		"stereo_u1mb_auto" =>
+		{
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"enable_flash" => 1,
+			"a4_bit" => 1,
+			"fancy_switch_bit" => 2,
+			"gtia_audio_bit" => 3,
+			"fpga" => "10M08SCU169C8G",
+		},
+		"quad_auto" =>
+		{
+			"pokeys" => 4,
+			"enable_auto_stereo" => 1,
+			"enable_flash" => 1,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"gtia_audio_bit" => 3, 
+			"fpga" => "10M08SCU169C8G",
+		},
+		"quad_covox_sample_auto" =>
+		{
+			"pokeys" => 4,
+			"enable_auto_stereo" => 1,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a7_bit" => 3, 
+			"enable_covox" => 1,
+			"enable_sample" => 1,
+			"enable_flash" => 1,
+			"fpga" => "10M08SCU169C8G",
+		},
+		"quad_sid" =>
+		{
+			"pokeys" => 4,
+			"enable_auto_stereo" => 1,
+			"enable_sid" => 1,
+			"enable_flash" => 1,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a6_bit" => 3,
+			"fpga" => "10M08SCU169C8G",
+		},
+		"quad_psg_covox_sample" =>
+		{
+			"pokeys" => 4,
+			"enable_auto_stereo" => 1,
+			"enable_psg" => 1,
+			"enable_covox" => 1,
+			"enable_sample" => 1,
+			"enable_flash" => 1,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a7_bit" => 3,
+			"fpga" => "10M08SCU169C8G",
+		},
+#		"basic" =>
+#		{
+#			"enable_audout2" => 0,
+#			"pokeys" => 2,
+#			"enable_auto_stereo" => 1,
+#			"enable_sid" => 0,
+#			"enable_psg" => 0,
+#			"enable_covox" => 0,
+#			"enable_sample" => 0,
+#			"enable_flash" => 1,
+#			"a4_bit" => 1,
+#			"a5_bit" => 2,
+#			"a6_bit" => 3,
+#			"a7_bit" => 19,  #use CS1
+#			"cs1_bit" => 20, #force high
+#			"fpga" => "10M08SCU169C8G",
+#			"optimisearea" => 1
+#		},
+		"full" =>
+		{
+			"fpga" => "10M16SCU169C8G",
+			"flash_addr_bits" => 17,
+			"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
+			"pokeys" => 4,
+			"enable_auto_stereo" => 1,
+			"enable_sid" => 1,
+			"enable_psg" => 1,
+			"enable_covox" => 1,
+			"enable_sample" => 1,
+			"enable_flash" => 1,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a6_bit" => 3,
+			"a7_bit" => 19,  #use CS1
+			"cs1_bit" => 20, #force high
+		},
+		#No longer fits
+		#"full" =>
+		#{
+		#	"enable_audout2" => 0,
+		#	"pokeys" => 4,
+		#	"enable_auto_stereo" => 1,
+		#	"enable_sid" => 1,
+		#	"enable_psg" => 1,
+		#	"enable_covox" => 1,
+		#	"enable_sample" => 1,
+		#	"enable_flash" => 1,
+		#	"a4_bit" => 1,
+		#	"a5_bit" => 2,
+		#	"a6_bit" => 3,
+		#	"a7_bit" => 19,  #use CS1
+		#	"cs1_bit" => 20, #force high
+		#	"fpga" => "10M08SCU169C8G",
+		#	"optimisearea" => 1
+		#},
+		"full_stereo" =>
+		{
+			"enable_audout2" => 0,
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"enable_sid" => 1,
+			"enable_psg" => 1,
+			"enable_covox" => 1,
+			"enable_sample" => 1,
+			"enable_flash" => 1,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a6_bit" => 3,
+			"a7_bit" => 19,  #use CS1
+			"cs1_bit" => 20, #force high
+			"fpga" => "10M08SCU169C8G",
+			"optimisearea" => 1
+		},
 	},
-	"10M02_stereo_xel_auto_linear" =>
+	"pokeymax_v3" =>
 	{
-		"saturate_on_by_default" => 0,
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"a4_bit" => 1,
-		"cs1_bit" => 20,
-		"gtia_audio_bit" => 3,
-		"fpga" => "10M02SCU169C8G",
-		"version" => $version . "M02SX"
+		"quad_auto" =>
+		{
+			"pokeys" => 4,
+			"enable_auto_stereo" => 1,
+			"enable_sid" => 0,
+			"enable_psg" => 0,
+			"enable_covox" => 0,
+			"enable_sample" => 0,
+			"enable_flash" => 1,
+			"enable_spdif" => 1,
+			"enable_ps2" => 1,
+			"pll_v2" => 0,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"gtia_audio_bit" => 5, 
+			"spdif_bit" => 6,
+			"ps2clk_bit" => 7,
+			"ps2dat_bit" => 8,
+			"ext_bits"=> 11,
+			"fpga" => "10M04SCU169C8G",
+		},
+		"stereo_psg_covox_auto" =>
+		{
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"enable_sid" => 0,
+			"enable_psg" => 1,
+			"enable_covox" => 1,
+			"enable_sample" => 0,
+			"enable_flash" => 1,
+			"enable_spdif" => 1,
+			"enable_ps2" => 1,
+			"pll_v2" => 0,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a6_bit" => 3,
+			"a7_bit" => 4,
+			"gtia_audio_bit" => 5, 
+			"spdif_bit" => 6,
+			"ps2clk_bit" => 7,
+			"ps2dat_bit" => 8,
+			#"fancy_switch_bit" => 6,
+			#"a7_bit" => 19,  #use CS1
+			"ext_bits"=> 11,
+			#"cs1_bit" => 20, #force high
+			"fpga" => "10M04SCU169C8G",
+		},
+		"mono" =>
+		{
+			"pokeys" => 4,
+			"enable_auto_stereo" => 1,
+			"enable_sid" => 0,
+			"enable_psg" => 0,
+			"enable_covox" => 0,
+			"enable_sample" => 0,
+			"enable_flash" => 1,
+			"enable_spdif" => 0,
+			"enable_ps2" => 0,
+			"flash_addr_bits" => 17,
+			"pll_v2" => 0,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a6_bit" => 3,
+			"a7_bit" => 4,
+			"gtia_audio_bit" => 5, 
+			"spdif_bit" => 6,
+			"ps2clk_bit" => 7,
+			"ps2dat_bit" => 8,
+			#"fancy_switch_bit" => 6,
+			#"a7_bit" => 19,  #use CS1
+			"ext_bits"=> 11,
+			#"cs1_bit" => 20, #force high
+			"fpga" => "10M16SCU169C8G",
+			"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
+		},
+		"full" =>
+		{
+			"pokeys" => 4,
+			"enable_auto_stereo" => 1,
+			"enable_sid" => 1,
+			"enable_psg" => 1,
+			"enable_covox" => 1,
+			"enable_sample" => 1,
+			"enable_flash" => 1,
+			"enable_spdif" => 1,
+			"enable_ps2" => 1,
+			"flash_addr_bits" => 17,
+			"pll_v2" => 0,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a6_bit" => 3,
+			"a7_bit" => 4,
+			"gtia_audio_bit" => 5, 
+			"spdif_bit" => 6,
+			"ps2clk_bit" => 7,
+			"ps2dat_bit" => 8,
+			#"fancy_switch_bit" => 6,
+			#"a7_bit" => 19,  #use CS1
+			"ext_bits"=> 11,
+			#"cs1_bit" => 20, #force high
+			"fpga" => "10M16SCU169C8G",
+			"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
+		},
+		"full_xel" =>
+		{
+			"pokeys" => 4,
+			"enable_auto_stereo" => 1,
+			"enable_sid" => 1,
+			"enable_psg" => 1,
+			"enable_covox" => 1,
+			"enable_sample" => 1,
+			"enable_flash" => 1,
+			"enable_spdif" => 1,
+			"enable_ps2" => 1,
+			"flash_addr_bits" => 17,
+			"pll_v2" => 0,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a6_bit" => 3,
+			"a7_bit" => 4,
+			"gtia_audio_bit" => 5, 
+			"spdif_bit" => 6,
+			"ps2clk_bit" => 7,
+			"ps2dat_bit" => 8,
+			#"fancy_switch_bit" => 6,
+			#"a7_bit" => 19,  #use CS1
+			"ext_bits"=> 11,
+			"cs1_bit" => 20,
+			#"cs1_bit" => 20, #force high
+			"fpga" => "10M16SCU169C8G",
+			"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
+		},
 	},
-	"10M02_stereo_covox_no_right_detect_linear" =>
+	"pokeymax_v4" =>
 	{
-		"saturate_on_by_default" => 0,
-		"pokeys" => 2,
-		"enable_auto_stereo" => 0,
-		"enable_covox" => 1,
-		"detect_right_on_by_default" => 0,
-		"a4_bit" => 1,
-		"a7_bit" => 2,
-		"gtia_audio_bit" => 3, 
-		"fpga" => "10M02SCU169C8G",
-		"version" =>  $version."M02SC"
+		"stereo" =>
+		{
+			"enable_audout2" => 0,
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"enable_sid" => 0,
+			"enable_psg" => 0,
+			"enable_covox" => 0,
+			"enable_sample" => 0,
+			"enable_flash" => 0,
+			"enable_spdif" => 1,
+			"enable_ps2" => 0,
+			"a4_bit" => 1,
+			"ps2clk_bit" => 5,
+			"ps2dat_bit" => 6,
+			"gtia_audio_bit" => 7, 
+			"fancy_switch_bit" => 8,
+			"spdif_bit" => 10,
+			"ext_bits"=> 10,
+			"paddle_lvds"=>1,
+			"paddle_comp"=>0,
+			"enable_iox"=>0,
+			"enable_adc"=>1,
+			"pll_v2" => 0, 
+			"fpga" => "10M02SCU169C8G",
+			"optimisearea" => 1,
+		},
+		"full_stereo_sample" =>
+		{
+			"enable_audout2" => 0,
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"enable_sid" => 1,
+			"enable_psg" => 1,
+			"enable_covox" => 1,
+			"enable_sample" => 1,
+			"enable_flash" => 1,
+			"enable_spdif" => 0,
+			"enable_ps2" => 0,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a6_bit" => 3,
+			"a7_bit" => 4,
+			"ps2clk_bit" => 5,
+			"ps2dat_bit" => 6,
+			"gtia_audio_bit" => 7, 
+			"fancy_switch_bit" => 8,
+			"spdif_bit" => 10,
+			"ext_bits"=> 10,
+			"paddle_lvds"=>1,
+			"paddle_comp"=>0,
+			"enable_iox"=>0,
+			"enable_adc"=>1,
+			"pll_v2" => 0, 
+			"fpga" => "10M08SCU169C8G",
+			"optimisearea" => 1,
+		},
+		"full_stereo_spdif" =>
+		{
+			"enable_audout2" => 0,
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"enable_sid" => 1,
+			"enable_psg" => 1,
+			"enable_covox" => 1,
+			"enable_sample" => 0,
+			"enable_flash" => 1,
+			"enable_spdif" => 1,
+			"enable_ps2" => 0,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a6_bit" => 3,
+			"a7_bit" => 4,
+			"ps2clk_bit" => 5,
+			"ps2dat_bit" => 6,
+			"gtia_audio_bit" => 7, 
+			"fancy_switch_bit" => 8,
+			"spdif_bit" => 10,
+			"ext_bits"=> 10,
+			"paddle_lvds"=>1,
+			"paddle_comp"=>0,
+			"enable_iox"=>0,
+			"enable_adc"=>1,
+			"pll_v2" => 0, 
+			"fpga" => "10M08SCU169C8G",
+			"optimisearea" => 1,
+		},
+		"mono" =>
+		{
+			"enable_audout2" => 0,
+			"pokeys" => 1,
+			"enable_auto_stereo" => 1,
+			"enable_sid" => 0,
+			"enable_psg" => 0,
+			"enable_covox" => 0,
+			"enable_sample" => 0,
+			"enable_flash" => 1,
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a6_bit" => 3,
+			"a7_bit" => 4,
+			"ps2clk_bit" => 5,
+			"ps2dat_bit" => 6,
+			"gtia_audio_bit" => 7, 
+			"fancy_switch_bit" => 8,
+			"spdif_bit" => 10,
+			"ext_bits"=> 10,
+			"paddle_lvds"=>1,
+			"paddle_comp"=>0,
+			"enable_iox"=>0,
+			"enable_adc"=>1,
+			"pll_v2" => 0,
+			"fpga" => "10M08SCU169C8G",
+			"optimisearea" => 1,
+		},
+		"full_quad" =>
+		{
+			"enable_audout2" => 0,
+			"pokeys" => 4,
+			"enable_auto_stereo" => 1,
+			"enable_sid" => 1,
+			"enable_psg" => 1,
+			"enable_covox" => 1,
+			"enable_sample" => 1,
+			"enable_flash" => 1,
+			"enable_spdif" => 1,
+			"enable_ps2" => 1,
+			"flash_addr_bits" => 17,
+			"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a6_bit" => 3,
+			"a7_bit" => 4,
+			"ps2clk_bit" => 5,
+			"ps2dat_bit" => 6,
+			"gtia_audio_bit" => 7, 
+			"fancy_switch_bit" => 8,
+			"spdif_bit" => 10,
+			"ext_bits"=> 10,
+			"paddle_lvds"=>1,
+			"paddle_comp"=>0,
+			"enable_iox"=>0,
+			"enable_adc"=>1,
+			"pll_v2" => 0,
+			"fpga" => "10M16SCU169C8G",
+			"optimisearea" => 1,
+		},
+		"mono" =>
+		{
+			"enable_audout2" => 0,
+			"pokeys" => 1,
+			"enable_auto_stereo" => 1,
+			"enable_sid" => 0,
+			"enable_psg" => 0,
+			"enable_covox" => 0,
+			"enable_sample" => 0,
+			"enable_flash" => 1,
+			"flash_addr_bits" => 17,
+			"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
+			"a4_bit" => 1,
+			"a5_bit" => 2,
+			"a6_bit" => 3,
+			"a7_bit" => 4,
+			"ps2clk_bit" => 5,
+			"ps2dat_bit" => 6,
+			"gtia_audio_bit" => 7, 
+			"spdif_bit" => 10,
+			"ext_bits"=> 10,
+			"paddle_lvds"=>1,
+			"paddle_comp"=>0,
+			"enable_iox"=>0,
+			"enable_adc"=>1,
+			"pll_v2" => 0,
+			"fpga" => "10M16SCU169C8G",
+			"optimisearea" => 1,
+		},
 	},
-	"10M02_stereo_auto_linear" =>
+	#
+	#sid adaptor board I think...
+	#"sid_10M08_sid_mono" =>
+	#{
+	#	"pokeys" => 1,
+	#	"enable_sid" => 1,
+	#	"enable_auto_stereo" => 1,
+	#	"enable_flash" => 1,
+	#	"ext_bits"=> 4,
+	#	"bus" => "c64",
+	#	"a4_bit" => 4,
+	#	"a5_bit" => 0,  #force low for now (will be stereo)
+	#	"a6_bit" => 20, #force high
+	#	"a7_bit" => 0, #force low
+	#	"cs1_bit" => 20, #force high
+	#	"fpga" => "10M08SCU169C8G",
+	#	"version" => $version . "M08SI"
+	#},
+	#"sid_10M08_sid_stereo" =>
+	#{
+	#	"pokeys" => 1,
+	#	"enable_sid" => 1,
+	#	"enable_auto_stereo" => 1,
+	#	"enable_flash" => 1,
+	#	"ext_bits"=> 4,
+	#	"bus" => "c64",
+	#	"a4_bit" => 4,
+	#	"a5_bit" => 1,  #STEREO
+	#	"a6_bit" => 20, #force high
+	#	"a7_bit" => 0, #force low
+	#	"cs1_bit" => 20, #force high
+	#	"fpga" => "10M08SCU169C8G",
+	#},
+	"sidmax_v1" =>
 	{
-		"saturate_on_by_default" => 0,
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"a4_bit" => 1,
-		"gtia_audio_bit" => 3,
-		"fpga" => "10M02SCU169C8G",
-		"version" => $version . "M02SA"
-	},
-	"10M02_stereo_u1mb_auto_linear" =>
-	{
-		"saturate_on_by_default" => 0,
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"a4_bit" => 1,
-		"fancy_switch_bit" => 2,
-		"gtia_audio_bit" => 3,
-		"fpga" => "10M02SCU169C8G",
-		"version" => $version . "M02SU"
-	},
-	"10M02_stereo_covox_auto_linear" =>
-	{
-		"saturate_on_by_default" => 0,
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_covox" => 1,
-		"a4_bit" => 1,
-		"a7_bit" => 2,
-		"gtia_audio_bit" => 3, 
-		"fpga" => "10M02SCU169C8G",
-		"version" =>  $version."M02SC"
-	},
-	"10M02_mono" =>
-	{
-		"pokeys" => 1,
-		"fpga" => "10M02SCU169C8G",
-		"enable_auto_stereo" => 1,
-		"gtia_audio_bit" => 3,
-		"a4_bit" => 1, #to access config!
-		"version" => $version . "M02MO"
-	},
-	"10M02_stereo_xel_auto" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"a4_bit" => 1,
-		"cs1_bit" => 20,
-		"gtia_audio_bit" => 3,
-		"fpga" => "10M02SCU169C8G",
-		"version" => $version . "M02SX"
-	},
-	"10M02_stereo_covox_no_right_detect" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 0,
-		"enable_covox" => 1,
-		"detect_right_on_by_default" => 0,
-		"a4_bit" => 1,
-		"a7_bit" => 2,
-		"gtia_audio_bit" => 3, 
-		"fpga" => "10M02SCU169C8G",
-		"version" =>  $version."M02SC"
-	},
-	"10M02_stereo_auto" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"a4_bit" => 1,
-		"gtia_audio_bit" => 3,
-		"fpga" => "10M02SCU169C8G",
-		"version" => $version . "M02SA"
-	},
-	"10M02_stereo_u1mb_auto" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"a4_bit" => 1,
-		"fancy_switch_bit" => 2,
-		"gtia_audio_bit" => 3,
-		"fpga" => "10M02SCU169C8G",
-		"version" => $version . "M02SU"
-	},
-	"10M02_stereo_covox_auto" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_covox" => 1,
-		"a4_bit" => 1,
-		"a7_bit" => 2,
-		"gtia_audio_bit" => 3, 
-		"fpga" => "10M02SCU169C8G",
-		"version" =>  $version."M02SC"
-	},
-	"10M04_quad_covox_xel_auto" =>
-	{
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a7_bit" => 3, 
-		"cs1_bit" => 20,
-		"enable_covox" => 1,
-		"fpga" => "10M04SCU169C8G",
-		"version" => $version . "M04QX"
-	},
-	"10M04_mono" =>
-	{
-		"pokeys" => 1,
-		"fpga" => "10M04SCU169C8G",
-		"enable_auto_stereo" => 1,
-		"gtia_audio_bit" => 3,
-		"enable_flash" => 1,
-		"a4_bit" => 1, #to access config!
-		"version" => $version . "M04MO"
-	},
-	"10M16_monov2" =>
-	{
-		"pokeys" => 1,
-		"fpga" => "10M16SCU169C8G",
-		"enable_auto_stereo" => 1,
-		"gtia_audio_bit" => 3,
-		"flash_addr_bits" => 17,
-		"cs1_bit" => 20, #force high
-		"a4_bit" => 1, #to access config!
-		"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
-		"version" => $version . "M16MO"
-	},
-	"10M04_stereo_xel_auto" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"cs1_bit" => 20,
-		"gtia_audio_bit" => 3,
-		"fpga" => "10M04SCU169C8G",
-		"version" => $version . "M04SX"
-	},
-	"10M04_stereo_covox_no_right_detect" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 0,
-		"enable_covox" => 1,
-		"enable_flash" => 1,
-		"detect_right_on_by_default" => 0,
-		"a4_bit" => 1,
-		"a7_bit" => 2,
-		"gtia_audio_bit" => 3, 
-		"fpga" => "10M04SCU169C8G",
-		"version" =>  $version."M04SC"
-	},
-	"10M04_stereo_auto" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"gtia_audio_bit" => 3,
-		"fpga" => "10M04SCU169C8G",
-		"version" => $version . "M04SA"
-	},
-	"10M04_stereo_u1mb_auto" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"fancy_switch_bit" => 2,
-		"gtia_audio_bit" => 3,
-		"fpga" => "10M04SCU169C8G",
-		"version" => $version . "M04SU"
-	},
-	"10M04_stereo_covox_auto" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_covox" => 1,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"a7_bit" => 2,
-		"gtia_audio_bit" => 3, 
-		"fpga" => "10M04SCU169C8G",
-		"version" =>  $version."M04SC"
-	},
-	"10M04_quad_auto" =>
-	{
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"gtia_audio_bit" => 3, 
-		"fpga" => "10M04SCU169C8G",
-		"version" => $version . "M04QA"
-	},
-	"10M04_quad_covox_auto" =>
-	{
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a7_bit" => 3, 
-		"enable_covox" => 1,
-		"fpga" => "10M04SCU169C8G",
-		"version" => $version . "M04QC"
-	},
-	"10M08_stereo_covox_sample_auto" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_covox" => 1,
-		"enable_sample" => 1,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"a7_bit" => 2,
-		"gtia_audio_bit" => 3, 
-		"fpga" => "10M08SCU169C8G",
-		"version" =>  $version."M08SC"
-	},
-	"sid_10M08_sid_mono" =>
-	{
-		"pokeys" => 1,
-		"enable_sid" => 1,
-		"enable_auto_stereo" => 1,
-		"enable_flash" => 1,
-		"ext_bits"=> 4,
-		"bus" => "c64",
-		"a4_bit" => 4,
-		"a5_bit" => 0,  #force low for now (will be stereo)
-		"a6_bit" => 20, #force high
-		"a7_bit" => 0, #force low
-		"board" => "sid",
-		"cs1_bit" => 20, #force high
-		"fpga" => "10M08SCU169C8G",
-		"version" => $version . "M08SI"
-	},
-	"sid_10M08_sid_stereo" =>
-	{
-		"pokeys" => 1,
-		"enable_sid" => 1,
-		"enable_auto_stereo" => 1,
-		"enable_flash" => 1,
-		"ext_bits"=> 4,
-		"bus" => "c64",
-		"a4_bit" => 4,
-		"a5_bit" => 1,  #STEREO
-		"a6_bit" => 20, #force high
-		"a7_bit" => 0, #force low
-		"board" => "sid",
-		"cs1_bit" => 20, #force high
-		"fpga" => "10M08SCU169C8G",
-		"version" => $version . "M08SS"
-	},
-	"sidmax_10M04_stereo" =>
-	{
-		"pokeys" => 0,
-		"enable_auto_stereo" => 1,
-		"enable_flash" => 1,
-		"enable_psg" => 0,
-		"enable_covox" => 0,
-		"enable_sample" => 0,
-		"ext_bits"=> 4,
-		"bus" => "c64",
-		"a5_bit" => 1,  #STEREO
-		"a6_bit" => 2,
-		"a7_bit" => 3,
-		"irq_bit" => 4,
-		#"a6_bit" => 20, #force high
-		#"a7_bit" => 0, #force low
-		"type" => "sidmax",
-		"board" => "v1",
-		#"cs1_bit" => 20, #force high
-		"fpga" => "10M04SCU169C8G",
-		"version" => $version . "S04DS"
-	},
-	"sidmax_10M08_full" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_flash" => 1,
-		"enable_psg" => 1,
-		"enable_covox" => 1,
-		"enable_sample" => 1,
-		"ext_bits"=> 4,
-		"bus" => "c64",
-		"a5_bit" => 1,  #STEREO
-		"a6_bit" => 2,
-		"a7_bit" => 3,
-		"irq_bit" => 4,
-		#"a6_bit" => 20, #force high
-		#"a7_bit" => 0, #force low
-		"type" => "sidmax",
-		"board" => "v1",
-		#"cs1_bit" => 20, #force high
-		"fpga" => "10M08SCU169C8G",
-		"version" => $version . "S08HK"
-	},
-	"10M08_stereo_u1mb_auto" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"fancy_switch_bit" => 2,
-		"gtia_audio_bit" => 3,
-		"fpga" => "10M08SCU169C8G",
-		"version" => $version . "M08SU"
-	},
-	"10M08_quad_auto" =>
-	{
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"gtia_audio_bit" => 3, 
-		"fpga" => "10M08SCU169C8G",
-		"version" => $version . "M08QA"
-	},
-	"10M08_quad_covox_sample_auto" =>
-	{
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a7_bit" => 3, 
-		"enable_covox" => 1,
-		"enable_sample" => 1,
-		"enable_flash" => 1,
-		"fpga" => "10M08SCU169C8G",
-		"version" => $version . "M08QC"
-	},
-	"10M08_quad_sid" =>
-	{
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"enable_sid" => 1,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a6_bit" => 3,
-		"fpga" => "10M08SCU169C8G",
-		"version" => $version . "M08QS"
-	},
-	"10M08_quad_psg_covox_sample" =>
-	{
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"enable_psg" => 1,
-		"enable_covox" => 1,
-		"enable_sample" => 1,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a7_bit" => 3,
-		"fpga" => "10M08SCU169C8G",
-		"version" => $version . "M08QP"
-	},
-#	"10M08_basic" =>
-#	{
-#		"enable_audout2" => 0,
-#		"pokeys" => 2,
-#		"enable_auto_stereo" => 1,
-#		"enable_sid" => 0,
-#		"enable_psg" => 0,
-#		"enable_covox" => 0,
-#		"enable_sample" => 0,
-#		"enable_flash" => 1,
-#		"a4_bit" => 1,
-#		"a5_bit" => 2,
-#		"a6_bit" => 3,
-#		"a7_bit" => 19,  #use CS1
-#		"cs1_bit" => 20, #force high
-#		"fpga" => "10M08SCU169C8G",
-#		"version" => $version . "M08HK",
-#		"optimisearea" => 1
-#	},
-	"10M16_fullv2" =>
-	{
-		"fpga" => "10M16SCU169C8G",
-		"flash_addr_bits" => 17,
-		"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
-		"version" => $version . "M16MO",
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"enable_sid" => 1,
-		"enable_psg" => 1,
-		"enable_covox" => 1,
-		"enable_sample" => 1,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a6_bit" => 3,
-		"a7_bit" => 19,  #use CS1
-		"cs1_bit" => 20, #force high
-		"version" => $version . "M16HK"
-	},
-	"10M08_fullv2" =>
-	{
-		"enable_audout2" => 0,
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"enable_sid" => 1,
-		"enable_psg" => 1,
-		"enable_covox" => 1,
-		"enable_sample" => 1,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a6_bit" => 3,
-		"a7_bit" => 19,  #use CS1
-		"cs1_bit" => 20, #force high
-		"fpga" => "10M08SCU169C8G",
-		"version" => $version . "M08HK",
-		"optimisearea" => 1
-	},
-	"10M08_fullv2_stereo" =>
-	{
-		"enable_audout2" => 0,
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_sid" => 1,
-		"enable_psg" => 1,
-		"enable_covox" => 1,
-		"enable_sample" => 1,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a6_bit" => 3,
-		"a7_bit" => 19,  #use CS1
-		"cs1_bit" => 20, #force high
-		"fpga" => "10M08SCU169C8G",
-		"version" => $version . "M08HK",
-		"optimisearea" => 1
-	},
-	"10M02_v4_stereo" =>
-	{
-		"enable_audout2" => 0,
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_sid" => 0,
-		"enable_psg" => 0,
-		"enable_covox" => 0,
-		"enable_sample" => 0,
-		"enable_flash" => 0,
-		"enable_spdif" => 1,
-		"enable_ps2" => 0,
-		"a4_bit" => 1,
-		"ps2clk_bit" => 5,
-		"ps2dat_bit" => 6,
-		"gtia_audio_bit" => 7, 
-		"fancy_switch_bit" => 8,
-		"spdif_bit" => 10,
-		"ext_bits"=> 10,
-		"paddle_lvds"=>1,
-		"paddle_comp"=>0,
-		"enable_iox"=>0,
-		"enable_adc"=>1,
-		"pll_v2" => 0, 
-		"fpga" => "10M02SCU169C8G",
-		"version" => $version . "M02SA",
-		"optimisearea" => 1,
-		"board" => "v4"
-	},
-	"10M08_fullv4_stereo_sample" =>
-	{
-		"enable_audout2" => 0,
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_sid" => 1,
-		"enable_psg" => 1,
-		"enable_covox" => 1,
-		"enable_sample" => 1,
-		"enable_flash" => 1,
-		"enable_spdif" => 0,
-		"enable_ps2" => 0,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a6_bit" => 3,
-		"a7_bit" => 4,
-		"ps2clk_bit" => 5,
-		"ps2dat_bit" => 6,
-		"gtia_audio_bit" => 7, 
-		"fancy_switch_bit" => 8,
-		"spdif_bit" => 10,
-		"ext_bits"=> 10,
-		"paddle_lvds"=>1,
-		"paddle_comp"=>0,
-		"enable_iox"=>0,
-		"enable_adc"=>1,
-		"pll_v2" => 0, 
-		"fpga" => "10M08SCU169C8G",
-		"version" => $version . "M08HK",
-		"optimisearea" => 1,
-		"board" => "v4"
-	},
-	"10M08_fullv4_stereo_spdif" =>
-	{
-		"enable_audout2" => 0,
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_sid" => 1,
-		"enable_psg" => 1,
-		"enable_covox" => 1,
-		"enable_sample" => 0,
-		"enable_flash" => 1,
-		"enable_spdif" => 1,
-		"enable_ps2" => 0,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a6_bit" => 3,
-		"a7_bit" => 4,
-		"ps2clk_bit" => 5,
-		"ps2dat_bit" => 6,
-		"gtia_audio_bit" => 7, 
-		"fancy_switch_bit" => 8,
-		"spdif_bit" => 10,
-		"ext_bits"=> 10,
-		"paddle_lvds"=>1,
-		"paddle_comp"=>0,
-		"enable_iox"=>0,
-		"enable_adc"=>1,
-		"pll_v2" => 0, 
-		"fpga" => "10M08SCU169C8G",
-		"version" => $version . "M08HK",
-		"optimisearea" => 1,
-		"board" => "v4"
-	},
-	"10M08_monov4" =>
-	{
-		"enable_audout2" => 0,
-		"pokeys" => 1,
-		"enable_auto_stereo" => 1,
-		"enable_sid" => 0,
-		"enable_psg" => 0,
-		"enable_covox" => 0,
-		"enable_sample" => 0,
-		"enable_flash" => 1,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a6_bit" => 3,
-		"a7_bit" => 4,
-		"ps2clk_bit" => 5,
-		"ps2dat_bit" => 6,
-		"gtia_audio_bit" => 7, 
-		"fancy_switch_bit" => 8,
-		"spdif_bit" => 10,
-		"ext_bits"=> 10,
-		"paddle_lvds"=>1,
-		"paddle_comp"=>0,
-		"enable_iox"=>0,
-		"enable_adc"=>1,
-		"pll_v2" => 0,
-		"fpga" => "10M08SCU169C8G",
-		"version" => $version . "M08HK",
-		"optimisearea" => 1,
-		"board" => "v4"
-	},
-	"10M16_fullv4_quad" =>
-	{
-		"enable_audout2" => 0,
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"enable_sid" => 1,
-		"enable_psg" => 1,
-		"enable_covox" => 1,
-		"enable_sample" => 1,
-		"enable_flash" => 1,
-		"enable_spdif" => 1,
-		"enable_ps2" => 1,
-		"flash_addr_bits" => 17,
-		"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a6_bit" => 3,
-		"a7_bit" => 4,
-		"ps2clk_bit" => 5,
-		"ps2dat_bit" => 6,
-		"gtia_audio_bit" => 7, 
-		"fancy_switch_bit" => 8,
-		"spdif_bit" => 10,
-		"ext_bits"=> 10,
-		"paddle_lvds"=>1,
-		"paddle_comp"=>0,
-		"enable_iox"=>0,
-		"enable_adc"=>1,
-		"pll_v2" => 0,
-		"fpga" => "10M16SCU169C8G",
-		"version" => $version . "M16HK",
-		"optimisearea" => 1,
-		"board" => "v4"
-	},
-	"10M16_monov4" =>
-	{
-		"enable_audout2" => 0,
-		"pokeys" => 1,
-		"enable_auto_stereo" => 1,
-		"enable_sid" => 0,
-		"enable_psg" => 0,
-		"enable_covox" => 0,
-		"enable_sample" => 0,
-		"enable_flash" => 1,
-		"flash_addr_bits" => 17,
-		"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a6_bit" => 3,
-		"a7_bit" => 4,
-		"ps2clk_bit" => 5,
-		"ps2dat_bit" => 6,
-		"gtia_audio_bit" => 7, 
-		"spdif_bit" => 10,
-		"ext_bits"=> 10,
-		"paddle_lvds"=>1,
-		"paddle_comp"=>0,
-		"enable_iox"=>0,
-		"enable_adc"=>1,
-		"pll_v2" => 0,
-		"fpga" => "10M16SCU169C8G",
-		"version" => $version . "M16HK",
-		"optimisearea" => 1,
-		"board" => "v4"
-	},
-	"10M04_quad_auto_v3" =>
-	{
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"enable_sid" => 0,
-		"enable_psg" => 0,
-		"enable_covox" => 0,
-		"enable_sample" => 0,
-		"enable_flash" => 1,
-		"enable_spdif" => 1,
-		"enable_ps2" => 1,
-		"board" => "v3",
-		"pll_v2" => 0,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"gtia_audio_bit" => 5, 
-		"spdif_bit" => 6,
-		"ps2clk_bit" => 7,
-		"ps2dat_bit" => 8,
-		"ext_bits"=> 11,
-		"fpga" => "10M04SCU169C8G",
-		"version" => $version . "M04QA"
-	},
-	"10M04_stereo_psg_covox_auto_v3" =>
-	{
-		"pokeys" => 2,
-		"enable_auto_stereo" => 1,
-		"enable_sid" => 0,
-		"enable_psg" => 1,
-		"enable_covox" => 1,
-		"enable_sample" => 0,
-		"enable_flash" => 1,
-		"enable_spdif" => 1,
-		"enable_ps2" => 1,
-		"board" => "v3",
-		"pll_v2" => 0,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a6_bit" => 3,
-		"a7_bit" => 4,
-		"gtia_audio_bit" => 5, 
-		"spdif_bit" => 6,
-		"ps2clk_bit" => 7,
-		"ps2dat_bit" => 8,
-		#"fancy_switch_bit" => 6,
-		#"a7_bit" => 19,  #use CS1
-		"ext_bits"=> 11,
-		#"cs1_bit" => 20, #force high
-		"fpga" => "10M04SCU169C8G",
-		"version" => $version . "M04SP"
-	},
-	"10M16_mono" =>
-	{
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"enable_sid" => 0,
-		"enable_psg" => 0,
-		"enable_covox" => 0,
-		"enable_sample" => 0,
-		"enable_flash" => 1,
-		"enable_spdif" => 0,
-		"enable_ps2" => 0,
-		"flash_addr_bits" => 17,
-		"board" => "v3",
-		"pll_v2" => 0,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a6_bit" => 3,
-		"a7_bit" => 4,
-		"gtia_audio_bit" => 5, 
-		"spdif_bit" => 6,
-		"ps2clk_bit" => 7,
-		"ps2dat_bit" => 8,
-		#"fancy_switch_bit" => 6,
-		#"a7_bit" => 19,  #use CS1
-		"ext_bits"=> 11,
-		#"cs1_bit" => 20, #force high
-		"fpga" => "10M16SCU169C8G",
-		"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
-		"version" => $version . "M16MO"
-	},
-	"10M16_fullv3" =>
-	{
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"enable_sid" => 1,
-		"enable_psg" => 1,
-		"enable_covox" => 1,
-		"enable_sample" => 1,
-		"enable_flash" => 1,
-		"enable_spdif" => 1,
-		"enable_ps2" => 1,
-		"flash_addr_bits" => 17,
-		"board" => "v3",
-		"pll_v2" => 0,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a6_bit" => 3,
-		"a7_bit" => 4,
-		"gtia_audio_bit" => 5, 
-		"spdif_bit" => 6,
-		"ps2clk_bit" => 7,
-		"ps2dat_bit" => 8,
-		#"fancy_switch_bit" => 6,
-		#"a7_bit" => 19,  #use CS1
-		"ext_bits"=> 11,
-		#"cs1_bit" => 20, #force high
-		"fpga" => "10M16SCU169C8G",
-		"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
-		"version" => $version . "M16HK"
-	},
-	"10M16_fullv3_xel" =>
-	{
-		"pokeys" => 4,
-		"enable_auto_stereo" => 1,
-		"enable_sid" => 1,
-		"enable_psg" => 1,
-		"enable_covox" => 1,
-		"enable_sample" => 1,
-		"enable_flash" => 1,
-		"enable_spdif" => 1,
-		"enable_ps2" => 1,
-		"flash_addr_bits" => 17,
-		"board" => "v3",
-		"pll_v2" => 0,
-		"a4_bit" => 1,
-		"a5_bit" => 2,
-		"a6_bit" => 3,
-		"a7_bit" => 4,
-		"gtia_audio_bit" => 5, 
-		"spdif_bit" => 6,
-		"ps2clk_bit" => 7,
-		"ps2dat_bit" => 8,
-		#"fancy_switch_bit" => 6,
-		#"a7_bit" => 19,  #use CS1
-		"ext_bits"=> 11,
-		"cs1_bit" => 20,
-		#"cs1_bit" => 20, #force high
-		"fpga" => "10M16SCU169C8G",
-		"sid_wave_base" => 79872, #"to_integer(unsigned(x\"13800\"))",
-		"version" => $version . "M16HX"
-	},
-	"10M08_mono" =>
-	{
-		"pokeys" => 1,
-		"fpga" => "10M08SCU169C8G",
-		"enable_auto_stereo" => 1,
-		"gtia_audio_bit" => 3,
-		"cs1_bit" => 20, #force high
-		"a4_bit" => 1, #to access config!
-		"version" => $version . "M08MO"
-	},
-#	"10M08_light" =>
-#	{
-#		"pokeys" => 2,
-#		"enable_auto_stereo" => 1,
-#		"enable_sid" => 0,
-#		"enable_psg" => 0,
-#		"enable_covox" => 1,
-#		"enable_sample" => 1,
-#		"enable_flash" => 1,
-#		"a4_bit" => 1,
-#		"a5_bit" => 2,
-#		"a6_bit" => 3,
-#		"a7_bit" => 19,  #use CS1
-#		"cs1_bit" => 20, #force high
-#		"fpga" => "10M08SCU169C8G",
-#		"version" => $version . "M08LI"
-#	},
-#	"10M08_audiotest" =>
-#	{
-#		"pokeys" => 4,
-#		"enable_auto_stereo" => 1,
-#		"enable_sid" => 1,
-#		"enable_psg" => 1,
-#		"enable_covox" => 1,
-#		"enable_sample" => 1,
-#		"enable_flash" => 1,
-#		"a4_bit" => 1,
-#		"a5_bit" => 2,
-#		"a6_bit" => 3,
-#		"a7_bit" => 19,  #use CS1
-#		"cs1_bit" => 20, #force high
-#		"ext_clk_enable" => 1,
-#		"fpga" => "10M08SCU169C8G",
-#		"version" => $version . "M08HK"
-#	},
-#	"10M08_sample" =>
-#	{
-#		"pokeys" => 4,
-#		"enable_auto_stereo" => 1,
-#		"enable_sid" => 0,
-#		"enable_psg" => 0,
-#		"enable_covox" => 1,
-#		"enable_sample" => 1,
-#		"enable_flash" => 1,
-#		"a4_bit" => 1,
-#		"a5_bit" => 2,
-#		"a6_bit" => 3,
-#		"a7_bit" => 19,  #use CS1
-#		"cs1_bit" => 20, #force high
-#		"fpga" => "10M08SCU169C8G",
-#		"version" => $version . "M08HK"
-#	}
-#	"10M08_full" => 
-#	{
-#		"board" => 3,
-#		"ext_bits"=> 11,
-#		"pokeys" => 4,
-#		"enable_auto_stereo" => 1,
-#		"fancy_switch_bit" => 1,
-#		"gtia_audio_bit" => 2,
-#		"a4_bit" => 3,
-#		"a5_bit" => 4,
-#		"a6_bit" => 5,
-#		"a7_bit" => 6,
-#		"enable_sid" => 1,
-#		"enable_psg" => 1,
-#		"enable_covox" => 1,
-#		"enable_sample" => 1,
-#		"enable_flash" => 1,
-#		"fpga" => "10M08SCU169C8G"
-#	}
+		"full" =>
+		{
+			"sids" => 2, #Not generic yet...
+			"pokeys" => 2,
+			"enable_auto_stereo" => 1,
+			"enable_flash" => 1,
+			"enable_psg" => 1,
+			"enable_covox" => 1,
+			"enable_sample" => 1,
+			"ext_bits"=> 4,
+			"bus" => "c64",
+			"a5_bit" => 1,  #STEREO
+			"a6_bit" => 2,
+			"a7_bit" => 3,
+			"irq_bit" => 4,
+			#"a6_bit" => 20, #force high
+			#"a7_bit" => 0, #force low
+			#"cs1_bit" => 20, #force high
+			"fpga" => "10M08SCU169C8G",
+		},
+	}
 );
 
 #if (not defined $wanted_variant or (not exists $variants{$wanted_variant} and $wanted_variant ne "ALL"))
@@ -934,87 +793,247 @@ my %variants =
 #	die "Provide variant of ALL or ".join ",",sort keys %variants;
 #}
 
-foreach my $variant (sort keys %variants)
+foreach my $typeboard (sort keys %variants)
 {
-	#next if ($wanted_variant ne $variant and $wanted_variant ne "ALL");
-	next unless ($variant =~ /$wanted_variant/);
-	print "Building $variant of $name\n";
+	$typeboard =~ /(.*)_(.*)/;
+	my $type = $1;
+	my $board = $2;
 
-	my $versioncode = $variants{$variant}->{"version"};
-	if (not defined $versioncode)
+	my $tbvariants = $variants{$typeboard};
+	foreach my $name (sort keys %$tbvariants)
 	{
-		$versioncode = "DEVELOPR";
-	}
-	my $fpga = $variants{$variant}->{"fpga"};
-	my $flashver = $fpga;
-	$flashver =~ s/..M(..).*/$1/;
-	if (not exists $variants{$variant}->{"type"})
-	{
-		$variants{$variant}->{"type"} = "pokeymax";
-	}
-	my $type = $variants{$variant}->{"type"};
-	my $board = $variants{$variant}->{"board"};
-	my $bus = $variants{$variant}->{"bus"};
-	my $flash = $variants{$variant}->{"enable_flash"};
-	my $noflash = "";
-	if (not defined $flash or $flash eq "0") {$noflash = "_noflash"};
+		my $spec = $tbvariants->{$name};
 
-	my $sid = $variants{$variant}->{"enable_sid"};
-	if (not defined $sid) {$sid = "0"};
-	if ($variant =~ /sidmax/) {$sid = "1"};
+		my $fpga = $spec->{"fpga"};
+		$fpga =~ /M(..)/;
+		my $fpgasize = $1;
 
-        my $dir = "build_$variant";
-	`rm -rf $dir`;
-	mkdir $dir;
-	`cp *.vhd* $dir`;
-	`cp iox_glue.vhdl $dir/iox_glue.vhdl`;
-	`cp pokeymax.vhd $dir/pokeymax.vhd`;
+		#next if ($wanted_variant ne $variant and $wanted_variant ne "ALL");
+		my $variant = "${typeboard}_M${fpgasize}_${name}";
 
-	`cp iox_glue$board.vhdl $dir/iox_glue.vhdl`;
-	`cp $type$board.vhd $dir/$type.vhd`;
-	`cp $type$board.qsf $dir/$type.qsf`;
-
-	`cp slave_timing_6502$bus.vhd $dir/slave_timing_6502.vhd`;
-	`cp swapbits $dir`;
-	`cp $type$board$noflash.sdc $dir/$type.sdc`;
-	`cp $type*.qpf $dir`;
-	`cp -r int_osc* $dir`;
-	`cp -r pll* $dir`;
-	`cp -r lvds* $dir`;
-	`cp -r paddle* $dir`;
-	`cp -r flash_$flashver/flash* $dir`;
-	`cp -r PSG $dir`;
-	`cp -r SID $dir`;
-	`cp -r pokey $dir`;
-	`cp -r sample $dir`;
-	`cp -r covox $dir`;
-	`cp -r *.bin $dir`;
-
-	chdir $dir;
-
+		if (defined $wanted_variant)
+		{
+			next unless ($variant =~ /$wanted_variant/);
+		}
 	
-	`echo set_global_assignment -name DEVICE $fpga >> $type.qsf`;
+		my $code1;
+		my $code2;
+		my $sample = 0;
+		if (exists $spec->{"enable_sample"} and $spec->{"enable_sample"}==1)
+		{
+			$sample = 1;
+		}
+		my $covox = 0;
+		if (exists $spec->{"enable_covox"} and $spec->{"enable_covox"}==1)
+		{
+			$covox = 1;
+		}
+		my $sids = 0;
+		if (exists $spec->{"enable_sid"} and $spec->{"enable_sid"}) {$sids = 2;}
+		my $pokeys = $spec->{"pokeys"};
+		my $psgs = 0;
+		if (exists $spec->{"enable_psg"} and $spec->{"enable_psg"}) {$psgs = 2;}
 
-	foreach my $key (sort keys %{$variants{$variant}})
-	{
-		my $val = $variants{$variant}->{$key};
-		`echo 'set_parameter -name $key $val' >> $type.qsf`;
+		my $primary = $pokeys;
+		if ($type eq "pokeymax")
+		{
+			if ($pokeys==1)
+			{
+				$code1 = "M";
+			}
+			elsif ($pokeys==2)
+			{
+				$code1 = "S";
+			}
+			elsif ($pokeys==4)
+			{
+				$code1 = "Q";
+			}
+			else
+			{
+				$code1 = "O";
+			}
+
+			if ($psgs==2 and $sample==1 and $sids==2)
+			{
+				$code2 = "F";
+			}	
+			elsif ($psgs==2 and $sample==0 and $sids==2)
+			{
+				$code2 = "f";
+			}	
+			elsif ($psgs==2 and $sids==0)
+			{
+				$code2 = "P";
+			}	
+			elsif ($psgs==0 and $sids==2)
+			{
+				$code2 = "S";
+			}	
+			elsif ($covox==1)
+			{
+				$code2 = "C";
+			}	
+			elsif ($psgs==0 and $sample==0 and $covox==0 and $sids==0)
+			{
+				$code2 = "A";
+			}
+			else
+			{
+				$code2 = "O"; #Other
+				print ("MISSING: PSG:$psgs SID:$sids sample:$sample covox:$covox\n");
+			}
+		}
+		elsif ($type eq "sidmax")
+		{
+			$sids = $spec->{"sids"};
+			if ($sids==1)
+			{
+				$code1 = "M";
+			}
+			elsif ($sids==2)
+			{
+				$code1 = "S";
+			}
+			elsif ($sids==4)
+			{
+				$code1 = "Q";
+			}
+			else
+			{
+				$code1 = "O"; #Other
+			}
+
+			if ($psgs==2 and $sample=1 and $pokeys==2)
+			{
+				$code2 = "F";
+			}	
+		}
+		else
+		{
+			die "Unknown type";
+		}
+	
+		my $versioncode = "${version}M$fpgasize$code1$code2";
+
+		print "Building $versioncode $name of $typeboard\n";
+
+		my $bus = "";
+		if (exists $spec->{"bus"})
+		{
+			$bus = $spec->{"bus"};
+		}
+		my $flash = $spec->{"enable_flash"};
+		my $noflash = "";
+		if (not defined $flash or $flash eq "0") {$noflash = "_noflash"};
+	
+		my $needs_sid_waves = $sids>0;
+	
+	        my $dir = "build_${typeboard}_M${fpgasize}_${versioncode}_${variant}";
+
+		`rm -rf $dir`;
+		mkdir $dir;
+		`cp *.vhd* $dir`;
+		`cp iox_glue$board.vhdl $dir/iox_glue.vhdl 2> /dev/null`;
+
+		`cp $type$board.vhd $dir/$type.vhd`;
+		`cp $type$board.qsf $dir/$type.qsf`;
+	
+		`cp slave_timing_6502$bus.vhd $dir/slave_timing_6502.vhd`;
+		`cp swapbits $dir`;
+		`cp $type$board$noflash.sdc $dir/$type.sdc`;
+		`cp $type*.qpf $dir`;
+		`cp -r int_osc* $dir`;
+		`cp -r pll* $dir`;
+		`cp -r lvds* $dir`;
+		`cp -r paddle* $dir`;
+		`cp -r flash_$fpgasize/flash* $dir 2> /dev/null`;
+		`cp -r PSG $dir`;
+		`cp -r SID $dir`;
+		`cp -r pokey $dir`;
+		`cp -r sample $dir`;
+		`cp -r covox $dir`;
+		`cp -r *.bin $dir`;
+	
+		chdir $dir;
+	
+		
+		`echo set_global_assignment -name DEVICE $fpga >> $type.qsf`;
+	
+		foreach my $key (sort keys %{$variants{$variant}})
+		{
+			my $val = $variants{$variant}->{$key};
+			`echo 'set_parameter -name $key $val' >> $type.qsf`;
+		}
+		if (exists $variants{$variant}->{"optimisearea"})
+		{
+			`echo 'set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE AREA' >>$type.qsf`;
+		}
+	
+		#Synthesize
+		`quartus_sh --flow compile $type > build.log 2> build.err`;
+	
+		#Create a plain old pof file
+		#The sof file is compressed
+		#Reason being that we have a user flash area (UFM) and a config flash area (CFM)
+		#We steal some of the CFM space for sid wave tables but it needs to be empty
+		`quartus_cpf --convert ../convert_secure_${type}_${needs_sid_waves}.cof`;
+	
+		if (int($fpgasize)>=8) #We only patch the larger ones, the others do not have space...
+		{
+		        #Find the offsets in order to patch the pof file
+			#This is done by extracting the data from an svf (a standard format for flashing, unlike pof)
+			`quartus_cpf -c -q 10MHz -g 3.3 -n p output_files/$type.pof output_files/${type}_pre.svf`;
+			`../openocd_flash/extractbinfromsvf.pl output_files/${type}_pre.svf`;
+			`cat UFM1.bin UFM0.bin > UFMboth_pre.bin`;
+			`cat CFM1.bin CFM0.bin > CFMboth_pre.bin`;
+		
+			#Now that we have our data files, we can find their offsets
+			#Complication, the bits are swapped (and the word order)
+		        `../swapbits ./UFMboth_pre.bin ./UFMboth_pre.bin.swap`;
+		        `../swapbits ./CFMboth_pre.bin ./CFMboth_pre.bin.swap`;
+			
+			#Find the offset in the pof file
+			my $UFMbothlen = -s "./UFMboth_pre.bin.swap";
+			my $CFMbothlen = -s "./CFMboth_pre.bin.swap";
+		        my $UFMoffset = `../find_offset ./UFMboth_pre.bin.swap 0 $UFMbothlen output_files/$type.pof`;
+		        my $CFMoffset = `../find_offset ./CFMboth_pre.bin.swap 0 $CFMbothlen output_files/$type.pof`;
+		
+			print  "CFM:$CFMbothlen $CFMoffset UFM:$UFMbothlen $UFMoffset\n";
+			$UFMoffset = hex($UFMoffset);
+			$CFMoffset = hex($CFMoffset);
+		
+			my $sidoffset = hex("21800"); #Give some space for the core, then write sid data
+			if ($fpgasize eq "16")
+			{
+				$sidoffset = hex("46000");
+			}
+			my $sidwavelocation = $sidoffset + $CFMoffset;
+			print "Write wave offset at $sidwavelocation in the pof\n";
+	
+			`../modifypof $type ./output_files/$type.pof $sidwavelocation`;
+		}
+	
+		#Now we patched the pof file, create the svf normally for use if flashing using openocd
+		`quartus_cpf -c -q 10MHz -g 3.3 -n p output_files/$type.pof output_files/$type.svf`;
+	
+		#Make a core.bin for flashing the the config tool on the xl/xe or c64
+		if (int($fpgasize)>=4)
+		{
+			#Legacy way of creating the core.bin
+			#`../makeflash_$fpgasize $type ./output_files/$type.pof $versioncode output_files/core.bin`;
+			#In fact this no longer works since swapbits is not identical for different byte offsets...
+	
+			#New way of creating the core.bin , which is basically catting the data from the UFM/CFM from the svf and then adding a header
+			`../openocd_flash/extractbinfromsvf.pl output_files/$type.svf`;
+			`cat UFM1.bin UFM0.bin > UFMboth_post.bin`;
+			`cat CFM1.bin CFM0.bin > CFMboth_post.bin`;
+		        `../swapbits ./UFMboth_post.bin ./UFMboth_post.bin.swap`;
+		        `../swapbits ./CFMboth_post.bin ./CFMboth_post.bin.swap`;
+			`../makeflash $type $versioncode output_files/core.bin`;
+		}
+	
+		chdir "..";
 	}
-	if (exists $variants{$variant}->{"optimisearea"})
-	{
-		`echo 'set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE AREA' >>$type.qsf`;
-	}
-
-	`quartus_sh --flow compile $type > build.log 2> build.err`;
-	`quartus_cpf --convert ../convert_secure_${type}_$sid.cof`;
-	`../modifypof_$flashver $type ./output_files/$type.pof`;
-	`quartus_cpf -c -q 10MHz -g 3.3 -n p output_files/$type.pof output_files/$type.svf`;
-	`../makeflash_$flashver $type ./output_files/$type.pof $versioncode output_files/core.bin`;
-	`touch UFM1 UFM0 CFM1 CFM0`;
-	`../openocd_flash/extractbinfromsvf.pl output_files/$type.svf`;
-	`cat UFM1.bin UFM0.bin > UFMboth.bin`;
-	`cat CFM1.bin CFM0.bin > CFMboth.bin`;
-
-	chdir "..";
 }
 
