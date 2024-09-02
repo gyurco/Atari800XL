@@ -94,7 +94,7 @@
 # within the Quartus project, and generate a unified
 # script which supports all the Altera IP within the design.
 # ----------------------------------------
-# ACDS 20.1 720 linux 2024.04.16.22:45:10
+# ACDS 23.1 993 linux 2024.08.31.14:44:44
 
 # ----------------------------------------
 # Initialize variables
@@ -113,7 +113,7 @@ if ![info exists QSYS_SIMDIR] {
 }
 
 if ![info exists QUARTUS_INSTALL_DIR] { 
-  set QUARTUS_INSTALL_DIR "/home/markw/intelFPGA_lite/20.1/quartus/"
+  set QUARTUS_INSTALL_DIR "/home/markw/intelFPGA_lite/23.1std/quartus/"
 }
 
 if ![info exists USER_DEFINED_COMPILE_OPTIONS] { 
@@ -150,7 +150,7 @@ ensure_lib          ./libraries/
 ensure_lib          ./libraries/work/
 vmap       work     ./libraries/work/
 vmap       work_lib ./libraries/work/
-if ![ string match "*ModelSim ALTERA*" [ vsim -version ] ] {
+if ![ string match "*Intel*FPGA*" [ vsim -version ] ] {
   ensure_lib                  ./libraries/altera_ver/      
   vmap       altera_ver       ./libraries/altera_ver/      
   ensure_lib                  ./libraries/lpm_ver/         
@@ -183,7 +183,7 @@ vmap       paddle_gpio ./libraries/paddle_gpio/
 # Compile device library files
 alias dev_com {
   echo "\[exec\] dev_com"
-  if ![ string match "*ModelSim ALTERA*" [ vsim -version ] ] {
+  if ![ string match "*Intel*FPGA*" [ vsim -version ] ] {
     eval  vlog $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_primitives.v"               -work altera_ver      
     eval  vlog $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QUARTUS_INSTALL_DIR/eda/sim_lib/220model.v"                        -work lpm_ver         
     eval  vlog $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QUARTUS_INSTALL_DIR/eda/sim_lib/sgate.v"                           -work sgate_ver       

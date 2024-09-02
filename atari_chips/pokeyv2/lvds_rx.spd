@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <simPackage>
  <file
-   path="lvds_rx_sim/altera_soft_lvds/altera_soft_lvds_rx_twD2Tqf3.v"
+   path="lvds_rx_sim/altera_soft_lvds/altera_soft_lvds_rx_uCmNW05P.v"
    type="VERILOG"
    library="lvds_rx" />
  <file path="lvds_rx_sim/lvds_rx.vhd" type="VHDL" />
