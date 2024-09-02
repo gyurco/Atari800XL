@@ -1,11 +1,11 @@
 //lpm_ff CBX_DECLARE_ALL_CONNECTED_PORTS="OFF" CBX_SINGLE_OUTPUT_FILE="ON" LPM_WIDTH=1 clock data q
-//VERSION_BEGIN 20.1 cbx_lpm_ff 2020:11:11:17:03:37:SJ cbx_mgl 2020:11:11:17:50:46:SJ  VERSION_END
+//VERSION_BEGIN 23.1 cbx_lpm_ff 2024:05:14:17:53:42:SC cbx_mgl 2024:05:14:18:00:13:SC  VERSION_END
 // synthesis VERILOG_INPUT_VERSION VERILOG_2001
 // altera message_off 10463
 
 
 
-// Copyright (C) 2020  Intel Corporation. All rights reserved.
+// Copyright (C) 2024  Intel Corporation. All rights reserved.
 //  Your use of Intel Corporation's design tools, logic functions 
 //  and other software and tools, and any partner logic 
 //  functions, and any output files from any of the foregoing 
@@ -26,7 +26,7 @@
 //synopsys translate_off
 `timescale 1 ps / 1 ps
 //synopsys translate_on
-module  altera_soft_lvds_rx_twD2Tqf3
+module  altera_soft_lvds_rx_uCmNW05P
 	( 
 	clock,
 	data,
@@ -54,5 +54,5 @@ module  altera_soft_lvds_rx_twD2Tqf3
 	assign
 		enable = 1'b1,
 		q = ff_dffe;
-endmodule //altera_soft_lvds_rx_twD2Tqf3
+endmodule //altera_soft_lvds_rx_uCmNW05P
 //VALID FILE
