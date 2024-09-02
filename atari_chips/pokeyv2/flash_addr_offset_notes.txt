@@ -1,0 +1,37 @@
+16:
+0056230 ffff ffff ffff dfff ffff ffff ffff ffff
+0056240 ffff ffff ffff ffff ffff ffff ffff ffff
+*
+008d0a0 ffff ffff ffff ffff 001a 0052 0000 0000
+
+ICB                     0x00000000                      0x00000FFF
+UFM                     0x00001000                      0x00008FFF
+CFM0            0x0002F000                      0x0008CFFF (0x000562A7)
+
+-- 0x8000 is where CFM starts in flash addr map...
+-- add 0x2f000-0x1d000 = 73728 to start at the same location in CFM
+-- that works, but we want to store it later...
+-- _current_ core ends at 0x27190
+-- add 0x24800 to put it at 0x46000 in the CFM
+-> that works!
+-> I think wave_base should be 0x13800
+
+
+8:
+00338d0 ffff ffff 0000 ff00 ffff ffff ffff ffff
+00338e0 ffff ffff ffff ffff ffff ffff ffff ffff
+*
+004e8a0 ffff ffff ffff ffff 001a 0052 0000 0000
+256168 (offset in pof)  - 0x0a600 (wave base)
+0x3e8a8 - 0x29800  (offset 0x140a8)
+
+ICB                     0x00000000                      0x000007FF
+UFM                     0x00000800                      0x000087FF
+CFM0            0x0001D000                      0x0004E7FF (0x0003382B)
+
+-- stored in CFM0 starting at 0x21800 (byte addr) -> 0x8600 (32-bit addr)
+-- 0x8000 is where CFM starts in flash addr map...
+
+
+
+
