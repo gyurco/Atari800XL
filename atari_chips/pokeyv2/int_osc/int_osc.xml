@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deploy
- date="2021.01.13.20:13:30"
- outputDirectory="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/int_osc/">
+ date="2024.08.31.14:17:07"
+ outputDirectory="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_sidmax_10M08_full/int_osc/">
  <perimeter>
   <parameter
      name="AUTO_GENERATION_ID"
@@ -49,38 +49,38 @@
  </perimeter>
  <entity
    path=""
-   parameterizationKey="int_osc:1.0:AUTO_DEVICE=10M08SCU169C8G,AUTO_DEVICE_FAMILY=MAX 10,AUTO_DEVICE_SPEEDGRADE=8,AUTO_GENERATION_ID=1610565210,AUTO_UNIQUE_ID=(altera_int_osc:20.1:CBX_AUTO_BLACKBOX=ALL,CLOCK_FREQUENCY=116,CLOCK_FREQUENCY_1=116,CLOCK_FREQUENCY_2=77,DEVICE_FAMILY=MAX 10,DEVICE_ID=08,INFORMATION=The output frequency for 10M02, 10M04, 10M08, 10M16, and 10M25 devices is 55~116MHz &lt;br&gt;The output frequency for 10M40, and 10M50 devices is 35~77MHz &lt;br&gt;,PART_NAME=10M08SCU169C8G)"
+   parameterizationKey="int_osc:1.0:AUTO_DEVICE=10M08SCU169C8G,AUTO_DEVICE_FAMILY=MAX 10,AUTO_DEVICE_SPEEDGRADE=8,AUTO_GENERATION_ID=1725106627,AUTO_UNIQUE_ID=(altera_int_osc:23.1:CBX_AUTO_BLACKBOX=ALL,CLOCK_FREQUENCY=116,CLOCK_FREQUENCY_1=116,CLOCK_FREQUENCY_2=77,DEVICE_FAMILY=MAX 10,DEVICE_ID=08,INFORMATION=The output frequency for 10M02, 10M04, 10M08, 10M16, and 10M25 devices is 55~116MHz &lt;br&gt;The output frequency for 10M40, and 10M50 devices is 35~77MHz &lt;br&gt;,PART_NAME=10M08SCU169C8G)"
    instancePathKey="int_osc"
    kind="int_osc"
    version="1.0"
    name="int_osc">
-  <parameter name="AUTO_GENERATION_ID" value="1610565210" />
+  <parameter name="AUTO_GENERATION_ID" value="1725106627" />
   <parameter name="AUTO_DEVICE" value="10M08SCU169C8G" />
   <parameter name="AUTO_DEVICE_FAMILY" value="MAX 10" />
   <parameter name="AUTO_UNIQUE_ID" value="" />
   <parameter name="AUTO_DEVICE_SPEEDGRADE" value="8" />
   <generatedFiles>
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/int_osc/synthesis/int_osc.vhd"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_sidmax_10M08_full/int_osc/synthesis/int_osc.vhd"
        type="VHDL" />
   </generatedFiles>
   <childGeneratedFiles>
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/int_osc/synthesis/submodules/altera_int_osc.v"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_sidmax_10M08_full/int_osc/synthesis/submodules/altera_int_osc.v"
        type="VERILOG"
        attributes="" />
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/int_osc/synthesis/submodules/altera_int_osc.sdc"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_sidmax_10M08_full/int_osc/synthesis/submodules/altera_int_osc.sdc"
        type="SDC"
        attributes="" />
   </childGeneratedFiles>
   <sourceFiles>
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/int_osc.qsys" />
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_sidmax_10M08_full/int_osc.qsys" />
   </sourceFiles>
   <childSourceFiles>
    <file
-       path="/home/markw/intelFPGA_lite/20.1/ip/altera/altera_int_osc/altera_int_osc_hw.tcl" />
+       path="/home/markw/intelFPGA_lite/23.1std/ip/altera/altera_int_osc/altera_int_osc_hw.tcl" />
   </childSourceFiles>
   <messages>
    <message level="Debug" culprit="int_osc">queue size: 0 starting:int_osc "int_osc"</message>
@@ -104,10 +104,10 @@
  </entity>
  <entity
    path="submodules/"
-   parameterizationKey="altera_int_osc:20.1:CBX_AUTO_BLACKBOX=ALL,CLOCK_FREQUENCY=116,CLOCK_FREQUENCY_1=116,CLOCK_FREQUENCY_2=77,DEVICE_FAMILY=MAX 10,DEVICE_ID=08,INFORMATION=The output frequency for 10M02, 10M04, 10M08, 10M16, and 10M25 devices is 55~116MHz &lt;br&gt;The output frequency for 10M40, and 10M50 devices is 35~77MHz &lt;br&gt;,PART_NAME=10M08SCU169C8G"
+   parameterizationKey="altera_int_osc:23.1:CBX_AUTO_BLACKBOX=ALL,CLOCK_FREQUENCY=116,CLOCK_FREQUENCY_1=116,CLOCK_FREQUENCY_2=77,DEVICE_FAMILY=MAX 10,DEVICE_ID=08,INFORMATION=The output frequency for 10M02, 10M04, 10M08, 10M16, and 10M25 devices is 55~116MHz &lt;br&gt;The output frequency for 10M40, and 10M50 devices is 35~77MHz &lt;br&gt;,PART_NAME=10M08SCU169C8G"
    instancePathKey="int_osc:.:int_osc_0"
    kind="altera_int_osc"
-   version="20.1"
+   version="23.1"
    name="altera_int_osc">
   <parameter name="CLOCK_FREQUENCY_2" value="77" />
   <parameter name="CLOCK_FREQUENCY_1" value="116" />
@@ -121,18 +121,18 @@
   <parameter name="DEVICE_ID" value="08" />
   <generatedFiles>
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/int_osc/synthesis/submodules/altera_int_osc.v"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_sidmax_10M08_full/int_osc/synthesis/submodules/altera_int_osc.v"
        type="VERILOG"
        attributes="" />
    <file
-       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_10M08_fullv2/int_osc/synthesis/submodules/altera_int_osc.sdc"
+       path="/home/markw/fpga/svn/repo/trunk/atari_800xl/atari_chips/pokeyv2/build_sidmax_10M08_full/int_osc/synthesis/submodules/altera_int_osc.sdc"
        type="SDC"
        attributes="" />
   </generatedFiles>
   <childGeneratedFiles/>
   <sourceFiles>
    <file
-       path="/home/markw/intelFPGA_lite/20.1/ip/altera/altera_int_osc/altera_int_osc_hw.tcl" />
+       path="/home/markw/intelFPGA_lite/23.1std/ip/altera/altera_int_osc/altera_int_osc_hw.tcl" />
   </sourceFiles>
   <childSourceFiles/>
   <instantiator instantiator="int_osc" as="int_osc_0" />
