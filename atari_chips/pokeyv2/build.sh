@@ -929,7 +929,7 @@ foreach my $typeboard (sort keys %variants)
 	
 		my $needs_sid_waves = $sids>0;
 	
-	        my $dir = "build_${typeboard}_M${fpgasize}_${versioncode}_${variant}";
+	        my $dir = "build_${typeboard}_M${fpgasize}_${versioncode}_${name}";
 
 		`rm -rf $dir`;
 		mkdir $dir;
@@ -960,12 +960,12 @@ foreach my $typeboard (sort keys %variants)
 		
 		`echo set_global_assignment -name DEVICE $fpga >> $type.qsf`;
 	
-		foreach my $key (sort keys %{$variants{$variant}})
+		foreach my $key (sort keys %$spec)
 		{
-			my $val = $variants{$variant}->{$key};
+			my $val = $spec->{$key};
 			`echo 'set_parameter -name $key $val' >> $type.qsf`;
 		}
-		if (exists $variants{$variant}->{"optimisearea"})
+		if (exists $spec->{"optimisearea"})
 		{
 			`echo 'set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE AREA' >>$type.qsf`;
 		}
