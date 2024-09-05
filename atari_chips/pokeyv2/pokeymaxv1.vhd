@@ -1869,7 +1869,7 @@ end generate spdif_on;
 -- drive keyboard lines
 iox_on : if enable_iox=1 generate 
 	i2c_master0 : entity work.i2c_master
- 	generic map(input_clk=>58_000_000, bus_clk=>2_800_000)
+ 	generic map(input_clk=>58_000_000, bus_clk=>2_000_000)
 	port map(
 		clk=>clk,
 		reset_n=>reset_n,
