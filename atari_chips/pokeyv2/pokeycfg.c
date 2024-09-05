@@ -3,8 +3,62 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#ifdef SIDMAX
+unsigned char * sid = (unsigned char *) 0xd400;
+unsigned char * config = (unsigned char *) 0xd4f0;
+unsigned char * detect = (unsigned char *) 0xd4fc;
+#define PRODUCT "Sidmax"
+unsigned char col1()
+{
+	return 0x7;
+}
+unsigned char col2()
+{
+	return 0x8;
+}
+#define MODE_CORE 1
+#define MODE_SID 2
+#define MODE_POKEY 3
+#define MODE_PSG 4
+
+#define CORE_MONO 1
+#define CORE_DIVIDE 2
+#define CORE_RESTRICT 3
+#define CORE_PHI 4
+#define CORE_MAX 4
+
+#define CORE_GTIA 101
+#define CORE_OUTPUT 100
+
+#define SID_AUTO 1
+#define SID_TYPE2 2
+#define SID_EXT 3
+#define SID_MAX 3
+
+#define SID_TYPE 100
+
+#define PRESS_UP 145		
+#define PRESS_DOWN 17
+#define PRESS_LEFT 157
+#define PRESS_RIGHT 29
+
+#else
 unsigned char * pokey = (unsigned char *) 0xd200;
 unsigned char * config = (unsigned char *) 0xd210;
+unsigned char * detect = (unsigned char *) 0xd20c;
+#define PRODUCT "Pokeymax"
+unsigned char col1()
+{
+	return 0x46;
+}
+unsigned char col2()
+{
+	return 0x34;
+}
+#define MODE_CORE 1
+#define MODE_POKEY 2
+#define MODE_PSG 3
+#define MODE_SID 4
 
 #define CORE_MONO 1
 #define CORE_DIVIDE 2
@@ -13,6 +67,20 @@ unsigned char * config = (unsigned char *) 0xd210;
 #define CORE_OUTPUT 5
 #define CORE_PHI 6
 #define CORE_MAX 6
+
+#define SID_TYPE 1
+#define SID_MAX 1
+
+#define SID_TYPE2 100
+#define SID_AUTO 101
+#define SID_EXT 102
+
+#define PRESS_UP '-'
+#define PRESS_DOWN '='
+#define PRESS_LEFT '+'
+#define PRESS_RIGHT '*'
+
+#endif
 
 #define POKEY_LINEAR 1
 #define POKEY_CHANNEL_MODE 2
@@ -24,21 +92,17 @@ unsigned char * config = (unsigned char *) 0xd210;
 #define PSG_ENVELOPE 3
 #define PSG_VOLUME 4 
 #define PSG_MAX 4
-
-#define SID_TYPE 1
-#define SID_MAX 1
-
 unsigned char mode_maxline(unsigned char mode)
 {
 	switch (mode)
 	{
-		case 1:
+		case MODE_CORE:
 			return CORE_MAX;
-		case 2:
+		case MODE_POKEY:
 			return POKEY_MAX;
-		case 3:
+		case MODE_PSG:
 			return PSG_MAX;
-		case 4:
+		case MODE_SID:
 			return SID_MAX;
 	}
 	return 0;
@@ -242,7 +306,7 @@ void renderLine(unsigned long * flash1, unsigned long * flash2, unsigned char mo
 
     switch (mode) 
     {
-    case 1: // Core
+    case MODE_CORE: // Core
         switch(line)
         {
         case CORE_MONO:
@@ -333,7 +397,7 @@ void renderLine(unsigned long * flash1, unsigned long * flash2, unsigned char mo
     	break;
         }
     break;
-    case 2: // pokey    
+    case MODE_POKEY: // pokey    
         switch(line)
         {
         case POKEY_LINEAR:
@@ -350,7 +414,7 @@ void renderLine(unsigned long * flash1, unsigned long * flash2, unsigned char mo
     	break;
 	}
     break;
-    case 3: // psg
+    case MODE_PSG: // psg
         switch(line)
         {
         case PSG_FREQUENCY:
@@ -410,9 +474,25 @@ void renderLine(unsigned long * flash1, unsigned long * flash2, unsigned char mo
     	break;
 	}
     break;
-    case 4: // SID    
+    case MODE_SID: // SID    
         switch(line)
         {
+        case SID_AUTO:
+            revers(activeLine==SID_AUTO);
+            val = ((*flash2)>>16)&0x10;
+            cprintf("SID detect    : ");
+            revers(activeLine==SID_AUTO);
+    	switch(val)
+    	{
+    	case 0:
+            	cprintf("Manual ");
+    		break;
+    	case 0x10:
+                cprintf("Auto   ");
+    		break;
+    	}
+
+    	break;
         case SID_TYPE:
             revers(activeLine==SID_TYPE);
             val = (*flash2)&0x3;
@@ -445,6 +525,65 @@ void renderLine(unsigned long * flash1, unsigned long * flash2, unsigned char mo
     		break;
     	}
     	break;
+        case SID_TYPE2:
+            revers(activeLine==SID_TYPE2);
+            val = (*flash2)&0x1;
+            cprintf("SID version   : ");
+            revers(activeLine==SID_TYPE2 && col==0);
+    	switch(val)
+    	{
+    	case 0:
+            	cprintf("1:8580     ");
+    		break;
+    	case 1:
+                    cprintf("1:6581     ");
+    		break;
+    	}
+            revers(activeLine==SID_TYPE2 && col==1);
+            val = (*flash2)&0x10;
+    	switch(val)
+    	{
+    	case 0:
+            	cprintf("2:8580     ");
+    		break;
+    	case 0x10:
+                    cprintf("2:6581     ");
+    		break;
+    	}
+    	break;
+
+	case SID_EXT:
+            revers(activeLine==SID_EXT);
+            val = ((*flash2)>>16)&0x3;
+            cprintf("SID ext       : ");
+            revers(activeLine==SID_EXT && col==0);
+    	switch(val)
+    	{
+    	case 0:
+            	cprintf("1:GND      ");
+    		break;
+    	case 1:
+            	cprintf("1:Digifix  ");
+    		break;
+    	case 2:
+                cprintf("1:ADC      ");
+    		break;
+    	}
+            revers(activeLine==SID_EXT && col==1);
+            val = ((*flash2)>>16)&0xc;
+    	switch(val)
+    	{
+    	case 0:
+            	cprintf("2:GND      ");
+    		break;
+    	case 0x4:
+                cprintf("2:Digifix  ");
+    		break;
+    	case 0x8:
+                cprintf("2:ADC      ");
+    		break;
+    	}
+    	break;
 	}
     }
     revers(0);
@@ -457,15 +596,19 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char mode, 
     unsigned char pokeys;
     unsigned char val;
     unsigned char i;
+#ifndef SIDMAX
     unsigned char prev559;
+#endif
     if (line ==255)
     {
+#ifndef SIDMAX
 	    prev559 = *(unsigned char *)559;
 	    *(unsigned char *)559 = 0;
+#endif
 	    clrscr();
 	    //textcolor(0xa);
 	    chline(40);
-	    cprintf("Pokeymax config v1.3 ");
+	    cprintf(PRODUCT " config v1.4 ");
             cprintf(" Core:");
             for (i=0;i!=8;++i)
             {
@@ -508,14 +651,20 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char mode, 
 		    pokeys = 4;
 		    break;
     }
+#ifdef SIDMAX
+    cprintf("Sid:%d pokey:%d psg:%d covox:%d sample:%d",(val&4)==4 ? 2 : 0,pokeys,(val&8)==8 ? 2 : 0,(val&16)==16 ? 1 : 0,(val&32)==32 ? 1 : 0);
+#else
     cprintf("Pokey:%d sid:%d psg:%d covox:%d sample:%d",pokeys,(val&4)==4 ? 2 : 0,(val&8)==8 ? 2 : 0,(val&16)==16 ? 1 : 0,(val&32)==32 ? 1 : 0);
+#endif
 
     if (line>=254)
     {
 	    unsigned char maxline = mode_maxline(mode);
 	    for (line=1;line<=maxline;++line)
 		    renderLine(flash1,flash2,mode,activeLine, line,col);
+#ifndef SIDMAX
 	    *(unsigned char *)559 = prev559;
+#endif
     }
     else
     {
@@ -538,7 +687,7 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char m
 
     switch(mode)
     {
-    case 1:
+    case MODE_CORE:
         switch(line)
         {
         case CORE_MONO:
@@ -576,7 +725,7 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char m
     	    break;
         }
         break;	    
-    case 2:
+    case MODE_POKEY:
         switch(line)
         {
         case POKEY_LINEAR:
@@ -590,7 +739,7 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char m
     	    break;
         }
         break;	    
-    case 3:
+    case MODE_PSG:
         switch(line)
         {
         case PSG_FREQUENCY:
@@ -613,13 +762,31 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char m
     	    break;
         }
         break;	    
-    case 4:
+    case MODE_SID:
         switch(line)
         {
+        case SID_AUTO:
+                flashaddr = flash2;
+    	    mask = 1;
+                shift = 20;
+    	    max = 1;
+    	    break;
         case SID_TYPE:
                 flashaddr = flash2;
     	    mask = 3;
                 shift = 0 + (col<<2);
+    	    max = 2;
+    	    break;
+        case SID_TYPE2:
+                flashaddr = flash2;
+    	    mask = 1;
+                shift = 0 + (col<<2);
+    	    max = 1;
+    	    break;
+        case SID_EXT:
+                flashaddr = flash2;
+    	    mask = 3;
+                shift = 16 + (col<<1);
     	    max = 2;
     	    break;
         }
@@ -640,7 +807,7 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char m
 void applyConfig(unsigned long flash1, unsigned long flash2)
 {
     clrscr();
-    bgcolor(0x46);
+    bgcolor(col1());
     //textcolor(0xa);
     chline(40);
     cprintf("Applying config\r\n");
@@ -657,6 +824,7 @@ void applyConfig(unsigned long flash1, unsigned long flash2)
 
 	config[6] = flash2&0xff;
 	config[7] = (flash2>>8)&0xff;
+	config[8] = (flash2>>16)&0xff;
 	config[9] = (flash2>>24)&0xff;
 //	                                   SATURATE_NEXT <= flash_do(0);
 //                                        -- 1 reserved...
@@ -679,7 +847,7 @@ void applyConfig(unsigned long flash1, unsigned long flash2)
 void saveConfig(unsigned long flash1, unsigned long flash2)
 {
     clrscr();
-    bgcolor(0x46);
+    bgcolor(col1());
     //textcolor(0xa);
     chline(40);
     cprintf("Saving config\r\n");
@@ -757,24 +925,32 @@ void updateCore()
 {
     unsigned long flash1 = readFlash(0,0);
     unsigned long flash2 = readFlash(1,0); //unused for now
+#ifdef SIDMAX
+    char filename[] = "core.bin";
+#else
     char filename[] = "d4:core.bin";
+#endif    
 
     clrscr();
-    bgcolor(0x34);
+    bgcolor(col2());
     //textcolor(0xa);
     chline(40);
     cprintf("Updating core\r\n");
     chline(40);
 
+#ifdef SIDMAX
+    cprintf("Please insert core.bin into drive\r\n");
+#else
     cprintf("Please insert core.bin into D4\r\n");
+#endif
     cprintf("Press Y to confirm core update\r\n");
     while(!kbhit());
     if (cgetc()=='y') 
     {
-    	FILE * input = fopen(filename,"r");
+    	FILE * input = fopen(filename,"rb");
     	if (!input)
     	{
-    		cprintf("Failed to open file!\r\n");
+    		cprintf("Failed to open %s!\r\n",filename);
     		sleep(3);
     	}
     	else
@@ -914,21 +1090,29 @@ void verifyCore()
 {
     unsigned long flash1 = readFlash(0,0);
     unsigned long flash2 = readFlash(1,0); //unused for now
+#ifdef SIDMAX
+    char filename[] = "core.bin";
+#else
     char filename[] = "d4:core.bin";
+#endif    
 
     clrscr();
-    bgcolor(0x34);
+    bgcolor(col2());
     //textcolor(0xa);
     chline(40);
     cprintf("Verifying core\r\n");
     chline(40);
 
+#ifdef SIDMAX
+    cprintf("Please insert core.bin into drive\r\n");
+#else
     cprintf("Please insert core.bin into D4\r\n");
+#endif
     cprintf("Press Y to confirm core verify\r\n");
     while(!kbhit());
     if (cgetc()=='y') 
     {
-    	FILE * input = fopen(filename,"r");
+    	FILE * input = fopen(filename,"rb");
 	int j;
     	unsigned long addr;
     	unsigned long maxaddr;
@@ -1013,16 +1197,16 @@ int main (void)
     unsigned char origbg;
     unsigned char origbord;
     unsigned char mode = 1;
-    if (pokey[12] != 1)
+    if (*detect != 1)
     {
-	    cprintf("Pokeymax not found!");
+	    cprintf(PRODUCT " not found!");
 	    sleep(5);
 	    return -1;
     }
     origbg = bgcolor(0);
     origbord = bordercolor(0);
 
-    pokey[12] = 0x3f; // select config area
+    *detect = 0x3f; // select config area
 
     // We have just 8 bytes of data for config
     flash1 = 0; //readFlash(0,0);
@@ -1061,21 +1245,21 @@ int main (void)
 		col = 0;
 		prevline=255;
 		break;
-        case '-':
+        case PRESS_UP:
 		if (line>1)
 		    line = line-1;
 		col = 0;
 		break;
-        case '=':
+        case PRESS_DOWN:
 		if (line<max_line)
 		    line = line+1;
 		col = 0;
 		break;
-        case '+':
+        case PRESS_LEFT:
 		if (col>0)
 			col =col-1;
 		break;
-        case '*':
+        case PRESS_RIGHT:
 		col =col+1;
     		if (mode==4 && line==SID_TYPE)
 		{
@@ -1146,7 +1330,7 @@ int main (void)
 	    flashContentsFromFile(config);
 	    displayFlash(config);*/
 
-    pokey[12] = 0x0; // deselect config area
+    *detect = 0x0; // deselect config area
     bgcolor(origbg);
     bordercolor(origbord);
     return EXIT_SUCCESS;
