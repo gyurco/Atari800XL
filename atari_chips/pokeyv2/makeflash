@@ -1,6 +1,24 @@
-TYPE=$1
+FPGASIZE=$1
 rm version
 
 cat UFMboth_post.bin CFMboth_post.bin > $3
 echo $2 > version
 dd conv=notrunc if=version bs=1 count=8 of=$3
+
+if [[ FPGASIZE -gt 15 ]]
+then
+    EXPECTED=16#66000 #10M16
+elif [[ FPGASIZE -gt 7 ]]
+then
+    EXPECTED=16#39800 #10M08
+elif [[ FPGASIZE -gt 3 ]]
+then
+    EXPECTED=16#35800 10M08
+fi
+
+PADSIZE=$((EXPECTED - `stat -c %s $3`))
+if [[ PADSIZE -gt 0 ]]
+then
+	perl -e "print chr(255)x$PADSIZE" >> $3
+fi
+

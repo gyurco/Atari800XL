@@ -808,14 +808,6 @@ foreach my $typeboard (sort keys %variants)
 		$fpga =~ /M(..)/;
 		my $fpgasize = $1;
 
-		#next if ($wanted_variant ne $variant and $wanted_variant ne "ALL");
-		my $variant = "${typeboard}_M${fpgasize}_${name}";
-
-		if (defined $wanted_variant)
-		{
-			next unless ($variant =~ /$wanted_variant/);
-		}
-	
 		my $code1;
 		my $code2;
 		my $sample = 0;
@@ -915,8 +907,7 @@ foreach my $typeboard (sort keys %variants)
 		}
 	
 		my $versioncode = "${version}M$fpgasize$code1$code2";
-
-		print "Building $versioncode $name of $typeboard\n";
+		$spec->{"version"} = $versioncode;
 
 		my $bus = "";
 		if (exists $spec->{"bus"})
@@ -930,6 +921,13 @@ foreach my $typeboard (sort keys %variants)
 		my $needs_sid_waves = $sids>0;
 	
 	        my $dir = "build_${typeboard}_M${fpgasize}_${versioncode}_${name}";
+
+		#next if ($wanted_variant ne $variant and $wanted_variant ne "ALL");
+		if (defined $wanted_variant)
+		{
+			next unless ($dir =~ /$wanted_variant/);
+		}
+		print "Building $versioncode $name of $typeboard into $dir\n";
 
 		`rm -rf $dir`;
 		mkdir $dir;
@@ -1030,7 +1028,7 @@ foreach my $typeboard (sort keys %variants)
 			`cat CFM1.bin CFM0.bin > CFMboth_post.bin`;
 		        `../swapbits ./UFMboth_post.bin ./UFMboth_post.bin.swap`;
 		        `../swapbits ./CFMboth_post.bin ./CFMboth_post.bin.swap`;
-			`../makeflash $type $versioncode output_files/core.bin`;
+			`../makeflash $fpgasize $versioncode output_files/core.bin`;
 		}
 	
 		chdir "..";
