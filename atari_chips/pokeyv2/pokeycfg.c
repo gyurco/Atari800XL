@@ -1013,15 +1013,18 @@ void updateCore()
 	    	//fseek(input,0,SEEK_SET);
 	        fclose(input);
 		input = fopen(filename,"r");
-	    	writeProtect(0);
 
 	    	cprintf("Erasing");
+	    	writeProtect(0);
 	    	eraseSector(1);
 	    	cputc('.');
+	    	writeProtect(0);
 	    	eraseSector(2);
 	    	cputc('.');
+	    	writeProtect(0);
 	    	eraseSector(3);
 	    	cputc('.');
+	    	writeProtect(0);
 	    	eraseSector(4);
 	    	cprintf(" Done\r\n");
 
@@ -1030,6 +1033,7 @@ void updateCore()
 		j = config[4];
 		config[4] = 4;
 	    	cprintf("Flashing M%c%c... please wait",config[4],j);
+	    	writeProtect(0);
 	    	{
 	    	    unsigned long addr;
 	    	    unsigned long maxaddr;
@@ -1053,6 +1057,7 @@ void updateCore()
 				cprintf("Press key then START AGAIN!\r\n");
 				fclose(input);
 				
+                                writeProtect(1);
     				while(!kbhit());
 				return;
 			}
