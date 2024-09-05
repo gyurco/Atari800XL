@@ -1,4 +1,4 @@
-// (C) 2001-2024 Intel Corporation. All rights reserved.
+// (C) 2001-2020 Intel Corporation. All rights reserved.
 // Your use of Intel Corporation's design tools, logic functions and other 
 // software and tools, and its AMPP partner logic functions, and any output 
 // files from any of the foregoing (including device programming or simulation 
@@ -330,7 +330,7 @@ module altera_onchip_flash_avmm_data_controller (
     generate // generate combi based on read burst mode
         if (WRAPPING_BURST_MODE == 0) begin
             // incrementing read
-            //assign flash_read_addr = (is_read_busy) ? flash_seq_read_ardin : avmm_addr;
+	    //assign flash_read_addr = (is_read_busy) ? flash_seq_read_ardin : avmm_addr;
             assign flash_read_addr = avmm_addr; // intel ufm read bug fix 'Is there a known issue with the MAX 10 On Chip Flash IP, for UFM read operations?'
             assign cur_e_addr = csr_sector_erase_addr;
             assign cur_a_addr = (valid_csr_erase) ? csr_page_erase_addr : flash_read_addr;

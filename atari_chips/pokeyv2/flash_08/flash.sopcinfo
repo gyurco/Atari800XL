@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EnsembleReport name="flash" kind="flash" version="1.0" fabric="QSYS">
- <!-- Format version 23.1 993 (Future versions may contain additional information.) -->
- <!-- 2024.08.31.14:17:13 -->
+ <!-- Format version 20.1 720 (Future versions may contain additional information.) -->
+ <!-- 2021.01.13.13:51:58 -->
  <!-- A collection of modules and connections -->
  <parameter name="AUTO_GENERATION_ID">
   <type>java.lang.Integer</type>
-  <value>1725106633</value>
+  <value>1610542318</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>false</visible>
@@ -98,7 +98,7 @@
  <module
    name="onchip_flash_0"
    kind="altera_onchip_flash"
-   version="23.1"
+   version="20.1"
    path="onchip_flash_0">
   <!-- Describes a single module. Module parameters are
 the requested settings for a module instance. -->
@@ -735,7 +735,7 @@ the requested settings for a module instance. -->
    <visible>true</visible>
    <valid>true</valid>
   </parameter>
-  <interface name="clk" kind="clock_sink" version="23.1">
+  <interface name="clk" kind="clock_sink" version="20.1">
    <!-- The connection points exposed by a module instance for the
 particular module parameters. Connection points and their
 parameters are a RESULT of the module parameters. -->
@@ -796,7 +796,7 @@ parameters are a RESULT of the module parameters. -->
     <role>clk</role>
    </port>
   </interface>
-  <interface name="nreset" kind="reset_sink" version="23.1">
+  <interface name="nreset" kind="reset_sink" version="20.1">
    <!-- The connection points exposed by a module instance for the
 particular module parameters. Connection points and their
 parameters are a RESULT of the module parameters. -->
@@ -841,7 +841,7 @@ parameters are a RESULT of the module parameters. -->
     <role>reset_n</role>
    </port>
   </interface>
-  <interface name="data" kind="avalon_slave" version="23.1">
+  <interface name="data" kind="avalon_slave" version="20.1">
    <!-- The connection points exposed by a module instance for the
 particular module parameters. Connection points and their
 parameters are a RESULT of the module parameters. -->
@@ -1224,7 +1224,7 @@ parameters are a RESULT of the module parameters. -->
     <role>burstcount</role>
    </port>
   </interface>
-  <interface name="csr" kind="avalon_slave" version="23.1">
+  <interface name="csr" kind="avalon_slave" version="20.1">
    <!-- The connection points exposed by a module instance for the
 particular module parameters. Connection points and their
 parameters are a RESULT of the module parameters. -->
@@ -1596,7 +1596,7 @@ parameters are a RESULT of the module parameters. -->
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IModule</subtype>
   <displayName>On-Chip Flash Intel FPGA IP</displayName>
-  <version>23.1</version>
+  <version>20.1</version>
  </plugin>
  <plugin>
   <instanceCount>1</instanceCount>
@@ -1604,7 +1604,7 @@ parameters are a RESULT of the module parameters. -->
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
   <displayName>Clock Input</displayName>
-  <version>23.1</version>
+  <version>20.1</version>
  </plugin>
  <plugin>
   <instanceCount>1</instanceCount>
@@ -1612,7 +1612,7 @@ parameters are a RESULT of the module parameters. -->
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
   <displayName>Reset Input</displayName>
-  <version>23.1</version>
+  <version>20.1</version>
  </plugin>
  <plugin>
   <instanceCount>2</instanceCount>
@@ -1620,8 +1620,8 @@ parameters are a RESULT of the module parameters. -->
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
   <displayName>Avalon Memory Mapped Slave</displayName>
-  <version>23.1</version>
+  <version>20.1</version>
  </plugin>
- <reportVersion>23.1 993</reportVersion>
+ <reportVersion>20.1 720</reportVersion>
  <uniqueIdentifier></uniqueIdentifier>
 </EnsembleReport>
