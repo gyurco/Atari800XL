@@ -1,4 +1,4 @@
-// (C) 2001-2019 Intel Corporation. All rights reserved.
+// (C) 2001-2024 Intel Corporation. All rights reserved.
 // Your use of Intel Corporation's design tools, logic functions and other 
 // software and tools, and its AMPP partner logic functions, and any output 
 // files from any of the foregoing (including device programming or simulation 
@@ -217,7 +217,6 @@ module altera_onchip_flash_avmm_data_controller (
     reg flash_drdin_neg_reg;
     reg [15:0] write_count;
     reg [25:0] erase_count;
-    reg [2:0] read_count;
     reg [2:0] read_ctrl_count;
     reg [2:0] data_count;
     reg write_timeout;
@@ -331,8 +330,8 @@ module altera_onchip_flash_avmm_data_controller (
     generate // generate combi based on read burst mode
         if (WRAPPING_BURST_MODE == 0) begin
             // incrementing read
-            //assign flash_read_addr = (is_read_busy) ? flash_seq_read_ardin : avmm_addr;
-            assign flash_read_addr = avmm_addr; // intel ufm read bug fix 'Is there a known issue with the MAX 10 On Chip Flash IP, for UFM read operations?'
+            assign flash_read_addr = (is_read_busy) ? flash_seq_read_ardin : avmm_addr;
+            //assign flash_read_addr = avmm_addr; // intel ufm read bug fix 'Is there a known issue with the MAX 10 On Chip Flash IP, for UFM read operations?'
             assign cur_e_addr = csr_sector_erase_addr;
             assign cur_a_addr = (valid_csr_erase) ? csr_page_erase_addr : flash_read_addr;
             assign flash_arclk_arshft_en_w = (~is_erase_busy && ~is_write_busy && ~is_read_busy && valid_command) || (is_read_busy && (read_state == READ_STATE_FINAL || read_state == READ_STATE_ADDR));
@@ -422,7 +421,6 @@ module altera_onchip_flash_avmm_data_controller (
         reset_n_reg2 = 0;
         read_wait = 0;
         read_wait_neg = 0;
-        read_count = 0;
         is_sector1_writable_reg = 0;
         is_sector2_writable_reg = 0;
         is_sector3_writable_reg = 0;
@@ -599,6 +597,7 @@ module altera_onchip_flash_avmm_data_controller (
                 if (~reset_n_w) begin
                     write_state <= WRITE_STATE_IDLE;
                     write_wait <= 0;
+                    csr_status_w_pass <= 1'b0;
                 end
                 else begin
                     case (write_state)
@@ -614,6 +613,7 @@ module altera_onchip_flash_avmm_data_controller (
                                 if (~valid_csr_erase && ~is_erase_busy && ~is_read_busy) begin
                                     write_state <= WRITE_STATE_ADDR;
                                     write_wait <= 1;
+                                    csr_status_w_pass <= 1'b0;
                                 end
                             end
                         end
@@ -723,6 +723,7 @@ module altera_onchip_flash_avmm_data_controller (
             always @ (posedge clock) begin
                 if (~reset_n_w) begin
                     erase_state <= ERASE_STATE_IDLE;
+                    csr_status_e_pass <= 1'b0;
                 end
                 else begin
                     case (erase_state)
@@ -736,6 +737,7 @@ module altera_onchip_flash_avmm_data_controller (
                             // check command
                             if (valid_csr_erase && ~is_write_busy && ~is_read_busy) begin
                                 erase_state <= ERASE_STATE_ADDR;
+                                csr_status_e_pass <= 1'b0;
                             end
                         end
 
@@ -829,6 +831,7 @@ module altera_onchip_flash_avmm_data_controller (
                 if (~reset_n_w) begin
                     read_state <= READ_STATE_IDLE;
                     read_wait <= 0;
+                    csr_status_r_pass <= 0;
                 end
                 else begin
                     case (read_state)
@@ -851,6 +854,7 @@ module altera_onchip_flash_avmm_data_controller (
                                     read_state <= READ_STATE_ADDR;
                                     flash_seq_read_ardin <= avmm_addr;
                                     avmm_burstcount_input_reg <= avmm_burstcount;
+                                    csr_status_r_pass <= 0;
                                 end
                             end
                         end
@@ -940,10 +944,14 @@ module altera_onchip_flash_avmm_data_controller (
             // -------------------------------------------------------------------
             // Avalon_MM data interface fsm - communicate between Avalon_MM and Flash IP (Wrapping Burst Read Operation)
             // -------------------------------------------------------------------        
+            
+            reg [2:0] read_count;
+            
             always @ (posedge clock) begin
                 if (~reset_n_w) begin
                     read_state <= READ_STATE_IDLE;
                     read_wait <= 0;
+                    read_count <= 3'd0;
                 end
                 else begin
                     case (read_state)
