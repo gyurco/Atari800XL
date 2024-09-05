@@ -1315,6 +1315,7 @@ begin
 				SID_EXT1_NEXT <= flash_do_slow(17 downto 16);
 				SID_EXT2_NEXT <= flash_do_slow(19 downto 18);
 				SID_AUTO_NEXT <= flash_do_slow(20);
+				-- 24-28 reserved (used in pokeymax)
 			when others =>
 		end case;
 	elsif (CONFIG_WRITE_ENABLE='1') then
