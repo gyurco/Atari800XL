@@ -180,6 +180,26 @@ set_location_assignment PIN_M1 -to K[4]   #LVLB21,
 set_location_assignment PIN_L1 -to K[5]   #LVLB22,
 set_location_assignment PIN_K1 -to KR2    #LVLB23,
 
+set_instance_assignment -name CURRENT_STRENGTH_NEW "2MA" -to K[0]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "2MA" -to K[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "2MA" -to K[2]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "2MA" -to K[3]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "2MA" -to K[4]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "2MA" -to K[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to K[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to K[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to K[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to K[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to K[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to K[5]
+
+#set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to K[0]
+#set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to K[1]
+#set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to K[2]
+#set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to K[3]
+#set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to K[4]
+#set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to K[5]
+
 set_location_assignment PIN_G9 -to CLK_SLOW  #CLK2 - G9
 set_location_assignment PIN_H8 -to CLK_OUT   #OUT  - H8
 set_location_assignment PIN_E13 -to CLK0    
@@ -258,6 +278,8 @@ set_global_assignment -name VHDL_FILE latch_delay_line.vhdl
 set_global_assignment -name VHDL_FILE sigmadelta_1storder.vhd
 set_global_assignment -name VHDL_FILE sigmadelta_2ndorder.vhd
 set_global_assignment -name VHDL_FILE filtered_sigmadelta.vhd
+set_global_assignment -name VHDL_FILE fir_filter.vhdl
+set_global_assignment -name VHDL_FILE fir_rom.vhdl
 set_global_assignment -name VHDL_FILE generic_ram_infer.vhdl
 set_global_assignment -name VHDL_FILE simple_low_pass_filter.vhdl
 set_global_assignment -name VHDL_FILE pokey/pokey_poly_17_9.vhdl
@@ -300,12 +322,19 @@ set_global_assignment -name VHDL_FILE sample/channel.vhdl
 set_global_assignment -name VHDL_FILE sample/adpcm.vhdl
 set_global_assignment -name VHDL_FILE sample/top.vhdl
 set_global_assignment -name VHDL_FILE covox/top.vhdl
+set_global_assignment -name SYSTEMVERILOG_FILE sigma_delta/sigma_delta_adc.sv
+set_global_assignment -name SYSTEMVERILOG_FILE sigma_delta/cic_comb.sv
+set_global_assignment -name SYSTEMVERILOG_FILE sigma_delta/cic_integrator.sv
+set_global_assignment -name SYSTEMVERILOG_FILE sigma_delta/fir_compensator.sv
 set_global_assignment -name QIP_FILE int_osc/synthesis/int_osc.qip
 set_global_assignment -name QIP_FILE pll.qip
+set_global_assignment -name QIP_FILE pllv3.qip
 set_global_assignment -name QIP_FILE flash/synthesis/flash.qip
 set_global_assignment -name QIP_FILE lvds_tx.qip
 set_global_assignment -name QIP_FILE lvds_rx.qip
 set_global_assignment -name QIP_FILE paddle_gpio.qip
+set_global_assignment -name QIP_FILE fir_sample_buffer.qip
+set_global_assignment -name QIP_FILE fir_buffer.qip
 
 
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

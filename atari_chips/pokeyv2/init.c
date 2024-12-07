@@ -413,6 +413,13 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 	}
 	fclose(f);
 
+	int fir_base = 0xc00*4;
+	unsigned short * fir = (unsigned short *)(buffer+fir_base);
+	FILE * fr =fopen("fir_rom.bin","rb");
+	        fread(fir,2,2032,fr);
+	fclose(fr);
+	
+
 	FILE * x =fopen("init_0.bin","w");
 		fwrite(&buffer[0],1,32768,x);
 	fclose(x);

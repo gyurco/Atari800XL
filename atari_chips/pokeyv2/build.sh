@@ -559,7 +559,7 @@ my %variants =
 				"paddle_lvds"=>1,
 				"paddle_comp"=>0,
 				"enable_iox"=>0,
-				"enable_adc"=>1,
+				"enable_adc"=>0,
 				"pll_v2" => 0, 
 				"optimisearea" => 1,
 			},
@@ -591,7 +591,7 @@ my %variants =
 				"paddle_lvds"=>1,
 				"paddle_comp"=>0,
 				"enable_iox"=>0,
-				"enable_adc"=>1,
+				"enable_adc"=>0,
 				"pll_v2" => 0, 
 				"optimisearea" => 1,
 			},
@@ -945,7 +945,11 @@ foreach my $typeboard (sort keys %variants)
 			`cp -r pokey $dir`;
 			`cp -r sample $dir`;
 			`cp -r covox $dir`;
+			`cp -r sigma_delta $dir`;
 			`cp -r *.bin $dir`;
+			`cp -r fir_*vhdl $dir`;
+			`cp -r fir_sample_buffer* $dir`;
+			`cp -r fir_buffer* $dir`;
 		
 			chdir $dir;
 		

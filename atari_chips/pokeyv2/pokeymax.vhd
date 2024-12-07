@@ -109,6 +109,17 @@ ENTITY pokeymax IS
 END pokeymax;		
 		
 ARCHITECTURE vhdl OF pokeymax IS
+	component sigma_delta_adc is
+	port (
+    		clk : in std_logic;
+    		rst : in std_logic;
+    		adc_lvds_pin : in std_logic;
+    		adc_fb_pin : out std_logic;
+    		adc_output : out std_logic_vector(20 downto 0);
+    		adc_valid : out std_logic
+	);
+	end component;
+
 	component int_osc is
 	port (
 		clkout : out std_logic;        -- clkout.clk
@@ -439,17 +450,43 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal PS2DAT : std_logic;
 
 	-- adc
-	signal sum_reg : unsigned(7 downto 0);
-	signal sum_next : unsigned(7 downto 0);
+	signal CLK49152 : std_logic;
 
-	signal sample_reg : unsigned(7 downto 0);
-	signal sample_next : unsigned(7 downto 0);
+	signal adc_reg : signed(15 downto 0);
+	signal adc_next : signed(15 downto 0);
 
-	signal toggle_reg : std_logic_vector(255 downto 0);
-	signal toggle_next : std_logic_vector(255 downto 0);
+	signal adc_use_reg : signed(15 downto 0);
+	signal adc_use_next : signed(15 downto 0);
 
-	signal ADC_FILTERED1 : unsigned(15 downto 0);	
-	signal ADC_FILTERED2 : unsigned(15 downto 0);	
+	signal adc_in_signed : signed(15 downto 0);
+	signal adc_out_signed : signed(15 downto 0);
+	
+	signal adc_min_reg : signed(11 downto 0);
+	signal adc_min_next : signed(11 downto 0);
+
+	signal adc_max_reg : signed(11 downto 0);
+	signal adc_max_next : signed(11 downto 0);
+
+	signal adc_diff_reg  : unsigned(11 downto 0);
+	signal adc_diff_next : unsigned(11 downto 0); 
+
+	signal adc_enabled_reg : unsigned(5 downto 0);
+	signal adc_enabled_next : unsigned(5 downto 0);
+
+	signal enable_reset_min_max_pre : std_logic;
+	signal enable_reset_min_max : std_logic;
+	
+	signal adc_valid : std_logic;
+	signal adc_output : std_logic_vector(20 downto 0);
+
+    	signal adc_lvds_pin : std_logic;
+    	signal adc_fb_pin : std_logic;
+
+	signal fir_data_request :std_logic;
+	signal fir_data_address :std_logic_vector(9 downto 0);
+	signal fir_data_ready :std_logic;
+
+	signal SIO_AUDIO : unsigned(15 downto 0);	
 
 	-- paddles
 	signal PADDLE_ADJ : std_logic_vector(7 downto 0);
@@ -539,6 +576,9 @@ flash_on : if enable_flash=1 generate
 		flash_req7_addr(12 downto 9) => (others=>'0'),
 		flash_req7_addr(8 downto 0) => "11"&SATURATE_REG&POKEY_PROFILE_ADDR,  --TODO + init.bin
 
+		flash_req8_addr(12 downto 12) => (others=>'0'),
+		flash_req8_addr(11 downto 0) => "11"&FIR_DATA_ADDRESS,
+
 		flash_req_request(0) => CPU_FLASH_REQUEST_REG,
 		flash_req_request(1) => CONFIG_FLASH_REQUEST,
 		flash_req_request(2) => ADPCM_STEP_REQUEST,
@@ -546,7 +586,7 @@ flash_on : if enable_flash=1 generate
 		flash_req_request(4) => SID_FLASH2_ROMREQUEST,
 		flash_req_request(5) => PSG_PROFILE_REQUEST,
 		flash_req_request(6) => POKEY_PROFILE_REQUEST,
-		flash_req_request(7 downto 7) => (others=>'0'),
+		flash_req_request(7) => FIR_DATA_REQUEST,
 		flash_req_complete(7 downto 0) => open,
 
 		flash_req_complete_slow(0) => CPU_FLASH_COMPLETE,
@@ -556,7 +596,7 @@ flash_on : if enable_flash=1 generate
 		flash_req_complete_slow(4) => SID_FLASH2_ROMREADY,
 		flash_req_complete_slow(5) => PSG_PROFILE_READY,
 		flash_req_complete_slow(6) => POKEY_PROFILE_READY,
-		flash_req_complete_slow(7 downto 7) => open,
+		flash_req_complete_slow(7) => FIR_DATA_READY,
 
 		flash_data_out_slow => flash_do_slow
 	);
@@ -619,16 +659,18 @@ pll_v2_inst : if pll_v2=1 generate
 			 c1 => CLK116,  --113ish
 			 c2 => CLK106,  --106ish
 			 locked => RESET_N);
+	CLK49152 <= '0';
 end generate;
 
 pll_v3_inst : if pll_v2=0 generate
 	pll_inst : pllv3
 	PORT MAP(inclk0 => CLK0, --49.192 (50 on prototype)
-			 c0 => CLK, --49.192 
-			 c1 => CLK116,  --113ish
+			 c0 => CLK, --56ish
+			 c1 => CLK116,  --56ish
 			 c2 => CLK106,  --106ish
 			 c3 => CLK6144,  --6.44MHz
 			 locked => RESET_N);
+	CLK49152 <= CLK0;
 end generate;
 
 
@@ -1748,7 +1790,7 @@ PORT MAP
 	CH9 => unsigned(PSG_AUDIO(1)),		
 	CHA(14 downto 0) => (others=>'0'),
 	CHA(15) => GTIA_AUDIO,			
-	CHB => ADC_FILTERED2,			
+	CHB => SIO_AUDIO,			
 	
 	AUDIO_0_UNSIGNED => AUDIO_0_UNSIGNED,
 	AUDIO_1_UNSIGNED => AUDIO_1_UNSIGNED,
@@ -1913,6 +1955,12 @@ end generate iox_on;
 
 iox_off : if enable_iox=0 generate 
 	iox_keyboard_response <= KR2&KR1;
+--	k(0) <= '0' when keyboard_scan(0)='0' else 'Z';
+--	k(1) <= '0' when keyboard_scan(1)='0' else 'Z';
+--	k(2) <= '0' when keyboard_scan(2)='0' else 'Z';
+--	k(3) <= '0' when keyboard_scan(3)='0' else 'Z';
+--	k(4) <= '0' when keyboard_scan(4)='0' else 'Z';
+--	k(5) <= '0' when keyboard_scan(5)='0' else 'Z';
 	k <= keyboard_scan;
 end generate iox_off;
 
@@ -1959,71 +2007,148 @@ ps2_off : if enable_ps2=0 generate
 end generate ps2_off;
 
 adc_on : if enable_adc=1 generate 
+
+ -- Proper ADC for SIO/PBI audio in
+	sdelta : sigma_delta_adc
+	port map(
+		clk=>CLK49152,
+		rst=>not(reset_n),
+
+		adc_lvds_pin => adc_lvds_pin,
+		adc_fb_pin => adc_fb_pin,
+		
+    		adc_output => adc_output,
+    		adc_valid => adc_valid
+	);
+
+--	adc_valid <= '1';
+--	adc_output <= x"abcd";
+
  -- Simple ADC for SIO/PBI audio in
-	 process(clk,reset_n)
+	 process(CLK49152,reset_n)
 	 begin
 	   if (reset_n='0') then
-			toggle_reg <= (others=>'0');
-			sum_reg <= (others=>'0');
-			sample_reg <= (others=>'0');
-		elsif (clk'event and clk='1') then
-			toggle_reg <= toggle_next;
-			sum_reg <= sum_next;
-			sample_reg <= sample_next;
+			adc_reg <= (others=>'0');
+			adc_enabled_reg <= (others=>'0');
+			adc_use_reg <= (others=>'0');
+			adc_min_reg <= (others=>'1');
+			adc_max_reg <= (others=>'0');			
+			adc_diff_reg <= (others=>'0');			
+		elsif (CLK49152'event and CLK49152='1') then
+			adc_reg <= adc_next;
+			adc_enabled_reg <= adc_enabled_next;
+			adc_use_reg <= adc_use_next;
+			adc_min_reg <= adc_min_next;
+			adc_max_reg <= adc_max_next;
+			adc_diff_reg <= adc_diff_next;
 		end if;
 	 end process;	
 	 
 	 lvds_tx0: lvds_tx
 	 port map(
-	 	tx_in(0) => toggle_reg(0),
+	 	tx_in(0) => adc_fb_pin,
 	 	tx_out(0) => ADC_TX_P
 	 );
 	
 	 lvds_rx0: lvds_rx
 	 port map(
 	 	data(0) => ADC_RX_P,
-	 	clock => CLK,
-	 	q(0) => toggle_next(0)
+	 	clock => CLK49152,
+	 	q(0) => adc_lvds_pin
 	 );
-	 toggle_next(255 downto 1) <= toggle_reg(254 downto 0);
 	 
-adcfilter : entity work.simple_low_pass_filter
+	adc_in_signed <= adc_reg; --signed(not(adc_use_reg(15))&adc_use_reg(14 downto 0));
+	--adc_in_signed <= signed(not(adc_use_reg(15))&adc_use_reg(14 downto 0));
+	--adc_in_signed <= to_signed(1024,16);
+adcfirfilter : entity work.fir_filter
+GENERIC MAP
+(
+	filter_len => 2032
+)
 PORT  MAP
 ( 
-	CLK => CLK,
-	AUDIO_IN => not(sample_reg(7)&sample_reg(6 downto 0))&"00000000",
-	SAMPLE_IN => ENABLE_CYCLE,
-	AUDIO_OUT => ADC_FILTERED1
-);
+	FILTER_CLK => CLK49152,
+	RESET_N => RESET_N,
+	SAMPLE_ENABLE => adc_valid,
+	SAMPLE_DATA => adc_in_signed,
+	SAMPLE_OUT => adc_out_signed,
 
-adcfilter2 : entity work.simple_low_pass_filter
-PORT  MAP
-( 
-	CLK => CLK,
-	AUDIO_IN => ADC_FILTERED1,
-	SAMPLE_IN => ENABLE_CYCLE,
-	AUDIO_OUT => ADC_FILTERED2
+	FLASH_CLK => CLK,
+	FLASH_REQUEST => FIR_DATA_REQUEST,
+	FLASH_ADDRESS => FIR_DATA_ADDRESS,
+	FLASH_DATA => flash_do_slow,
+	FLASH_READY => FIR_DATA_READY
 );
+	SIO_AUDIO <= unsigned(not(adc_use_reg(15))&adc_use_reg(14 downto 0));
 
-process(sum_reg,sample_reg,toggle_reg)
+enable_div : work.enable_divider
+	generic map (COUNT=>128)
+	port map(clk=>CLK49152,reset_n=>reset_n,enable_in=>'1',enable_out=>enable_reset_min_max_pre);
+
+enable_div2 : work.enable_divider
+	generic map (COUNT=>128)
+	port map(clk=>CLK49152,reset_n=>reset_n,enable_in=>enable_reset_min_max_pre,enable_out=>enable_reset_min_max);
+
+process(adc_reg,adc_output,adc_valid)
+	variable adc_shrunk : signed(20 downto 0);
 begin
-	sum_next <= sum_reg;	
-	sample_next <= sample_reg;
+	adc_next <= adc_reg;
 
-	if (toggle_reg(255)='1' and toggle_reg(0)='0') then
-		sum_next <= sum_reg -1;
-	elsif (toggle_reg(255)='0' and toggle_reg(0)='1') then
-		sum_next <= sum_reg +1;
+	if (adc_valid='1') then
+		adc_shrunk := signed(not(adc_output(20)) & adc_output(19 downto 0));
+		adc_next <= adc_shrunk(18 downto (18-16+1)); --*2
 	end if;	
-
-	sample_next <= sum_reg;
 end process;
+
+process(adc_out_signed,adc_min_reg,adc_max_reg,adc_diff_reg,enable_reset_min_max,adc_enabled_reg)
+	variable detected : std_logic;
+begin
+	adc_min_next <= adc_min_reg;
+	adc_max_next <= adc_max_reg;
+	adc_diff_next <= unsigned(adc_max_reg-adc_min_reg);
+	adc_enabled_next <= adc_enabled_reg;
+
+	if (adc_out_signed(15 downto 4)<adc_min_reg) then
+		adc_min_next <= adc_out_signed(15 downto 4);
+	end if;
+
+	if (adc_out_signed(15 downto 4)>adc_max_reg) then
+		adc_max_next <= adc_out_signed(15 downto 4);
+	end if;	
+	
+	if (enable_reset_min_max='1') then
+	   detected := '0';
+		if (adc_diff_reg>16) then
+			detected := '1';
+		end if;	
+		if (detected='1' and adc_enabled_reg<63) then
+			adc_enabled_next <= adc_enabled_reg+1;
+		end if;
+		if (detected='0' and adc_enabled_reg>0) then
+			adc_enabled_next <= adc_enabled_reg-1;
+		end if;		
+		adc_min_next(11) <= '0';
+		adc_min_next(10 downto 0) <= (others=>'1');
+		adc_max_next(11) <= '1';
+		adc_max_next(10 downto 0) <= (others=>'0');
+	end if;
+end process;
+
+process(adc_reg,adc_enabled_reg,adc_out_signed)
+begin
+	adc_use_next <= adc_use_reg;
+	if (adc_enabled_reg>=32) then
+		adc_use_next <= adc_out_signed;
+	end if;
+end process;
+
+
 end generate adc_on;
 
 adc_off : if enable_adc=0 generate 
-	ADC_FILTERED2(15 downto 12) <= (others=>'0');
-	ADC_FILTERED2(11) <= SIO_RXD_SYNC;
-	ADC_FILTERED2(10 downto 0) <= (others=>'0');
+	SIO_AUDIO(15 downto 12) <= (others=>'0');
+	SIO_AUDIO(11) <= SIO_RXD_SYNC;
+	SIO_AUDIO(10 downto 0) <= (others=>'0');
 end generate adc_off;
 
 paddle_lvds_on : if paddle_lvds=1 generate 
