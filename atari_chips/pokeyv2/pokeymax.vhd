@@ -1899,7 +1899,8 @@ PORT MAP
 spdif : entity work.spdif_transmitter
  port map(
   bit_clock => CLK6144, -- 128x Fsample (6.144MHz for 48K samplerate)
-  data_in(23 downto 8) => spdif_mux,
+  data_in(23) => not(spdif_mux(15)),
+  data_in(22 downto 8) => spdif_mux(14 downto 0),
   data_in(7 downto 0) => (others=>'0'),
   address_out => spdif_right,
   spdif_out => spdif_out
@@ -2134,11 +2135,13 @@ begin
 	end if;
 end process;
 
-process(adc_reg,adc_enabled_reg,adc_out_signed)
+process(adc_reg,adc_enabled_reg,adc_out_signed,SIO_RXD_SYNC)
 begin
 	adc_use_next <= adc_use_reg;
 	if (adc_enabled_reg>=32) then
 		adc_use_next <= adc_out_signed;
+	else
+		adc_use_next(11) <= SIO_RXD_SYNC;
 	end if;
 end process;
 
