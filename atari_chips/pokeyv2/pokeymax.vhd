@@ -2120,9 +2120,9 @@ begin
 			when "01" =>
 				adc_next <= adc_shrunk(20 downto (20-16+1)); --*1
 			when "10" =>
-				adc_next <= adc_shrunk(19 downto (19-16+1)); --*2
+				adc_next <= adc_shrunk(20 downto 20) & adc_shrunk(18 downto (18-16+1)); --*2
 			when "11" =>
-				adc_next <= adc_shrunk(18 downto (18-16+1)); --*4
+				adc_next <= adc_shrunk(20 downto 20) & adc_shrunk(17 downto (17-16+1)); --*4
 			when others =>
 				adc_next <= (others=>'0');
 		end case;
