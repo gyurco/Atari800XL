@@ -25,7 +25,8 @@ DETECT_RIGHT_NEXT <= flash_do(4);
         -- 5-7 reserved
 POST_DIVIDE_NEXT <= flash_do(15 downto 8);
 GTIA_DIVIDE_NEXT <= flash_do(19 downto 16);
-        -- 23 downto 20 reserved
+ADC_VOLUME_NEXT <= flash_do_slow(21 downto 20);
+SIO_DATA_VOLUME_NEXT <= flash_do_slow(23 downto 22);
 PSG_FREQ_NEXT <= flash_do(25 downto 24);
 PSG_STEREOMODE_NEXT <= flash_do(27 downto 26);
 PSG_ENVELOPE16_NEXT <= flash_do(28);
@@ -54,6 +55,8 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 	int irq_en = 0;
 	int detect_right = 1;
 	int pal = 1;
+	int sio_data_volume = 2;
+	int adc_volume = 3;
 	buffer[0] |= (saturate&3)<<0;
 	buffer[0] |= (channel_mode&1)<<2;
 	buffer[0] |= (irq_en&1)<<3;
@@ -63,6 +66,8 @@ PSG_ENVELOPE16_NEXT <= flash_do(28);
 	buffer[1] |= (post_divide&0xff)<<0;
 	int gtia_enable = 0b1100;
 	buffer[2] |= (gtia_enable&0xf)<<0;
+	buffer[2] |= (adc_volume&0x3)<<4;
+	buffer[2] |= (sio_data_volume&0x3)<<6;
 	int psg_freq = 0;
 	int psg_stereomode = 1;
 	int psg_envelope16 = 0;

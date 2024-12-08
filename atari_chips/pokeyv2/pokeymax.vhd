@@ -355,6 +355,8 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal SATURATE_REG : std_logic;
 	signal POST_DIVIDE_REG : std_logic_vector(7 downto 0);	
 	signal GTIA_ENABLE_REG : std_logic_vector(3 downto 0);
+	signal ADC_VOLUME_REG : std_logic_vector(1 downto 0);
+	signal SIO_DATA_VOLUME_REG : std_logic_vector(1 downto 0);
 	signal VERSION_LOC_REG : std_logic_vector(2 downto 0);
 	signal PAL_REG : std_logic;
 	
@@ -364,6 +366,8 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal SATURATE_NEXT : std_logic;
 	signal POST_DIVIDE_NEXT : std_logic_vector(7 downto 0);
 	signal GTIA_ENABLE_NEXT : std_logic_vector(3 downto 0);
+	signal ADC_VOLUME_NEXT : std_logic_vector(1 downto 0);
+	signal SIO_DATA_VOLUME_NEXT : std_logic_vector(1 downto 0);
 	signal VERSION_LOC_NEXT : std_logic_vector(2 downto 0);
 	signal PAL_NEXT : std_logic;
 	
@@ -1396,6 +1400,8 @@ begin
 		end if;
 		POST_DIVIDE_REG <= "10100000"; -- 1/2 5v, 3/4 1v
 		GTIA_ENABLE_REG <= "1100"; -- external only
+		ADC_VOLUME_REG <= "11"; -- 0=silent,1=1x,2=2x,3=4x
+		SIO_DATA_VOLUME_REG <= "10"; -- 0=silent,1=quieter,2=normal,3=louder
 		CONFIG_ENABLE_REG <= '0';
 		VERSION_LOC_REG <= (others=>'0');
 		PAL_REG <= '1';
@@ -1414,6 +1420,8 @@ begin
 		SATURATE_REG <= SATURATE_NEXT;
 		POST_DIVIDE_REG <= POST_DIVIDE_NEXT;
 		GTIA_ENABLE_REG <= GTIA_ENABLE_NEXT;
+		ADC_VOLUME_REG <= ADC_VOLUME_NEXT;
+		SIO_DATA_VOLUME_REG <= SIO_DATA_VOLUME_NEXT;
 		CONFIG_ENABLE_REG <= CONFIG_ENABLE_NEXT;
 		VERSION_LOC_REG <= VERSION_LOC_NEXT;
 		PAL_REG <= PAL_NEXT;
@@ -1441,6 +1449,8 @@ process(CONFIG_WRITE_ENABLE, WRITE_DATA, addr_decoded4,
 	CONFIG_ENABLE_REG,
 	POST_DIVIDE_REG,
 	GTIA_ENABLE_REG,
+	ADC_VOLUME_REG,
+	SIO_DATA_VOLUME_REG,
 	VERSION_LOC_REG,
 	PSG_FREQ_REG,
 	PSG_STEREOMODE_REG,
@@ -1462,6 +1472,9 @@ begin
 	POST_DIVIDE_NEXT <= POST_DIVIDE_REG;
 	
 	GTIA_ENABLE_NEXT <= GTIA_ENABLE_REG;
+
+	ADC_VOLUME_NEXT <= ADC_VOLUME_REG;
+	SIO_DATA_VOLUME_NEXT <= SIO_DATA_VOLUME_REG;
 	
 	CONFIG_ENABLE_NEXT <= CONFIG_ENABLE_REG;
 	
@@ -1503,7 +1516,8 @@ begin
 					-- 6-7 reserved
 				POST_DIVIDE_NEXT <= flash_do_slow(15 downto 8);
 				GTIA_ENABLE_NEXT <= flash_do_slow(19 downto 16);
-					-- 23 downto 20 reserved
+				ADC_VOLUME_NEXT <= flash_do_slow(21 downto 20);
+				SIO_DATA_VOLUME_NEXT <= flash_do_slow(23 downto 22);
 				PSG_FREQ_NEXT <= flash_do_slow(25 downto 24);
 				PSG_STEREOMODE_NEXT <= flash_do_slow(27 downto 26);
 				PSG_ENVELOPE16_NEXT <= flash_do_slow(28);
@@ -1536,6 +1550,8 @@ begin
 				
 		if (addr_decoded4(3)='1') then			
 			GTIA_ENABLE_NEXT <= WRITE_DATA(3 downto 0);
+			ADC_VOLUME_NEXT <= WRITE_DATA(5 downto 4);
+			SIO_DATA_VOLUME_NEXT <= WRITE_DATA(7 downto 6);
 		end if;		
 
 		if (addr_decoded4(4)='1') then
@@ -1674,7 +1690,10 @@ begin
 	if (addr_decoded4(3)='1') then
 		CONFIG_DO <= (others=>'0');
 		CONFIG_DO(3 downto 0) <= GTIA_ENABLE_REG;
-		--CONFIG_DO(7 downto 4) <= SIO_ENABLE_REG; -- if we implement
+		if (enable_adc=1) then -- Should allow optimiser to remove since nothing else reads it
+			CONFIG_DO(5 downto 4) <= ADC_VOLUME_REG;
+		end if;
+		CONFIG_DO(7 downto 6) <= SIO_DATA_VOLUME_REG;
 	end if;
 	
 	if (addr_decoded4(4)='1') then
@@ -2090,14 +2109,23 @@ enable_div2 : work.enable_divider
 	generic map (COUNT=>128)
 	port map(clk=>CLK49152,reset_n=>reset_n,enable_in=>enable_reset_min_max_pre,enable_out=>enable_reset_min_max);
 
-process(adc_reg,adc_output,adc_valid)
+process(adc_reg,adc_output,adc_valid,ADC_VOLUME_REG)
 	variable adc_shrunk : signed(20 downto 0);
 begin
 	adc_next <= adc_reg;
 
 	if (adc_valid='1') then
 		adc_shrunk := signed(not(adc_output(20)) & adc_output(19 downto 0));
-		adc_next <= adc_shrunk(18 downto (18-16+1)); --*2
+		case ADC_VOLUME_REG is
+			when "01" =>
+				adc_next <= adc_shrunk(20 downto (20-16+1)); --*1
+			when "10" =>
+				adc_next <= adc_shrunk(19 downto (19-16+1)); --*2
+			when "11" =>
+				adc_next <= adc_shrunk(18 downto (18-16+1)); --*4
+			when others =>
+				adc_next <= (others=>'0');
+		end case;
 	end if;	
 end process;
 
@@ -2135,13 +2163,21 @@ begin
 	end if;
 end process;
 
-process(adc_reg,adc_enabled_reg,adc_out_signed,SIO_RXD_SYNC)
+process(adc_reg,adc_enabled_reg,adc_out_signed,SIO_RXD_SYNC,SIO_DATA_VOLUME_REG)
 begin
 	adc_use_next <= adc_use_reg;
 	if (adc_enabled_reg>=32) then
 		adc_use_next <= adc_out_signed;
 	else
-		adc_use_next(11) <= SIO_RXD_SYNC;
+		case SIO_DATA_VOLUME_REG is
+			when "01" =>
+				adc_use_next(10) <= SIO_RXD_SYNC;
+			when "10" =>
+				adc_use_next(11) <= SIO_RXD_SYNC;
+			when "11" =>
+				adc_use_next(12) <= SIO_RXD_SYNC;
+			when others =>
+		end case;
 	end if;
 end process;
 
@@ -2149,9 +2185,20 @@ end process;
 end generate adc_on;
 
 adc_off : if enable_adc=0 generate 
-	SIO_AUDIO(15 downto 12) <= (others=>'0');
-	SIO_AUDIO(11) <= SIO_RXD_SYNC;
-	SIO_AUDIO(10 downto 0) <= (others=>'0');
+	process(SIO_DATA_VOLUME_REG)
+	begin
+		SIO_AUDIO(15 downto 0) <= (others=>'0');
+
+		case SIO_DATA_VOLUME_REG is
+			when "01" =>
+				SIO_AUDIO(10) <= SIO_RXD_SYNC;
+			when "10" =>
+				SIO_AUDIO(11) <= SIO_RXD_SYNC;
+			when "11" =>
+				SIO_AUDIO(12) <= SIO_RXD_SYNC;
+			when others =>
+		end case;
+	end process;
 end generate adc_off;
 
 paddle_lvds_on : if paddle_lvds=1 generate 

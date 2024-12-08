@@ -66,7 +66,9 @@ unsigned char col2()
 #define CORE_RESTRICT 4
 #define CORE_OUTPUT 5
 #define CORE_PHI 6
-#define CORE_MAX 6
+#define CORE_ADC 7
+#define CORE_SIO_DATA 8
+#define CORE_MAX 8
 
 #define SID_TYPE 1
 #define SID_MAX 1
@@ -395,6 +397,20 @@ void renderLine(unsigned long * flash1, unsigned long * flash2, unsigned char mo
             revers(activeLine==CORE_PHI);
             cprintf("PHI2->1MHz    : %s",((val&32)==32) ? "PAL (5/9)" : "NTSC (4/7)");
     	break;
+#ifndef SIDMAX
+	case CORE_ADC:
+            revers(activeLine==CORE_ADC);
+            val = ((*flash1)>>20)&0x3;
+	    if (val == 3) val = 4;
+            cprintf("ADC volume    : %dx",val);
+	break;
+	case CORE_SIO_DATA:
+            revers(activeLine==CORE_SIO_DATA);
+            val = ((*flash1)>>22)&0x3;
+	    if (val == 3) val = 4;
+            cprintf("SIO DATA vol  : %dx",val);
+	break;
+#endif
         }
     break;
     case MODE_POKEY: // pokey    
@@ -608,7 +624,7 @@ void render(unsigned long * flash1, unsigned long * flash2, unsigned char mode, 
 	    clrscr();
 	    //textcolor(0xa);
 	    chline(40);
-	    cprintf(PRODUCT " config v1.4 ");
+	    cprintf(PRODUCT " config v1.5 ");
             cprintf(" Core:");
             for (i=0;i!=8;++i)
             {
@@ -723,6 +739,16 @@ void changeValue(unsigned long * flash1, unsigned long * flash2, unsigned char m
         case CORE_PHI:
     	    shift = 5;
     	    break;
+        case CORE_ADC:
+    	    shift = 20;
+	    mask = 3;
+	    max = 3;
+    	    break;
+        case CORE_SIO_DATA:
+    	    shift = 22;
+	    mask = 3;
+	    max = 3;
+    	    break;
         }
         break;	    
     case MODE_POKEY:
@@ -834,7 +860,8 @@ void applyConfig(unsigned long flash1, unsigned long flash2)
 //                                        -- 5-7 reserved
 //                                POST_DIVIDE_NEXT <= flash_do(15 downto 8);
 //                                GTIA_ENABLE_NEXT <= flash_do(19 downto 16);
-//                                        -- 23 downto 20 reserved
+//                                ADC_VOLUME_NEXT <= flash_do_slow(21 downto 20);
+//                                SIO_DATA_VOLUME_NEXT <= flash_do_slow(23 downto 22);
 //                                PSG_FREQ_NEXT <= flash_do(25 downto 24);
 //                                PSG_STEREOMODE_NEXT <= flash_do(27 downto 26);
 //                                PSG_ENVELOPE16_NEXT <= flash_do(28);
