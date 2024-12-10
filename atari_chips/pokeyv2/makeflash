@@ -13,7 +13,7 @@ then
     EXPECTED=16#39800 #10M08
 elif [[ FPGASIZE -gt 3 ]]
 then
-    EXPECTED=16#35800 10M08
+    EXPECTED=16#35800 #10M04
 fi
 
 PADSIZE=$((EXPECTED - `stat -c %s $3`))
