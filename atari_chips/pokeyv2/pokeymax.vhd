@@ -115,7 +115,7 @@ ARCHITECTURE vhdl OF pokeymax IS
     		rst : in std_logic;
     		adc_lvds_pin : in std_logic;
     		adc_fb_pin : out std_logic;
-    		adc_output : out std_logic_vector(20 downto 0);
+    		adc_output : out std_logic_vector(19 downto 0);
     		adc_valid : out std_logic
 	);
 	end component;
@@ -481,7 +481,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal enable_reset_min_max : std_logic;
 	
 	signal adc_valid : std_logic;
-	signal adc_output : std_logic_vector(20 downto 0);
+	signal adc_output : std_logic_vector(19 downto 0);
 
     	signal adc_lvds_pin : std_logic;
     	signal adc_fb_pin : std_logic;
@@ -2110,27 +2110,28 @@ enable_div2 : work.enable_divider
 	port map(clk=>CLK49152,reset_n=>reset_n,enable_in=>enable_reset_min_max_pre,enable_out=>enable_reset_min_max);
 
 process(adc_reg,adc_output,adc_valid,ADC_VOLUME_REG)
-	variable adc_shrunk : signed(20 downto 0);
+	variable adc_shrunk : signed(19 downto 0);
 begin
 	adc_next <= adc_reg;
 
 	if (adc_valid='1') then
-		adc_shrunk := signed(not(adc_output(20)) & adc_output(19 downto 0));
+		adc_shrunk := signed(not(adc_output(19)) & adc_output(18 downto 0));
 		case ADC_VOLUME_REG is
 			when "01" =>
-				adc_next <= adc_shrunk(20 downto (20-16+1)); --*1
+				adc_next <= adc_shrunk(19 downto (19-16+1)); --*1
 			when "10" =>
-				adc_next <= adc_shrunk(19 downto (19-16+1)); --*2
+				adc_next <= adc_shrunk(18 downto (18-16+1)); --*2
 			when "11" =>
-				adc_next <= adc_shrunk(18 downto (18-16+1)); --*4
+				adc_next <= adc_shrunk(17 downto (17-16+1)); --*4
 			when others =>
 				adc_next <= (others=>'0');
 		end case;
 	end if;	
 end process;
 
-process(adc_out_signed,adc_min_reg,adc_max_reg,adc_diff_reg,enable_reset_min_max,adc_enabled_reg)
+process(adc_out_signed,adc_min_reg,adc_max_reg,adc_diff_reg,enable_reset_min_max,adc_enabled_reg,adc_volume_reg)
 	variable detected : std_logic;
+	variable threshold : unsigned(11 downto 0);
 begin
 	adc_min_next <= adc_min_reg;
 	adc_max_next <= adc_max_reg;
@@ -2144,10 +2145,19 @@ begin
 	if (adc_out_signed(15 downto 4)>adc_max_reg) then
 		adc_max_next <= adc_out_signed(15 downto 4);
 	end if;	
+
+	case adc_volume_reg is
+	when "01" =>
+		threshold := to_unsigned(8,12);
+	when "10" =>
+		threshold := to_unsigned(16,12);
+	when others =>
+		threshold := to_unsigned(32,12);
+	end case;
 	
 	if (enable_reset_min_max='1') then
 	   detected := '0';
-		if (adc_diff_reg>16) then
+		if (adc_diff_reg>threshold) then
 			detected := '1';
 		end if;	
 		if (detected='1' and adc_enabled_reg<63) then
