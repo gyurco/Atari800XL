@@ -462,24 +462,16 @@ ARCHITECTURE vhdl OF pokeymax IS
 	signal adc_use_reg : signed(15 downto 0);
 	signal adc_use_next : signed(15 downto 0);
 
+	signal adc_frozen_reg : signed(15 downto 0);
+	signal adc_frozen_next : signed(15 downto 0);
+	
+	signal sio_noise : signed(15 downto 0);
+
 	signal adc_in_signed : signed(15 downto 0);
 	signal adc_out_signed : signed(15 downto 0);
 	
-	signal adc_min_reg : signed(11 downto 0);
-	signal adc_min_next : signed(11 downto 0);
+	signal adc_enabled : std_logic;
 
-	signal adc_max_reg : signed(11 downto 0);
-	signal adc_max_next : signed(11 downto 0);
-
-	signal adc_diff_reg  : unsigned(11 downto 0);
-	signal adc_diff_next : unsigned(11 downto 0); 
-
-	signal adc_enabled_reg : unsigned(5 downto 0);
-	signal adc_enabled_next : unsigned(5 downto 0);
-
-	signal enable_reset_min_max_pre : std_logic;
-	signal enable_reset_min_max : std_logic;
-	
 	signal adc_valid : std_logic;
 	signal adc_output : std_logic_vector(19 downto 0);
 
@@ -2049,18 +2041,12 @@ adc_on : if enable_adc=1 generate
 	 begin
 	   if (reset_n='0') then
 			adc_reg <= (others=>'0');
-			adc_enabled_reg <= (others=>'0');
 			adc_use_reg <= (others=>'0');
-			adc_min_reg <= (others=>'1');
-			adc_max_reg <= (others=>'0');			
-			adc_diff_reg <= (others=>'0');			
+			adc_frozen_reg <= (others=>'0');
 		elsif (CLK49152'event and CLK49152='1') then
 			adc_reg <= adc_next;
-			adc_enabled_reg <= adc_enabled_next;
 			adc_use_reg <= adc_use_next;
-			adc_min_reg <= adc_min_next;
-			adc_max_reg <= adc_max_next;
-			adc_diff_reg <= adc_diff_next;
+			adc_frozen_reg <= adc_frozen_next;
 		end if;
 	 end process;	
 	 
@@ -2101,21 +2087,13 @@ PORT  MAP
 );
 	SIO_AUDIO <= unsigned(not(adc_use_reg(15))&adc_use_reg(14 downto 0));
 
-enable_div : work.enable_divider
-	generic map (COUNT=>128)
-	port map(clk=>CLK49152,reset_n=>reset_n,enable_in=>'1',enable_out=>enable_reset_min_max_pre);
-
-enable_div2 : work.enable_divider
-	generic map (COUNT=>128)
-	port map(clk=>CLK49152,reset_n=>reset_n,enable_in=>enable_reset_min_max_pre,enable_out=>enable_reset_min_max);
-
 process(adc_reg,adc_output,adc_valid,ADC_VOLUME_REG)
 	variable adc_shrunk : signed(19 downto 0);
 begin
 	adc_next <= adc_reg;
 
 	if (adc_valid='1') then
-		adc_shrunk := signed(not(adc_output(19)) & adc_output(18 downto 0));
+		adc_shrunk := (signed(not(adc_output(19)) & adc_output(18 downto 0)));
 		case ADC_VOLUME_REG is
 			when "01" =>
 				adc_next <= adc_shrunk(19 downto (19-16+1)); --*1
@@ -2129,68 +2107,36 @@ begin
 	end if;	
 end process;
 
-process(adc_out_signed,adc_min_reg,adc_max_reg,adc_diff_reg,enable_reset_min_max,adc_enabled_reg,adc_volume_reg)
-	variable detected : std_logic;
-	variable threshold : unsigned(11 downto 0);
+audio_signal_detector1 : work.audio_signal_detector
+	port map(clk=>CLK49152,reset_n=>reset_n,audio=>adc_in_signed,sample=>adc_valid,volume=>adc_volume_reg,detect_out=>adc_enabled);
+
+
+process(adc_use_reg,adc_frozen_reg,adc_enabled,adc_out_signed,sio_noise)
 begin
-	adc_min_next <= adc_min_reg;
-	adc_max_next <= adc_max_reg;
-	adc_diff_next <= unsigned(adc_max_reg-adc_min_reg);
-	adc_enabled_next <= adc_enabled_reg;
+	adc_frozen_next <= adc_frozen_reg;	
 
-	if (adc_out_signed(15 downto 4)<adc_min_reg) then
-		adc_min_next <= adc_out_signed(15 downto 4);
-	end if;
-
-	if (adc_out_signed(15 downto 4)>adc_max_reg) then
-		adc_max_next <= adc_out_signed(15 downto 4);
-	end if;	
-
-	case adc_volume_reg is
-	when "01" =>
-		threshold := to_unsigned(8,12);
-	when "10" =>
-		threshold := to_unsigned(16,12);
-	when others =>
-		threshold := to_unsigned(32,12);
-	end case;
+	adc_use_next <= adc_frozen_reg xor sio_noise;	
+		
+	if (adc_enabled='1') then
+		adc_frozen_next <= adc_out_signed;
+	end if;		
 	
-	if (enable_reset_min_max='1') then
-	   detected := '0';
-		if (adc_diff_reg>threshold) then
-			detected := '1';
-		end if;	
-		if (detected='1' and adc_enabled_reg<63) then
-			adc_enabled_next <= adc_enabled_reg+1;
-		end if;
-		if (detected='0' and adc_enabled_reg>0) then
-			adc_enabled_next <= adc_enabled_reg-1;
-		end if;		
-		adc_min_next(11) <= '0';
-		adc_min_next(10 downto 0) <= (others=>'1');
-		adc_max_next(11) <= '1';
-		adc_max_next(10 downto 0) <= (others=>'0');
-	end if;
 end process;
 
-process(adc_reg,adc_enabled_reg,adc_out_signed,SIO_RXD_SYNC,SIO_DATA_VOLUME_REG)
+process(SIO_RXD_SYNC,SIO_DATA_VOLUME_REG)
 begin
-	adc_use_next <= adc_use_reg;
-	if (adc_enabled_reg>=32) then
-		adc_use_next <= adc_out_signed;
-	else
-		case SIO_DATA_VOLUME_REG is
-			when "01" =>
-				adc_use_next(10) <= SIO_RXD_SYNC;
-			when "10" =>
-				adc_use_next(11) <= SIO_RXD_SYNC;
-			when "11" =>
-				adc_use_next(12) <= SIO_RXD_SYNC;
-			when others =>
-		end case;
-	end if;
+	sio_noise <= (others=>'0');
+	
+	case SIO_DATA_VOLUME_REG is
+		when "01" =>
+			sio_noise(10) <= not(SIO_RXD_SYNC);
+		when "10" =>
+			sio_noise(11) <= not(SIO_RXD_SYNC);
+		when "11" =>
+			sio_noise(12) <= not(SIO_RXD_SYNC);
+		when others =>
+	end case;			
 end process;
-
 
 end generate adc_on;
 

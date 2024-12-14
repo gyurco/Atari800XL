@@ -950,6 +950,7 @@ foreach my $typeboard (sort keys %variants)
 			`cp -r fir_*vhdl $dir`;
 			`cp -r fir_sample_buffer* $dir`;
 			`cp -r fir_buffer* $dir`;
+			`cp -r audio_sig* $dir`;
 		
 			chdir $dir;
 		
