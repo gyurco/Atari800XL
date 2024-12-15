@@ -229,7 +229,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	signal SIO_TXD : std_logic;
 	signal SIO_RXD : std_logic;
-	signal SIO_RXD_SYNC : std_logic;
+	signal SIO_RXD_ADC : std_logic;
 
 	signal POKEY_IRQ : std_logic_vector(3 downto 0);
 
@@ -2018,6 +2018,9 @@ ps2_off : if enable_ps2=0 generate
 	KEYBOARD_RESPONSE <= IOX_KEYBOARD_RESPONSE;
 end generate ps2_off;
 
+synchronizer_SIO : entity work.synchronizer
+	port map (clk=>CLK49152, raw=>SID, sync=>SIO_RXD_ADC);
+
 adc_on : if enable_adc=1 generate 
 
  -- Proper ADC for SIO/PBI audio in
@@ -2123,17 +2126,17 @@ begin
 	
 end process;
 
-process(SIO_RXD_SYNC,SIO_DATA_VOLUME_REG)
+process(SIO_RXD_ADC,SIO_DATA_VOLUME_REG)
 begin
 	sio_noise <= (others=>'0');
 	
 	case SIO_DATA_VOLUME_REG is
 		when "01" =>
-			sio_noise(10) <= not(SIO_RXD_SYNC);
+			sio_noise(10) <= not(SIO_RXD_ADC);
 		when "10" =>
-			sio_noise(11) <= not(SIO_RXD_SYNC);
+			sio_noise(11) <= not(SIO_RXD_ADC);
 		when "11" =>
-			sio_noise(12) <= not(SIO_RXD_SYNC);
+			sio_noise(12) <= not(SIO_RXD_ADC);
 		when others =>
 	end case;			
 end process;
@@ -2147,11 +2150,11 @@ adc_off : if enable_adc=0 generate
 
 		case SIO_DATA_VOLUME_REG is
 			when "01" =>
-				SIO_AUDIO(10) <= SIO_RXD_SYNC;
+				SIO_AUDIO(10) <= SIO_RXD_ADC;
 			when "10" =>
-				SIO_AUDIO(11) <= SIO_RXD_SYNC;
+				SIO_AUDIO(11) <= SIO_RXD_ADC;
 			when "11" =>
-				SIO_AUDIO(12) <= SIO_RXD_SYNC;
+				SIO_AUDIO(12) <= SIO_RXD_ADC;
 			when others =>
 		end case;
 	end process;
@@ -2181,8 +2184,6 @@ SIO_CLOCKIN_IN <= BCLK;
 
 SOD <= '0' when SIO_TXD='0' else 'Z';
 SIO_RXD <= SID;
-synchronizer_SIO : entity work.synchronizer
-	port map (clk=>clk, raw=>SID, sync=>SIO_RXD_SYNC);
 
 
 --1->pin37
