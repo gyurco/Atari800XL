@@ -443,7 +443,7 @@ ARCHITECTURE vhdl OF pokeymax IS
 
 	-- spdif
 	signal spdif_mux : std_logic_vector(15 downto 0);
-	signal spdif_right : std_logic;
+	signal spdif_left : std_logic;
 	signal spdif_out : std_logic;
 	signal CLK6144 : std_logic; --spdif
 	signal AUDIO_2_FILTERED : unsigned(15 downto 0);
@@ -1886,7 +1886,7 @@ port map
 spdif_on : if enable_spdif=1 generate 
 
 -- todo: clock domain crossing!
-spdif_mux <= std_logic_vector(audio_2_filtered) when spdif_right='0' 
+spdif_mux <= std_logic_vector(audio_2_filtered) when spdif_left='1' 
    else std_logic_vector(audio_3_filtered);
 
 filter_left : entity work.simple_low_pass_filter
@@ -1913,7 +1913,7 @@ spdif : entity work.spdif_transmitter
   data_in(23) => not(spdif_mux(15)),
   data_in(22 downto 8) => spdif_mux(14 downto 0),
   data_in(7 downto 0) => (others=>'0'),
-  address_out => spdif_right,
+  address_out => spdif_left,
   spdif_out => spdif_out
  );
 
